@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name=" Eurostep EXPRESS Parser (Eep!)"
+    owner="Eurostep Limited"
+    url="www.eurostep.com"
+    version="1, 4, 36, 40"
+    source="employment_schema.exp"/>
+
+  <schema name="employment_schema">
+    <type name="date">
+      <builtintype type="STRING"
+      />
+    </type>
+
+    <entity name="Person"
+    >
+      <explicit
+        name="names">
+        <aggregate type="LIST"
+        />
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Organization"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="PersonOrganizationRelationship"
+    >
+      <explicit
+        name="the_person">
+        <typename name="Person"/>
+      </explicit>
+      <explicit
+        name="the_organization">
+        <typename name="Organization"/>
+      </explicit>
+      <explicit
+        name="start_date">
+        <typename name="date"/>
+      </explicit>
+      <explicit
+        name="end_date">
+        <typename name="date"/>
+      </explicit>
+    </entity>
+
+    <entity name="Employment"
+      supertypes="PersonOrganizationRelationship"
+    >
+      <explicit
+        name="job_title">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+  </schema>
+
+</express>

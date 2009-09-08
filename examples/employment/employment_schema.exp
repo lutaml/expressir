@@ -1,0 +1,25 @@
+SCHEMA employment_schema;
+
+TYPE date = STRING;
+END_TYPE;
+
+ENTITY Person;
+  names : LIST OF STRING;
+END_ENTITY;
+
+ENTITY Organization;
+  name : STRING;
+END_ENTITY;
+
+ENTITY PersonOrganizationRelationship;
+  the_person : Person;
+  the_organization : Organization;
+  start_date : date;
+  end_date : date;
+END_ENTITY;
+
+ENTITY Employment SUBTYPE OF ( PersonOrganizationRelationship );
+  job_title : STRING;
+END_ENTITY;
+
+END_SCHEMA;

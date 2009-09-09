@@ -67,6 +67,9 @@ attribute_aggregate_entity_select_template = %{}
 # Template covering the output file contents for each attribute that is a select of entity
 attribute_entity_select_template = %{}
 
+# Template covering the output file contents for each attribute that is an entity
+attribute_entity_template = %{}
+
 # Template covering the output file contents for each attribute
 attribute_template = %{}
 
@@ -75,6 +78,13 @@ attribute_builtin_template = %{<owl:DatatypeProperty rdf:ID='<%= attrout_name %>
 <rdfs:domain rdf:resource='#<%= entity.name %>' />
 <rdfs:range rdf:resource='<%= attrout_type %>' />
 </owl:DatatypeProperty>
+}
+
+# Template covering the output file contents for each attribute that is builtin datatype
+attribute_entity_template = %{<owl:ObjectProperty rdf:ID='<%= attrout_name %>'>
+<rdfs:domain rdf:resource='#<%= entity.name %>' />
+<rdfs:range rdf:resource='#<%= attrout_type %>' />
+</owl:ObjectProperty>
 }
 
 
@@ -139,6 +149,29 @@ for schema in schema_list
 				attrout_type = datatype_hash[attr.domain]
 				attrout_name = entity.name + '.' + attr.name
 				res = ERB.new(attribute_builtin_template)
+				t = res.result(binding)
+				file.puts t
+			end
+			if attr.redeclare_entity
+				puts "#WARNING: '" + entity.name + ' ' + attr.name + "' Attribute redeclaration may need hand editing"
+			end
+			if attr.instance_of? EXPSM::ExplicitAggregate
+			else
+			end
+		end
+	end
+
+# Handle mapping general attributes to OWL ObjectProperties 
+	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
+	for entity in entity_list
+		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
+		attr_list = attr_list.reject { |a| a.isBuiltin }
+		for attr in attr_list
+			domain_type = schema.find_namedtype_by_name( attr.domain )
+			if domain_type.kind_of? EXPSM::Entity
+				attrout_type = attr.domain
+				attrout_name = entity.name + '.' + attr.name
+				res = ERB.new(attribute_entity_template)
 				t = res.result(binding)
 				file.puts t
 			end

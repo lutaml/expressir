@@ -36,6 +36,17 @@ xml:base="http://www.reeper.org/<%= schema.name %>#" >
 entity_start_template = %{
 <owl:Class rdf:ID='<%= entity.name %>' >
 }
+# Template covering the output file contents for each entity type end
+entity_end_template = %{</owl:Class>  
+}
+
+# Template covering the output file contents for each select type start
+select_start_template = %{
+<owl:Class rdf:ID='<%= select.name %>' >
+}
+# Template covering the output file contents for each select type end
+select_end_template = %{</owl:Class>  
+}
 
 # Template covering the supertype(s) for each entity type
 supertype_template = %{<rdfs:subClassOf rdf:resource='#<%= supertype.name %>' />
@@ -52,10 +63,9 @@ class_collection_template = %{<owl:Class><owl:unionOf rdf:parseType="Collection"
 abstract_entity_template = %{<rdfs:subClassOf rdf:resource='#<%= supertype.name %>' />
 }
 
-# Template covering the output file contents for each entity type end
-entity_end_template = %{</owl:Class>  
 
-}
+
+
 
 
 # Template covering the output file contents for each attribute that is an aggregate
@@ -121,7 +131,28 @@ for schema in schema_list
 	t = res.result(binding)
 	file.puts t
 
-# Handle maps to OWL Class 
+# Handle select maps to OWL Class 
+	select_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::TypeSelect }
+	for select in select_list
+# Evaluate and write select start template 
+		res = ERB.new(select_start_template)
+		t = res.result(binding)
+		file.puts t
+    file.puts '<owl:equivalentClass>'
+		class_name_list = select.selectitems.scan(/\w+/)
+		res = ERB.new(class_collection_template)
+		t = res.result(binding)
+		file.puts t
+    file.puts '</owl:equivalentClass>'
+
+
+# Evaluate and write select end template 
+		res = ERB.new(select_end_template)
+		t = res.result(binding)
+		file.puts t
+	end
+
+# Handle entity maps to OWL Class 
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
 	for entity in entity_list
 # Evaluate and write entity start template 
@@ -168,7 +199,7 @@ for schema in schema_list
 		attr_list = attr_list.reject { |a| a.isBuiltin }
 		for attr in attr_list
 			domain_type = schema.find_namedtype_by_name( attr.domain )
-			if domain_type.kind_of? EXPSM::Entity
+			if domain_type.kind_of? EXPSM::Entity or domain_type.kind_of? EXPSM::TypeSelect
 				attrout_type = attr.domain
 				attrout_name = entity.name + '.' + attr.name
 				res = ERB.new(attribute_entity_template)

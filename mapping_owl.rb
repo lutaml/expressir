@@ -97,6 +97,26 @@ attribute_entity_template = %{<owl:ObjectProperty rdf:ID='<%= attrout_name %>'>
 </owl:ObjectProperty>
 }
 
+# Template covering the output file contents for each attribute that is enum datatype
+attribute_enum_template = %{<owl:DatatypeProperty rdf:ID='<%= attrout_name %>'>
+<rdfs:domain rdf:resource='#<%= entity.name %>' />
+   <rdfs:range><owl:DataRange><owl:oneOf>
+   <rdf:List>
+<%  enumitem_name_list.each do |name| %>
+   <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= name %></rdf:first>
+ <% if enumitem_name_list[enumitem_name_list.size-1] != name %>	
+     <rdf:rest><rdf:List>
+ <% end %>	
+ <% if enumitem_name_list[enumitem_name_list.size-1] == name %>	
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/> </rdf:List>
+ <% end %>	
+ <% end %>	  
+  <% (1..enumitem_name_list.size-1).each do %>
+    </rdf:rest></rdf:List>
+   <% end %>	 
+   </owl:oneOf></owl:DataRange></rdfs:range>
+</owl:DatatypeProperty>
+}
 
 
 # Template covering the output file contents for each schema end
@@ -176,6 +196,7 @@ for schema in schema_list
 	for entity in entity_list
 		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
 		for attr in attr_list
+
 			if attr.isBuiltin
 				attrout_type = datatype_hash[attr.domain]
 				attrout_name = entity.name + '.' + attr.name
@@ -183,13 +204,24 @@ for schema in schema_list
 				t = res.result(binding)
 				file.puts t
 			end
+
+			if schema.find_namedtype_by_name( attr.domain ).kind_of? EXPSM::TypeEnum
+				attrout_name = entity.name + '.' + attr.name
+				enumitem_name_list = schema.find_namedtype_by_name( attr.domain ).items.scan(/\w+/)
+				res = ERB.new(attribute_enum_template)
+				t = res.result(binding)
+				file.puts t
+			end
+
 			if attr.redeclare_entity
 				puts "#WARNING: '" + entity.name + ' ' + attr.name + "' Attribute redeclaration may need hand editing"
 			end
+
 			if attr.instance_of? EXPSM::ExplicitAggregate
 			else
 			end
 		end
+
 	end
 
 # Handle mapping general attributes to OWL ObjectProperties 

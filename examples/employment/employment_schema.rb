@@ -125,6 +125,8 @@ class Employment
    include Employment___module
    @@entity = 'Employment'
    @@attr___job_title = 'Job_title'
+   @@attr___ended_by = 'Ended_by'
+   @@attr___employment_type = 'Employment_type'
    @@Employment___count = 0
    def initialize
       @@Employment___count += 1
@@ -162,6 +164,16 @@ class Employment
       if job_title != nil
          a___job_title = e___added.add_element('Job_title')
          a___job_title.text = job_title
+      end
+      if ended_by != nil
+         a___ended_by = e___added.add_element('Ended_by')
+         a___ended_by = a___ended_by.add_element(ended_by.getP28entity)
+         a___ended_by.attributes['ref'] = ended_by.getP28id
+         a___ended_by.attributes['xsi:nil'] = 'true'
+      end
+      if employment_type != nil
+         a___employment_type = e___added.add_element('Employment_type')
+         a___employment_type.text = employment_type
       end
    end
    def getP28id

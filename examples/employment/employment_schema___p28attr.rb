@@ -104,6 +104,22 @@ def read_P28_attribute_values(p28doc,m)
         if child.name ==  'Job_title'
           r.job_title= child.text()
         end
+        if child.name ==  'Ended_by'
+          ref = child.elements[1].attribute('ref')
+          i = 0
+            while i != -1
+              tempid = m.model_elements[i].getP28id.to_s
+              if tempid == ref.to_s
+                p = m.model_elements[i]
+                i = -2
+              end
+ 	          i = i + 1
+            end
+          r.ended_by= p
+        end
+        if child.name ==  'Employment_type'
+          r.employment_type= child.text()
+        end
        end
     end
   end

@@ -33,9 +33,13 @@ module Personorganizationrelationship___module
 end
 module Employment___module
   attr_accessor :job_title
+  attr_accessor :ended_by
+  attr_accessor :employment_type
   def isValidEmployment___module
     return case
       when job_title == nil : false
+      when ended_by == nil : false
+      when employment_type == nil : false
       else true
       end
   end

@@ -63,11 +63,6 @@ class_collection_template = %{<owl:Class><owl:unionOf rdf:parseType="Collection"
 abstract_entity_template = %{<rdfs:subClassOf rdf:resource='#<%= supertype.name %>' />
 }
 
-
-
-
-
-
 # Template covering the output file contents for each attribute that is an aggregate
 attribute_aggregate_template = %{}
 
@@ -100,8 +95,7 @@ attribute_entity_template = %{<owl:ObjectProperty rdf:ID='<%= attrout_name %>'>
 # Template covering the output file contents for each attribute that is enum datatype
 attribute_enum_template = %{<owl:DatatypeProperty rdf:ID='<%= attrout_name %>'>
 <rdfs:domain rdf:resource='#<%= entity.name %>' />
-   <rdfs:range><owl:DataRange><owl:oneOf>
-   <rdf:List>
+   <rdfs:range><owl:DataRange><owl:oneOf><rdf:List>
 <%  enumitem_name_list.each do |name| %>
    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= name %></rdf:first>
  <% if enumitem_name_list[enumitem_name_list.size-1] != name %>	
@@ -115,8 +109,7 @@ attribute_enum_template = %{<owl:DatatypeProperty rdf:ID='<%= attrout_name %>'>
     </rdf:rest></rdf:List>
    <% end %>	 
    </owl:oneOf></owl:DataRange></rdfs:range>
-</owl:DatatypeProperty>
-}
+</owl:DatatypeProperty>}
 
 
 # Template covering the output file contents for each schema end
@@ -231,7 +224,7 @@ for schema in schema_list
 		attr_list = attr_list.reject { |a| a.isBuiltin }
 		for attr in attr_list
 			domain_type = schema.find_namedtype_by_name( attr.domain )
-			if domain_type.kind_of? EXPSM::Entity or domain_type.kind_of? EXPSM::TypeSelect
+			if !attr.redeclare_entity and (domain_type.kind_of? EXPSM::Entity or domain_type.kind_of? EXPSM::TypeSelect)
 				attrout_type = attr.domain
 				attrout_name = entity.name + '.' + attr.name
 				res = ERB.new(attribute_entity_template)

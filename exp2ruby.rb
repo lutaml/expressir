@@ -67,6 +67,15 @@ def handle_explicit(rubyfile, exp, attribute)
         if attr_type_type_builtin != nil
           write_attribute_text_p28writer(rubyfile, attribute.attributes["name"].downcase)
         end
+				attr_type_type_enum = attr_type_type.elements["enumeration"]
+				if attr_type_type_enum != nil
+					if attr_aggr != nil
+						write_member_text_p28writer(rubyfile, attribute.attributes["name"].downcase, attr_datatype,attr_aggr_dim)
+					else
+						write_attribute_text_p28writer(rubyfile, attribute.attributes["name"].downcase)         
+          end
+        end
+
         attr_type_type_select = attr_type_type.elements["select"]
         if attr_type_type_select != nil
           if attr_aggr != nil

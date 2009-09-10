@@ -780,11 +780,6 @@ def load_dictionary_express( exp, repname )
 
 	end
 
-	
-	debug_file = File.new("debug.txt", "w")
-	debug_file.puts YAML.dump( therepos )
-	debug_file.close
-
 	postprocess_dictionary_express( therepos )
 
 	return therepos

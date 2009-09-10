@@ -14,7 +14,7 @@ expxml_input = " "
 map_input = " "
 schema_input = " "
 descxml_input = " "
-debug = TRUE
+debug = FALSE
 for arg in ARGV
 	argarray = arg.split('=')
 	if argarray[0] == "expxml"
@@ -29,15 +29,18 @@ for arg in ARGV
 	if argarray[0] == "descxml"
 		descxml_input = argarray[1]
 	end	
+	if argarray[0] == "debug"
+		debug = TRUE
+	end	
 	if argarray[0] == "help" or argarray[0] == "-help" or argarray[0] == "--help" or argarray[0] == "-h" or argarray[0] == "--h"
 		puts "reeper Version 0.1"
 		puts " "
-		puts "Usage parameters : expxml=<schema.xml> (map=<mymap.rb>) (schema=<name>) (descxml=<desc.xml>"
+		puts "Usage parameters : expxml=<schema.xml> (map=<mymap.rb>) (schema=<name>) (descxml=<desc.xml>)"
 		puts " "
 		puts "  <schema.xml> required input EXPRESS as XML file"
 		puts "  <mymap.rb> optional input mapping as Ruby file, default is filename ''mapping.rb''"
 		puts "  <name> optional EXPRESS schema to map, default is all schemas in XML file"
-		puts "  <desc.xml> optional input descriptions as XML file (may be same as expxml)"				
+		puts "  <desc.xml> optional input descriptions as XML file (may be same as expxml)"
 		exit
 	end
 end

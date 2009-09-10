@@ -123,6 +123,12 @@ def handle_attr_p28read(rubyp28attr, exp, attribute)
         if attr_type_type_builtin != nil
           write_attribute_text_p28reader(rubyp28attr, attribute.attributes["name"].downcase)
         end
+
+				attr_type_type_enum = attr_type_type.elements["enumeration"]
+				if attr_type_type_enum != nil
+					write_attribute_text_p28reader(rubyp28attr, attribute.attributes["name"].downcase)
+        end
+
         attr_type_type_select = attr_type_type.elements["select"]
         if attr_type_type_select != nil
           if attr_aggr != nil

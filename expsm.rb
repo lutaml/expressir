@@ -60,6 +60,15 @@ class NamedType < ModelElement
 	def initialize
 		@wheres = []
 	end
+
+  def self.find_by_name(name)
+    found = nil
+    ObjectSpace.each_object(NamedType) { |o|
+      found = o if o.name == name
+    }
+    found
+  end
+
 end
 class Entity < NamedType
 	attr_accessor :supertypes, :attributes, :isAbs, :superexpression, :uniques, :subtypes_array, :supertypes_array, :attributes_all, :supertypes_all

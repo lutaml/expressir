@@ -8,6 +8,12 @@ require 'erb'
 # 
 def map_from_express( mapinput )
 
+# add common string attributes to use OWL Thing as domain rather than schema classes
+thing_attributes = []
+thing_attributes.push 'id'
+thing_attributes.push 'name'
+thing_attributes.push 'description'
+
 # datatypes for simple and aggregates of simple type
 datatype_hash = Hash.new
 datatype_hash["INTEGER"] = 'http://www.w3.org/2001/XMLSchema#integer'
@@ -186,11 +192,16 @@ for schema in schema_list
 
 # Handle mapping general attributes to OWL DatatypeProperties 
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
+
+	for a in thing_attributes
+		file.puts '<owl:DatatypeProperty rdf:ID="' + a + '"><rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/></owl:DatatypeProperty>'
+	end
+
 	for entity in entity_list
 		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
 		for attr in attr_list
 
-			if attr.isBuiltin
+			if attr.isBuiltin and !thing_attributes.include?(attr.name)
 				attrout_type = datatype_hash[attr.domain]
 				attrout_name = entity.name + '.' + attr.name
 				res = ERB.new(attribute_builtin_template)
@@ -198,9 +209,9 @@ for schema in schema_list
 				file.puts t
 			end
 
-			if schema.find_namedtype_by_name( attr.domain ).kind_of? EXPSM::TypeEnum
+			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeEnum
 				attrout_name = entity.name + '.' + attr.name
-				enumitem_name_list = schema.find_namedtype_by_name( attr.domain ).items.scan(/\w+/)
+				enumitem_name_list = NamedType.find_by_name( attr.domain ).items.scan(/\w+/)
 				res = ERB.new(attribute_enum_template)
 				t = res.result(binding)
 				file.puts t
@@ -223,7 +234,7 @@ for schema in schema_list
 		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
 		attr_list = attr_list.reject { |a| a.isBuiltin }
 		for attr in attr_list
-			domain_type = schema.find_namedtype_by_name( attr.domain )
+			domain_type = NamedType.find_by_name( attr.domain )
 			if !attr.redeclare_entity and (domain_type.kind_of? EXPSM::Entity or domain_type.kind_of? EXPSM::TypeSelect)
 				attrout_type = attr.domain
 				attrout_name = entity.name + '.' + attr.name

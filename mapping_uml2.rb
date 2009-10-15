@@ -94,7 +94,11 @@ attribute_builtin_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="_
 attribute_entity_template = %{}
 
 # Template covering the output file contents for each attribute that is enum datatype
-attribute_enum_template = %{}
+attribute_enum_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>" name="<%= attr.name %>" visibility="public" type="<%= enum_xmiid %>">
+ <% if attr.isOptional == TRUE %>	
+   <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>_lowerValue"/>
+ <% end %>	
+</ownedAttribute>}
 
 
 # Template covering the output file contents for each schema end
@@ -212,7 +216,7 @@ for schema in schema_list
 
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeEnum
 				attrout_name = entity.name + '.' + attr.name
-				enumitem_name_list = NamedType.find_by_name( attr.domain ).items.scan(/\w+/)
+				enum_xmiid = '_1_enum_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name + enum_list.index(NamedType.find_by_name( attr.domain )).to_s
 				res = ERB.new(attribute_enum_template)
 				t = res.result(binding)
 				file.puts t

@@ -6,6 +6,11 @@ require 'erb'
 # and performs a structural EXPRESS-to-UML2 (2.1.1 or 2.1.2) mapping using Ruby ERB templates.
 # The output is in XMI 2.1 syntax.
 # 
+# Schema -> Package
+# Entity -> Class
+# Select Type -> Interface
+# Explicit Attribute (Optional) Primitive or Enum -> Property owned by Class (with lower)
+# 
 def map_from_express( mapinput )
 
 # datatypes for simple and aggregates of simple type
@@ -32,6 +37,17 @@ entity_start_template = %{
 # Template covering the output file contents for each entity type end
 entity_end_template = %{</packagedElement>  
 }
+
+# Template covering the output file contents for each enum type start
+enum_start_template = %{<packagedElement xmi:type = "uml:Enumeration" xmi:id = "<%= enum_xmiid %>" name = "<%= enum.name %>">}
+
+# Template covering the output file contents for each enum type start
+enum_item_template = %{<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= enumitem_xmiid %>" name="<%= enumitem %>" classifier="<%= enum_xmiid %>" enumeration="<%= enumitem_xmiid %>">
+<specification xmi:type="uml:LiteralInteger" xmi:id="<%= enumitem_xmiid + '_specification' %> "/>
+</ownedLiteral>}
+
+# Template covering the output file contents for each entity type end
+enum_end_template = %{</packagedElement>}
 
 # Template covering the output file contents for each select type start
 select_start_template = %{
@@ -113,12 +129,37 @@ for schema in schema_list
 	t = res.result(binding)
 	file.puts t
 
+
+# Handle enum maps to UML Enumeration
+	enum_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::TypeEnum }
+	for enum in enum_list
+
+# Evaluate and write enum start template 
+		enum_xmiid = '_1_enum_' + schema.name + '-' + enum.name + enum_list.index(enum).to_s
+		res = ERB.new(enum_start_template)
+		t = res.result(binding)
+		file.puts t
+
+		enumitem_name_list = enum.items.scan(/\w+/)
+		for enumitem in enumitem_name_list
+			enumitem_xmiid = '_1_enumitem_' + schema.name + '-' + enum.name + enum_list.index(enum).to_s + '-' + enumitem
+			res = ERB.new(enum_item_template)
+			t = res.result(binding)
+			file.puts t
+		end
+
+# Evaluate and write enum end template 
+		res = ERB.new(enum_end_template)
+		t = res.result(binding)
+		file.puts t
+	end
+
 # Handle select maps to UML Interface 
 	select_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::TypeSelect }
 	for select in select_list
 
 # Evaluate and write select start template 
-		xmiid = '_1_select_' + select.name + select_list.index(select).to_s
+		xmiid = '_1_select_' + schema.name + '-' + select.name + select_list.index(select).to_s
 		res = ERB.new(select_start_template)
 		t = res.result(binding)
 		file.puts t
@@ -133,14 +174,14 @@ for schema in schema_list
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
 	for entity in entity_list
 # Evaluate and write entity start template 
-		xmiid = '_1_entity_' + entity.name + entity_list.index(entity).to_s
+		xmiid = '_1_entity_' + schema.name + '-' + entity.name + entity_list.index(entity).to_s
 		res = ERB.new(entity_start_template)
 		t = res.result(binding)
 		file.puts t
 
 		for supertype in entity.supertypes_array
-			xmiid = '_2_supertype_' + entity.name + entity_list.index(entity).to_s + '-' + supertype.name
-			xmiid_supertype = '_1_entity_' + supertype.name + entity_list.index(supertype).to_s
+			xmiid = '_2_supertype_' + schema.name + '-' + entity.name + entity_list.index(entity).to_s + '-' + supertype.name
+			xmiid_supertype = '_1_entity_' + schema.name + '-' + supertype.name + entity_list.index(supertype).to_s
 			res = ERB.new(supertype_template)
 			t = res.result(binding)
 			file.puts t
@@ -148,9 +189,9 @@ for schema in schema_list
 
 		for select in select_list
 			if select.selectitems_array.include?(entity)
-				xmiid = '_2_selectitem_' + entity.name + entity_list.index(entity).to_s + '-' + select.name
-				xmiid_supplier = '_1_select_' + select.name + select_list.index(select).to_s
-				xmiid_client = '_1_entity_' + entity.name + entity_list.index(entity).to_s
+				xmiid = '_2_selectitem_' + schema.name + '-' + entity.name + entity_list.index(entity).to_s + '-' + select.name
+				xmiid_supplier = '_1_select_' + schema.name + '-' + select.name + select_list.index(select).to_s
+				xmiid_client = '_1_entity_' + schema.name + '-' + entity.name + entity_list.index(entity).to_s
 				res = ERB.new(selectitem_template)
 				t = res.result(binding)
 				file.puts t

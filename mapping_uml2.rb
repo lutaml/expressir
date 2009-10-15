@@ -3,12 +3,13 @@ require 'erb'
 # Version 0.1
 #
 # This function navigates the EXPRESS STEPMod Model Ruby Classes
-# and performs a structural EXPRESS-to-UML2 (2.1.1 or 2.1.2) mapping using Ruby ERB templates.
+# and performs a structural EXPRESS-to-UML2 (2.1.2) mapping using Ruby ERB templates.
 # The output is in XMI 2.1 syntax.
 # 
 # Schema -> Package
-# Entity -> Class
-# Select Type -> Interface
+# Entity (subtype of) -> Class (Generalization)
+# Select Type -> Interface and InterfaceRealization
+# Enum Type -> Enumeration and EnumerationLiteral
 # Explicit Attribute (Optional) Primitive or Enum -> Property owned by Class (with lower)
 # 
 def map_from_express( mapinput )
@@ -16,27 +17,35 @@ def map_from_express( mapinput )
 # datatypes for simple and aggregates of simple type
 datatype_hash = Hash.new
 datatype_hash["INTEGER"] = 'http://schema.omg.org/spec/UML/2.1.2/uml.xml#Integer'
-datatype_hash["REAL"] = 'http://www.w3.org/2001/XMLSchema#float'
-datatype_hash["NUMBER"] = 'http://www.w3.org/2001/XMLSchema#float'
-datatype_hash["BINARY"] = 'http://www.w3.org/2001/XMLSchema#hexBinary'
+# datatype_hash["REAL"] = 'http://www.w3.org/2001/XMLSchema#float'
+# datatype_hash["NUMBER"] = 'http://www.w3.org/2001/XMLSchema#float'
+# datatype_hash["BINARY"] = 'http://www.w3.org/2001/XMLSchema#hexBinary'
 datatype_hash["BOOLEAN"] = 'http://schema.omg.org/spec/UML/2.1.2/uml.xml#Boolean'
-datatype_hash["LOGICAL"] = 'http://www.w3.org/2001/XMLSchema#boolean'
+# datatype_hash["LOGICAL"] = 'http://www.w3.org/2001/XMLSchema#boolean'
 datatype_hash["STRING"] = 'http://schema.omg.org/spec/UML/2.1.2/uml.xml#String'
 
 # Template covering the start of the output file 
 overall_start_template = %{<?xml version="1.0" encoding="UTF-8"?>
-<uml:Model xmi:version = "2.1" xmlns:xmi = "http://schema.omg.org/spec/XMI/2.1" xmlns:uml = "http://schema.omg.org/spec/UML/2.1.2" name = "UMLfromEXPRESS" xmi:id = "_0">}
+<uml:Model xmi:version = "2.1" xmlns:xmi = "http://schema.omg.org/spec/XMI/2.1" xmlns:uml = "http://schema.omg.org/spec/UML/2.1.2" name = "UMLfromEXPRESS" xmi:id = "_0">
+<packagedElement xmi:type="uml:PrimitiveType" xmi:id="REAL" name="Real" />
+<packagedElement xmi:type="uml:PrimitiveType" xmi:id="NUMBER" name="Number" />
+<packagedElement xmi:type="uml:PrimitiveType" xmi:id="BINARY" name="Binary" />
+<packagedElement xmi:type="uml:PrimitiveType" xmi:id="LOGICAL" name="Logical" />}
+
+# Template covering the end of the output file 
+overall_end_template = %{  </uml:Model>}
 
 # Template covering the output file contents for each schema start
 schema_start_template = %{<packagedElement xmi:type = "uml:Package" xmi:id = "_1_<%= schema.name %>" name = "<%= schema.name %>" visibility = "public">}
 
+# Template covering the output file contents for each schema end
+schema_end_template = %{</packagedElement>}
+
 # Template covering the output file contents for each entity type start
-entity_start_template = %{
- <packagedElement xmi:type = "uml:Class" xmi:id = "<%= xmiid %>" name = "<%= entity.name %>" isAbstract = "FALSE" visibility = "public">
-}
+entity_start_template = %{<packagedElement xmi:type = "uml:Class" xmi:id = "<%= xmiid %>" name = "<%= entity.name %>" isAbstract = "FALSE" visibility = "public">}
+
 # Template covering the output file contents for each entity type end
-entity_end_template = %{</packagedElement>  
-}
+entity_end_template = %{</packagedElement>}
 
 # Template covering the output file contents for each enum type start
 enum_start_template = %{<packagedElement xmi:type = "uml:Enumeration" xmi:id = "<%= enum_xmiid %>" name = "<%= enum.name %>">}
@@ -50,19 +59,17 @@ enum_item_template = %{<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<
 enum_end_template = %{</packagedElement>}
 
 # Template covering the output file contents for each select type start
-select_start_template = %{
-<packagedElement xmi:type = "uml:Interface" xmi:id = "<%= xmiid %>" name = "<%= select.name %>" isAbstract = "TRUE" visibility = "public">
-}
+select_start_template = %{<packagedElement xmi:type = "uml:Interface" xmi:id = "<%= xmiid %>" name = "<%= select.name %>" isAbstract = "TRUE" visibility = "public">}
+
+# Template covering an entity type as a select type select item
+selectitem_template = %{ <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="<%= xmiid %>" supplier="<%= xmiid_supplier %>" client="<%= xmiid_client %>" contract="<%= xmiid_supplier %>" implementingClassifier="<%= xmiid_client %>"/>}
+
 # Template covering the output file contents for each select type end
-select_end_template = %{</packagedElement>  
-}
+select_end_template = %{</packagedElement>}
 
 # Template covering the supertype(s) for each entity type
 supertype_template = %{<generalization xmi:type="uml:Generalization" xmi:id="<%= xmiid %>" general="<%= xmiid_supertype %>"/>}
 
-
-# Template covering an entity type as a select type select item
-selectitem_template = %{ <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="<%= xmiid %>" supplier="<%= xmiid_supplier %>" client="<%= xmiid_client %>" contract="<%= xmiid_supplier %>" implementingClassifier="<%= xmiid_client %>"/>}
 
 # Template covering abstract entity types
 abstract_entity_template = %{}
@@ -83,13 +90,18 @@ attribute_entity_template = %{}
 attribute_template = %{}
 
 # Template covering the output file contents for each attribute that is builtin datatype
-attribute_builtin_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>" name="<%= attr.name %>" visibility="public">
+attribute_builtin_template = %{
+<% if datatype_hash[attr.domain] != nil %>
+<ownedAttribute xmi:type="uml:Property" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>" name="<%= attr.name %>" visibility="public">
 <type xmi:type="uml:PrimitiveType" href="<%= datatype_hash[attr.domain] %>"/>
+<% end %>	
+<% if datatype_hash[attr.domain] == nil %>
+<ownedAttribute xmi:type="uml:Property" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>" name="<%= attr.name %>" visibility="public" type="<%= attr.domain %>" >
+<% end %>	
  <% if attr.isOptional == TRUE %>	
    <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>_lowerValue"/>
  <% end %>	
 </ownedAttribute>}
-
 # Template covering the output file contents for each attribute that is builtin datatype
 attribute_entity_template = %{}
 
@@ -101,11 +113,9 @@ attribute_enum_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="_<%=
 </ownedAttribute>}
 
 
-# Template covering the output file contents for each schema end
-schema_end_template = %{</packagedElement>}
 
-# Template covering the end of the output file 
-overall_end_template = %{  </uml:Model>}
+
+
 
 # Set up list of schemas to process, input may be a repository containing schemas or a single schema
 if mapinput.kind_of? EXPSM::Repository

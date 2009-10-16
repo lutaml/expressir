@@ -13,6 +13,7 @@ require 'erb'
 # Select Type -> Interface and InterfaceRealization
 # Enum Type -> Enumeration and EnumerationLiteral
 # Explicit Attribute (Optional) Primitive or Enum -> Property owned by Class (with lower)
+# Explicit Attribute (Optional) Entity -> Property owned by Class (with lower) plus Association owning other end property
 #
 #######################################################################################
 
@@ -91,6 +92,9 @@ attribute_entity_select_template = %{}
 
 # Template covering the output file contents for each attribute that is an entity
 attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" isOrdered='false' isUnique='true' isLeaf='false' isStatic='false' isReadOnly='false' isDerived='false' isDerivedUnion='false' type="<%= domain_xmiid %>" aggregation="none" association="<%= assoc_xmiid %>" >
+<% if attr.isOptional == TRUE %>
+<lowerValue xmi:type="uml:LiteralInteger" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>_lowerValue"/>
+<% end %>
 </ownedAttribute>}
 
 # EXPLICIT ATTRIBUTE ENTITY Create Association Template
@@ -113,7 +117,11 @@ attribute_builtin_template = %{
 </ownedAttribute>}
 
 # EXPLICIT ATTRIBUTE ENUM TYPE Template
-attribute_enum_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>" name="<%= attr.name %>" visibility="public" type="<%= enum_xmiid %>"> <% if attr.isOptional == TRUE %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>_lowerValue"/><% end %></ownedAttribute>}
+attribute_enum_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>" name="<%= attr.name %>" visibility="public" type="<%= enum_xmiid %>"> 
+<% if attr.isOptional == TRUE %>
+<lowerValue xmi:type="uml:LiteralInteger" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>_lowerValue"/>
+<% end %>
+</ownedAttribute>}
 
 
 #############################################################################################

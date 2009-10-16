@@ -56,10 +56,10 @@ supertype_template = %{<generalization xmi:type="uml:Generalization" xmi:id="<%=
 entity_end_template = %{</packagedElement>}
 
 # ENUMERATION Start Template
-enum_start_template = %{<packagedElement xmi:type = "uml:Enumeration" xmi:id = "<%= enum_xmiid %>" name = "<%= enum.name %>">}
+enum_start_template = %{<packagedElement xmi:type = "uml:Enumeration" xmi:id = "<%= type_xmiid %>" name = "<%= enum.name %>">}
 
 # ENUMERATION ITEM Template
-enum_item_template = %{<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= enumitem_xmiid %>" name="<%= enumitem %>" classifier="<%= enum_xmiid %>" enumeration="<%= enumitem_xmiid %>">
+enum_item_template = %{<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= enumitem_xmiid %>" name="<%= enumitem %>" classifier="<%= type_xmiid %>" enumeration="<%= enumitem_xmiid %>">
 <specification xmi:type="uml:LiteralInteger" xmi:id="<%= enumitem_xmiid + '_specification' %> "/>
 </ownedLiteral>}
 
@@ -116,12 +116,15 @@ attribute_builtin_template = %{
  <% if attr.isOptional == TRUE %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>_lowerValue"/><% end %>	
 </ownedAttribute>}
 
-# EXPLICIT ATTRIBUTE ENUM TYPE Template
-attribute_enum_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>" name="<%= attr.name %>" visibility="public" type="<%= enum_xmiid %>"> 
+# EXPLICIT ATTRIBUTE ENUM and TYPE Template
+attribute_enum_type_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>" name="<%= attr.name %>" visibility="public" type="<%= type_xmiid %>"> 
 <% if attr.isOptional == TRUE %>
 <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>_lowerValue"/>
 <% end %>
 </ownedAttribute>}
+
+# TYPE Template
+type_template = %{<packagedElement xmi:type="uml:DataType" xmi:id="<%= xmiid %>" name="<%= type.name %>" />}
 
 
 #############################################################################################
@@ -153,13 +156,21 @@ for schema in schema_list
 	t = res.result(binding)
 	file.puts t
 
+# Handle type of building maps to UML Datatype
+	type_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::Type and e.isBuiltin}
+	for type in type_list
+		xmiid = '_1_type_' + schema.name + '-' + type.name
+		res = ERB.new(type_template)
+		t = res.result(binding)
+		file.puts t
+	end
 
 # Handle enum maps to UML Enumeration
 	enum_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::TypeEnum }
 	for enum in enum_list
 
 # Evaluate and write enum start template 
-		enum_xmiid = '_1_enum_' + schema.name + '-' + enum.name
+		type_xmiid = '_1_type_' + schema.name + '-' + enum.name
 		res = ERB.new(enum_start_template)
 		t = res.result(binding)
 		file.puts t
@@ -268,14 +279,21 @@ for schema in schema_list
 				file.puts t
 			end
 
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeEnum
-				enum_xmiid = '_1_enum_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
-				res = ERB.new(attribute_enum_template)
+			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Type and !attr.instance_of? EXPSM::ExplicitAggregate
+				type_xmiid = '_1_type_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+				res = ERB.new(attribute_enum_type_template)
 				t = res.result(binding)
 				file.puts t
 			end
 
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity
+			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeEnum and !attr.instance_of? EXPSM::ExplicitAggregate
+				type_xmiid = '_1_type_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+				res = ERB.new(attribute_enum_type_template)
+				t = res.result(binding)
+				file.puts t
+			end
+
+			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity and !attr.instance_of? EXPSM::ExplicitAggregate
 				xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + attr.name
 				domain_xmiid = '_1_entity_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
@@ -284,7 +302,7 @@ for schema in schema_list
 				file.puts t
 			end
 
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect
+			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect and !attr.instance_of? EXPSM::ExplicitAggregate
 				xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + attr.name
 				domain_xmiid = '_1_select_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name

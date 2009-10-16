@@ -124,7 +124,18 @@ attribute_enum_type_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id=
 </ownedAttribute>}
 
 # TYPE Template
-type_template = %{<packagedElement xmi:type="uml:DataType" xmi:id="<%= xmiid %>" name="<%= type.name %>" />}
+#type_template = %{<packagedElement xmi:type="uml:DataType" xmi:id="<%= xmiid %>" name="<%= type.name %>" />}
+
+type_template = %{<packagedElement xmi:type="uml:PrimitiveType" xmi:id="_1_type_<%= schema.name %>-<%= type.name %>" name="<%= type.name %>" >
+<% if datatype_hash[type.domain] != nil %>
+<generalization xmi:type="uml:Generalization" xmi:id="_supertype_<%= schema.name %>-<%= type.name %>">
+<general xmi:type='uml:PrimitiveType' href="<%= datatype_hash[type.domain] %>" />
+</generalization>
+<% end %>	
+<% if datatype_hash[type.domain] == nil %>
+<generalization xmi:type="uml:Generalization" xmi:id="_supertype_<%= schema.name %>-<%= type.name %>" general="<%= type.domain %>"/>
+<% end %>	
+</packagedElement>}
 
 
 #############################################################################################

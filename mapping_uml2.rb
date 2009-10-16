@@ -220,6 +220,14 @@ for schema in schema_list
 				t = res.result(binding)
 				file.puts t
 			end
+			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect
+				xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
+				owner_xmiid = '_1_entity_' + schema.name + '-' + entity.name
+				domain_xmiid = '_1_select_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+				res = ERB.new(attribute_entity_association_template)
+				t = res.result(binding)
+				file.puts t
+			end
 		end
 	end
 
@@ -270,6 +278,15 @@ for schema in schema_list
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity
 				xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + attr.name
 				domain_xmiid = '_1_entity_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
+				res = ERB.new(attribute_entity_template)
+				t = res.result(binding)
+				file.puts t
+			end
+
+			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect
+				xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + attr.name
+				domain_xmiid = '_1_select_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
 				res = ERB.new(attribute_entity_template)
 				t = res.result(binding)

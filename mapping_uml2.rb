@@ -130,7 +130,7 @@ attribute_enum_type_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id=
 </ownedAttribute>}
 
 # TYPE Template
-type_template = %{<packagedElement xmi:type="uml:PrimitiveType" xmi:id="_1_type_<%= schema.name %>-<%= type.name %>" name="<%= type.name %>" >
+type_template = %{<packagedElement xmi:type="uml:PrimitiveType" xmi:id="_<%= schema.name %>-<%= type.name %>" name="<%= type.name %>" >
 <% if datatype_hash[type.domain] != nil %>
 <generalization xmi:type="uml:Generalization" xmi:id="_supertype_<%= schema.name %>-<%= type.name %>">
 <general xmi:type='uml:PrimitiveType' href="<%= datatype_hash[type.domain] %>" />
@@ -174,7 +174,7 @@ for schema in schema_list
 # Handle type of building maps to UML Datatype
 	type_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::Type and e.isBuiltin}
 	for type in type_list
-		xmiid = '_1_type_' + schema.name + '-' + type.name
+		xmiid = '_' + schema.name + '-' + type.name
 		res = ERB.new(type_template)
 		t = res.result(binding)
 		file.puts t
@@ -185,7 +185,7 @@ for schema in schema_list
 	for enum in enum_list
 
 # Evaluate and write enum start template 
-		type_xmiid = '_1_type_' + schema.name + '-' + enum.name
+		type_xmiid = '_' + schema.name + '-' + enum.name
 		res = ERB.new(enum_start_template)
 		t = res.result(binding)
 		file.puts t
@@ -209,7 +209,7 @@ for schema in schema_list
 	for select in select_list
 
 # Evaluate and write select start template 
-		xmiid = '_1_select_' + schema.name + '-' + select.name
+		xmiid = '_' + schema.name + '-' + select.name
 		res = ERB.new(select_start_template)
 		t = res.result(binding)
 		file.puts t
@@ -217,7 +217,7 @@ for schema in schema_list
 		for superselect in select_list
 			if superselect.selectitems_array.include?(select)
 				xmiid = '_2_superselect_' + schema.name + '-' + select.name + '-' + superselect.name
-				xmiid_supertype = '_1_select_' + schema.name + '-' + superselect.name
+				xmiid_supertype = '_' + schema.name + '-' + superselect.name
 				res = ERB.new(supertype_template)
 				t = res.result(binding)
 				file.puts t
@@ -238,16 +238,16 @@ for schema in schema_list
 		for attr in attr_list
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity
 				xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
-				owner_xmiid = '_1_entity_' + schema.name + '-' + entity.name
-				domain_xmiid = '_1_entity_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+				owner_xmiid = '_' + schema.name + '-' + entity.name
+				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				res = ERB.new(attribute_entity_association_template)
 				t = res.result(binding)
 				file.puts t
 			end
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect
 				xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
-				owner_xmiid = '_1_entity_' + schema.name + '-' + entity.name
-				domain_xmiid = '_1_select_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+				owner_xmiid = '_' + schema.name + '-' + entity.name
+				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				res = ERB.new(attribute_entity_association_template)
 				t = res.result(binding)
 				file.puts t
@@ -259,14 +259,14 @@ for schema in schema_list
 # Handle entity maps to UML Class 
 	for entity in entity_list
 # Evaluate and write entity start template 
-		xmiid = '_1_entity_' + schema.name + '-' + entity.name
+		xmiid = '_' + schema.name + '-' + entity.name
 		res = ERB.new(entity_start_template)
 		t = res.result(binding)
 		file.puts t
 
 		for supertype in entity.supertypes_array
 			xmiid = '_2_supertype_' + schema.name + '-' + entity.name + '-' + supertype.name
-			xmiid_supertype = '_1_entity_' + schema.name + '-' + supertype.name
+			xmiid_supertype = '_' + schema.name + '-' + supertype.name
 			res = ERB.new(supertype_template)
 			t = res.result(binding)
 			file.puts t
@@ -275,8 +275,8 @@ for schema in schema_list
 		for select in select_list
 			if select.selectitems_array.include?(entity)
 				xmiid = '_2_selectitem_' + schema.name + '-' + entity.name + '-' + select.name
-				xmiid_supplier = '_1_select_' + schema.name + '-' + select.name
-				xmiid_client = '_1_entity_' + schema.name + '-' + entity.name
+				xmiid_supplier = '_' + schema.name + '-' + select.name
+				xmiid_client = '_' + schema.name + '-' + entity.name
 				res = ERB.new(selectitem_entity_template)
 				t = res.result(binding)
 				file.puts t
@@ -293,14 +293,14 @@ for schema in schema_list
 			end
 
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Type and !attr.instance_of? EXPSM::ExplicitAggregate
-				type_xmiid = '_1_type_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+				type_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				res = ERB.new(attribute_enum_type_template)
 				t = res.result(binding)
 				file.puts t
 			end
 
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeEnum and !attr.instance_of? EXPSM::ExplicitAggregate
-				type_xmiid = '_1_type_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+				type_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				res = ERB.new(attribute_enum_type_template)
 				t = res.result(binding)
 				file.puts t
@@ -308,7 +308,7 @@ for schema in schema_list
 
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity 
 				xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + attr.name
-				domain_xmiid = '_1_entity_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
 				lower = '1'
 				upper = '1'
@@ -335,7 +335,7 @@ for schema in schema_list
 
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect and !attr.instance_of? EXPSM::ExplicitAggregate
 				xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + attr.name
-				domain_xmiid = '_1_select_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
 				res = ERB.new(attribute_entity_template)
 				t = res.result(binding)

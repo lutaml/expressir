@@ -92,8 +92,14 @@ attribute_entity_select_template = %{}
 
 # Template covering the output file contents for each attribute that is an entity
 attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" isOrdered='false' isUnique='true' isLeaf='false' isStatic='false' isReadOnly='false' isDerived='false' isDerivedUnion='false' type="<%= domain_xmiid %>" aggregation="none" association="<%= assoc_xmiid %>" >
-<% if attr.isOptional == TRUE %>
-<lowerValue xmi:type="uml:LiteralInteger" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>_lowerValue"/>
+<% if lower == '0' %>
+<lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/>
+<% end %>
+<% if lower != '0' and lower != '1' %>
+<lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"  value="<%= lower %>"/>
+<% end %>
+<% if upper != '1' %>
+<upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="<%= upper %>"/>
 <% end %>
 </ownedAttribute>}
 
@@ -225,8 +231,6 @@ for schema in schema_list
 		t = res.result(binding)
 		file.puts t
 	end
-
-
 	
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
 
@@ -304,10 +308,22 @@ for schema in schema_list
 				file.puts t
 			end
 
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity and !attr.instance_of? EXPSM::ExplicitAggregate
+			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity 
 				xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + attr.name
 				domain_xmiid = '_1_entity_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
+				lower = '1'
+				upper = '1'
+				if attr.isOptional == TRUE
+					lower = '0'
+				end
+				if attr.instance_of? EXPSM::ExplicitAggregate and attr.rank == 1
+					upper = attr.dimensions[0].upper
+					if upper == '?'
+						upper = '*'
+					end
+					lower = attr.dimensions[0].lower
+				end
 				res = ERB.new(attribute_entity_template)
 				t = res.result(binding)
 				file.puts t

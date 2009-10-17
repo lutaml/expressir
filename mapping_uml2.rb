@@ -91,7 +91,7 @@ attribute_aggregate_entity_select_template = %{}
 attribute_entity_select_template = %{}
 
 # Template covering the output file contents for each attribute that is an entity
-attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" isOrdered='false' isUnique='true' isLeaf='false' isStatic='false' isReadOnly='false' isDerived='false' isDerivedUnion='false' type="<%= domain_xmiid %>" aggregation="none" association="<%= assoc_xmiid %>" >
+attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>' isLeaf='false' isStatic='false' isReadOnly='false' isDerived='false' isDerivedUnion='false' type="<%= domain_xmiid %>" aggregation="none" association="<%= assoc_xmiid %>" >
 <% if lower == '0' %>
 <lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/>
 <% end %>
@@ -130,8 +130,6 @@ attribute_enum_type_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id=
 </ownedAttribute>}
 
 # TYPE Template
-#type_template = %{<packagedElement xmi:type="uml:DataType" xmi:id="<%= xmiid %>" name="<%= type.name %>" />}
-
 type_template = %{<packagedElement xmi:type="uml:PrimitiveType" xmi:id="_1_type_<%= schema.name %>-<%= type.name %>" name="<%= type.name %>" >
 <% if datatype_hash[type.domain] != nil %>
 <generalization xmi:type="uml:Generalization" xmi:id="_supertype_<%= schema.name %>-<%= type.name %>">
@@ -314,6 +312,8 @@ for schema in schema_list
 				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
 				lower = '1'
 				upper = '1'
+				isset = 'true'
+				islist = 'false'
 				if attr.isOptional == TRUE
 					lower = '0'
 				end
@@ -323,6 +323,10 @@ for schema in schema_list
 						upper = '*'
 					end
 					lower = attr.dimensions[0].lower
+					if attr.dimensions[0].aggrtype == 'LIST' and !attr.dimensions[0].isUnique
+						isset = 'false'
+						islist = 'true'
+					end
 				end
 				res = ERB.new(attribute_entity_template)
 				t = res.result(binding)

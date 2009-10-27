@@ -14,7 +14,9 @@ require 'erb'
 # Enum Type -> Enumeration and EnumerationLiteral
 # Explicit Attribute (Optional) Primitive or Enum -> Property owned by Class (with lower)
 # Explicit Attribute (Optional) Entity -> Property owned by Class (with lower) plus Association owning other end property
-# Explicit Attribute 1-D SET, BAG, LIST of Select or Entity -> Property owned by Class (with lower) plus Association owning other end property and multiplicity, unique and ordered set
+# Explicit Attribute 1-D SET, BAG, LIST of Select or Entity -> Property owned by Class (with lower) 
+#                                    plus Association owning other end property and multiplicity, unique and ordered set
+# Explicit Attribute 1-D SET, BAG, LIST of Primitive or Enum -> Property owned by Class and multiplicity, unique and ordered set
 #
 #######################################################################################
 
@@ -118,15 +120,34 @@ attribute_template = %{}
 
 # EXPLICIT ATTRIBUTE SIMPLE TYPE Template
 attribute_builtin_template = %{
-<% if datatype_hash[attr.domain] != nil %><ownedAttribute xmi:type="uml:Property" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>" name="<%= attr.name %>" visibility="public"><type xmi:type="uml:PrimitiveType" href="<%= datatype_hash[attr.domain] %>"/><% end %>	
-<% if datatype_hash[attr.domain] == nil %><ownedAttribute xmi:type="uml:Property" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>" name="<%= attr.name %>" visibility="public" type="<%= attr.domain %>" ><% end %>	
- <% if attr.isOptional == TRUE %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>_lowerValue"/><% end %>	
+<% if datatype_hash[attr.domain] != nil %>
+<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>'  >
+<type xmi:type="uml:PrimitiveType" href="<%= datatype_hash[attr.domain] %>" />
+<% end %>	
+<% if datatype_hash[attr.domain] == nil %>
+<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" type="<%= attr.domain %>" >
+<% end %>	
+<% if lower == '0' or attr.isOptional == TRUE %>
+<lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/>
+<% end %>
+<% if lower != '0' and lower != '1' %>
+<lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"  value="<%= lower %>"/>
+<% end %>
+<% if upper != '1' %>
+<upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="<%= upper %>"/>
+<% end %>
 </ownedAttribute>}
 
 # EXPLICIT ATTRIBUTE ENUM and TYPE Template
-attribute_enum_type_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>" name="<%= attr.name %>" visibility="public" type="<%= type_xmiid %>"> 
-<% if attr.isOptional == TRUE %>
-<lowerValue xmi:type="uml:LiteralInteger" xmi:id="_<%= schema.name %>-<%= entity.name %>-<%= attr.name %>_lowerValue"/>
+attribute_enum_type_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="_<%= xmiid %>" name="<%= attr.name %>" visibility="public" type="<%= type_xmiid %>" isOrdered='<%= islist %>' isUnique='<%= isset %>' > 
+<% if lower == '0' or attr.isOptional == TRUE %>
+<lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/>
+<% end %>
+<% if lower != '0' and lower != '1' %>
+<lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"  value="<%= lower %>"/>
+<% end %>
+<% if upper != '1' %>
+<upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="<%= upper %>"/>
 <% end %>
 </ownedAttribute>}
 
@@ -286,38 +307,12 @@ for schema in schema_list
 		
 		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
 		for attr in attr_list
-
-			if attr.isBuiltin and !attr.instance_of? EXPSM::ExplicitAggregate
-				res = ERB.new(attribute_builtin_template)
-				t = res.result(binding)
-				file.puts t
-			end
-
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Type and !attr.instance_of? EXPSM::ExplicitAggregate
-				type_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
-				res = ERB.new(attribute_enum_type_template)
-				t = res.result(binding)
-				file.puts t
-			end
-
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeEnum and !attr.instance_of? EXPSM::ExplicitAggregate
-				type_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
-				res = ERB.new(attribute_enum_type_template)
-				t = res.result(binding)
-				file.puts t
-			end
-
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect 
 				xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + attr.name
-				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
-				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
+
 				lower = '1'
 				upper = '1'
 				isset = 'true'
 				islist = 'false'
-				if attr.isOptional == TRUE
-					lower = '0'
-				end
 				if attr.instance_of? EXPSM::ExplicitAggregate and attr.rank == 1
 					upper = attr.dimensions[0].upper
 					if upper == '?'
@@ -331,9 +326,37 @@ for schema in schema_list
 						isset = 'false'
 					end
 					if attr.dimensions[0].aggrtype == 'LIST' and !attr.dimensions[0].isUnique
-						isset = 'true'
+						isset = 'false'
 					end
 				end
+
+				if attr.isOptional == TRUE
+					lower = '0'
+				end
+
+			if attr.isBuiltin
+				res = ERB.new(attribute_builtin_template)
+				t = res.result(binding)
+				file.puts t
+			end
+
+			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Type
+				type_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+				res = ERB.new(attribute_enum_type_template)
+				t = res.result(binding)
+				file.puts t
+			end
+
+			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeEnum
+				type_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+				res = ERB.new(attribute_enum_type_template)
+				t = res.result(binding)
+				file.puts t
+			end
+
+			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect 
+				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
 				res = ERB.new(attribute_entity_template)
 				t = res.result(binding)
 				file.puts t

@@ -14,6 +14,7 @@ require 'erb'
 # Enum Type -> Enumeration and EnumerationLiteral
 # Explicit Attribute (Optional) Primitive or Enum -> Property owned by Class (with lower)
 # Explicit Attribute (Optional) Entity -> Property owned by Class (with lower) plus Association owning other end property
+# Explicit Attribute 1-D SET, BAG, LIST of Select or Entity -> Property owned by Class (with lower) plus Association owning other end property and multiplicity, unique and ordered set
 #
 #######################################################################################
 
@@ -306,7 +307,7 @@ for schema in schema_list
 				file.puts t
 			end
 
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity 
+			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect 
 				xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + attr.name
 				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
@@ -323,20 +324,16 @@ for schema in schema_list
 						upper = '*'
 					end
 					lower = attr.dimensions[0].lower
-					if attr.dimensions[0].aggrtype == 'LIST' and !attr.dimensions[0].isUnique
-						isset = 'false'
+					if attr.dimensions[0].aggrtype == 'LIST'
 						islist = 'true'
 					end
+					if attr.dimensions[0].aggrtype == 'BAG'
+						isset = 'false'
+					end
+					if attr.dimensions[0].aggrtype == 'LIST' and !attr.dimensions[0].isUnique
+						isset = 'true'
+					end
 				end
-				res = ERB.new(attribute_entity_template)
-				t = res.result(binding)
-				file.puts t
-			end
-
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect and !attr.instance_of? EXPSM::ExplicitAggregate
-				xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + attr.name
-				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
-				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
 				res = ERB.new(attribute_entity_template)
 				t = res.result(binding)
 				file.puts t

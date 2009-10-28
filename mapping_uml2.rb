@@ -190,7 +190,7 @@ for schema in schema_list
 	t = res.result(binding)
 	file.puts t
 
-# Handle type of building maps to UML Datatype
+# Map EXPRESS TYPE of Builtin
 	type_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::Type and e.isBuiltin}
 	for type in type_list
 		xmiid = '_' + schema.name + '-' + type.name
@@ -199,16 +199,17 @@ for schema in schema_list
 		file.puts t
 	end
 
-# Handle enum maps to UML Enumeration
+# Map EXPRESS Enumeration Types
 	enum_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::TypeEnum }
 	for enum in enum_list
 
-# Evaluate and write enum start template 
+# Evaluate and write TYPE Enum start template 
 		type_xmiid = '_' + schema.name + '-' + enum.name
 		res = ERB.new(enum_start_template)
 		t = res.result(binding)
 		file.puts t
 
+# Evaluate and write Enum Item template for each item
 		enumitem_name_list = enum.items.scan(/\w+/)
 		for enumitem in enumitem_name_list
 			enumitem_xmiid = '_1_enumitem_' + schema.name + '-' + enum.name + '-' + enumitem
@@ -217,22 +218,23 @@ for schema in schema_list
 			file.puts t
 		end
 
-# Evaluate and write enum end template 
+# Evaluate and write TYPE Enum end template 
 		res = ERB.new(enum_end_template)
 		t = res.result(binding)
 		file.puts t
 	end
 
-# Handle select maps to UML Interface 
+# Map EXPRESS TYPE Selects 
 	select_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::TypeSelect }
 	for select in select_list
 
-# Evaluate and write select start template 
+# Evaluate and write TYPE Select start template 
 		xmiid = '_' + schema.name + '-' + select.name
 		res = ERB.new(select_start_template)
 		t = res.result(binding)
 		file.puts t
 
+# Evaluate and write Select Item template for each item (maps to UML same as EXPRESS supertype)
 		for superselect in select_list
 			if superselect.selectitems_array.include?(select)
 				xmiid = '_2_superselect_' + schema.name + '-' + select.name + '-' + superselect.name
@@ -243,7 +245,7 @@ for schema in schema_list
 			end
 		end
 
-# Evaluate and write select end template 
+# Evaluate and write TYPE Select end template 
 		res = ERB.new(select_end_template)
 		t = res.result(binding)
 		file.puts t
@@ -251,7 +253,7 @@ for schema in schema_list
 	
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
 
-# Handle explicit attribute maps to UML Association (referenced from Class)
+# Map EXPRESS Explicit Attribute resulting UML Association (the Association is referenced from Class resulting from Entity)
 	for entity in entity_list
 		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
 		for attr in attr_list
@@ -267,15 +269,16 @@ for schema in schema_list
 		end
 	end
 
-
-# Handle entity maps to UML Class 
+# Map EXPRESS Entity Types 
 	for entity in entity_list
-# Evaluate and write entity start template 
+	
+# Evaluate and write ENTITY start template 
 		xmiid = '_' + schema.name + '-' + entity.name
 		res = ERB.new(entity_start_template)
 		t = res.result(binding)
 		file.puts t
 
+# Map Entity is SUBTYPE OF (i.e. list of supertypes)
 		for supertype in entity.supertypes_array
 			xmiid = '_2_supertype_' + schema.name + '-' + entity.name + '-' + supertype.name
 			xmiid_supertype = '_' + schema.name + '-' + supertype.name
@@ -284,6 +287,7 @@ for schema in schema_list
 			file.puts t
 		end
 
+# Map TYPE Select has Entity as item
 		for select in select_list
 			if select.selectitems_array.include?(entity)
 				xmiid = '_2_selectitem_' + schema.name + '-' + entity.name + '-' + select.name
@@ -294,11 +298,13 @@ for schema in schema_list
 				file.puts t
 			end
 		end
-		
+
+# Map EXPRESS Explicit Attributes 		
 		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
 		for attr in attr_list
 				xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + attr.name
 
+#       set up references resulting from attribute being a redeclaration
 				if attr.redeclare_entity
 					if attr.redeclare_oldname
 						redefined_xmiid = '_2_attr_' + schema.name + '-' + attr.redeclare_entity + '-' + attr.redeclare_oldname
@@ -307,10 +313,13 @@ for schema in schema_list
 					end
 				end
 
+#       initialize default cardinailty constraints
 				lower = '1'
 				upper = '1'
 				isset = 'true'
 				islist = 'false'
+				
+#       set up cardinailty constraints from attribute being a 1-D aggregate				
 				if attr.instance_of? EXPSM::ExplicitAggregate and attr.rank == 1
 					upper = attr.dimensions[0].upper
 					if upper == '?'
@@ -327,17 +336,18 @@ for schema in schema_list
 						isset = 'false'
 					end
 				end
-
 				if attr.isOptional == TRUE
 					lower = '0'
 				end
 
+# Map EXPRESS Explicit Attributes of Builtin
 			if attr.isBuiltin
 				res = ERB.new(attribute_builtin_template)
 				t = res.result(binding)
 				file.puts t
 			end
 
+# Map EXPRESS Explicit Attributes of TYPE and TYPE Enum
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Type or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeEnum
 				type_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				res = ERB.new(attribute_enum_type_template)
@@ -345,6 +355,7 @@ for schema in schema_list
 				file.puts t
 			end
 
+# Map EXPRESS Explicit Attributes of Entity and Select
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect 
 				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
@@ -355,20 +366,20 @@ for schema in schema_list
 
 		end
 
-
-# Evaluate and write entity end template 
+# Evaluate and write ENTITY end template 
 		res = ERB.new(entity_end_template)
 		t = res.result(binding)
 		file.puts t
 	end
 
-
+# Evaluate and write SCHEMA end template 
 	res = ERB.new(schema_end_template)
 	t = res.result(binding)
 	file.puts t
 
 end
 
+# Evaluate and write file end template 
 res = ERB.new(overall_end_template)
 t = res.result(binding)
 file.puts t

@@ -104,6 +104,7 @@ attribute_entity_association_template = %{<packagedElement xmi:type="uml:Associa
 <% if inverse_name != nil %>
 name='<%= inverse_name %>'
 <% end %>
+isUnique='<%= isset %>'
 >
 <% if lower == '0' %>
 <lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/>

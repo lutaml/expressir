@@ -17,7 +17,7 @@ require 'erb'
 # Explicit Attribute 1-D SET, BAG, LIST of Select or Entity -> Property owned by Class (with lower) 
 #                                    plus Association owning other end property and multiplicity, unique and ordered set
 # Explicit Attribute 1-D SET, BAG, LIST of Primitive or Enum -> Property owned by Class and multiplicity, unique and ordered set
-# Explicit Attribute of Entity/Select Redeclaration (Renamed) -> Property with (new) name that redefines inherited Property
+# Explicit Attribute of Entity/Select/Builtin Redeclaration (Renamed) -> Property with (new) name that redefines inherited Property
 #
 #######################################################################################
 
@@ -117,11 +117,12 @@ attribute_template = %{}
 # EXPLICIT ATTRIBUTE SIMPLE TYPE Template
 attribute_builtin_template = %{
 <% if datatype_hash[attr.domain] != nil %>
-<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>'  >
+<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>'  
+<% if attr.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>
 <type xmi:type="uml:PrimitiveType" href="<%= datatype_hash[attr.domain] %>" />
 <% end %>	
 <% if datatype_hash[attr.domain] == nil %>
-<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" type="<%= attr.domain %>" >
+<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" type="<%= attr.domain %>" <% if attr.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>
 <% end %>	
 <% if lower == '0' or attr.isOptional == TRUE %>
 <lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/>
@@ -298,6 +299,14 @@ for schema in schema_list
 		for attr in attr_list
 				xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + attr.name
 
+				if attr.redeclare_entity
+					if attr.redeclare_oldname
+						redefined_xmiid = '_2_attr_' + schema.name + '-' + attr.redeclare_entity + '-' + attr.redeclare_oldname
+					else
+						redefined_xmiid = '_2_attr_' + schema.name + '-' + attr.redeclare_entity + '-' + attr.name
+					end
+				end
+
 				lower = '1'
 				upper = '1'
 				isset = 'true'
@@ -347,13 +356,6 @@ for schema in schema_list
 				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
 
-				if attr.redeclare_entity
-					if attr.redeclare_oldname
-						redefined_xmiid = '_2_attr_' + schema.name + '-' + attr.redeclare_entity + '-' + attr.redeclare_oldname
-					else
-						redefined_xmiid = '_2_attr_' + schema.name + '-' + attr.redeclare_entity + '-' + attr.name
-					end
-				end
 
 				res = ERB.new(attribute_entity_template)
 				t = res.result(binding)

@@ -18,22 +18,19 @@ require 'erb'
 #                                    plus Association owning other end property and multiplicity, unique and ordered set
 # Explicit Attribute 1-D SET, BAG, LIST of Primitive or Enum -> Property owned by Class and multiplicity, unique and ordered set
 # Explicit Attribute of Entity/Select/Builtin Redeclaration (Renamed) -> Property with (new) name that redefines inherited Property
+# Inverse Attribute -> name added to Association OwnedEnd 
 #
 #######################################################################################
 
 def map_from_express( mapinput )
 
-# datatypes for simple and aggregates of simple type
+# datatypes for builtin types that map directly to UML
 datatype_hash = Hash.new
 datatype_hash["INTEGER"] = 'http://schema.omg.org/spec/UML/2.1.2/uml.xml#Integer'
-# datatype_hash["REAL"] = 'http://www.w3.org/2001/XMLSchema#float'
-# datatype_hash["NUMBER"] = 'http://www.w3.org/2001/XMLSchema#float'
-# datatype_hash["BINARY"] = 'http://www.w3.org/2001/XMLSchema#hexBinary'
 datatype_hash["BOOLEAN"] = 'http://schema.omg.org/spec/UML/2.1.2/uml.xml#Boolean'
-# datatype_hash["LOGICAL"] = 'http://www.w3.org/2001/XMLSchema#boolean'
 datatype_hash["STRING"] = 'http://schema.omg.org/spec/UML/2.1.2/uml.xml#String'
 
-# XMI File Start Template
+# XMI File Start Template (includes datatypes for builtin with no direct UML equivalent)
 overall_start_template = %{<?xml version="1.0" encoding="UTF-8"?>
 <uml:Model xmi:version = "2.1" xmlns:xmi = "http://schema.omg.org/spec/XMI/2.1" xmlns:uml = "http://schema.omg.org/spec/UML/2.1.2" name = "UMLfromEXPRESS" xmi:id = "_0">
 <packagedElement xmi:type="uml:PrimitiveType" xmi:id="REAL" name="Real" />
@@ -103,7 +100,11 @@ attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%
 
 # EXPLICIT ATTRIBUTE ENTITY Create Association Template
 attribute_entity_association_template = %{<packagedElement xmi:type="uml:Association" xmi:id="<%= xmiid %>" name="" visibility='public' isLeaf='false' isAbstract='false' isDerived='false' memberEnd="<%= domain_xmiid %> <%= owner_xmiid %>">
-<ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid + '-end' %>" type="<%= owner_xmiid %>" owningAssociation="_<%= xmiid %>" association="<%= xmiid %>" >
+<ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid + '-end' %>" type="<%= owner_xmiid %>" owningAssociation="_<%= xmiid %>" association="<%= xmiid %>" visibility='public'
+<% if inverse_name != nil %>
+name='<%= inverse_name %>'
+<% end %>	
+>
 <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="*"/>
 <lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/>
 </ownedEnd>
@@ -252,12 +253,25 @@ for schema in schema_list
 	end
 	
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
+	all_inverse_list = []
+	for entity in entity_list
+		entity_inverse_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Inverse }
+		for inverse in entity_inverse_list
+			all_inverse_list.push inverse
+		end
+	end
 
 # Map EXPRESS Explicit Attribute resulting UML Association (the Association is referenced from Class resulting from Entity)
 	for entity in entity_list
 		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
 		for attr in attr_list
-
+			inverse_name = nil
+			for inverse in all_inverse_list
+				if inverse.reverseAttr == attr
+					inverse_name = inverse.name
+				end
+			end
+			
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect
 				xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
 				owner_xmiid = '_' + schema.name + '-' + entity.name

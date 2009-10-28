@@ -18,7 +18,7 @@ require 'erb'
 #                                    plus Association owning other end property and multiplicity, unique and ordered set
 # Explicit Attribute 1-D SET, BAG, LIST of Primitive or Enum -> Property owned by Class and multiplicity, unique and ordered set
 # Explicit Attribute of Entity/Select/Builtin Redeclaration (Renamed) -> Property with (new) name that redefines inherited Property
-# Inverse Attribute -> name added to Association OwnedEnd 
+# Inverse Attribute -> name added to Association OwnedEnd, upper and lower bounds set
 #
 #######################################################################################
 
@@ -103,13 +103,17 @@ attribute_entity_association_template = %{<packagedElement xmi:type="uml:Associa
 <ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid + '-end' %>" type="<%= owner_xmiid %>" owningAssociation="_<%= xmiid %>" association="<%= xmiid %>" visibility='public'
 <% if inverse_name != nil %>
 name='<%= inverse_name %>'
-<% end %>	
+<% end %>
 >
-<upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="*"/>
+<% if lower == '0' %>
 <lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/>
+<% end %>
+<% if lower != '0' %>
+<lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"  value="<%= lower %>"/>
+<% end %>
+<upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="<%= upper %>"/>
 </ownedEnd>
-</packagedElement>
-}
+</packagedElement>}
 
  
 # Template covering the output file contents for each attribute
@@ -265,17 +269,33 @@ for schema in schema_list
 	for entity in entity_list
 		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
 		for attr in attr_list
-			inverse_name = nil
-			for inverse in all_inverse_list
-				if inverse.reverseAttr == attr
-					inverse_name = inverse.name
-				end
-			end
 			
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect
 				xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
 				owner_xmiid = '_' + schema.name + '-' + entity.name
 				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+				
+				inverse_name = nil
+				for inverse in all_inverse_list
+					if inverse.reverseAttr == attr
+						inverse_name = inverse.name
+						lower = '0'
+						upper = '*'
+						isset = 'true'
+						if inverse.instance_of? EXPSM::InverseAggregate
+							if inverse.upper != '?'
+								upper = inverse.upper
+							end
+							if inverse.lower != '0'
+								lower = inverse.lower
+							end
+							if inverse.aggrtype == 'BAG'
+								isset = 'false'
+							end						
+						end
+					end
+				end				
+				
 				res = ERB.new(attribute_entity_association_template)
 				t = res.result(binding)
 				file.puts t

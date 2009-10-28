@@ -17,6 +17,7 @@ require 'erb'
 # Explicit Attribute 1-D SET, BAG, LIST of Select or Entity -> Property owned by Class (with lower) 
 #                                    plus Association owning other end property and multiplicity, unique and ordered set
 # Explicit Attribute 1-D SET, BAG, LIST of Primitive or Enum -> Property owned by Class and multiplicity, unique and ordered set
+# Explicit Attribute of Entity/Select Redeclaration (Renamed) -> Property with (new) name that redefines inherited Property
 #
 #######################################################################################
 
@@ -94,16 +95,10 @@ attribute_aggregate_entity_select_template = %{}
 attribute_entity_select_template = %{}
 
 # Template covering the output file contents for each attribute that is an entity
-attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>' isLeaf='false' isStatic='false' isReadOnly='false' isDerived='false' isDerivedUnion='false' type="<%= domain_xmiid %>" aggregation="none" association="<%= assoc_xmiid %>" >
-<% if lower == '0' %>
-<lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/>
-<% end %>
-<% if lower != '0' and lower != '1' %>
-<lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"  value="<%= lower %>"/>
-<% end %>
-<% if upper != '1' %>
-<upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="<%= upper %>"/>
-<% end %>
+attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>' isLeaf='false' isStatic='false' isReadOnly='false' isDerived='false' isDerivedUnion='false' type="<%= domain_xmiid %>" aggregation="none" association="<%= assoc_xmiid %>" <% if attr.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>
+<% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/><% end %>
+<% if lower != '0' and lower != '1' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"  value="<%= lower %>"/><% end %>
+<% if upper != '1' %><upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="<%= upper %>"/><% end %>
 </ownedAttribute>}
 
 # EXPLICIT ATTRIBUTE ENTITY Create Association Template
@@ -114,6 +109,7 @@ attribute_entity_association_template = %{<packagedElement xmi:type="uml:Associa
 </ownedEnd>
 </packagedElement>
 }
+
  
 # Template covering the output file contents for each attribute
 attribute_template = %{}
@@ -258,15 +254,8 @@ for schema in schema_list
 	for entity in entity_list
 		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
 		for attr in attr_list
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity
-				xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
-				owner_xmiid = '_' + schema.name + '-' + entity.name
-				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
-				res = ERB.new(attribute_entity_association_template)
-				t = res.result(binding)
-				file.puts t
-			end
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect
+
+			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect
 				xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
 				owner_xmiid = '_' + schema.name + '-' + entity.name
 				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
@@ -357,6 +346,15 @@ for schema in schema_list
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect 
 				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
+
+				if attr.redeclare_entity
+					if attr.redeclare_oldname
+						redefined_xmiid = '_2_attr_' + schema.name + '-' + attr.redeclare_entity + '-' + attr.redeclare_oldname
+					else
+						redefined_xmiid = '_2_attr_' + schema.name + '-' + attr.redeclare_entity + '-' + attr.name
+					end
+				end
+
 				res = ERB.new(attribute_entity_template)
 				t = res.result(binding)
 				file.puts t

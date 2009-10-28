@@ -338,14 +338,7 @@ for schema in schema_list
 				file.puts t
 			end
 
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Type
-				type_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
-				res = ERB.new(attribute_enum_type_template)
-				t = res.result(binding)
-				file.puts t
-			end
-
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeEnum
+			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Type or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeEnum
 				type_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				res = ERB.new(attribute_enum_type_template)
 				t = res.result(binding)
@@ -355,20 +348,11 @@ for schema in schema_list
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect 
 				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
-
-
 				res = ERB.new(attribute_entity_template)
 				t = res.result(binding)
 				file.puts t
 			end
 
-			if attr.redeclare_entity
-				puts "#WARNING: '" + entity.name + ' ' + attr.name + "' Attribute redeclaration may need hand editing"
-			end
-
-			if attr.instance_of? EXPSM::ExplicitAggregate
-			else
-			end
 		end
 
 

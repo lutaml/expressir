@@ -18,7 +18,7 @@ require 'erb'
 #                                    plus Association owning other end property and multiplicity, unique and ordered set
 # Explicit Attribute 1-D SET, BAG, LIST of Primitive or Enum -> Property owned by Class and multiplicity, unique and ordered set
 # Explicit Attribute of Entity/Select/Builtin Redeclaration (Renamed) -> Property with (new) name that redefines inherited Property
-# Inverse Attribute (only one per forward attribute) -> read-only UML Property owned by Class with multiplicity and unique set
+# Inverse Attribute (only one per forward attribute, and inverse not in subtype) -> read-only UML Property owned by Class with multiplicity and unique set
 # USE or REFERENCE (even with named items) -> UML PackageImport between Packages
 #
 #######################################################################################

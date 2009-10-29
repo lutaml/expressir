@@ -19,6 +19,7 @@ require 'erb'
 # Explicit Attribute 1-D SET, BAG, LIST of Primitive or Enum -> Property owned by Class and multiplicity, unique and ordered set
 # Explicit Attribute of Entity/Select/Builtin Redeclaration (Renamed) -> Property with (new) name that redefines inherited Property
 # Inverse Attribute -> name added to Association OwnedEnd, uniqueness, upper and lower bounds set
+# USE or REFERENCE (even with named items) -> UML PackageImport between Packages
 #
 #######################################################################################
 

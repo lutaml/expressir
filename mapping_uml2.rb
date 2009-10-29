@@ -46,6 +46,9 @@ overall_end_template = %{  </uml:Model>}
 # SCHEMA Start Template
 schema_start_template = %{<packagedElement xmi:type = "uml:Package" xmi:id = "_1_<%= schema.name %>" name = "<%= schema.name %>" visibility = "public">}
 
+# SCHEMA INTERFACE Template
+schema_interface_template = %{<packageImport xmi:type='uml:PackageImport' xmi:id='_2_<%= schema.name %>-<%= interfaced_schema.foreign_schema_id %>' visibility='public' importedPackage='_1_<%= interfaced_schema.foreign_schema_id %>'/>}
+
 # SCHEMA End Template
 schema_end_template = %{</packagedElement>}
 
@@ -190,12 +193,24 @@ end
   t = res.result(binding)
 	file.puts t
 
-for schema in schema_list
+for schema in schema_list	
 
 # Evaluate and write schema start template 
 	res = ERB.new(schema_start_template)
 	t = res.result(binding)
 	file.puts t
+	
+	interfaced_schema_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::InterfaceSpecification}
+	puts 'CONTENTS ' + schema.contents.size.to_s
+	puts 'USES ' + interfaced_schema_list.size.to_s
+	for interfaced_schema in interfaced_schema_list
+	
+# Evaluate and write schema interface template 
+		res = ERB.new(schema_interface_template)
+		t = res.result(binding)
+		file.puts t		
+	
+	end
 
 # Map EXPRESS TYPE of Builtin
 	type_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::Type and e.isBuiltin}

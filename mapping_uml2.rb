@@ -18,6 +18,7 @@ require 'erb'
 #                                    plus Association owning other end property and multiplicity, unique and ordered set
 # Explicit Attribute 1-D SET, BAG, LIST of Primitive or Enum -> Property owned by Class and multiplicity, unique and ordered set
 # Explicit Attribute of Entity/Select/Builtin Redeclaration (Renamed) -> Property with (new) name that redefines inherited Property
+# Inverse Attribute (only one per forward attribute) -> read-only UML Property owned by Class with multiplicity and unique set
 # USE or REFERENCE (even with named items) -> UML PackageImport between Packages
 #
 #######################################################################################
@@ -98,6 +99,13 @@ attribute_entity_select_template = %{}
 
 # Template covering the output file contents for each attribute that is an entity
 attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>' isLeaf='false' isStatic='false' isReadOnly='false' isDerived='false' isDerivedUnion='false' type="<%= domain_xmiid %>" aggregation="none" association="<%= assoc_xmiid %>" <% if attr.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>
+<% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/><% end %>
+<% if lower != '0' and lower != '1' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"  value="<%= lower %>"/><% end %>
+<% if upper != '1' %><upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="<%= upper %>"/><% end %>
+</ownedAttribute>}
+
+# INVERSE ATTRIBUTE Template
+inverse_attribute_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= inverse.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>' isLeaf='false' isStatic='false' isReadOnly='true' isDerived='false' isDerivedUnion='false' type="<%= domain_xmiid %>" aggregation="none" association="<%= assoc_xmiid %>" <% if attr.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>
 <% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/><% end %>
 <% if lower != '0' and lower != '1' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"  value="<%= lower %>"/><% end %>
 <% if upper != '1' %><upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="<%= upper %>"/><% end %>
@@ -399,6 +407,34 @@ for schema in schema_list
 			end
 
 		end
+
+# Map EXPRESS Inverse Attributes
+		inverse_attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Inverse }
+		for inverse in inverse_attr_list
+				inverse_name = inverse.name
+				lower = '0'
+				upper = '*'
+				isset = 'true'
+				if inverse.instance_of? EXPSM::InverseAggregate
+					if inverse.upper != '?'
+						upper = inverse.upper
+					end
+					if inverse.lower != '0'
+						lower = inverse.lower
+					end
+					if inverse.aggrtype == 'BAG'
+						isset = 'false'
+					end						
+				end						
+			xmiid = '_' + schema.name + '-' + entity.name + '-' + inverse.name
+			domain_xmiid = '_' + schema.name + '-' + inverse.reverseEntity.name
+			assoc_xmiid = '_1_association_' + inverse.reverseEntity.schema.name + '-' + inverse.reverseEntity.name + '-' + inverse.reverseAttr_id
+# Evaluate and write ENTITY end template 
+			res = ERB.new(inverse_attribute_template)
+			t = res.result(binding)
+			file.puts t
+		end
+		
 
 # Evaluate and write ENTITY end template 
 		res = ERB.new(entity_end_template)

@@ -18,7 +18,7 @@ require 'erb'
 #                                    plus Association owning other end property and multiplicity, unique and ordered set
 # Explicit Attribute 1-D SET, BAG, LIST of Primitive or Enum -> Property owned by Class and multiplicity, unique and ordered set
 # Explicit Attribute of Entity/Select/Builtin Redeclaration (Renamed) -> Property with (new) name that redefines inherited Property
-# Inverse Attribute (only one per forward attribute, and inverse not in subtype) -> read-only UML Property owned by Class with multiplicity and unique set
+# Inverse Attribute Partial Support (only one per forward attribute, and inverse not in subtype) -> read-only UML Property owned by Class with multiplicity and unique set
 # USE or REFERENCE (even with named items) -> UML PackageImport between Packages
 #
 #######################################################################################
@@ -300,7 +300,14 @@ for schema in schema_list
 				inverse_exists = false
 				for inverse in all_inverse_list
 					if inverse.reverseAttr == attr
-						inverse_exists = true
+					puts 'FOR ' + entity.name + '.' + attr.name
+					puts 'FOUND INVERSE ' + inverse.name
+					puts inverse.reverseEntity.name
+					puts attr.domain
+						if attr.domain == inverse.entity.name
+							puts 'WROTE INVERSE ' + inverse.name
+							inverse_exists = true
+						end
 					end
 				end				
 				

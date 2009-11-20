@@ -388,6 +388,7 @@ def load_dictionary_express_entity(schemaxml, repos)
 			
 				attnew.name = explicitxml.attributes["name"].to_s
 				entnew.attributes.push attnew
+				attnew.entity = entnew
 
 				if explicitxml.attributes["optional"] != nil
 					if explicitxml.attributes["optional"].to_s == "YES"
@@ -425,6 +426,7 @@ def load_dictionary_express_entity(schemaxml, repos)
 				attnew.reverseAttr_id = inversexml.attributes["attribute"]
 				attnew.name = inversexml.attributes["name"].to_s
 				entnew.attributes.push attnew
+				attnew.entity = entnew
 				if inversexml.attributes["entity"] != nil
 					attnew.domain = inversexml.attributes["entity"].to_s
 				end

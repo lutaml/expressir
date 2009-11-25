@@ -643,11 +643,9 @@ def postprocess_dictionary_express(repos)
 							redattr_name = nextattribute.redeclare_oldname
 						end
 						the_attr = the_entity.find_attr_by_name( redattr_name )
-						puts the_attr.name
 						attributes_to_remove.push the_attr
 					end					
 				end
-				puts attributes_to_remove.size.to_s
 				for attribute_remove in attributes_to_remove
 						decl.attributes_all_array.delete( attribute_remove )
 				end

@@ -1,6 +1,6 @@
 require 'erb'
 # EXPRESS to UML 2 Mapping
-# Version 0.1 - test1
+# Version 0.1
 #
 # This function navigates the EXPRESS STEPMod Model Ruby Classes
 # and performs a structural EXPRESS-to-UML2 (2.1.2) mapping using Ruby ERB templates.

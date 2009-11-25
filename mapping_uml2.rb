@@ -418,6 +418,23 @@ for schema in schema_list
 # Map EXPRESS Inverse Attributes
 		inverse_attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Inverse }
 		for inverse in inverse_attr_list
+		
+#				check if inverse refers to this attribute, affects how association is written
+			inverse_exists = false
+			for inverse in all_inverse_list
+				if inverse.reverseAttr == attr
+					puts 'FOR ' + entity.name + '.' + attr.name
+					puts 'FOUND INVERSE ' + inverse.name
+					puts inverse.reverseEntity.name
+					puts attr.domain
+					if attr.domain == inverse.entity.name
+						puts 'WROTE INVERSE ' + inverse.name
+						inverse_exists = true
+					end
+				end
+			end				
+		
+			if inverse_exists		
 				inverse_name = inverse.name
 				lower = '0'
 				upper = '*'
@@ -431,15 +448,16 @@ for schema in schema_list
 					end
 					if inverse.aggrtype == 'BAG'
 						isset = 'false'
-					end						
-				end						
-			xmiid = '_' + schema.name + '-' + entity.name + '-' + inverse.name
-			domain_xmiid = '_' + schema.name + '-' + inverse.reverseEntity.name
-			assoc_xmiid = '_1_association_' + inverse.reverseEntity.schema.name + '-' + inverse.reverseEntity.name + '-' + inverse.reverseAttr_id
+					end
+				end
+				xmiid = '_' + schema.name + '-' + entity.name + '-' + inverse.name
+				domain_xmiid = '_' + schema.name + '-' + inverse.reverseEntity.name
+				assoc_xmiid = '_1_association_' + inverse.reverseEntity.schema.name + '-' + inverse.reverseEntity.name + '-' + inverse.reverseAttr_id
 # Evaluate and write ENTITY end template 
-			res = ERB.new(inverse_attribute_template)
-			t = res.result(binding)
-			file.puts t
+				res = ERB.new(inverse_attribute_template)
+				t = res.result(binding)
+				file.puts t
+			end
 		end
 		
 

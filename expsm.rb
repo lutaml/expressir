@@ -29,6 +29,16 @@ class Repository
 			return xmlid = "id-" + thing_type[1] + "-" + get_next_integer().to_s
 		end
 	end
+	def find_namedtype_by_name( typename )
+		foundtype = nil
+		while foundtype == nil
+			for schema in schemas
+				foundtype = schema.find_namedtype_by_name( typename )
+				break if foundtype != nil
+			end
+		end
+		return foundtype
+	end
 end
 class SchemaDefinition < ModelElement
 	attr_accessor :contents, :name, :identification, :all_schema_array
@@ -71,21 +81,21 @@ class NamedType < ModelElement
 
 end
 class Entity < NamedType
-	attr_accessor :supertypes, :attributes, :isAbs, :superexpression, :uniques, :subtypes_array, :supertypes_array, :attributes_all, :supertypes_all
+	attr_accessor :supertypes, :attributes, :isAbs, :superexpression, :uniques, :subtypes_array, :supertypes_array, :attributes_all_array, :supertypes_all
 	def initialize
 		@isAbs = FALSE
 		@attributes = []
 		@uniques = []
 		@subtypes_array = []
 		@supertypes_array = []
-		@attributes_all = []
+		@attributes_all_array = []
 		@supertypes = nil
 		@supertypes_all = nil
 	end
 	def find_attr_by_name( attrname )
-		for attr in attributes
-			if attrname = attr.name
-				return attr
+		for attribute in attributes
+			if attrname == attribute.name
+				return attribute
 			end
 		end
 	end
@@ -613,7 +623,34 @@ def postprocess_dictionary_express(repos)
 				if decl.supertypes != nil
 					decl.supertypes_all = get_all_supertypes( decl, '')
 				end
-				
+			##
+			## Add all explicit attributes to attributes_all_array
+				for supertype in decl.supertypes_array
+					for superattr in supertype.attributes
+						decl.attributes_all_array.push superattr
+					end
+				end
+				for localattr in decl.attributes
+					decl.attributes_all_array.push localattr
+				end
+				attributes_to_remove = []
+				for nextattribute in decl.attributes_all_array
+					the_attr = nil
+					if nextattribute.redeclare_entity != nil
+						the_entity = repos.find_namedtype_by_name( nextattribute.redeclare_entity )
+						redattr_name = nextattribute.name
+						if nextattribute.redeclare_oldname != nil
+							redattr_name = nextattribute.redeclare_oldname
+						end
+						the_attr = the_entity.find_attr_by_name( redattr_name )
+						puts the_attr.name
+						attributes_to_remove.push the_attr
+					end					
+				end
+				puts attributes_to_remove.size.to_s
+				for attribute_remove in attributes_to_remove
+						decl.attributes_all_array.delete( attribute_remove )
+				end
 			##
 			## Add pointers to subtypes
 				subarray = schema.contents.find_all { |e| e.kind_of? EXPSM::Entity and e.supertypes != nil}

@@ -231,6 +231,10 @@ for schema in schema_list
 # Handle mapping general attributes to OWL ObjectProperties 
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
 	for entity in entity_list
+		puts 'ENTITY ' + entity.name
+		for a in entity.attributes_all_array
+			puts a.name
+		end
 		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
 		attr_list = attr_list.reject { |a| a.isBuiltin }
 		for attr in attr_list

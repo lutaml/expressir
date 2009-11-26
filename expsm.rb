@@ -298,6 +298,7 @@ def load_dictionary_express_interface(schemaxml, repos)
 
 		ispec.current_schema_id = schema_name
 		ispec.current_schema = current_schema
+		current_schema.contents.push ispec
 		ispec.kind = interfacexml.attributes["kind"].to_s
 		
 		itemxml_list = interfacexml.elements.to_a("interfaced.item")

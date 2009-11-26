@@ -180,14 +180,42 @@ class TypeAggregate < Type
 	end
 end
 class TypeSelect < DefinedType
-	attr_accessor :selectitems_array, :selectitems, :extends, :extends_item, :isExtensible, :selectitems_all, :isGenericEntity, :isBuiltin, :cleaneditems
+	attr_accessor :selectitems_array, :selectitems, :extends, :extends_item, :isExtensible, :selectitems_all, :isGenericEntity, :isBuiltin, :cleaned_select_items
 	def initialize
 		@isBuiltin = FALSE
 		@isExtensible = FALSE
 		@isGenericEntity = FALSE
 		@selectitems = nil
 		@selectitems_array = []
-		@cleaneditems = nil
+		@cleaned_select_items = nil
+	end
+##
+## set cleaned_select_items = process select removing unnecessary entity types (i.e. if supertype is there)
+	def clean_select_items
+		@cleaned_select_items = ''
+		if selectitems != nil
+			itemname_list = selectitems.scan(/\w+/)
+			dupitem_list = []
+			for itemname in itemname_list
+				itemptr = schema.find_namedtype_by_name( itemname )
+				if itemptr.kind_of? EXPSM::Entity
+					for itemname2 in itemname_list
+						thetype = schema.find_namedtype_by_name( itemname2 )
+						if thetype != nil
+							if itemptr.supertypes_all != nil and itemptr.supertypes_all.include? thetype.name
+								dupitem_list.push itemname
+							end
+						end
+					end
+				end
+			end
+			for itemname in itemname_list
+				if !dupitem_list.include? itemname
+					@cleaned_select_items = @cleaned_select_items + ' ' + itemname
+				end
+			end
+			@cleaned_select_items = @cleaned_select_items.lstrip
+		end
 	end
 end
 class TypeEnum < DefinedType
@@ -575,7 +603,7 @@ def postprocess_dictionary_express(repos)
 			end
 
 			##
-			## Add pointers to SELECT type select items in selectitems_array and add cleaneditems (no item if supertype included)
+			## Add pointers to SELECT type select items in selectitems_array
 			if decl.kind_of? EXPSM::TypeSelect
 				if decl.extends != nil
 					decl.extends_item = schema.find_namedtype_by_name( decl.extends )
@@ -591,7 +619,6 @@ def postprocess_dictionary_express(repos)
 						end
 					end
 				end
-				## decl.cleaneditems = clean_selects(decl)
 			end
 
 			##
@@ -694,34 +721,7 @@ def get_all_interfaced_schemas( schema, schema_list)
 	end
 	return schema_list
 end
-##
-## process selects in the schema removing unnecessary entity types (i.e. if supertype is there)
-def clean_selects(decl)
-	cleaneditems = ''
-	if decl.selectitems != nil
-		itemname_list = decl.selectitems.scan(/\w+/)
-		dupitem_list = []
-		for itemname in itemname_list
-			itemptr = decl.schema.find_namedtype_by_name( itemname )
-			if itemptr.kind_of? EXPSM::Entity
-				for itemname2 in itemname_list
-					thetype = decl.schema.find_namedtype_by_name( itemname2 )
-					if thetype != nil
-						if itemptr.supertypes_all != nil and itemptr.supertypes_all.include? thetype.name
-							dupitem_list.push itemname
-						end
-					end
-				end
-			end
-		end
-		for itemname in itemname_list
-			if !dupitem_list.include? itemname
-				cleaneditems = cleaneditems + ' ' + itemname
-			end
-		end
-	end
-	return cleaneditems.lstrip
-end
+
 ##
 ## process rules in the schema
 def load_dictionary_express_rule( schemaxml, repos)

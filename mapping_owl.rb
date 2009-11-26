@@ -4,9 +4,23 @@ require 'erb'
 #
 # This function navigates the EXPRESS STEPMod Model Ruby Classes
 # and performs a structural EXPRESS-to-OWL mapping using Ruby ERB templates.
+# Entity Types and Subtypes are mapped to OWL Class hierarchy.
+# Select Types are mapped to OWL Class hierarchy.
+# Enumeration Type and BOOLEAN attributes are mapped to OWL DatatypeProperties.
+# The necessary import of the Dublin Core OWL is included.
+# Annotations are added if not 'nil'.
 # The output is in OWL RDF/XML abbreviated syntax.
 # 
 def map_from_express( mapinput )
+
+# Add RDFS andor Dublin Core basic annotations
+
+annotation_list = Array.new
+annotation_list[0] = ['dc:source','ISO 10303-227 Plant Spatial Configuration ARM EXPRESS']
+annotation_list[1] = ['dcterms:created','2009-09-23']
+annotation_list[2] = ['dc:creator', 'David Price, Eurostep Limited']
+annotation_list[3] = ['rdfs:comment', nil]
+annotation_list[4] = ['owl:versionInfo', '1']
 
 # add common string attributes to use OWL Thing as domain rather than schema classes
 thing_attributes = []
@@ -29,18 +43,25 @@ overall_start_template = %{<rdf:RDF
 xmlns:owl="http://www.w3.org/2002/07/owl#" 
 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 xmlns:xsd="http://www.w3.org/2001/XMLSchema#"  
-xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"}
+xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns:dcterms="http://purl.org/dc/terms/"}
 
 # Template covering the output file contents for each schema start
 schema_start_template = %{xmlns="http://www.reeper.org/<%= schema.name %>#"
 xml:base="http://www.reeper.org/<%= schema.name %>#" > 
 
-<owl:Ontology rdf:about='' rdfs:label='<%= schema.name %>' />
+<owl:Ontology rdf:about='' rdfs:label='<%= schema.name %>' >
+<%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
+<% end %>	  
+</owl:Ontology>
 }
 
 # Template covering the output file contents for each entity type start
 entity_start_template = %{
 <owl:Class rdf:ID='<%= entity.name %>' >
+<%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
+<% end %>	 
 }
 # Template covering the output file contents for each entity type end
 entity_end_template = %{</owl:Class>  
@@ -49,6 +70,8 @@ entity_end_template = %{</owl:Class>
 # Template covering the output file contents for each select type start
 select_start_template = %{
 <owl:Class rdf:ID='<%= select.name %>' >
+<%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
+<% end %>	 
 }
 # Template covering the output file contents for each select type end
 select_end_template = %{</owl:Class>  
@@ -63,7 +86,10 @@ class_collection_template = %{<owl:Class><owl:unionOf rdf:parseType="Collection"
 <%  class_name_list.each do |name| %>
     <owl:Class rdf:about='#<%= name %>' />
  <% end %>	  
-</owl:unionOf></owl:Class>}
+</owl:unionOf>
+<%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
+<% end %>	 
+</owl:Class>}
 
 # Template covering abstract entity types
 abstract_entity_template = %{<rdfs:subClassOf rdf:resource='#<%= supertype.name %>' />
@@ -85,21 +111,25 @@ attribute_entity_template = %{}
 attribute_template = %{}
 
 # Template covering the output file contents for each attribute that is builtin datatype
-attribute_builtin_template = %{<owl:DatatypeProperty rdf:ID='<%= attrout_name %>'>
+attribute_builtin_template = %{<owl:DatatypeProperty rdf:ID='<%= attribute_name %>'>
 <rdfs:domain rdf:resource='#<%= entity.name %>' />
-<rdfs:range rdf:resource='<%= attrout_type %>' />
+<rdfs:range rdf:resource='<%= attribute_type %>' />
+<%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
+<% end %>	 
 </owl:DatatypeProperty>
 }
 
 # Template covering the output file contents for each attribute that is builtin datatype
-attribute_entity_template = %{<owl:ObjectProperty rdf:ID='<%= attrout_name %>'>
+attribute_entity_template = %{<owl:ObjectProperty rdf:ID='<%= attribute_name %>'>
 <rdfs:domain rdf:resource='#<%= entity.name %>' />
-<rdfs:range rdf:resource='#<%= attrout_type %>' />
+<rdfs:range rdf:resource='#<%= attribute_type %>' />
+<%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
+<% end %>	 
 </owl:ObjectProperty>
 }
 
 # Template covering the output file contents for each attribute that is enum datatype
-attribute_enum_template = %{<owl:DatatypeProperty rdf:ID='<%= attrout_name %>'>
+attribute_enum_template = %{<owl:DatatypeProperty rdf:ID='<%= attribute_name %>'>
 <rdfs:domain rdf:resource='#<%= entity.name %>' />
    <rdfs:range><owl:DataRange><owl:oneOf><rdf:List>
 <%  enumitem_name_list.each do |name| %>
@@ -115,6 +145,8 @@ attribute_enum_template = %{<owl:DatatypeProperty rdf:ID='<%= attrout_name %>'>
     </rdf:rest></rdf:List>
    <% end %>	 
    </owl:oneOf></owl:DataRange></rdfs:range>
+<%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
+<% end %>	 	 
 </owl:DatatypeProperty>}
 
 
@@ -150,8 +182,11 @@ for schema in schema_list
 	t = res.result(binding)
 	file.puts t
 
-# Handle select maps to OWL Class 
 	select_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::TypeSelect }
+	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
+
+# Handle select maps to OWL Class 
+
 	for select in select_list
 # Evaluate and write select start template 
 		res = ERB.new(select_start_template)
@@ -164,7 +199,6 @@ for schema in schema_list
 		file.puts t
     file.puts '</owl:equivalentClass>'
 
-
 # Evaluate and write select end template 
 		res = ERB.new(select_end_template)
 		t = res.result(binding)
@@ -172,7 +206,7 @@ for schema in schema_list
 	end
 
 # Handle entity maps to OWL Class 
-	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
+
 	for entity in entity_list
 # Evaluate and write entity start template 
 		res = ERB.new(entity_start_template)
@@ -191,7 +225,6 @@ for schema in schema_list
 	end
 
 # Handle mapping general attributes to OWL DatatypeProperties 
-	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
 
 	for a in thing_attributes
 		file.puts '<owl:DatatypeProperty rdf:ID="' + a + '"><rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/></owl:DatatypeProperty>'
@@ -202,15 +235,15 @@ for schema in schema_list
 		for attr in attr_list
 
 			if attr.isBuiltin and !thing_attributes.include?(attr.name)
-				attrout_type = datatype_hash[attr.domain]
-				attrout_name = entity.name + '.' + attr.name
+				attribute_type = datatype_hash[attr.domain]
+				attribute_name = entity.name + '.' + attr.name
 				res = ERB.new(attribute_builtin_template)
 				t = res.result(binding)
 				file.puts t
 			end
 
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeEnum
-				attrout_name = entity.name + '.' + attr.name
+				attribute_name = entity.name + '.' + attr.name
 				enumitem_name_list = NamedType.find_by_name( attr.domain ).items.scan(/\w+/)
 				res = ERB.new(attribute_enum_template)
 				t = res.result(binding)
@@ -236,8 +269,8 @@ for schema in schema_list
 		for attr in attr_list
 			domain_type = NamedType.find_by_name( attr.domain )
 			if !attr.redeclare_entity and (domain_type.kind_of? EXPSM::Entity or domain_type.kind_of? EXPSM::TypeSelect)
-				attrout_type = attr.domain
-				attrout_name = entity.name + '.' + attr.name
+				attribute_type = attr.domain
+				attribute_name = entity.name + '.' + attr.name
 				res = ERB.new(attribute_entity_template)
 				t = res.result(binding)
 				file.puts t

@@ -8,6 +8,8 @@ require 'erb'
 # Select Types are mapped to OWL Class hierarchy.
 # Enumeration Type and BOOLEAN attributes are mapped to OWL DatatypeProperties.
 # The necessary import of the Dublin Core OWL is included.
+# If file named definitions.csv is found, definitions of items are read from that CSV.
+#    Double quotes around ITEM and DEFINITION column values is required
 # Annotations are added if not 'nil'.
 # The output is in OWL RDF/XML abbreviated syntax.
 # 
@@ -21,6 +23,15 @@ annotation_list[1] = ['dcterms:created','2009-09-23']
 annotation_list[2] = ['dc:creator', 'David Price, Eurostep Limited']
 annotation_list[3] = ['rdfs:comment', nil]
 annotation_list[4] = ['owl:versionInfo', '1']
+
+definition_hash = Hash.new
+if FileTest.exist?('definitions.csv')
+	require 'csv'
+	puts '-- Definitions CSV File Found'
+	CSV.open('definitions.csv', 'r') do |row|
+		definition_hash[row[0].downcase] = row[1]
+	end
+end
 
 # add common string attributes to use OWL Thing as domain rather than schema classes
 thing_attributes = []
@@ -208,7 +219,12 @@ for schema in schema_list
 # Handle entity maps to OWL Class 
 
 	for entity in entity_list
-# Evaluate and write entity start template 
+# Evaluate and write entity start template
+		if definition_hash[entity.name.downcase] != nil
+			annotation_list[3] = ['rdfs:comment', definition_hash[entity.name.downcase]]
+		else
+			annotation_list[3] = ['rdfs:comment', nil]
+		end
 		res = ERB.new(entity_start_template)
 		t = res.result(binding)
 		file.puts t
@@ -231,30 +247,30 @@ for schema in schema_list
 	end
 
 	for entity in entity_list
-		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
-		for attr in attr_list
+		attribute_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
+		for attribute in attribute_list
 
-			if attr.isBuiltin and !thing_attributes.include?(attr.name)
-				attribute_type = datatype_hash[attr.domain]
-				attribute_name = entity.name + '.' + attr.name
+			if attribute.isBuiltin and !thing_attributes.include?(attribute.name)
+				attribute_type = datatype_hash[attribute.domain]
+				attribute_name = entity.name + '.' + attribute.name
 				res = ERB.new(attribute_builtin_template)
 				t = res.result(binding)
 				file.puts t
 			end
 
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeEnum
-				attribute_name = entity.name + '.' + attr.name
-				enumitem_name_list = NamedType.find_by_name( attr.domain ).items.scan(/\w+/)
+			if NamedType.find_by_name( attribute.domain ).kind_of? EXPSM::TypeEnum
+				attribute_name = entity.name + '.' + attribute.name
+				enumitem_name_list = NamedType.find_by_name( attribute.domain ).items.scan(/\w+/)
 				res = ERB.new(attribute_enum_template)
 				t = res.result(binding)
 				file.puts t
 			end
 
-			if attr.redeclare_entity
-				puts "#WARNING: '" + entity.name + ' ' + attr.name + "' Attribute redeclaration may need hand editing"
+			if attribute.redeclare_entity
+				puts "#WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute redeclaration may need hand editing"
 			end
 
-			if attr.instance_of? EXPSM::ExplicitAggregate
+			if attribute.instance_of? EXPSM::ExplicitAggregate
 			else
 			end
 		end
@@ -264,21 +280,21 @@ for schema in schema_list
 # Handle mapping general attributes to OWL ObjectProperties 
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
 	for entity in entity_list
-		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
-		attr_list = attr_list.reject { |a| a.isBuiltin }
-		for attr in attr_list
-			domain_type = NamedType.find_by_name( attr.domain )
-			if !attr.redeclare_entity and (domain_type.kind_of? EXPSM::Entity or domain_type.kind_of? EXPSM::TypeSelect)
-				attribute_type = attr.domain
-				attribute_name = entity.name + '.' + attr.name
+		attribute_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
+		attribute_list = attribute_list.reject { |a| a.isBuiltin }
+		for attribute in attribute_list
+			domain_type = NamedType.find_by_name( attribute.domain )
+			if !attribute.redeclare_entity and (domain_type.kind_of? EXPSM::Entity or domain_type.kind_of? EXPSM::TypeSelect)
+				attribute_type = attribute.domain
+				attribute_name = entity.name + '.' + attribute.name
 				res = ERB.new(attribute_entity_template)
 				t = res.result(binding)
 				file.puts t
 			end
-			if attr.redeclare_entity
-				puts "#WARNING: '" + entity.name + ' ' + attr.name + "' Attribute redeclaration may need hand editing"
+			if attribute.redeclare_entity
+				puts "#WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute redeclaration may need hand editing"
 			end
-			if attr.instance_of? EXPSM::ExplicitAggregate
+			if attribute.instance_of? EXPSM::ExplicitAggregate
 			else
 			end
 		end

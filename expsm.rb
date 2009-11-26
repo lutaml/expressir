@@ -625,9 +625,13 @@ def postprocess_dictionary_express(repos)
 				end
 			##
 			## Add all explicit attributes to attributes_all_array
-				for supertype in decl.supertypes_array
-					for superattr in supertype.attributes
-						decl.attributes_all_array.push superattr
+				if decl.supertypes_all != nil
+					all_supername_array = decl.supertypes_all.scan(/\w+/)
+					for supername in all_supername_array
+						supertype = schema.find_namedtype_by_name( supername )
+						for superattr in supertype.attributes
+							decl.attributes_all_array.push superattr
+						end
 					end
 				end
 				for localattr in decl.attributes
@@ -637,7 +641,7 @@ def postprocess_dictionary_express(repos)
 				for nextattribute in decl.attributes_all_array
 					the_attr = nil
 					if nextattribute.redeclare_entity != nil
-						the_entity = repos.find_namedtype_by_name( nextattribute.redeclare_entity )
+						the_entity = schema.find_namedtype_by_name( nextattribute.redeclare_entity )
 						redattr_name = nextattribute.name
 						if nextattribute.redeclare_oldname != nil
 							redattr_name = nextattribute.redeclare_oldname
@@ -669,7 +673,7 @@ end
 ## process supertypes in the schema
 def get_all_supertypes( decl, superlist)
 	if decl.supertypes != nil
-		superlist = superlist + ' ' + decl.supertypes
+		superlist = decl.supertypes + ' ' + superlist
 		for sup in decl.supertypes_array
 			 superlist = get_all_supertypes( sup, superlist)
 		end

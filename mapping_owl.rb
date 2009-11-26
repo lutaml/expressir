@@ -7,22 +7,23 @@ require 'erb'
 # Entity Types and Subtypes are mapped to OWL Class hierarchy.
 # Select Types are mapped to OWL Class hierarchy.
 # Enumeration Type and BOOLEAN attributes are mapped to OWL DatatypeProperties.
-# The necessary import of the Dublin Core OWL is included.
 # If file named definitions.csv is found, definitions of items are read from that CSV.
 #    Double quotes around ITEM and DEFINITION column values is required
 # Annotations are added if not 'nil'.
+# If used, import of the Dublin Core OWL is included.
 # The output is in OWL RDF/XML abbreviated syntax.
 # 
 def map_from_express( mapinput )
 
-# Add RDFS andor Dublin Core basic annotations
+	# Add RDFS andor Dublin Core basic annotations (rdfs:comment must be position zero as definition assignment hardcoded there)  
 
 annotation_list = Array.new
-annotation_list[0] = ['dc:source','ISO 10303-227 Plant Spatial Configuration ARM EXPRESS']
-annotation_list[1] = ['dcterms:created','2009-09-23']
-annotation_list[2] = ['dc:creator', 'David Price, Eurostep Limited']
-annotation_list[3] = ['rdfs:comment', nil]
-annotation_list[4] = ['owl:versionInfo', '1']
+#annotation_list[2] = ['dc:source','ISO 10303-227 Plant Spatial Configuration ARM EXPRESS']
+#annotation_list[4] = ['dcterms:created','2009-09-23']
+#annotation_list[1] = ['dc:creator', 'David Price, Eurostep Limited']
+annotation_list[0] = ['rdfs:comment', nil]
+annotation_list[1] = ['owl:versionInfo', '1']
+include_dublin_core = false
 
 definition_hash = Hash.new
 if FileTest.exist?('definitions.csv')
@@ -55,8 +56,11 @@ xmlns:owl="http://www.w3.org/2002/07/owl#"
 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 xmlns:xsd="http://www.w3.org/2001/XMLSchema#"  
 xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+<% if include_dublin_core %>	  
 xmlns:dc="http://purl.org/dc/elements/1.1/"
-xmlns:dcterms="http://purl.org/dc/terms/"}
+xmlns:dcterms="http://purl.org/dc/terms/"
+<% end %>	  
+}
 
 # Template covering the output file contents for each schema start
 schema_start_template = %{xmlns="http://www.reeper.org/<%= schema.name %>#"
@@ -64,6 +68,10 @@ xml:base="http://www.reeper.org/<%= schema.name %>#" >
 
 <owl:Ontology rdf:about='' rdfs:label='<%= schema.name %>' >
 <%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
+<% end %>	  
+<% if include_dublin_core %>	
+<owl:imports rdf:resource="http://purl.org/dc/terms/"/>
+<owl:imports rdf:resource="http://purl.org/dc/elements/1.1/"/>
 <% end %>	  
 </owl:Ontology>
 }
@@ -97,9 +105,7 @@ class_collection_template = %{<owl:Class><owl:unionOf rdf:parseType="Collection"
 <%  class_name_list.each do |name| %>
     <owl:Class rdf:about='#<%= name %>' />
  <% end %>	  
-</owl:unionOf>
-<%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
-<% end %>	 
+</owl:unionOf> 
 </owl:Class>}
 
 # Template covering abstract entity types
@@ -119,28 +125,28 @@ attribute_entity_select_template = %{}
 attribute_template = %{}
 
 # Template covering the output file contents for each attribute that is builtin datatype
-attribute_builtin_template = %{<owl:DatatypeProperty rdf:ID='<%= attribute_name %>'>
-<% if entity_name != nil %>	
-<rdfs:domain rdf:resource='#<%= entity_name %>' />
+attribute_builtin_template = %{<owl:DatatypeProperty rdf:ID='<%= owl_property_name %>'>
+<% if owl_property_domain != nil %>	
+<rdfs:domain rdf:resource='#<%= owl_property_domain %>' />
  <% end %>
-<rdfs:range rdf:resource='<%= attribute_type %>' />
+<rdfs:range rdf:resource='<%= owl_property_range %>' />
 <%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
 <% end %>	 
 </owl:DatatypeProperty>
 }
 
 # Template covering the output file contents for each attribute that is entity or select type
-attribute_entity_template = %{<owl:ObjectProperty rdf:ID='<%= attribute_name %>'>
-<rdfs:domain rdf:resource='#<%= entity.name %>' />
-<rdfs:range rdf:resource='#<%= attribute_type %>' />
+attribute_entity_template = %{<owl:ObjectProperty rdf:ID='<%= owl_property_name %>'>
+<rdfs:domain rdf:resource='#<%= owl_property_domain %>' />
+<rdfs:range rdf:resource='#<%= owl_property_range %>' />
 <%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
 <% end %>	 
 </owl:ObjectProperty>
 }
 
 # Template covering the output file contents for each attribute that is enum datatype
-attribute_enum_template = %{<owl:DatatypeProperty rdf:ID='<%= attribute_name %>'>
-<rdfs:domain rdf:resource='#<%= entity.name %>' />
+attribute_enum_template = %{<owl:DatatypeProperty rdf:ID='<%= owl_property_name %>'>
+<rdfs:domain rdf:resource='#<%= owl_property_domain %>' />
    <rdfs:range><owl:DataRange><owl:oneOf><rdf:List>
 <%  enumitem_name_list.each do |name| %>
    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= name %></rdf:first>
@@ -220,9 +226,9 @@ for schema in schema_list
 	for entity in entity_list
 # Evaluate and write entity start template
 		if definition_hash[entity.name.downcase] != nil
-			annotation_list[3] = ['rdfs:comment', definition_hash[entity.name.downcase]]
+			annotation_list[0] = ['rdfs:comment', definition_hash[entity.name.downcase]]
 		else
-			annotation_list[3] = ['rdfs:comment', nil]
+			annotation_list[0] = ['rdfs:comment', nil]
 		end
 		res = ERB.new(entity_start_template)
 		t = res.result(binding)
@@ -242,9 +248,9 @@ for schema in schema_list
 	# Handle mapping common string attributes to OWL DatatypeProperties of OWL Thing 
 
 	for thing_attribute in thing_attributes
-		attribute_name = thing_attribute
-		attribute_type = 'http://www.w3.org/2001/XMLSchema#string'
-		entity_name = nil
+		owl_property_name = thing_attribute
+		owl_property_range = 'http://www.w3.org/2001/XMLSchema#string'
+		owl_property_domain = nil
 		res = ERB.new(attribute_builtin_template)
 		t = res.result(binding)
 		file.puts t
@@ -252,23 +258,40 @@ for schema in schema_list
 
 	for entity in entity_list
 		attribute_list = entity.attributes.find_all{ |a| a.kind_of? EXPSM::Explicit and !thing_attributes.include?(a.name)}
+		
 		for attribute in attribute_list
-
-			if attribute.isBuiltin
-				attribute_type = datatype_hash[attribute.domain]
-				attribute_name = entity.name + '.' + attribute.name
-				entity_name = entity.name
+			
+			express_attribute_domain = nil
+			if !attribute.isBuiltin
+				express_attribute_domain = NamedType.find_by_name( attribute.domain )
+			end
+			
+			case
+			when (attribute.isBuiltin)
+				owl_property_range = datatype_hash[attribute.domain]
+				owl_property_name = entity.name + '.' + attribute.name
+				owl_property_domain = entity.name
 				res = ERB.new(attribute_builtin_template)
 				t = res.result(binding)
 				file.puts t
-			end
 
-			if NamedType.find_by_name( attribute.domain ).kind_of? EXPSM::TypeEnum
-				attribute_name = entity.name + '.' + attribute.name
-				enumitem_name_list = NamedType.find_by_name( attribute.domain ).items.scan(/\w+/)
+			when (express_attribute_domain.kind_of? EXPSM::TypeEnum)
+				owl_property_name = entity.name + '.' + attribute.name
+				enumitem_name_list = express_attribute_domain.items.scan(/\w+/)
+				owl_property_domain = entity.name
 				res = ERB.new(attribute_enum_template)
 				t = res.result(binding)
 				file.puts t
+				
+			when (!attribute.redeclare_entity and (express_attribute_domain.kind_of? EXPSM::Entity or express_attribute_domain.kind_of? EXPSM::TypeSelect))
+				owl_property_range = attribute.domain
+				owl_property_name = entity.name + '.' + attribute.name
+				owl_property_domain = entity.name
+				res = ERB.new(attribute_entity_template)
+				t = res.result(binding)
+				file.puts t
+			else
+				puts "#WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute type not yet mapped"
 			end
 
 			if attribute.instance_of? EXPSM::ExplicitAggregate
@@ -281,21 +304,6 @@ for schema in schema_list
 	end
 
 	# Handle mapping attribute of entity and select to OWL ObjectProperties 
-
-	for entity in entity_list
-		attribute_list = entity.attributes.find_all{ |a| a.kind_of? EXPSM::Explicit }
-		attribute_list = attribute_list.reject { |a| a.isBuiltin }
-		for attribute in attribute_list
-			domain_type = NamedType.find_by_name( attribute.domain )
-			if !attribute.redeclare_entity and (domain_type.kind_of? EXPSM::Entity or domain_type.kind_of? EXPSM::TypeSelect)
-				attribute_type = attribute.domain
-				attribute_name = entity.name + '.' + attribute.name
-				res = ERB.new(attribute_entity_template)
-				t = res.result(binding)
-				file.puts t
-			end
-		end
-	end
 
 	res = ERB.new(schema_end_template)
 	t = res.result(binding)

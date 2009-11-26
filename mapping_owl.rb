@@ -115,22 +115,21 @@ attribute_aggregate_entity_select_template = %{}
 # Template covering the output file contents for each attribute that is a select of entity
 attribute_entity_select_template = %{}
 
-# Template covering the output file contents for each attribute that is an entity
-attribute_entity_template = %{}
-
 # Template covering the output file contents for each attribute
 attribute_template = %{}
 
 # Template covering the output file contents for each attribute that is builtin datatype
 attribute_builtin_template = %{<owl:DatatypeProperty rdf:ID='<%= attribute_name %>'>
-<rdfs:domain rdf:resource='#<%= entity.name %>' />
+<% if entity_name != nil %>	
+<rdfs:domain rdf:resource='#<%= entity_name %>' />
+ <% end %>
 <rdfs:range rdf:resource='<%= attribute_type %>' />
 <%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
 <% end %>	 
 </owl:DatatypeProperty>
 }
 
-# Template covering the output file contents for each attribute that is builtin datatype
+# Template covering the output file contents for each attribute that is entity or select type
 attribute_entity_template = %{<owl:ObjectProperty rdf:ID='<%= attribute_name %>'>
 <rdfs:domain rdf:resource='#<%= entity.name %>' />
 <rdfs:range rdf:resource='#<%= attribute_type %>' />
@@ -240,19 +239,25 @@ for schema in schema_list
 		file.puts t
 	end
 
-# Handle mapping general attributes to OWL DatatypeProperties 
+	# Handle mapping common string attributes to OWL DatatypeProperties of OWL Thing 
 
-	for a in thing_attributes
-		file.puts '<owl:DatatypeProperty rdf:ID="' + a + '"><rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/></owl:DatatypeProperty>'
+	for thing_attribute in thing_attributes
+		attribute_name = thing_attribute
+		attribute_type = 'http://www.w3.org/2001/XMLSchema#string'
+		entity_name = nil
+		res = ERB.new(attribute_builtin_template)
+		t = res.result(binding)
+		file.puts t
 	end
 
 	for entity in entity_list
-		attribute_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
+		attribute_list = entity.attributes.find_all{ |a| a.kind_of? EXPSM::Explicit and !thing_attributes.include?(a.name)}
 		for attribute in attribute_list
 
-			if attribute.isBuiltin and !thing_attributes.include?(attribute.name)
+			if attribute.isBuiltin
 				attribute_type = datatype_hash[attribute.domain]
 				attribute_name = entity.name + '.' + attribute.name
+				entity_name = entity.name
 				res = ERB.new(attribute_builtin_template)
 				t = res.result(binding)
 				file.puts t
@@ -266,21 +271,19 @@ for schema in schema_list
 				file.puts t
 			end
 
+			if attribute.instance_of? EXPSM::ExplicitAggregate
+				puts "#WARNING: '" + entity.name + ' ' + attribute.name + "' Aggregate cardinalities not mapped"
+			end
 			if attribute.redeclare_entity
 				puts "#WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute redeclaration may need hand editing"
 			end
-
-			if attribute.instance_of? EXPSM::ExplicitAggregate
-			else
-			end
 		end
-
 	end
 
-# Handle mapping general attributes to OWL ObjectProperties 
-	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
+	# Handle mapping attribute of entity and select to OWL ObjectProperties 
+
 	for entity in entity_list
-		attribute_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
+		attribute_list = entity.attributes.find_all{ |a| a.kind_of? EXPSM::Explicit }
 		attribute_list = attribute_list.reject { |a| a.isBuiltin }
 		for attribute in attribute_list
 			domain_type = NamedType.find_by_name( attribute.domain )
@@ -290,12 +293,6 @@ for schema in schema_list
 				res = ERB.new(attribute_entity_template)
 				t = res.result(binding)
 				file.puts t
-			end
-			if attribute.redeclare_entity
-				puts "#WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute redeclaration may need hand editing"
-			end
-			if attribute.instance_of? EXPSM::ExplicitAggregate
-			else
 			end
 		end
 	end

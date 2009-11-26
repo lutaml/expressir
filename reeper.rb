@@ -4,8 +4,8 @@ require 'yaml'
 include REXML
 include EXPSM
 ## reeper
-## Version 0.1
-## 2009-09-09
+## Release 0.2
+## 2009-11-26
 ##
 ## MAIN PROCESS STARTS HERE
 ## Parse input options

@@ -4,7 +4,7 @@ require 'erb'
 #
 # This function navigates the EXPRESS STEPMod Model Ruby Classes
 # and performs a structural EXPRESS-to-UML2 (2.1.2) mapping using Ruby ERB templates.
-# The output is in XMI 2.1 syntax in a file named 'Model.xmi'.
+# The output is in XMI 2.1 syntax in a file named <schema>.xmi if one schema input and 'Model.xmi' if more than one schema input.
 # 
 # Integer, Boolean, String -> UML equivalent builtin type
 # Real, Number, Binary, Logical -> New PrimitiveType
@@ -25,7 +25,7 @@ require 'erb'
 
 def map_from_express( mapinput )
 
-output_xmi_filename = 'Model.xmi'
+output_xmi_filename = nil
 
 # datatypes for builtin types that map directly to UML
 datatype_hash = Hash.new
@@ -179,7 +179,16 @@ else
 end
 
 # Set up XMI output file
+
+	if schema_list.size == 1 and output_xmi_filename == nil
+		schema = schema_list[0]
+		output_xmi_filename = schema.name.to_s + ".xmi"
+	elsif output_xmi_filename == nil
+		output_xmi_filename = 'Model.xmi'
+	end
+	
 	file = File.new(output_xmi_filename, "w")
+	puts 'reeper : Writing output to file ' + output_xmi_filename
 
 # Evaluate and write file start template 
   res = ERB.new(overall_start_template)

@@ -25,6 +25,7 @@ require 'erb'
 
 def map_from_express( mapinput )
 
+# Enter file name here to override defaults (<schema>.xmi if one schema, and Model.xmi if more than one)
 output_xmi_filename = nil
 
 # datatypes for builtin types that map directly to UML

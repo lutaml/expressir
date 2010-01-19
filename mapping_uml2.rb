@@ -18,7 +18,7 @@ require 'erb'
 #                                    plus Association owning other end property and multiplicity, unique and ordered set
 # Explicit Attribute 1-D SET, BAG, LIST of Primitive or Enum -> Property owned by Class and multiplicity, unique and ordered set
 # Explicit Attribute of Entity/Select/Builtin Redeclaration (Renamed) -> Property with (new) name that redefines inherited Property
-# Inverse Attribute Partial Support (only one per forward attribute, and inverse not in subtype) -> read-only UML Property owned by Class with multiplicity and unique set
+# Inverse Attribute Partial Support (REMOVED for now)
 # USE or REFERENCE (even with named items) -> UML PackageImport between Packages
 #
 #######################################################################################
@@ -104,21 +104,14 @@ attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%
 <% if upper != '1' %><upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="<%= upper %>"/><% end %>
 </ownedAttribute>}
 
-# INVERSE ATTRIBUTE Template
-inverse_attribute_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= inverse.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>' isLeaf='false' isStatic='false' isReadOnly='true' isDerived='false' isDerivedUnion='false' type="<%= domain_xmiid %>" aggregation="none" association="<%= assoc_xmiid %>" <% if attr.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>
-<% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/><% end %>
-<% if lower != '0' and lower != '1' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"  value="<%= lower %>"/><% end %>
-<% if upper != '1' %><upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="<%= upper %>"/><% end %>
-</ownedAttribute>}
+
 
 # EXPLICIT ATTRIBUTE ENTITY Create Association Template
 attribute_entity_association_template = %{<packagedElement xmi:type="uml:Association" xmi:id="<%= xmiid %>" name="" visibility='public' isLeaf='false' isAbstract='false' isDerived='false' memberEnd="<%= domain_xmiid %> <%= owner_xmiid %>">
-<% if !inverse_exists %>
 <ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid + '-end' %>" type="<%= owner_xmiid %>" owningAssociation="_<%= xmiid %>" association="<%= xmiid %>" visibility='public'>
 <lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/>
 <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="*"/>
 </ownedEnd>
-<% end %>	
 </packagedElement>}
 
  
@@ -192,18 +185,6 @@ end
   res = ERB.new(overall_start_template)
   t = res.result(binding)
 	file.puts t
-
-# Set up list of all EXPRESS Inverses in all schemas 
-all_inverse_list = []
-for schema in schema_list	
-	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
-	for entity in entity_list
-		entity_inverse_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Inverse }
-		for inverse in entity_inverse_list
-			all_inverse_list.push inverse
-		end
-	end
-end
 
 for schema in schema_list	
 
@@ -295,22 +276,6 @@ for schema in schema_list
 				xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
 				owner_xmiid = '_' + schema.name + '-' + entity.name
 				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
-
-#				check if inverse refers to this attribute, affects how association is written
-				inverse_exists = false
-				for inverse in all_inverse_list
-					if inverse.reverseAttr == attr
-					puts 'FOR ' + entity.name + '.' + attr.name
-					puts 'FOUND INVERSE ' + inverse.name
-					puts inverse.reverseEntity.name
-					puts attr.domain
-						if attr.domain == inverse.entity.name
-							puts 'WROTE INVERSE ' + inverse.name
-							inverse_exists = true
-						end
-					end
-				end				
-				
 				res = ERB.new(attribute_entity_association_template)
 				t = res.result(binding)
 				file.puts t
@@ -413,51 +378,6 @@ for schema in schema_list
 				file.puts t
 			end
 
-		end
-
-# Map EXPRESS Inverse Attributes
-		inverse_attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Inverse }
-		for inverse in inverse_attr_list
-		
-#				check if inverse refers to this attribute, affects how association is written
-			inverse_exists = false
-			for inverse in all_inverse_list
-				if inverse.reverseAttr == attr
-					puts 'FOR ' + entity.name + '.' + attr.name
-					puts 'FOUND INVERSE ' + inverse.name
-					puts inverse.reverseEntity.name
-					puts attr.domain
-					if attr.domain == inverse.entity.name
-						puts 'WROTE INVERSE ' + inverse.name
-						inverse_exists = true
-					end
-				end
-			end				
-		
-			if inverse_exists		
-				inverse_name = inverse.name
-				lower = '0'
-				upper = '*'
-				isset = 'true'
-				if inverse.instance_of? EXPSM::InverseAggregate
-					if inverse.upper != '?'
-						upper = inverse.upper
-					end
-					if inverse.lower != '0'
-						lower = inverse.lower
-					end
-					if inverse.aggrtype == 'BAG'
-						isset = 'false'
-					end
-				end
-				xmiid = '_' + schema.name + '-' + entity.name + '-' + inverse.name
-				domain_xmiid = '_' + schema.name + '-' + inverse.reverseEntity.name
-				assoc_xmiid = '_1_association_' + inverse.reverseEntity.schema.name + '-' + inverse.reverseEntity.name + '-' + inverse.reverseAttr_id
-# Evaluate and write ENTITY end template 
-				res = ERB.new(inverse_attribute_template)
-				t = res.result(binding)
-				file.puts t
-			end
 		end
 		
 

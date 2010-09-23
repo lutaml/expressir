@@ -1,30 +1,48 @@
 require 'erb'
 # EXPRESS to OWL Structural Mapping
-# Version 0.1
-#
+# Version 0.2
 # This function navigates the EXPRESS STEPMod Model Ruby Classes
 # and performs a structural EXPRESS-to-OWL mapping using Ruby ERB templates.
-# Entity Types and Subtypes are mapped to OWL Class hierarchy.
-# Select Types are mapped to OWL Class hierarchy.
-# Enumeration Type and BOOLEAN attributes are mapped to OWL DatatypeProperties.
+#
+# Configurable items are:
 # If file named definitions.csv is found, definitions of items are read from that CSV.
 #    Double quotes around ITEM and DEFINITION column values is required
-# Annotations are added if not 'nil'.
-# If used, import of the Dublin Core OWL is included.
+# include_dublin_core - If true, import of the Dublin Core OWL is included. Set to true if dc used in annotation_list
+# annotation_list - added to each construct created if found. Annotations are added if not 'nil'.
+# usr_base of namespace for OWL constructs
+# top_class - if not nil, makes every OWL class created a subclass if this class which is added to output
+# thing_attributes - if specified, OWL domain is not set so they apply to OWL Thing
+# datatype_hash - sets mappings for EXPRESS builtin to XSD datatypes
+#
+
+# Entity Types and Subtypes are mapped to OWL Class hierarchy.
+# Select Types are mapped to OWL Class hierarchy. Version 0.2 now checks select type items are only entity types so slows mapping a lot.
+# Type = builtin are mapped to RDFS Datatypes that subtype XSD datatypes
+# Explicit attrs of Type = builtin are mapped to OWL DatatypeProperties
+# Enumeration Type and BOOLEAN attributes are mapped to OWL DatatypeProperties.
 # The output is in OWL RDF/XML abbreviated syntax.
+
+
 # 
 def map_from_express( mapinput )
 
-	# Add RDFS andor Dublin Core basic annotations (rdfs:comment must be position zero as definition assignment hardcoded there)  
+# Mapping Configuration Starts Here
+
+# Set the base of the URI (i.e. the namespace) for OWL constructs created during the mapping
+uri_base = 'http://www.reeper.org'
+
+# Add RDFS andor Dublin Core basic annotations (rdfs:comment must be position zero as definition assignment hardcoded there)  
 
 annotation_list = Array.new
-#annotation_list[2] = ['dc:source','ISO 10303-227 Plant Spatial Configuration ARM EXPRESS']
-#annotation_list[4] = ['dcterms:created','2009-09-23']
-#annotation_list[1] = ['dc:creator', 'David Price, Eurostep Limited']
+annotation_list[3] = ['dcterms:created','2010-09-21']
+annotation_list[2] = ['dc:creator', 'David Price, TopQuadrant Limited']
 annotation_list[0] = ['rdfs:comment', nil]
+annotation_list[4] = ['dc:source', 'OASIS PLCS TC modified ISO 10303-239 Edition 1 PLCS ARM Long Form EXPRESS']
 annotation_list[1] = ['owl:versionInfo', '1']
-include_dublin_core = false
 
+include_dublin_core = true
+
+# Read definitions from csv file if found
 definition_hash = Hash.new
 if FileTest.exist?('definitions.csv')
 	require 'csv'
@@ -34,11 +52,14 @@ if FileTest.exist?('definitions.csv')
 	end
 end
 
+# set to class name (e.g. 'TOP-THING') to make all created OWL Classes subclasses of a topmost class
+top_class = 'AP239-ARM-THING'
+
 # add common string attributes to use OWL Thing as domain rather than schema classes
 thing_attributes = []
-thing_attributes.push 'id'
-thing_attributes.push 'name'
-thing_attributes.push 'description'
+#thing_attributes.push 'id'
+#thing_attributes.push 'name'
+#thing_attributes.push 'description'
 
 # datatypes for simple and aggregates of simple type
 datatype_hash = Hash.new
@@ -49,6 +70,10 @@ datatype_hash["BINARY"] = 'http://www.w3.org/2001/XMLSchema#hexBinary'
 datatype_hash["BOOLEAN"] = 'http://www.w3.org/2001/XMLSchema#boolean'
 datatype_hash["LOGICAL"] = 'http://www.w3.org/2001/XMLSchema#boolean'
 datatype_hash["STRING"] = 'http://www.w3.org/2001/XMLSchema#string'
+
+
+######### Mapping Configuration Ends Here ##############33
+
 
 # Template covering the start of the output file 
 overall_start_template = %{<rdf:RDF 
@@ -63,8 +88,8 @@ xmlns:dcterms="http://purl.org/dc/terms/"
 }
 
 # Template covering the output file contents for each schema start
-schema_start_template = %{xmlns="http://www.reeper.org/<%= schema.name %>#"
-xml:base="http://www.reeper.org/<%= schema.name %>#" > 
+schema_start_template = %{xmlns="<%= uri_base %>/<%= schema.name %>#"
+xml:base="<%= uri_base %>/<%= schema.name %>#" > 
 
 <owl:Ontology rdf:about='' rdfs:label='<%= schema.name %>' >
 <%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
@@ -74,6 +99,9 @@ xml:base="http://www.reeper.org/<%= schema.name %>#" >
 <owl:imports rdf:resource="http://purl.org/dc/elements/1.1/"/>
 <% end %>	  
 </owl:Ontology>
+<% if top_class != nil %>	
+<owl:Class rdf:ID='<%= top_class %>' />
+<% end %>
 }
 
 # Template covering the output file contents for each entity type start
@@ -83,7 +111,11 @@ entity_start_template = %{
 <% end %>	 
 }
 # Template covering the output file contents for each entity type end
-entity_end_template = %{</owl:Class>  
+entity_end_template = %{
+<% if top_class != nil %>	
+<rdfs:subClassOf rdf:resource='#<%= top_class %>' />
+<% end %>
+</owl:Class>  
 }
 
 # Template covering the output file contents for each select type start
@@ -93,7 +125,10 @@ select_start_template = %{
 <% end %>	 
 }
 # Template covering the output file contents for each select type end
-select_end_template = %{</owl:Class>  
+select_end_template = %{<% if top_class != nil %>	
+<rdfs:subClassOf rdf:resource='#<%= top_class %>' />
+<% end %>
+</owl:Class>  
 }
 
 # Template covering the supertype(s) for each entity type
@@ -110,6 +145,13 @@ class_collection_template = %{<owl:Class><owl:unionOf rdf:parseType="Collection"
 
 # Template covering abstract entity types
 abstract_entity_template = %{<rdfs:subClassOf rdf:resource='#<%= supertype.name %>' />
+}
+
+# Template covering the output file contents for each defined type of builtin datatype
+type_builtin_template = %{
+<rdfs:Datatype rdf:ID='<%= type_builtin.name %>'>
+<rdfs:subClassOf rdf:resource='<%= type_builtin_datatype %>'/>
+</rdfs:Datatype>
 }
 
 # Template covering the output file contents for each attribute that is an aggregate
@@ -200,25 +242,51 @@ for schema in schema_list
 
 	select_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::TypeSelect }
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
+	defined_type_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Type }
+
+
+# Handle defined type maps to RDFS Datatype 
+
+	for type_builtin in defined_type_list
+		if type_builtin.isBuiltin
+			type_builtin_datatype = datatype_hash[type_builtin.domain]
+			res = ERB.new(type_builtin_template)
+			t = res.result(binding)
+			file.puts t
+		end
+	end
 
 # Handle select maps to OWL Class 
 
 	for select in select_list
-# Evaluate and write select start template 
-		res = ERB.new(select_start_template)
-		t = res.result(binding)
-		file.puts t
-    file.puts '<owl:equivalentClass>'
 		class_name_list = select.selectitems.scan(/\w+/)
-		res = ERB.new(class_collection_template)
-		t = res.result(binding)
-		file.puts t
-    file.puts '</owl:equivalentClass>'
+		non_entity_found = false
+		puts 'Checking SELECT type items for non-Entity Types, be patient.'
+		for a_class_name in class_name_list
+			a_thing = NamedType.find_by_name( a_class_name )
+			if !(a_thing.instance_of? EXPSM::Entity)
+				non_entity_found = true
+			end
+		end
+		if !non_entity_found
+		
+# Evaluate and write select start template 
+			res = ERB.new(select_start_template)
+			t = res.result(binding)
+			file.puts t
+			    file.puts '<owl:equivalentClass>'		
+			res = ERB.new(class_collection_template)
+			t = res.result(binding)
+			file.puts t
+			    file.puts '</owl:equivalentClass>'
 
 # Evaluate and write select end template 
-		res = ERB.new(select_end_template)
-		t = res.result(binding)
-		file.puts t
+			res = ERB.new(select_end_template)
+			t = res.result(binding)
+			file.puts t
+		else
+				puts "#WARNING: '" + select.name +  "' Select Type of non-Entity Types not mapped"
+		end
 	end
 
 # Handle entity maps to OWL Class 
@@ -290,6 +358,15 @@ for schema in schema_list
 				res = ERB.new(attribute_entity_template)
 				t = res.result(binding)
 				file.puts t
+				
+			when (!attribute.redeclare_entity and express_attribute_domain.instance_of? EXPSM::Type and express_attribute_domain.isBuiltin)
+				owl_property_range = attribute.domain
+				owl_property_name = entity.name + '.' + attribute.name
+				owl_property_domain = entity.name
+				res = ERB.new(attribute_builtin_template)
+				t = res.result(binding)
+				file.puts t		
+				
 			else
 				puts "#WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute type not yet mapped"
 			end

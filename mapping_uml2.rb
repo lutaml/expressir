@@ -43,7 +43,7 @@ overall_start_template = %{<?xml version="1.0" encoding="UTF-8"?>
 <packagedElement xmi:type="uml:PrimitiveType" xmi:id="LOGICAL" name="Logical" />}
 
 # XMI File End Template
-overall_end_template = %{  </uml:Model>}
+overall_end_template = %{</uml:Model>}
 
 # SCHEMA Start Template
 schema_start_template = %{<packagedElement xmi:type = "uml:Package" xmi:id = "_1_<%= schema.name %>" name = "<%= schema.name %>" visibility = "public">}
@@ -99,8 +99,10 @@ attribute_aggregate_entity_select_template = %{}
 attribute_entity_select_template = %{}
 
 # Template covering the output file contents for each attribute that is an entity
-attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>' isLeaf='false' isStatic='false' isReadOnly='false' isDerived='false' isDerivedUnion='false' type="<%= domain_xmiid %>" aggregation="none" association="<%= assoc_xmiid %>" <% if attr.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>
-<% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/><% end %>
+attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>' isLeaf='false' isStatic='false' isReadOnly='false' isDerived='false' isDerivedUnion='false' type="<%= domain_xmiid %>" aggregation="none" association="<%= assoc_xmiid %>"<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
+
+#Template covering attribute wrapup
+attribute_end = %{<% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/><% end %>
 <% if lower != '0' and lower != '1' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"  value="<%= lower %>"/><% end %>
 <% if upper != '1' %><upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="<%= upper %>"/><% end %>
 </ownedAttribute>}
@@ -109,7 +111,7 @@ attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%
 
 # EXPLICIT ATTRIBUTE ENTITY Create Association Template
 attribute_entity_association_template = %{<packagedElement xmi:type="uml:Association" xmi:id="<%= xmiid %>" name="" visibility='public' isLeaf='false' isAbstract='false' isDerived='false' memberEnd="<%= domain_xmiid %> <%= owner_xmiid %>">
-<ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid + '-end' %>" type="<%= owner_xmiid %>" owningAssociation="_<%= xmiid %>" association="<%= xmiid %>" visibility='public'>
+<ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid + '-end' %>" type="<%= owner_xmiid %>" owningAssociation="<%= xmiid %>" association="<%= xmiid %>" visibility='public'>
 <lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/>
 <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="*"/>
 </ownedEnd>
@@ -120,38 +122,14 @@ attribute_entity_association_template = %{<packagedElement xmi:type="uml:Associa
 attribute_template = %{}
 
 # EXPLICIT ATTRIBUTE SIMPLE TYPE Template
-attribute_builtin_template = %{
-<% if datatype_hash[attr.domain] != nil %>
-<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>'  
-<% if attr.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>
-<type xmi:type="uml:PrimitiveType" href="<%= datatype_hash[attr.domain] %>" />
-<% end %>	
-<% if datatype_hash[attr.domain] == nil %>
-<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" type="<%= attr.domain %>" <% if attr.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>
-<% end %>	
-<% if lower == '0' or attr.isOptional == TRUE %>
-<lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/>
-<% end %>
-<% if lower != '0' and lower != '1' %>
-<lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"  value="<%= lower %>"/>
-<% end %>
-<% if upper != '1' %>
-<upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="<%= upper %>"/>
-<% end %>
-</ownedAttribute>}
+attribute_builtin_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" <% if datatype_hash[attr.domain] != nil %>isOrdered='<%= islist %>' isUnique='<%= isset %>'<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>>
+<type xmi:type="uml:PrimitiveType" href="<%= datatype_hash[attr.domain] %>" /><% end %>	
+<% if datatype_hash[attr.domain] == nil %>type="<%= attr.domain %>"<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>><% end %>}
+
 
 # EXPLICIT ATTRIBUTE ENUM and TYPE Template
-attribute_enum_type_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="_<%= xmiid %>" name="<%= attr.name %>" visibility="public" type="<%= type_xmiid %>" isOrdered='<%= islist %>' isUnique='<%= isset %>' > 
-<% if lower == '0' or attr.isOptional == TRUE %>
-<lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/>
-<% end %>
-<% if lower != '0' and lower != '1' %>
-<lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"  value="<%= lower %>"/>
-<% end %>
-<% if upper != '1' %>
-<upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="<%= upper %>"/>
-<% end %>
-</ownedAttribute>}
+attribute_enum_type_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" type="<%= type_xmiid %>" isOrdered='<%= islist %>' isUnique='<%= isset %>' >}
+
 
 # TYPE Template
 type_template = %{<packagedElement xmi:type="uml:PrimitiveType" xmi:id="_<%= schema.name %>-<%= type.name %>" name="<%= type.name %>" >
@@ -366,7 +344,7 @@ for schema in schema_list
 
 # Map EXPRESS Explicit Attributes of Builtin
 			if attr.isBuiltin
-				res = ERB.new(attribute_builtin_template)
+				res = ERB.new(attribute_builtin_template,0,"<>")
 				t = res.result(binding)
 				file.puts t
 			end
@@ -374,7 +352,7 @@ for schema in schema_list
 # Map EXPRESS Explicit Attributes of TYPE and TYPE Enum
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Type or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeEnum
 				type_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
-				res = ERB.new(attribute_enum_type_template)
+				res = ERB.new(attribute_enum_type_template,0,"<>")
 				t = res.result(binding)
 				file.puts t
 			end
@@ -383,11 +361,14 @@ for schema in schema_list
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect 
 				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
 				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
-				res = ERB.new(attribute_entity_template)
+				res = ERB.new(attribute_entity_template,0,"<>")
 				t = res.result(binding)
 				file.puts t
 			end
-
+      
+      res = ERB.new(attribute_end,0,"<>")
+      t = res.result(binding)
+      file.puts t
 		end
 		
 

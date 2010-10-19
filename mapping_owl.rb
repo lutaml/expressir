@@ -171,7 +171,7 @@ attribute_builtin_template = %{<owl:DatatypeProperty rdf:ID='<%= owl_property_na
 <% if owl_property_domain != nil %>	
 <rdfs:domain rdf:resource='#<%= owl_property_domain %>' />
  <% end %>
-<rdfs:range rdf:resource='<%= owl_property_range %>' />
+<rdfs:range rdf:resource='#<%= owl_property_range %>' />
 <%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
 <% end %>	 
 </owl:DatatypeProperty>

@@ -16,7 +16,8 @@ require 'erb'
 #
 
 # Entity Types and Subtypes are mapped to OWL Class hierarchy.
-# Select Types are mapped to OWL Class hierarchy. Version 0.2 now checks select type items are only entity types so slows mapping a lot.
+# Select Types that resolve to all Entity Types are mapped to OWL Class hierarchy.
+# Select Types that resolve to all Type are mapped to RDFS Datatype.
 # Type = builtin are mapped to RDFS Datatypes that subtype XSD datatypes
 # Explicit attrs of Type = builtin are mapped to OWL DatatypeProperties
 # Enumeration Type and BOOLEAN attributes are mapped to OWL DatatypeProperties.
@@ -29,11 +30,12 @@ def map_from_express( mapinput )
 # Mapping Configuration Starts Here
 
 # Set the base of the URI (i.e. the namespace) for OWL constructs created during the mapping
-uri_base = 'http://www.reeper.org'
+uri_base = 'http://www.navsea.navy.mil'
 
 # Add RDFS andor Dublin Core basic annotations (rdfs:comment must be position zero as definition assignment hardcoded there)  
 
 annotation_list = Array.new
+#annotation_list[2] = ['dc:source','ISO 10303-227 Plant Spatial Configuration ARM EXPRESS']
 annotation_list[3] = ['dcterms:created','2010-09-21']
 annotation_list[2] = ['dc:creator', 'David Price, TopQuadrant Limited']
 annotation_list[0] = ['rdfs:comment', nil]
@@ -143,6 +145,17 @@ class_collection_template = %{<owl:Class><owl:unionOf rdf:parseType="Collection"
 </owl:unionOf> 
 </owl:Class>}
 
+
+# Template covering OWL collections of RDFS datatypes
+datatype_collection_template = %{<rdfs:Datatype rdf:ID='<%= type_name %>'>
+<owl:equivalentClass><rdfs:Datatype><owl:unionOf rdf:parseType="Collection">
+<%  type_name_list.each do |name| %>
+    <rdf:Description rdf:ID='<%= name %>' />
+ <% end %>
+</owl:unionOf> 
+</rdfs:Datatype></owl:equivalentClass>
+</rdfs:Datatype>}
+
 # Template covering abstract entity types
 abstract_entity_template = %{<rdfs:subClassOf rdf:resource='#<%= supertype.name %>' />
 }
@@ -168,6 +181,17 @@ attribute_template = %{}
 
 # Template covering the output file contents for each attribute that is builtin datatype
 attribute_builtin_template = %{<owl:DatatypeProperty rdf:ID='<%= owl_property_name %>'>
+<% if owl_property_domain != nil %>	
+<rdfs:domain rdf:resource='#<%= owl_property_domain %>' />
+ <% end %>
+<rdfs:range rdf:resource='<%= owl_property_range %>' />
+<%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
+<% end %>	 
+</owl:DatatypeProperty>
+}
+
+# Template covering the output file contents for each attribute that is builtin datatype
+attribute_typebuiltin_template = %{<owl:DatatypeProperty rdf:ID='<%= owl_property_name %>'>
 <% if owl_property_domain != nil %>	
 <rdfs:domain rdf:resource='#<%= owl_property_domain %>' />
  <% end %>
@@ -224,6 +248,20 @@ else
 	exit
 end
 
+# A recursive function to return complete set of items, following nested selects, for a select that are not selects themselves
+def get_all_selections( item_list )
+	select_items = item_list.find_all{ |a| a.kind_of? EXPSM::TypeSelect}
+	if select_items.size == 0
+		return item_list
+	end
+	temp_item_list = item_list
+	for select in select_items
+		temp_item_list.delete( select )
+		temp_item_list = temp_item_list + select.selectitems_array
+	end
+	final_list = get_all_selections( temp_item_list )
+end
+
 for schema in schema_list
 
 # Set up separate file for each schema 
@@ -256,36 +294,39 @@ for schema in schema_list
 		end
 	end
 
-# Handle select maps to OWL Class 
+# Handle select maps to OWL Class hierarchy and RDFS Datatypes
 
 	for select in select_list
 		class_name_list = select.selectitems.scan(/\w+/)
-		non_entity_found = false
-		puts 'Checking SELECT type items for non-Entity Types, be patient.'
-		for a_class_name in class_name_list
-			a_thing = NamedType.find_by_name( a_class_name )
-			if !(a_thing.instance_of? EXPSM::Entity)
-				non_entity_found = true
-			end
-		end
-		if !non_entity_found
+
+		this_select_all_items = get_all_selections( select.selectitems_array )
+		this_select_type_items = this_select_all_items.find_all{ |a| a.kind_of? EXPSM::Type}
+
+		case
+		when this_select_type_items.size == 0
 		
 # Evaluate and write select start template 
 			res = ERB.new(select_start_template)
 			t = res.result(binding)
 			file.puts t
-			    file.puts '<owl:equivalentClass>'		
+		    file.puts '<owl:equivalentClass>'		
 			res = ERB.new(class_collection_template)
 			t = res.result(binding)
 			file.puts t
-			    file.puts '</owl:equivalentClass>'
+		    file.puts '</owl:equivalentClass>'
 
 # Evaluate and write select end template 
 			res = ERB.new(select_end_template)
 			t = res.result(binding)
 			file.puts t
+		when this_select_type_items.size == this_select_all_items.size
+			type_name_list = class_name_list
+			type_name = select.name
+			res = ERB.new(datatype_collection_template)
+			t = res.result(binding)
+			file.puts t
 		else
-				puts "#WARNING: '" + select.name +  "' Select Type of non-Entity Types not mapped"
+			puts "#WARNING: '" + select.name +  "' Select Type of Mixed Types and Entites not mapped"
 		end
 	end
 
@@ -363,7 +404,7 @@ for schema in schema_list
 				owl_property_range = attribute.domain
 				owl_property_name = entity.name + '.' + attribute.name
 				owl_property_domain = entity.name
-				res = ERB.new(attribute_builtin_template)
+				res = ERB.new(attribute_typebuiltin_template)
 				t = res.result(binding)
 				file.puts t		
 				

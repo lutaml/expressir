@@ -32,6 +32,8 @@ require 'erb'
 
 # 
 def map_from_express( mapinput )
+puts ' '
+puts 'EXPRESS to OWL Structural Mapping V0.3'
 
 ######### Mapping Configuration Starts Here ##############
 

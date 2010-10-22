@@ -487,6 +487,9 @@ for schema in schema_list
 
 # Handle EXPRESS attributes on an entity-by-entity basis
 	for entity in entity_list
+		
+		class_name = entity.name
+
 		attribute_list = entity.attributes.find_all{ |a| a.kind_of? EXPSM::Explicit and !thing_attributes.include?(a.name)}
 		thing_attr_list = entity.attributes.find_all{ |a| a.kind_of? EXPSM::Explicit and thing_attributes.include?(a.name)}
 		inverse_list = entity.attributes.find_all{ |a| a.kind_of? EXPSM::Inverse and !thing_attributes.include?(a.name)}
@@ -517,10 +520,48 @@ for schema in schema_list
 			if !attribute.isBuiltin
 				express_attribute_domain = NamedType.find_by_name( attribute.domain )
 			end
+
+			min_cardinality = 1
+			max_cardinality = 1
+	
+			if attribute.isOptional == true
+				min_cardinality = 0
+			end
+			
+			if attribute.instance_of? EXPSM::ExplicitAggregate
+				if attribute.isOptional == false
+					min_cardinality = attribute.dimensions[0].lower.to_i
+				end
+				if attribute.dimensions[0].upper == '?'
+					max_cardinality = -1
+				else
+					max_cardinality = attribute.dimensions[0].upper.to_i
+				end
+				if attribute.rank > 1
+					puts 'WARNING: ' + owl_property_name + ' n-dimensional aggregate attribute cardinalities not mapped ' 
+					max_cardinality = -1
+				end
+			end			
+			
+			if min_cardinality == max_cardinality
+				res = ERB.new(cardinality_template)
+				t = res.result(binding)
+				file.puts t
+			else
+				res = ERB.new(min_cardinality_template)
+				t = res.result(binding)
+				file.puts t
+				if max_cardinality != -1
+					res = ERB.new(max_cardinality_template)
+					t = res.result(binding)
+					file.puts t
+				end
+			end
+
 			
 			case
 
-# Handle EXPRESS explicit attributes of built-in simple type, redeclarations or not
+# Handle EXPRESS explicit attributes of built-in simple type, including redeclaration
 			when (attribute.isBuiltin)
 				explicit_mapped_list.push attribute
 				owl_property_range = datatype_hash[attribute.domain]
@@ -619,51 +660,18 @@ for schema in schema_list
 				puts "WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute type not yet mapped"
 			end
 			
-			
-			min_cardinality = 1
-			max_cardinality = 1
-	
-			
-			if attribute.isOptional == true
-				min_cardinality = 0
-			end
-			
-			if attribute.instance_of? EXPSM::ExplicitAggregate
-				if attribute.isOptional == false
-					min_cardinality = attribute.dimensions[0].lower.to_i
-				end
-				if attribute.dimensions[0].upper == '?'
-					max_cardinality = -1
-				else
-					max_cardinality = attribute.dimensions[0].upper.to_i
-				end
-				if attribute.rank > 1
-					puts 'WARNING: ' + owl_property_name + ' n-dimensional aggregate attribute cardinalities not mapped ' 
-					max_cardinality = -1
-				end
-			end			
-			
-			if min_cardinality == max_cardinality
-				res = ERB.new(cardinality_template)
-				t = res.result(binding)
-				file.puts t
-			else
-				res = ERB.new(min_cardinality_template)
-				t = res.result(binding)
-				file.puts t
-				if max_cardinality != -1
-					res = ERB.new(max_cardinality_template)
-					t = res.result(binding)
-					file.puts t
-				end
-			end
+
 
 			if (attribute.redeclare_entity and !(express_attribute_domain.kind_of? EXPSM::Entity or express_attribute_domain.kind_of? EXPSM::TypeSelect))
 				if 	(attribute.redeclare_entity and !(express_attribute_domain.kind_of? EXPSM::Type and NamedType.find_by_name( express_attribute_domain.domain ).kind_of? EXPSM::TypeSelect))
-					puts "WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute redeclaration may need hand editing"
+					if (attribute.redeclare_entity and !attribute.isBuiltin)
+						puts "WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute redeclaration may need hand editing"
+					end
 				end
 			end
+			
 		end
+
 	end
 
 

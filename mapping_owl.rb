@@ -521,42 +521,7 @@ for schema in schema_list
 				express_attribute_domain = NamedType.find_by_name( attribute.domain )
 			end
 
-			min_cardinality = 1
-			max_cardinality = 1
-	
-			if attribute.isOptional == true
-				min_cardinality = 0
-			end
-			
-			if attribute.instance_of? EXPSM::ExplicitAggregate
-				if attribute.isOptional == false
-					min_cardinality = attribute.dimensions[0].lower.to_i
-				end
-				if attribute.dimensions[0].upper == '?'
-					max_cardinality = -1
-				else
-					max_cardinality = attribute.dimensions[0].upper.to_i
-				end
-				if attribute.rank > 1
-					puts 'WARNING: ' + owl_property_name + ' n-dimensional aggregate attribute cardinalities not mapped ' 
-					max_cardinality = -1
-				end
-			end			
-			
-			if min_cardinality == max_cardinality
-				res = ERB.new(cardinality_template)
-				t = res.result(binding)
-				file.puts t
-			else
-				res = ERB.new(min_cardinality_template)
-				t = res.result(binding)
-				file.puts t
-				if max_cardinality != -1
-					res = ERB.new(max_cardinality_template)
-					t = res.result(binding)
-					file.puts t
-				end
-			end
+
 
 			
 			case
@@ -659,7 +624,43 @@ for schema in schema_list
 			else
 				puts "WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute type not yet mapped"
 			end
+
+			min_cardinality = 1
+			max_cardinality = 1
+	
+			if attribute.isOptional == true
+				min_cardinality = 0
+			end
 			
+			if attribute.instance_of? EXPSM::ExplicitAggregate
+				if attribute.isOptional == false
+					min_cardinality = attribute.dimensions[0].lower.to_i
+				end
+				if attribute.dimensions[0].upper == '?'
+					max_cardinality = -1
+				else
+					max_cardinality = attribute.dimensions[0].upper.to_i
+				end
+				if attribute.rank > 1
+					puts 'WARNING: ' + owl_property_name + ' n-dimensional aggregate attribute cardinalities not mapped ' 
+					max_cardinality = -1
+				end
+			end			
+			
+			if min_cardinality == max_cardinality
+				res = ERB.new(cardinality_template)
+				t = res.result(binding)
+				file.puts t
+			else
+				res = ERB.new(min_cardinality_template)
+				t = res.result(binding)
+				file.puts t
+				if max_cardinality != -1
+					res = ERB.new(max_cardinality_template)
+					t = res.result(binding)
+					file.puts t
+				end
+			end			
 
 
 			if (attribute.redeclare_entity and !(express_attribute_domain.kind_of? EXPSM::Entity or express_attribute_domain.kind_of? EXPSM::TypeSelect))

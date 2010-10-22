@@ -1,6 +1,6 @@
 require 'erb'
 # EXPRESS to OWL Structural Mapping
-# Version 0.3
+# Version 0.4
 # This function navigates the EXPRESS STEPMod Model Ruby Classes
 # and performs a structural EXPRESS-to-OWL mapping using Ruby ERB templates.
 #
@@ -25,7 +25,9 @@ require 'erb'
 # Enumeration Type and BOOLEAN attributes are mapped to OWL DatatypeProperties.
 # Attribute redeclarations that ref Entity/Select are mapped to ObjectProperty that is subproperty of that it redeclares
 # Attribute redeclarations that ref builting simple types are mapped to DatatypeProperty that is subproperty of that it redeclares
-# Type = type that is a select are mapped to Class subclass of referenced select Class 
+# Type = type that is a select are mapped to Class subclass of referenced select Class
+# Single Attribute OPTIONAL or not maps to cardinality restriction on Class owning attribute 
+# 1D Aggregate Attribute bound maps to cardinality restriction on Class owning attribute (n-dimensional not supported) 
 
 # The output is in OWL RDF/XML abbreviated syntax.
 
@@ -33,7 +35,8 @@ require 'erb'
 # 
 def map_from_express( mapinput )
 puts ' '
-puts 'EXPRESS to OWL Structural Mapping V0.3'
+puts 'EXPRESS to OWL Structural Mapping V0.4'
+puts ' '
 
 ######### Mapping Configuration Starts Here ##############
 
@@ -265,6 +268,41 @@ attribute_enum_template = %{<owl:DatatypeProperty rdf:ID='<%= owl_property_name 
 <%  annotation_list.each do |i| %><% if i[1] != nil and i[1] != '' %><<%= i[0] %> rdf:datatype="http://www.w3.org/2001/XMLSchema#string"><%= i[1] %></<%= i[0] %>><% end %>
 <% end %>	 	 
 </owl:DatatypeProperty>}
+
+
+
+# Template covering min cardinality 
+min_cardinality_template = %{<rdf:Description rdf:about='#<%= class_name %>'>
+<rdfs:subClassOf>
+<owl:Restriction>
+<owl:onProperty rdf:resource='#<%= owl_property_name %>'/>
+  <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"><%= min_cardinality %></owl:minCardinality>
+</owl:Restriction>
+</rdfs:subClassOf>
+</rdf:Description>}
+
+
+# Template covering max cardinality 
+max_cardinality_template = %{<rdf:Description rdf:about='#<%= class_name %>'>
+<rdfs:subClassOf>
+<owl:Restriction>
+  <owl:onProperty rdf:resource='#<%= owl_property_name %>'/>
+<owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"><%= max_cardinality %></owl:maxCardinality>
+</owl:Restriction>
+</rdfs:subClassOf>
+</rdf:Description>}
+
+# Template covering cardinality 
+cardinality_template = %{<rdf:Description rdf:about='#<%= class_name %>'>
+<rdfs:subClassOf>
+<owl:Restriction>
+  <owl:onProperty rdf:resource='#<%= owl_property_name %>'/>
+<owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"><%= min_cardinality %></owl:cardinality>
+</owl:Restriction>
+</rdfs:subClassOf>
+</rdf:Description>}
+
+
 
 
 # Template covering the output file contents for each schema end
@@ -555,7 +593,46 @@ for schema in schema_list
 			else
 				puts "WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute type not yet mapped"
 			end
-
+			
+			
+			min_cardinality = 1
+			max_cardinality = 1
+	
+			
+			if attribute.isOptional == true
+				min_cardinality = 0
+			end
+			
+			if attribute.instance_of? EXPSM::ExplicitAggregate
+				if attribute.isOptional == false
+					min_cardinality = attribute.dimensions[0].lower.to_i
+				end
+				if attribute.dimensions[0].upper == '?'
+					max_cardinality = -1
+				else
+					max_cardinality = attribute.dimensions[0].upper.to_i
+				end
+				if attribute.rank > 1
+					puts 'WARNING: ' + owl_property_name + ' n-dimensional aggregate attribute cardinalities not mapped ' 
+					max_cardinality = -1
+				end
+			end			
+			
+			if min_cardinality == max_cardinality
+				res = ERB.new(cardinality_template)
+				t = res.result(binding)
+				file.puts t
+			else
+				res = ERB.new(min_cardinality_template)
+				t = res.result(binding)
+				file.puts t
+				if max_cardinality != -1
+					res = ERB.new(max_cardinality_template)
+					t = res.result(binding)
+					file.puts t
+				end
+			end
+			
 #			if attribute.instance_of? EXPSM::ExplicitAggregate
 #				puts "#NOTE: '" + entity.name + ' ' + attribute.name + "' Aggregate cardinalities not mapped"
 #			end
@@ -591,7 +668,6 @@ for schema in schema_list
 		puts '  - Not mapped: ' + t.entity.name + '.' + t.name
 	end
 	puts '  - Zero of ' + all_derived_list.size.to_s + ' derived attributes mapped (not supported)'	
-	puts '  - No attribute cardinalities or optionality mapped (not supported)'
 	puts '  - No aggregate ordering for List or Array mapped (not supported)'
 	puts '  TYPEs mapped = ' + type_mapped_list.size.to_s + ' of ' + all_type_list.size.to_s
 	notmapped_list = all_type_list - type_mapped_list

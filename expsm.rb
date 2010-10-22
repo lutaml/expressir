@@ -127,6 +127,7 @@ class ExplicitAggregate < Explicit
 	def initialize
 		@rank = 0
 		@dimensions = []
+		@isOptional = FALSE
 	end
 end
 class AggregateDimension

@@ -336,6 +336,7 @@ def get_all_selections( item_list )
 end
 
 for schema in schema_list
+
 	type_mapped_list = []
 	entity_mapped_list = []
 	explicit_mapped_list = []
@@ -400,31 +401,35 @@ for schema in schema_list
 		end
 	end
 
-# Handle select maps to OWL Class hierarchy and RDFS Datatypes
+# Handle EXPRESS SELECT Type mapping to OWL Class hierarchy and RDFS Datatypes
 
 	for select in select_list
+	
 		class_name_list = select.selectitems.scan(/\w+/)
 
 		this_select_all_items = get_all_selections( select.selectitems_array )
 		this_select_type_items = this_select_all_items.find_all{ |a| a.kind_of? EXPSM::Type}
 
-		case
+		case		
+#   Handle case of select items resolving to containing no item that is a non-select Type
 		when this_select_type_items.size == 0
 			type_mapped_list.push select
-# Evaluate and write select start template 
+			
 			res = ERB.new(select_start_template)
 			t = res.result(binding)
 			file.puts t
-		    file.puts '<owl:equivalentClass>'		
+	    file.puts '<owl:equivalentClass>'		
+
 			res = ERB.new(class_collection_template)
 			t = res.result(binding)
 			file.puts t
-		    file.puts '</owl:equivalentClass>'
+	    file.puts '</owl:equivalentClass>'
 
-# Evaluate and write select end template 
 			res = ERB.new(select_end_template)
 			t = res.result(binding)
 			file.puts t
+
+#   Handle case of select items resolving to containing only items that are non-select Type
 		when this_select_type_items.size == this_select_all_items.size
 			type_mapped_list.push select
 			type_name_list = class_name_list
@@ -432,21 +437,25 @@ for schema in schema_list
 			res = ERB.new(datatype_collection_template)
 			t = res.result(binding)
 			file.puts t
+
+#   Warning for case of select items resolving mixed mixed non-select Type and Select/Entity			
 		else
-			puts "#WARNING: '" + select.name +  "' Select Type of Mixed Types and Entites not mapped"
+			puts "WARNING: '" + select.name +  "' Select Type of Mixed Types and Entites not mapped"
 		end
 	end
 
-# Handle entity maps to OWL Class 
+# Handle EXPRESS Entity mappings to OWL Class hierarchy 
 
 	for entity in entity_list
-# Evaluate and write entity start template
+
 		if definition_hash[entity.name.downcase] != nil
 			annotation_list[0] = ['rdfs:comment', definition_hash[entity.name.downcase]]
 		else
 			annotation_list[0] = ['rdfs:comment', nil]
 		end
+
 		entity_mapped_list.push entity
+
 		class_name = entity.name
 		res = ERB.new(entity_start_template)
 		t = res.result(binding)
@@ -458,13 +467,13 @@ for schema in schema_list
 			t = res.result(binding)
 			file.puts t
 		end
-# Evaluate and write entity end template 
+
 		res = ERB.new(entity_end_template)
 		t = res.result(binding)
 		file.puts t
 	end
 
-	# Handle mapping common string attributes to OWL DatatypeProperties of OWL Thing 
+# Handle mapping common string attributes to OWL DatatypeProperties of OWL Thing 
 
 	for thing_attribute in thing_attributes
 		owl_property_name = thing_attribute
@@ -476,16 +485,20 @@ for schema in schema_list
 		file.puts t
 	end
 
+# Handle EXPRESS attributes on an entity-by-entity basis
 	for entity in entity_list
 		attribute_list = entity.attributes.find_all{ |a| a.kind_of? EXPSM::Explicit and !thing_attributes.include?(a.name)}
 		thing_attr_list = entity.attributes.find_all{ |a| a.kind_of? EXPSM::Explicit and thing_attributes.include?(a.name)}
+		inverse_list = entity.attributes.find_all{ |a| a.kind_of? EXPSM::Inverse and !thing_attributes.include?(a.name)}
+		
 		thing_attr_mapped_list = thing_attr_mapped_list + thing_attr_list
 		
 		all_explicit_list = all_explicit_list + entity.attributes.find_all{ |a| a.kind_of? EXPSM::Explicit}
 		all_derived_list = all_derived_list + entity.attributes.find_all{ |a| a.kind_of? EXPSM::Derived}
-		inverse_list = entity.attributes.find_all{ |a| a.kind_of? EXPSM::Inverse and !thing_attributes.include?(a.name)}
+
 		all_inverse_list = all_inverse_list + inverse_list
-		
+
+# Handle EXPRESS inverse attribute mapping to OWL inverse property		
 		for attribute in inverse_list
 			inverse_mapped_list.push attribute
 			owl_property_range = attribute.domain
@@ -496,7 +509,8 @@ for schema in schema_list
 			t = res.result(binding)
 			file.puts t
 		end
-		
+
+# Handle EXPRESS explicit attribute mapping to OWL property
 		for attribute in attribute_list
 			
 			express_attribute_domain = nil
@@ -505,6 +519,8 @@ for schema in schema_list
 			end
 			
 			case
+
+# Handle EXPRESS explicit attributes of built-in simple type, redeclarations or not
 			when (attribute.isBuiltin)
 				explicit_mapped_list.push attribute
 				owl_property_range = datatype_hash[attribute.domain]
@@ -522,6 +538,17 @@ for schema in schema_list
 				t = res.result(binding)
 				file.puts t
 
+# Handle EXPRESS explicit attribute, not redeclaration, refers to Type that is Type = builtin datatype				
+			when (!attribute.redeclare_entity and express_attribute_domain.instance_of? EXPSM::Type and express_attribute_domain.isBuiltin)
+				explicit_mapped_list.push attribute
+				owl_property_range = attribute.domain
+				owl_property_name = entity.name + '.' + attribute.name
+				owl_property_domain = entity.name
+				res = ERB.new(attribute_typebuiltin_template)
+				t = res.result(binding)
+				file.puts t
+
+# Handle EXPRESS explicit attributes of enum type, ignoring redeclarations
 			when (express_attribute_domain.kind_of? EXPSM::TypeEnum)
 				if !type_mapped_list.include?(express_attribute_domain)
 					type_mapped_list.push express_attribute_domain
@@ -533,7 +560,11 @@ for schema in schema_list
 				res = ERB.new(attribute_enum_template)
 				t = res.result(binding)
 				file.puts t
-				
+				if attribute.redeclare_entity
+					puts "WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute redeclaration for Enumerations not mapped"
+				end
+
+# Handle EXPRESS explicit attribute, not redeclaration, and only refer to EXPRESS Select or Entity				
 			when (!attribute.redeclare_entity and (express_attribute_domain.kind_of? EXPSM::Entity or express_attribute_domain.kind_of? EXPSM::TypeSelect))
 				explicit_mapped_list.push attribute
 				owl_property_range = attribute.domain
@@ -542,16 +573,8 @@ for schema in schema_list
 				res = ERB.new(attribute_entity_template)
 				t = res.result(binding)
 				file.puts t
-				
-			when (express_attribute_domain.kind_of? EXPSM::Type and NamedType.find_by_name( express_attribute_domain.domain ).kind_of? EXPSM::TypeSelect)
-				explicit_mapped_list.push attribute
-				owl_property_range = attribute.domain
-				owl_property_name = entity.name + '.' + attribute.name
-				owl_property_domain = entity.name
-				res = ERB.new(attribute_entity_template)
-				t = res.result(binding)
-				file.puts t
 
+# Handle EXPRESS explicit attribute, redeclaration,	and only refer to EXPRESS Select or Entity	
 			when (attribute.redeclare_entity and (express_attribute_domain.kind_of? EXPSM::Entity or express_attribute_domain.kind_of? EXPSM::TypeSelect))
 				explicit_mapped_list.push attribute
 				owl_property_range = attribute.domain
@@ -565,7 +588,18 @@ for schema in schema_list
 				res = ERB.new(attribute_redeclare_entity_template)
 				t = res.result(binding)
 				file.puts t
-				
+
+# Handle EXPRESS explicit attribute of EXPRESS Type = A Type name that is a Select					
+			when (express_attribute_domain.kind_of? EXPSM::Type and NamedType.find_by_name( express_attribute_domain.domain ).kind_of? EXPSM::TypeSelect)
+				explicit_mapped_list.push attribute
+				owl_property_range = attribute.domain
+				owl_property_name = entity.name + '.' + attribute.name
+				owl_property_domain = entity.name
+				res = ERB.new(attribute_entity_template)
+				t = res.result(binding)
+				file.puts t
+
+# Handle EXPRESS explicit attribute, redeclaration,	and only refer to EXPRESS Type = A Type name that is a Select						
 			when (attribute.redeclare_entity and (express_attribute_domain.kind_of? EXPSM::Type and NamedType.find_by_name( express_attribute_domain.domain ).kind_of? EXPSM::TypeSelect))
 	
 				explicit_mapped_list.push attribute		
@@ -580,16 +614,7 @@ for schema in schema_list
 				res = ERB.new(attribute_redeclare_entity_template)
 				t = res.result(binding)
 				file.puts t
-				
-			when (!attribute.redeclare_entity and express_attribute_domain.instance_of? EXPSM::Type and express_attribute_domain.isBuiltin)
-				explicit_mapped_list.push attribute
-				owl_property_range = attribute.domain
-				owl_property_name = entity.name + '.' + attribute.name
-				owl_property_domain = entity.name
-				res = ERB.new(attribute_typebuiltin_template)
-				t = res.result(binding)
-				file.puts t		
-				
+
 			else
 				puts "WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute type not yet mapped"
 			end
@@ -632,10 +657,6 @@ for schema in schema_list
 					file.puts t
 				end
 			end
-			
-#			if attribute.instance_of? EXPSM::ExplicitAggregate
-#				puts "#NOTE: '" + entity.name + ' ' + attribute.name + "' Aggregate cardinalities not mapped"
-#			end
 
 			if (attribute.redeclare_entity and !(express_attribute_domain.kind_of? EXPSM::Entity or express_attribute_domain.kind_of? EXPSM::TypeSelect))
 				if 	(attribute.redeclare_entity and !(express_attribute_domain.kind_of? EXPSM::Type and NamedType.find_by_name( express_attribute_domain.domain ).kind_of? EXPSM::TypeSelect))

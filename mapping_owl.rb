@@ -457,6 +457,13 @@ for schema in schema_list
 
 	for entity in entity_list
 
+		if entity.isAbs	
+			puts entity.name + ' UNIONOF:'
+			for s in entity.subtypes_array
+				puts '  ' + s.name
+			end 
+		end
+
 		if definition_hash[entity.name.downcase] != nil
 			annotation_list[0] = ['rdfs:comment', definition_hash[entity.name.downcase]]
 		else
@@ -486,12 +493,21 @@ for schema in schema_list
 		all_superexpression_list.push entity 
 
 # Handle simple case of one ONEOF in supertype expression mapped to disjoint between listed subclasses
-			if (entity.superexpression.include?('ONEOF') and !entity.superexpression.include?('ANDOR') and !entity.superexpression.include?('TOTAL_OVER') and !entity.superexpression.include?('AND') and !entity.superexpression.include?('ABSTRACT'))
-				if entity.superexpression.index('ONEOF') == 0
-					tempexpression = entity.superexpression[6,entity.superexpression.size-5].chop.gsub(',','')
-					if !tempexpression.include?('ONEOF')
-						superexpression_mapped_list.push entity	
-						oneof_name_list = tempexpression.scan(/\w+/)
+			case
+#			when (entity.superexpression.include?('ONEOF') and !entity.superexpression.include?('ANDOR') and !entity.superexpression.include?('TOTAL_OVER') and !entity.superexpression.include?('AND') and !entity.superexpression.include?('ABSTRACT'))
+
+			when (entity.superexpression.include?('ONEOF'))
+				superexpression_mapped_list.push entity	
+				tempexpression = entity.superexpression
+				if entity.superexpression.index('ONEOF') != 0
+					puts 'WARNING: ' + entity.name + ' supertype mapping may be incomplete, only ONEOFs processed'
+				end
+				while (tempexpression.include?('ONEOF'))
+					posoneof = tempexpression.index('ONEOF')
+					tempexpression = tempexpression[posoneof + 5,tempexpression.length - 5]
+					posclose = tempexpression.index(')')
+					oneof_name_list = tempexpression[0,posclose].scan(/\w+/)
+					while oneof_name_list.size != 0
 						first_class_name = oneof_name_list[0]
 						oneof_name_list.delete(first_class_name)
 						for disjoint_class_name in oneof_name_list

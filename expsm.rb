@@ -91,6 +91,7 @@ class Entity < NamedType
 		@attributes_all_array = []
 		@supertypes = nil
 		@supertypes_all = nil
+		@superexpression = nil
 	end
 	def find_attr_by_name( attrname )
 		for attribute in attributes

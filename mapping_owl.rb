@@ -17,6 +17,7 @@ require 'erb'
 #
 
 # Entity Types and Subtypes are mapped to OWL Class hierarchy.
+# Entity Type SUPERTYPE OF ONEOF( list-of-EntityTypes ) are mapped to OWL disjoint between Classes	
 # Select Types that resolve to all Entity Types are mapped to OWL Class hierarchy.
 # Select Types that resolve to all Type are mapped to RDFS Datatype.
 # Type = builtin are mapped to RDFS Datatypes that subtype XSD datatypes
@@ -41,19 +42,20 @@ puts ' '
 ######### Mapping Configuration Starts Here ##############
 
 # Set the base of the URI (i.e. the namespace) for OWL constructs created during the mapping
-uri_base = 'http://www.reeper.org/dexlib/data/schemas'
+uri_base = 'http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_support'
 
-# Add RDFS andor Dublin Core basic annotations (rdfs:comment must be position zero as definition assignment hardcoded there)  
+# Add RDFS andor Dublin Core basic annotations
+
+# Set to true if any annotation_list elements use Dublin Core (dc: or dcterms:)
+include_dublin_core = true
 
 annotation_list = Array.new
-#annotation_list[2] = ['dc:source','ISO 10303-227 Plant Spatial Configuration ARM EXPRESS']
-#annotation_list[3] = ['dcterms:created','2010-10-21']
-#annotation_list[2] = ['dc:creator', 'David Price, TopQuadrant Limited']
-#annotation_list[0] = ['rdfs:comment', nil]
-#annotation_list[4] = ['dc:source', 'OASIS PLCS TC modified ISO 10303-239 Edition 1 PLCS ARM Long Form EXPRESS, $Id: ap239_arm_lf.exp,v 1.22 2010/01/06 23:07:58 intrepidtim Exp $']
-#annotation_list[1] = ['owl:versionInfo', '1']
-
-include_dublin_core = false
+# rdfs:comment must be position 0 as definition assignment hardcoded there
+annotation_list[0] = ['rdfs:comment', nil]
+annotation_list[1] = ['owl:versionInfo', '1']
+annotation_list[2] = ['dc:creator', 'David Price, TopQuadrant Limited']
+annotation_list[3] = ['dcterms:created','2010-10-22']
+annotation_list[4] = ['dc:source', 'ISO 10303-239 Edition 2 PLCS ARM Long Form EXPRESS, $Id: arm_lf.exp,v 1.38 2010/01/25 11:57:44 philsp Exp $']
 
 # Read definitions from csv file if found
 definition_hash = Hash.new
@@ -207,7 +209,7 @@ attribute_builtin_template = %{<owl:DatatypeProperty rdf:ID='<%= owl_property_na
 </owl:DatatypeProperty>
 }
 
-# Template covering the output file contents for each attribute that is builtin datatype
+# Template covering the output file contents for each attribute that is type that is builtin datatype
 attribute_typebuiltin_template = %{<owl:DatatypeProperty rdf:ID='<%= owl_property_name %>'>
 <% if owl_property_domain != nil %>	
 <rdfs:domain rdf:resource='#<%= owl_property_domain %>' />
@@ -302,7 +304,11 @@ cardinality_template = %{<rdf:Description rdf:about='#<%= class_name %>'>
 </rdfs:subClassOf>
 </rdf:Description>}
 
-
+# Template covering the output file contents for each schema end
+disjoint_template = %{
+<rdf:Description rdf:about='#<%= first_class_name %>'>
+<owl:disjointWith rdf:resource="#<%= disjoint_class_name %>"/>
+</rdf:Description>}
 
 
 # Template covering the output file contents for each schema end
@@ -340,11 +346,13 @@ for schema in schema_list
 	type_mapped_list = []
 	entity_mapped_list = []
 	explicit_mapped_list = []
-	inverse_mapped_list = []
+	inverse_mapped_list = []	
 	thing_attr_mapped_list = []
+	superexpression_mapped_list = []	
 	all_explicit_list = []
 	all_derived_list = []
 	all_inverse_list = []
+	all_superexpression_list = []
 
 # Set up separate file for each schema 
 	filename = schema.name.to_s + ".owl"
@@ -364,7 +372,7 @@ for schema in schema_list
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
 	defined_type_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Type }
 	defined_type_not_builtin_list = defined_type_list.find_all{ |e| !e.isBuiltin }
-
+	
 
 # Handle defined type maps to RDFS Datatype 
 
@@ -437,6 +445,7 @@ for schema in schema_list
 			res = ERB.new(datatype_collection_template)
 			t = res.result(binding)
 			file.puts t
+			puts 'WARNING: ' + select.name +  ' mapped to RDFS Datatype owl:unionOf of other datatypes, may not be supported in older OWL tools'
 
 #   Warning for case of select items resolving mixed mixed non-select Type and Select/Entity			
 		else
@@ -471,6 +480,34 @@ for schema in schema_list
 		res = ERB.new(entity_end_template)
 		t = res.result(binding)
 		file.puts t
+
+		
+		if entity.superexpression != nil
+		all_superexpression_list.push entity 
+
+# Handle simple case of one ONEOF in supertype expression mapped to disjoint between listed subclasses
+			if (entity.superexpression.include?('ONEOF') and !entity.superexpression.include?('ANDOR') and !entity.superexpression.include?('TOTAL_OVER') and !entity.superexpression.include?('AND') and !entity.superexpression.include?('ABSTRACT'))
+				if entity.superexpression.index('ONEOF') == 0
+					tempexpression = entity.superexpression[6,entity.superexpression.size-5].chop.gsub(',','')
+					if !tempexpression.include?('ONEOF')
+						superexpression_mapped_list.push entity	
+						oneof_name_list = tempexpression.scan(/\w+/)
+						first_class_name = oneof_name_list[0]
+						oneof_name_list.delete(first_class_name)
+						for disjoint_class_name in oneof_name_list
+							res = ERB.new(disjoint_template)
+							t = res.result(binding)
+							file.puts t
+						end
+					end
+				end
+			else
+				puts 'WARNING: ' + entity.name + ' supertype expression not mapped'
+			end
+		
+		end
+		
+
 	end
 
 # Handle mapping common string attributes to OWL DatatypeProperties of OWL Thing 
@@ -520,10 +557,7 @@ for schema in schema_list
 			if !attribute.isBuiltin
 				express_attribute_domain = NamedType.find_by_name( attribute.domain )
 			end
-
-
-
-			
+	
 			case
 
 # Handle EXPRESS explicit attributes of built-in simple type, including redeclaration
@@ -567,7 +601,7 @@ for schema in schema_list
 				t = res.result(binding)
 				file.puts t
 				if attribute.redeclare_entity
-					puts "WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute redeclaration for Enumerations not mapped"
+					puts 'WARNING: ' + entity.name + ' ' + attribute.name + ' Attribute redeclaration for Enumerations not mapped'
 				end
 
 # Handle EXPRESS explicit attribute, not redeclaration, and only refer to EXPRESS Select or Entity				
@@ -622,7 +656,7 @@ for schema in schema_list
 				file.puts t
 
 			else
-				puts "WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute type not yet mapped"
+				puts 'WARNING: ' + entity.name + ' ' + attribute.name + ' Attribute type not yet mapped'
 			end
 
 			min_cardinality = 1
@@ -666,7 +700,7 @@ for schema in schema_list
 			if (attribute.redeclare_entity and !(express_attribute_domain.kind_of? EXPSM::Entity or express_attribute_domain.kind_of? EXPSM::TypeSelect))
 				if 	(attribute.redeclare_entity and !(express_attribute_domain.kind_of? EXPSM::Type and NamedType.find_by_name( express_attribute_domain.domain ).kind_of? EXPSM::TypeSelect))
 					if (attribute.redeclare_entity and !attribute.isBuiltin)
-						puts "WARNING: '" + entity.name + ' ' + attribute.name + "' Attribute redeclaration may need hand editing"
+						puts 'WARNING: ' + entity.name + ' ' + attribute.name + ' Attribute redeclaration may need hand editing'
 					end
 				end
 			end
@@ -686,6 +720,7 @@ for schema in schema_list
 	
 	
 	puts '  ENTITYs mapped = ' + entity_mapped_list.size.to_s + ' of ' + entity_list.size.to_s
+	puts '  - ' + superexpression_mapped_list.size.to_s + ' of ' + all_superexpression_list.size.to_s + ' ENTITY SUPERTYPE expressions mapped (only simple ONEOF supported)'	
 	puts '  - ' + inverse_mapped_list.size.to_s + ' of ' + all_inverse_list.size.to_s + ' inverse attributes mapped'	
 	notmapped_list = all_inverse_list - inverse_mapped_list
 	for t in notmapped_list

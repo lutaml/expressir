@@ -10174,6 +10174,18 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Task_element'>
+<owl:disjointWith rdf:resource="#Task_method"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Task_element'>
+<owl:disjointWith rdf:resource="#Task_method_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Task_method'>
+<owl:disjointWith rdf:resource="#Task_method_version"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='Activity_method_assignment' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -10225,6 +10237,18 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Task_element_relationship'>
+<owl:disjointWith rdf:resource="#Task_method_relationship"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Task_element_relationship'>
+<owl:disjointWith rdf:resource="#Task_method_version_relationship"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Task_method_relationship'>
+<owl:disjointWith rdf:resource="#Task_method_version_relationship"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Activity_property' >
 
@@ -10738,6 +10762,18 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Next_assembly_usage'>
+<owl:disjointWith rdf:resource="#Promissory_usage"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Next_assembly_usage'>
+<owl:disjointWith rdf:resource="#Component_upper_level_identification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Promissory_usage'>
+<owl:disjointWith rdf:resource="#Component_upper_level_identification"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='Assembly_relationship_substitution' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -10953,6 +10989,18 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Attachment_slot_as_planned'>
+<owl:disjointWith rdf:resource="#Attachment_slot_as_realized"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot_as_planned'>
+<owl:disjointWith rdf:resource="#Attachment_slot_design"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot_as_realized'>
+<owl:disjointWith rdf:resource="#Attachment_slot_design"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='Attribute_classification' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -10992,6 +11040,10 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Axis_placement_2d'>
+<owl:disjointWith rdf:resource="#Axis_placement_3d"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Axis_placement_2d' >
 
@@ -11048,6 +11100,30 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Functional_breakdown'>
+<owl:disjointWith rdf:resource="#Physical_breakdown"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Functional_breakdown'>
+<owl:disjointWith rdf:resource="#System_breakdown"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Functional_breakdown'>
+<owl:disjointWith rdf:resource="#Zone_breakdown"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Physical_breakdown'>
+<owl:disjointWith rdf:resource="#System_breakdown"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Physical_breakdown'>
+<owl:disjointWith rdf:resource="#Zone_breakdown"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#System_breakdown'>
+<owl:disjointWith rdf:resource="#Zone_breakdown"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='Breakdown_context' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -11060,6 +11136,30 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Functional_breakdown_context'>
+<owl:disjointWith rdf:resource="#Physical_breakdown_context"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Functional_breakdown_context'>
+<owl:disjointWith rdf:resource="#System_breakdown_context"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Functional_breakdown_context'>
+<owl:disjointWith rdf:resource="#Zone_breakdown_context"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Physical_breakdown_context'>
+<owl:disjointWith rdf:resource="#System_breakdown_context"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Physical_breakdown_context'>
+<owl:disjointWith rdf:resource="#Zone_breakdown_context"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#System_breakdown_context'>
+<owl:disjointWith rdf:resource="#Zone_breakdown_context"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Breakdown_element' >
 
@@ -11075,6 +11175,30 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Functional_element'>
+<owl:disjointWith rdf:resource="#Physical_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Functional_element'>
+<owl:disjointWith rdf:resource="#System_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Functional_element'>
+<owl:disjointWith rdf:resource="#Zone_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Physical_element'>
+<owl:disjointWith rdf:resource="#System_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Physical_element'>
+<owl:disjointWith rdf:resource="#Zone_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#System_element'>
+<owl:disjointWith rdf:resource="#Zone_element"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='Breakdown_element_definition' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -11088,6 +11212,30 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Functional_element_definition'>
+<owl:disjointWith rdf:resource="#Physical_element_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Functional_element_definition'>
+<owl:disjointWith rdf:resource="#System_element_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Functional_element_definition'>
+<owl:disjointWith rdf:resource="#Zone_element_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Physical_element_definition'>
+<owl:disjointWith rdf:resource="#System_element_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Physical_element_definition'>
+<owl:disjointWith rdf:resource="#Zone_element_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#System_element_definition'>
+<owl:disjointWith rdf:resource="#Zone_element_definition"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Breakdown_element_realization' >
 
@@ -11117,6 +11265,30 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Functional_element_usage'>
+<owl:disjointWith rdf:resource="#Physical_element_usage"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Functional_element_usage'>
+<owl:disjointWith rdf:resource="#System_element_usage"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Functional_element_usage'>
+<owl:disjointWith rdf:resource="#Zone_element_usage"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Physical_element_usage'>
+<owl:disjointWith rdf:resource="#System_element_usage"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Physical_element_usage'>
+<owl:disjointWith rdf:resource="#Zone_element_usage"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#System_element_usage'>
+<owl:disjointWith rdf:resource="#Zone_element_usage"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='Breakdown_element_version' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -11130,6 +11302,30 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Functional_element_version'>
+<owl:disjointWith rdf:resource="#Physical_element_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Functional_element_version'>
+<owl:disjointWith rdf:resource="#System_element_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Functional_element_version'>
+<owl:disjointWith rdf:resource="#Zone_element_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Physical_element_version'>
+<owl:disjointWith rdf:resource="#System_element_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Physical_element_version'>
+<owl:disjointWith rdf:resource="#Zone_element_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#System_element_version'>
+<owl:disjointWith rdf:resource="#Zone_element_version"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Breakdown_of' >
 
@@ -11157,6 +11353,30 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Functional_breakdown_version'>
+<owl:disjointWith rdf:resource="#Physical_breakdown_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Functional_breakdown_version'>
+<owl:disjointWith rdf:resource="#System_breakdown_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Functional_breakdown_version'>
+<owl:disjointWith rdf:resource="#Zone_breakdown_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Physical_breakdown_version'>
+<owl:disjointWith rdf:resource="#System_breakdown_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Physical_breakdown_version'>
+<owl:disjointWith rdf:resource="#Zone_breakdown_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#System_breakdown_version'>
+<owl:disjointWith rdf:resource="#Zone_breakdown_version"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Calendar_date' >
 
@@ -11279,6 +11499,10 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Class_by_extension'>
+<owl:disjointWith rdf:resource="#Class_by_intension"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Class_by_extension' >
 
@@ -11888,6 +12112,66 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Cartesian_point'>
+<owl:disjointWith rdf:resource="#Direction"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Cartesian_point'>
+<owl:disjointWith rdf:resource="#Axis_placement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Cartesian_point'>
+<owl:disjointWith rdf:resource="#Cartesian_transformation_2d"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Cartesian_point'>
+<owl:disjointWith rdf:resource="#Cartesian_transformation_3d"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Cartesian_point'>
+<owl:disjointWith rdf:resource="#Geometric_placement_operation"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Direction'>
+<owl:disjointWith rdf:resource="#Axis_placement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Direction'>
+<owl:disjointWith rdf:resource="#Cartesian_transformation_2d"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Direction'>
+<owl:disjointWith rdf:resource="#Cartesian_transformation_3d"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Direction'>
+<owl:disjointWith rdf:resource="#Geometric_placement_operation"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Axis_placement'>
+<owl:disjointWith rdf:resource="#Cartesian_transformation_2d"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Axis_placement'>
+<owl:disjointWith rdf:resource="#Cartesian_transformation_3d"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Axis_placement'>
+<owl:disjointWith rdf:resource="#Geometric_placement_operation"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Cartesian_transformation_2d'>
+<owl:disjointWith rdf:resource="#Cartesian_transformation_3d"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Cartesian_transformation_2d'>
+<owl:disjointWith rdf:resource="#Geometric_placement_operation"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Cartesian_transformation_3d'>
+<owl:disjointWith rdf:resource="#Geometric_placement_operation"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='Digital_document_definition' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -11999,6 +12283,10 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Digital_document_definition'>
+<owl:disjointWith rdf:resource="#Physical_document_definition"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='Document_definition_relationship' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -12080,6 +12368,114 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Serial_effectivity'>
+<owl:disjointWith rdf:resource="#Dated_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Serial_effectivity'>
+<owl:disjointWith rdf:resource="#Lot_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Serial_effectivity'>
+<owl:disjointWith rdf:resource="#Time_interval_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Dated_effectivity'>
+<owl:disjointWith rdf:resource="#Lot_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Dated_effectivity'>
+<owl:disjointWith rdf:resource="#Time_interval_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Lot_effectivity'>
+<owl:disjointWith rdf:resource="#Time_interval_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Conditional_effectivity'>
+<owl:disjointWith rdf:resource="#Product_as_individual_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Conditional_effectivity'>
+<owl:disjointWith rdf:resource="#Dated_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Conditional_effectivity'>
+<owl:disjointWith rdf:resource="#Lot_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Conditional_effectivity'>
+<owl:disjointWith rdf:resource="#Serial_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Conditional_effectivity'>
+<owl:disjointWith rdf:resource="#Time_interval_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Dated_effectivity'>
+<owl:disjointWith rdf:resource="#Lot_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Dated_effectivity'>
+<owl:disjointWith rdf:resource="#Serial_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Dated_effectivity'>
+<owl:disjointWith rdf:resource="#Time_interval_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Lot_effectivity'>
+<owl:disjointWith rdf:resource="#Serial_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Lot_effectivity'>
+<owl:disjointWith rdf:resource="#Time_interval_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Serial_effectivity'>
+<owl:disjointWith rdf:resource="#Time_interval_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Dated_effectivity'>
+<owl:disjointWith rdf:resource="#Lot_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Dated_effectivity'>
+<owl:disjointWith rdf:resource="#Product_as_individual_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Dated_effectivity'>
+<owl:disjointWith rdf:resource="#Serial_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Dated_effectivity'>
+<owl:disjointWith rdf:resource="#Time_interval_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Lot_effectivity'>
+<owl:disjointWith rdf:resource="#Product_as_individual_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Lot_effectivity'>
+<owl:disjointWith rdf:resource="#Serial_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Lot_effectivity'>
+<owl:disjointWith rdf:resource="#Time_interval_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Product_as_individual_effectivity'>
+<owl:disjointWith rdf:resource="#Serial_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Product_as_individual_effectivity'>
+<owl:disjointWith rdf:resource="#Time_interval_effectivity"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Serial_effectivity'>
+<owl:disjointWith rdf:resource="#Time_interval_effectivity"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Effectivity_assignment' >
 
@@ -12499,6 +12895,10 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Digital_file'>
+<owl:disjointWith rdf:resource="#Hardcopy"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='File_location_identification' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -12736,6 +13136,10 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Geometric_relationship_with_placement_transformation'>
+<owl:disjointWith rdf:resource="#Geometric_relationship_with_operator_transformation"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='Geometric_operator_transformation' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -12791,6 +13195,10 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Geometric_placement'>
+<owl:disjointWith rdf:resource="#Geometric_operator_transformation"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Geometric_relationship_with_operator_transformation' >
 
@@ -13433,6 +13841,46 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Address_based_location_representation'>
+<owl:disjointWith rdf:resource="#Global_location_representation"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Address_based_location_representation'>
+<owl:disjointWith rdf:resource="#Organization_based_location_representation"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Address_based_location_representation'>
+<owl:disjointWith rdf:resource="#Product_based_location_identification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Address_based_location_representation'>
+<owl:disjointWith rdf:resource="#Regional_grid_location_representation"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Global_location_representation'>
+<owl:disjointWith rdf:resource="#Organization_based_location_representation"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Global_location_representation'>
+<owl:disjointWith rdf:resource="#Product_based_location_identification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Global_location_representation'>
+<owl:disjointWith rdf:resource="#Regional_grid_location_representation"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Organization_based_location_representation'>
+<owl:disjointWith rdf:resource="#Product_based_location_identification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Organization_based_location_representation'>
+<owl:disjointWith rdf:resource="#Regional_grid_location_representation"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Product_based_location_identification'>
+<owl:disjointWith rdf:resource="#Regional_grid_location_representation"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='Looping_element' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -13446,6 +13894,18 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Repeat_count'>
+<owl:disjointWith rdf:resource="#Repeat_until"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Repeat_count'>
+<owl:disjointWith rdf:resource="#Repeat_while"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Repeat_until'>
+<owl:disjointWith rdf:resource="#Repeat_while"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Lot_effectivity' >
 
@@ -13583,6 +14043,118 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Measure_item_with_precision'>
+<owl:disjointWith rdf:resource="#Numerical_item_with_global_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Measure_item_with_precision'>
+<owl:disjointWith rdf:resource="#Numerical_item_with_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Measure_item_with_precision'>
+<owl:disjointWith rdf:resource="#Value_list"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Measure_item_with_precision'>
+<owl:disjointWith rdf:resource="#Value_range"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Measure_item_with_precision'>
+<owl:disjointWith rdf:resource="#Value_range_with_global_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Measure_item_with_precision'>
+<owl:disjointWith rdf:resource="#Value_set"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Measure_item_with_precision'>
+<owl:disjointWith rdf:resource="#Value_with_tolerances"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Numerical_item_with_global_unit'>
+<owl:disjointWith rdf:resource="#Numerical_item_with_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Numerical_item_with_global_unit'>
+<owl:disjointWith rdf:resource="#Value_list"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Numerical_item_with_global_unit'>
+<owl:disjointWith rdf:resource="#Value_range"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Numerical_item_with_global_unit'>
+<owl:disjointWith rdf:resource="#Value_range_with_global_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Numerical_item_with_global_unit'>
+<owl:disjointWith rdf:resource="#Value_set"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Numerical_item_with_global_unit'>
+<owl:disjointWith rdf:resource="#Value_with_tolerances"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Numerical_item_with_unit'>
+<owl:disjointWith rdf:resource="#Value_list"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Numerical_item_with_unit'>
+<owl:disjointWith rdf:resource="#Value_range"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Numerical_item_with_unit'>
+<owl:disjointWith rdf:resource="#Value_range_with_global_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Numerical_item_with_unit'>
+<owl:disjointWith rdf:resource="#Value_set"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Numerical_item_with_unit'>
+<owl:disjointWith rdf:resource="#Value_with_tolerances"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Value_list'>
+<owl:disjointWith rdf:resource="#Value_range"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Value_list'>
+<owl:disjointWith rdf:resource="#Value_range_with_global_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Value_list'>
+<owl:disjointWith rdf:resource="#Value_set"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Value_list'>
+<owl:disjointWith rdf:resource="#Value_with_tolerances"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Value_range'>
+<owl:disjointWith rdf:resource="#Value_range_with_global_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Value_range'>
+<owl:disjointWith rdf:resource="#Value_set"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Value_range'>
+<owl:disjointWith rdf:resource="#Value_with_tolerances"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Value_range_with_global_unit'>
+<owl:disjointWith rdf:resource="#Value_set"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Value_range_with_global_unit'>
+<owl:disjointWith rdf:resource="#Value_with_tolerances"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Value_set'>
+<owl:disjointWith rdf:resource="#Value_with_tolerances"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Measure_item_with_precision' >
 
@@ -14612,6 +15184,570 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Analysis'>
+<owl:disjointWith rdf:resource="#Attachment_slot"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Analysis'>
+<owl:disjointWith rdf:resource="#Breakdown"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Analysis'>
+<owl:disjointWith rdf:resource="#Breakdown_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Analysis'>
+<owl:disjointWith rdf:resource="#Collection"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Analysis'>
+<owl:disjointWith rdf:resource="#Document"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Analysis'>
+<owl:disjointWith rdf:resource="#Environment_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Analysis'>
+<owl:disjointWith rdf:resource="#Interface_connector"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Analysis'>
+<owl:disjointWith rdf:resource="#Interface_specification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Analysis'>
+<owl:disjointWith rdf:resource="#Observed_environment"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Analysis'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Analysis'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Analysis'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Analysis'>
+<owl:disjointWith rdf:resource="#Risk"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Analysis'>
+<owl:disjointWith rdf:resource="#System"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Breakdown"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Breakdown_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Collection"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Document"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Environment_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Interface_connector"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Interface_specification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Observed_environment"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Risk"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#System"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Breakdown_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Collection"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Document"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Environment_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Interface_connector"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Interface_specification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Observed_environment"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Risk"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#System"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Collection"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Document"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Environment_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Interface_connector"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Interface_specification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Observed_environment"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Risk"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#System"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Collection'>
+<owl:disjointWith rdf:resource="#Document"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Collection'>
+<owl:disjointWith rdf:resource="#Environment_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Collection'>
+<owl:disjointWith rdf:resource="#Interface_connector"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Collection'>
+<owl:disjointWith rdf:resource="#Interface_specification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Collection'>
+<owl:disjointWith rdf:resource="#Observed_environment"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Collection'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Collection'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Collection'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Collection'>
+<owl:disjointWith rdf:resource="#Risk"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Collection'>
+<owl:disjointWith rdf:resource="#System"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document'>
+<owl:disjointWith rdf:resource="#Environment_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document'>
+<owl:disjointWith rdf:resource="#Interface_connector"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document'>
+<owl:disjointWith rdf:resource="#Interface_specification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document'>
+<owl:disjointWith rdf:resource="#Observed_environment"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document'>
+<owl:disjointWith rdf:resource="#Risk"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document'>
+<owl:disjointWith rdf:resource="#System"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Environment_definition'>
+<owl:disjointWith rdf:resource="#Interface_connector"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Environment_definition'>
+<owl:disjointWith rdf:resource="#Interface_specification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Environment_definition'>
+<owl:disjointWith rdf:resource="#Observed_environment"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Environment_definition'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Environment_definition'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Environment_definition'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Environment_definition'>
+<owl:disjointWith rdf:resource="#Risk"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Environment_definition'>
+<owl:disjointWith rdf:resource="#System"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector'>
+<owl:disjointWith rdf:resource="#Interface_specification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector'>
+<owl:disjointWith rdf:resource="#Observed_environment"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector'>
+<owl:disjointWith rdf:resource="#Risk"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector'>
+<owl:disjointWith rdf:resource="#System"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_specification'>
+<owl:disjointWith rdf:resource="#Observed_environment"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_specification'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_specification'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_specification'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_specification'>
+<owl:disjointWith rdf:resource="#Risk"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_specification'>
+<owl:disjointWith rdf:resource="#System"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Observed_environment'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Observed_environment'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Observed_environment'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Observed_environment'>
+<owl:disjointWith rdf:resource="#Risk"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Observed_environment'>
+<owl:disjointWith rdf:resource="#System"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Part'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Part'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Part'>
+<owl:disjointWith rdf:resource="#Risk"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Part'>
+<owl:disjointWith rdf:resource="#System"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Product_as_individual'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Product_as_individual'>
+<owl:disjointWith rdf:resource="#Risk"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Product_as_individual'>
+<owl:disjointWith rdf:resource="#System"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Requirement'>
+<owl:disjointWith rdf:resource="#Risk"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Requirement'>
+<owl:disjointWith rdf:resource="#System"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Risk'>
+<owl:disjointWith rdf:resource="#System"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Breakdown"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Breakdown_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Document"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Interface_connector"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Interface_specification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Breakdown_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Document"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Interface_connector"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Interface_specification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Document"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Interface_connector"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Interface_specification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document'>
+<owl:disjointWith rdf:resource="#Interface_connector"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document'>
+<owl:disjointWith rdf:resource="#Interface_specification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector'>
+<owl:disjointWith rdf:resource="#Interface_specification"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_specification'>
+<owl:disjointWith rdf:resource="#Part"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_specification'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_specification'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Part'>
+<owl:disjointWith rdf:resource="#Product_as_individual"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Part'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Product_as_individual'>
+<owl:disjointWith rdf:resource="#Requirement"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='Product_as_individual' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -14653,6 +15789,10 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Product_as_planned'>
+<owl:disjointWith rdf:resource="#Product_as_realized"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Product_as_individual_view' >
 
@@ -14762,6 +15902,10 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Product_configuration_hierarchical_relationship'>
+<owl:disjointWith rdf:resource="#Product_configuration_revision_sequence"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Product_configuration_revision_sequence' >
 
@@ -14934,6 +16078,150 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Attachment_slot_version'>
+<owl:disjointWith rdf:resource="#Breakdown_element_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot_version'>
+<owl:disjointWith rdf:resource="#Breakdown_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot_version'>
+<owl:disjointWith rdf:resource="#Document_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot_version'>
+<owl:disjointWith rdf:resource="#Interface_connector_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot_version'>
+<owl:disjointWith rdf:resource="#Interface_specification_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot_version'>
+<owl:disjointWith rdf:resource="#Part_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot_version'>
+<owl:disjointWith rdf:resource="#Product_as_individual_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot_version'>
+<owl:disjointWith rdf:resource="#Requirement_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element_version'>
+<owl:disjointWith rdf:resource="#Breakdown_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element_version'>
+<owl:disjointWith rdf:resource="#Document_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element_version'>
+<owl:disjointWith rdf:resource="#Interface_connector_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element_version'>
+<owl:disjointWith rdf:resource="#Interface_specification_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element_version'>
+<owl:disjointWith rdf:resource="#Part_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element_version'>
+<owl:disjointWith rdf:resource="#Product_as_individual_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element_version'>
+<owl:disjointWith rdf:resource="#Requirement_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_version'>
+<owl:disjointWith rdf:resource="#Document_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_version'>
+<owl:disjointWith rdf:resource="#Interface_connector_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_version'>
+<owl:disjointWith rdf:resource="#Interface_specification_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_version'>
+<owl:disjointWith rdf:resource="#Part_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_version'>
+<owl:disjointWith rdf:resource="#Product_as_individual_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_version'>
+<owl:disjointWith rdf:resource="#Requirement_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document_version'>
+<owl:disjointWith rdf:resource="#Interface_connector_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document_version'>
+<owl:disjointWith rdf:resource="#Interface_specification_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document_version'>
+<owl:disjointWith rdf:resource="#Part_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document_version'>
+<owl:disjointWith rdf:resource="#Product_as_individual_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Document_version'>
+<owl:disjointWith rdf:resource="#Requirement_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector_version'>
+<owl:disjointWith rdf:resource="#Interface_specification_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector_version'>
+<owl:disjointWith rdf:resource="#Part_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector_version'>
+<owl:disjointWith rdf:resource="#Product_as_individual_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector_version'>
+<owl:disjointWith rdf:resource="#Requirement_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_specification_version'>
+<owl:disjointWith rdf:resource="#Part_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_specification_version'>
+<owl:disjointWith rdf:resource="#Product_as_individual_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_specification_version'>
+<owl:disjointWith rdf:resource="#Requirement_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Part_version'>
+<owl:disjointWith rdf:resource="#Product_as_individual_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Part_version'>
+<owl:disjointWith rdf:resource="#Requirement_version"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Product_as_individual_version'>
+<owl:disjointWith rdf:resource="#Requirement_version"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='Product_version_relationship' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -14959,6 +16247,90 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Attachment_slot_definition'>
+<owl:disjointWith rdf:resource="#Breakdown_element_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot_definition'>
+<owl:disjointWith rdf:resource="#Interface_connector_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot_definition'>
+<owl:disjointWith rdf:resource="#Interface_specification_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot_definition'>
+<owl:disjointWith rdf:resource="#Part_view_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot_definition'>
+<owl:disjointWith rdf:resource="#Product_as_individual_view"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Attachment_slot_definition'>
+<owl:disjointWith rdf:resource="#Requirement_view_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element_definition'>
+<owl:disjointWith rdf:resource="#Interface_connector_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element_definition'>
+<owl:disjointWith rdf:resource="#Interface_specification_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element_definition'>
+<owl:disjointWith rdf:resource="#Part_view_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element_definition'>
+<owl:disjointWith rdf:resource="#Product_as_individual_view"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Breakdown_element_definition'>
+<owl:disjointWith rdf:resource="#Requirement_view_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector_definition'>
+<owl:disjointWith rdf:resource="#Interface_specification_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector_definition'>
+<owl:disjointWith rdf:resource="#Part_view_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector_definition'>
+<owl:disjointWith rdf:resource="#Product_as_individual_view"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_connector_definition'>
+<owl:disjointWith rdf:resource="#Requirement_view_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_specification_definition'>
+<owl:disjointWith rdf:resource="#Part_view_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_specification_definition'>
+<owl:disjointWith rdf:resource="#Product_as_individual_view"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Interface_specification_definition'>
+<owl:disjointWith rdf:resource="#Requirement_view_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Part_view_definition'>
+<owl:disjointWith rdf:resource="#Product_as_individual_view"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Part_view_definition'>
+<owl:disjointWith rdf:resource="#Requirement_view_definition"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Product_as_individual_view'>
+<owl:disjointWith rdf:resource="#Requirement_view_definition"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Project' >
 
@@ -15379,6 +16751,18 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Required_resource_by_reference'>
+<owl:disjointWith rdf:resource="#Required_resource_by_requirement"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Required_resource_by_reference'>
+<owl:disjointWith rdf:resource="#Required_resource_by_resource_item"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Required_resource_by_requirement'>
+<owl:disjointWith rdf:resource="#Required_resource_by_resource_item"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='Required_resource_assignment' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -15582,6 +16966,10 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Requirement_collection_relationship'>
+<owl:disjointWith rdf:resource="#Tracing_relationship"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Resource_as_realized' >
 
@@ -16357,6 +17745,10 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#State_observed'>
+<owl:disjointWith rdf:resource="#State_predicted"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='State_assertion' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -16630,6 +18022,30 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Concurrent_elements'>
+<owl:disjointWith rdf:resource="#Decision_point"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Concurrent_elements'>
+<owl:disjointWith rdf:resource="#Looping_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Concurrent_elements'>
+<owl:disjointWith rdf:resource="#Task_element_sequence"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Decision_point'>
+<owl:disjointWith rdf:resource="#Looping_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Decision_point'>
+<owl:disjointWith rdf:resource="#Task_element_sequence"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Looping_element'>
+<owl:disjointWith rdf:resource="#Task_element_sequence"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='Subset' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -16838,6 +18254,90 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#End_task'>
+<owl:disjointWith rdf:resource="#Exit_loop"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#End_task'>
+<owl:disjointWith rdf:resource="#Structured_task_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#End_task'>
+<owl:disjointWith rdf:resource="#Task_step"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Exit_loop'>
+<owl:disjointWith rdf:resource="#Structured_task_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Exit_loop'>
+<owl:disjointWith rdf:resource="#Task_step"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Structured_task_element'>
+<owl:disjointWith rdf:resource="#Task_step"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#End_task'>
+<owl:disjointWith rdf:resource="#Exit_loop"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#End_task'>
+<owl:disjointWith rdf:resource="#Structured_task_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#End_task'>
+<owl:disjointWith rdf:resource="#Task_element_levels"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#End_task'>
+<owl:disjointWith rdf:resource="#Task_invocation"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#End_task'>
+<owl:disjointWith rdf:resource="#Task_step"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Exit_loop'>
+<owl:disjointWith rdf:resource="#Structured_task_element"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Exit_loop'>
+<owl:disjointWith rdf:resource="#Task_element_levels"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Exit_loop'>
+<owl:disjointWith rdf:resource="#Task_invocation"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Exit_loop'>
+<owl:disjointWith rdf:resource="#Task_step"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Structured_task_element'>
+<owl:disjointWith rdf:resource="#Task_element_levels"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Structured_task_element'>
+<owl:disjointWith rdf:resource="#Task_invocation"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Structured_task_element'>
+<owl:disjointWith rdf:resource="#Task_step"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Task_element_levels'>
+<owl:disjointWith rdf:resource="#Task_invocation"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Task_element_levels'>
+<owl:disjointWith rdf:resource="#Task_step"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Task_invocation'>
+<owl:disjointWith rdf:resource="#Task_step"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Task_element_assignment' >
 
@@ -17285,6 +18785,10 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 
 </owl:Class>  
 
+<rdf:Description rdf:about='#Standard_uncertainty'>
+<owl:disjointWith rdf:resource="#Qualitative_uncertainty"/>
+</rdf:Description>
+
 <owl:Class rdf:ID='Uncertainty_with_unit' >
 
 <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:versionInfo>
@@ -17324,6 +18828,186 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Amount_of_substance_unit'>
+<owl:disjointWith rdf:resource="#Electric_current_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Amount_of_substance_unit'>
+<owl:disjointWith rdf:resource="#Length_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Amount_of_substance_unit'>
+<owl:disjointWith rdf:resource="#Luminous_intensity_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Amount_of_substance_unit'>
+<owl:disjointWith rdf:resource="#Mass_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Amount_of_substance_unit'>
+<owl:disjointWith rdf:resource="#Plane_angle_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Amount_of_substance_unit'>
+<owl:disjointWith rdf:resource="#Ratio_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Amount_of_substance_unit'>
+<owl:disjointWith rdf:resource="#Solid_angle_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Amount_of_substance_unit'>
+<owl:disjointWith rdf:resource="#Thermodynamic_temperature_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Amount_of_substance_unit'>
+<owl:disjointWith rdf:resource="#Time_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Electric_current_unit'>
+<owl:disjointWith rdf:resource="#Length_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Electric_current_unit'>
+<owl:disjointWith rdf:resource="#Luminous_intensity_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Electric_current_unit'>
+<owl:disjointWith rdf:resource="#Mass_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Electric_current_unit'>
+<owl:disjointWith rdf:resource="#Plane_angle_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Electric_current_unit'>
+<owl:disjointWith rdf:resource="#Ratio_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Electric_current_unit'>
+<owl:disjointWith rdf:resource="#Solid_angle_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Electric_current_unit'>
+<owl:disjointWith rdf:resource="#Thermodynamic_temperature_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Electric_current_unit'>
+<owl:disjointWith rdf:resource="#Time_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Length_unit'>
+<owl:disjointWith rdf:resource="#Luminous_intensity_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Length_unit'>
+<owl:disjointWith rdf:resource="#Mass_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Length_unit'>
+<owl:disjointWith rdf:resource="#Plane_angle_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Length_unit'>
+<owl:disjointWith rdf:resource="#Ratio_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Length_unit'>
+<owl:disjointWith rdf:resource="#Solid_angle_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Length_unit'>
+<owl:disjointWith rdf:resource="#Thermodynamic_temperature_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Length_unit'>
+<owl:disjointWith rdf:resource="#Time_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Luminous_intensity_unit'>
+<owl:disjointWith rdf:resource="#Mass_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Luminous_intensity_unit'>
+<owl:disjointWith rdf:resource="#Plane_angle_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Luminous_intensity_unit'>
+<owl:disjointWith rdf:resource="#Ratio_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Luminous_intensity_unit'>
+<owl:disjointWith rdf:resource="#Solid_angle_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Luminous_intensity_unit'>
+<owl:disjointWith rdf:resource="#Thermodynamic_temperature_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Luminous_intensity_unit'>
+<owl:disjointWith rdf:resource="#Time_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Mass_unit'>
+<owl:disjointWith rdf:resource="#Plane_angle_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Mass_unit'>
+<owl:disjointWith rdf:resource="#Ratio_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Mass_unit'>
+<owl:disjointWith rdf:resource="#Solid_angle_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Mass_unit'>
+<owl:disjointWith rdf:resource="#Thermodynamic_temperature_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Mass_unit'>
+<owl:disjointWith rdf:resource="#Time_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Plane_angle_unit'>
+<owl:disjointWith rdf:resource="#Ratio_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Plane_angle_unit'>
+<owl:disjointWith rdf:resource="#Solid_angle_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Plane_angle_unit'>
+<owl:disjointWith rdf:resource="#Thermodynamic_temperature_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Plane_angle_unit'>
+<owl:disjointWith rdf:resource="#Time_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Ratio_unit'>
+<owl:disjointWith rdf:resource="#Solid_angle_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Ratio_unit'>
+<owl:disjointWith rdf:resource="#Thermodynamic_temperature_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Ratio_unit'>
+<owl:disjointWith rdf:resource="#Time_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Solid_angle_unit'>
+<owl:disjointWith rdf:resource="#Thermodynamic_temperature_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Solid_angle_unit'>
+<owl:disjointWith rdf:resource="#Time_unit"/>
+</rdf:Description>
+
+<rdf:Description rdf:about='#Thermodynamic_temperature_unit'>
+<owl:disjointWith rdf:resource="#Time_unit"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='Validation' >
 
@@ -17500,6 +19184,10 @@ xml:base="http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_su
 <rdfs:subClassOf rdf:resource='#AP239-ARM-THING' />
 
 </owl:Class>  
+
+<rdf:Description rdf:about='#Requirement_view_definition_relationship'>
+<owl:disjointWith rdf:resource="#View_definition_usage"/>
+</rdf:Description>
 
 <owl:Class rdf:ID='View_definition_usage' >
 

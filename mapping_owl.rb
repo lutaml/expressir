@@ -457,13 +457,6 @@ for schema in schema_list
 
 	for entity in entity_list
 
-		if entity.isAbs	
-			puts entity.name + ' UNIONOF:'
-			for s in entity.subtypes_array
-				puts '  ' + s.name
-			end 
-		end
-
 		if definition_hash[entity.name.downcase] != nil
 			annotation_list[0] = ['rdfs:comment', definition_hash[entity.name.downcase]]
 		else

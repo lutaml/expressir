@@ -3,6 +3,7 @@ require 'erb'
 # Version 0.4
 # This function navigates the EXPRESS STEPMod Model Ruby Classes
 # and performs a structural EXPRESS-to-OWL mapping using Ruby ERB templates.
+# The output is in OWL RDF/XML abbreviated syntax.
 #
 # Configurable items are:
 # If file named definitions.csv is found, definitions of items are read from that CSV.
@@ -14,23 +15,22 @@ require 'erb'
 # thing_attributes - if specified, OWL DatatypeProperty domain is set to OWL Thing and range set to string
 # datatype_hash - sets mappings for EXPRESS builtin to XSD datatypes
 #
-#
-
+# Mappings are:
 # Entity Types and Subtypes are mapped to OWL Class hierarchy.
 # Entity Type SUPERTYPE OF ONEOF( list-of-EntityTypes ) are mapped to OWL disjoint between Classes	
 # Select Types that resolve to all Entity Types are mapped to OWL Class hierarchy.
 # Select Types that resolve to all Type are mapped to RDFS Datatype.
 # Type = builtin are mapped to RDFS Datatypes that subtype XSD datatypes
 # Explicit attrs of Type = builtin are mapped to OWL DatatypeProperties
+# Explicit attrs of 1-D LIST/ARRAY OF builtin/Type = builtin  mapped to OWL ObjectProperty and subClassOf rdf:List and cardinality 1
 # Inverse attrs are mapped to OWL DatatypeProperties with inverseOf set
 # Enumeration Type and BOOLEAN attributes are mapped to OWL DatatypeProperties.
 # Attribute redeclarations that ref Entity/Select are mapped to ObjectProperty that is subproperty of that it redeclares
 # Attribute redeclarations that ref builting simple types are mapped to DatatypeProperty that is subproperty of that it redeclares
 # Type = type that is a select are mapped to Class subclass of referenced select Class
-# Single Attribute OPTIONAL or not maps to cardinality restriction on Class owning attribute 
-# 1D Aggregate Attribute bound maps to cardinality restriction on Class owning attribute (n-dimensional not supported) 
-
-# The output is in OWL RDF/XML abbreviated syntax.
+# Single Attribute OPTIONAL or not maps to cardinality restriction on Class owning attribute
+# 1D SET/BAG Attribute bound maps to cardinality restriction on Class owning attribute
+# Explicit attributes of n-dimensional aggregates not supported
 
 
 # 
@@ -42,7 +42,7 @@ puts ' '
 ######### Mapping Configuration Starts Here ##############
 
 # Set the base of the URI (i.e. the namespace) for OWL constructs created during the mapping
-uri_base = 'http://www.reeper.org/stepmod/data/modules/ap239_product_life_cycle_support'
+uri_base = 'http://www.reeper.org/dexlib/data/schemas/ap239_product_life_cycle_support'
 
 # Add RDFS andor Dublin Core basic annotations
 
@@ -55,7 +55,7 @@ annotation_list[0] = ['rdfs:comment', nil]
 annotation_list[1] = ['owl:versionInfo', '1']
 annotation_list[2] = ['dc:creator', 'David Price, TopQuadrant Limited']
 annotation_list[3] = ['dcterms:created','2010-10-22']
-annotation_list[4] = ['dc:source', 'ISO 10303-239 Edition 2 PLCS ARM Long Form EXPRESS, $Id: arm_lf.exp,v 1.38 2010/01/25 11:57:44 philsp Exp $']
+annotation_list[4] = ['dc:source', 'OASIS PLCS TC Modified 10303-239 Edition 1 PLCS ARM Long Form EXPRESS, $Id: ap239_arm_lf.exp,v 1.22 2010/01/06 23:07:58 intrepidtim Exp $']
 
 # Read definitions from csv file if found
 definition_hash = Hash.new
@@ -182,6 +182,11 @@ type_builtin_template = %{
 <rdfs:subClassOf rdf:resource='<%= type_builtin_datatype %>'/>
 </rdfs:Datatype>
 }
+
+# Template covering the mappings to rdf list
+rdflist_template = %{<rdfs:Class rdf:ID='<%= list_name %>'>
+<rdfs:subClassOf rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#List"/>
+</rdfs:Class>}
 
 # Template covering the output file contents for each attribute that is an aggregate
 attribute_aggregate_template = %{}
@@ -348,7 +353,8 @@ for schema in schema_list
 	explicit_mapped_list = []
 	inverse_mapped_list = []	
 	thing_attr_mapped_list = []
-	superexpression_mapped_list = []	
+	superexpression_mapped_list = []
+	list_mapped_list = []
 	all_explicit_list = []
 	all_derived_list = []
 	all_inverse_list = []
@@ -569,6 +575,67 @@ for schema in schema_list
 	
 			case
 
+# Handle EXPRESS explicit attributes of LIST of built-in simple type, including redeclaration
+			when (attribute.isBuiltin and attribute.instance_of? EXPSM::ExplicitAggregate and attribute.rank == 1 and attribute.dimensions[0].aggrtype = 'LIST')
+				explicit_mapped_list.push attribute
+				list_mapped_list.push attribute
+				list_name = entity.name + '.' + attribute.name + '-' + attribute.domain.to_s + '-List'
+				res = ERB.new(rdflist_template)
+				t = res.result(binding)
+				file.puts t
+				owl_property_name = entity.name + '.' + attribute.name
+				owl_property_domain = entity.name
+				owl_property_range = list_name
+				res = ERB.new(attribute_entity_template)
+				t = res.result(binding)
+				file.puts t
+
+# Handle EXPRESS explicit attributes of ARRAY of built-in simple type, including redeclaration
+			when (attribute.isBuiltin and attribute.instance_of? EXPSM::ExplicitAggregate and attribute.rank == 1 and attribute.dimensions[0].aggrtype = 'ARRAY')
+				explicit_mapped_list.push attribute
+				list_mapped_list.push attribute
+				list_name = entity.name + '.' + attribute.name + '-' + attribute.domain.to_s + '-Array'
+				res = ERB.new(rdflist_template)
+				t = res.result(binding)
+				file.puts t
+				owl_property_name = entity.name + '.' + attribute.name
+				owl_property_domain = entity.name
+				owl_property_range = list_name
+				res = ERB.new(attribute_entity_template)
+				t = res.result(binding)
+				file.puts t
+
+# Handle EXPRESS explicit attributes of LIST of TYPE that is built-in simple type, including redeclaration		
+			when (express_attribute_domain.instance_of? EXPSM::Type and express_attribute_domain.isBuiltin and attribute.instance_of? EXPSM::ExplicitAggregate and attribute.rank == 1 and attribute.dimensions[0].aggrtype = 'LIST')
+				explicit_mapped_list.push attribute
+				list_mapped_list.push attribute
+				list_name = entity.name + '.' + attribute.name + '-' + attribute.domain.to_s + '-List'
+				res = ERB.new(rdflist_template)
+				t = res.result(binding)
+				file.puts t
+				owl_property_name = entity.name + '.' + attribute.name
+				owl_property_domain = entity.name
+				owl_property_range = list_name
+				res = ERB.new(attribute_entity_template)
+				t = res.result(binding)
+				file.puts t
+
+# Handle EXPRESS explicit attributes of ARRAY of TYPE that is built-in simple type, including redeclaration		
+			when (express_attribute_domain.instance_of? EXPSM::Type and express_attribute_domain.isBuiltin and attribute.instance_of? EXPSM::ExplicitAggregate and attribute.rank == 1 and attribute.dimensions[0].aggrtype = 'ARRAY')
+				explicit_mapped_list.push attribute
+				list_mapped_list.push attribute
+				list_name = entity.name + '.' + attribute.name + '-' + attribute.domain.to_s + '-Array'
+				res = ERB.new(rdflist_template)
+				t = res.result(binding)
+				file.puts t
+				owl_property_name = entity.name + '.' + attribute.name
+				owl_property_domain = entity.name
+				owl_property_range = list_name
+				res = ERB.new(attribute_entity_template)
+				t = res.result(binding)
+				file.puts t
+
+
 # Handle EXPRESS explicit attributes of built-in simple type, including redeclaration
 			when (attribute.isBuiltin)
 				explicit_mapped_list.push attribute
@@ -674,8 +741,8 @@ for schema in schema_list
 			if attribute.isOptional == true
 				min_cardinality = 0
 			end
-			
-			if attribute.instance_of? EXPSM::ExplicitAggregate
+
+			if (attribute.instance_of? EXPSM::ExplicitAggregate and attribute.rank == 1 and attribute.dimensions[0].aggrtype != 'LIST' and attribute.dimensions[0].aggrtype != 'ARRAY')
 				if attribute.isOptional == false
 					min_cardinality = attribute.dimensions[0].lower.to_i
 				end
@@ -735,14 +802,15 @@ for schema in schema_list
 	for t in notmapped_list
 		puts '  - Not mapped: ' + t.entity.name + '.' + t.name
 	end	
-	puts '  - ' + explicit_mapped_list.size.to_s + ' of ' + all_explicit_list.size.to_s + ' explicit attributes mapped'
+	puts '  - ' + explicit_mapped_list.size.to_s + ' of ' + all_explicit_list.size.to_s + ' explicit attributes mapped, ' + list_mapped_list.size.to_s + ' mapped as rdf:List'
 	puts '  - ' + thing_attr_mapped_list.size.to_s + ' of ' + all_explicit_list.size.to_s + ' explicit attributes mapped with owl:Thing as domain (configurable)'	
 	notmapped_list = all_explicit_list - explicit_mapped_list - thing_attr_mapped_list
 	for t in notmapped_list
 		puts '  - Not mapped: ' + t.entity.name + '.' + t.name
 	end
-	puts '  - Zero of ' + all_derived_list.size.to_s + ' derived attributes mapped (not supported)'	
-	puts '  - No aggregate ordering for List or Array mapped (not supported)'
+	puts '  - Zero of ' + all_derived_list.size.to_s + ' derived attributes mapped (not supported)'
+
+	puts '  - Ordering for 1-D List/Array of (TYPE) builtin mapped to rdf:List (others not supported)'
 	puts '  TYPEs mapped = ' + type_mapped_list.size.to_s + ' of ' + all_type_list.size.to_s
 	notmapped_list = all_type_list - type_mapped_list
 	for t in notmapped_list

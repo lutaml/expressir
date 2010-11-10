@@ -153,14 +153,13 @@ select_end_template = %{<% if top_class != nil %>
 supertype_template = %{<rdfs:subClassOf rdf:resource='#<%= superclass_name %>' />
 }
 
-# Template covering OWL collections of classes
+# Template covering OWL collections of class contents
 class_collection_template = %{<owl:Class><owl:unionOf rdf:parseType="Collection">
-<%  class_name_list.each do |name| %>
-    <owl:Class rdf:about='#<%= name %>' />
+<%  item_name_list.each do |name| %>
+ <rdf:Description rdf:about='#<%= name %>'/>
  <% end %>	  
 </owl:unionOf> 
 </owl:Class>}
-
 
 # Template covering OWL collections of RDFS datatypes
 datatype_collection_template = %{<rdfs:Datatype rdf:ID='<%= type_name %>'>
@@ -419,7 +418,7 @@ for schema in schema_list
 
 	for select in select_list
 	
-		class_name_list = select.selectitems.scan(/\w+/)
+		item_name_list = select.selectitems.scan(/\w+/)
 
 		this_select_all_items = get_all_selections( select.selectitems_array )
 		this_select_type_items = this_select_all_items.find_all{ |a| a.kind_of? EXPSM::Type}
@@ -446,7 +445,7 @@ for schema in schema_list
 #   Handle case of select items resolving to containing only items that are non-select Type
 		when this_select_type_items.size == this_select_all_items.size
 			type_mapped_list.push select
-			type_name_list = class_name_list
+			type_name_list = item_name_list
 			type_name = select.name
 			res = ERB.new(datatype_collection_template)
 			t = res.result(binding)

@@ -23,7 +23,7 @@ require 'erb'
 # Type = builtin are mapped to RDFS Datatypes that subtype XSD datatypes
 # Explicit attrs of Type = builtin are mapped to OWL DatatypeProperties
 # Explicit attrs of 1-D LIST/ARRAY OF builtin/Type = builtin  mapped to OWL ObjectProperty and subClassOf rdf:List and cardinality 1
-# Inverse attrs are mapped to OWL DatatypeProperties with inverseOf set
+# Inverse attrs are mapped to OWL DatatypeProperties with inverseOf set, except inverse of inherited not mapped
 # Enumeration Type and BOOLEAN attributes are mapped to OWL DatatypeProperties.
 # Attribute redeclarations that ref Entity/Select are mapped to ObjectProperty that is subproperty of that it redeclares
 # Attribute redeclarations that ref builting simple types are mapped to DatatypeProperty that is subproperty of that it redeclares
@@ -555,14 +555,16 @@ for schema in schema_list
 
 # Handle EXPRESS inverse attribute mapping to OWL inverse property		
 		for attribute in inverse_list
-			inverse_mapped_list.push attribute
-			owl_property_range = attribute.domain
-			owl_property_name = entity.name + '.' + attribute.name
-			owl_property_domain = entity.name
-			owl_inverted_property_name = attribute.reverseEntity.name + '.' + attribute.reverseAttr.name
-			res = ERB.new(inverse_entity_template)
-			t = res.result(binding)
-			file.puts t
+			if attribute.reverseAttr != []
+				inverse_mapped_list.push attribute
+				owl_property_range = attribute.domain
+				owl_property_name = entity.name + '.' + attribute.name
+				owl_property_domain = entity.name
+				owl_inverted_property_name = attribute.reverseEntity.name + '.' + attribute.reverseAttr.name
+				res = ERB.new(inverse_entity_template)
+				t = res.result(binding)
+				file.puts t
+			end
 		end
 
 # Handle EXPRESS explicit attribute mapping to OWL property
@@ -797,7 +799,7 @@ for schema in schema_list
 	
 	puts '  ENTITYs mapped = ' + entity_mapped_list.size.to_s + ' of ' + entity_list.size.to_s
 	puts '  - ' + superexpression_mapped_list.size.to_s + ' of ' + all_superexpression_list.size.to_s + ' ENTITY SUPERTYPE expressions mapped (only simple ONEOF supported)'	
-	puts '  - ' + inverse_mapped_list.size.to_s + ' of ' + all_inverse_list.size.to_s + ' inverse attributes mapped'	
+	puts '  - ' + inverse_mapped_list.size.to_s + ' of ' + all_inverse_list.size.to_s + ' inverse attributes mapped (inverse of inherited not supported)'	
 	notmapped_list = all_inverse_list - inverse_mapped_list
 	for t in notmapped_list
 		puts '  - Not mapped: ' + t.entity.name + '.' + t.name

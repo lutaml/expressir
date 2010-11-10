@@ -21,8 +21,10 @@ require 'erb'
 # Select Types that resolve to all Entity Types are mapped to OWL Class hierarchy.
 # Select Types that resolve to all Type are mapped to RDFS Datatype.
 # Type = builtin are mapped to RDFS Datatypes that subtype XSD datatypes
+# Type of Type of ... that ultimately resolve to builtin are mapped to datatype subtype hierarchy
 # Explicit attrs of Type = builtin are mapped to OWL DatatypeProperties
-# Explicit attrs of 1-D LIST/ARRAY OF builtin/Type = builtin  mapped to OWL ObjectProperty and subClassOf rdf:List and cardinality 1
+# Type = AGGR are mapped to subClassOf rdf:List
+# Explicit attrs of 1-D LIST/ARRAY OF builtin/Type = builtin mapped to OWL ObjectProperty and subClassOf rdf:List and cardinality 1
 # Inverse attrs are mapped to OWL DatatypeProperties with inverseOf set, except inverse of inherited not mapped
 # Enumeration Type and BOOLEAN attributes are mapped to OWL DatatypeProperties.
 # Attribute redeclarations that ref Entity/Select are mapped to ObjectProperty that is subproperty of that it redeclares
@@ -42,20 +44,20 @@ puts ' '
 ######### Mapping Configuration Starts Here ##############
 
 # Set the base of the URI (i.e. the namespace) for OWL constructs created during the mapping
-uri_base = 'http://www.reeper.org/dexlib/data/schemas/ap239_product_life_cycle_support'
+uri_base = 'http://www.reeper.org'
 
 # Add RDFS andor Dublin Core basic annotations
 
 # Set to true if any annotation_list elements use Dublin Core (dc: or dcterms:)
-include_dublin_core = true
+include_dublin_core = false
 
 annotation_list = Array.new
 # rdfs:comment must be position 0 as definition assignment hardcoded there
-annotation_list[0] = ['rdfs:comment', nil]
-annotation_list[1] = ['owl:versionInfo', '1']
-annotation_list[2] = ['dc:creator', 'David Price, TopQuadrant Limited']
-annotation_list[3] = ['dcterms:created','2010-10-22']
-annotation_list[4] = ['dc:source', 'OASIS PLCS TC Modified 10303-239 Edition 1 PLCS ARM Long Form EXPRESS, $Id: ap239_arm_lf.exp,v 1.22 2010/01/06 23:07:58 intrepidtim Exp $']
+#annotation_list[0] = ['rdfs:comment', nil]
+#annotation_list[1] = ['owl:versionInfo', '1']
+#annotation_list[2] = ['dc:creator', 'David Price, TopQuadrant Limited']
+#annotation_list[3] = ['dcterms:created','2010-10-22']
+#annotation_list[4] = ['dc:source', '{ iso standard 10303 part(214) version(2) object(1) automotive-design-schema(1) }']
 
 # Read definitions from csv file if found
 definition_hash = Hash.new
@@ -177,14 +179,14 @@ abstract_entity_template = %{<rdfs:subClassOf rdf:resource='#<%= supertype.name 
 
 # Template covering the output file contents for each defined type of builtin datatype
 type_builtin_template = %{
-<rdfs:Datatype rdf:ID='<%= type_builtin.name %>'>
-<rdfs:subClassOf rdf:resource='<%= type_builtin_datatype %>'/>
+<rdfs:Datatype rdf:ID='<%= datatype_name %>'>
+<rdfs:subClassOf rdf:resource='<%= superdatatype_name %>'/>
 </rdfs:Datatype>
 }
 
 # Template covering the mappings to rdf list
 rdflist_template = %{<rdfs:Class rdf:ID='<%= list_name %>'>
-<rdfs:subClassOf rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#List"/>
+<rdfs:subClassOf rdf:resource='<%= superlist_name %>'/>
 </rdfs:Class>}
 
 # Template covering the output file contents for each attribute that is an aggregate
@@ -345,6 +347,20 @@ def get_all_selections( item_list )
 	final_list = get_all_selections( temp_item_list )
 end
 
+# A recursive function to return the ultimate underlying type of a type
+def is_utlimate_type_builtin( the_type )
+	base_type = NamedType.find_by_name( the_type.domain )
+	case
+		when (base_type.instance_of? EXPSM::TypeSelect or base_type.instance_of? EXPSM::Entity)
+			return false
+		when (base_type.kind_of? EXPSM::Type and base_type.isBuiltin)
+			return true
+		else
+			return is_utlimate_type_builtin( base_type )
+	end
+end
+
+
 for schema in schema_list
 
 	type_mapped_list = []
@@ -377,17 +393,68 @@ for schema in schema_list
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
 	defined_type_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Type }
 	defined_type_not_builtin_list = defined_type_list.find_all{ |e| !e.isBuiltin }
-	
+	defined_type_builtin_list = defined_type_list.find_all{ |e| e.isBuiltin }
 
-# Handle defined type maps to RDFS Datatype 
+# Handle defined type maps to RDFS Datatype
 
-	for type_builtin in defined_type_list
-		if type_builtin.isBuiltin
+	for type_builtin in defined_type_builtin_list
+
+# Handle defined type maps to RDFS Datatype
+		if !type_builtin.instance_of? EXPSM::TypeAggregate
 			type_mapped_list.push type_builtin
-			type_builtin_datatype = datatype_hash[type_builtin.domain]
+			datatype_name = type_builtin.name
+			superdatatype_name = datatype_hash[type_builtin.domain]
 			res = ERB.new(type_builtin_template)
 			t = res.result(binding)
 			file.puts t
+# Handle defined type maps to RDF List
+		else
+			type_mapped_list.push type_builtin
+			list_name = type_builtin.name
+			superlist_name = "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"
+			res = ERB.new(rdflist_template)
+			t = res.result(binding)
+			file.puts t
+		end
+	end
+	
+
+	for type_not_builtin in defined_type_not_builtin_list
+
+		type_domain = NamedType.find_by_name( type_not_builtin.domain )
+		type_is_builtin = is_utlimate_type_builtin( type_not_builtin )
+
+		case
+
+# Handle simple defined type refining simple defined type of builtin map to RDFS Datatype
+			when (!type_not_builtin.instance_of? EXPSM::TypeAggregate and type_is_builtin and !type_domain.instance_of? EXPSM::TypeAggregate)
+			type_mapped_list.push type_not_builtin
+			datatype_name = type_not_builtin.name
+			superdatatype_name = '#' + type_domain.name
+			res = ERB.new(type_builtin_template)
+			t = res.result(binding)
+			file.puts t
+
+# Handle simple defined type of aggr defined type of builtin map to RDF List
+			when (!type_not_builtin.instance_of? EXPSM::TypeAggregate and type_domain.instance_of? EXPSM::TypeAggregate and type_is_builtin)
+			type_mapped_list.push type_not_builtin
+			list_name = type_not_builtin.name
+			superlist_name = '#' + type_domain.name
+			res = ERB.new(rdflist_template)
+			t = res.result(binding)
+			file.puts t
+
+# Handle aggr defined type of simple defined type of builtin map to RDF List
+			when (type_not_builtin.instance_of? EXPSM::TypeAggregate and type_domain.instance_of? EXPSM::Type and type_is_builtin)
+			type_mapped_list.push type_not_builtin
+			list_name = type_not_builtin.name
+			superlist_name = "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"
+			res = ERB.new(rdflist_template)
+			t = res.result(binding)
+			file.puts t
+			
+
+			else
 		end
 	end
 
@@ -581,6 +648,7 @@ for schema in schema_list
 				explicit_mapped_list.push attribute
 				list_mapped_list.push attribute
 				list_name = entity.name + '.' + attribute.name + '-' + attribute.domain.to_s + '-List'
+				superlist_name = "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"
 				res = ERB.new(rdflist_template)
 				t = res.result(binding)
 				file.puts t
@@ -596,6 +664,7 @@ for schema in schema_list
 				explicit_mapped_list.push attribute
 				list_mapped_list.push attribute
 				list_name = entity.name + '.' + attribute.name + '-' + attribute.domain.to_s + '-Array'
+				superlist_name = "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"
 				res = ERB.new(rdflist_template)
 				t = res.result(binding)
 				file.puts t
@@ -611,6 +680,7 @@ for schema in schema_list
 				explicit_mapped_list.push attribute
 				list_mapped_list.push attribute
 				list_name = entity.name + '.' + attribute.name + '-' + attribute.domain.to_s + '-List'
+				superlist_name = "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"
 				res = ERB.new(rdflist_template)
 				t = res.result(binding)
 				file.puts t
@@ -626,6 +696,7 @@ for schema in schema_list
 				explicit_mapped_list.push attribute
 				list_mapped_list.push attribute
 				list_name = entity.name + '.' + attribute.name + '-' + attribute.domain.to_s + '-Array'
+				superlist_name = "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"
 				res = ERB.new(rdflist_template)
 				t = res.result(binding)
 				file.puts t

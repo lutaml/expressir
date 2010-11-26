@@ -61,7 +61,11 @@ class SchemaDefinition < ModelElement
 			end
 		
 		end
-		puts "*** NOT HERE" + typename + " IN " + self.name
+		puts "*** NOT HERE " + typename + " IN " + self.name
+		puts "*** SEARCHED " + all_schema_array.size.to_s + " SCHEMAS:"
+		for schema in self.all_schema_array
+			puts "  - " + schema.name
+		end
 		return nil
 	end
 end
@@ -298,7 +302,7 @@ def load_dictionary_express_interface(schemaxml, repos)
 
 		ispec.current_schema_id = schema_name
 		ispec.current_schema = current_schema
-		current_schema.contents.push ispec
+#		current_schema.contents.push ispec
 		ispec.kind = interfacexml.attributes["kind"].to_s
 		
 		itemxml_list = interfacexml.elements.to_a("interfaced.item")
@@ -503,6 +507,26 @@ def load_dictionary_express_entity(schemaxml, repos)
 				end
 			end
 		end
+    
+    ## Process unique rules
+		if entityxml.elements["unique"] != nil
+			uniquexml_list = entityxml.elements.to_a("unique")
+			for uniquexml in uniquexml_list
+        uniquenew = EXPSM::UniqueRule.new
+        if uniquexml.attributes["label"] != nil
+          uniquenew.name = uniquexml.attributes["label"]
+        end
+        attrxml_list = uniquexml.elements.to_a("unique.attribute")
+        for attrxml in attrxml_list
+          aname = attrxml.attributes["attribute"]
+          if uniquexml.attributes["entity-ref"] != nil
+            puts "ENTITY-REF found in UNIQUE RULE: " + entnew.name
+          end          
+          uniquenew.attributes.push aname
+        end
+				entnew.uniques.push uniquenew
+			end
+		end
 	end
 end
 ##
@@ -621,6 +645,20 @@ def postprocess_dictionary_express(repos)
 					end
 				end
 			end
+			
+			## Add entities list as an array of pointers to Global Rule
+			if decl.kind_of? EXPSM::GlobalRule
+				ent_temp = decl.entities.scan(/\w+/)
+				for name in ent_temp
+					thetype = schema.find_namedtype_by_name( name.to_s )
+					if thetype != nil
+						decl.entities_array.push thetype
+					else
+						puts "ERROR : Rule Entity Not Found : " + name
+					end
+				end
+			end
+
 
 			##
 			## Add pointer to reverse entity and attribute in inverses
@@ -733,18 +771,7 @@ def load_dictionary_express_rule( schemaxml, repos)
 			the_schema = temp
 		end
 	end
-## Process unique rules
-	entityxml_list = schemaxml.elements.to_a("rule")
-	for entityxml in entityxml_list
-		if entityxml.elements["unique"] != nil
-			eptr = the_schema.find_named_type_by_name( entityxml.attributes["name"] )
-			uniquexml_list = entityxml.elements["unique"]
-			for uniquexml in uniquexml_list
-				uptr = process_unique_rulexml( uniquexml , eptr)
-				eptr.uniques.push uptr
-			end
-		end
-	end
+
 ## Process global rules
 	rulexml_list = schemaxml.elements.to_a("rule")
 	puts "-- Rule count is " + rulexml_list.size.to_s
@@ -752,16 +779,7 @@ def load_dictionary_express_rule( schemaxml, repos)
 		rulenew = EXPSM::GlobalRule.new
 		rulenew.name = rulexml.attributes["name"].to_s
 		rulenew.entities = rulexml.attributes["appliesto"].to_s
-		## also save entities list as an array of pointers
-		ent_temp = rulenew.entities.scan(/\w+/)
-		for name in ent_temp
-			thetype = the_schema.find_namedtype_by_name( name.to_s )
-			if thetype != nil
-				rulenew.entities_array.push thetype
-			else
-				puts "ERROR : Rule Entity Not Found : " + name
-			end
-		end
+		# set entity array in post processor
 		rulenew.schema = the_schema
 		the_schema.contents.push rulenew
 		if rulexml.attributes["algorithm"] != nil
@@ -783,28 +801,7 @@ def process_where_rulexml( wherexml )
 	end
 	return wherenew
 end
-def process_unique_rulexml( uniquexml, entity )
-	uniquenew = EXPSM::UniqueRule.new
-	uniquenew.expression = uniquexml.attributes["expression"]
-	if uniquexml.attributes["label"] != nil
-		uniquenew.name = uniquexml.attributes["label"]
-	end
-	attrxml_list = uniquexml.elements["unique.attribute"]
-	for attrxml in attrxml_list
-		puts "Unique attr list to be done"
-		aname = attrxml.attributes["attribute"]
-		aptr = entity.find_attr_by_name( aname )
-		if aptr ==  nil
-			if uniquexml.attributes["entity-ref"] != nil
-				ename = attrxml.attributes["entity-ref"]
-				nt = entity.schema.find_named_type_by_name( ename )
-				aptr = nt.find_attr_by_name( aname )
-			end
-		end
-		uniquenew.attributes.push aptr
-	end
-	return uniquenew
-end
+
 def load_dictionary_express( exp, repname )
 
 	schema_list = exp.elements.to_a("//express/schema")

@@ -55,7 +55,7 @@ schema_interface_template = %{<packageImport xmi:type='uml:PackageImport' xmi:id
 schema_end_template = %{</packagedElement>}
 
 # ENTITY Start Template
-entity_start_template = %{<packagedElement xmi:type = "uml:Class" xmi:id = "<%= xmiid %>" name = "<%= entity.name %>" isAbstract = "FALSE" visibility = "public">}
+entity_start_template = %{<packagedElement xmi:type = "uml:Class" xmi:id = "<%= xmiid %>" name = "<%= entity.name %>" isAbstract = "<% if entity.isAbs %>TRUE<% else %>FALSE<% end %>" visibility = "public">}
 
 # SUBTYPE OF Template
 supertype_template = %{<generalization xmi:type="uml:Generalization" xmi:id="<%= xmiid %>" general="<%= xmiid_supertype %>"/>}
@@ -106,7 +106,6 @@ attribute_end = %{<% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger"
 <% if lower != '0' and lower != '1' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"  value="<%= lower %>"/><% end %>
 <% if upper != '1' %><upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="<%= upper %>"/><% end %>
 </ownedAttribute>}
-
 
 
 # EXPLICIT ATTRIBUTE ENTITY Create Association Template
@@ -170,8 +169,8 @@ end
 	puts 'reeper : Writing output to file ' + output_xmi_filename
 
 # Evaluate and write file start template 
-  res = ERB.new(overall_start_template)
-  t = res.result(binding)
+	res = ERB.new(overall_start_template)
+	t = res.result(binding)
 	file.puts t
 
 for schema in schema_list	
@@ -184,12 +183,10 @@ for schema in schema_list
 	interfaced_schema_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::InterfaceSpecification}
 	
 	for interfaced_schema in interfaced_schema_list
-	
 # Evaluate and write schema interface template 
 		res = ERB.new(schema_interface_template)
 		t = res.result(binding)
 		file.puts t		
-	
 	end
 
 # Map EXPRESS TYPE of Builtin
@@ -304,10 +301,10 @@ for schema in schema_list
 # Map EXPRESS Explicit Attributes 		
 		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
 		for attr in attr_list
-				xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + attr.name
+			xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + attr.name
 
-#       set up references resulting from attribute being a redeclaration
-				if attr.redeclare_entity
+#		 set up references resulting from attribute being a redeclaration
+			if attr.redeclare_entity
 					if attr.redeclare_oldname
 						redefined_xmiid = '_2_attr_' + schema.name + '-' + attr.redeclare_entity + '-' + attr.redeclare_oldname
 					else
@@ -315,32 +312,32 @@ for schema in schema_list
 					end
 				end
 
-#       initialize default cardinailty constraints
-				lower = '1'
-				upper = '1'
-				isset = 'true'
-				islist = 'false'
-				
-#       set up cardinailty constraints from attribute being a 1-D aggregate				
-				if attr.instance_of? EXPSM::ExplicitAggregate and attr.rank == 1
-					upper = attr.dimensions[0].upper
-					if upper == '?'
-						upper = '*'
-					end
-					lower = attr.dimensions[0].lower
-					if attr.dimensions[0].aggrtype == 'LIST'
-						islist = 'true'
-					end
-					if attr.dimensions[0].aggrtype == 'BAG'
-						isset = 'false'
-					end
-					if attr.dimensions[0].aggrtype == 'LIST' and !attr.dimensions[0].isUnique
-						isset = 'false'
-					end
+#		 initialize default cardinailty constraints
+			lower = '1'
+			upper = '1'
+			isset = 'true'
+			islist = 'false'
+			
+#		 set up cardinailty constraints from attribute being a 1-D aggregate				
+			if attr.instance_of? EXPSM::ExplicitAggregate and attr.rank == 1
+				upper = attr.dimensions[0].upper
+				if upper == '?'
+					upper = '*'
 				end
-				if attr.isOptional == TRUE
-					lower = '0'
+				lower = attr.dimensions[0].lower
+				if attr.dimensions[0].aggrtype == 'LIST'
+					islist = 'true'
 				end
+				if attr.dimensions[0].aggrtype == 'BAG'
+					isset = 'false'
+				end
+				if attr.dimensions[0].aggrtype == 'LIST' and !attr.dimensions[0].isUnique
+					isset = 'false'
+				end
+			end
+			if attr.isOptional == TRUE
+				lower = '0'
+			end
 
 # Map EXPRESS Explicit Attributes of Builtin
 			if attr.isBuiltin
@@ -382,7 +379,6 @@ for schema in schema_list
 	res = ERB.new(schema_end_template)
 	t = res.result(binding)
 	file.puts t
-
 end
 
 # Evaluate and write file end template 

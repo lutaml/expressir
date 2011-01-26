@@ -129,6 +129,14 @@ attribute_builtin_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<
 # EXPLICIT ATTRIBUTE ENUM and TYPE Template
 attribute_enum_type_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" type="<%= type_xmiid %>" isOrdered='<%= islist %>' isUnique='<%= isset %>' >}
 
+# UNIQUE rule template
+unique_template = %{<ownedRule xmi:type="uml:Constraint" xmi:id="<%= xmiid %>" name="<%= unique.name %>" visibility="public">
+<constrainedElement xmi:idref="<%= xmiid_entity %>"/>
+<specification xmi:type="uml:OpaqueExpression" xmi:id="<%= xmiid + '-spec' %>" visibility="public">
+<body><%= entity.name %>::allInstance()-&gt;isUnique(<%= unique_text %>)</body>
+<language>OCL2.0</language>
+</specification>
+</ownedRule>}
 
 # TYPE Template
 type_template = %{<packagedElement xmi:type="uml:PrimitiveType" xmi:id="_<%= schema.name %>-<%= type.name %>" name="<%= type.name %>" >
@@ -273,6 +281,7 @@ for schema in schema_list
 	
 # Evaluate and write ENTITY start template 
 		xmiid = '_' + schema.name + '-' + entity.name
+		xmiid_entity = xmiid
 		res = ERB.new(entity_start_template)
 		t = res.result(binding)
 		file.puts t
@@ -368,6 +377,21 @@ for schema in schema_list
       file.puts t
 		end
 		
+
+#Map EXPRESS Unique crules
+		if entity.uniques.size > 0
+			for unique in entity.uniques
+				xmiid = '_3_uniq_' + schema.name + '-' + entity.name + '-' + unique.name
+				if unique.attributes.size == 1
+					unique_text = unique.attributes[0]
+				else
+					unique_text = 'Sequence{'+ unique.attributes.join(', ') +'}'
+				end
+				res = ERB.new(unique_template)
+				t = res.result(binding)
+				file.puts t
+			end
+		end
 
 # Evaluate and write ENTITY end template 
 		res = ERB.new(entity_end_template)

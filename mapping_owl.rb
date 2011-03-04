@@ -14,6 +14,7 @@ require 'erb'
 # top_class - if not nil, makes every OWL class created a subclass if this class which is added to output
 # thing_attributes - if specified, OWL DatatypeProperty domain is set to OWL Thing and range set to string
 # datatype_hash - sets mappings for EXPRESS builtin to XSD datatypes
+# post_processed_schema - If true, write post-processed schema data (e.g. propety hash) for inclusion in other program or script 
 #
 # Mappings are:
 # Entity Types and Subtypes are mapped to OWL Class hierarchy.
@@ -88,6 +89,10 @@ datatype_hash["BOOLEAN"] = 'http://www.w3.org/2001/XMLSchema#boolean'
 datatype_hash["LOGICAL"] = 'http://www.w3.org/2001/XMLSchema#boolean'
 datatype_hash["STRING"] = 'http://www.w3.org/2001/XMLSchema#string'
 
+# Write the property_type_hash for inclusion in other scripts or not
+post_processed_schema = false
+post_processed_schema_file_name = 'postprocessed_schema.rb'
+post_processed_schema_file = File.new(post_processed_schema_file_name,'w')
 
 ######### Mapping Configuration Ends Here ##############
 
@@ -323,14 +328,43 @@ schema_end_template = %{}
 # Template covering the end of the output file 
 overall_end_template = %{  </rdf:RDF>}
 
-# Set up list of schemas to process, input may be a repository containing schemas or a single schema
-if mapinput.kind_of? EXPSM::Repository
-	schema_list = mapinput.schemas
-elsif mapinput.kind_of? EXPSM::SchemaDefinition
-	schema_list = [mapinput]
-else
-	puts "ERROR : map_from_express input no Repository instance or Schema instance"
-	exit
+
+def post_process_entity(entity, post_processed_schema_file, datatype_hash)
+	attribute_list = entity.attributes_all_array.find_all{ |a| a.kind_of? EXPSM::Explicit}
+
+	for attribute in attribute_list
+
+		express_attribute_domain = nil
+		if !attribute.isBuiltin
+				express_attribute_domain = NamedType.find_by_name( attribute.domain )
+		end
+		p28_property_name = entity.name.capitalize + '.' + attribute.name.capitalize
+		property_quoted = false
+		property_list = false
+		property_type = '"' + attribute.domain + '"'
+		if attribute.isBuiltin
+			property_type = '"' + datatype_hash[attribute.domain] + '"'
+		end
+		if attribute.isBuiltin and attribute.domain == 'STRING'
+			property_quoted = true
+		end
+		if (!attribute.redeclare_entity and express_attribute_domain.instance_of? EXPSM::Type and express_attribute_domain.isBuiltin and express_attribute_domain == 'STRING')
+			property_quoted = true
+			property_type = '"' + datatype_hash[express_attribute_domain.domain] + '"'
+		end
+		if ( attribute.isBuiltin and attribute.instance_of? EXPSM::ExplicitAggregate and attribute.rank == 1 and attribute.dimensions[0].aggrtype = 'LIST')
+			property_list = true
+			property_type = '"' + datatype_hash[attribute.domain] + '"'
+		end
+
+		if (express_attribute_domain.instance_of? EXPSM::Type and express_attribute_domain.isBuiltin and attribute.instance_of? EXPSM::ExplicitAggregate and attribute.rank == 1 and attribute.dimensions[0].aggrtype = 'LIST')
+			property_list = true
+			property_type = '"' + datatype_hash[express_attribute_domain.domain] + '"'
+		end
+
+		property_type = property_type.gsub('http://www.w3.org/2001/XMLSchema#','xsd:')
+		post_processed_schema_file.puts 'property_range_hash["' + p28_property_name + '"] = [' + property_quoted.to_s + ',' + property_list.to_s  + ',' + property_type.to_s  + ']' 
+	end
 end
 
 # A recursive function to return complete set of items, following nested selects, for a select that are not selects themselves
@@ -360,6 +394,15 @@ def is_utlimate_type_builtin( the_type )
 	end
 end
 
+# Set up list of schemas to process, input may be a repository containing schemas or a single schema
+if mapinput.kind_of? EXPSM::Repository
+	schema_list = mapinput.schemas
+elsif mapinput.kind_of? EXPSM::SchemaDefinition
+	schema_list = [mapinput]
+else
+	puts "ERROR : map_from_express input no Repository instance or Schema instance"
+	exit
+end
 
 for schema in schema_list
 
@@ -552,6 +595,9 @@ for schema in schema_list
 		res = ERB.new(entity_end_template)
 		t = res.result(binding)
 		file.puts t
+
+# Post-process the entity
+		post_process_entity(entity, post_processed_schema_file, datatype_hash) if post_processed_schema
 
 		
 		if entity.superexpression != nil
@@ -888,6 +934,8 @@ for schema in schema_list
 	for t in notmapped_list
 		puts '  - Not mapped: ' + t.name
 	end
+	puts ' '
+	puts 'Wrote post-processed schema to file: ' + post_processed_schema_file_name if post_processed_schema
 
 end
 
@@ -895,6 +943,6 @@ res = ERB.new(overall_end_template)
 t = res.result(binding)
 file.puts t
 
-
+post_processed_schema_file.close if post_processed_schema
 
 end

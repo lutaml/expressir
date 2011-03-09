@@ -1,9 +1,10 @@
 require 'erb'
 # EXPRESS to OWL Structural Mapping
-# Version 0.4
+# Version 0.5
 # This function navigates the EXPRESS STEPMod Model Ruby Classes
 # and performs a structural EXPRESS-to-OWL mapping using Ruby ERB templates.
 # The output is in OWL RDF/XML abbreviated syntax.
+# Mapping summary reports constructs where mapping is not sufficient (i.e. may need editing) or uses newer OWL capabilities
 #
 # Configurable items are:
 # If file named definitions.csv is found, definitions of items are read from that CSV.
@@ -18,28 +19,34 @@ require 'erb'
 #
 # Mappings are:
 # Entity Types and Subtypes are mapped to OWL Class hierarchy.
-# Entity Type SUPERTYPE OF ONEOF( list-of-EntityTypes ) are mapped to OWL disjoint between Classes	
+# Entity Type SUPERTYPE OF ONEOF( list-of-EntityTypes ) are mapped to OWL disjoint between Classes
 # Select Types that resolve to all Entity Types are mapped to OWL Class hierarchy.
 # Select Types that resolve to all Type are mapped to RDFS Datatype.
+# Select Types that resolve to mixed Entity Types and Type are mapped to OWL Class hierarchy, so may need cleanup
+# Enumeration Types are mapped to OWL Enumerated Classes
 # Type = builtin are mapped to RDFS Datatypes that subtype XSD datatypes
 # Type of Type of ... that ultimately resolve to builtin are mapped to datatype subtype hierarchy
 # Explicit attrs of Type = builtin are mapped to OWL DatatypeProperties
-# Type = AGGR are mapped to subClassOf rdf:List
+# Type = AGGR are mapped to subClassOf rdf:List and type of element not specified
+
 # Explicit attrs of 1-D LIST/ARRAY OF builtin/Type = builtin mapped to OWL ObjectProperty and subClassOf rdf:List and cardinality 1
+# Explicit attrs of n-D AGGR mapped to OWL ObjectProperty and subClassOf rdf:List, type of element not specified, and cardinality 1
+
 # Inverse attrs are mapped to OWL DatatypeProperties with inverseOf set, except inverse of inherited not mapped
-# Enumeration Type and BOOLEAN attributes are mapped to OWL DatatypeProperties.
+# BOOLEAN attributes are mapped to OWL DatatypeProperties.
+
 # Attribute redeclarations that ref Entity/Select are mapped to ObjectProperty that is subproperty of that it redeclares
 # Attribute redeclarations that ref builting simple types are mapped to DatatypeProperty that is subproperty of that it redeclares
 # Type = type that is a select are mapped to Class subclass of referenced select Class
 # Single Attribute OPTIONAL or not maps to cardinality restriction on Class owning attribute
 # 1D SET/BAG Attribute bound maps to cardinality restriction on Class owning attribute
-# Explicit attributes of n-dimensional aggregates not supported
+# n-dimensional aggregates map to rdf List with no internal structure and type of element not specified
 
 
 # 
 def map_from_express( mapinput )
 puts ' '
-puts 'EXPRESS to OWL Structural Mapping V0.4'
+puts 'EXPRESS to OWL Structural Mapping V0.5'
 puts ' '
 
 ######### Mapping Configuration Starts Here ##############
@@ -92,7 +99,7 @@ datatype_hash["STRING"] = 'http://www.w3.org/2001/XMLSchema#string'
 # Write the property_type_hash for inclusion in other scripts or not
 post_processed_schema = false
 post_processed_schema_file_name = 'postprocessed_schema.rb'
-post_processed_schema_file = File.new(post_processed_schema_file_name,'w')
+post_processed_schema_file = File.new(post_processed_schema_file_name,'w') if post_processed_schema
 
 ######### Mapping Configuration Ends Here ##############
 
@@ -172,7 +179,7 @@ class_collection_template = %{<owl:Class><owl:unionOf rdf:parseType="Collection"
 datatype_collection_template = %{<rdfs:Datatype rdf:ID='<%= type_name %>'>
 <owl:equivalentClass><rdfs:Datatype><owl:unionOf rdf:parseType="Collection">
 <%  type_name_list.each do |name| %>
-    <rdf:Description rdf:ID='<%= name %>' />
+    <rdf:Description rdf:about='#<%= name %>' />
  <% end %>
 </owl:unionOf> 
 </rdfs:Datatype></owl:equivalentClass>
@@ -259,6 +266,18 @@ attribute_redeclare_entity_template = %{<owl:ObjectProperty rdf:ID='<%= owl_prop
 <% end %>	 
 </owl:ObjectProperty>
 }
+
+
+
+# Template covering the output file contents for each attribute that is enum datatype
+class_enum_template = %{<owl:Class rdf:ID='<%= owl_class_name %>'>
+<rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+<owl:oneOf rdf:parseType="Collection">
+<%  enumitem_name_list.each do |name| %>
+<rdf:Description rdf:ID="<%= owl_class_name + '.' + name %>"/>
+ <% end %>	
+</owl:oneOf>
+</owl:Class>}
 
 
 # Template covering the output file contents for each attribute that is enum datatype
@@ -367,6 +386,7 @@ def post_process_entity(entity, post_processed_schema_file, datatype_hash)
 	end
 end
 
+
 # A recursive function to return complete set of items, following nested selects, for a select that are not selects themselves
 def get_all_selections( item_list )
 	select_items = item_list.find_all{ |a| a.kind_of? EXPSM::TypeSelect}
@@ -383,6 +403,7 @@ end
 
 # A recursive function to return the ultimate underlying type of a type
 def is_utlimate_type_builtin( the_type )
+	return true if the_type.isBuiltin
 	base_type = NamedType.find_by_name( the_type.domain )
 	case
 		when (base_type.instance_of? EXPSM::TypeSelect or base_type.instance_of? EXPSM::Entity)
@@ -404,6 +425,7 @@ else
 	exit
 end
 
+
 for schema in schema_list
 
 	type_mapped_list = []
@@ -412,7 +434,10 @@ for schema in schema_list
 	inverse_mapped_list = []	
 	thing_attr_mapped_list = []
 	superexpression_mapped_list = []
-	list_mapped_list = []
+	list_mapped_attr_list = []
+	list_mapped_type_list = []
+	type_union_mapped_list = []
+	mixed_select_list = []
 	all_explicit_list = []
 	all_derived_list = []
 	all_inverse_list = []
@@ -435,8 +460,21 @@ for schema in schema_list
 	select_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::TypeSelect }
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
 	defined_type_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Type }
+	enum_type_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::TypeEnum }
 	defined_type_not_builtin_list = defined_type_list.find_all{ |e| !e.isBuiltin }
-	defined_type_builtin_list = defined_type_list.find_all{ |e| e.isBuiltin }
+	defined_type_builtin_list = defined_type_list.find_all{ |e| e.isBuiltin } 
+
+# Handle enumeration type maps to RDFS Datatype string
+
+	for type_enum in enum_type_list
+		type_mapped_list.push type_enum
+		owl_class_name = type_enum.name
+		enumitem_name_list = type_enum.items.scan(/\w+/)
+		res = ERB.new(class_enum_template)
+		t = res.result(binding)
+		file.puts t
+	end
+
 
 # Handle defined type maps to RDFS Datatype
 
@@ -452,6 +490,7 @@ for schema in schema_list
 			file.puts t
 # Handle defined type maps to RDF List
 		else
+			list_mapped_type_list.push type_builtin
 			type_mapped_list.push type_builtin
 			list_name = type_builtin.name
 			superlist_name = "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"
@@ -481,6 +520,7 @@ for schema in schema_list
 # Handle simple defined type of aggr defined type of builtin map to RDF List
 			when (!type_not_builtin.instance_of? EXPSM::TypeAggregate and type_domain.instance_of? EXPSM::TypeAggregate and type_is_builtin)
 			type_mapped_list.push type_not_builtin
+			list_mapped_type_list.push type_not_builtin
 			list_name = type_not_builtin.name
 			superlist_name = '#' + type_domain.name
 			res = ERB.new(rdflist_template)
@@ -490,39 +530,46 @@ for schema in schema_list
 # Handle aggr defined type of simple defined type of builtin map to RDF List
 			when (type_not_builtin.instance_of? EXPSM::TypeAggregate and type_domain.instance_of? EXPSM::Type and type_is_builtin)
 			type_mapped_list.push type_not_builtin
+			list_mapped_type_list.push type_not_builtin
 			list_name = type_not_builtin.name
 			superlist_name = "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"
 			res = ERB.new(rdflist_template)
 			t = res.result(binding)
 			file.puts t
-			
 
-			else
-		end
-	end
+# Handle aggr of entity/select type map to RDF List
+			when (type_not_builtin.instance_of? EXPSM::TypeAggregate and (type_domain.instance_of? EXPSM::Entity or type_domain.instance_of? EXPSM::TypeSelect))
+			type_mapped_list.push type_not_builtin
+			list_mapped_type_list.push type_not_builtin
+			list_name = type_not_builtin.name
+			superlist_name = "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"
+			res = ERB.new(rdflist_template)
+			t = res.result(binding)
+			file.puts t			
 
 # Handle defined type that are type = type that is a select 
+			when (type_domain.kind_of? EXPSM::TypeSelect)
+	 			type_mapped_list.push type_not_builtin
+				superclass_name = type_not_builtin.domain
+				class_name = type_not_builtin.name
+				res = ERB.new(entity_start_template)
+				t = res.result(binding)
+				file.puts t
 
-	for type_not_builtin in defined_type_not_builtin_list
- 		type_domain = NamedType.find_by_name( type_not_builtin.domain )
- 		if type_domain.kind_of? EXPSM::TypeSelect
- 			type_mapped_list.push type_not_builtin
-			superclass_name = type_not_builtin.domain
-			class_name = type_not_builtin.name
-			res = ERB.new(entity_start_template)
-			t = res.result(binding)
-			file.puts t
-
-			superclass_name = type_not_builtin.domain
-			res = ERB.new(supertype_template)
-			t = res.result(binding)
-			file.puts t
+				superclass_name = type_not_builtin.domain
+				res = ERB.new(supertype_template)
+				t = res.result(binding)
+				file.puts t
 		 
-			res = ERB.new(class_end_template)
-			t = res.result(binding)
-			file.puts t
+				res = ERB.new(class_end_template)
+				t = res.result(binding)
+				file.puts t
+
+			else
+			puts 'ERROR : Not mapped = ' + type_not_builtin.name
 		end
 	end
+
 
 # Handle EXPRESS SELECT Type mapping to OWL Class hierarchy and RDFS Datatypes
 
@@ -534,8 +581,19 @@ for schema in schema_list
 		this_select_type_items = this_select_all_items.find_all{ |a| a.kind_of? EXPSM::Type}
 
 		case		
+
+#   Handle case of select items resolving to containing only items that are non-select Type
+		when this_select_type_items.size == this_select_all_items.size
+			type_mapped_list.push select
+			type_union_mapped_list.push select
+			type_name_list = item_name_list
+			type_name = select.name
+			res = ERB.new(datatype_collection_template)
+			t = res.result(binding)
+			file.puts t
+
 #   Handle case of select items resolving to containing no item that is a non-select Type
-		when this_select_type_items.size == 0
+		else
 			type_mapped_list.push select
 			
 			res = ERB.new(select_start_template)
@@ -551,20 +609,10 @@ for schema in schema_list
 			res = ERB.new(select_end_template)
 			t = res.result(binding)
 			file.puts t
+			if (this_select_type_items.size != 0 and this_select_type_items.size != this_select_all_items.size)
+				mixed_select_list.push select
+			end
 
-#   Handle case of select items resolving to containing only items that are non-select Type
-		when this_select_type_items.size == this_select_all_items.size
-			type_mapped_list.push select
-			type_name_list = item_name_list
-			type_name = select.name
-			res = ERB.new(datatype_collection_template)
-			t = res.result(binding)
-			file.puts t
-			puts 'WARNING: ' + select.name +  ' mapped to RDFS Datatype owl:unionOf of other datatypes, may not be supported in older OWL tools'
-
-#   Warning for case of select items resolving mixed mixed non-select Type and Select/Entity			
-		else
-			puts "WARNING: '" + select.name +  "' Select Type of Mixed Types and Entites not mapped"
 		end
 	end
 
@@ -629,7 +677,6 @@ for schema in schema_list
 					end
 				end
 			else
-				puts 'WARNING: ' + entity.name + ' supertype expression not mapped'
 			end
 		
 		end
@@ -683,8 +730,12 @@ for schema in schema_list
 		for attribute in attribute_list
 			
 			express_attribute_domain = nil
+			type_is_builtin = false
 			if !attribute.isBuiltin
 				express_attribute_domain = NamedType.find_by_name( attribute.domain )
+				if express_attribute_domain.instance_of? EXPSM::Type
+					type_is_builtin = is_utlimate_type_builtin( express_attribute_domain )
+				end
 			end
 	
 			case
@@ -692,7 +743,7 @@ for schema in schema_list
 # Handle EXPRESS explicit attributes of LIST of built-in simple type, including redeclaration
 			when (attribute.isBuiltin and attribute.instance_of? EXPSM::ExplicitAggregate and attribute.rank == 1 and attribute.dimensions[0].aggrtype = 'LIST')
 				explicit_mapped_list.push attribute
-				list_mapped_list.push attribute
+				list_mapped_attr_list.push attribute
 				list_name = entity.name + '.' + attribute.name + '-' + attribute.domain.to_s + '-List'
 				superlist_name = "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"
 				res = ERB.new(rdflist_template)
@@ -708,7 +759,7 @@ for schema in schema_list
 # Handle EXPRESS explicit attributes of ARRAY of built-in simple type, including redeclaration
 			when (attribute.isBuiltin and attribute.instance_of? EXPSM::ExplicitAggregate and attribute.rank == 1 and attribute.dimensions[0].aggrtype = 'ARRAY')
 				explicit_mapped_list.push attribute
-				list_mapped_list.push attribute
+				list_mapped_attr_list.push attribute
 				list_name = entity.name + '.' + attribute.name + '-' + attribute.domain.to_s + '-Array'
 				superlist_name = "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"
 				res = ERB.new(rdflist_template)
@@ -722,9 +773,9 @@ for schema in schema_list
 				file.puts t
 
 # Handle EXPRESS explicit attributes of LIST of TYPE that is built-in simple type, including redeclaration		
-			when (express_attribute_domain.instance_of? EXPSM::Type and express_attribute_domain.isBuiltin and attribute.instance_of? EXPSM::ExplicitAggregate and attribute.rank == 1 and attribute.dimensions[0].aggrtype = 'LIST')
+			when (express_attribute_domain.instance_of? EXPSM::Type and type_is_builtin and attribute.instance_of? EXPSM::ExplicitAggregate and attribute.rank == 1 and attribute.dimensions[0].aggrtype = 'LIST')
 				explicit_mapped_list.push attribute
-				list_mapped_list.push attribute
+				list_mapped_attr_list.push attribute
 				list_name = entity.name + '.' + attribute.name + '-' + attribute.domain.to_s + '-List'
 				superlist_name = "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"
 				res = ERB.new(rdflist_template)
@@ -738,9 +789,9 @@ for schema in schema_list
 				file.puts t
 
 # Handle EXPRESS explicit attributes of ARRAY of TYPE that is built-in simple type, including redeclaration		
-			when (express_attribute_domain.instance_of? EXPSM::Type and express_attribute_domain.isBuiltin and attribute.instance_of? EXPSM::ExplicitAggregate and attribute.rank == 1 and attribute.dimensions[0].aggrtype = 'ARRAY')
+			when (express_attribute_domain.instance_of? EXPSM::Type and type_is_builtin and attribute.instance_of? EXPSM::ExplicitAggregate and attribute.rank == 1 and attribute.dimensions[0].aggrtype = 'ARRAY')
 				explicit_mapped_list.push attribute
-				list_mapped_list.push attribute
+				list_mapped_attr_list.push attribute
 				list_name = entity.name + '.' + attribute.name + '-' + attribute.domain.to_s + '-Array'
 				superlist_name = "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"
 				res = ERB.new(rdflist_template)
@@ -773,7 +824,7 @@ for schema in schema_list
 				file.puts t
 
 # Handle EXPRESS explicit attribute, not redeclaration, refers to Type that is Type = builtin datatype				
-			when (!attribute.redeclare_entity and express_attribute_domain.instance_of? EXPSM::Type and express_attribute_domain.isBuiltin)
+			when (!attribute.redeclare_entity and express_attribute_domain.instance_of? EXPSM::Type and type_is_builtin)
 				explicit_mapped_list.push attribute
 				owl_property_range = attribute.domain
 				owl_property_name = entity.name + '.' + attribute.name
@@ -784,14 +835,18 @@ for schema in schema_list
 
 # Handle EXPRESS explicit attributes of enum type, ignoring redeclarations
 			when (express_attribute_domain.kind_of? EXPSM::TypeEnum)
-				if !type_mapped_list.include?(express_attribute_domain)
-					type_mapped_list.push express_attribute_domain
-				end
 				explicit_mapped_list.push attribute
 				owl_property_name = entity.name + '.' + attribute.name
-				enumitem_name_list = express_attribute_domain.items.scan(/\w+/)
 				owl_property_domain = entity.name
-				res = ERB.new(attribute_enum_template)
+				owl_property_range = attribute.domain
+				res = ERB.new(attribute_entity_template)
+
+#				if !type_mapped_list.include?(express_attribute_domain)
+#					type_mapped_list.push express_attribute_domain
+#				end
+#				enumitem_name_list = express_attribute_domain.items.scan(/\w+/)
+#				res = ERB.new(attribute_enum_template)
+
 				t = res.result(binding)
 				file.puts t
 				if attribute.redeclare_entity
@@ -914,28 +969,43 @@ for schema in schema_list
 	
 	
 	puts '  ENTITYs mapped = ' + entity_mapped_list.size.to_s + ' of ' + entity_list.size.to_s
-	puts '  - ' + superexpression_mapped_list.size.to_s + ' of ' + all_superexpression_list.size.to_s + ' ENTITY SUPERTYPE expressions mapped (only simple ONEOF supported)'	
+	puts '  - ' + superexpression_mapped_list.size.to_s + ' of ' + all_superexpression_list.size.to_s + ' ENTITY SUPERTYPE expressions mapped (only simple ONEOF supported)'
+	for t in all_superexpression_list - superexpression_mapped_list
+		puts '      Not mapped: ' + t.name
+	end
 	puts '  - ' + inverse_mapped_list.size.to_s + ' of ' + all_inverse_list.size.to_s + ' inverse attributes mapped (inverse of inherited not supported)'	
 	notmapped_list = all_inverse_list - inverse_mapped_list
 	for t in notmapped_list
-		puts '  - Not mapped: ' + t.entity.name + '.' + t.name
+		puts '      Not mapped: ' + t.entity.name + '.' + t.name
 	end	
-	puts '  - ' + explicit_mapped_list.size.to_s + ' of ' + all_explicit_list.size.to_s + ' explicit attributes mapped, ' + list_mapped_list.size.to_s + ' mapped as rdf:List'
 	puts '  - ' + thing_attr_mapped_list.size.to_s + ' of ' + all_explicit_list.size.to_s + ' explicit attributes mapped with owl:Thing as domain (configurable)'	
+	puts '  - ' + explicit_mapped_list.size.to_s + ' of ' + all_explicit_list.size.to_s + ' explicit attributes mapped'
+	for t in list_mapped_attr_list
+		puts '      rdf:List mapped: ' + t.name
+	end
+
 	notmapped_list = all_explicit_list - explicit_mapped_list - thing_attr_mapped_list
 	for t in notmapped_list
-		puts '  - Not mapped: ' + t.entity.name + '.' + t.name
+		puts '      Not mapped: ' + t.entity.name + '.' + t.name
 	end
-	puts '  - Zero of ' + all_derived_list.size.to_s + ' derived attributes mapped (not supported)'
-
-	puts '  - Ordering for 1-D List/Array of (TYPE) builtin mapped to rdf:List (others not supported)'
+	puts '  - ' + all_derived_list.size.to_s + ' derived attributes not mapped, not supported'
 	puts '  TYPEs mapped = ' + type_mapped_list.size.to_s + ' of ' + all_type_list.size.to_s
+	for t in list_mapped_type_list
+		puts '      rdf:List mapped: ' + t.name
+	end
+	for t in mixed_select_list
+		puts '      Select of entity & type Class mapped: ' + t.name
+	end
+	for t in type_union_mapped_list
+		puts '      Select RDFS Datatype owl:unionOf mapped: ' + t.name
+	end
 	notmapped_list = all_type_list - type_mapped_list
 	for t in notmapped_list
-		puts '  - Not mapped: ' + t.name
+		puts '    Not mapped: ' + t.name
 	end
 	puts ' '
 	puts 'Wrote post-processed schema to file: ' + post_processed_schema_file_name if post_processed_schema
+
 
 end
 

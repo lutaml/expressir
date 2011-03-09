@@ -1,6 +1,6 @@
 reeper README.txt
-Release 0.4
-2010-10-22
+Release 0.5
+2011-03-09
 
 reeper is a set of Ruby tools for manipulating ISO EXPRESS data models.
 

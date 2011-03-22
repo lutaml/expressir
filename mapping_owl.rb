@@ -78,7 +78,7 @@ if FileTest.exist?('definitions.csv')
 end
 
 # set to class name (e.g. 'TOP-THING') to make all created OWL Classes subclasses of a topmost class
-top_class = 'AP239-ARM-THING'
+top_class = 'AP233-ARM-THING'
 
 # add common string attributes to use OWL Thing as domain rather than schema classes
 thing_attributes = []

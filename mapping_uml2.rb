@@ -18,7 +18,8 @@ require 'erb'
 #                                    plus Association owning other end property and multiplicity, unique and ordered set
 # Explicit Attribute 1-D SET, BAG, LIST of Primitive or Enum -> Property owned by Class and multiplicity, unique and ordered set
 # Explicit Attribute of Entity/Select/Builtin Redeclaration (Renamed) -> Property with (new) name that redefines inherited Property
-# Inverse Attribute Partial Support (REMOVED for now)
+# Inverse Attribute -> Association end adjustment
+# Inverse Attribute Redeclaration (Renamed) -> Property with (new) name that redefines inherited Property
 # USE or REFERENCE (even with named items) -> UML PackageImport between Packages
 #
 #######################################################################################
@@ -58,7 +59,7 @@ schema_end_template = %{</packagedElement>}
 entity_start_template = %{<packagedElement xmi:type = "uml:Class" xmi:id = "<%= xmiid %>" name = "<%= entity.name %>" isAbstract = "<% if entity.isAbs %>TRUE<% else %>FALSE<% end %>" visibility = "public">}
 
 # SUBTYPE OF Template
-supertype_template = %{<generalization xmi:type="uml:Generalization" xmi:id="<%= xmiid %>" general="<%= xmiid_supertype %>"/>}
+supertype_template = %{<generalization xmi:type="uml:Generalization" xmi:id="<%= xmiid %>" general="<%= xmiid_general %>"/>}
 
 # ENTITY End Template
 entity_end_template = %{</packagedElement>}
@@ -77,11 +78,11 @@ enum_end_template = %{</packagedElement>}
 # SELECT Start Template
 select_start_template = %{<packagedElement xmi:type = "uml:Interface" xmi:id = "<%= xmiid %>" name = "<%= select.name %>" isAbstract = "TRUE" visibility = "public">}
 
-# SELECT ITEM IS ENTITY Template
-selectitem_entity_template = %{ <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="<%= xmiid %>" supplier="<%= xmiid_supplier %>" client="<%= xmiid_client %>" contract="<%= xmiid_supplier %>" implementingClassifier="<%= xmiid_client %>"/>}
+# SELECT ITEM is ENTITY Template
+selectitem_entity_template = %{ <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="<%= xmiid %>" supplier="<%= xmiid_general %>" client="<%= xmiid_entity %>" contract="<%= xmiid_general %>" implementingClassifier="<%= xmiid_entity %>"/>}
 
-# SELECT ITEM IS SELECT Template
-selectitem_select_template = %{ <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="<%= xmiid %>" supplier="<%= xmiid_supplier %>" client="<%= xmiid_client %>" contract="<%= xmiid_supplier %>" implementingClassifier="<%= xmiid_client %>"/>}
+# SELECT ITEM is TYPE Template
+selectitem_type_template = %{ <packagedElement xmi:type="uml:Realization" xmi:id="<%= xmiid %>" supplier="<%= xmiid_general %>" client="<%= xmiid_type %>"/>}
 
 # SELECT End Template
 select_end_template = %{</packagedElement>}
@@ -101,6 +102,9 @@ attribute_entity_select_template = %{}
 # Template covering the output file contents for each attribute that is an entity
 attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>' isLeaf='false' isStatic='false' isReadOnly='false' isDerived='false' isDerivedUnion='false' type="<%= domain_xmiid %>" aggregation="none" association="<%= assoc_xmiid %>"<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
 
+# INVERSE ATTRIBUTE Template
+inverse_attribute_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= inverse.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>' isLeaf='false' isStatic='false' isReadOnly='true' isDerived='false' isDerivedUnion='false' type="<%= domain_xmiid %>" aggregation="none" association="<%= assoc_xmiid %>" <% if inverse.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
+
 #Template covering attribute wrapup
 attribute_end = %{<% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/><% end %>
 <% if lower != '0' and lower != '1' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"  value="<%= lower %>"/><% end %>
@@ -109,11 +113,24 @@ attribute_end = %{<% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger"
 
 
 # EXPLICIT ATTRIBUTE ENTITY Create Association Template
-attribute_entity_association_template = %{<packagedElement xmi:type="uml:Association" xmi:id="<%= xmiid %>" name="" visibility='public' isLeaf='false' isAbstract='false' isDerived='false' memberEnd="<%= domain_xmiid %> <%= owner_xmiid %>">
+attribute_entity_association_template = %{<packagedElement xmi:type="uml:Association" xmi:id="<%= xmiid %>" name="" visibility='public' isLeaf='false' isAbstract='false' isDerived='false'>
+<memberEnd xmi:idref="<%= attr_xmiid %>"/>
+<% if !inverse_exists %><memberEnd xmi:idref="<%= xmiid + '-end' %>"/>
 <ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid + '-end' %>" type="<%= owner_xmiid %>" owningAssociation="<%= xmiid %>" association="<%= xmiid %>" visibility='public'>
 <lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/>
 <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="*"/>
-</ownedEnd>
+</ownedEnd><% else %><memberEnd xmi:idref="<%= iattr_xmiid %>"/>
+<% end %>
+<% if general_exists %><generalization xmi:type="uml:Generalization" xmi:id="<%= general_xmiid %>" general="<%= redefined_xmiid %>"/><% end %>
+</packagedElement>}
+
+ 
+# INVERSE ATTRIBUTE ENTITY Create Association Template
+inverse_entity_association_template = %{<packagedElement xmi:type="uml:Association" xmi:id="<%= xmiid %>" name="" visibility='public' isLeaf='false' isAbstract='false' isDerived='false'>
+<memberEnd xmi:idref="<%= iattr_xmiid %>"/>
+<memberEnd xmi:idref="<%= xmiid + '-end' %>"/>
+<ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid + '-end' %>" type="<%= owner_xmiid %>" owningAssociation="<%= xmiid %>" association="<%= xmiid %>" visibility='public'/>
+<generalization xmi:type="uml:Generalization" xmi:id="<%= general_xmiid %>" general="<%= redefined_xmiid %>"/>
 </packagedElement>}
 
  
@@ -181,7 +198,18 @@ end
 	t = res.result(binding)
 	file.puts t
 
+# Set up list of all EXPRESS Inverses in all schemas 
+all_inverse_list = []
+
 for schema in schema_list	
+	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
+	for entity in entity_list
+		entity_inverse_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Inverse }
+		for inverse in entity_inverse_list
+			all_inverse_list.push inverse
+		end
+	end
+
 
 # Evaluate and write schema start template 
 	res = ERB.new(schema_start_template)
@@ -197,6 +225,9 @@ for schema in schema_list
 		file.puts t		
 	end
 
+# set up select_list - used in a number of places
+	select_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::TypeSelect }
+
 # Map EXPRESS TYPE of Builtin
 	type_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::Type and e.isBuiltin}
 	for type in type_list
@@ -204,6 +235,43 @@ for schema in schema_list
 		res = ERB.new(type_template)
 		t = res.result(binding)
 		file.puts t
+		
+# Map TYPE Select has Type as item
+		for select in select_list
+			if select.selectitems_array.include?(type)
+				xmiid = '_2_selectitem_' + schema.name + '-' + type.name + '-' + select.name
+				xmiid_general = '_' + schema.name + '-' + select.name
+				res = ERB.new(selectitem_template)
+				t = res.result(binding)
+				file.puts t
+			end
+		end
+	end
+
+# Map EXPRESS TYPE of TYPE Select
+	type_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::Type and !e.isBuiltin}
+	for select in type_list
+		superselect = NamedType.find_by_name( select.domain )
+		if superselect.kind_of? EXPSM::TypeSelect
+# Evaluate and write TYPE Select start template 
+			xmiid = '_' + schema.name + '-' + select.name
+			xmiid_type = xmiid
+			res = ERB.new(select_start_template)
+			t = res.result(binding)
+			file.puts t
+
+# Write Select Item template for parent (maps to UML same as EXPRESS supertype)
+			xmiid = '_2_superselect_' + schema.name + '-' + select.name + '-' + superselect.name
+			xmiid_general = '_' + schema.name + '-' + superselect.name
+			res = ERB.new(supertype_type_template)
+			t = res.result(binding)
+			file.puts t
+
+# Evaluate and write TYPE Select end template 
+			res = ERB.new(select_end_template)
+			t = res.result(binding)
+			file.puts t
+		end
 	end
 
 # Map EXPRESS Enumeration Types
@@ -215,6 +283,18 @@ for schema in schema_list
 		res = ERB.new(enum_start_template)
 		t = res.result(binding)
 		file.puts t
+
+		superenum = enum.extends_item
+		if superenum != nil
+			if superselect.kind_of? EXPSM::TypeEnum
+	# Write Enum Item template for parent (maps to UML same as EXPRESS supertype)
+				xmiid = '_2_superenum_' + schema.name + '-' + enum.name + '-' + superenum.name
+				xmiid_general = '_' + superenum.schema.name + '-' + superenum.name
+				res = ERB.new(supertype_template)
+				t = res.result(binding)
+				file.puts t
+			end
+		end
 
 # Evaluate and write Enum Item template for each item
 		enumitem_name_list = enum.items.scan(/\w+/)
@@ -232,7 +312,6 @@ for schema in schema_list
 	end
 
 # Map EXPRESS TYPE Selects 
-	select_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::TypeSelect }
 	for select in select_list
 
 # Evaluate and write TYPE Select start template 
@@ -241,11 +320,23 @@ for schema in schema_list
 		t = res.result(binding)
 		file.puts t
 
+		superselect = select.extends_item
+		if superselect != nil
+			if superselect.kind_of? EXPSM::TypeSelect
+	# Write Select Item template for parent (maps to UML same as EXPRESS supertype)
+				xmiid = '_2_superselect_' + schema.name + '-' + select.name + '-' + superselect.name
+				xmiid_general = '_' + superselect.schema.name + '-' + superselect.name
+				res = ERB.new(supertype_template)
+				t = res.result(binding)
+				file.puts t
+			end
+		end
+
 # Evaluate and write Select Item template for each item (maps to UML same as EXPRESS supertype)
 		for superselect in select_list
 			if superselect.selectitems_array.include?(select)
 				xmiid = '_2_superselect_' + schema.name + '-' + select.name + '-' + superselect.name
-				xmiid_supertype = '_' + schema.name + '-' + superselect.name
+				xmiid_general = '_' + schema.name + '-' + superselect.name
 				res = ERB.new(supertype_template)
 				t = res.result(binding)
 				file.puts t
@@ -267,8 +358,34 @@ for schema in schema_list
 			
 			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect
 				xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
+				attr_xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + attr.name
 				owner_xmiid = '_' + schema.name + '-' + entity.name
 				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+				
+				general_exists = false
+				if attr.redeclare_entity
+					general_exists = true
+					redeclare_entity = NamedType.find_by_name( attr.redeclare_entity )
+					general_xmiid = '_2_general_' + schema.name + '-' + entity.name + '-' + attr.name
+					if attr.redeclare_oldname
+						redefined_xmiid = '_1_association_' + redeclare_entity.schema.name + '-' + attr.redeclare_entity + '-' + attr.redeclare_oldname
+					else
+						redefined_xmiid = '_1_association_' + redeclare_entity.schema.name + '-' + attr.redeclare_entity + '-' + attr.name
+					end
+				end
+				 
+#			check if inverse refers to this attribute, affects how association is written
+				inverse_exists = false
+				for inverse in all_inverse_list
+					if inverse.reverseAttr == attr
+						if attr.domain == inverse.entity.name
+							iattr_xmiid = '_2_attr_' + inverse.entity.schema.name + '-' + inverse.entity.name + '-' + inverse.name
+							all_inverse_list.delete inverse
+							inverse_exists = true
+						end
+					end
+				end				
+				
 				res = ERB.new(attribute_entity_association_template)
 				t = res.result(binding)
 				file.puts t
@@ -276,9 +393,23 @@ for schema in schema_list
 		end
 	end
 
+# Map EXPRESS Inverse Attribute resulting UML Association (the Association is referenced from Class resulting from Entity)
+	for inverse in all_inverse_list
+		xmiid = '_1_association_' + inverse.reverseEntity.schema.name + '-' + inverse.entity.name + '-' + inverse.reverseAttr_id
+		owner_xmiid = '_' + inverse.entity.schema.name + '-' + inverse.entity.name
+		iattr_xmiid = '_2_attr_' + inverse.entity.schema.name + '-' + inverse.entity.name + '-' + inverse.name
+		
+		general_xmiid = '_2_general_' + inverse.reverseEntity.schema.name + '-' + inverse.entity.name + '-' + inverse.reverseAttr_id
+		redefined_xmiid = '_1_association_' + inverse.entity.schema.name + '-' + inverse.reverseEntity.name + '-' + inverse.reverseAttr_id
+		
+		res = ERB.new(inverse_entity_association_template)
+		t = res.result(binding)
+		file.puts t
+	end
+
 # Map EXPRESS Entity Types 
 	for entity in entity_list
-	
+		
 # Evaluate and write ENTITY start template 
 		xmiid = '_' + schema.name + '-' + entity.name
 		xmiid_entity = xmiid
@@ -289,7 +420,7 @@ for schema in schema_list
 # Map Entity is SUBTYPE OF (i.e. list of supertypes)
 		for supertype in entity.supertypes_array
 			xmiid = '_2_supertype_' + schema.name + '-' + entity.name + '-' + supertype.name
-			xmiid_supertype = '_' + schema.name + '-' + supertype.name
+			xmiid_general = '_' + supertype.schema.name + '-' + supertype.name
 			res = ERB.new(supertype_template)
 			t = res.result(binding)
 			file.puts t
@@ -299,8 +430,7 @@ for schema in schema_list
 		for select in select_list
 			if select.selectitems_array.include?(entity)
 				xmiid = '_2_selectitem_' + schema.name + '-' + entity.name + '-' + select.name
-				xmiid_supplier = '_' + schema.name + '-' + select.name
-				xmiid_client = '_' + schema.name + '-' + entity.name
+				xmiid_general = '_' + schema.name + '-' + select.name
 				res = ERB.new(selectitem_entity_template)
 				t = res.result(binding)
 				file.puts t
@@ -314,12 +444,13 @@ for schema in schema_list
 
 #		 set up references resulting from attribute being a redeclaration
 			if attr.redeclare_entity
-					if attr.redeclare_oldname
-						redefined_xmiid = '_2_attr_' + schema.name + '-' + attr.redeclare_entity + '-' + attr.redeclare_oldname
-					else
-						redefined_xmiid = '_2_attr_' + schema.name + '-' + attr.redeclare_entity + '-' + attr.name
-					end
+				redeclare_entity = NamedType.find_by_name( attr.redeclare_entity )
+				if attr.redeclare_oldname
+					redefined_xmiid = '_2_attr_' + redeclare_entity.schema.name + '-' + attr.redeclare_entity + '-' + attr.redeclare_oldname
+				else
+					redefined_xmiid = '_2_attr_' + redeclare_entity.schema.name + '-' + attr.redeclare_entity + '-' + attr.name
 				end
+			end
 
 #		 initialize default cardinailty constraints
 			lower = '1'
@@ -347,36 +478,92 @@ for schema in schema_list
 			if attr.isOptional == TRUE
 				lower = '0'
 			end
+			
+			attrset = false
 
 # Map EXPRESS Explicit Attributes of Builtin
 			if attr.isBuiltin
+				attrset= true
 				res = ERB.new(attribute_builtin_template,0,"<>")
 				t = res.result(binding)
 				file.puts t
 			end
+			
+			attr_domain = NamedType.find_by_name( attr.domain )
 
 # Map EXPRESS Explicit Attributes of TYPE and TYPE Enum
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Type or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeEnum
-				type_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+			if attr_domain.kind_of? EXPSM::Type or attr_domain.kind_of? EXPSM::TypeEnum
+				attrset= true
+				type_xmiid = '_' + attr_domain.schema.name + '-' + attr_domain.name
 				res = ERB.new(attribute_enum_type_template,0,"<>")
 				t = res.result(binding)
 				file.puts t
 			end
 
 # Map EXPRESS Explicit Attributes of Entity and Select
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect 
-				domain_xmiid = '_' + schema.name + '-' + NamedType.find_by_name( attr.domain ).name
+			if attr_domain.kind_of? EXPSM::Entity or attr_domain.kind_of? EXPSM::TypeSelect 
+				attrset= true
+				domain_xmiid = '_' + attr_domain.schema.name + '-' + attr_domain.name
 				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
 				res = ERB.new(attribute_entity_template,0,"<>")
 				t = res.result(binding)
 				file.puts t
 			end
-      
-      res = ERB.new(attribute_end,0,"<>")
-      t = res.result(binding)
-      file.puts t
+			
+			if !attrset
+				puts 'Oops ' + entity.name + '.' + attr.name
+				puts attr.domain
+			end			
+
+			res = ERB.new(attribute_end,0,"<>")
+			t = res.result(binding)
+			file.puts t
 		end
-		
+
+#Map EXPRESS Inverse Attributes
+		inverse_attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Inverse }
+		for inverse in inverse_attr_list
+			xmiid = '_2_attr_' + schema.name + '-' + entity.name + '-' + inverse.name
+#			 set up references resulting from attribute being a redeclaration
+			if inverse.redeclare_entity
+				puts 'FOUND REDECLARED INVERSE ' + inverse.name
+				if inverse.redeclare_oldname
+					redefined_xmiid = '_2_attr_' + schema.name + '-' + inverse.redeclare_entity + '-' + inverse.redeclare_oldname
+				else
+					redefined_xmiid = '_2_attr_' + schema.name + '-' + inverse.redeclare_entity + '-' + inverse.name
+				end
+			end
+
+			lower = '1'
+			upper = '1'
+			isset = 'true'
+			if inverse.instance_of? EXPSM::InverseAggregate
+				lower = '0'
+				upper = '*'
+				if inverse.upper != '?'
+					upper = inverse.upper
+				end
+				if inverse.lower != '0'
+					lower = inverse.lower
+				end
+				if inverse.aggrtype == 'BAG'
+					isset = 'false'
+				end
+			end
+			domain_xmiid = '_' + schema.name + '-' + inverse.reverseEntity.name
+			if inverse.reverseAttr.domain == entity.name
+				assoc_xmiid = '_1_association_' + inverse.reverseEntity.schema.name + '-' + inverse.reverseEntity.name + '-' + inverse.reverseAttr_id
+			else
+				assoc_xmiid = '_1_association_' + inverse.reverseEntity.schema.name + '-' + entity.name + '-' + inverse.reverseAttr_id
+			end
+			res = ERB.new(inverse_attribute_template)
+			t = res.result(binding)
+			file.puts t
+			
+			res = ERB.new(attribute_end,0,"<>")
+			t = res.result(binding)
+			file.puts t
+		end
 
 #Map EXPRESS Unique crules
 		if entity.uniques.size > 0

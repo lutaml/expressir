@@ -68,7 +68,7 @@ entity_end_template = %{</packagedElement>}
 enum_start_template = %{<packagedElement xmi:type = "uml:Enumeration" xmi:id = "<%= type_xmiid %>" name = "<%= enum.name %>">}
 
 # ENUMERATION ITEM Template
-enum_item_template = %{<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= enumitem_xmiid %>" name="<%= enumitem %>" classifier="<%= type_xmiid %>" enumeration="<%= enumitem_xmiid %>">
+enum_item_template = %{<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= enumitem_xmiid %>" name="<%= enumitem %>" classifier="<%= type_xmiid %>" enumeration="<%= type_xmiid %>">
 <specification xmi:type="uml:LiteralInteger" xmi:id="<%= enumitem_xmiid + '_specification' %> "/>
 </ownedLiteral>}
 

@@ -44,13 +44,13 @@ overall_start_template = %{<?xml version="1.0" encoding="UTF-8"?>
 <packagedElement xmi:type="uml:Package" xmi:id="_0_SysMLfromEXPRESS" name="SysMLfromEXPRESS">
 <packagedElement xmi:type="uml:PrimitiveType" xmi:id="BINARY" name="Binary" />
 <packagedElement xmi:type = "uml:Enumeration" xmi:id = "LOGICAL" name = "Logical">
-<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="TRUE" name="True" classifier="LOGICAL" enumeration="TRUE">
+<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="TRUE" name="True" classifier="LOGICAL" enumeration="LOGICAL">
 <specification xmi:type="uml:LiteralInteger" xmi:id="TRUE_specification"/>
 </ownedLiteral>
-<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="FALSE" name="False" classifier="LOGICAL" enumeration="FALSE">
+<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="FALSE" name="False" classifier="LOGICAL" enumeration="LOGICAL">
 <specification xmi:type="uml:LiteralInteger" xmi:id="FALSE_specification"/>
 </ownedLiteral>
-<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="UNKNOWN" name="Unknown" classifier="LOGICAL" enumeration="UNKNOWN">
+<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="UNKNOWN" name="Unknown" classifier="LOGICAL" enumeration="LOGICAL">
 <specification xmi:type="uml:LiteralInteger" xmi:id="UNKNOWN_specification"/>
 </ownedLiteral>
 </packagedElement>}
@@ -92,7 +92,7 @@ entity_end_template = %{</packagedElement>}
 enum_start_template = %{<packagedElement xmi:type = "uml:Enumeration" xmi:id = "<%= type_xmiid %>" name = "<%= enum.name %>">}
 
 # ENUMERATION ITEM Template
-enum_item_template = %{<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= enumitem_xmiid %>" name="<%= enumitem %>" classifier="<%= type_xmiid %>" enumeration="<%= enumitem_xmiid %>">
+enum_item_template = %{<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= enumitem_xmiid %>" name="<%= enumitem %>" classifier="<%= type_xmiid %>" enumeration="<%= type_xmiid %>">
 <specification xmi:type="uml:LiteralInteger" xmi:id="<%= enumitem_xmiid + '_specification' %> "/>
 </ownedLiteral>}
 

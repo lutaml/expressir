@@ -71,10 +71,6 @@ class SchemaDefinition < ModelElement
 end
 class NamedType < ModelElement
 	attr_accessor :name, :schema, :wheres
-	def initialize
-		@wheres = []
-	end
-
   def self.find_by_name(name)
     found = nil
     ObjectSpace.each_object(NamedType) { |o|
@@ -90,6 +86,7 @@ class Entity < NamedType
 		@isAbs = FALSE
 		@attributes = []
 		@uniques = []
+		@wheres = []
 		@subtypes_array = []
 		@supertypes_array = []
 		@attributes_all_array = []
@@ -194,6 +191,7 @@ class TypeSelect < DefinedType
 		@selectitems = nil
 		@selectitems_array = []
 		@cleaned_select_items = nil
+		@wheres = []
 	end
 ##
 ## set cleaned_select_items = process select removing unnecessary entity types (i.e. if supertype is there)
@@ -529,6 +527,16 @@ def load_dictionary_express_entity(schemaxml, repos)
 				entnew.uniques.push uniquenew
 			end
 		end
+		
+		## Process where rules
+		if entityxml.elements["where"] != nil
+			wherexml_list = entityxml.elements.to_a("where")
+			for wherexml in wherexml_list
+				wherenew = process_where_rulexml( wherexml )
+				entnew.wheres.push wherenew
+			end
+		end
+
 	end
 end
 ##
@@ -598,7 +606,15 @@ def load_dictionary_express_type(schemaxml, repos)
 		tnew.name = typexml.attributes["name"].to_s
 		tnew.schema = the_schema
 		the_schema.contents.push tnew
-
+		
+		## Process where rules
+		if typexml.elements["where"] != nil
+			wherexml_list = typexml.elements.to_a("where")
+			for wherexml in wherexml_list
+				wherenew = process_where_rulexml( wherexml )
+				tnew.wheres.push wherenew
+			end
+		end
 	end
 end
 
@@ -787,7 +803,7 @@ def load_dictionary_express_rule( schemaxml, repos)
 		if rulexml.attributes["algorithm"] != nil
 			rulenew.algorithm = rulexml.attributes["algorithm"]
 		end
-	## need to do where
+	## need to do wheres
 		wherexml_list = rulexml.elements.to_a("where")
 		for wherexml in wherexml_list
 			wherenew = process_where_rulexml( wherexml )

@@ -44,13 +44,13 @@ overall_start_template = %{<?xml version="1.0" encoding="UTF-8"?>
 <packagedElement xmi:type="uml:Package" xmi:id="_0_SysMLfromEXPRESS" name="SysMLfromEXPRESS">
 <packagedElement xmi:type="uml:PrimitiveType" xmi:id="BINARY" name="Binary" />
 <packagedElement xmi:type = "uml:Enumeration" xmi:id = "LOGICAL" name = "Logical">
-<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="TRUE" name="True" classifier="LOGICAL" enumeration="LOGICAL">
+<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="TRUE" name="True" classifier="LOGICAL">
 <specification xmi:type="uml:LiteralInteger" xmi:id="TRUE_specification"/>
 </ownedLiteral>
-<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="FALSE" name="False" classifier="LOGICAL" enumeration="LOGICAL">
+<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="FALSE" name="False" classifier="LOGICAL">
 <specification xmi:type="uml:LiteralInteger" xmi:id="FALSE_specification"/>
 </ownedLiteral>
-<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="UNKNOWN" name="Unknown" classifier="LOGICAL" enumeration="LOGICAL">
+<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="UNKNOWN" name="Unknown" classifier="LOGICAL">
 <specification xmi:type="uml:LiteralInteger" xmi:id="UNKNOWN_specification"/>
 </ownedLiteral>
 </packagedElement>}
@@ -59,19 +59,19 @@ overall_start_template = %{<?xml version="1.0" encoding="UTF-8"?>
 model_end_template = %{<profileApplication xmi:type="uml:ProfileApplication" xmi:id="_profileApplication0">
 <appliedProfile xmi:type="uml:Profile" href="http://www.omg.org/spec/SysML/20100301/SysML-profile.uml#_0" />
 </profileApplication>
-<sysml:ValueType base_DataType = "LOGICAL" xmi:id = "LOGICAL_VT"/>
-<sysml:ValueType base_DataType = "BINARY" xmi:id = "BINARY_VT"/>
 </packagedElement>
 </uml:Model>}
 
 # XMI File End Template
-overall_end_template = %{</xmi:XMI>}
+overall_end_template = %{<sysml:ValueType base_DataType = "LOGICAL" xmi:id = "LOGICAL_VT"/>
+<sysml:ValueType base_DataType = "BINARY" xmi:id = "BINARY_VT"/>
+</xmi:XMI>}
 
 # SCHEMA Start Template
-schema_start_template = %{<packagedElement xmi:type = "uml:Package" xmi:id = "_1_<%= schema.name %>" name = "<%= schema.name %>" visibility = "public">}
+schema_start_template = %{<packagedElement xmi:type = "uml:Package" xmi:id = "_1_<%= schema.name %>" name = "<%= schema.name %>">}
 
 # SCHEMA INTERFACE Template
-schema_interface_template = %{<packageImport xmi:type='uml:PackageImport' xmi:id='_2_<%= schema.name %>-<%= interfaced_schema.foreign_schema_id %>' visibility='public' importedPackage='_1_<%= interfaced_schema.foreign_schema_id %>'/>}
+schema_interface_template = %{<packageImport xmi:type='uml:PackageImport' xmi:id='_2_<%= schema.name %>-<%= interfaced_schema.foreign_schema_id %>' importedPackage='_1_<%= interfaced_schema.foreign_schema_id %>'/>}
 
 # SCHEMA End Template
 schema_end_template = %{</packagedElement>}
@@ -80,7 +80,7 @@ schema_end_template = %{</packagedElement>}
 entity_block_template = %{<sysml:Block base_Class = "<%= baseClass %>" xmi:id = "<%= xmiid %>"/>}
 
 # ENTITY Start Template
-entity_start_template = %{<packagedElement xmi:type = "uml:Class" xmi:id = "<%= xmiid %>" name = "<%= entity.name %>" isAbstract = "<% if entity.isAbs %>TRUE<% else %>FALSE<% end %>" visibility = "public">}
+entity_start_template = %{<packagedElement xmi:type = "uml:Class" xmi:id = "<%= xmiid %>" name = "<%= entity.name %>" <% if entity.isAbs %>isAbstract = "TRUE"<% end %>>}
 
 # SUBTYPE OF Template
 supertype_template = %{<generalization xmi:type="uml:Generalization" xmi:id="<%= xmiid %>" general="<%= xmiid_general %>"/>}
@@ -92,7 +92,7 @@ entity_end_template = %{</packagedElement>}
 enum_start_template = %{<packagedElement xmi:type = "uml:Enumeration" xmi:id = "<%= type_xmiid %>" name = "<%= enum.name %>">}
 
 # ENUMERATION ITEM Template
-enum_item_template = %{<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= enumitem_xmiid %>" name="<%= enumitem %>" classifier="<%= type_xmiid %>" enumeration="<%= type_xmiid %>">
+enum_item_template = %{<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= enumitem_xmiid %>" name="<%= enumitem %>" classifier="<%= type_xmiid %>">
 <specification xmi:type="uml:LiteralInteger" xmi:id="<%= enumitem_xmiid + '_specification' %> "/>
 </ownedLiteral>}
 
@@ -102,13 +102,13 @@ enum_end_template = %{</packagedElement>}
 selectTypeType = Hash.new
 
 # SELECT Start Template
-select_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>" name="<%= select.name %>" isAbstract="TRUE" visibility="public">}
+select_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>" name="<%= select.name %>" isAbstract="TRUE">}
 
 # SELECT End Template
 select_end_template = %{</packagedElement>}
 
 # SELECT Stereotype Template
-select_stereotype_template = %{	<StandardProfileL2:auxiliary xmi:id="<%= xmiid + 'application1'%>" base_Class="<%= baseClass %>"/>}
+select_stereotype_template = %{<StandardProfileL2:auxiliary xmi:id="<%= xmiid + 'application1'%>" base_Class="<%= baseClass %>"/>}
 
 # Template covering abstract entity types
 abstract_entity_template = %{}
@@ -123,10 +123,10 @@ attribute_aggregate_entity_select_template = %{}
 attribute_entity_select_template = %{}
 
 # Template covering the output file contents for each attribute that is an entity
-attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>' isLeaf='false' isStatic='false' isReadOnly='false' isDerived='false' isDerivedUnion='false' type="<%= domain_xmiid %>" aggregation="none" association="<%= assoc_xmiid %>"<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
+attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> type="<%= domain_xmiid %>" <% if direct_inverse %>aggregation='composite'<% end %> association="<%= assoc_xmiid %>"<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
 
 # INVERSE ATTRIBUTE Template
-inverse_attribute_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= inverse.name %>" visibility="public" isOrdered='<%= islist %>' isUnique='<%= isset %>' isLeaf='false' isStatic='false' isReadOnly='true' isDerived='false' isDerivedUnion='false' type="<%= domain_xmiid %>" aggregation="none" association="<%= assoc_xmiid %>" <% if inverse.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
+inverse_attribute_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= inverse.name %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> isReadOnly='true' type="<%= domain_xmiid %>" association="<%= assoc_xmiid %>" <% if inverse.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
 
 #Template covering attribute wrapup
 attribute_end = %{<% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/><% end %>
@@ -136,10 +136,10 @@ attribute_end = %{<% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger"
 
 
 # EXPLICIT ATTRIBUTE ENTITY Create Association Template
-attribute_entity_association_template = %{<packagedElement xmi:type="uml:Association" xmi:id="<%= xmiid %>" name="" visibility='public' isLeaf='false' isAbstract='false' isDerived='false'>
+attribute_entity_association_template = %{<packagedElement xmi:type="uml:Association" xmi:id="<%= xmiid %>" name="">
 <memberEnd xmi:idref="<%= attr_xmiid %>"/>
 <% if !inverse_exists %><memberEnd xmi:idref="<%= xmiid + '-end' %>"/>
-<ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid + '-end' %>" type="<%= owner_xmiid %>" owningAssociation="<%= xmiid %>" association="<%= xmiid %>" visibility='public'>
+<ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid + '-end' %>" type="<%= owner_xmiid %>" association="<%= xmiid %>">
 <lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"/>
 <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" value="*"/>
 </ownedEnd><% else %><memberEnd xmi:idref="<%= iattr_xmiid %>"/>
@@ -149,10 +149,10 @@ attribute_entity_association_template = %{<packagedElement xmi:type="uml:Associa
 
  
 # INVERSE ATTRIBUTE ENTITY Create Association Template
-inverse_entity_association_template = %{<packagedElement xmi:type="uml:Association" xmi:id="<%= xmiid %>" name="" visibility='public' isLeaf='false' isAbstract='false' isDerived='false'>
+inverse_entity_association_template = %{<packagedElement xmi:type="uml:Association" xmi:id="<%= xmiid %>" name="">
 <memberEnd xmi:idref="<%= iattr_xmiid %>"/>
 <memberEnd xmi:idref="<%= xmiid + '-end' %>"/>
-<ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid + '-end' %>" type="<%= owner_xmiid %>" owningAssociation="<%= xmiid %>" association="<%= xmiid %>" visibility='public'/>
+<ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid + '-end' %>" type="<%= owner_xmiid %>" association="<%= xmiid %>"/>
 <generalization xmi:type="uml:Generalization" xmi:id="<%= general_xmiid %>" general="<%= redefined_xmiid %>"/>
 </packagedElement>}
 
@@ -161,19 +161,19 @@ inverse_entity_association_template = %{<packagedElement xmi:type="uml:Associati
 attribute_template = %{}
 
 # EXPLICIT ATTRIBUTE SIMPLE TYPE Template
-attribute_builtin_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" 
-<% if datatype_hash[attr.domain] != nil %>isOrdered='<%= islist %>' isUnique='<%= isset %>'<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>>
+attribute_builtin_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" 
+<% if datatype_hash[attr.domain] != nil %><% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> <% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>>
 <type xmi:type="uml:PrimitiveType" href="<%= datatype_hash[attr.domain] %>" /><% end %>	
 <% if datatype_hash[attr.domain] == nil %>type="<%= attr.domain %>"<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>><% end %>}
 
 
 # EXPLICIT ATTRIBUTE ENUM and TYPE Template
-attribute_enum_type_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" visibility="public" type="<%= type_xmiid %>" isOrdered='<%= islist %>' isUnique='<%= isset %>' >}
+attribute_enum_type_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" name="<%= attr.name %>" type="<%= type_xmiid %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %>>}
 
 # UNIQUE rule template
-unique_template = %{<ownedRule xmi:type="uml:Constraint" xmi:id="<%= xmiid %>" name="<%= unique.name %>" visibility="public">
+unique_template = %{<ownedRule xmi:type="uml:Constraint" xmi:id="<%= xmiid %>" name="<%= unique.name %>">
 <constrainedElement xmi:idref="<%= xmiid_entity %>"/>
-<specification xmi:type="uml:OpaqueExpression" xmi:id="<%= xmiid + '-spec' %>" visibility="public">
+<specification xmi:type="uml:OpaqueExpression" xmi:id="<%= xmiid + '-spec' %>">
 <body><%= entity.name %>::allInstance()-&gt;isUnique(<%= unique_text %>)</body>
 <language>OCL2.0</language>
 </specification>
@@ -227,6 +227,7 @@ end
 
 # Set up list of all EXPRESS Inverses in all schemas 
 all_inverse_list = []
+direct_inverses = []
 
 for schema in schema_list	
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
@@ -414,6 +415,7 @@ for schema in schema_list
 					if inverse.reverseAttr == attr
 						if attr.domain == inverse.entity.name
 							iattr_xmiid = '_2_attr_' + inverse.entity.schema.name + '-' + inverse.entity.name + '-' + inverse.name
+							direct_inverses.push inverse
 							all_inverse_list.delete inverse
 							inverse_exists = true
 						end
@@ -490,8 +492,8 @@ for schema in schema_list
 #     initialize default cardinailty constraints
 			lower = '1'
 			upper = '1'
-			isset = 'true'
-			islist = 'false'
+			isset = true
+			islist = false
 			
 #     set up cardinailty constraints from attribute being a 1-D aggregate				
 			if attr.instance_of? EXPSM::ExplicitAggregate and attr.rank == 1
@@ -501,13 +503,13 @@ for schema in schema_list
 				end
 				lower = attr.dimensions[0].lower
 				if attr.dimensions[0].aggrtype == 'LIST'
-					islist = 'true'
+					islist = true
 				end
 				if attr.dimensions[0].aggrtype == 'BAG'
-					isset = 'false'
+					isset = false
 				end
 				if attr.dimensions[0].aggrtype == 'LIST' and !attr.dimensions[0].isUnique
-					isset = 'false'
+					isset = false
 				end
 			end
 			if attr.isOptional == TRUE
@@ -540,6 +542,16 @@ for schema in schema_list
 				attrset= true
 				domain_xmiid = '_' + attr_domain.schema.name + '-' + attr_domain.name
 				assoc_xmiid = '_1_association_' + schema.name + '-' + entity.name + '-' + attr.name
+				
+				direct_inverse = false
+				for inverse in direct_inverses
+					if inverse.reverseAttr == attr
+						if !inverse.instance_of? EXPSM::InverseAggregate
+							direct_inverse = true
+						end
+					end
+				end				
+
 				res = ERB.new(attribute_entity_template,0,"<>")
 				t = res.result(binding)
 				file.puts t
@@ -571,7 +583,7 @@ for schema in schema_list
 
 			lower = '1'
 			upper = '1'
-			isset = 'true'
+			isset = true
 			if inverse.instance_of? EXPSM::InverseAggregate
 				lower = '0'
 				upper = '*'
@@ -582,7 +594,7 @@ for schema in schema_list
 					lower = inverse.lower
 				end
 				if inverse.aggrtype == 'BAG'
-					isset = 'false'
+					isset = false
 				end
 			end
 			domain_xmiid = '_' + schema.name + '-' + inverse.reverseEntity.name
@@ -654,6 +666,22 @@ for schema in schema_list
 		res = ERB.new(valuetype_template)
 		t = res.result(binding)
 		file.puts t
+	end
+	
+	type_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::Type and !e.isBuiltin}
+	for select in type_list
+		superselect = NamedType.find_by_name( select.domain )
+		if superselect.kind_of? EXPSM::TypeSelect
+			# Evaluate and write ENTITY Block template 
+			baseClass = '_' + schema.name + '-' + select.name
+			xmiid = baseClass + '-Block'
+			res = ERB.new(entity_block_template)
+			t = res.result(binding)
+			file.puts t
+			res = ERB.new(select_stereotype_template)
+			t = res.result(binding)
+			file.puts t
+		end
 	end
 end
 	

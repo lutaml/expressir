@@ -1,11 +1,11 @@
 require 'rexml/document'
-require 'expsm'
+require './expsm'
 require 'yaml'
 include REXML
 include EXPSM
 ## reeper
 ## Release 0.2
-## 2009-11-26
+## 2011-11-26
 ##
 ## MAIN PROCESS STARTS HERE
 ## Parse input options

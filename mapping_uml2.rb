@@ -241,7 +241,7 @@ for schema in schema_list
 			if select.selectitems_array.include?(type)
 				xmiid = '_2_selectitem_' + schema.name + '-' + type.name + '-' + select.name
 				xmiid_general = '_' + schema.name + '-' + select.name
-				res = ERB.new(selectitem_template)
+				res = ERB.new(selectitem_type_template)
 				t = res.result(binding)
 				file.puts t
 			end
@@ -263,7 +263,7 @@ for schema in schema_list
 # Write Select Item template for parent (maps to UML same as EXPRESS supertype)
 			xmiid = '_2_superselect_' + schema.name + '-' + select.name + '-' + superselect.name
 			xmiid_general = '_' + schema.name + '-' + superselect.name
-			res = ERB.new(supertype_type_template)
+			res = ERB.new(supertype_template)
 			t = res.result(binding)
 			file.puts t
 

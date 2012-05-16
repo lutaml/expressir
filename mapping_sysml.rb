@@ -10,7 +10,7 @@ include Nokogiri
 # and performs a structural EXPRESS-to-SysML (1.2) mapping using Ruby ERB templates.
 # The output is in XMI 2.1 syntax in a file named <schema>.xmi if one schema input and 'Model.xmi' if more than one schema input.
 # 
-# Real, Number, Integer, Boolean, String -> SysML equivalent builtin type
+# Real, Number, Integer, Boolean, String -> New Primitive Type
 # Binary, Logical -> New PrimitiveType
 # Schema -> Package
 # Entity (subtype of) -> Class (Generalization) + Block stereotype
@@ -79,7 +79,7 @@ overall_start_template = %{<?xml version="1.0" encoding="UTF-8"?>
 <generalization xmi:type="uml:Generalization" xmi:id="_generalization-REAL_NUMBER" xmi:uuid="<%= get_uuid('_generalization-REAL_NUMBER') %>" general="NUMBER"/>
 </packagedElement>
 <packagedElement xmi:type="uml:PrimitiveType" xmi:id="INTEGER" xmi:uuid="<%= get_uuid('INTEGER') %>" name="Integer">
-<generalization xmi:type="uml:Generalization" xmi:id="_generalization-INTEGER_NUMBER" xmi:uuid="<%= get_uuid('_generalization-INTEGER_NUMBER') %>" general="NUMBER"/>
+<generalization xmi:type="uml:Generalization" xmi:id="_generalization-INTEGER_REAL" xmi:uuid="<%= get_uuid('_generalization-INTEGER_REAL') %>" general="REAL"/>
 </packagedElement>
 <packagedElement xmi:type="uml:Enumeration" xmi:id="LOGICAL" xmi:uuid="<%= get_uuid('LOGICAL') %>" name="Logical">
 <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="UNKNOWN" xmi:uuid="<%= get_uuid('UNKNOWN') %>" name="Unknown" classifier="LOGICAL"/>
@@ -136,8 +136,6 @@ enum_item_template = %{<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<
 
 # ENUMERATION End Template
 enum_end_template = %{</packagedElement>}
-
-selectTypeType = Hash.new
 
 # SELECT Start Template
 select_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" name="<%= type.name %>" isAbstract="TRUE">}
@@ -227,6 +225,13 @@ type_template = %{<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= xmii
 <generalization xmi:type="uml:Generalization" xmi:id="_supertype<%= xmiid %>" xmi:uuid="<%= get_uuid('_supertype'+xmiid) %>" general="<%= xmiid_general %>"/>
 <% end %>}
 
+# ProxyTYPE Start Template
+proxy_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" name="<%= type.name %>Proxy" isAbstract="TRUE">
+<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>_value" xmi:uuid="<%= get_uuid(xmiid + "value") %>" name="value" type="<%= xmiid_type %>"/>}
+
+# proxy TYPE  Stereotype Template
+proxy_stereotype_template = %{<StandardProfileL2:type xmi:id="<%= xmiid %>application1" xmi:uuid="<%= get_uuid(xmiid+ 'application1') %>" base_Class="<%= baseClass %>"/>}
+
 #TYPE end Template
 type_end_template=%{</packagedElement>}
 
@@ -302,7 +307,38 @@ for schema in schema_list
 
 # set up select_list - used in a number of places
 	select_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::TypeSelect }
+	
+# Set up storage for handling select types correctly
+	selectTypeType = Hash.new
+	typeProxies = Hash.new
 
+# determine the type of select
+# 	- entity if only contains entities
+#	- type if only contains types
+#	- hybrid if a mixture
+	unknownSelect = select_list.dup
+	for select in unknownSelect
+		selselHyb_list = select.selectitems_array.select { |e| e.instance_of? EXPSM::TypeSelect and selectTypeType[e.name] == "Hybrid"}		
+		if selselHyb_list.length > 0
+			selectTypeType[select.name] = "Hybrid"
+			puts select.name + " is Hybrid"
+		else
+			selEnt_list = select.selectitems_array.select { |e| e.instance_of? EXPSM::Entity}
+			selselEnt_list = select.selectitems_array.select { |e| e.instance_of? EXPSM::TypeSelect and selectTypeType[e.name] == "Entity"}
+			entcount = selEnt_list.length + selselEnt_list.length
+			selTyp_list = select.selectitems_array.select { |e| e.instance_of? EXPSM::Type}
+			selselTyp_list = select.selectitems_array.select { |e| e.instance_of? EXPSM::TypeSelect and selectTypeType[e.name] == "Type"}
+			typcount = selTyp_list.length + selselTyp_list.length
+			case select.selectitems_array.length
+				when entcount then  selectTypeType[select.name] = "Entity"
+				when typcount then selectTypeType[select.name] = "Type"
+				when entcount + typcount then  selectTypeType[select.name] = "Hybrid"
+				else
+					unknownSelect.push select
+			end
+		end
+	end
+	
 # Map EXPRESS TYPE of Builtin
 	type_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::Type and e.isBuiltin}
 	for type in type_list
@@ -315,15 +351,22 @@ for schema in schema_list
 # Map TYPE Select has Type as item
 		for select in select_list
 			if select.selectitems_array.include?(type)
-				xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
-				xmiid_general = prefix + select.name
-				res = ERB.new(supertype_template)
-				t = res.result(binding)
-				file.puts t
-				selectTypeType[select.name] = "ValueType"
+				# sort out what type of select we are dealing with
+				case selectTypeType[select.name]
+					when "Type"
+						xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
+						xmiid_general = prefix + select.name
+						res = ERB.new(supertype_template)
+						t = res.result(binding)
+						file.puts t
+					when "Hybrid"
+						typeProxy = typeProxies[type.name]
+						if typeProxy == nil
+							typeProxies[type.name] = type
+						end
+				end
 			end
-		end
-		
+		end		
 		res = ERB.new(type_end_template)
 		t = res.result(binding)
 		file.puts t
@@ -334,7 +377,6 @@ for schema in schema_list
 	for type in type_list
 		superselect = NamedType.find_by_name( type.domain )
 		xmiid = prefix + type.name
-		
 		# deal with select types
 		if superselect.kind_of? EXPSM::TypeSelect
 # Evaluate and write TYPE Select start template 
@@ -362,12 +404,19 @@ for schema in schema_list
 	# Map TYPE Select has Type as item
 			for select in select_list
 				if select.selectitems_array.include?(type)
-					xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
-					xmiid_general = prefix + select.name
-					res = ERB.new(supertype_template)
-					t = res.result(binding)
-					file.puts t
-					selectTypeType[select.name] = "ValueType"
+					case selectTypeType[select.name]
+						when "Type"
+							xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
+							xmiid_general = prefix + select.name
+							res = ERB.new(supertype_template)
+							t = res.result(binding)
+							file.puts t
+						when "Hybrid"
+							typeProxy = typeProxies[type.name]
+							if typeProxy == nil
+								typeProxies[type.name] = type
+							end
+					end
 				end
 			end
 			
@@ -375,6 +424,32 @@ for schema in schema_list
 			t = res.result(binding)
 			file.puts t
 		end
+	end
+
+	typeProxies.each_value do |type| 
+# Evaluate and write proxy start template 
+		xmiid_type = prefix + type.name
+		xmiid = xmiid_type + "_Proxy"
+		res = ERB.new(proxy_start_template)
+		t = res.result(binding)
+		file.puts t
+
+# Map TYPE Select has Entity as item
+		for select in select_list
+			if select.selectitems_array.include?(type)
+				if selectTypeType[select.name] == "Hybrid"
+					xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
+					xmiid_general = prefix + select.name
+					res = ERB.new(supertype_template)
+					t = res.result(binding)
+					file.puts t
+				end
+			end
+		end
+		
+		res = ERB.new(type_end_template)
+		t = res.result(binding)
+		file.puts t
 	end
 
 # Map EXPRESS Enumeration Types
@@ -763,20 +838,33 @@ for schema in schema_list
 end
 	
 	for select in select_list
-		if selectTypeType[select.name] == "ValueType"
-			# Evaluate and write TYPE ValueType template
-			baseType = prefix + select.name
-			xmiid = baseType + '-ValueType'
-			res = ERB.new(valuetype_template)
-		else
-			# Evaluate and write ENTITY Block template 
-			baseClass = prefix + select.name
-			xmiid = baseClass + '-Block'
-			res = ERB.new(entity_block_template)
-			t = res.result(binding)
-			file.puts t
-			res = ERB.new(select_stereotype_template)
+		case selectTypeType[select.name]
+			when "Type"
+				# Evaluate and write TYPE ValueType template
+				baseType = prefix + select.name
+				xmiid = baseType + '-ValueType'
+				res = ERB.new(valuetype_template)
+			else
+				# Evaluate and write ENTITY Block template 
+				baseClass = prefix + select.name
+				xmiid = baseClass + '-Block'
+				res = ERB.new(entity_block_template)
+				t = res.result(binding)
+				file.puts t
+				res = ERB.new(select_stereotype_template)
 		end
+		t = res.result(binding)
+		file.puts t
+	end
+
+	typeProxies.each_value do |type| 
+		# Evaluate and write ENTITY Block template 
+		baseClass = prefix + type.name + "_Proxy"
+		xmiid = baseClass + '-Block'
+		res = ERB.new(entity_block_template)
+		t = res.result(binding)
+		file.puts t
+		res = ERB.new(proxy_stereotype_template)
 		t = res.result(binding)
 		file.puts t
 	end

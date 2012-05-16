@@ -100,7 +100,20 @@ class Entity < NamedType
 				return attribute
 			end
 		end
+		return nil
 	end
+	def find_attr_by_name_full( attrname )
+		attr = find_attr_by_name( attrname )
+		if attr != nil
+			return attr
+		end
+		for supertype in supertypes_array
+			attr = supertype.find_attr_by_name_full (attrname)
+			if attr != nil
+				return attr
+			end
+		end
+	end	
 end
 class Attribute < ModelElement
 	attr_accessor :name, :entity, :domain, :redeclare_entity, :redeclare_oldname
@@ -679,16 +692,8 @@ def postprocess_dictionary_express(repos)
 
 
 			##
-			## Add pointer to reverse entity and attribute in inverses
+			## Sort entities
 			if decl.kind_of? EXPSM::Entity
-				for attr in decl.attributes
-					if attr.kind_of? EXPSM::Inverse
-						attr_to_find = attr.reverseAttr_id
-						attr.reverseEntity = schema.find_namedtype_by_name( attr.domain )
-						attr.reverseAttr = attr.reverseEntity.find_attr_by_name( attr_to_find )
-					end
-				end
-
 			##
 			## Add pointers to supertypes
 				if decl.supertypes != nil
@@ -749,6 +754,20 @@ def postprocess_dictionary_express(repos)
 
 			end
 			
+		end
+		
+		for decl in schema.contents
+			##
+			## Add pointer to reverse entity and attribute in inverses
+			if decl.kind_of? EXPSM::Entity
+				for attr in decl.attributes
+					if attr.kind_of? EXPSM::Inverse
+						attr_to_find = attr.reverseAttr_id
+						attr.reverseEntity = schema.find_namedtype_by_name( attr.domain )
+						attr.reverseAttr = attr.reverseEntity.find_attr_by_name_full( attr_to_find )
+					end
+				end
+			end
 		end
 	end
 	puts "-- Post processing complete"

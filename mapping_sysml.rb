@@ -378,24 +378,7 @@ for schema in schema_list
 		superselect = NamedType.find_by_name( type.domain )
 		xmiid = prefix + type.name
 		# deal with select types
-		if superselect.kind_of? EXPSM::TypeSelect
-# Evaluate and write TYPE Select start template 
-			res = ERB.new(select_start_template)
-			t = res.result(binding)
-			file.puts t
-
-# Write Select Item template for parent (maps to UML same as EXPRESS supertype)
-			xmiid = '_2_superselect' + prefix + type.name + '-' + superselect.name
-			xmiid_general = prefix + superselect.name
-			res = ERB.new(supertype_template)
-			t = res.result(binding)
-			file.puts t
-
-# Evaluate and write TYPE Select end template 
-			res = ERB.new(select_end_template)
-			t = res.result(binding)
-			file.puts t
-		else
+		if !superselect.kind_of? EXPSM::TypeSelect
 			xmiid_general = prefix + type.domain
 			res = ERB.new(type_template)
 			t = res.result(binding)
@@ -670,6 +653,14 @@ for schema in schema_list
 			end
 
 			attr_domain = NamedType.find_by_name( attr.domain )
+			
+			# ignore re-named select types
+			if attr_domain.kind_of? EXPSM::Type 
+				superselect = NamedType.find_by_name( attr_domain.domain )
+				if superselect.kind_of? EXPSM::TypeSelect
+					attr_domain = superselect
+				end
+			end
 
 # Map EXPRESS Explicit Attributes of TYPE and TYPE Enum
 			if attr_domain.kind_of? EXPSM::Type or attr_domain.kind_of? EXPSM::TypeEnum
@@ -816,17 +807,7 @@ for schema in schema_list
 	type_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::Type and !e.isBuiltin}
 	for type in type_list
 		superselect = NamedType.find_by_name( type.domain )
-		if superselect.kind_of? EXPSM::TypeSelect
-			# Evaluate and write ENTITY Block template 
-			baseClass = prefix + type.name
-			xmiid = baseClass + '-Block'
-			res = ERB.new(entity_block_template)
-			t = res.result(binding)
-			file.puts t
-			res = ERB.new(select_stereotype_template)
-			t = res.result(binding)
-			file.puts t
-		else
+		if !superselect.kind_of? EXPSM::TypeSelect
 			# Evaluate and write TYPE ValueType template
 			baseType = prefix + type.name
 			xmiid = baseType + '-ValueType'

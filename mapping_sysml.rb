@@ -210,7 +210,7 @@ attribute_enum_type_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id=
 unique_template = %{<ownedRule xmi:type="uml:Constraint" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" name="<%= unique.name %>">
 <constrainedElement xmi:idref="<%= xmiid_entity %>"/>
 <specification xmi:type="uml:OpaqueExpression" xmi:id="<%= xmiid %>-spec" xmi:uuid="<%= get_uuid(xmiid+'-spec') %>">
-<body><%= entity.name %>::allInstance()-&gt;isUnique(<%= unique_text %>)</body>
+<body><%= entity.name %>::allInstances()-&gt;isUnique(<%= unique_text %>)</body>
 <language>OCL2.0</language>
 </specification>
 </ownedRule>}

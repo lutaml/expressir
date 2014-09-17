@@ -186,6 +186,7 @@ class Type < DefinedType
 		@isFixed = FALSE
 		@width = nil
 		@precision = nil
+		@wheres = []
 	end
 end
 class TypeAggregate < Type
@@ -193,6 +194,7 @@ class TypeAggregate < Type
 	def initialize
 		@rank = 0
 		@dimensions = []
+		@wheres = []
 	end
 end
 class TypeSelect < DefinedType
@@ -485,6 +487,12 @@ def load_dictionary_express_entity(schemaxml, repos)
 				attnew.entity = entnew
 				if inversexml.attributes["entity"] != nil
 					attnew.domain = inversexml.attributes["entity"].to_s
+				end	
+				if inversexml.elements["redeclaration"] != nil
+					attnew.redeclare_entity = inversexml.elements["redeclaration"].attributes["entity-ref"].to_s
+					if inversexml.elements["redeclaration"].attributes["old_name"] != nil
+						attnew.redeclare_oldname = inversexml.elements["redeclaration"].attributes["old_name"].to_s
+					end
 				end
 			end
 		end

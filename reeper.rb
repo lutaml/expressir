@@ -5,7 +5,7 @@ include REXML
 include EXPSM
 ## reeper
 ## Release 0.2
-## 2011-11-26
+## 2009-11-26
 ##
 ## MAIN PROCESS STARTS HERE
 ## Parse input options
@@ -15,33 +15,27 @@ map_input = " "
 schema_input = " "
 descxml_input = " "
 debug = FALSE
+passedArgs = []
 for arg in ARGV
 	argarray = arg.split('=')
-	if argarray[0] == "expxml"
-		expxml_input = argarray[1]
-	end
-	if argarray[0] == "map"
-		map_input = argarray[1]
-	end
-	if argarray[0] == "schema"
-		schema_input = argarray[1]
-	end
-	if argarray[0] == "descxml"
-		descxml_input = argarray[1]
-	end	
-	if argarray[0] == "debug"
-		debug = TRUE
-	end	
-	if argarray[0] == "help" or argarray[0] == "-help" or argarray[0] == "--help" or argarray[0] == "-h" or argarray[0] == "--h"
-		puts "reeper Version 0.1"
-		puts " "
-		puts "Usage parameters : expxml=<schema.xml> (map=<mymap.rb>) (schema=<name>) (descxml=<desc.xml>)"
-		puts " "
-		puts "  <schema.xml> required input EXPRESS as XML file"
-		puts "  <mymap.rb> optional input mapping as Ruby file, default is filename ''mapping.rb''"
-		puts "  <name> optional EXPRESS schema to map, default is all schemas in XML file"
-		puts "  <desc.xml> optional input descriptions as XML file (may be same as expxml)"
-		exit
+	case argarray[0]
+		when "expxml" then expxml_input = argarray[1]
+		when "map" then map_input = argarray[1]
+		when "schema" then schema_input = argarray[1]
+		when "descxml" then descxml_input = argarray[1]
+		when "debug" then debug = TRUE
+		when "help", "-help", "--help", "-h", "--h"
+			puts "reeper Version 0.1"
+			puts " "
+			puts "Usage parameters : expxml=<schema.xml> (map=<mymap.rb>) (schema=<name>) (descxml=<desc.xml>)"
+			puts " "
+			puts "  <schema.xml> required input EXPRESS as XML file"
+			puts "  <mymap.rb> optional input mapping as Ruby file, default is filename ''mapping.rb''"
+			puts "  <name> optional EXPRESS schema to map, default is all schemas in XML file"
+			puts "  <desc.xml> optional input descriptions as XML file (may be same as expxml)"
+			exit
+		else
+			passedArgs.push arg
 	end
 end
 if expxml_input == " "
@@ -137,4 +131,4 @@ else
 	mapthing = therepos
 end
 
-map_from_express(mapthing)
+map_from_express(mapthing, passedArgs)

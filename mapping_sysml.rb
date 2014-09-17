@@ -27,28 +27,121 @@ include Nokogiri
 # USE or REFERENCE (even with named items) -> UML PackageImport between Packages
 #
 #######################################################################################
-$uuid = UUID.new
 
 def get_uuid(id)
-	uuidmap = $uuidxml.xpath('//uuidmap[@id="' + id + '"]').first
-	if uuidmap != nil
-		return uuidmap.attributes["uuid"].to_s.strip
+	if $uuidsRequired
+		uuidmap = $uuidxml.xpath('//uuidmap[@id="' + id + '"]').first
+		if uuidmap != nil
+			$olduuids.delete uuidmap
+			return ' xmi:uuid="' + uuidmap.attributes["uuid"].to_s.strip + '"'
+		else
+			theUUID = $uuid.generate
+			uuidtext = theUUID.to_s.strip
+			uuidmap = Nokogiri::XML::Node.new("uuidmap", $uuidxml)
+			uuidmap['id'] = id
+			uuidmap['uuid'] = theUUID
+			$uuidxml.root.add_child uuidmap
+			return ' xmi:uuid="' + theUUID + '"'
+		end
 	else
-		theUUID = $uuid.generate
-		uuidtext = theUUID.to_s.strip
-		uuidmap = Nokogiri::XML::Node.new("uuidmap", $uuidxml)
-		uuidmap['id'] = id
-		uuidmap['uuid'] = theUUID
-		$uuidxml.root.add_child uuidmap
-		return theUUID
+		return ""
 	end
 end
 
-def isEncapsulated (type)
-	encapsulated = type.wheres.select {|w| w.name == "encapsulated"}.length	> 0	
+def get_where(id,rule)
+	if $wherexml != nil
+		wheremap = $wherexml.xpath('//wheremap[@id="' + id + '"]').first
+		if wheremap != nil
+			return wheremap.at("OCL").inner_html
+		else
+			wheremap = Nokogiri::XML::Node.new("wheremap", $wherexml)
+			wheremap['id'] = id
+			express = Nokogiri::XML::Node.new("EXPRESS", $wherexml)
+			express.content = rule
+			wheremap.add_child express
+			ocl = Nokogiri::XML::Node.new("OCL", $wherexml)
+			wheremap.add_child ocl
+			$wherexml.root.add_child wheremap
+			return ""
+		end
+	else
+		return ""
+	end
+end
+
+def put_ops(name, file)
+# operation template
+operation_template = %{<ownedOperation xmi:type="uml:Operation" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= op_name %>" bodyCondition="<%= xmiid %>-body">
+<ownedRule xmi:type="uml:Constraint" xmi:id="<%= xmiid %>-body"<%= get_uuid(xmiid+'-body') %>>
+<specification xmi:type="uml:OpaqueExpression" xmi:id="<%= xmiid %>-spec"<%= get_uuid(xmiid+'-spec') %>>
+<body><%= op_ocl %></body>
+<language>OCL2.0</language>
+</specification>
+</ownedRule>}
+
+parameter_template = %{<ownedParameter xmi:type="uml:Parameter" xmi:id="<%= par_xmiid %>"<%= get_uuid(par_xmiid) %> name="<%= par_name %>" type="<%= par_type %>"/>}
+
+return_template = %{<ownedParameter xmi:type="uml:Parameter" xmi:id="<%= xmiid %>-return"<%= get_uuid(xmiid+'-return') %> direction="return" type="<%= ret_type %>"/>}
+
+operation_end = %{</ownedOperation>}
+
+	if $opsxml != nil
+		ops = $opsxml.xpath('//operation[@for="' + name + '"]')
+		for op in ops
+			body = op.at('body')
+			if body != nil
+				op_ocl = body.content
+				op_name = op['name']
+				ret_type = op['type']
+				xmiid = '_2_op_' + name + '_' + op_name
+				res = ERB.new(operation_template)
+				t = res.result(binding)
+				file.puts t
+				
+				params = op.xpath('./param')
+				for param in params
+					par_name = param['name']
+					par_xmiid = xmiid + '-' + par_name
+					par_type = param['type']
+					res = ERB.new(parameter_template)
+					t = res.result(binding)
+					file.puts t
+				end
+				res = ERB.new(return_template)
+				t = res.result(binding)
+				file.puts t				
+				res = ERB.new(operation_end)
+				t = res.result(binding)
+				file.puts t
+			else
+				puts 'Operation ' + name + '.' + op['name'] + ' has no body - ignored!'
+			end
+		end
+	end
+end
+
+def isEncapsulated (type, attrib)
+	encapsulated = false
+	rules = type.wheres.select {|w| w.name == "encapsulated"}
+	if rules.length	> 0	
+		for rule in rules
+			if rule.expression == "SIZEOF(USEDIN(SELF, '')) = 1"
+				encapsulated = true
+			elsif rule.expression == "SIZEOF(QUERY(elem <* SELF | SIZEOF(USEDIN(elem, '')) = 1)) = SIZEOF(SELF)"
+				encapsulated = true
+			elsif rule.expression[0..24] == "SIZEOF(USEDIN(SELF, '') -"
+				encapsulated = !(rule.expression[25..-1].include? (attrib.entity.name.upcase + "." + attrib.name.upcase))
+			else
+				puts "Unknown encapsulated rule: " + rule.expression
+			end
+			if encapsulated
+				break
+			end
+		end
+	end
 	if (type.kind_of? EXPSM::Entity) && !encapsulated
 		for supertype in type.supertypes_array
-			encapsulated = isEncapsulated(supertype)
+			encapsulated = isEncapsulated(supertype, attrib)
 			if encapsulated
 				break
 			end
@@ -57,12 +150,65 @@ def isEncapsulated (type)
 	return encapsulated
 end
 
-def map_from_express( mapinput )
+def isEncapsulatedInto (entity, attrib)
+	encapsulated = false
+	rules = entity.wheres.select {|w| w.name == "encapsulateInto"}
+	if rules.length	> 0	
+		for rule in rules
+			if rule.expression[0..6] == "EXISTS("
+				encapsulated = (rule.expression[7..-1].include? (attrib.name))
+			else
+				puts "Unknown encapsulateInto rule: " + rule.expression 
+			end
+			if encapsulated
+				break
+			end
+		end
+	end
+	for supertype in entity.supertypes_array
+		encapsulated = isEncapsulatedInto(supertype, attrib)
+		if encapsulated
+			break
+		end
+	end
+	return encapsulated
+end
+
+def map_from_express( mapinput , passedArgs)
 # Enter file name here to override defaults (<schema>.xmi if one schema, and Model.xmi if more than one)
 output_xmi_filename = nil
 
-uuidfile = File.open("UUIDs.xml")
-$uuidxml = Nokogiri::XML(uuidfile)
+noprune = FALSE
+schemaId = FALSE
+$uuidsRequired = TRUE
+for arg in passedArgs
+	argarray = arg.split('=')
+	case argarray[0]
+		when "noprune" then noprune = TRUE
+		when "nouuids" then $uuidsRequired = FALSE
+		when "path" then outPath = argarray[1]
+		when "schemaid" then schemaId = TRUE
+	end
+end
+
+if $uuidsRequired
+  $uuid = UUID.new
+	uuidfile = File.open("UUIDs.xml")
+	$uuidxml = Nokogiri::XML(uuidfile, &:noblanks)
+	$olduuids = $uuidxml.xpath('//uuidmap')
+end
+
+if File.exists?("WhereRuleMapping.xml")
+	wherefile = File.open("WhereRuleMapping.xml")
+	$wherexml = Nokogiri::XML(wherefile, &:noblanks)
+	wherefile.close
+end
+
+if File.exists?("Operators.xml")
+	opsfile = File.open("Operators.xml")
+	$opsxml = Nokogiri::XML(opsfile, &:noblanks)
+	opsfile.close
+end
 
 # datatypes for builtin types that map directly to SysML
 datatype_hash = Hash.new
@@ -70,81 +216,102 @@ datatype_hash = Hash.new
 # XMI File Start Template (includes datatypes for builtin with no direct UML equivalent)
 overall_start_template = %{<?xml version="1.0" encoding="UTF-8"?>
 <xmi:XMI xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.omg.org/spec/UML/20090901" xmlns:StandardProfileL2="http://schema.omg.org/spec/UML/2.3/StandardProfileL2.xmi" xmlns:sysml="http://www.omg.org/spec/SysML/20100301/SysML-profile">
-<uml:Model name="Data" xmi:id="_0_Data" xmi:uuid="<%= get_uuid('_0_Data') %>">
-<packagedElement xmi:type="uml:Package" xmi:id="_0_SysMLfromEXPRESS" xmi:uuid="<%= get_uuid('_0_SysMLfromEXPRESS') %>" name="SysMLfromEXPRESS">
-<packagedElement xmi:type="uml:PrimitiveType" xmi:id="BINARY" xmi:uuid="<%= get_uuid('BINARY') %>" name="Binary" />
-<packagedElement xmi:type="uml:PrimitiveType" xmi:id="STRING" xmi:uuid="<%= get_uuid('STRING') %>" name="String" />
-<packagedElement xmi:type="uml:PrimitiveType" xmi:id="NUMBER" xmi:uuid="<%= get_uuid('NUMBER') %>" name="Number" isAbstract="TRUE"/>
-<packagedElement xmi:type="uml:PrimitiveType" xmi:id="REAL" xmi:uuid="<%= get_uuid('REAL') %>" name="Real">
-<generalization xmi:type="uml:Generalization" xmi:id="_generalization-REAL_NUMBER" xmi:uuid="<%= get_uuid('_generalization-REAL_NUMBER') %>" general="NUMBER"/>
+<uml:Model name="Data" xmi:id="_0_Data"<%= get_uuid('_0_Data') %>><%
+$dtprefix=''
+if outPath == nil %>
+<packagedElement xmi:type="uml:Package" xmi:id="_0_SysMLfromEXPRESS"<%= get_uuid('_0_SysMLfromEXPRESS') %> name="SysMLfromEXPRESS"><%
+else
+ pathElements = outPath.split('/')
+ for elem in pathElements 
+  $dtprefix = $dtprefix + elem[0]%>
+<packagedElement xmi:type="uml:Package" xmi:id="_0_<%= elem %>"<%= get_uuid('_0_'+elem) %> name="<%= elem %>"><%
+ end
+ $dtprefix = $dtprefix + '_'%>
+<packagedElement xmi:type="uml:Package" xmi:id="_0_DataTypes"<%= get_uuid('_0_DataTypes') %> name="DataTypes"><%
+end %>
+<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>BINARY"<%= get_uuid($dtprefix+'BINARY') %> name="Binary" />
+<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>STRING"<%= get_uuid($dtprefix+'STRING') %> name="String" />
+<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>NUMBER"<%= get_uuid($dtprefix+'NUMBER') %> name="Number" isAbstract="TRUE"/>
+<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>REAL"<%= get_uuid($dtprefix+'REAL') %> name="Real">
+<generalization xmi:type="uml:Generalization" xmi:id="_generalization-<%= $dtprefix %>REAL_NUMBER"<%= get_uuid('_generalization-'+$dtprefix+'REAL_NUMBER') %> general="<%= $dtprefix %>NUMBER"/>
 </packagedElement>
-<packagedElement xmi:type="uml:PrimitiveType" xmi:id="INTEGER" xmi:uuid="<%= get_uuid('INTEGER') %>" name="Integer">
-<generalization xmi:type="uml:Generalization" xmi:id="_generalization-INTEGER_REAL" xmi:uuid="<%= get_uuid('_generalization-INTEGER_REAL') %>" general="REAL"/>
+<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>INTEGER"<%= get_uuid($dtprefix+'INTEGER') %> name="Integer">
+<generalization xmi:type="uml:Generalization" xmi:id="_generalization-<%= $dtprefix %>INTEGER_REAL"<%= get_uuid('_generalization-'+$dtprefix+'INTEGER_REAL') %> general="<%= $dtprefix %>REAL"/>
 </packagedElement>
-<packagedElement xmi:type="uml:Enumeration" xmi:id="LOGICAL" xmi:uuid="<%= get_uuid('LOGICAL') %>" name="Logical">
-<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="UNKNOWN" xmi:uuid="<%= get_uuid('UNKNOWN') %>" name="Unknown" classifier="LOGICAL"/>
+<packagedElement xmi:type="uml:Enumeration" xmi:id="<%= $dtprefix %>LOGICAL"<%= get_uuid($dtprefix+'LOGICAL') %> name="Logical">
+<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= $dtprefix %>UNKNOWN"<%= get_uuid($dtprefix+'UNKNOWN') %> name="Unknown" classifier="<%= $dtprefix %>LOGICAL"/>
 </packagedElement>
-<packagedElement xmi:type="uml:Enumeration" xmi:id="BOOLEAN" xmi:uuid="<%= get_uuid('BOOLEAN') %>" name="Boolean">
-<generalization xmi:type="uml:Generalization" xmi:id="_generalization-BOOLEAN-LOGICAL" xmi:uuid="<%= get_uuid('_generalization-BOOLEAN-LOGICAL') %>" general="LOGICAL"/>
-<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="TRUE" xmi:uuid="<%= get_uuid('TRUE') %>" name="True" classifier="BOOLEAN"/>
-<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="FALSE" xmi:uuid="<%= get_uuid('FALSE') %>" name="False" classifier="BOOLEAN"/>
-</packagedElement>}
+<packagedElement xmi:type="uml:Enumeration" xmi:id="<%= $dtprefix %>BOOLEAN"<%= get_uuid($dtprefix+'BOOLEAN') %> name="Boolean">
+<generalization xmi:type="uml:Generalization" xmi:id="<%= $dtprefix %>_generalization-<%= $dtprefix %>BOOLEAN-LOGICAL"<%= get_uuid('_generalization-'+$dtprefix+'BOOLEAN-LOGICAL') %> general="<%= $dtprefix %>LOGICAL"/>
+<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= $dtprefix %>TRUE"<%= get_uuid($dtprefix+'TRUE') %> name="True" classifier="<%= $dtprefix %>BOOLEAN"/>
+<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= $dtprefix %>FALSE"<%= get_uuid($dtprefix+'FALSE') %> name="False" classifier="<%= $dtprefix %>BOOLEAN"/>
+</packagedElement><%
+if outPath != nil %>
+</packagedElement><%
+end %>}
 
 # Model End Template
-model_end_template = %{<profileApplication xmi:type="uml:ProfileApplication" xmi:id="_profileApplication0" xmi:uuid="<%= get_uuid('_profileApplication0') %>">
+model_end_template = %{<profileApplication xmi:type="uml:ProfileApplication" xmi:id="_profileApplication0"<%= get_uuid('_profileApplication0') %>>
 <appliedProfile xmi:type="uml:Profile" href="http://www.omg.org/spec/SysML/20100301/SysML-profile.uml#_0" />
-</profileApplication>
-</packagedElement>
+</profileApplication><%
+if outPath == nil %>
+</packagedElement><%
+else
+ pathElements = outPath.split('/')
+ for elem in pathElements %>
+</packagedElement><%
+ end
+end %>
 </uml:Model>}
 
 # XMI File End Template
-overall_end_template = %{<sysml:ValueType base_DataType="LOGICAL" xmi:id="LOGICAL_VT" xmi:uuid="<%= get_uuid('LOGICAL_VT') %>"/>
-<sysml:ValueType base_DataType="BOOLEAN" xmi:id="BOOLEAN_VT" xmi:uuid="<%= get_uuid('BOOLEAN_VT') %>"/>
-<sysml:ValueType base_DataType="NUMBER" xmi:id="NUMBER_VT" xmi:uuid="<%= get_uuid('NUMBER_VT') %>"/>
-<sysml:ValueType base_DataType="REAL" xmi:id="REAL_VT" xmi:uuid="<%= get_uuid('REAL_VT') %>"/>
-<sysml:ValueType base_DataType="INTEGER" xmi:id="INTEGER_VT" xmi:uuid="<%= get_uuid('INTEGER_VT') %>"/>
-<sysml:ValueType base_DataType="STRING" xmi:id="STRING_VT" xmi:uuid="<%= get_uuid('STRING_VT') %>"/>
-<sysml:ValueType base_DataType="BINARY" xmi:id="BINARY_VT" xmi:uuid="<%= get_uuid('BINARY_VT') %>"/>
+overall_end_template = %{<sysml:ValueType base_DataType="<%= $dtprefix %>LOGICAL" xmi:id="<%= $dtprefix %>LOGICAL_VT"<%= get_uuid($dtprefix+'LOGICAL_VT') %>/>
+<sysml:ValueType base_DataType="<%= $dtprefix %>BOOLEAN" xmi:id="<%= $dtprefix %>BOOLEAN_VT"<%= get_uuid($dtprefix+'BOOLEAN_VT') %>/>
+<sysml:ValueType base_DataType="<%= $dtprefix %>NUMBER" xmi:id="<%= $dtprefix %>NUMBER_VT"<%= get_uuid($dtprefix+'NUMBER_VT') %>/>
+<sysml:ValueType base_DataType="<%= $dtprefix %>REAL" xmi:id="<%= $dtprefix %>REAL_VT"<%= get_uuid($dtprefix+'REAL_VT') %>/>
+<sysml:ValueType base_DataType="<%= $dtprefix %>INTEGER" xmi:id="<%= $dtprefix %>INTEGER_VT"<%= get_uuid($dtprefix+'INTEGER_VT') %>/>
+<sysml:ValueType base_DataType="<%= $dtprefix %>STRING" xmi:id="<%= $dtprefix %>STRING_VT"<%= get_uuid($dtprefix+'STRING_VT') %>/>
+<sysml:ValueType base_DataType="<%= $dtprefix %>BINARY" xmi:id="<%= $dtprefix %>BINARY_VT"<%= get_uuid($dtprefix+'BINARY_VT') %>/>
 </xmi:XMI>}
 
 # SCHEMA Start Template
-schema_start_template = %{<packagedElement xmi:type="uml:Package" xmi:id="<%= xmiid %>" xmi:uuid='<%= get_uuid(xmiid) %>' name="<%= schema.name %>">}
+schema_start_template = %{<packagedElement xmi:type="uml:Package" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= schema.name %>">}
 
 # SCHEMA INTERFACE Template
-schema_interface_template = %{<packageImport xmi:type="uml:PackageImport" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" importedPackage="_1_<%= interfaced_schema.foreign_schema_id %>"/>}
+schema_interface_template = %{<packageImport xmi:type="uml:PackageImport" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> importedPackage="_1_<%= interfaced_schema.foreign_schema_id %>"/>}
 
 # SCHEMA End Template
 schema_end_template = %{</packagedElement>}
 
 # ENTITY Block Template
-entity_block_template = %{<sysml:Block base_Class="<%= baseClass %>" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>"/>}
+entity_block_template = %{<sysml:Block base_Class="<%= baseClass %>" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %>/>}
 
 # ENTITY Start Template
-entity_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" name="<%= entity.name %>" <% if entity.isAbs %>isAbstract="TRUE"<% end %>>}
+entity_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= entity.name %>" <% if entity.isAbs %>isAbstract="TRUE"<% end %>>}
 
 # SUBTYPE OF Template
-supertype_template = %{<generalization xmi:type="uml:Generalization" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" general="<%= xmiid_general %>"/>}
+supertype_template = %{<generalization xmi:type="uml:Generalization" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> general="<%= xmiid_general %>"/>}
 
 # ENTITY End Template
 entity_end_template = %{</packagedElement>}
 
 # ENUMERATION Start Template
-enum_start_template = %{<packagedElement xmi:type="uml:Enumeration" xmi:id="<%= type_xmiid %>" xmi:uuid="<%= get_uuid(type_xmiid) %>" name="<%= enum.name %>">}
+enum_start_template = %{<packagedElement xmi:type="uml:Enumeration" xmi:id="<%= type_xmiid %>"<%= get_uuid(type_xmiid) %> name="<%= enum.name %>">}
 
 # ENUMERATION ITEM Template
-enum_item_template = %{<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= enumitem_xmiid %>" xmi:uuid="<%= get_uuid(enumitem_xmiid) %>" name="<%= enumitem %>" classifier="<%= type_xmiid %>"/>}
+enum_item_template = %{<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= enumitem_xmiid %>"<%= get_uuid(enumitem_xmiid) %> name="<%= enumitem %>" classifier="<%= type_xmiid %>"/>}
 
 # ENUMERATION End Template
 enum_end_template = %{</packagedElement>}
 
 # SELECT Start Template
-select_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" name="<%= type.name %>" isAbstract="TRUE">}
+select_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= type.name %>" isAbstract="TRUE">}
 
 # SELECT End Template
 select_end_template = %{</packagedElement>}
 
 # SELECT Stereotype Template
-select_stereotype_template = %{<StandardProfileL2:auxiliary xmi:id="<%= xmiid %>application1" xmi:uuid="<%= get_uuid(xmiid+ 'application1') %>" base_Class="<%= baseClass %>"/>}
+select_stereotype_template = %{<StandardProfileL2:Auxiliary xmi:id="<%= xmiid %>application1"<%= get_uuid(xmiid+ 'application1') %> base_Class="<%= baseClass %>"/>}
 
 # Template covering abstract entity types
 abstract_entity_template = %{}
@@ -159,37 +326,61 @@ attribute_aggregate_entity_select_template = %{}
 attribute_entity_select_template = %{}
 
 # Template covering the output file contents for each attribute that is an entity
-attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" name="<%= attr.name %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> type="<%= domain_xmiid %>" <% if direct_inverse or encapsulated %>aggregation='composite'<% end %> association="<%= assoc_xmiid %>"<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
+attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= attr.name %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> type="<%= domain_xmiid %>" <% if direct_inverse or encapsulated %>aggregation='composite'<% end %> association="<%= assoc_xmiid %>"<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
 
 # INVERSE ATTRIBUTE Template
-inverse_attribute_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" name="<%= inverse.name %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> isReadOnly='true' type="<%= domain_xmiid %>" association="<%= assoc_xmiid %>" <% if inverse.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
+inverse_attribute_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= inverse.name %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> isReadOnly='true' type="<%= domain_xmiid %>" association="<%= assoc_xmiid %>" <% if inverse.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
+
+#Template covering multiplicities
+multiplicity = %{<% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"<%= get_uuid(xmiid + '-lowerValue') %>/><% 
+else
+ if lower != '1' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"<%= get_uuid(xmiid + '-lowerValue') %>  value="<%= lower %>"/><% 
+ else
+  dummy = get_uuid(xmiid + '-lowerValue')
+	end
+end %>
+<% if upper != '1' %><upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue"<%= get_uuid(xmiid + '-upperValue') %> value="<%= upper %>"/><%
+else
+  dummy = get_uuid(xmiid + '-upperValue')
+end %>}
 
 #Template covering attribute wrapup
-attribute_end = %{<% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue" xmi:uuid="<%= get_uuid(xmiid + '-lowerValue') %>"/><% end %>
-<% if lower != '0' and lower != '1' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue" xmi:uuid="<%= get_uuid(xmiid + '-lowerValue') %>"  value="<%= lower %>"/><% end %>
-<% if upper != '1' %><upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" xmi:uuid="<%= get_uuid(xmiid + '-upperValue') %>" value="<%= upper %>"/><% end %>
+attribute_end = %{
 </ownedAttribute>}
 
 
 # EXPLICIT ATTRIBUTE ENTITY Create Association Template
-attribute_entity_association_template = %{<packagedElement xmi:type="uml:Association" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" name="">
-<memberEnd xmi:idref="<%= attr_xmiid %>"/>
-<% if !inverse_exists %><memberEnd xmi:idref="<%= xmiid + '-end' %>"/>
-<ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid %>-end" xmi:uuid="<%= get_uuid(xmiid+'-end') %>" type="<%= owner_xmiid %>" association="<%= xmiid %>">
-<lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue" xmi:uuid="<%= get_uuid(xmiid+'-lowerValue') %>"/>
-<upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue" xmi:uuid="<%= get_uuid(xmiid+'-upperValue') %>" value="*"/>
-</ownedEnd><% else %><memberEnd xmi:idref="<%= iattr_xmiid %>"/>
-<% end %>
-<% if general_exists %><generalization xmi:type="uml:Generalization" xmi:id="<%= general_xmiid %>" xmi:uuid="<%= get_uuid(general_xmiid) %>" general="<%= redefined_xmiid %>"/><% end %>
+attribute_entity_association_template = %{<packagedElement xmi:type="uml:Association" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %>>
+<memberEnd xmi:idref="<%= attr_xmiid %>"/><% 
+if !inverse_exists %>
+<memberEnd xmi:idref="<%= xmiid + '-end' %>"/>
+<ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid %>-end"<%= get_uuid(xmiid+'-end') %><% if encapsulatedInto %> aggregation='composite'<% end %> type="<%= owner_xmiid %>" association="<%= xmiid %>"<% 
+  if !direct_inverse %>>
+<lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-end-lowerValue"<%= get_uuid(xmiid+'-end-lowerValue') %>/><%
+    if encapsulated
+      dummy = get_uuid(xmiid+'-end-upperValue')
+    else %>
+<upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-end-upperValue"<%= get_uuid(xmiid+'-end-upperValue') %> value="*"/><%
+    end %>
+</ownedEnd><% 
+  else %>/><%
+  end %><% 
+else %><memberEnd xmi:idref="<%= iattr_xmiid %>"/><% 
+end %><% 
+if general_exists %>
+<generalization xmi:type="uml:Generalization" xmi:id="<%= general_xmiid %>"<%= get_uuid(general_xmiid) %> general="<%= redefined_xmiid %>"/><%
+end %>
 </packagedElement>}
 
  
 # INVERSE ATTRIBUTE ENTITY Create Association Template
-inverse_entity_association_template = %{<packagedElement xmi:type="uml:Association" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" name="">
+inverse_entity_association_template = %{<packagedElement xmi:type="uml:Association" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %>>
 <memberEnd xmi:idref="<%= iattr_xmiid %>"/>
 <memberEnd xmi:idref="<%= xmiid + '-end' %>"/>
-<ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid %>-end" xmi:uuid="<%= get_uuid(xmiid+'-end') %>" type="<%= owner_xmiid %>" association="<%= xmiid %>"/>
-<generalization xmi:type="uml:Generalization" xmi:id="<%= general_xmiid %>" xmi:uuid="<%= get_uuid(general_xmiid) %>" general="<%= redefined_xmiid %>"/>
+<ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid %>-end"<%= get_uuid(xmiid+'-end') %> type="<%= owner_xmiid %>" association="<%= xmiid %>">}
+
+inverse_entity_association_end = %{</ownedEnd>
+<generalization xmi:type="uml:Generalization" xmi:id="<%= general_xmiid %>"<%= get_uuid(general_xmiid) %> general="<%= redefined_xmiid %>"/>
 </packagedElement>}
 
  
@@ -197,46 +388,57 @@ inverse_entity_association_template = %{<packagedElement xmi:type="uml:Associati
 attribute_template = %{}
 
 # EXPLICIT ATTRIBUTE SIMPLE TYPE Template
-attribute_builtin_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" name="<%= attr.name %>" 
-<% if datatype_hash[attr.domain] != nil %><% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> <% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>>
-<type xmi:type="uml:PrimitiveType" href="<%= datatype_hash[attr.domain] %>" /><% end %>	
-<% if datatype_hash[attr.domain] == nil %>type="<%= attr.domain %>"<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>><% end %>}
+attribute_builtin_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= attr.name %>"<% if islist %> isOrdered='true'<% end %><% if !isset %> isUnique='false'<% end %> aggregation='composite'<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %> 
+<% if datatype_hash[domain_name] != nil %>>
+<type xmi:type="uml:PrimitiveType" href="<%= datatype_hash[domain_name] %>" /><% else %>type="<%= $dtprefix+domain_name %>"><% end %>}
 
 
 # EXPLICIT ATTRIBUTE ENUM and TYPE Template
-attribute_enum_type_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" name="<%= attr.name %>" type="<%= type_xmiid %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %>>}
+attribute_enum_type_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= attr.name %>" type="<%= type_xmiid %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> aggregation='composite'>}
 
 # UNIQUE rule template
-unique_template = %{<ownedRule xmi:type="uml:Constraint" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" name="<%= unique.name %>">
+unique_template = %{<ownedRule xmi:type="uml:Constraint" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= unique.name %>">
 <constrainedElement xmi:idref="<%= xmiid_entity %>"/>
-<specification xmi:type="uml:OpaqueExpression" xmi:id="<%= xmiid %>-spec" xmi:uuid="<%= get_uuid(xmiid+'-spec') %>">
+<specification xmi:type="uml:OpaqueExpression" xmi:id="<%= xmiid %>-spec"<%= get_uuid(xmiid+'-spec') %>>
 <body><%= entity.name %>::allInstances()-&gt;isUnique(<%= unique_text %>)</body>
 <language>OCL2.0</language>
 </specification>
 </ownedRule>}
 
+# WHERE rule template
+where_template = %{<ownedRule xmi:type="uml:Constraint" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= where.name %>">
+<constrainedElement xmi:idref="<%= xmiidref %>"/>
+<specification xmi:type="uml:OpaqueExpression" xmi:id="<%= xmiid %>-spec"<%= get_uuid(xmiid+'-spec') %>>
+<body><%= where_ocl %></body>
+<language>OCL2.0</language>
+</specification>
+</ownedRule>}
+
 # TYPE Template
-type_template = %{<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" name="<%= type.name %>" >
+type_template = %{<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= type.name %>" >
 <% if datatype_hash[type.domain] != nil %>
-<generalization xmi:type="uml:Generalization" xmi:id="_supertype<%= xmiid %>" xmi:uuid="<%= get_uuid('_supertype'+xmiid) %>">
+<generalization xmi:type="uml:Generalization" xmi:id="_supertype<%= xmiid %>"<%= get_uuid('_supertype'+xmiid) %>>
 <general xmi:type='uml:PrimitiveType' href="<%= datatype_hash[type.domain] %>" />
 </generalization>
 <% else %>
-<generalization xmi:type="uml:Generalization" xmi:id="_supertype<%= xmiid %>" xmi:uuid="<%= get_uuid('_supertype'+xmiid) %>" general="<%= xmiid_general %>"/>
+<generalization xmi:type="uml:Generalization" xmi:id="_supertype<%= xmiid %>"<%= get_uuid('_supertype'+xmiid) %> general="<%= $dtprefix+xmiid_general %>"/>
 <% end %>}
 
 # ProxyTYPE Start Template
-proxy_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>" name="<%= type.name %>Proxy" isAbstract="TRUE">
-<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>_value" xmi:uuid="<%= get_uuid(xmiid + "value") %>" name="value" type="<%= xmiid_type %>"/>}
+proxy_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= type.name %>Proxy">
+<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>_value"<%= get_uuid(xmiid + "_value") %> name="value" type="<%= xmiid_type %>"/><%
+dummy = get_uuid(xmiid + "_value-lowerValue")
+dummy = get_uuid(xmiid + "_value-upperValue")
+%>}
 
 # proxy TYPE  Stereotype Template
-proxy_stereotype_template = %{<StandardProfileL2:type xmi:id="<%= xmiid %>application1" xmi:uuid="<%= get_uuid(xmiid+ 'application1') %>" base_Class="<%= baseClass %>"/>}
+proxy_stereotype_template = %{<StandardProfileL2:Type xmi:id="<%= xmiid %>application1"<%= get_uuid(xmiid+ 'application1') %> base_Class="<%= baseClass %>"/>}
 
 #TYPE end Template
 type_end_template=%{</packagedElement>}
 
 # TYPE ValueType Template
-valuetype_template = %{<sysml:ValueType base_DataType="<%= baseType %>" xmi:id="<%= xmiid %>" xmi:uuid="<%= get_uuid(xmiid) %>"/>}
+valuetype_template = %{<sysml:ValueType base_DataType="<%= baseType %>" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %>/>}
 
 #############################################################################################
 # Set up list of schemas to process, input may be a repository containing schemas or a single schema
@@ -258,7 +460,11 @@ end
 			schema = schema_list[0]
 			output_xmi_filename = schema.name.to_s + ".xmi"
 		end
-		get_prefix = lambda {|schema| '_'}
+		if schemaId
+			get_prefix = lambda {|schema| '_' + schema.name + '-'}
+		else
+			get_prefix = lambda {|schema| '_'}
+		end
 	else
 		if output_xmi_filename == nil
 			output_xmi_filename = 'Model.xmi'
@@ -277,7 +483,77 @@ end
 # Set up list of all EXPRESS Inverses in all schemas 
 all_inverse_list = []
 direct_inverses = []
+# Set up list of all EXPRESS Selects in all schemas
+all_select_list = []
+# setup global proxy type handling
+typeProxies = Hash.new
 
+# build all_select_list
+for schema in schema_list
+	select_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::TypeSelect }
+	all_select_list = all_select_list + select_list
+end
+
+# Set up storage for handling select types correctly
+selectTypeType = Hash.new
+
+# determine the type of select
+# 	- entity if only contains entities
+#	- type if only contains types
+#	- hybrid if a mixture
+#  - remove if a single object in list
+unknownSelect = all_select_list.dup
+for select in unknownSelect
+	if (select.selectitems_array.size == 1 && !noprune)
+		if !select.selectitems_array[0].kind_of? EXPSM::TypeSelect
+			puts select.name + " is pruned since it only contains one element"
+			selectTypeType[select.name] = "Remove"
+		end
+	end
+	entcount = 0
+	typcount = 0
+	select.selectitems_array.each do |e|
+		case e.class.to_s
+			when "EXPSM::Entity" then entcount += 1
+			when "EXPSM::Type" then typcount += 1
+			when "EXPSM::TypeAggregate"
+				domain =NamedType.find_by_name( e.domain )
+				case domain.class.to_s
+					when "EXPSM::Entity" then entcount += 1
+					when "EXPSM::Type" then typcount += 1
+					else
+						puts "Unknown type in aggregate " + domain.class.to_s
+				end
+			when "EXPSM::TypeSelect"
+				case selectTypeType[e.name]
+					when "Entity" then entcount += 1
+					when "Type" then typcount += 1
+					when "Hybrid" then selectTypeType[select.name] = "Hybrid"
+					when "Remove"
+						case e.selectitems_array[0].class.to_s
+							when "EXPSM::Entity" then entcount +=1
+							when "EXPSM::Type" then typcount +=1
+						end
+				end
+			else
+				puts "unknown class " + e.class.to_s
+		end
+	end
+	
+	if selectTypeType[select.name] == nil
+		case select.selectitems_array.length
+			when entcount then  selectTypeType[select.name] = "Entity"
+			when typcount then selectTypeType[select.name] = "Type"
+			when entcount + typcount then selectTypeType[select.name] = "Hybrid"
+			else
+				unknownSelect.push select
+		end
+	end
+	if selectTypeType[select.name] == "Hybrid"			
+		puts select.name + " is Hybrid select - proxy block(s) generated."
+	end
+end
+	
 for schema in schema_list	
 	prefix = get_prefix.call(schema)	
 	
@@ -305,51 +581,18 @@ for schema in schema_list
 		file.puts t		
 	end
 
-# set up select_list - used in a number of places
-	select_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::TypeSelect }
-	
-# Set up storage for handling select types correctly
-	selectTypeType = Hash.new
-	typeProxies = Hash.new
-
-# determine the type of select
-# 	- entity if only contains entities
-#	- type if only contains types
-#	- hybrid if a mixture
-	unknownSelect = select_list.dup
-	for select in unknownSelect
-		selselHyb_list = select.selectitems_array.select { |e| e.instance_of? EXPSM::TypeSelect and selectTypeType[e.name] == "Hybrid"}		
-		if selselHyb_list.length > 0
-			selectTypeType[select.name] = "Hybrid"
-			puts select.name + " is Hybrid"
-		else
-			selEnt_list = select.selectitems_array.select { |e| e.instance_of? EXPSM::Entity}
-			selselEnt_list = select.selectitems_array.select { |e| e.instance_of? EXPSM::TypeSelect and selectTypeType[e.name] == "Entity"}
-			entcount = selEnt_list.length + selselEnt_list.length
-			selTyp_list = select.selectitems_array.select { |e| e.instance_of? EXPSM::Type}
-			selselTyp_list = select.selectitems_array.select { |e| e.instance_of? EXPSM::TypeSelect and selectTypeType[e.name] == "Type"}
-			typcount = selTyp_list.length + selselTyp_list.length
-			case select.selectitems_array.length
-				when entcount then  selectTypeType[select.name] = "Entity"
-				when typcount then selectTypeType[select.name] = "Type"
-				when entcount + typcount then  selectTypeType[select.name] = "Hybrid"
-				else
-					unknownSelect.push select
-			end
-		end
-	end
-	
 # Map EXPRESS TYPE of Builtin
 	type_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::Type and e.isBuiltin}
 	for type in type_list
 		xmiid = prefix + type.name
+		xmiid_type = xmiid
 		xmiid_general = type.domain
 		res = ERB.new(type_template)
 		t = res.result(binding)
 		file.puts t
 		
 # Map TYPE Select has Type as item
-		for select in select_list
+		for select in all_select_list
 			if select.selectitems_array.include?(type)
 				# sort out what type of select we are dealing with
 				case selectTypeType[select.name]
@@ -364,9 +607,31 @@ for schema in schema_list
 						if typeProxy == nil
 							typeProxies[type.name] = type
 						end
+					when "Remove"
+					 # do nothing
 				end
 			end
 		end		
+
+#Map EXPRESS Where rules
+		whererules = type.wheres.select {|w| w.name[0..10] != "encapsulate"}
+		if whererules.size > 0
+			for where in whererules
+				xmiid = '_3_whr' + prefix + type.name + '-' + where.name.to_s
+				where_ocl = get_where(xmiid, where.expression)
+				if where_ocl.size > 0
+					xmiidref = xmiid_type
+					res = ERB.new(where_template)
+					t = res.result(binding)
+					file.puts t
+				else
+					puts "Where rule " + type.name + "." + where.name + " not mapped to OCL - ignored!"
+				end
+			end
+		end
+
+		put_ops(type.name, file)
+
 		res = ERB.new(type_end_template)
 		t = res.result(binding)
 		file.puts t
@@ -377,6 +642,7 @@ for schema in schema_list
 	for type in type_list
 		superselect = NamedType.find_by_name( type.domain )
 		xmiid = prefix + type.name
+		xmiid_type = xmiid
 		# deal with select types
 		if !superselect.kind_of? EXPSM::TypeSelect
 			xmiid_general = prefix + type.domain
@@ -385,7 +651,7 @@ for schema in schema_list
 			file.puts t
 			
 	# Map TYPE Select has Type as item
-			for select in select_list
+			for select in all_select_list
 				if select.selectitems_array.include?(type)
 					case selectTypeType[select.name]
 						when "Type"
@@ -399,6 +665,55 @@ for schema in schema_list
 							if typeProxy == nil
 								typeProxies[type.name] = type
 							end
+						when "Remove"
+							# do nothing
+					end
+				end
+			end
+			
+#Map EXPRESS Where rules
+			whererules = type.wheres.select {|w| w.name[0..10] != "encapsulate"}
+			if whererules.size > 0
+				for where in whererules
+					xmiid = '_3_whr' + prefix + type.name + '-' + where.name.to_s
+					where_ocl = get_where(xmiid, where.expression)
+					if where_ocl.size > 0
+						xmiidref = xmiid_type
+						res = ERB.new(where_template)
+						t = res.result(binding)
+						file.puts t
+					else
+						puts "Where rule " + type.name + "." + where.name + " not mapped to OCL - ignored!"
+					end
+				end
+			end
+			
+			put_ops(type.name, file)
+
+			res = ERB.new(type_end_template)
+			t = res.result(binding)
+			file.puts t
+		end
+	end
+	
+	typeProxies.each_value do |type| 
+		if type.schema == schema
+			# Evaluate and write proxy start template 
+			xmiid_type = prefix + type.name
+			xmiid = xmiid_type + "_Proxy"
+			res = ERB.new(proxy_start_template)
+			t = res.result(binding)
+			file.puts t
+
+			# Map TYPE Select has Entity as item
+			for select in all_select_list
+				if select.selectitems_array.include?(type)
+					if selectTypeType[select.name] == "Hybrid"
+						xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
+						xmiid_general = prefix + select.name
+						res = ERB.new(supertype_template)
+						t = res.result(binding)
+						file.puts t
 					end
 				end
 			end
@@ -407,32 +722,6 @@ for schema in schema_list
 			t = res.result(binding)
 			file.puts t
 		end
-	end
-
-	typeProxies.each_value do |type| 
-# Evaluate and write proxy start template 
-		xmiid_type = prefix + type.name
-		xmiid = xmiid_type + "_Proxy"
-		res = ERB.new(proxy_start_template)
-		t = res.result(binding)
-		file.puts t
-
-# Map TYPE Select has Entity as item
-		for select in select_list
-			if select.selectitems_array.include?(type)
-				if selectTypeType[select.name] == "Hybrid"
-					xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
-					xmiid_general = prefix + select.name
-					res = ERB.new(supertype_template)
-					t = res.result(binding)
-					file.puts t
-				end
-			end
-		end
-		
-		res = ERB.new(type_end_template)
-		t = res.result(binding)
-		file.puts t
 	end
 
 # Map EXPRESS Enumeration Types
@@ -473,41 +762,43 @@ for schema in schema_list
 	end
 
 # Map EXPRESS TYPE Selects 
+	select_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::TypeSelect }
 	for type in select_list
-
+		if selectTypeType[type.name] != "Remove"
 # Evaluate and write TYPE Select start template 
-		xmiid = prefix + type.name
-		res = ERB.new(select_start_template)
-		t = res.result(binding)
-		file.puts t
-		
-		superselect = type.extends_item
-		if superselect != nil
-			if superselect.kind_of? EXPSM::TypeSelect
-	# Write Select Item template for parent (maps to UML same as EXPRESS supertype)
-				xmiid = '_2_superselect' + prefix + type.name + '-' + superselect.name
-				xmiid_general = get_prefix.call(superselect.schema)  + superselect.name
-				res = ERB.new(supertype_template)
-				t = res.result(binding)
-				file.puts t
+			xmiid = prefix + type.name
+			res = ERB.new(select_start_template)
+			t = res.result(binding)
+			file.puts t
+			
+			superselect = type.extends_item
+			if superselect != nil
+				if superselect.kind_of? EXPSM::TypeSelect
+		# Write Select Item template for parent (maps to UML same as EXPRESS supertype)
+					xmiid = '_2_superselect' + prefix + type.name + '-' + superselect.name
+					xmiid_general = get_prefix.call(superselect.schema)  + superselect.name
+					res = ERB.new(supertype_template)
+					t = res.result(binding)
+					file.puts t
+				end
 			end
-		end
 
-# Evaluate and write Select Item template for each item (maps to UML same as EXPRESS supertype)
-		for superselect in select_list
-			if superselect.selectitems_array.include?(type)
-				xmiid = '_2_superselect' + prefix + type.name + '-' + superselect.name
-				xmiid_general = prefix + superselect.name
-				res = ERB.new(supertype_template)
-				t = res.result(binding)
-				file.puts t
+	# Evaluate and write Select Item template for each item (maps to UML same as EXPRESS supertype)
+			for superselect in all_select_list
+				if superselect.selectitems_array.include?(type)
+					xmiid = '_2_superselect' + prefix + type.name + '-' + superselect.name
+					xmiid_general = prefix + superselect.name
+					res = ERB.new(supertype_template)
+					t = res.result(binding)
+					file.puts t
+				end
 			end
-		end
 
-# Evaluate and write TYPE Select end template 
-		res = ERB.new(select_end_template)
-		t = res.result(binding)
-		file.puts t
+	# Evaluate and write TYPE Select end template 
+			res = ERB.new(select_end_template)
+			t = res.result(binding)
+			file.puts t
+		end
 	end
 	
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
@@ -517,11 +808,38 @@ for schema in schema_list
 		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
 		for attr in attr_list
 			
-			if NamedType.find_by_name( attr.domain ).kind_of? EXPSM::Entity or NamedType.find_by_name( attr.domain ).kind_of? EXPSM::TypeSelect
+			orig_domain = NamedType.find_by_name( attr.domain )
+			attr_domain = orig_domain
+			agg_domain = nil
+			begin
+				unchanged = true
+				case attr_domain.class.to_s
+					# ignore re-named select types
+					when "EXPSM::Type"
+						superselect = NamedType.find_by_name( attr_domain.domain )
+						if superselect.kind_of? EXPSM::TypeSelect
+							attr_domain = superselect
+							unchanged = false
+						end
+					#ignore named aggregates
+					when "EXPSM::TypeAggregate"
+						agg_domain = attr_domain
+						attr_domain = NamedType.find_by_name( attr_domain.domain )
+						unchanged = false
+					# ignore removed select types
+					when "EXPSM::TypeSelect"
+						if selectTypeType[attr_domain.name] == "Remove"
+							attr_domain = attr_domain.selectitems_array[0]
+							unchanged = false
+						end
+				end
+			end	 until unchanged			
+			
+			if attr_domain.kind_of? EXPSM::Entity or attr_domain.kind_of? EXPSM::TypeSelect
 				xmiid = '_1_association' + prefix + entity.name + '-' + attr.name
 				attr_xmiid = '_2_attr' + prefix + entity.name + '-' + attr.name
 				owner_xmiid = prefix + entity.name
-				domain_xmiid = prefix + NamedType.find_by_name( attr.domain ).name
+				domain_xmiid = prefix + attr_domain.name
 				
 				general_exists = false
 				if attr.redeclare_entity
@@ -537,16 +855,37 @@ for schema in schema_list
 				 
 #		  check if inverse refers to this attribute, affects how association is written
 				inverse_exists = false
+				direct_inverse = false
 				for inverse in all_inverse_list
 					if inverse.reverseAttr == attr
 						if attr.domain == inverse.entity.name
 							iattr_xmiid = '_2_attr' + get_prefix.call(inverse.entity.schema) + inverse.entity.name + '-' + inverse.name
 							direct_inverses.push inverse
 							all_inverse_list.delete inverse
+							if !inverse.instance_of? EXPSM::InverseAggregate
+								direct_inverse = true
+							end
 							inverse_exists = true
 						end
 					end
 				end				
+				
+				encapsulated = false
+				if attr_domain == orig_domain
+					encapsulated = isEncapsulated(attr_domain, attr)
+				else
+					if agg_domain != nil
+						encapsulated = isEncapsulated(agg_domain, attr)
+					end
+					if !encapsulated
+						encapsulated = isEncapsulated(attr_domain, attr)
+						if !encapsulated
+							encapsulated = isEncapsulated(orig_domain, attr)
+						end
+					end
+				end
+				
+				encapsulatedInto = isEncapsulatedInto(entity, attr)
 				
 				res = ERB.new(attribute_entity_association_template)
 				t = res.result(binding)
@@ -563,8 +902,30 @@ for schema in schema_list
 		
 		general_xmiid = '_2_general' + get_prefix.call(inverse.reverseEntity.schema) + inverse.entity.name + '-' + inverse.reverseAttr_id
 		redefined_xmiid = '_1_association' + get_prefix.call(inverse.entity.schema) + inverse.reverseEntity.name + '-' + inverse.reverseAttr_id
-		
+
+		lower = '1'
+		upper = '1'
+		if inverse.reverseAttr.instance_of? EXPSM::ExplicitAggregate
+			if inverse.reverseAttr.rank == 1
+				upper = inverse.reverseAttr.dimensions[0].upper
+				if upper == '?'
+					upper = '*'
+				end
+				lower = inverse.reverseAttr.dimensions[0].lower
+			end
+		end
+		if inverse.reverseAttr.isOptional == TRUE
+			lower = '0'
+		end
 		res = ERB.new(inverse_entity_association_template)
+		t = res.result(binding)
+		file.puts t
+		
+		res = ERB.new(multiplicity,0,"<>")
+		t = res.result(binding)
+		file.puts t
+
+		res = ERB.new(inverse_entity_association_end)
 		t = res.result(binding)
 		file.puts t
 	end
@@ -590,13 +951,28 @@ for schema in schema_list
 		end
 
 # Map TYPE Select has Entity as item
-		for select in select_list
+		for select in all_select_list
 			if select.selectitems_array.include?(entity)
-				xmiid = '_2_selectitem' + prefix + entity.name + '-' + select.name
-				xmiid_general = prefix + select.name
-				res = ERB.new(supertype_template)
-				t = res.result(binding)
-				file.puts t
+				if selectTypeType[select.name] != "Remove"
+					xmiid = '_2_selectitem' + prefix + entity.name + '-' + select.name
+					xmiid_general = prefix + select.name
+					res = ERB.new(supertype_template)
+					t = res.result(binding)
+					file.puts t
+				else
+					# if in a select list that has been removed make it a subtype of all selects that include the removed select
+					for superselect in all_select_list
+						if superselect.selectitems_array.include?(select)
+							puts entity.name + " added to " + superselect.name
+							puts "    following removal of " + select.name
+							xmiid = '_2_selectitem' + prefix + entity.name + '-' + superselect.name
+							xmiid_general = prefix + superselect.name
+							res = ERB.new(supertype_template)
+							t = res.result(binding)
+							file.puts t
+						end
+					end
+				end
 			end
 		end
 
@@ -621,21 +997,69 @@ for schema in schema_list
 			isset = true
 			islist = false
 			
-#     set up cardinailty constraints from attribute being a 1-D aggregate				
-			if attr.instance_of? EXPSM::ExplicitAggregate and attr.rank == 1
-				upper = attr.dimensions[0].upper
-				if upper == '?'
-					upper = '*'
+			domain_name = attr.domain
+			orig_domain = NamedType.find_by_name( attr.domain )
+			attr_domain = orig_domain
+			agg_domain = nil
+			attrType = nil
+			begin
+				unchanged = true
+				case attr_domain.class.to_s
+					# ignore re-named select types
+					when "EXPSM::Type"
+						superselect = NamedType.find_by_name( attr_domain.domain )
+						if superselect.kind_of? EXPSM::TypeSelect
+							attr_domain = superselect
+							domain_name = attr_domain.name
+							unchanged = false
+						end
+					#ignore named aggregations
+					when "EXPSM::TypeAggregate"
+						puts attr.name+":"+attr.domain
+						attrType = attr_domain
+						agg_domain = attr_domain
+						if attr_domain.isBuiltin
+							attr_domain = nil
+						else
+							newDomain = NamedType.find_by_name( attr_domain.domain )
+							attr_domain = newDomain
+							domain_name = attr_domain.name
+							unchanged = false
+						end
+					# ignore removed select types
+					when "EXPSM::TypeSelect"
+						if selectTypeType[domain_name] == "Remove"
+							attr_domain = attr_domain.selectitems_array[0]
+							domain_name = attr_domain.name
+							unchanged = false
+						end
 				end
-				lower = attr.dimensions[0].lower
-				if attr.dimensions[0].aggrtype == 'LIST'
-					islist = true
-				end
-				if attr.dimensions[0].aggrtype == 'BAG'
-					isset = false
-				end
-				if attr.dimensions[0].aggrtype == 'LIST' and !attr.dimensions[0].isUnique
-					isset = false
+			end until unchanged
+
+#     set up cardinailty constraints from attribute being a 1-D aggregate
+#       or a type defined to be a 1-D aggregate
+      if attr.instance_of? EXPSM::ExplicitAggregate
+				attrType = attr
+			end
+			
+			if attrType != nil
+				if attrType.rank == 1
+					upper = attrType.dimensions[0].upper
+					if upper == '?'
+						upper = '*'
+					end
+					lower = attrType.dimensions[0].lower
+					if attrType.dimensions[0].aggrtype == 'LIST'
+						islist = true
+					end
+					if attrType.dimensions[0].aggrtype == 'BAG'
+						isset = false
+					end
+					if attrType.dimensions[0].aggrtype == 'LIST' and !attrType.dimensions[0].isUnique
+						isset = false
+					end
+				else
+					puts "ERROR: aggregation of rank greater than 1 detected for "+attr.name
 				end
 			end
 			if attr.isOptional == TRUE
@@ -652,20 +1076,10 @@ for schema in schema_list
 				file.puts t
 			end
 
-			attr_domain = NamedType.find_by_name( attr.domain )
-			
-			# ignore re-named select types
-			if attr_domain.kind_of? EXPSM::Type 
-				superselect = NamedType.find_by_name( attr_domain.domain )
-				if superselect.kind_of? EXPSM::TypeSelect
-					attr_domain = superselect
-				end
-			end
-
 # Map EXPRESS Explicit Attributes of TYPE and TYPE Enum
 			if attr_domain.kind_of? EXPSM::Type or attr_domain.kind_of? EXPSM::TypeEnum
 				attrset= true
-				type_xmiid = get_prefix.call(attr_domain.schema)  + attr_domain.name
+				type_xmiid = get_prefix.call(attr_domain.schema)  + domain_name
 				res = ERB.new(attribute_enum_type_template,0,"<>")
 				t = res.result(binding)
 				file.puts t
@@ -674,7 +1088,7 @@ for schema in schema_list
 # Map EXPRESS Explicit Attributes of Entity and Select
 			if attr_domain.kind_of? EXPSM::Entity or attr_domain.kind_of? EXPSM::TypeSelect 
 				attrset= true
-				domain_xmiid = get_prefix.call(attr_domain.schema) + attr_domain.name
+				domain_xmiid = get_prefix.call(attr_domain.schema) + domain_name
 				assoc_xmiid = '_1_association' + prefix + entity.name + '-' + attr.name
 				
 				direct_inverse = false
@@ -686,7 +1100,21 @@ for schema in schema_list
 					end
 				end				
 				
-				encapsulated = isEncapsulated(attr_domain)
+				if attr_domain == orig_domain
+					encapsulated = isEncapsulated(attr_domain, attr)
+				else
+					if agg_domain != nil
+						encapsulated = isEncapsulated(agg_domain, attr)
+					else
+						encapsulated = false
+					end
+					if !encapsulated
+						encapsulated = isEncapsulated(attr_domain, attr)
+						if !encapsulated
+							encapsulated = isEncapsulated(orig_domain, attr)
+						end
+					end
+				end
 
 				res = ERB.new(attribute_entity_template,0,"<>")
 				t = res.result(binding)
@@ -696,9 +1124,13 @@ for schema in schema_list
 			if !attrset
 				puts 'Oops ' + entity.name + '.' + attr.name
 				puts attr.domain
-			end      
+			end 
+			
+			res = ERB.new(multiplicity,0,"<>")
+			t = res.result(binding)
+			file.puts t
 
-			res = ERB.new(attribute_end,0,"<>")
+			res = ERB.new(attribute_end)
 			t = res.result(binding)
 			file.puts t
 		end
@@ -709,7 +1141,6 @@ for schema in schema_list
 			xmiid = '_2_attr' + prefix + entity.name + '-' + inverse.name
 #       set up references resulting from attribute being a redeclaration
 			if inverse.redeclare_entity
-				puts 'FOUND REDECLARED INVERSE ' + inverse.name
 				if inverse.redeclare_oldname
 					redefined_xmiid = '_2_attr' + prefix + inverse.redeclare_entity + '-' + inverse.redeclare_oldname
 				else
@@ -743,12 +1174,16 @@ for schema in schema_list
 			t = res.result(binding)
 			file.puts t
 			
-			res = ERB.new(attribute_end,0,"<>")
+			res = ERB.new(multiplicity,0,"<>")
+			t = res.result(binding)
+			file.puts t
+			
+			res = ERB.new(attribute_end)
 			t = res.result(binding)
 			file.puts t
 		end
 
-#Map EXPRESS Unique crules
+#Map EXPRESS Unique rules
 		if entity.uniques.size > 0
 			for unique in entity.uniques
 				xmiid = '_3_uniq' + prefix + entity.name + '-' + unique.name
@@ -760,6 +1195,24 @@ for schema in schema_list
 				res = ERB.new(unique_template)
 				t = res.result(binding)
 				file.puts t
+			end
+		end
+		
+#Map EXPRESS Where rules
+		whererules = entity.wheres.select {|w| w.name[0..10] != "encapsulate"}
+		if whererules.size > 0
+			for where in whererules
+				xmiid = '_3_whr' + prefix + entity.name + '-' + where.name.to_s
+				where_ocl = get_where(xmiid, where.expression)
+				if where_ocl.size > 0
+					puts where_ocl
+					xmiidref = xmiid_entity
+					res = ERB.new(where_template)
+					t = res.result(binding)
+					file.puts t
+				else
+					puts "Where rule " + entity.name + "." + where.name.to_s + " not mapped to OCL - ignored!"
+				end
 			end
 		end
 
@@ -782,6 +1235,7 @@ file.puts t
 
 # Map EXPRESS Entity Types to blocks
 for schema in schema_list
+	prefix = get_prefix.call(schema)	
 
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
 
@@ -794,6 +1248,16 @@ for schema in schema_list
 		file.puts t
 	end
 
+	type_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::TypeEnum}
+	for type in type_list  
+		# Evaluate and write TYPE ValueType template
+		baseType = prefix + type.name
+		xmiid = baseType + '-ValueType'
+		res = ERB.new(valuetype_template)
+		t = res.result(binding)
+		file.puts t
+	end
+	
 	type_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::Type and e.isBuiltin}
 	for type in type_list  
 		# Evaluate and write TYPE ValueType template
@@ -814,17 +1278,23 @@ for schema in schema_list
 			res = ERB.new(valuetype_template)
 			t = res.result(binding)
 			file.puts t
+		else
+			puts type.name + " is a renamed select so ignored in the mapping"
 		end
 	end
 end
 	
-	for select in select_list
+	for select in all_select_list
 		case selectTypeType[select.name]
 			when "Type"
 				# Evaluate and write TYPE ValueType template
 				baseType = prefix + select.name
 				xmiid = baseType + '-ValueType'
 				res = ERB.new(valuetype_template)
+				t = res.result(binding)
+				file.puts t
+			when "Remove"
+				# do nothing
 			else
 				# Evaluate and write ENTITY Block template 
 				baseClass = prefix + select.name
@@ -833,9 +1303,9 @@ end
 				t = res.result(binding)
 				file.puts t
 				res = ERB.new(select_stereotype_template)
+				t = res.result(binding)
+				file.puts t
 		end
-		t = res.result(binding)
-		file.puts t
 	end
 
 	typeProxies.each_value do |type| 
@@ -850,13 +1320,21 @@ end
 		file.puts t
 	end
 
-# Evaluate and write file end template 
-res = ERB.new(overall_end_template)
-t = res.result(binding)
-file.puts t
+	# Evaluate and write file end template 
+	res = ERB.new(overall_end_template)
+	t = res.result(binding)
+	file.puts t
 
-uuidfile.close
-
-File.open("UUIDs.xml","w"){|file| $uuidxml.write_xml_to file} 
-
+	if $uuidsRequired
+		for uuidmap in $olduuids
+			uuidmap.remove
+		end
+		uuidfile.close
+		File.open("UUIDs.xml","w"){|file| $uuidxml.write_xml_to file} 
+	end
+	
+	if $wherexml != nil
+		File.open("WhereRuleMapping.xml","w"){|file| $wherexml.write_xml_to file}
+	end
 end
+

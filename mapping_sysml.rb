@@ -4,7 +4,7 @@ require 'nokogiri'
 include Nokogiri
 
 # EXPRESS to SysML Mapping
-# Version 0.1
+# Version 0.2
 #
 # This function navigates the EXPRESS STEPMod Model Ruby Classes
 # and performs a structural EXPRESS-to-SysML (1.2) mapping using Ruby ERB templates.
@@ -516,13 +516,30 @@ for select in unknownSelect
 		case e.class.to_s
 			when "EXPSM::Entity" then entcount += 1
 			when "EXPSM::Type" then typcount += 1
+			when "EXPSM::TypeEnum" then typcount += 1
 			when "EXPSM::TypeAggregate"
-				domain =NamedType.find_by_name( e.domain )
-				case domain.class.to_s
-					when "EXPSM::Entity" then entcount += 1
-					when "EXPSM::Type" then typcount += 1
-					else
-						puts "Unknown type in aggregate " + domain.class.to_s
+				if e.isBuiltin
+					typcount += 1
+				else
+					domain =NamedType.find_by_name( e.domain )
+					case domain.class.to_s
+						when "EXPSM::Entity" then entcount += 1
+						when "EXPSM::Type" then typcount += 1
+						when "EXPSM::TypeEnum" then typcount += 1
+						when "EXPSM::TypeSelect"
+							case selectTypeType[domain.name]
+								when "Entity" then entcount += 1
+								when "Type" then typcount += 1
+								when "Hybrid" then selectTypeType[select.name] = "Hybrid"
+								when "Remove"
+									case e.selectitems_array[0].class.to_s
+										when "EXPSM::Entity" then entcount += 1
+										when "EXPSM::Type" then typcount += 1
+									end
+								end
+						else
+							puts "Unknown type in aggregate " + domain.class.to_s + " for " + e.name
+					end
 				end
 			when "EXPSM::TypeSelect"
 				case selectTypeType[e.name]
@@ -531,22 +548,26 @@ for select in unknownSelect
 					when "Hybrid" then selectTypeType[select.name] = "Hybrid"
 					when "Remove"
 						case e.selectitems_array[0].class.to_s
-							when "EXPSM::Entity" then entcount +=1
-							when "EXPSM::Type" then typcount +=1
+							when "EXPSM::Entity" then entcount += 1
+							when "EXPSM::Type" then typcount += 1
 						end
 				end
 			else
-				puts "unknown class " + e.class.to_s
+				puts "unknown class " + e.class.to_s + " for " + select.name
 		end
 	end
 	
 	if selectTypeType[select.name] == nil
-		case select.selectitems_array.length
+		case select.selectitems_array.size
 			when entcount then  selectTypeType[select.name] = "Entity"
 			when typcount then selectTypeType[select.name] = "Type"
-			when entcount + typcount then selectTypeType[select.name] = "Hybrid"
 			else
-				unknownSelect.push select
+				if (entcount > 0) && (typcount > 0)
+					selectTypeType[select.name] = "Hybrid"
+				else
+					puts select.name
+					unknownSelect.push select
+				end
 		end
 	end
 	if selectTypeType[select.name] == "Hybrid"			

@@ -4,7 +4,7 @@ require 'nokogiri'
 include Nokogiri
 
 # EXPRESS to SysML Mapping
-# Version 0.2
+# Version 0.3
 #
 # This function navigates the EXPRESS STEPMod Model Ruby Classes
 # and performs a structural EXPRESS-to-SysML (1.2) mapping using Ruby ERB templates.
@@ -15,6 +15,7 @@ include Nokogiri
 # Schema -> Package
 # Entity (subtype of) -> Class (Generalization) + Block stereotype
 # Select Type -> Class & Generalization + Block/value  and <<Auxillary>> stereotype
+# Agg Type -> Collapsed into attribute if just used, converted into class with elements if part of aggregation or select type
 # Enum Type -> Enumeration and EnumerationLiteral
 # Explicit Attribute (Optional) Primitive or Enum -> Property owned by Class (with lower)
 # Explicit Attribute (Optional) Entity -> Property owned by Class (with lower) plus Association owning other end property
@@ -150,13 +151,22 @@ def isEncapsulated (type, attrib)
 	return encapsulated
 end
 
-def isEncapsulatedInto (entity, attrib)
+def isEncapsulatedInto (parent, entity, attrib)
 	encapsulated = false
-	rules = entity.wheres.select {|w| w.name == "encapsulateInto"}
+	rules = parent.wheres.select {|w| w.name == "encapsulateInto"}
 	if rules.length	> 0	
 		for rule in rules
-			if rule.expression[0..6] == "EXISTS("
-				encapsulated = (rule.expression[7..-1].include? (attrib.name))
+			ruleString = rule.expression.upcase
+			if ruleString[0..6] == "EXISTS("
+				closeParen = ruleString.index(')')
+				if ruleString[closeParen..-1].include? " XOR (SIZEOF(TYPEOF(SELF) *"
+					if !ruleString[closeParen+28..-1].include? entity.name.upcase
+						encapsulated = (ruleString[7..closeParen].include? attrib.name.upcase)
+					end
+				else
+					encapsulated = (ruleString[7..closeParen].include? attrib.name.upcase)
+				end
+				puts entity.name+'.'+attrib.name+'    '+encapsulated.to_s
 			else
 				puts "Unknown encapsulateInto rule: " + rule.expression 
 			end
@@ -165,10 +175,12 @@ def isEncapsulatedInto (entity, attrib)
 			end
 		end
 	end
-	for supertype in entity.supertypes_array
-		encapsulated = isEncapsulatedInto(supertype, attrib)
-		if encapsulated
-			break
+	if !encapsulated
+		for supertype in parent.supertypes_array
+			encapsulated = isEncapsulatedInto(supertype, entity, attrib)
+			if encapsulated
+				break
+			end
 		end
 	end
 	return encapsulated
@@ -431,8 +443,12 @@ dummy = get_uuid(xmiid + "_value-lowerValue")
 dummy = get_uuid(xmiid + "_value-upperValue")
 %>}
 
-# proxy TYPE  Stereotype Template
-proxy_stereotype_template = %{<StandardProfileL2:Type xmi:id="<%= xmiid %>application1"<%= get_uuid(xmiid+ 'application1') %> base_Class="<%= baseClass %>"/>}
+# AggTYPE Start Template
+aggtype_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= type.name %>">
+<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>_elements"<%= get_uuid(xmiid + "_elements") %> name="elements" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> type="<%= xmiid_type %>">}
+
+# TYPE  Stereotype Template
+type_stereotype_template = %{<StandardProfileL2:Type xmi:id="<%= xmiid %>application1"<%= get_uuid(xmiid+ 'application1') %> base_Class="<%= baseClass %>"/>}
 
 #TYPE end Template
 type_end_template=%{</packagedElement>}
@@ -494,6 +510,27 @@ for schema in schema_list
 	all_select_list = all_select_list + select_list
 end
 
+# Set up storage for handling AggregateTypes correctly
+aggTypes = Hash.new
+
+# determine AggregateTypes needing special consideration
+for schema in schema_list
+	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
+	for entity in entity_list
+		attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
+		for attr in attr_list
+			if attr.instance_of? EXPSM::ExplicitAggregate
+				orig_domain = NamedType.find_by_name( attr.domain )
+				if orig_domain.class.to_s == "EXPSM::TypeAggregate"
+					if aggTypes[attr.domain] == nil
+						aggTypes[attr.domain] = orig_domain
+					end
+				end
+			end
+		end
+	end
+end
+
 # Set up storage for handling select types correctly
 selectTypeType = Hash.new
 
@@ -518,27 +555,10 @@ for select in unknownSelect
 			when "EXPSM::Type" then typcount += 1
 			when "EXPSM::TypeEnum" then typcount += 1
 			when "EXPSM::TypeAggregate"
-				if e.isBuiltin
-					typcount += 1
-				else
-					domain =NamedType.find_by_name( e.domain )
-					case domain.class.to_s
-						when "EXPSM::Entity" then entcount += 1
-						when "EXPSM::Type" then typcount += 1
-						when "EXPSM::TypeEnum" then typcount += 1
-						when "EXPSM::TypeSelect"
-							case selectTypeType[domain.name]
-								when "Entity" then entcount += 1
-								when "Type" then typcount += 1
-								when "Hybrid" then selectTypeType[select.name] = "Hybrid"
-								when "Remove"
-									case e.selectitems_array[0].class.to_s
-										when "EXPSM::Entity" then entcount += 1
-										when "EXPSM::Type" then typcount += 1
-									end
-								end
-						else
-							puts "Unknown type in aggregate " + domain.class.to_s + " for " + e.name
+				if selectTypeType[select.name] != "Remove"
+					entcount += 1
+					if aggTypes[e.name] == nil
+						aggTypes[e.name] = e
 					end
 				end
 			when "EXPSM::TypeSelect"
@@ -565,7 +585,6 @@ for select in unknownSelect
 				if (entcount > 0) && (typcount > 0)
 					selectTypeType[select.name] = "Hybrid"
 				else
-					puts select.name
 					unknownSelect.push select
 				end
 		end
@@ -745,6 +764,63 @@ for schema in schema_list
 		end
 	end
 
+	aggTypes.each_value do |type| 
+		if type.schema == schema
+			# Evaluate and write aggType start template 
+			# initialize default cardinailty constraints
+			isset = true
+			islist = false
+			
+			upper = type.dimensions[0].upper
+			if upper == '?'
+				upper = '*'
+			end
+			lower = type.dimensions[0].lower
+			if type.dimensions[0].aggrtype == 'LIST'
+				islist = true
+			end
+			if type.dimensions[0].aggrtype == 'BAG'
+				isset = false
+			end
+			if type.dimensions[0].aggrtype == 'LIST' and !type.dimensions[0].isUnique
+				isset = false
+			end
+
+			xmiid = prefix + type.name
+			if type.isBuiltin
+				xmiid_type = $dtprefix + type.domain
+			else
+				xmiid_type = prefix + type.domain
+			end
+			res = ERB.new(aggtype_start_template)
+			t = res.result(binding)
+			file.puts t
+			
+			res = ERB.new(multiplicity,0,"<>")
+			t = res.result(binding)
+			file.puts t
+
+			res = ERB.new(attribute_end)
+			t = res.result(binding)
+			file.puts t
+
+			# Map TYPE Select has Entity as item
+			for select in all_select_list
+				if select.selectitems_array.include?(type)
+					xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
+					xmiid_general = prefix + select.name
+					res = ERB.new(supertype_template)
+					t = res.result(binding)
+					file.puts t
+				end
+			end
+			
+			res = ERB.new(type_end_template)
+			t = res.result(binding)
+			file.puts t
+		end
+	end
+
 # Map EXPRESS Enumeration Types
 	enum_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::TypeEnum }
 	for enum in enum_list
@@ -842,11 +918,13 @@ for schema in schema_list
 							attr_domain = superselect
 							unchanged = false
 						end
-					#ignore named aggregates
+					#ignore unhandled named aggregates
 					when "EXPSM::TypeAggregate"
-						agg_domain = attr_domain
-						attr_domain = NamedType.find_by_name( attr_domain.domain )
-						unchanged = false
+						if aggTypes[attr_domain] == nil
+							agg_domain = attr_domain
+							attr_domain = NamedType.find_by_name( attr_domain.domain )
+							unchanged = false
+						end
 					# ignore removed select types
 					when "EXPSM::TypeSelect"
 						if selectTypeType[attr_domain.name] == "Remove"
@@ -906,7 +984,7 @@ for schema in schema_list
 					end
 				end
 				
-				encapsulatedInto = isEncapsulatedInto(entity, attr)
+				encapsulatedInto = isEncapsulatedInto(entity, entity, attr)
 				
 				res = ERB.new(attribute_entity_association_template)
 				t = res.result(binding)
@@ -1034,18 +1112,20 @@ for schema in schema_list
 							domain_name = attr_domain.name
 							unchanged = false
 						end
-					#ignore named aggregations
+					#ignore unhandled named aggregations
 					when "EXPSM::TypeAggregate"
-						puts attr.name+":"+attr.domain
-						attrType = attr_domain
-						agg_domain = attr_domain
-						if attr_domain.isBuiltin
-							attr_domain = nil
-						else
-							newDomain = NamedType.find_by_name( attr_domain.domain )
-							attr_domain = newDomain
-							domain_name = attr_domain.name
-							unchanged = false
+						if aggTypes[attr.domain] == nil
+							attrType = attr_domain
+							agg_domain = attr_domain
+							if attr_domain.isBuiltin
+								domain_name = attr_domain.domain
+								attr_domain = nil
+							else
+								newDomain = NamedType.find_by_name( attr_domain.domain )
+								attr_domain = newDomain
+								domain_name = attr_domain.name
+								unchanged = false
+							end
 						end
 					# ignore removed select types
 					when "EXPSM::TypeSelect"
@@ -1090,7 +1170,7 @@ for schema in schema_list
 			attrset = false
 
 # Map EXPRESS Explicit Attributes of Builtin
-			if attr.isBuiltin
+			if attr.isBuiltin or (attr_domain == nil)
 				attrset= true
 				res = ERB.new(attribute_builtin_template,0,"<>")
 				t = res.result(binding)
@@ -1143,7 +1223,7 @@ for schema in schema_list
 			end
 			
 			if !attrset
-				puts 'Oops ' + entity.name + '.' + attr.name
+				puts 'ERROR: attribute not set: ' + entity.name + '.' + attr.name
 				puts attr.domain
 			end 
 			
@@ -1226,7 +1306,6 @@ for schema in schema_list
 				xmiid = '_3_whr' + prefix + entity.name + '-' + where.name.to_s
 				where_ocl = get_where(xmiid, where.expression)
 				if where_ocl.size > 0
-					puts where_ocl
 					xmiidref = xmiid_entity
 					res = ERB.new(where_template)
 					t = res.result(binding)
@@ -1336,7 +1415,19 @@ end
 		res = ERB.new(entity_block_template)
 		t = res.result(binding)
 		file.puts t
-		res = ERB.new(proxy_stereotype_template)
+		res = ERB.new(type_stereotype_template)
+		t = res.result(binding)
+		file.puts t
+	end
+
+	aggTypes.each_value do |type| 
+		# Evaluate and write ENTITY Block template 
+		baseClass = prefix + type.name
+		xmiid = baseClass + '-Block'
+		res = ERB.new(entity_block_template)
+		t = res.result(binding)
+		file.puts t
+		res = ERB.new(type_stereotype_template)
 		t = res.result(binding)
 		file.puts t
 	end

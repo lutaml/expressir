@@ -166,7 +166,6 @@ def isEncapsulatedInto (parent, entity, attrib)
 				else
 					encapsulated = (ruleString[7..closeParen].include? attrib.name.upcase)
 				end
-				puts entity.name+'.'+attrib.name+'    '+encapsulated.to_s
 			else
 				puts "Unknown encapsulateInto rule: " + rule.expression 
 			end

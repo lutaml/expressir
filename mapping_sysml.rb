@@ -160,11 +160,11 @@ def isEncapsulatedInto (parent, entity, attrib)
 			if ruleString[0..6] == "EXISTS("
 				closeParen = ruleString.index(')')
 				if ruleString[closeParen..-1].include? " XOR (SIZEOF(TYPEOF(SELF) *"
-					if !ruleString[closeParen+28..-1].include? entity.name.upcase
-						encapsulated = (ruleString[7..closeParen].include? attrib.name.upcase)
+					if !ruleString[closeParen+28..-1].include? ('.'+entity.name.upcase+'''')
+						encapsulated = (ruleString[6..closeParen].include? ('('+attrib.name.upcase+')'))
 					end
 				else
-					encapsulated = (ruleString[7..closeParen].include? attrib.name.upcase)
+					encapsulated = (ruleString[6..closeParen].include? ('('+attrib.name.upcase+')'))
 				end
 			else
 				puts "Unknown encapsulateInto rule: " + rule.expression 

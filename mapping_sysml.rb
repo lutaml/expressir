@@ -4,11 +4,11 @@ require 'nokogiri'
 include Nokogiri
 
 # EXPRESS to SysML Mapping
-# Version 0.3
+# Version 0.5
 #
 # This function navigates the EXPRESS STEPMod Model Ruby Classes
 # and performs a structural EXPRESS-to-SysML (1.2) mapping using Ruby ERB templates.
-# The output is in XMI 2.1 syntax in a file named <schema>.xmi if one schema input and 'Model.xmi' if more than one schema input.
+# The output is in XMI 2.1 or 2.5 syntax in a file named <schema>.xmi if one schema input and 'Model.xmi' if more than one schema input.
 # 
 # Real, Number, Integer, Boolean, String -> New Primitive Type
 # Binary, Logical -> New PrimitiveType
@@ -22,6 +22,7 @@ include Nokogiri
 # Explicit Attribute 1-D SET, BAG, LIST of Select or Entity -> Property owned by Class (with lower) 
 #                                    plus Association owning other end property and multiplicity, unique and ordered set
 # Explicit Attribute 1-D SET, BAG, LIST of Primitive or Enum -> Property owned by Class and multiplicity, unique and ordered set
+#                Higher level aggregations create intermediary blocks
 # Explicit Attribute of Entity/Select/Builtin Redeclaration (Renamed) -> Property with (new) name that redefines inherited Property
 # Inverse Attribute -> Association end adjustment
 # Inverse Attribute Redeclaration (Renamed) -> Property with (new) name that redefines inherited Property
@@ -32,7 +33,7 @@ include Nokogiri
 def get_uuid(id)
 	if $uuidsRequired
 		uuidmap = $uuidxml.xpath('//uuidmap[@id="' + id + '"]').first
-		if uuidmap != nil
+		if !uuidmap.nil?
 			$olduuids.delete uuidmap
 			return ' xmi:uuid="' + uuidmap.attributes["uuid"].to_s.strip + '"'
 		else
@@ -50,9 +51,9 @@ def get_uuid(id)
 end
 
 def get_where(id,rule)
-	if $wherexml != nil
+	if !$wherexml.nil?
 		wheremap = $wherexml.xpath('//wheremap[@id="' + id + '"]').first
-		if wheremap != nil
+		if !wheremap.nil?
 			return wheremap.at("OCL").inner_html
 		else
 			wheremap = Nokogiri::XML::Node.new("wheremap", $wherexml)
@@ -86,11 +87,11 @@ return_template = %{<ownedParameter xmi:type="uml:Parameter" xmi:id="<%= xmiid %
 
 operation_end = %{</ownedOperation>}
 
-	if $opsxml != nil
+	if !$opsxml.nil?
 		ops = $opsxml.xpath('//operation[@for="' + name + '"]')
 		for op in ops
 			body = op.at('body')
-			if body != nil
+			if !body.nil?
 				op_ocl = body.content
 				op_name = op['name']
 				ret_type = op['type']
@@ -185,13 +186,14 @@ def isEncapsulatedInto (parent, entity, attrib)
 	return encapsulated
 end
 
-def map_from_express( mapinput , passedArgs)
+def map_from_express(mapinput, passedArgs)
 # Enter file name here to override defaults (<schema>.xmi if one schema, and Model.xmi if more than one)
 output_xmi_filename = nil
 
 noprune = FALSE
 schemaId = FALSE
 $uuidsRequired = TRUE
+xmiVersion = "2.1"
 for arg in passedArgs
 	argarray = arg.split('=')
 	case argarray[0]
@@ -199,13 +201,27 @@ for arg in passedArgs
 		when "nouuids" then $uuidsRequired = FALSE
 		when "path" then outPath = argarray[1]
 		when "schemaid" then schemaId = TRUE
+		when "xmi" then xmiVersion = argarray[1]
 	end
+end
+
+case xmiVersion
+	when "2.1" then $StandardProfile = "StandardProfileL2"
+	when "2.5" then $StandardProfile = "StandardProfile"
+	else
+		puts "XMI version "+xmiVersion+" is not handled!"
+		exit
 end
 
 if $uuidsRequired
   $uuid = UUID.new
-	uuidfile = File.open("UUIDs.xml")
-	$uuidxml = Nokogiri::XML(uuidfile, &:noblanks)
+	if File.exists?("UUIDs.xml")
+		uuidfile = File.open("UUIDs.xml")
+		$uuidxml = Nokogiri::XML(uuidfile, &:noblanks)
+		uuidfile.close
+	else
+		$uuidxml = Nokogiri::XML::Builder.new { |b| b.uuids }.doc
+	end	
 	$olduuids = $uuidxml.xpath('//uuidmap')
 end
 
@@ -225,11 +241,19 @@ end
 datatype_hash = Hash.new
 
 # XMI File Start Template (includes datatypes for builtin with no direct UML equivalent)
-overall_start_template = %{<?xml version="1.0" encoding="UTF-8"?>
-<xmi:XMI xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.omg.org/spec/UML/20090901" xmlns:StandardProfileL2="http://schema.omg.org/spec/UML/2.3/StandardProfileL2.xmi" xmlns:sysml="http://www.omg.org/spec/SysML/20100301/SysML-profile">
+overall_start_template = %{<?xml version="1.0" encoding="UTF-8"?><%
+if xmiVersion == "2.1" %>
+<xmi:XMI xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.omg.org/spec/UML/20090901" xmlns:StandardProfileL2="http://schema.omg.org/spec/UML/2.3/StandardProfileL2.xmi" xmlns:sysml="http://www.omg.org/spec/SysML/20100301/SysML-profile"><%
+else %>
+<xmi:XMI xmlns:uml='http://www.omg.org/spec/UML/20131001' xmlns:xmi='http://www.omg.org/spec/XMI/20131001' xmlns:StandardProfile='http://www.omg.org/spec/UML/20131001/StandardProfile' xmlns:sysml='http://www.omg.org/spec/SysML/20150709/SysML'><%
+end %>
+<xmi:Documentation>
+<xmi:exporter>Reeper</xmi:exporter>
+<xmi:exporterVersion>v0.5</xmi:exporterVersion>
+</xmi:Documentation>
 <uml:Model name="Data" xmi:id="_0_Data"<%= get_uuid('_0_Data') %>><%
 $dtprefix=''
-if outPath == nil %>
+if outPath.nil? %>
 <packagedElement xmi:type="uml:Package" xmi:id="_0_SysMLfromEXPRESS"<%= get_uuid('_0_SysMLfromEXPRESS') %> name="SysMLfromEXPRESS"><%
 else
  pathElements = outPath.split('/')
@@ -257,7 +281,7 @@ end %>
 <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= $dtprefix %>TRUE"<%= get_uuid($dtprefix+'TRUE') %> name="True" classifier="<%= $dtprefix %>BOOLEAN"/>
 <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= $dtprefix %>FALSE"<%= get_uuid($dtprefix+'FALSE') %> name="False" classifier="<%= $dtprefix %>BOOLEAN"/>
 </packagedElement><%
-if outPath != nil %>
+if !outPath.nil? %>
 </packagedElement><%
 end %>}
 
@@ -265,7 +289,7 @@ end %>}
 model_end_template = %{<profileApplication xmi:type="uml:ProfileApplication" xmi:id="_profileApplication0"<%= get_uuid('_profileApplication0') %>>
 <appliedProfile xmi:type="uml:Profile" href="http://www.omg.org/spec/SysML/20100301/SysML-profile.uml#_0" />
 </profileApplication><%
-if outPath == nil %>
+if outPath.nil? %>
 </packagedElement><%
 else
  pathElements = outPath.split('/')
@@ -322,7 +346,7 @@ select_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmii
 select_end_template = %{</packagedElement>}
 
 # SELECT Stereotype Template
-select_stereotype_template = %{<StandardProfileL2:Auxiliary xmi:id="<%= xmiid %>application1"<%= get_uuid(xmiid+ 'application1') %> base_Class="<%= baseClass %>"/>}
+select_stereotype_template = %{<<%= $StandardProfile %>:Auxiliary xmi:id="<%= xmiid %>application1"<%= get_uuid(xmiid+ 'application1') %> base_Class="<%= baseClass %>"/>}
 
 # Template covering abstract entity types
 abstract_entity_template = %{}
@@ -400,8 +424,8 @@ attribute_template = %{}
 
 # EXPLICIT ATTRIBUTE SIMPLE TYPE Template
 attribute_builtin_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= attr.name %>"<% if islist %> isOrdered='true'<% end %><% if !isset %> isUnique='false'<% end %> aggregation='composite'<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %> 
-<% if datatype_hash[domain_name] != nil %>>
-<type xmi:type="uml:PrimitiveType" href="<%= datatype_hash[domain_name] %>" /><% else %>type="<%= $dtprefix+domain_name %>"><% end %>}
+<% if !nestedAggs[domain_name].nil? %>type="<%= prefix+domain_name %>"><% else if !datatype_hash[domain_name].nil? %>>
+<type xmi:type="uml:PrimitiveType" href="<%= datatype_hash[domain_name] %>" /><% else %>type="<%= $dtprefix+domain_name %>"><% end end %>}
 
 
 # EXPLICIT ATTRIBUTE ENUM and TYPE Template
@@ -427,7 +451,7 @@ where_template = %{<ownedRule xmi:type="uml:Constraint" xmi:id="<%= xmiid %>"<%=
 
 # TYPE Template
 type_template = %{<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= type.name %>" >
-<% if datatype_hash[type.domain] != nil %>
+<% if !datatype_hash[type.domain].nil? %>
 <generalization xmi:type="uml:Generalization" xmi:id="_supertype<%= xmiid %>"<%= get_uuid('_supertype'+xmiid) %>>
 <general xmi:type='uml:PrimitiveType' href="<%= datatype_hash[type.domain] %>" />
 </generalization>
@@ -443,11 +467,11 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 %>}
 
 # AggTYPE Start Template
-aggtype_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= type.name %>">
+aggtype_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= type_name %>">
 <ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>_elements"<%= get_uuid(xmiid + "_elements") %> name="elements" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> type="<%= xmiid_type %>">}
 
 # TYPE  Stereotype Template
-type_stereotype_template = %{<StandardProfileL2:Type xmi:id="<%= xmiid %>application1"<%= get_uuid(xmiid+ 'application1') %> base_Class="<%= baseClass %>"/>}
+type_stereotype_template = %{<<%= $StandardProfile %>:Type xmi:id="<%= xmiid %>application1"<%= get_uuid(xmiid+ 'application1') %> base_Class="<%= baseClass %>"/>}
 
 #TYPE end Template
 type_end_template=%{</packagedElement>}
@@ -471,7 +495,7 @@ end
 # Set up XMI output file
 
 	if schema_list.size == 1
-		if output_xmi_filename == nil
+		if output_xmi_filename.nil?
 			schema = schema_list[0]
 			output_xmi_filename = schema.name.to_s + ".xmi"
 		end
@@ -481,7 +505,7 @@ end
 			get_prefix = lambda {|schema| '_'}
 		end
 	else
-		if output_xmi_filename == nil
+		if output_xmi_filename.nil?
 			output_xmi_filename = 'Model.xmi'
 		end
 		get_prefix = lambda {|schema| '_' + schema.name + '-'}
@@ -521,7 +545,7 @@ for schema in schema_list
 			if attr.instance_of? EXPSM::ExplicitAggregate
 				orig_domain = NamedType.find_by_name( attr.domain )
 				if orig_domain.class.to_s == "EXPSM::TypeAggregate"
-					if aggTypes[attr.domain] == nil
+					if aggTypes[attr.domain].nil?
 						aggTypes[attr.domain] = orig_domain
 					end
 				end
@@ -556,7 +580,7 @@ for select in unknownSelect
 			when "EXPSM::TypeAggregate"
 				if selectTypeType[select.name] != "Remove"
 					entcount += 1
-					if aggTypes[e.name] == nil
+					if aggTypes[e.name].nil?
 						aggTypes[e.name] = e
 					end
 				end
@@ -576,7 +600,7 @@ for select in unknownSelect
 		end
 	end
 	
-	if selectTypeType[select.name] == nil
+	if selectTypeType[select.name].nil?
 		case select.selectitems_array.size
 			when entcount then  selectTypeType[select.name] = "Entity"
 			when typcount then selectTypeType[select.name] = "Type"
@@ -594,6 +618,9 @@ for select in unknownSelect
 end
 	
 for schema in schema_list	
+	# Set up storage for handling nested Aggregates correctly
+	nestedAggs = Hash.new
+	nestedTypes = Hash.new
 	prefix = get_prefix.call(schema)	
 	
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
@@ -643,7 +670,7 @@ for schema in schema_list
 						file.puts t
 					when "Hybrid"
 						typeProxy = typeProxies[type.name]
-						if typeProxy == nil
+						if typeProxy.nil?
 							typeProxies[type.name] = type
 						end
 					when "Remove"
@@ -701,7 +728,7 @@ for schema in schema_list
 							file.puts t
 						when "Hybrid"
 							typeProxy = typeProxies[type.name]
-							if typeProxy == nil
+							if typeProxy.nil?
 								typeProxies[type.name] = type
 							end
 						when "Remove"
@@ -775,6 +802,9 @@ for schema in schema_list
 				upper = '*'
 			end
 			lower = type.dimensions[0].lower
+			if type.dimensions[0].aggrtype == 'ARRAY'
+				puts 'Warning ARRAY not fully supported for '+type.name
+			end
 			if type.dimensions[0].aggrtype == 'LIST'
 				islist = true
 			end
@@ -791,6 +821,7 @@ for schema in schema_list
 			else
 				xmiid_type = prefix + type.domain
 			end
+			type_name = type.name
 			res = ERB.new(aggtype_start_template)
 			t = res.result(binding)
 			file.puts t
@@ -831,7 +862,7 @@ for schema in schema_list
 		file.puts t
 
 		superenum = enum.extends_item
-		if superenum != nil
+		if !superenum.nil?
 			if superselect.kind_of? EXPSM::TypeEnum
 	# Write Enum Item template for parent (maps to UML same as EXPRESS supertype)
 				xmiid = '_2_superenum' + prefix + enum.name + '-' + superenum.name
@@ -868,7 +899,7 @@ for schema in schema_list
 			file.puts t
 			
 			superselect = type.extends_item
-			if superselect != nil
+			if !superselect.nil?
 				if superselect.kind_of? EXPSM::TypeSelect
 		# Write Select Item template for parent (maps to UML same as EXPRESS supertype)
 					xmiid = '_2_superselect' + prefix + type.name + '-' + superselect.name
@@ -919,7 +950,7 @@ for schema in schema_list
 						end
 					#ignore unhandled named aggregates
 					when "EXPSM::TypeAggregate"
-						if aggTypes[attr_domain] == nil
+						if aggTypes[attr_domain].nil?
 							agg_domain = attr_domain
 							attr_domain = NamedType.find_by_name( attr_domain.domain )
 							unchanged = false
@@ -972,7 +1003,7 @@ for schema in schema_list
 				if attr_domain == orig_domain
 					encapsulated = isEncapsulated(attr_domain, attr)
 				else
-					if agg_domain != nil
+					if !agg_domain.nil?
 						encapsulated = isEncapsulated(agg_domain, attr)
 					end
 					if !encapsulated
@@ -1113,7 +1144,7 @@ for schema in schema_list
 						end
 					#ignore unhandled named aggregations
 					when "EXPSM::TypeAggregate"
-						if aggTypes[attr.domain] == nil
+						if aggTypes[attr.domain].nil?
 							attrType = attr_domain
 							agg_domain = attr_domain
 							if attr_domain.isBuiltin
@@ -1142,24 +1173,30 @@ for schema in schema_list
 				attrType = attr
 			end
 			
-			if attrType != nil
-				if attrType.rank == 1
-					upper = attrType.dimensions[0].upper
-					if upper == '?'
-						upper = '*'
+			if !attrType.nil?
+				upper = attrType.dimensions[0].upper
+				if upper == '?'
+					upper = '*'
+				end
+				lower = attrType.dimensions[0].lower
+				if attrType.dimensions[0].aggrtype == 'ARRAY'
+					puts 'Warning ARRAY not fully supported for '+attr.name
+				end
+				if attrType.dimensions[0].aggrtype == 'LIST'
+					islist = true
+				end
+				if attrType.dimensions[0].aggrtype == 'BAG'
+					isset = false
+				end
+				if attrType.dimensions[0].aggrtype == 'LIST' and !attrType.dimensions[0].isUnique
+					isset = false
+				end
+				if attrType.rank > 1
+					for i in 2..attrType.rank
+						domain_name = attrType.dimensions[i-1].aggrtype+domain_name
+						nestedAggs[domain_name] = attrType.dimensions[i-1]
+						nestedTypes[domain_name] = attrType
 					end
-					lower = attrType.dimensions[0].lower
-					if attrType.dimensions[0].aggrtype == 'LIST'
-						islist = true
-					end
-					if attrType.dimensions[0].aggrtype == 'BAG'
-						isset = false
-					end
-					if attrType.dimensions[0].aggrtype == 'LIST' and !attrType.dimensions[0].isUnique
-						isset = false
-					end
-				else
-					puts "ERROR: aggregation of rank greater than 1 detected for "+attr.name
 				end
 			end
 			if attr.isOptional == TRUE
@@ -1169,7 +1206,7 @@ for schema in schema_list
 			attrset = false
 
 # Map EXPRESS Explicit Attributes of Builtin
-			if attr.isBuiltin or (attr_domain == nil)
+			if attr.isBuiltin or (attr_domain.nil?)
 				attrset= true
 				res = ERB.new(attribute_builtin_template,0,"<>")
 				t = res.result(binding)
@@ -1203,7 +1240,7 @@ for schema in schema_list
 				if attr_domain == orig_domain
 					encapsulated = isEncapsulated(attr_domain, attr)
 				else
-					if agg_domain != nil
+					if !agg_domain.nil?
 						encapsulated = isEncapsulated(agg_domain, attr)
 					else
 						encapsulated = false
@@ -1321,6 +1358,52 @@ for schema in schema_list
 		file.puts t
 	end
 
+	nestedAggs.each do |domain_name, dimension| 
+		# Evaluate and write aggType start template 
+		# initialize default cardinailty constraints
+		isset = true
+		islist = false
+		
+		upper = dimension.upper
+		if upper == '?'
+			upper = '*'
+		end
+		lower = dimension.lower
+		if dimension.aggrtype == 'LIST'
+			islist = true
+		end
+		if dimension.aggrtype == 'BAG'
+			isset = false
+		end
+		if dimension.aggrtype == 'LIST' and !dimension.isUnique
+			isset = false
+		end
+
+		xmiid = prefix + domain_name
+		type = nestedTypes[domain_name]
+		if type.isBuiltin
+			xmiid_type = $dtprefix + type.domain
+		else
+			xmiid_type = prefix + type.domain
+		end
+		type_name = domain_name
+		res = ERB.new(aggtype_start_template)
+		t = res.result(binding)
+		file.puts t
+		
+		res = ERB.new(multiplicity,0,"<>")
+		t = res.result(binding)
+		file.puts t
+
+		res = ERB.new(attribute_end)
+		t = res.result(binding)
+		file.puts t
+
+		res = ERB.new(type_end_template)
+		t = res.result(binding)
+		file.puts t
+	end
+
 # Evaluate and write SCHEMA end template 
 	res = ERB.new(schema_end_template)
 	t = res.result(binding)
@@ -1431,6 +1514,18 @@ end
 		file.puts t
 	end
 
+	nestedTypes.each_key do |type_name| 
+		# Evaluate and write ENTITY Block template 
+		baseClass = prefix + type_name
+		xmiid = baseClass + '-Block'
+		res = ERB.new(entity_block_template)
+		t = res.result(binding)
+		file.puts t
+		res = ERB.new(type_stereotype_template)
+		t = res.result(binding)
+		file.puts t
+	end
+
 	# Evaluate and write file end template 
 	res = ERB.new(overall_end_template)
 	t = res.result(binding)
@@ -1440,11 +1535,10 @@ end
 		for uuidmap in $olduuids
 			uuidmap.remove
 		end
-		uuidfile.close
 		File.open("UUIDs.xml","w"){|file| $uuidxml.write_xml_to file} 
 	end
 	
-	if $wherexml != nil
+	if !$wherexml.nil?
 		File.open("WhereRuleMapping.xml","w"){|file| $wherexml.write_xml_to file}
 	end
 end

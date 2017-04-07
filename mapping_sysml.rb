@@ -132,7 +132,7 @@ def isEncapsulated (type, attrib)
 			elsif rule.expression == "SIZEOF(QUERY(elem <* SELF | SIZEOF(USEDIN(elem, '')) = 1)) = SIZEOF(SELF)"
 				encapsulated = true
 			elsif rule.expression[0..24] == "SIZEOF(USEDIN(SELF, '') -"
-				encapsulated = !(rule.expression[25..-1].include? (attrib.entity.name.upcase + "." + attrib.name.upcase))
+				encapsulated = !(rule.expression[25..-1].include? ("." + attrib.entity.name.upcase + "." + attrib.name.upcase))
 			else
 				puts "Unknown encapsulated rule: " + rule.expression
 			end
@@ -361,10 +361,10 @@ attribute_aggregate_entity_select_template = %{}
 attribute_entity_select_template = %{}
 
 # Template covering the output file contents for each attribute that is an entity
-attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= attr.name %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> type="<%= domain_xmiid %>" <% if direct_inverse or encapsulated %>aggregation='composite'<% end %> association="<%= assoc_xmiid %>"<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
+attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= attr.name %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> type="<%= domain_xmiid %>" <% if (direct_inverse and !encapsulatedInto) or encapsulated %>aggregation='composite'<% end %> association="<%= assoc_xmiid %>"<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
 
 # INVERSE ATTRIBUTE Template
-inverse_attribute_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= inverse.name %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> isReadOnly='true' type="<%= domain_xmiid %>" association="<%= assoc_xmiid %>" <% if inverse.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
+inverse_attribute_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= inverse.name %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> isReadOnly='true'<% if encapsulatedInto %> aggregation='composite'<% end %> type="<%= domain_xmiid %>" association="<%= assoc_xmiid %>" <% if inverse.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
 
 #Template covering multiplicities
 multiplicity = %{<% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"<%= get_uuid(xmiid + '-lowerValue') %>/><% 
@@ -389,17 +389,14 @@ attribute_entity_association_template = %{<packagedElement xmi:type="uml:Associa
 <memberEnd xmi:idref="<%= attr_xmiid %>"/><% 
 if !inverse_exists %>
 <memberEnd xmi:idref="<%= xmiid + '-end' %>"/>
-<ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid %>-end"<%= get_uuid(xmiid+'-end') %><% if encapsulatedInto %> aggregation='composite'<% end %> type="<%= owner_xmiid %>" association="<%= xmiid %>"<% 
-  if !direct_inverse %>>
+<ownedEnd xmi:type="uml:Property" xmi:id="<%= xmiid %>-end"<%= get_uuid(xmiid+'-end') %><% if encapsulatedInto %> aggregation='composite'<% end %> type="<%= owner_xmiid %>" association="<%= xmiid %>">
 <lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-end-lowerValue"<%= get_uuid(xmiid+'-end-lowerValue') %>/><%
-    if encapsulated
-      dummy = get_uuid(xmiid+'-end-upperValue')
-    else %>
+	if encapsulated
+		dummy = get_uuid(xmiid+'-end-upperValue')
+	else %>
 <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-end-upperValue"<%= get_uuid(xmiid+'-end-upperValue') %> value="*"/><%
-    end %>
+	end %>
 </ownedEnd><% 
-  else %>/><%
-  end %><% 
 else %><memberEnd xmi:idref="<%= iattr_xmiid %>"/><% 
 end %><% 
 if general_exists %>
@@ -1014,7 +1011,10 @@ for schema in schema_list
 					end
 				end
 				
-				encapsulatedInto = isEncapsulatedInto(entity, entity, attr)
+				encapsulatedInto = false
+				if !inverse_exists
+					encapsulatedInto = isEncapsulatedInto(entity, entity, attr)
+				end
 				
 				res = ERB.new(attribute_entity_association_template)
 				t = res.result(binding)
@@ -1229,10 +1229,12 @@ for schema in schema_list
 				assoc_xmiid = '_1_association' + prefix + entity.name + '-' + attr.name
 				
 				direct_inverse = false
+				encapsulatedInto = false
 				for inverse in direct_inverses
 					if inverse.reverseAttr == attr
 						if !inverse.instance_of? EXPSM::InverseAggregate
 							direct_inverse = true
+							encapsulatedInto = isEncapsulatedInto(entity, entity, attr)
 						end
 					end
 				end				
@@ -1307,6 +1309,9 @@ for schema in schema_list
 			else
 				assoc_xmiid = '_1_association' + get_prefix.call(inverse.reverseEntity.schema) + entity.name + '-' + inverse.reverseAttr_id
 			end
+			
+			encapsulatedInto = isEncapsulatedInto(inverse.reverseEntity, inverse.reverseEntity, inverse.reverseAttr)
+			
 			res = ERB.new(inverse_attribute_template)
 			t = res.result(binding)
 			file.puts t

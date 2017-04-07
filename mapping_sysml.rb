@@ -149,6 +149,11 @@ def isEncapsulated (type, attrib)
 			end
 		end	
 	end
+=begin
+	if encapsulated
+		puts type.name + ' is encapsulated for ' + attrib.entity.name + '.' + attrib.name
+	end
+=end
 	return encapsulated
 end
 
@@ -183,6 +188,11 @@ def isEncapsulatedInto (parent, entity, attrib)
 			end
 		end
 	end
+=begin
+	if encapsulated
+		puts parent.name + ' is encapsulated into ' + attrib.name
+	end
+=end
 	return encapsulated
 end
 
@@ -427,6 +437,15 @@ attribute_builtin_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<
 
 # EXPLICIT ATTRIBUTE ENUM and TYPE Template
 attribute_enum_type_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= attr.name %>" type="<%= type_xmiid %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> aggregation='composite'>}
+
+# Lower bound constraint template
+bound_constraint = %{<ownedRule xmi:type="uml:Constraint" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= name %>_LB">
+<constrainedElement xmi:idref="<%= xmiid_entity %>"/>
+<specification xmi:type="uml:OpaqueExpression" xmi:id="<%= xmiid %>-spec"<%= get_uuid(xmiid+'-spec') %>>
+<body><%= name %>.size() &gt;= <%= bound %></body>
+<language>OCL2.0</language>
+</specification>
+</ownedRule>}
 
 # UNIQUE rule template
 unique_template = %{<ownedRule xmi:type="uml:Constraint" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= unique.name %>">
@@ -1061,6 +1080,7 @@ for schema in schema_list
 
 # Map EXPRESS Entity Types 
 	for entity in entity_list
+		lowBounds = Hash.new
 		
 # Evaluate and write ENTITY start template 
 		xmiid = prefix + entity.name
@@ -1200,6 +1220,11 @@ for schema in schema_list
 				end
 			end
 			if attr.isOptional == TRUE
+				case lower
+					when '0','1'
+					else
+						lowBounds[attr.name] = lower
+				end
 				lower = '0'
 			end
 			
@@ -1321,6 +1346,14 @@ for schema in schema_list
 			file.puts t
 			
 			res = ERB.new(attribute_end)
+			t = res.result(binding)
+			file.puts t
+		end
+
+#Create lower bound constraints where required
+		lowBounds.each do |name, bound| 
+			xmiid = '_3_lb' + prefix + entity.name + '-' + name
+			res = ERB.new(bound_constraint)
 			t = res.result(binding)
 			file.puts t
 		end

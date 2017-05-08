@@ -204,6 +204,8 @@ noprune = FALSE
 schemaId = FALSE
 $uuidsRequired = TRUE
 xmiVersion = "2.1"
+dtHandle = "local"
+outPath = nil
 for arg in passedArgs
 	argarray = arg.split('=')
 	case argarray[0]
@@ -212,6 +214,7 @@ for arg in passedArgs
 		when "path" then outPath = argarray[1]
 		when "schemaid" then schemaId = TRUE
 		when "xmi" then xmiVersion = argarray[1]
+		when "types" then dtHandle = argarray[1]
 	end
 end
 
@@ -222,7 +225,28 @@ case xmiVersion
 		puts "XMI version "+xmiVersion+" is not handled!"
 		exit
 end
+	
+case dtHandle
+	when "local"
+		puts "Data types will generated within the package structure"
+	when "ignore"
+		puts "Data types will not be generated"
+	when "export"
+		puts "Data types will be exported to DataTypes.xmi"
+	else
+		puts "Data type handling option: "+dtHandle+" not valid!"
+		exit
+end
+	
+if dtHandle != "local"
+	if outPath.nil?
+		puts "path must be specified when type=" + dtHandle
+		exit
+	end
+end
 
+uuidSafe = nil
+uuidOldSafe = nil
 if $uuidsRequired
   $uuid = UUID.new
 	if File.exists?("UUIDs.xml")
@@ -247,7 +271,7 @@ if File.exists?("Operators.xml")
 	opsfile.close
 end
 
-# datatypes for builtin types that map directly to SysML
+# datatypes for builtin types that have been exported
 datatype_hash = Hash.new
 
 # XMI File Start Template (includes datatypes for builtin with no direct UML equivalent)
@@ -261,18 +285,52 @@ end %>
 <xmi:exporter>Reeper</xmi:exporter>
 <xmi:exporterVersion>v0.5</xmi:exporterVersion>
 </xmi:Documentation>
-<uml:Model name="Data" xmi:id="_0_Data"<%= get_uuid('_0_Data') %>><%
+<uml:Model name="Data" xmi:id="_0_Data"<%= get_uuid('_0_Data') %>>}
+
+# Package Structure Start
+package_start = %{<%
 $dtprefix=''
 if outPath.nil? %>
 <packagedElement xmi:type="uml:Package" xmi:id="_0_SysMLfromEXPRESS"<%= get_uuid('_0_SysMLfromEXPRESS') %> name="SysMLfromEXPRESS"><%
 else
  pathElements = outPath.split('/')
  for elem in pathElements 
-  $dtprefix = $dtprefix + elem[0]%>
+	 if dtHandle=='local'
+			$dtprefix = $dtprefix + elem[0]
+	 end %>
 <packagedElement xmi:type="uml:Package" xmi:id="_0_<%= elem %>"<%= get_uuid('_0_'+elem) %> name="<%= elem %>"><%
  end
- $dtprefix = $dtprefix + '_'%>
-<packagedElement xmi:type="uml:Package" xmi:id="_0_DataTypes"<%= get_uuid('_0_DataTypes') %> name="DataTypes"><%
+ if dtHandle=='local'
+		$dtprefix = $dtprefix + '_'
+ end
+end %>}
+
+# Apply SysML profile
+apply_sysml = %{<profileApplication xmi:type="uml:ProfileApplication" xmi:id="_profileApplication0"<%= get_uuid('_profileApplication0') %>>
+<appliedProfile xmi:type="uml:Profile" href="http://www.omg.org/spec/SysML/20100301/SysML-profile.uml#_0" />
+</profileApplication>}
+
+# Package end
+package_end = %{<%
+if outPath.nil? %>
+</packagedElement><%
+else
+ pathElements = outPath.split('/')
+ for elem in pathElements %>
+</packagedElement><%
+ end
+end %>}
+
+# Model End Template
+model_end_template = %{</uml:Model>}
+
+# XMI File End Template
+overall_end_template = %{</xmi:XMI>}
+
+#DATA TYPEs
+data_types = %{<%
+if !outPath.nil? %>
+<packagedElement xmi:type="uml:Package" xmi:id="_0_<%= $dtprefix %>DataTypes"<%= get_uuid('_0_'+$dtprefix+'DataTypes') %> name="DataTypes"><%
 end %>
 <packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>BINARY"<%= get_uuid($dtprefix+'BINARY') %> name="Binary" />
 <packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>STRING"<%= get_uuid($dtprefix+'STRING') %> name="String" />
@@ -295,29 +353,14 @@ if !outPath.nil? %>
 </packagedElement><%
 end %>}
 
-# Model End Template
-model_end_template = %{<profileApplication xmi:type="uml:ProfileApplication" xmi:id="_profileApplication0"<%= get_uuid('_profileApplication0') %>>
-<appliedProfile xmi:type="uml:Profile" href="http://www.omg.org/spec/SysML/20100301/SysML-profile.uml#_0" />
-</profileApplication><%
-if outPath.nil? %>
-</packagedElement><%
-else
- pathElements = outPath.split('/')
- for elem in pathElements %>
-</packagedElement><%
- end
-end %>
-</uml:Model>}
-
-# XMI File End Template
-overall_end_template = %{<sysml:ValueType base_DataType="<%= $dtprefix %>LOGICAL" xmi:id="<%= $dtprefix %>LOGICAL_VT"<%= get_uuid($dtprefix+'LOGICAL_VT') %>/>
+#DATA TYPE end
+data_type_stereos = %{<sysml:ValueType base_DataType="<%= $dtprefix %>LOGICAL" xmi:id="<%= $dtprefix %>LOGICAL_VT"<%= get_uuid($dtprefix+'LOGICAL_VT') %>/>
 <sysml:ValueType base_DataType="<%= $dtprefix %>BOOLEAN" xmi:id="<%= $dtprefix %>BOOLEAN_VT"<%= get_uuid($dtprefix+'BOOLEAN_VT') %>/>
 <sysml:ValueType base_DataType="<%= $dtprefix %>NUMBER" xmi:id="<%= $dtprefix %>NUMBER_VT"<%= get_uuid($dtprefix+'NUMBER_VT') %>/>
 <sysml:ValueType base_DataType="<%= $dtprefix %>REAL" xmi:id="<%= $dtprefix %>REAL_VT"<%= get_uuid($dtprefix+'REAL_VT') %>/>
 <sysml:ValueType base_DataType="<%= $dtprefix %>INTEGER" xmi:id="<%= $dtprefix %>INTEGER_VT"<%= get_uuid($dtprefix+'INTEGER_VT') %>/>
 <sysml:ValueType base_DataType="<%= $dtprefix %>STRING" xmi:id="<%= $dtprefix %>STRING_VT"<%= get_uuid($dtprefix+'STRING_VT') %>/>
-<sysml:ValueType base_DataType="<%= $dtprefix %>BINARY" xmi:id="<%= $dtprefix %>BINARY_VT"<%= get_uuid($dtprefix+'BINARY_VT') %>/>
-</xmi:XMI>}
+<sysml:ValueType base_DataType="<%= $dtprefix %>BINARY" xmi:id="<%= $dtprefix %>BINARY_VT"<%= get_uuid($dtprefix+'BINARY_VT') %>/>}
 
 # SCHEMA Start Template
 schema_start_template = %{<packagedElement xmi:type="uml:Package" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= schema.name %>">}
@@ -510,30 +553,84 @@ end
 
 # Set up XMI output file
 
-	if schema_list.size == 1
-		if output_xmi_filename.nil?
-			schema = schema_list[0]
-			output_xmi_filename = schema.name.to_s + ".xmi"
-		end
-		if schemaId
-			get_prefix = lambda {|schema| '_' + schema.name + '-'}
-		else
-			get_prefix = lambda {|schema| '_'}
-		end
-	else
-		if output_xmi_filename.nil?
-			output_xmi_filename = 'Model.xmi'
-		end
-		get_prefix = lambda {|schema| '_' + schema.name + '-'}
+if schema_list.size == 1
+	if output_xmi_filename.nil?
+		schema = schema_list[0]
+		output_xmi_filename = schema.name.to_s + ".xmi"
 	end
-	
-	file = File.new(output_xmi_filename, "w")
-	puts 'reeper : Writing output to file ' + output_xmi_filename
+	if schemaId
+		get_prefix = lambda {|schema| '_' + schema.name + '-'}
+	else
+		get_prefix = lambda {|schema| '_'}
+	end
+else
+	if output_xmi_filename.nil?
+		output_xmi_filename = 'Model.xmi'
+	end
+	get_prefix = lambda {|schema| '_' + schema.name + '-'}
+end
+
+file = File.new(output_xmi_filename, "w")
+puts 'reeper : Writing output to file ' + output_xmi_filename
 
 # Evaluate and write file start template 
-	res = ERB.new(overall_start_template)
+res = ERB.new(overall_start_template)
+t = res.result(binding)
+file.puts t
+
+res = ERB.new(package_start)
+t = res.result(binding)
+file.puts t
+
+# sort out date types
+if dtHandle != "ignore"
+	if dtHandle == "local"
+		dtfile = file
+	else
+		dtfile = File.new("DataTypes.xmi","w")
+		res = ERB.new(overall_start_template)
+		t = res.result(binding)
+		dtfile.puts t
+		if $uuidsRequired
+			uuidSafe = $uuidxml
+			uuidOldSafe = $olduuids
+			if File.exists?("DataTypes_UUIDs.xml")
+				uuidfile = File.open("DataTypes_UUIDs.xml")
+				$uuidxml = Nokogiri::XML(uuidfile, &:noblanks)
+				uuidfile.close
+			else
+				$uuidxml = Nokogiri::XML::Builder.new { |b| b.uuids }.doc
+			end
+			$olduuids = $uuidxml.xpath('//uuidmap')
+		end
+	end
+	res = ERB.new(data_types)
 	t = res.result(binding)
-	file.puts t
+	dtfile.puts t
+	if !uuidSafe.nil?
+		tmp = uuidSafe
+		uuidSafe = $uuidxml
+		$uuidxml = tmp
+		tmp = uuidOldSafe
+		uuidOldSafe = $olduuids
+		$olduuids = tmp
+	end
+end
+
+if dtHandle != "local"
+	 pathElements = outPath.split('/')
+	 relPath = "DataTypes.xmi"
+	 for elem in pathElements 
+		 relPath = "../" + relPath
+		end
+	datatype_hash["LOGICAL"] = relPath + "#LOGICAL"
+	datatype_hash["BOOLEAN"] = relPath + "#BOOLEAN"
+	datatype_hash["NUMBER"] = relPath + "#NUMBER"
+	datatype_hash["REAL"] = relPath + "#REAL"
+	datatype_hash["INTEGER"] = relPath + "#INTEGER"
+	datatype_hash["STRING"] = relPath + "#STRING"
+	datatype_hash["BINARY"] = relPath + "#BINARY"
+end
 
 # Set up list of all EXPRESS Inverses in all schemas 
 all_inverse_list = []
@@ -1448,6 +1545,16 @@ for schema in schema_list
 	file.puts t
 end
 
+#Apply sysml profile
+res = ERB.new(apply_sysml)
+t = res.result(binding)
+file.puts t
+
+#close package structure
+res = ERB.new(package_end)
+t = res.result(binding)
+file.puts t
+
 #Evaluate and write model end template
 res = ERB.new(model_end_template)
 t = res.result(binding)
@@ -1562,6 +1669,42 @@ end
 		res = ERB.new(type_stereotype_template)
 		t = res.result(binding)
 		file.puts t
+	end
+	
+	if dtHandle != "ignore"
+		if dtHandle == "export"
+			if !uuidSafe.nil?
+				tmp = uuidSafe
+				uuidSafe = $uuidxml
+				$uuidxml = tmp
+				tmp = uuidOldSafe
+				uuidOldSafe = $olduuids
+				$olduuids = tmp
+			end
+			res = ERB.new(apply_sysml)
+			t = res.result(binding)
+			dtfile.puts t
+			res = ERB.new(model_end_template)
+			t = res.result(binding)
+			dtfile.puts t
+		end
+		res = ERB.new(data_type_stereos)
+		t = res.result(binding)
+		dtfile.puts t
+		if dtHandle == "export"
+			res = ERB.new(overall_end_template)
+			t = res.result(binding)
+			file.puts t
+			if !uuidSafe.nil?
+				for uuidmap in $olduuids
+					uuidmap.remove
+				end
+				File.open("DataTypes_UUIDs.xml","w"){|file| $uuidxml.write_xml_to file} 
+				$uuidxml = uuidSafe
+				$olduuids = uuidOldSafe
+			end
+			dtfile.close
+		end
 	end
 
 	# Evaluate and write file end template 

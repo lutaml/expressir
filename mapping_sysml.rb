@@ -200,19 +200,19 @@ def map_from_express(mapinput, passedArgs)
 # Enter file name here to override defaults (<schema>.xmi if one schema, and Model.xmi if more than one)
 output_xmi_filename = nil
 
-noprune = FALSE
-schemaId = FALSE
-$uuidsRequired = TRUE
+noprune = false
+schemaId = false
+$uuidsRequired = true
 xmiVersion = "2.1"
 dtHandle = "local"
 outPath = nil
 for arg in passedArgs
 	argarray = arg.split('=')
 	case argarray[0]
-		when "noprune" then noprune = TRUE
-		when "nouuids" then $uuidsRequired = FALSE
+		when "noprune" then noprune = true
+		when "nouuids" then $uuidsRequired = false
 		when "path" then outPath = argarray[1]
-		when "schemaid" then schemaId = TRUE
+		when "schemaid" then schemaId = true
 		when "xmi" then xmiVersion = argarray[1]
 		when "types" then dtHandle = argarray[1]
 	end
@@ -334,7 +334,7 @@ if !outPath.nil? %>
 end %>
 <packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>BINARY"<%= get_uuid($dtprefix+'BINARY') %> name="Binary" />
 <packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>STRING"<%= get_uuid($dtprefix+'STRING') %> name="String" />
-<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>NUMBER"<%= get_uuid($dtprefix+'NUMBER') %> name="Number" isAbstract="TRUE"/>
+<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>NUMBER"<%= get_uuid($dtprefix+'NUMBER') %> name="Number" isAbstract="true"/>
 <packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>REAL"<%= get_uuid($dtprefix+'REAL') %> name="Real">
 <generalization xmi:type="uml:Generalization" xmi:id="_generalization-<%= $dtprefix %>REAL_NUMBER"<%= get_uuid('_generalization-'+$dtprefix+'REAL_NUMBER') %> general="<%= $dtprefix %>NUMBER"/>
 </packagedElement>
@@ -342,12 +342,12 @@ end %>
 <generalization xmi:type="uml:Generalization" xmi:id="_generalization-<%= $dtprefix %>INTEGER_REAL"<%= get_uuid('_generalization-'+$dtprefix+'INTEGER_REAL') %> general="<%= $dtprefix %>REAL"/>
 </packagedElement>
 <packagedElement xmi:type="uml:Enumeration" xmi:id="<%= $dtprefix %>LOGICAL"<%= get_uuid($dtprefix+'LOGICAL') %> name="Logical">
-<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= $dtprefix %>UNKNOWN"<%= get_uuid($dtprefix+'UNKNOWN') %> name="Unknown" classifier="<%= $dtprefix %>LOGICAL"/>
+<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= $dtprefix %>UNKNOWN"<%= get_uuid($dtprefix+'UNKNOWN') %> name="Unknown"/>
 </packagedElement>
 <packagedElement xmi:type="uml:Enumeration" xmi:id="<%= $dtprefix %>BOOLEAN"<%= get_uuid($dtprefix+'BOOLEAN') %> name="Boolean">
 <generalization xmi:type="uml:Generalization" xmi:id="<%= $dtprefix %>_generalization-<%= $dtprefix %>BOOLEAN-LOGICAL"<%= get_uuid('_generalization-'+$dtprefix+'BOOLEAN-LOGICAL') %> general="<%= $dtprefix %>LOGICAL"/>
-<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= $dtprefix %>TRUE"<%= get_uuid($dtprefix+'TRUE') %> name="True" classifier="<%= $dtprefix %>BOOLEAN"/>
-<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= $dtprefix %>FALSE"<%= get_uuid($dtprefix+'FALSE') %> name="False" classifier="<%= $dtprefix %>BOOLEAN"/>
+<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= $dtprefix %>TRUE"<%= get_uuid($dtprefix+'TRUE') %> name="True"/>
+<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= $dtprefix %>FALSE"<%= get_uuid($dtprefix+'FALSE') %> name="False"/>
 </packagedElement><%
 if !outPath.nil? %>
 </packagedElement><%
@@ -375,7 +375,7 @@ schema_end_template = %{</packagedElement>}
 entity_block_template = %{<sysml:Block base_Class="<%= baseClass %>" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %>/>}
 
 # ENTITY Start Template
-entity_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= entity.name %>" <% if entity.isAbs %>isAbstract="TRUE"<% end %>>}
+entity_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= entity.name %>" <% if entity.isAbs %>isAbstract="true"<% end %>>}
 
 # SUBTYPE OF Template
 supertype_template = %{<generalization xmi:type="uml:Generalization" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> general="<%= xmiid_general %>"/>}
@@ -387,16 +387,17 @@ entity_end_template = %{</packagedElement>}
 enum_start_template = %{<packagedElement xmi:type="uml:Enumeration" xmi:id="<%= type_xmiid %>"<%= get_uuid(type_xmiid) %> name="<%= enum.name %>">}
 
 # ENUMERATION ITEM Template
-enum_item_template = %{<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= enumitem_xmiid %>"<%= get_uuid(enumitem_xmiid) %> name="<%= enumitem %>" classifier="<%= type_xmiid %>"/>}
+enum_item_template = %{<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="<%= enumitem_xmiid %>"<%= get_uuid(enumitem_xmiid) %> name="<%= enumitem %>"/>}
 
 # ENUMERATION End Template
 enum_end_template = %{</packagedElement>}
 
 # SELECT Start Template
-select_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= type.name %>" isAbstract="TRUE">}
+select_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= type.name %>" isAbstract="true"<% 
+if superselect.nil? && type.selectedBy.count == 0 %>/<% end %>>}
 
 # SELECT End Template
-select_end_template = %{</packagedElement>}
+select_end_template = %{<% if !superselect.nil? || type.selectedBy.count > 0 %></packagedElement><% end %>}
 
 # SELECT Stereotype Template
 select_stereotype_template = %{<<%= $StandardProfile %>:Auxiliary xmi:id="<%= xmiid %>application1"<%= get_uuid(xmiid+ 'application1') %> base_Class="<%= baseClass %>"/>}
@@ -771,24 +772,22 @@ for schema in schema_list
 		file.puts t
 		
 # Map TYPE Select has Type as item
-		for select in all_select_list
-			if select.selectitems_array.include?(type)
-				# sort out what type of select we are dealing with
-				case selectTypeType[select.name]
-					when "Type"
-						xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
-						xmiid_general = prefix + select.name
-						res = ERB.new(supertype_template)
-						t = res.result(binding)
-						file.puts t
-					when "Hybrid"
-						typeProxy = typeProxies[type.name]
-						if typeProxy.nil?
-							typeProxies[type.name] = type
-						end
-					when "Remove"
-					 # do nothing
-				end
+		for select in type.selectedBy
+			# sort out what type of select we are dealing with
+			case selectTypeType[select.name]
+				when "Type"
+					xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
+					xmiid_general = prefix + select.name
+					res = ERB.new(supertype_template)
+					t = res.result(binding)
+					file.puts t
+				when "Hybrid"
+					typeProxy = typeProxies[type.name]
+					if typeProxy.nil?
+						typeProxies[type.name] = type
+					end
+				when "Remove"
+				 # do nothing
 			end
 		end		
 
@@ -830,23 +829,21 @@ for schema in schema_list
 			file.puts t
 			
 	# Map TYPE Select has Type as item
-			for select in all_select_list
-				if select.selectitems_array.include?(type)
-					case selectTypeType[select.name]
-						when "Type"
-							xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
-							xmiid_general = prefix + select.name
-							res = ERB.new(supertype_template)
-							t = res.result(binding)
-							file.puts t
-						when "Hybrid"
-							typeProxy = typeProxies[type.name]
-							if typeProxy.nil?
-								typeProxies[type.name] = type
-							end
-						when "Remove"
-							# do nothing
-					end
+	    for select in type.selectedBy
+				case selectTypeType[select.name]
+					when "Type"
+						xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
+						xmiid_general = prefix + select.name
+						res = ERB.new(supertype_template)
+						t = res.result(binding)
+						file.puts t
+					when "Hybrid"
+						typeProxy = typeProxies[type.name]
+						if typeProxy.nil?
+							typeProxies[type.name] = type
+						end
+					when "Remove"
+						# do nothing
 				end
 			end
 			
@@ -885,15 +882,13 @@ for schema in schema_list
 			file.puts t
 
 			# Map TYPE Select has Entity as item
-			for select in all_select_list
-				if select.selectitems_array.include?(type)
-					if selectTypeType[select.name] == "Hybrid"
-						xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
-						xmiid_general = prefix + select.name
-						res = ERB.new(supertype_template)
-						t = res.result(binding)
-						file.puts t
-					end
+	    for select in type.selectedBy
+				if selectTypeType[select.name] == "Hybrid"
+					xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
+					xmiid_general = prefix + select.name
+					res = ERB.new(supertype_template)
+					t = res.result(binding)
+					file.puts t
 				end
 			end
 			
@@ -948,14 +943,12 @@ for schema in schema_list
 			file.puts t
 
 			# Map TYPE Select has Entity as item
-			for select in all_select_list
-				if select.selectitems_array.include?(type)
-					xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
-					xmiid_general = prefix + select.name
-					res = ERB.new(supertype_template)
-					t = res.result(binding)
-					file.puts t
-				end
+	    for select in type.selectedBy
+				xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
+				xmiid_general = prefix + select.name
+				res = ERB.new(supertype_template)
+				t = res.result(binding)
+				file.puts t
 			end
 			
 			res = ERB.new(type_end_template)
@@ -1007,11 +1000,11 @@ for schema in schema_list
 		if selectTypeType[type.name] != "Remove"
 # Evaluate and write TYPE Select start template 
 			xmiid = prefix + type.name
+			superselect = type.extends_item
 			res = ERB.new(select_start_template)
 			t = res.result(binding)
 			file.puts t
 			
-			superselect = type.extends_item
 			if !superselect.nil?
 				if superselect.kind_of? EXPSM::TypeSelect
 		# Write Select Item template for parent (maps to UML same as EXPRESS supertype)
@@ -1024,14 +1017,12 @@ for schema in schema_list
 			end
 
 	# Evaluate and write Select Item template for each item (maps to UML same as EXPRESS supertype)
-			for superselect in all_select_list
-				if superselect.selectitems_array.include?(type)
-					xmiid = '_2_superselect' + prefix + type.name + '-' + superselect.name
-					xmiid_general = prefix + superselect.name
-					res = ERB.new(supertype_template)
-					t = res.result(binding)
-					file.puts t
-				end
+	    for superselect in type.selectedBy
+				xmiid = '_2_superselect' + prefix + type.name + '-' + superselect.name
+				xmiid_general = prefix + superselect.name
+				res = ERB.new(supertype_template)
+				t = res.result(binding)
+				file.puts t
 			end
 
 	# Evaluate and write TYPE Select end template 
@@ -1159,7 +1150,7 @@ for schema in schema_list
 				lower = inverse.reverseAttr.dimensions[0].lower
 			end
 		end
-		if inverse.reverseAttr.isOptional == TRUE
+		if inverse.reverseAttr.isOptional
 			lower = '0'
 		end
 		res = ERB.new(inverse_entity_association_template)
@@ -1197,26 +1188,24 @@ for schema in schema_list
 		end
 
 # Map TYPE Select has Entity as item
-		for select in all_select_list
-			if select.selectitems_array.include?(entity)
-				if selectTypeType[select.name] != "Remove"
-					xmiid = '_2_selectitem' + prefix + entity.name + '-' + select.name
-					xmiid_general = prefix + select.name
-					res = ERB.new(supertype_template)
-					t = res.result(binding)
-					file.puts t
-				else
-					# if in a select list that has been removed make it a subtype of all selects that include the removed select
-					for superselect in all_select_list
-						if superselect.selectitems_array.include?(select)
-							puts entity.name + " added to " + superselect.name
-							puts "    following removal of " + select.name
-							xmiid = '_2_selectitem' + prefix + entity.name + '-' + superselect.name
-							xmiid_general = prefix + superselect.name
-							res = ERB.new(supertype_template)
-							t = res.result(binding)
-							file.puts t
-						end
+		for select in entity.selectedBy
+			if selectTypeType[select.name] != "Remove"
+				xmiid = '_2_selectitem' + prefix + entity.name + '-' + select.name
+				xmiid_general = prefix + select.name
+				res = ERB.new(supertype_template)
+				t = res.result(binding)
+				file.puts t
+			else
+				# if in a select list that has been removed make it a subtype of all selects that include the removed select
+				for superselect in all_select_list
+					if superselect.selectitems_array.include?(select)
+						puts entity.name + " added to " + superselect.name
+						puts "    following removal of " + select.name
+						xmiid = '_2_selectitem' + prefix + entity.name + '-' + superselect.name
+						xmiid_general = prefix + superselect.name
+						res = ERB.new(supertype_template)
+						t = res.result(binding)
+						file.puts t
 					end
 				end
 			end
@@ -1316,7 +1305,7 @@ for schema in schema_list
 					end
 				end
 			end
-			if attr.isOptional == TRUE
+			if attr.isOptional
 				case lower
 					when '0','1'
 					else
@@ -1694,7 +1683,7 @@ end
 		if dtHandle == "export"
 			res = ERB.new(overall_end_template)
 			t = res.result(binding)
-			file.puts t
+			dtfile.puts t
 			if !uuidSafe.nil?
 				for uuidmap in $olduuids
 					uuidmap.remove

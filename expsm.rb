@@ -70,7 +70,7 @@ class SchemaDefinition < ModelElement
 	end
 end
 class NamedType < ModelElement
-	attr_accessor :name, :schema, :wheres
+	attr_accessor :name, :schema, :wheres, :selectedBy
   def self.find_by_name(name)
     found = nil
     ObjectSpace.each_object(NamedType) { |o|
@@ -93,6 +93,7 @@ class Entity < NamedType
 		@supertypes = nil
 		@supertypes_all = nil
 		@superexpression = nil
+		@selectedBy = []
 	end
 	def find_attr_by_name( attrname )
 		for attribute in attributes
@@ -187,6 +188,7 @@ class Type < DefinedType
 		@width = nil
 		@precision = nil
 		@wheres = []
+		@selectedBy = []
 	end
 end
 class TypeAggregate < Type
@@ -195,6 +197,7 @@ class TypeAggregate < Type
 		@rank = 0
 		@dimensions = []
 		@wheres = []
+		@selectedBy = []
 	end
 end
 class TypeSelect < DefinedType
@@ -207,6 +210,7 @@ class TypeSelect < DefinedType
 		@selectitems_array = []
 		@cleaned_select_items = nil
 		@wheres = []
+		@selectedBy = []
 	end
 ##
 ## set cleaned_select_items = process select removing unnecessary entity types (i.e. if supertype is there)
@@ -678,6 +682,7 @@ def postprocess_dictionary_express(repos)
 						thetype = schema.find_namedtype_by_name( name.to_s )
 						if thetype != nil
 							decl.selectitems_array.push thetype
+							thetype.selectedBy.push decl
 						else
 							puts "ERROR : SELECT Item Not Found : " + name
 						end

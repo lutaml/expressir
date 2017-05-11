@@ -245,6 +245,7 @@ class TypeEnum < DefinedType
 	attr_accessor :items_array, :items, :extends, :extends_item, :isExtensible, :allitems, :isBuiltin
 	def initialize
 		@isBuiltin = FALSE
+		@selectedBy = []
 	end
 end
 class InterfaceSpecification < ModelElement

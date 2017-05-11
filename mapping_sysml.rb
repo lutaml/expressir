@@ -872,32 +872,6 @@ for schema in schema_list
 		end
 	end
 	
-	typeProxies.each_value do |type| 
-		if type.schema == schema
-			# Evaluate and write proxy start template 
-			xmiid_type = prefix + type.name
-			xmiid = xmiid_type + "_Proxy"
-			res = ERB.new(proxy_start_template)
-			t = res.result(binding)
-			file.puts t
-
-			# Map TYPE Select has Entity as item
-	    for select in type.selectedBy
-				if selectTypeType[select.name] == "Hybrid"
-					xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
-					xmiid_general = prefix + select.name
-					res = ERB.new(supertype_template)
-					t = res.result(binding)
-					file.puts t
-				end
-			end
-			
-			res = ERB.new(type_end_template)
-			t = res.result(binding)
-			file.puts t
-		end
-	end
-
 	aggTypes.each_value do |type| 
 		if type.schema == schema
 			# Evaluate and write aggType start template 
@@ -979,6 +953,26 @@ for schema in schema_list
 			end
 		end
 
+# Map TYPE Select has Enum as item
+		for select in enum.selectedBy
+			# sort out what type of select we are dealing with
+			case selectTypeType[select.name]
+				when "Type"
+					xmiid = '_2_selectitem' + prefix + enum.name + '-' + select.name
+					xmiid_general = prefix + select.name
+					res = ERB.new(supertype_template)
+					t = res.result(binding)
+					file.puts t
+				when "Hybrid"
+					typeProxy = typeProxies[enum.name]
+					if typeProxy.nil?
+						typeProxies[type.name] = enum
+					end
+				when "Remove"
+				 # do nothing
+			end
+		end		
+
 # Evaluate and write Enum Item template for each item
 		enumitem_name_list = enum.items.scan(/\w+/)
 		for enumitem in enumitem_name_list
@@ -1032,6 +1026,32 @@ for schema in schema_list
 		end
 	end
 	
+	typeProxies.each_value do |type| 
+		if type.schema == schema
+			# Evaluate and write proxy start template 
+			xmiid_type = prefix + type.name
+			xmiid = xmiid_type + "_Proxy"
+			res = ERB.new(proxy_start_template)
+			t = res.result(binding)
+			file.puts t
+
+			# Map TYPE Select has Entity as item
+	    for select in type.selectedBy
+				if selectTypeType[select.name] == "Hybrid"
+					xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
+					xmiid_general = prefix + select.name
+					res = ERB.new(supertype_template)
+					t = res.result(binding)
+					file.puts t
+				end
+			end
+			
+			res = ERB.new(type_end_template)
+			t = res.result(binding)
+			file.puts t
+		end
+	end
+
 	entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
 
 # Map EXPRESS Explicit Attribute resulting UML Association (the Association is referenced from Class resulting from Entity)

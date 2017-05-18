@@ -306,8 +306,12 @@ else
 end %>}
 
 # Apply SysML profile
-apply_sysml = %{<profileApplication xmi:type="uml:ProfileApplication" xmi:id="_profileApplication0"<%= get_uuid('_profileApplication0') %>>
-<appliedProfile xmi:type="uml:Profile" href="http://www.omg.org/spec/SysML/20100301/SysML-profile.uml#_0" />
+apply_sysml = %{<profileApplication xmi:type="uml:ProfileApplication" xmi:id="_profileApplication0"<%= get_uuid('_profileApplication0') %>><%
+if xmiVersion == "2.1" %>
+<appliedProfile xmi:type="uml:Profile" href="http://www.omg.org/spec/SysML/20100301/SysML-profile.uml#_0"/><%
+else %>
+<appliedProfile xmi:type="uml:Profile" href="http://www.omg.org/spec/SysML/20150709/SysML.xmi#_SysML__0"/><%
+end %>
 </profileApplication>}
 
 # Package end
@@ -330,10 +334,13 @@ overall_end_template = %{</xmi:XMI>}
 #DATA TYPEs
 data_types = %{<%
 if !outPath.nil? %>
-<packagedElement xmi:type="uml:Package" xmi:id="_0_<%= $dtprefix %>DataTypes"<%= get_uuid('_0_'+$dtprefix+'DataTypes') %> name="DataTypes"><%
+<packagedElement xmi:type="uml:Package" xmi:id="_0_<%= $dtprefix %>DataTypes"<%= get_uuid('_0_'+$dtprefix+'DataTypes') %> name="DataTypes">
+<xmi:Extension extender='Reeper'>
+<sharedPackage/>
+</xmi:Extension><%
 end %>
-<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>BINARY"<%= get_uuid($dtprefix+'BINARY') %> name="Binary" />
-<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>STRING"<%= get_uuid($dtprefix+'STRING') %> name="String" />
+<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>BINARY"<%= get_uuid($dtprefix+'BINARY') %> name="Binary"/>
+<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>STRING"<%= get_uuid($dtprefix+'STRING') %> name="String"/>
 <packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>NUMBER"<%= get_uuid($dtprefix+'NUMBER') %> name="Number" isAbstract="true"/>
 <packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= $dtprefix %>REAL"<%= get_uuid($dtprefix+'REAL') %> name="Real">
 <generalization xmi:type="uml:Generalization" xmi:id="_generalization-<%= $dtprefix %>REAL_NUMBER"<%= get_uuid('_generalization-'+$dtprefix+'REAL_NUMBER') %> general="<%= $dtprefix %>NUMBER"/>
@@ -361,6 +368,11 @@ data_type_stereos = %{<sysml:ValueType base_DataType="<%= $dtprefix %>LOGICAL" x
 <sysml:ValueType base_DataType="<%= $dtprefix %>INTEGER" xmi:id="<%= $dtprefix %>INTEGER_VT"<%= get_uuid($dtprefix+'INTEGER_VT') %>/>
 <sysml:ValueType base_DataType="<%= $dtprefix %>STRING" xmi:id="<%= $dtprefix %>STRING_VT"<%= get_uuid($dtprefix+'STRING_VT') %>/>
 <sysml:ValueType base_DataType="<%= $dtprefix %>BINARY" xmi:id="<%= $dtprefix %>BINARY_VT"<%= get_uuid($dtprefix+'BINARY_VT') %>/>}
+
+#Extension
+sharedPackage = %{<xmi:Extension extender='Reeper'>
+<sharedPackage/>
+</xmi:Extension>}
 
 # SCHEMA Start Template
 schema_start_template = %{<packagedElement xmi:type="uml:Package" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= schema.name %>">}
@@ -423,12 +435,12 @@ inverse_attribute_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<
 #Template covering multiplicities
 multiplicity = %{<% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"<%= get_uuid(xmiid + '-lowerValue') %>/><% 
 else
- if lower != '1' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"<%= get_uuid(xmiid + '-lowerValue') %>  value="<%= lower %>"/><% 
+ if lower != '1' %><lowerValue xmi:type=<% if /\\d+/ === lower %>"uml:LiteralInteger"<% else %>"uml:LiteralString"<% end %> xmi:id="<%= xmiid %>-lowerValue"<%= get_uuid(xmiid + '-lowerValue') %>  value="<%= lower %>"/><% 
  else
   dummy = get_uuid(xmiid + '-lowerValue')
 	end
 end %>
-<% if upper != '1' %><upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="<%= xmiid %>-upperValue"<%= get_uuid(xmiid + '-upperValue') %> value="<%= upper %>"/><%
+<% if upper != '1' %><upperValue xmi:type=<% if /(\\d+|\\*)/ === upper %>"uml:LiteralUnlimitedNatural"<% else %>"uml:LiteralString"<% end %> xmi:id="<%= xmiid %>-upperValue"<%= get_uuid(xmiid + '-upperValue') %> value="<%= upper %>"/><%
 else
   dummy = get_uuid(xmiid + '-upperValue')
 end %>}
@@ -476,7 +488,7 @@ attribute_template = %{}
 # EXPLICIT ATTRIBUTE SIMPLE TYPE Template
 attribute_builtin_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= attr.name %>"<% if islist %> isOrdered='true'<% end %><% if !isset %> isUnique='false'<% end %> aggregation='composite'<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %> 
 <% if !nestedAggs[domain_name].nil? %>type="<%= prefix+domain_name %>"><% else if !datatype_hash[domain_name].nil? %>>
-<type xmi:type="uml:PrimitiveType" href="<%= datatype_hash[domain_name] %>" /><% else %>type="<%= $dtprefix+domain_name %>"><% end end %>}
+<type xmi:type="uml:PrimitiveType" href="<%= datatype_hash[domain_name] %>"/><% else %>type="<%= $dtprefix+domain_name %>"><% end end %>}
 
 
 # EXPLICIT ATTRIBUTE ENUM and TYPE Template
@@ -510,10 +522,10 @@ where_template = %{<ownedRule xmi:type="uml:Constraint" xmi:id="<%= xmiid %>"<%=
 </ownedRule>}
 
 # TYPE Template
-type_template = %{<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= type.name %>" >
+type_template = %{<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= type.name %>">
 <% if !datatype_hash[type.domain].nil? %>
 <generalization xmi:type="uml:Generalization" xmi:id="_supertype<%= xmiid %>"<%= get_uuid('_supertype'+xmiid) %>>
-<general xmi:type='uml:PrimitiveType' href="<%= datatype_hash[type.domain] %>" />
+<general xmi:type='uml:PrimitiveType' href="<%= datatype_hash[type.domain] %>"/>
 </generalization>
 <% else %>
 <generalization xmi:type="uml:Generalization" xmi:id="_supertype<%= xmiid %>"<%= get_uuid('_supertype'+xmiid) %> general="<%= $dtprefix+xmiid_general %>"/>
@@ -528,7 +540,11 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 
 # AggTYPE Start Template
 aggtype_start_template = %{<packagedElement xmi:type="uml:Class" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= type_name %>">
-<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>_elements"<%= get_uuid(xmiid + "_elements") %> name="elements" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> type="<%= xmiid_type %>">}
+<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>_elements"<%= get_uuid(xmiid + "_elements") %> name="elements" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %><%
+if datatype_hash[type.domain].nil? %> type="<%= xmiid_type %>"><%
+else %>>
+<type href="<%= datatype_hash[type.domain] %>"/><%
+end %>}
 
 # TYPE  Stereotype Template
 type_stereotype_template = %{<<%= $StandardProfile %>:Type xmi:id="<%= xmiid %>application1"<%= get_uuid(xmiid+ 'application1') %> base_Class="<%= baseClass %>"/>}
@@ -579,6 +595,22 @@ res = ERB.new(overall_start_template)
 t = res.result(binding)
 file.puts t
 
+if dtHandle != "local"
+	pathElements = outPath.split('/')
+	relPath = "DataTypes.xmi"
+	for elem in pathElements 
+		relPath = "../" + relPath
+	end
+	datatype_hash["LOGICAL"] = relPath + "#LOGICAL"
+	datatype_hash["BOOLEAN"] = relPath + "#BOOLEAN"
+	datatype_hash["NUMBER"] = relPath + "#NUMBER"
+	datatype_hash["REAL"] = relPath + "#REAL"
+	datatype_hash["INTEGER"] = relPath + "#INTEGER"
+	datatype_hash["STRING"] = relPath + "#STRING"
+	datatype_hash["BINARY"] = relPath + "#BINARY"
+	file.puts '<packagedElement xmi:type="uml:Package" href="' + relPath + '#_0_DataTypes"/>'
+end
+
 res = ERB.new(package_start)
 t = res.result(binding)
 file.puts t
@@ -616,21 +648,6 @@ if dtHandle != "ignore"
 		uuidOldSafe = $olduuids
 		$olduuids = tmp
 	end
-end
-
-if dtHandle != "local"
-	 pathElements = outPath.split('/')
-	 relPath = "DataTypes.xmi"
-	 for elem in pathElements 
-		 relPath = "../" + relPath
-		end
-	datatype_hash["LOGICAL"] = relPath + "#LOGICAL"
-	datatype_hash["BOOLEAN"] = relPath + "#BOOLEAN"
-	datatype_hash["NUMBER"] = relPath + "#NUMBER"
-	datatype_hash["REAL"] = relPath + "#REAL"
-	datatype_hash["INTEGER"] = relPath + "#INTEGER"
-	datatype_hash["STRING"] = relPath + "#STRING"
-	datatype_hash["BINARY"] = relPath + "#BINARY"
 end
 
 # Set up list of all EXPRESS Inverses in all schemas 
@@ -750,6 +767,12 @@ for schema in schema_list
 	res = ERB.new(schema_start_template)
 	t = res.result(binding)
 	file.puts t
+	
+	if schema_list.size == 1
+		res = ERB.new(sharedPackage)
+		t = res.result(binding)
+		file.puts t
+	end
 	
 	interfaced_schema_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::InterfaceSpecification}
 	
@@ -966,7 +989,7 @@ for schema in schema_list
 				when "Hybrid"
 					typeProxy = typeProxies[enum.name]
 					if typeProxy.nil?
-						typeProxies[type.name] = enum
+						typeProxies[enum.name] = enum
 					end
 				when "Remove"
 				 # do nothing

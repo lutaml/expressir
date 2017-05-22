@@ -308,9 +308,9 @@ end %>}
 # Apply SysML profile
 apply_sysml = %{<profileApplication xmi:type="uml:ProfileApplication" xmi:id="_profileApplication0"<%= get_uuid('_profileApplication0') %>><%
 if xmiVersion == "2.1" %>
-<appliedProfile xmi:type="uml:Profile" href="http://www.omg.org/spec/SysML/20100301/SysML-profile.uml#_0"/><%
+<appliedProfile href="http://www.omg.org/spec/SysML/20100301/SysML-profile.uml#_0"/><%
 else %>
-<appliedProfile xmi:type="uml:Profile" href="http://www.omg.org/spec/SysML/20150709/SysML.xmi#_SysML__0"/><%
+<appliedProfile href="http://www.omg.org/spec/SysML/20150709/SysML.xmi#_SysML__0"/><%
 end %>
 </profileApplication>}
 
@@ -488,7 +488,7 @@ attribute_template = %{}
 # EXPLICIT ATTRIBUTE SIMPLE TYPE Template
 attribute_builtin_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= attr.name %>"<% if islist %> isOrdered='true'<% end %><% if !isset %> isUnique='false'<% end %> aggregation='composite'<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %> 
 <% if !nestedAggs[domain_name].nil? %>type="<%= prefix+domain_name %>"><% else if !datatype_hash[domain_name].nil? %>>
-<type xmi:type="uml:PrimitiveType" href="<%= datatype_hash[domain_name] %>"/><% else %>type="<%= $dtprefix+domain_name %>"><% end end %>}
+<type href="<%= datatype_hash[domain_name] %>"/><% else %>type="<%= $dtprefix+domain_name %>"><% end end %>}
 
 
 # EXPLICIT ATTRIBUTE ENUM and TYPE Template
@@ -525,7 +525,7 @@ where_template = %{<ownedRule xmi:type="uml:Constraint" xmi:id="<%= xmiid %>"<%=
 type_template = %{<packagedElement xmi:type="uml:PrimitiveType" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= type.name %>">
 <% if !datatype_hash[type.domain].nil? %>
 <generalization xmi:type="uml:Generalization" xmi:id="_supertype<%= xmiid %>"<%= get_uuid('_supertype'+xmiid) %>>
-<general xmi:type='uml:PrimitiveType' href="<%= datatype_hash[type.domain] %>"/>
+<general href="<%= datatype_hash[type.domain] %>"/>
 </generalization>
 <% else %>
 <generalization xmi:type="uml:Generalization" xmi:id="_supertype<%= xmiid %>"<%= get_uuid('_supertype'+xmiid) %> general="<%= $dtprefix+xmiid_general %>"/>
@@ -608,7 +608,7 @@ if dtHandle != "local"
 	datatype_hash["INTEGER"] = relPath + "#INTEGER"
 	datatype_hash["STRING"] = relPath + "#STRING"
 	datatype_hash["BINARY"] = relPath + "#BINARY"
-	file.puts '<packagedElement xmi:type="uml:Package" href="' + relPath + '#_0_DataTypes"/>'
+	file.puts '<packagedElement href="' + relPath + '#_0_DataTypes"/>'
 end
 
 res = ERB.new(package_start)
@@ -1180,7 +1180,7 @@ for schema in schema_list
 		iattr_xmiid = '_2_attr' + get_prefix.call(inverse.entity.schema) + inverse.entity.name + '-' + inverse.name
 		
 		general_xmiid = '_2_general' + get_prefix.call(inverse.reverseEntity.schema) + inverse.entity.name + '-' + inverse.reverseAttr_id
-		redefined_xmiid = '_1_association' + get_prefix.call(inverse.entity.schema) + inverse.reverseEntity.name + '-' + inverse.reverseAttr_id
+		redefined_xmiid = '_1_association' + get_prefix.call(inverse.entity.schema) + inverse.reverseAttr.entity.name + '-' + inverse.reverseAttr_id
 
 		lower = '1'
 		upper = '1'

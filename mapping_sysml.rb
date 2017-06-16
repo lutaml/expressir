@@ -430,7 +430,7 @@ attribute_entity_select_template = %{}
 attribute_entity_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= attr.name %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> type="<%= domain_xmiid %>" <% if (direct_inverse and !encapsulatedInto) or encapsulated %>aggregation='composite'<% end %> association="<%= assoc_xmiid %>"<% if attr.redeclare_entity %> redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
 
 # INVERSE ATTRIBUTE Template
-inverse_attribute_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= inverse.name %>" <% if islist %>isOrdered='true'<% end %> <% if !isset %>isUnique='false'<% end %> isReadOnly='true'<% if encapsulatedInto %> aggregation='composite'<% end %> type="<%= domain_xmiid %>" association="<%= assoc_xmiid %>" <% if inverse.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
+inverse_attribute_template = %{<ownedAttribute xmi:type="uml:Property" xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> name="<%= inverse.name %>" <% if !isset %>isUnique='false'<% end %> isReadOnly='true'<% if encapsulatedInto %> aggregation='composite'<% end %> type="<%= domain_xmiid %>" association="<%= assoc_xmiid %>" <% if inverse.redeclare_entity %>redefinedProperty="<%= redefined_xmiid %>"<% end %>>}
 
 #Template covering multiplicities
 multiplicity = %{<% if lower == '0' %><lowerValue xmi:type="uml:LiteralInteger" xmi:id="<%= xmiid %>-lowerValue"<%= get_uuid(xmiid + '-lowerValue') %>/><% 

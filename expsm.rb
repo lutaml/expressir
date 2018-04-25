@@ -83,7 +83,7 @@ end
 class Entity < NamedType
 	attr_accessor :supertypes, :attributes, :isAbs, :superexpression, :uniques, :subtypes_array, :supertypes_array, :attributes_all_array, :supertypes_all
 	def initialize
-		@isAbs = FALSE
+		@isAbs = false
 		@attributes = []
 		@uniques = []
 		@wheres = []
@@ -126,8 +126,8 @@ end
 class ExplicitOrDerived < Attribute
 		attr_accessor :isBuiltin, :isFixed, :width, :precision
 	def initialize
-		@isBuiltin = FALSE
-		@isFixed = FALSE
+		@isBuiltin = false
+		@isFixed = false
 		@width = nil
 		@precision = nil
 	end		
@@ -135,7 +135,7 @@ end
 class Explicit < ExplicitOrDerived
 	attr_accessor :isOptional
 	def initialize
-		@isOptional = FALSE
+		@isOptional = false
 	end
 end
 class ExplicitAggregate < Explicit
@@ -143,7 +143,7 @@ class ExplicitAggregate < Explicit
 	def initialize
 		@rank = 0
 		@dimensions = []
-		@isOptional = FALSE
+		@isOptional = false
 	end
 end
 class AggregateDimension
@@ -152,8 +152,8 @@ class AggregateDimension
 		@aggrtype = "SET"
 		@lower = "0"
 		@upper = "?"
-		@isUnique = FALSE
-		@isOptionalArray = FALSE
+		@isUnique = false
+		@isOptionalArray = false
 	end
 end
 class Derived < ExplicitOrDerived
@@ -183,8 +183,8 @@ end
 class Type < DefinedType
 	attr_accessor :isBuiltin, :domain, :isFixed, :width, :precision
 	def initialize
-		@isBuiltin = FALSE
-		@isFixed = FALSE
+		@isBuiltin = false
+		@isFixed = false
 		@width = nil
 		@precision = nil
 		@wheres = []
@@ -203,9 +203,9 @@ end
 class TypeSelect < DefinedType
 	attr_accessor :selectitems_array, :selectitems, :extends, :extends_item, :isExtensible, :selectitems_all, :isGenericEntity, :isBuiltin, :cleaned_select_items
 	def initialize
-		@isBuiltin = FALSE
-		@isExtensible = FALSE
-		@isGenericEntity = FALSE
+		@isBuiltin = false
+		@isExtensible = false
+		@isGenericEntity = false
 		@selectitems = nil
 		@selectitems_array = []
 		@cleaned_select_items = nil
@@ -244,7 +244,7 @@ end
 class TypeEnum < DefinedType
 	attr_accessor :items_array, :items, :extends, :extends_item, :isExtensible, :allitems, :isBuiltin
 	def initialize
-		@isBuiltin = FALSE
+		@isBuiltin = false
 		@selectedBy = []
 	end
 end
@@ -360,12 +360,12 @@ def load_dictionary_express_aggregate(elementxml, expnew)
 			end
 			if aggrxml.attributes["optional"] != nil
 				if aggrxml.attributes["optional"] == "YES"
-					dimnew.isOptionalArray = TRUE
+					dimnew.isOptionalArray = true
 				end
 			end
 			if aggrxml.attributes["unique"] != nil
 				if aggrxml.attributes["unique"] == "YES"
-					dimnew.isUnique = TRUE
+					dimnew.isUnique = true
 				end
 			end
 		end
@@ -389,7 +389,7 @@ end
 def load_dictionary_express_builtintype(elementxml, expnew)
 	if elementxml.elements["builtintype"] != nil
 		expnew.domain = elementxml.elements["builtintype"].attributes["type"].to_s
-		expnew.isBuiltin = TRUE
+		expnew.isBuiltin = true
 		if elementxml.elements["builtintype"].attributes["width"] != nil
 			expnew.width = elementxml.elements["builtintype"].attributes["width"].to_s
 		end
@@ -398,7 +398,7 @@ def load_dictionary_express_builtintype(elementxml, expnew)
 		end
 		if elementxml.elements["builtintype"].attributes["fixed"] != nil
 			if elementxml.elements["builtintype"].attributes["fixed"] = "YES"
-				expnew.isFixed = TRUE
+				expnew.isFixed = true
 			end
 		end
 	end 
@@ -429,12 +429,12 @@ def load_dictionary_express_entity(schemaxml, repos)
 		end
 		if entityxml.attributes["abstract.entity"] != nil
 			if entityxml.attributes["abstract.entity"] == "YES"
-				entnew.isAbs = TRUE
+				entnew.isAbs = true
 			end
 		end
 		if entityxml.attributes["abstract.supertype"] != nil
 			if entityxml.attributes["abstract.supertype"] == "YES"
-				entnew.isAbs = TRUE
+				entnew.isAbs = true
 			end
 		end
 ##
@@ -455,7 +455,7 @@ def load_dictionary_express_entity(schemaxml, repos)
 
 				if explicitxml.attributes["optional"] != nil
 					if explicitxml.attributes["optional"].to_s == "YES"
-						attnew.isOptional = TRUE
+						attnew.isOptional = true
 					end
 				end
 
@@ -589,18 +589,18 @@ def load_dictionary_express_type(schemaxml, repos)
 			end
 			if typexml.elements["select"].attributes["genericentity"] != nil
 				if typexml.elements["select"].attributes["genericentity"] == "YES"
-					tnew.isGenericEntity = TRUE
+					tnew.isGenericEntity = true
 				end
 			end
 			if typexml.elements["select"].attributes["extensible"] != nil
 				if typexml.elements["select"].attributes["extensible"] == "YES"
-					tnew.isExtensible = TRUE
+					tnew.isExtensible = true
 				end
 			end
 			if typexml.elements["select"].attributes["basedon"] != nil
 				tnew.extends = typexml.elements["select"].attributes["basedon"]
 			end
-			if tnew.isExtensible == FALSE
+			if tnew.isExtensible == false
 				tnew.selectitems_all = tnew.selectitems
 			end
 		end

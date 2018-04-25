@@ -14,7 +14,7 @@ expxml_input = " "
 map_input = " "
 schema_input = " "
 descxml_input = " "
-debug = FALSE
+debug = false
 passedArgs = []
 for arg in ARGV
 	argarray = arg.split('=')
@@ -23,7 +23,7 @@ for arg in ARGV
 		when "map" then map_input = argarray[1]
 		when "schema" then schema_input = argarray[1]
 		when "descxml" then descxml_input = argarray[1]
-		when "debug" then debug = TRUE
+		when "debug" then debug = true
 		when "help", "-help", "--help", "-h", "--h"
 			puts "reeper Version 0.1"
 			puts " "
@@ -108,7 +108,7 @@ if descxml_input != " "
 	descxmlfile.close
 end
 
-if debug == TRUE
+if debug == true
 	debug_file = File.new("debug.txt", "w")
 	debug_file.puts YAML.dump( therepos )
 	debug_file.close

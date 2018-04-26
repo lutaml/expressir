@@ -391,7 +391,7 @@ data_type_stereos = %{<sysml:ValueType xmi:id="<%= $dtprefix %>LOGICAL_VT"<%= ge
 <base_DataType xmi:idref="<%= $dtprefix %>INTEGER"/>
 </sysml:ValueType>
 <sysml:ValueType xmi:id="<%= $dtprefix %>STRING_VT"<%= get_uuid($dtprefix+'STRING_VT') %>>
-<base_DataType xmi_idref="<%= $dtprefix %>STRING"/>
+<base_DataType xmi:idref="<%= $dtprefix %>STRING"/>
 </sysml:ValueType>
 <sysml:ValueType xmi:id="<%= $dtprefix %>BINARY_VT"<%= get_uuid($dtprefix+'BINARY_VT') %>>
 <base_DataType xmi:idref="<%= $dtprefix %>BINARY"/>

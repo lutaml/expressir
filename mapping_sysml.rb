@@ -34,9 +34,6 @@ def get_uuid(id)
 	if $uuidsRequired
 		uuidmap = $uuidxml.xpath('//uuidmap[@id="' + id + '"]').first
 		if !uuidmap.nil?
-			if uuidmap['id'] == "_SYSML_ARM-common_datum_list_elements-lowerValue"
-				puts "Found!"
-			end
 			$olduuids.delete uuidmap
 			return ' xmi:uuid="' + uuidmap.attributes["uuid"].to_s.strip + '"'
 		else
@@ -369,10 +366,7 @@ data_types = %{<packagedElement xmi:id="<%= $dtprefix %>BINARY"<%= get_uuid($dtp
 <ownedLiteral xmi:id="<%= $dtprefix %>FALSE"<%= get_uuid($dtprefix+'FALSE') %> xmi:type="uml:EnumerationLiteral">
 <name>False</name>
 </ownedLiteral>
-</packagedElement><%
-if !outPath.nil? %>
-</uml:Package><%
-end %>}
+</packagedElement>}
 
 #DATA TYPE end
 data_type_stereos = %{<sysml:ValueType xmi:id="<%= $dtprefix %>LOGICAL_VT"<%= get_uuid($dtprefix+'LOGICAL_VT') %>>
@@ -440,7 +434,7 @@ enum_item_template = %{<ownedLiteral xmi:id="<%= enumitem_xmiid %>"<%= get_uuid(
 enum_end_template = %{</packagedElement>}
 
 # SELECT Start Template
-select_start_template = %{<packagedElement xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> xmi:type="uml:Class">
+select_start_template = %{<packagedElement xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> xmi:type="<% if selectTypeType[type.name] == "Type" %>uml:DataType<% else %>uml:Class<% end %>">
 <name><%= type.name %></name>
 <isAbstract>true</isAbstract>}
 
@@ -448,7 +442,7 @@ select_start_template = %{<packagedElement xmi:id="<%= xmiid %>"<%= get_uuid(xmi
 select_end_template = %{</packagedElement>}
 
 # SELECT Stereotype Template
-select_stereotype_template = %{<<%= $StandardProfile %>:Auxiliary xmi:id="<%= xmiid %>application1"<%= get_uuid(xmiid+ 'application1') %>>
+select_stereotype_template = %{<<%= $StandardProfile %>:Auxiliary xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %>>
 <base_Class xmi:idref="<%= baseClass %>"/>
 </<%= $StandardProfile %>:Auxiliary>}
 
@@ -620,7 +614,7 @@ aggtype_start_template = %{<packagedElement xmi:id="<%= xmiid %>"<%= get_uuid(xm
 <type href="<%= datatype_hash[type.domain] %>"/><% end %>}
 
 # TYPE  Stereotype Template
-type_stereotype_template = %{<<%= $StandardProfile %>:Type xmi:id="<%= xmiid %>application1"<%= get_uuid(xmiid+ 'application1') %>>
+type_stereotype_template = %{<<%= $StandardProfile %>:Type xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %>>
 <base_Class xmi:idref="<%= baseClass %>"/>
 </<%= $StandardProfile %>:Type>}
 
@@ -696,12 +690,6 @@ if dtHandle != "ignore"
 		res = ERB.new(overall_start_template)
 		t = res.result(binding)
 		dtfile.puts t
-		xmiid = "_0_" + $dtprefix + "DataTypes"
-		dtfile.puts '<uml:Package xmi:id="'+ xmiid +'"' + get_uuid(xmiid) +' xmi:type="uml:Package">'
-		dtfile.puts '<name>DataTypes</name>'
-		res = ERB.new(apply_sysml)
-		t = res.result(binding)
-		dtfile.puts t
 		if $uuidsRequired
 			uuidSafe = $uuidxml
 			uuidOldSafe = $olduuids
@@ -714,6 +702,12 @@ if dtHandle != "ignore"
 			end
 			$olduuids = $uuidxml.xpath('//uuidmap')
 		end
+		xmiid = "_0_" + $dtprefix + "DataTypes"
+		dtfile.puts '<uml:Package xmi:id="'+ xmiid +'"' + get_uuid(xmiid) +' xmi:type="uml:Package">'
+		dtfile.puts '<name>DataTypes</name>'
+		res = ERB.new(apply_sysml)
+		t = res.result(binding)
+		dtfile.puts t
 	end
 	res = ERB.new(data_types)
 	t = res.result(binding)
@@ -1755,6 +1749,7 @@ end
 				res = ERB.new(entity_block_template)
 				t = res.result(binding)
 				file.puts t
+				xmiid = baseClass + '-Auxiliary'
 				res = ERB.new(select_stereotype_template)
 				t = res.result(binding)
 				file.puts t
@@ -1768,6 +1763,7 @@ end
 		res = ERB.new(entity_block_template)
 		t = res.result(binding)
 		file.puts t
+		xmiid = baseClass + '-Type'
 		res = ERB.new(type_stereotype_template)
 		t = res.result(binding)
 		file.puts t
@@ -1780,6 +1776,7 @@ end
 		res = ERB.new(entity_block_template)
 		t = res.result(binding)
 		file.puts t
+		xmiid = baseClass + '-Type'
 		res = ERB.new(type_stereotype_template)
 		t = res.result(binding)
 		file.puts t
@@ -1792,6 +1789,7 @@ end
 		res = ERB.new(entity_block_template)
 		t = res.result(binding)
 		file.puts t
+		xmiid = baseClass + '-Type'
 		res = ERB.new(type_stereotype_template)
 		t = res.result(binding)
 		file.puts t
@@ -1817,9 +1815,6 @@ end
 			dtfile.puts t
 			if !uuidSafe.nil?
 				for uuidmap in $olduuids
-					if uuidmap['id'] == "_SYSML_ARM-common_datum_list_elements-lowerValue"
-						puts "Deleted under DT"
-					end
 					uuidmap.remove
 				end
 				File.open("DataTypes_UUIDs.xml","w"){|file| $uuidxml.write_xml_to file} 
@@ -1839,9 +1834,6 @@ end
 
 	if $uuidsRequired
 		for uuidmap in $olduuids
-			if uuidmap['id'] == "_SYSML_ARM-common_datum_list_elements-lowerValue"
-				puts "Deleted under main"
-			end
 			uuidmap.remove
 		end
 		File.open("UUIDs.xml","w"){|file| $uuidxml.write_xml_to file} 

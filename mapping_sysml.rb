@@ -605,8 +605,9 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 
 # AggTYPE Start Template
 aggtype_start_template = %{<packagedElement xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> xmi:type="uml:Class">
-<name><%= type_name %></name><% xmiid = xmiid + "_elements" %>
-<ownedAttribute xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> xmi:type="uml:Property">
+<name><%= type_name %></name>}
+
+aggtype_attribute = %{<ownedAttribute xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> xmi:type="uml:Property">
 <name>elements</name><% if islist %>
 <isOrdered>true</isOrdered><% end %><% if !isset %>
 <isUnique>false</isUnique><% end %><% if datatype_hash[type.domain].nil? %>
@@ -1018,6 +1019,20 @@ for schema in schema_list
 			t = res.result(binding)
 			file.puts t
 			
+			# Map TYPE Select has Entity as item
+			for select in type.selectedBy
+				xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
+				xmiid_general = prefix + select.name
+				res = ERB.new(supertype_template)
+				t = res.result(binding)
+				file.puts t
+			end
+			
+			xmiid = prefix + type.name + "_elements" 
+			res = ERB.new(aggtype_attribute)
+			t = res.result(binding)
+			file.puts t
+
 			res = ERB.new(multiplicity,0,"<>")
 			t = res.result(binding)
 			if !t.nil? && t.size>0
@@ -1028,15 +1043,6 @@ for schema in schema_list
 			t = res.result(binding)
 			file.puts t
 
-			# Map TYPE Select has Entity as item
-	    for select in type.selectedBy
-				xmiid = '_2_selectitem' + prefix + type.name + '-' + select.name
-				xmiid_general = prefix + select.name
-				res = ERB.new(supertype_template)
-				t = res.result(binding)
-				file.puts t
-			end
-			
 			res = ERB.new(type_end_template)
 			t = res.result(binding)
 			file.puts t
@@ -1650,6 +1656,11 @@ for schema in schema_list
 		end
 		type_name = domain_name
 		res = ERB.new(aggtype_start_template)
+		t = res.result(binding)
+		file.puts t
+		
+		xmiid = prefix + domain_name + "_elements"
+		res = ERB.new(aggtype_attribute)
 		t = res.result(binding)
 		file.puts t
 		

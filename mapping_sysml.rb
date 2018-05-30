@@ -7,7 +7,7 @@ include Nokogiri
 # Version 0.5
 #
 # This function navigates the EXPRESS STEPMod Model Ruby Classes
-# and performs a structural EXPRESS-to-SysML (1.2) mapping using Ruby ERB templates.
+# and performs a structural EXPRESS-to-SysML (1.4) mapping using Ruby ERB templates.
 # The output is in XMI 2.1 or 2.5 syntax in a file named <schema>.xmi if one schema input and 'Model.xmi' if more than one schema input.
 # 
 # Real, Number, Integer, Boolean, String -> New Primitive Type
@@ -37,7 +37,6 @@ def get_uuid(id)
 			$olduuids.delete uuidmap
 			return ' xmi:uuid="' + uuidmap.attributes["uuid"].to_s.strip + '"'
 		else
-			puts "Generated for " + id
 			theUUID = $uuid.generate
 			uuidtext = theUUID.to_s.strip
 			uuidmap = Nokogiri::XML::Node.new("uuidmap", $uuidxml)
@@ -157,11 +156,6 @@ def isEncapsulated (type, attrib)
 			end
 		end	
 	end
-=begin
-	if encapsulated
-		puts type.name + ' is encapsulated for ' + attrib.entity.name + '.' + attrib.name
-	end
-=end
 	return encapsulated
 end
 
@@ -196,11 +190,6 @@ def isEncapsulatedInto (parent, entity, attrib)
 			end
 		end
 	end
-=begin
-	if encapsulated
-		puts parent.name + ' is encapsulated into ' + attrib.name
-	end
-=end
 	return encapsulated
 end
 

@@ -411,7 +411,7 @@ end %>
 	entity_end_template = %{</packagedElement>}
 
 	# ENUMERATION Start Template
-	enum_start_template = %{<packagedElement xmi:id="<%= type_xmiid %>"<%= get_uuid(type_xmiid) %> xmi:type="uml:Enumeration">
+	enum_start_template = %{<packagedElement xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> xmi:type="uml:Enumeration">
 <name><%= enum.name %></name>}
 
 	# ENUMERATION ITEM Template
@@ -587,6 +587,7 @@ end %>
 <ownedAttribute xmi:id="<%= xmiid %>_value"<%= get_uuid(xmiid + "_value") %> xmi:type="uml:Property">
 <name>value</name>
 <type xmi:idref="<%= xmiid_type %>"/>
+<aggregation>composite</aggregation>
 </ownedAttribute><%
 dummy = get_uuid(xmiid + "_value-lowerValue")
 dummy = get_uuid(xmiid + "_value-upperValue")
@@ -601,9 +602,24 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 <isOrdered>true</isOrdered><% end %><% if !isset %>
 <isUnique>false</isUnique><% end %><% if datatype_hash[type.domain].nil? %>
 <type xmi:idref="<%= xmiid_type %>"/><% else %>
-<type href="<%= datatype_hash[type.domain] %>"/><% end %>}
+<type href="<%= datatype_hash[type.domain] %>"/><% end %>
+<aggregation>composite</aggregation><% if associationNeeded %>
+<association xmi:idref="<%= assoc_xmiid %>"/><% end %>}
 
-	# TYPE  Stereotype Template
+	aggtype_association = %{<packagedElement xmi:id="<%= assoc_xmiid %>"<%= get_uuid(assoc_xmiid) %> xmi:type="uml:Association">
+<memberEnd xmi:idref="<%= xmiid %>"/>
+<memberEnd xmi:idref="<%= assoc_xmiid + '-end' %>"/>
+<ownedEnd xmi:id="<%= assoc_xmiid %>-end"<%= get_uuid(assoc_xmiid+'-end') %> xmi:type="uml:Property">
+<type xmi:idref="<%= xmiid_type %>"/>
+<association xmi:idref="<%= assoc_xmiid %>"/>
+<lowerValue xmi:id="<%= assoc_xmiid %>-end-lowerValue"<%= get_uuid(assoc_xmiid+'-end-lowerValue') %> xmi:type="uml:LiteralInteger"/>
+<upperValue xmi:id="<%= assoc_xmiid %>-end-upperValue"<%= get_uuid(assoc_xmiid+'-end-upperValue') %> xmi:type="uml:LiteralUnlimitedNatural">
+<value>*</value>
+</upperValue>
+</ownedEnd>
+</packagedElement>}
+
+# TYPE  Stereotype Template
 	type_stereotype_template = %{<<%= $StandardProfile %>:Type xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %>>
 <base_Class xmi:idref="<%= baseClass %>"/>
 </<%= $StandardProfile %>:Type>}
@@ -893,7 +909,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 			end
 		end
 
-	# Evaluate and write schema start template 
+		# Evaluate and write schema start template 
 		xmiid = '_1_' + schema.name
 		res = ERB.new(schema_start_template)
 		t = res.result(binding)
@@ -909,14 +925,14 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 		interfaced_schema_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::InterfaceSpecification}
 		
 		for interfaced_schema in interfaced_schema_list
-	# Evaluate and write schema interface template 
+			# Evaluate and write schema interface template 
 			xmiid = '_2_' + schema.name + '-' + interfaced_schema.foreign_schema_id
 			res = ERB.new(schema_interface_template)
 			t = res.result(binding)
 			file.puts t		
 		end
 
-	# Map EXPRESS TYPE of Builtin
+		# Map EXPRESS TYPE of Builtin
 		type_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::Type and e.isBuiltin}
 		for type in type_list
 			xmiid = prefix + type.name
@@ -926,7 +942,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 			t = res.result(binding)
 			file.puts t
 			
-	# Map TYPE Select has Type as item
+			# Map TYPE Select has Type as item
 			for select in type.selectedBy
 				# sort out what type of select we are dealing with
 				case selectTypeType[select.name]
@@ -956,7 +972,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				end
 			end		
 
-	#Map EXPRESS Where rules
+			# Map EXPRESS Where rules
 			whererules = type.wheres.select {|w| w.name[0..10] != "encapsulate"}
 			if whererules.size > 0
 				for where in whererules
@@ -980,94 +996,121 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 			file.puts t
 		end
 
-	# Map EXPRESS TYPE of TYPE
+		# Map EXPRESS TYPE of TYPE
 		type_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::Type and !e.isBuiltin}
 		for type in type_list
-			superselect = NamedType.find_by_name( type.domain )
+			domain = NamedType.find_by_name( type.domain )
 			xmiid = prefix + type.name
 			xmiid_type = xmiid
-			# deal with select types
-			if superselect.kind_of? EXPSM::TypeSelect
-				res = ERB.new(select_start_template)
-				t = res.result(binding)
-				file.puts t
+			# deal with special cases
+			case domain.class.to_s
+				when "EXPSM::TypeSelect"
+					res = ERB.new(select_start_template)
+					t = res.result(binding)
+					file.puts t
 
-				xmiid = '_2_selectitem' + prefix + type.name + '-' + type.domain
-				xmiid_general = prefix + type.domain
-				res = ERB.new(supertype_template)
-				t = res.result(binding)
-				file.puts t
-				
-				res = ERB.new(select_end_template)
-				t = res.result(binding)
-				file.puts t
-			else
-				xmiid_general = prefix + type.domain
-				res = ERB.new(type_template)
-				t = res.result(binding)
-				file.puts t
-				
-				# Map TYPE Select has Type as item
-				for select in type.selectedBy
-					case selectTypeType[select.name]
-						when "Type"
-							superName = select.name
-							subset = selectSubset[superName]
-							if !subset.nil?
-								if !subset.include?(type.name)
-									selectSubs[superName].each{|e|
-										if selectSubset[e].include?(type.name)
-											superName = e
-										end}
-								end
+					xmiid = '_2_superselect' + prefix + type.name + '-' + type.domain
+					xmiid_general = prefix + type.domain
+					res = ERB.new(supertype_template)
+					t = res.result(binding)
+					file.puts t
+
+				when "EXPSM::TypeEnum"
+					enum = type
+					res = ERB.new(enum_start_template)
+					t = res.result(binding)
+					file.puts t
+
+					xmiid = '_2_superenum' + prefix + type.name + '-' + type.domain
+					xmiid_general = prefix + type.domain
+					res = ERB.new(supertype_template)
+					t = res.result(binding)
+					file.puts t
+
+				else
+					xmiid_general = prefix + type.domain
+					res = ERB.new(type_template)
+					t = res.result(binding)
+					file.puts t
+			end
+					
+			# Map TYPE Select has Type as item
+			for select in type.selectedBy
+				case selectTypeType[select.name]
+					when "Type"
+						superName = select.name
+						subset = selectSubset[superName]
+						if !subset.nil?
+							if !subset.include?(type.name)
+								selectSubs[superName].each{|e|
+									if selectSubset[e].include?(type.name)
+										superName = e
+									end}
 							end
-							xmiid = '_2_selectitem' + prefix + type.name + '-' + superName
-							xmiid_general = prefix + superName
-							res = ERB.new(supertype_template)
-							t = res.result(binding)
-							file.puts t
-						when "Hybrid"
-							typeProxy = typeProxies[type.name]
-							if typeProxy.nil?
-								typeProxies[type.name] = type
-							end
-						when "Remove"
-							# do nothing
-					end
+						end
+						xmiid = '_2_selectitem' + prefix + type.name + '-' + superName
+						xmiid_general = prefix + superName
+						res = ERB.new(supertype_template)
+						t = res.result(binding)
+						file.puts t
+					when "Hybrid"
+						typeProxy = typeProxies[type.name]
+						if typeProxy.nil?
+							typeProxies[type.name] = type
+						end
+					when "Remove"
+						# do nothing
 				end
-				
-				#Map EXPRESS Where rules
-				whererules = type.wheres.select {|w| w.name[0..10] != "encapsulate"}
-				if whererules.size > 0
-					for where in whererules
-						xmiid = '_3_whr' + prefix + type.name + '-' + where.name.to_s
-						where_ocl = get_where(xmiid, where.expression)
-						if where_ocl.size > 0
+			end
+			
+			case domain.class.to_s
+				when "EXPSM::TypeSelect"
+				when "EXPSM::TypeEnum"
+					#Map EXPRESS Where rules
+					whererules = type.wheres.select {|w| w.name[0..10] != "encapsulate"}
+					if whererules.size > 0
+						for where in whererules
+							xmiid = '_3_whr' + prefix + type.name + '-' + where.name.to_s
+							where_ocl = where.expression.gsub("<>", "&lt;&gt;")
 							xmiidref = xmiid_type
 							res = ERB.new(where_template)
 							t = res.result(binding)
 							file.puts t
-						else
-							puts "Where rule " + type.name + "." + where.name + " not mapped to OCL - ignored!"
 						end
 					end
-				end
-				
-				put_ops(type.name, file)
-
-				res = ERB.new(type_end_template)
-				t = res.result(binding)
-				file.puts t
+				else
+					#Map EXPRESS Where rules
+					whererules = type.wheres.select {|w| w.name[0..10] != "encapsulate"}
+					if whererules.size > 0
+						for where in whererules
+							xmiid = '_3_whr' + prefix + type.name + '-' + where.name.to_s
+							where_ocl = get_where(xmiid, where.expression)
+							if where_ocl.size > 0
+								xmiidref = xmiid_type
+								res = ERB.new(where_template)
+								t = res.result(binding)
+								file.puts t
+							else
+								puts "Where rule " + type.name + "." + where.name + " not mapped to OCL - ignored!"
+							end
+						end
+					end
+					
+					put_ops(type.name, file)
 			end
+				
+			res = ERB.new(type_end_template)
+			t = res.result(binding)
+			file.puts t
 		end
-		
+
 		aggTypes.each_value do |type| 
 			if type.schema == schema
 				# Evaluate and write aggType start template 
 				# initialize default cardinailty constraints
 				isset = true
 				islist = false
-				
+
 				upper = type.dimensions[0].upper
 				if upper == '?'
 					upper = '*'
@@ -1087,11 +1130,33 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				end
 
 				xmiid = prefix + type.name
+				associationNeeded = false
 				if type.isBuiltin
 					xmiid_type = $dtprefix + type.domain
 				else
 					xmiid_type = prefix + type.domain
+
+					domain = NamedType.find_by_name( type.domain )
+					case domain.class.to_s
+						when "EXPSM::Entity"
+							associationNeeded = true
+						when "EXPSM::Type"
+								case selectTypeType[type.domain]
+									when "Entity", "Hybrid"
+										associationNeeded = true
+								end
+						when "EXPSM::TypeAggregate"
+							if !aggTypes[type.domain].nil?
+								associationNeeded = true
+							end
+						when "EXPSM::TypeSelect"
+							case selectTypeType[type.domain]
+								when "Entity", "Hybrid"
+									associationNeeded = true
+							end
+					end
 				end
+
 				type_name = type.name
 				res = ERB.new(aggtype_start_template)
 				t = res.result(binding)
@@ -1116,7 +1181,11 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 					file.puts t
 				end
 				
-				xmiid = prefix + type.name + "_elements" 
+				if associationNeeded
+					assoc_xmiid = '_1_association' + prefix + type.name + '-elements'
+				end
+				
+				xmiid = '_2_attr' + prefix + type.name + "-elements" 
 				res = ERB.new(aggtype_attribute)
 				t = res.result(binding)
 				file.puts t
@@ -1134,23 +1203,29 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				res = ERB.new(type_end_template)
 				t = res.result(binding)
 				file.puts t
+				
+				if associationNeeded
+					res = ERB.new(aggtype_association)
+					t = res.result(binding)
+					file.puts t
+				end
 			end
 		end
-
-	# Map EXPRESS Enumeration Types
+		
+		# Map EXPRESS Enumeration Types
 		enum_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::TypeEnum }
 		for enum in enum_list
 
-	# Evaluate and write TYPE Enum start template 
-			type_xmiid = prefix + enum.name
+			# Evaluate and write TYPE Enum start template 
+			xmiid = prefix + enum.name
 			res = ERB.new(enum_start_template)
 			t = res.result(binding)
 			file.puts t
 
 			superenum = enum.extends_item
 			if !superenum.nil?
-				if superselect.kind_of? EXPSM::TypeEnum
-		# Write Enum Item template for parent (maps to UML same as EXPRESS supertype)
+				if superenum.kind_of? EXPSM::TypeEnum
+					# Write Enum Item template for parent (maps to UML same as EXPRESS supertype)
 					xmiid = '_2_superenum' + prefix + enum.name + '-' + superenum.name
 					xmiid_general = get_prefix.call(superenum.schema) + superenum.name
 					res = ERB.new(supertype_template)
@@ -1159,7 +1234,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				end
 			end
 
-	# Map TYPE Select has Enum as item
+			# Map TYPE Select has Enum as item
 			for select in enum.selectedBy
 				# sort out what type of select we are dealing with
 				case selectTypeType[select.name]
@@ -1189,7 +1264,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				end
 			end		
 
-	# Evaluate and write Enum Item template for each item
+			# Evaluate and write Enum Item template for each item
 			enumitem_name_list = enum.items.scan(/\w+/)
 			for enumitem in enumitem_name_list
 				enumitem_xmiid = '_1_enumitem' + prefix + enum.name + '-' + enumitem
@@ -1198,26 +1273,26 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				file.puts t
 			end
 
-	# Evaluate and write TYPE Enum end template 
+			# Evaluate and write TYPE Enum end template 
 			res = ERB.new(enum_end_template)
 			t = res.result(binding)
 			file.puts t
 		end
 
-	# Map EXPRESS TYPE Selects 
+		# Map EXPRESS TYPE Selects 
 		select_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::TypeSelect }
 		for type in select_list
 			if selectTypeType[type.name] != "Remove"
-	# Evaluate and write TYPE Select start template 
+				# Evaluate and write TYPE Select start template 
 				xmiid = prefix + type.name
-				superselect = type.extends_item
 				res = ERB.new(select_start_template)
 				t = res.result(binding)
 				file.puts t
 				
+				superselect = type.extends_item
 				if !superselect.nil?
 					if superselect.kind_of? EXPSM::TypeSelect
-			# Write Select Item template for parent (maps to UML same as EXPRESS supertype)
+						# Write Select Item template for parent (maps to UML same as EXPRESS supertype)
 						xmiid = '_2_superselect' + prefix + type.name + '-' + superselect.name
 						xmiid_general = get_prefix.call(superselect.schema)  + superselect.name
 						res = ERB.new(supertype_template)
@@ -1226,26 +1301,36 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 					end
 				end
 
-		# Evaluate and write Select Item template for each item (maps to UML same as EXPRESS supertype)
+				# Evaluate and write Select Item template for each item (maps to UML same as EXPRESS supertype)
 				for superselect in type.selectedBy
-					superName = superselect.name
-					subset = selectSubset[superselect.name]
-					if !subset.nil?
-						if !subset.include?(type.name)
-							selectSubs[superselect.name].each{|e|
-								if selectSubset[e].include?(type.name)
-									superName = e
-								end}
-						end
+					case selectTypeType[superselect]
+						when "Hybrid"
+							typeProxy = typeProxies[type.name]
+							if typeProxy.nil?
+								typeProxies[type.name] = type
+							end
+						when "Remove"
+							# do nothing
+						else
+							superName = superselect.name
+							subset = selectSubset[superselect.name]
+							if !subset.nil?
+								if !subset.include?(type.name)
+									selectSubs[superselect.name].each{|e|
+										if selectSubset[e].include?(type.name)
+											superName = e
+										end}
+								end
+							end
+							xmiid = '_2_selectitem' + prefix + type.name + '-' + superName
+							xmiid_general = prefix + superName
+							res = ERB.new(supertype_template)
+							t = res.result(binding)
+							file.puts t
 					end
-					xmiid = '_2_superselect' + prefix + type.name + '-' + superName
-					xmiid_general = prefix + superName
-					res = ERB.new(supertype_template)
-					t = res.result(binding)
-					file.puts t
 				end
 
-		# Evaluate and write TYPE Select end template 
+				# Evaluate and write TYPE Select end template 
 				res = ERB.new(select_end_template)
 				t = res.result(binding)
 				file.puts t
@@ -1290,45 +1375,79 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 
 		entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
 
-	# Map EXPRESS Explicit Attribute resulting UML Association (the Association is referenced from Class resulting from Entity)
+		# Map EXPRESS Explicit Attribute resulting UML Association (the Association is referenced from Class resulting from Entity)
 		for entity in entity_list
 			attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
 			for attr in attr_list
 				
+				domain_name = attr.domain
 				orig_domain = NamedType.find_by_name( attr.domain )
 				attr_domain = orig_domain
 				agg_domain = nil
+				attrType = nil
+				associationNeeded = false
 				begin
 					unchanged = true
 					case attr_domain.class.to_s
-						# ignore re-named select types
+						when "EXPSM::Entity"
+							associationNeeded = true
 						when "EXPSM::Type"
-							superselect = NamedType.find_by_name( attr_domain.domain )
-							if superselect.kind_of? EXPSM::TypeSelect
-								attr_domain = superselect
-								unchanged = false
-							end
-						#ignore unhandled named aggregates
+								case selectTypeType[attr_domain.name]
+									when "Entity", "Hybrid"
+										associationNeeded = true
+								end
+						#ignore unhandled named aggregations
 						when "EXPSM::TypeAggregate"
-							if aggTypes[attr_domain].nil?
+							if aggTypes[attr.domain].nil?
+								attrType = attr_domain
 								agg_domain = attr_domain
-								attr_domain = NamedType.find_by_name( attr_domain.domain )
-								unchanged = false
+								if attr_domain.isBuiltin
+									domain_name = attr_domain.domain
+									attr_domain = nil
+								else
+									newDomain = NamedType.find_by_name( attr_domain.domain )
+									attr_domain = newDomain
+									domain_name = attr_domain.name
+									unchanged = false
+								end
+							else
+								associationNeeded = true
 							end
-						# ignore removed select types
 						when "EXPSM::TypeSelect"
-							if selectTypeType[attr_domain.name] == "Remove"
+							case selectTypeType[attr_domain.name]
+								when "Entity", "Hybrid"
+									associationNeeded = true
+								# ignore removed select types
+								when "Remove"
 								attr_domain = attr_domain.selectitems_array[0]
+								domain_name = attr_domain.name
 								unchanged = false
 							end
 					end
-				end	 until unchanged			
+				end until unchanged
 				
-				if attr_domain.kind_of? EXPSM::Entity or attr_domain.kind_of? EXPSM::TypeSelect
+				if attr.instance_of? EXPSM::ExplicitAggregate
+					attrType = attr
+				end
+				
+				if !attrType.nil?
+					if attrType.rank > 1
+						associationNeeded = true
+						for i in 2..attrType.rank
+							domain_name = attrType.dimensions[i-1].aggrtype+domain_name
+						end
+					end
+				end
+
+				if associationNeeded
 					xmiid = '_1_association' + prefix + entity.name + '-' + attr.name
 					attr_xmiid = '_2_attr' + prefix + entity.name + '-' + attr.name
 					owner_xmiid = prefix + entity.name
-					domain_xmiid = prefix + attr_domain.name
+					if attr_domain.nil?
+						domain_xmiid = prefix + domain_name
+					else
+						domain_xmiid = get_prefix.call(attr_domain.schema) +  attr_domain.name
+					end
 					
 					general_exists = false
 					if attr.redeclare_entity
@@ -1341,8 +1460,8 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 							redefined_xmiid = '_1_association' + get_prefix.call(redeclare_entity.schema) + attr.redeclare_entity + '-' + attr.name
 						end
 					end
-					 
-	#		  check if inverse refers to this attribute, affects how association is written
+					
+					# check if inverse refers to this attribute, affects how association is written
 					inverse_exists = false
 					direct_inverse = false
 					for inverse in all_inverse_list
@@ -1357,19 +1476,21 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 								inverse_exists = true
 							end
 						end
-					end				
+					end
 					
 					encapsulated = false
-					if attr_domain == orig_domain
-						encapsulated = isEncapsulated(attr_domain, attr)
-					else
-						if !agg_domain.nil?
-							encapsulated = isEncapsulated(agg_domain, attr)
-						end
-						if !encapsulated
+					if !attr_domain.nil?
+						if attr_domain == orig_domain
 							encapsulated = isEncapsulated(attr_domain, attr)
+						else
+							if !agg_domain.nil?
+								encapsulated = isEncapsulated(agg_domain, attr)
+							end
 							if !encapsulated
-								encapsulated = isEncapsulated(orig_domain, attr)
+								encapsulated = isEncapsulated(attr_domain, attr)
+								if !encapsulated
+									encapsulated = isEncapsulated(orig_domain, attr)
+								end
 							end
 						end
 					end
@@ -1386,49 +1507,52 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 			end
 		end
 
-	# Map EXPRESS Inverse Attribute resulting UML Association (the Association is referenced from Class resulting from Entity)
+		# Map EXPRESS Inverse Attribute resulting UML Association (the Association is referenced from Class resulting from Entity)
 		for inverse in all_inverse_list
-			xmiid = '_1_association' + get_prefix.call(inverse.reverseEntity.schema) + inverse.entity.name + '-' + inverse.reverseAttr_id
-			owner_xmiid = get_prefix.call(inverse.entity.schema) + inverse.entity.name
-			iattr_xmiid = '_2_attr' + get_prefix.call(inverse.entity.schema) + inverse.entity.name + '-' + inverse.name
-			
-			general_xmiid = '_2_general' + get_prefix.call(inverse.reverseEntity.schema) + inverse.entity.name + '-' + inverse.reverseAttr_id
-			redefined_xmiid = '_1_association' + get_prefix.call(inverse.entity.schema) + inverse.reverseAttr.entity.name + '-' + inverse.reverseAttr_id
+			if inverse.entity.schema == schema
+				xmiid = '_1_association' + get_prefix.call(inverse.entity.schema) + inverse.entity.name + '-' + inverse.name
+				owner_xmiid = get_prefix.call(inverse.entity.schema) + inverse.entity.name
+				iattr_xmiid = '_2_attr' + get_prefix.call(inverse.entity.schema) + inverse.entity.name + '-' + inverse.name
+				
+				redefined_xmiid = get_prefix.call(inverse.reverseAttr.entity.schema) + inverse.reverseAttr.entity.name + '-' + inverse.reverseAttr_id
+				general_xmiid = '_2_general' + redefined_xmiid
+				redefined_xmiid = '_1_association' + redefined_xmiid
 
-			lower = '1'
-			upper = '1'
-			if inverse.reverseAttr.instance_of? EXPSM::ExplicitAggregate
-				if inverse.reverseAttr.rank == 1
-					upper = inverse.reverseAttr.dimensions[0].upper
-					if upper == '?'
-						upper = '*'
+				lower = '1'
+				upper = '1'
+				if inverse.reverseAttr.instance_of? EXPSM::ExplicitAggregate
+					if inverse.reverseAttr.rank == 1
+						upper = inverse.reverseAttr.dimensions[0].upper
+						if upper == '?'
+							upper = '*'
+						end
+						lower = inverse.reverseAttr.dimensions[0].lower
 					end
-					lower = inverse.reverseAttr.dimensions[0].lower
 				end
-			end
-			if inverse.reverseAttr.isOptional
-				lower = '0'
-			end
-			res = ERB.new(inverse_entity_association_template)
-			t = res.result(binding)
-			file.puts t
-			
-			res = ERB.new(multiplicity,0,"<>")
-			t = res.result(binding)
-			if !t.nil? && t.size>0
+				if inverse.reverseAttr.isOptional
+					lower = '0'
+				end
+				res = ERB.new(inverse_entity_association_template)
+				t = res.result(binding)
+				file.puts t
+				
+				res = ERB.new(multiplicity,0,"<>")
+				t = res.result(binding)
+				if !t.nil? && t.size>0
+					file.puts t
+				end
+
+				res = ERB.new(inverse_entity_association_end)
+				t = res.result(binding)
 				file.puts t
 			end
-
-			res = ERB.new(inverse_entity_association_end)
-			t = res.result(binding)
-			file.puts t
 		end
 
-	# Map EXPRESS Entity Types 
+		# Map EXPRESS Entity Types 
 		for entity in entity_list
 			lowBounds = Hash.new
 			
-	# Evaluate and write ENTITY start template 
+			# Evaluate and write ENTITY start template 
 			xmiid = prefix + entity.name
 			xmiid_entity = xmiid
 			res = ERB.new(entity_start_template)
@@ -1436,7 +1560,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 			file.puts t
 
 
-	# Map Entity is SUBTYPE OF (i.e. list of supertypes)
+			# Map Entity is SUBTYPE OF (i.e. list of supertypes)
 			for supertype in entity.supertypes_array
 				xmiid = '_2_supertype' + prefix + entity.name + '-' + supertype.name
 				xmiid_general = get_prefix.call(supertype.schema) + supertype.name
@@ -1445,7 +1569,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				file.puts t
 			end
 
-	# Map TYPE Select has Entity as item
+			# Map TYPE Select has Entity as item
 			for select in entity.selectedBy
 				if selectTypeType[select.name] != "Remove"
 					superName = select.name
@@ -1489,12 +1613,12 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				end
 			end
 
-	# Map EXPRESS Explicit Attributes 		
+			# Map EXPRESS Explicit Attributes
 			attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Explicit }
 			for attr in attr_list
 				xmiid = '_2_attr' + prefix + entity.name + '-' + attr.name
 
-	#     set up references resulting from attribute being a redeclaration
+				# set up references resulting from attribute being a redeclaration
 				if attr.redeclare_entity
 					redeclare_entity = NamedType.find_by_name( attr.redeclare_entity )
 					if attr.redeclare_oldname
@@ -1504,7 +1628,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 					end
 				end
 
-	#     initialize default cardinailty constraints
+				# initialize default cardinailty constraints
 				lower = '1'
 				upper = '1'
 				isset = true
@@ -1515,17 +1639,17 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				attr_domain = orig_domain
 				agg_domain = nil
 				attrType = nil
+				associationNeeded = false
 				begin
 					unchanged = true
 					case attr_domain.class.to_s
-						# ignore re-named select types
+						when "EXPSM::Entity"
+							associationNeeded = true
 						when "EXPSM::Type"
-							superselect = NamedType.find_by_name( attr_domain.domain )
-							if superselect.kind_of? EXPSM::TypeSelect
-								attr_domain = superselect
-								domain_name = attr_domain.name
-								unchanged = false
-							end
+								case selectTypeType[attr_domain.name]
+									when "Entity", "Hybrid"
+										associationNeeded = true
+								end
 						#ignore unhandled named aggregations
 						when "EXPSM::TypeAggregate"
 							if aggTypes[attr.domain].nil?
@@ -1540,10 +1664,15 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 									domain_name = attr_domain.name
 									unchanged = false
 								end
+							else
+								associationNeeded = true
 							end
-						# ignore removed select types
 						when "EXPSM::TypeSelect"
-							if selectTypeType[domain_name] == "Remove"
+							case selectTypeType[attr_domain.name]
+								when "Entity", "Hybrid"
+									associationNeeded = true
+								# ignore removed select types
+								when "Remove"
 								attr_domain = attr_domain.selectitems_array[0]
 								domain_name = attr_domain.name
 								unchanged = false
@@ -1551,8 +1680,8 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 					end
 				end until unchanged
 
-	#     set up cardinailty constraints from attribute being a 1-D aggregate
-	#       or a type defined to be a 1-D aggregate
+				# set up cardinailty constraints from attribute being a 1-D aggregate
+				# or a type defined to be a 1-D aggregate
 				if attr.instance_of? EXPSM::ExplicitAggregate
 					attrType = attr
 				end
@@ -1576,6 +1705,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 						isset = false
 					end
 					if attrType.rank > 1
+						associationNeeded = true
 						for i in 2..attrType.rank
 							domain_name = attrType.dimensions[i-1].aggrtype+domain_name
 							nestedAggs[domain_name] = attrType.dimensions[i-1]
@@ -1592,29 +1722,13 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 					lower = '0'
 				end
 				
-				attrset = false
-
-	# Map EXPRESS Explicit Attributes of Builtin
-				if attr.isBuiltin or (attr_domain.nil?)
-					attrset= true
-					res = ERB.new(attribute_builtin_template,0,"<>")
-					t = res.result(binding)
-					file.puts t
-				end
-
-	# Map EXPRESS Explicit Attributes of TYPE and TYPE Enum
-				if attr_domain.kind_of? EXPSM::Type or attr_domain.kind_of? EXPSM::TypeEnum
-					attrset= true
-					type_xmiid = get_prefix.call(attr_domain.schema)  + domain_name
-					res = ERB.new(attribute_enum_type_template,0,"<>")
-					t = res.result(binding)
-					file.puts t
-				end
-
-	# Map EXPRESS Explicit Attributes of Entity and Select
-				if attr_domain.kind_of? EXPSM::Entity or attr_domain.kind_of? EXPSM::TypeSelect 
-					attrset= true
-					domain_xmiid = get_prefix.call(attr_domain.schema) + domain_name
+				# Map EXPRESS Explicit Attributes that need an association
+				if associationNeeded
+					if attr_domain.nil?
+						domain_xmiid = prefix + domain_name
+					else
+						domain_xmiid = get_prefix.call(attr_domain.schema) + domain_name
+					end
 					assoc_xmiid = '_1_association' + prefix + entity.name + '-' + attr.name
 					
 					direct_inverse = false
@@ -1628,18 +1742,20 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 						end
 					end				
 					
-					if attr_domain == orig_domain
-						encapsulated = isEncapsulated(attr_domain, attr)
-					else
-						if !agg_domain.nil?
-							encapsulated = isEncapsulated(agg_domain, attr)
-						else
-							encapsulated = false
-						end
-						if !encapsulated
+					if !attr_domain.nil?
+						if attr_domain == orig_domain
 							encapsulated = isEncapsulated(attr_domain, attr)
+						else
+							if !agg_domain.nil?
+								encapsulated = isEncapsulated(agg_domain, attr)
+							else
+								encapsulated = false
+							end
 							if !encapsulated
-								encapsulated = isEncapsulated(orig_domain, attr)
+								encapsulated = isEncapsulated(attr_domain, attr)
+								if !encapsulated
+									encapsulated = isEncapsulated(orig_domain, attr)
+								end
 							end
 						end
 					end
@@ -1647,12 +1763,20 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 					res = ERB.new(attribute_entity_template,0,"<>")
 					t = res.result(binding)
 					file.puts t
+				else
+					# Map EXPRESS Explicit Attributes of Builtin
+					if attr.isBuiltin or (attr_domain.nil?)
+						res = ERB.new(attribute_builtin_template,0,"<>")
+						t = res.result(binding)
+						file.puts t
+					else
+						# Map EXPRESS Explicit Attributes of TYPE, TYPE Enum and TYPE Select (type)
+						type_xmiid = get_prefix.call(attr_domain.schema)  + domain_name
+						res = ERB.new(attribute_enum_type_template,0,"<>")
+						t = res.result(binding)
+						file.puts t
+					end
 				end
-				
-				if !attrset
-					puts 'ERROR: attribute not set: ' + entity.name + '.' + attr.name
-					puts attr.domain
-				end 
 				
 				res = ERB.new(multiplicity,0,"<>")
 				t = res.result(binding)
@@ -1665,11 +1789,11 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				file.puts t
 			end
 
-	#Map EXPRESS Inverse Attributes
+			#Map EXPRESS Inverse Attributes
 			inverse_attr_list = entity.attributes.find_all{ |e| e.kind_of? EXPSM::Inverse }
 			for inverse in inverse_attr_list
 				xmiid = '_2_attr' + prefix + entity.name + '-' + inverse.name
-	#       set up references resulting from attribute being a redeclaration
+				# set up references resulting from attribute being a redeclaration
 				if inverse.redeclare_entity
 					if inverse.redeclare_oldname
 						redefined_xmiid = '_2_attr' + prefix + inverse.redeclare_entity + '-' + inverse.redeclare_oldname
@@ -1695,10 +1819,14 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 					end
 				end
 				domain_xmiid = prefix + inverse.reverseEntity.name
-				if inverse.reverseAttr.domain == entity.name
-					assoc_xmiid = '_1_association' + get_prefix.call(inverse.reverseEntity.schema) + inverse.reverseEntity.name + '-' + inverse.reverseAttr_id
+				if all_inverse_list.include?(inverse)
+					assoc_xmiid = '_1_association' + get_prefix.call(inverse.reverseEntity.schema) + entity.name + '-' + inverse.name
 				else
-					assoc_xmiid = '_1_association' + get_prefix.call(inverse.reverseEntity.schema) + entity.name + '-' + inverse.reverseAttr_id
+					if inverse.reverseAttr.domain == entity.name
+						assoc_xmiid = '_1_association' + get_prefix.call(inverse.reverseEntity.schema) + inverse.reverseEntity.name + '-' + inverse.reverseAttr_id
+					else
+						assoc_xmiid = '_1_association' + get_prefix.call(inverse.reverseEntity.schema) + entity.name + '-' + inverse.reverseAttr_id
+					end
 				end
 				
 				encapsulatedInto = isEncapsulatedInto(inverse.reverseEntity, inverse.reverseEntity, inverse.reverseAttr)
@@ -1718,7 +1846,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				file.puts t
 			end
 
-	#Create lower bound constraints where required
+			# Create lower bound constraints where required
 			lowBounds.each do |name, bound| 
 				xmiid = '_3_lb' + prefix + entity.name + '-' + name
 				res = ERB.new(bound_constraint)
@@ -1726,7 +1854,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				file.puts t
 			end
 
-	#Map EXPRESS Unique rules
+			# Map EXPRESS Unique rules
 			if entity.uniques.size > 0
 				for unique in entity.uniques
 					xmiid = '_3_uniq' + prefix + entity.name + '-' + unique.name
@@ -1741,7 +1869,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				end
 			end
 			
-	#Map EXPRESS Where rules
+			# Map EXPRESS Where rules
 			whererules = entity.wheres.select {|w| w.name[0..10] != "encapsulate"}
 			if whererules.size > 0
 				for where in whererules
@@ -1758,13 +1886,13 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				end
 			end
 
-	# Evaluate and write ENTITY end template 
+			# Evaluate and write ENTITY end template 
 			res = ERB.new(entity_end_template)
 			t = res.result(binding)
 			file.puts t
 		end
 
-		nestedAggs.each do |domain_name, dimension| 
+		nestedAggs.each do |type_name, dimension| 
 			# Evaluate and write aggType start template 
 			# initialize default cardinailty constraints
 			isset = true
@@ -1785,19 +1913,44 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				isset = false
 			end
 
-			xmiid = prefix + domain_name
-			type = nestedTypes[domain_name]
+			xmiid = prefix + type_name
+			type = nestedTypes[type_name]
+			associationNeeded = false
+			
 			if type.isBuiltin
 				xmiid_type = $dtprefix + type.domain
 			else
 				xmiid_type = prefix + type.domain
+
+				domain = NamedType.find_by_name( type.domain )
+				case domain.class.to_s
+					when "EXPSM::Entity"
+						associationNeeded = true
+					when "EXPSM::Type"
+							case selectTypeType[type.domain]
+								when "Entity", "Hybrid"
+									associationNeeded = true
+							end
+					when "EXPSM::TypeAggregate"
+						if !aggTypes[type.domain].nil?
+							associationNeeded = true
+						end
+					when "EXPSM::TypeSelect"
+						case selectTypeType[type.domain]
+							when "Entity", "Hybrid"
+								associationNeeded = true
+						end
+				end
 			end
-			type_name = domain_name
 			res = ERB.new(aggtype_start_template)
 			t = res.result(binding)
 			file.puts t
 			
-			xmiid = prefix + domain_name + "_elements"
+			if associationNeeded
+				assoc_xmiid = '_1_association' + prefix + type.name + '-elements'
+			end
+			
+			xmiid = '_2_attr' + prefix + type.name + "-elements" 
 			res = ERB.new(aggtype_attribute)
 			t = res.result(binding)
 			file.puts t
@@ -1815,14 +1968,20 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 			res = ERB.new(type_end_template)
 			t = res.result(binding)
 			file.puts t
+			
+			if associationNeeded
+				res = ERB.new(aggtype_association)
+				t = res.result(binding)
+				file.puts t
+			end
 		end
 
-	# Evaluate and write SCHEMA end template 
+		# Evaluate and write SCHEMA end template 
 		res = ERB.new(schema_end_template)
 		t = res.result(binding)
 		file.puts t
 	end
-
+	
 	if schema_list.size > 1
 		res = ERB.new(package_end)
 		t = res.result(binding)
@@ -1874,8 +2033,6 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				res = ERB.new(valuetype_template)
 				t = res.result(binding)
 				file.puts t
-			else
-				puts type.name + " is a renamed select so ignored in the mapping"
 			end
 		end
 	end

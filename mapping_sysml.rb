@@ -412,7 +412,16 @@ end %>
 
 	# ENUMERATION Start Template
 	enum_start_template = %{<packagedElement xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> xmi:type="uml:Enumeration">
-<name><%= enum.name %></name>}
+<name><%= enum.name %></name><% if !general.nil?
+if !datatype_hash[general].nil? %>
+<generalization xmi:id="<%= gen_xmiid %>"<%= get_uuid(gen_xmiid) %> xmi:type="uml:Generalization">
+<general href="<%= datatype_hash[general] %>"/>
+</generalization><% else %>
+<generalization xmi:id="<%= gen_xmiid %>"<%= get_uuid(gen_xmiid) %> xmi:type="uml:Generalization">
+<general xmi:idref="<%= xmiid_general %>"/>
+</generalization>
+<% end 
+end%>}
 
 	# ENUMERATION ITEM Template
 	enum_item_template = %{<ownedLiteral xmi:id="<%= enumitem_xmiid %>"<%= get_uuid(enumitem_xmiid) %> xmi:type="uml:EnumerationLiteral">
@@ -922,8 +931,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 			file.puts t
 		end
 
-		interfaced_schema_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::InterfaceSpecification}
-		
+		interfaced_schema_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::InterfaceSpecification}		
 		for interfaced_schema in interfaced_schema_list
 			# Evaluate and write schema interface template 
 			xmiid = '_2_' + schema.name + '-' + interfaced_schema.foreign_schema_id
@@ -938,9 +946,18 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 			xmiid = prefix + type.name
 			xmiid_type = xmiid
 			xmiid_general = type.domain
-			res = ERB.new(type_template)
-			t = res.result(binding)
-			file.puts t
+			if ["BOOLEAN", "LOGICAL"].include?(type.domain)
+				enum = type
+				general = type.domain
+				gen_xmiid = '_supertype' + xmiid
+				res = ERB.new(enum_start_template)
+				t = res.result(binding)
+				file.puts t
+			else
+				res = ERB.new(type_template)
+				t = res.result(binding)
+				file.puts t
+			end
 			
 			# Map TYPE Select has Type as item
 			for select in type.selectedBy
@@ -1017,13 +1034,10 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 
 				when "EXPSM::TypeEnum"
 					enum = type
-					res = ERB.new(enum_start_template)
-					t = res.result(binding)
-					file.puts t
-
-					xmiid = '_2_superenum' + prefix + type.name + '-' + type.domain
+					gen_xmiid = '_2_superenum' + prefix + type.name + '-' + type.domain
 					xmiid_general = prefix + type.domain
-					res = ERB.new(supertype_template)
+					general = type.domain
+					res = ERB.new(enum_start_template)
 					t = res.result(binding)
 					file.puts t
 
@@ -1035,9 +1049,37 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 			end
 					
 			# Map TYPE Select has Type as item
-			for select in type.selectedBy
-				case selectTypeType[select.name]
-					when "Type"
+			if selectTypeType[type.name] == "Type"
+				for select in type.selectedBy
+					case selectTypeType[select.name]
+						when "Type"
+							superName = select.name
+							subset = selectSubset[superName]
+							if !subset.nil?
+								if !subset.include?(type.name)
+									selectSubs[superName].each{|e|
+										if selectSubset[e].include?(type.name)
+											superName = e
+										end}
+								end
+							end
+							xmiid = '_2_selectitem' + prefix + type.name + '-' + superName
+							xmiid_general = prefix + superName
+							res = ERB.new(supertype_template)
+							t = res.result(binding)
+							file.puts t
+						when "Hybrid"
+							typeProxy = typeProxies[type.name]
+							if typeProxy.nil?
+								typeProxies[type.name] = type
+							end
+						when "Remove"
+							# do nothing
+					end
+				end
+			else
+				for select in type.selectedBy
+					if selectTypeType[select.name] != "Remove"
 						superName = select.name
 						subset = selectSubset[superName]
 						if !subset.nil?
@@ -1053,13 +1095,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 						res = ERB.new(supertype_template)
 						t = res.result(binding)
 						file.puts t
-					when "Hybrid"
-						typeProxy = typeProxies[type.name]
-						if typeProxy.nil?
-							typeProxies[type.name] = type
-						end
-					when "Remove"
-						# do nothing
+					end
 				end
 			end
 			
@@ -1216,23 +1252,21 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 		enum_list = schema.contents.find_all{ |e| e.instance_of? EXPSM::TypeEnum }
 		for enum in enum_list
 
+			superenum = enum.extends_item
+			general = nil
+			if !superenum.nil?
+				if superenum.kind_of? EXPSM::TypeEnum
+					# Write Enum Item template for parent (maps to UML same as EXPRESS supertype)
+					gen_xmiid = '_2_superenum' + prefix + enum.name + '-' + superenum.name
+					xmiid_general = get_prefix.call(superenum.schema) + superenum.name
+					general = superenum.name
+				end
+			end
 			# Evaluate and write TYPE Enum start template 
 			xmiid = prefix + enum.name
 			res = ERB.new(enum_start_template)
 			t = res.result(binding)
 			file.puts t
-
-			superenum = enum.extends_item
-			if !superenum.nil?
-				if superenum.kind_of? EXPSM::TypeEnum
-					# Write Enum Item template for parent (maps to UML same as EXPRESS supertype)
-					xmiid = '_2_superenum' + prefix + enum.name + '-' + superenum.name
-					xmiid_general = get_prefix.call(superenum.schema) + superenum.name
-					res = ERB.new(supertype_template)
-					t = res.result(binding)
-					file.puts t
-				end
-			end
 
 			# Map TYPE Select has Enum as item
 			for select in enum.selectedBy
@@ -1302,16 +1336,37 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				end
 
 				# Evaluate and write Select Item template for each item (maps to UML same as EXPRESS supertype)
-				for superselect in type.selectedBy
-					case selectTypeType[superselect]
-						when "Hybrid"
-							typeProxy = typeProxies[type.name]
-							if typeProxy.nil?
-								typeProxies[type.name] = type
-							end
-						when "Remove"
-							# do nothing
-						else
+				if selectTypeType[type.name] == "Type"
+					for superselect in type.selectedBy
+						case selectTypeType[superselect.name]
+							when "Hybrid"
+								typeProxy = typeProxies[type.name]
+								if typeProxy.nil?
+									typeProxies[type.name] = type
+								end
+							when "Remove"
+								# do nothing
+							else
+								superName = superselect.name
+								subset = selectSubset[superselect.name]
+								if !subset.nil?
+									if !subset.include?(type.name)
+										selectSubs[superselect.name].each{|e|
+											if selectSubset[e].include?(type.name)
+												superName = e
+											end}
+									end
+								end
+								xmiid = '_2_selectitem' + prefix + type.name + '-' + superName
+								xmiid_general = prefix + superName
+								res = ERB.new(supertype_template)
+								t = res.result(binding)
+								file.puts t
+						end
+					end
+				else
+					for superselect in type.selectedBy
+						if selectTypeType[superselect.name] !="Remove"
 							superName = superselect.name
 							subset = selectSubset[superselect.name]
 							if !subset.nil?
@@ -1327,6 +1382,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 							res = ERB.new(supertype_template)
 							t = res.result(binding)
 							file.puts t
+						end
 					end
 				end
 

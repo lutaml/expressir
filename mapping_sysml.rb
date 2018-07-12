@@ -611,9 +611,9 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 <isOrdered>true</isOrdered><% end %><% if !isset %>
 <isUnique>false</isUnique><% end %><% if datatype_hash[type.domain].nil? %>
 <type xmi:idref="<%= xmiid_type %>"/><% else %>
-<type href="<%= datatype_hash[type.domain] %>"/><% end %>
-<aggregation>composite</aggregation><% if associationNeeded %>
-<association xmi:idref="<%= assoc_xmiid %>"/><% end %>}
+<type href="<%= datatype_hash[type.domain] %>"/><% end %><% if associationNeeded %>
+<association xmi:idref="<%= assoc_xmiid %>"/><% else %>
+<aggregation>composite</aggregation><% end %>}
 
 	aggtype_association = %{<packagedElement xmi:id="<%= assoc_xmiid %>"<%= get_uuid(assoc_xmiid) %> xmi:type="uml:Association">
 <memberEnd xmi:idref="<%= xmiid %>"/>
@@ -622,9 +622,6 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 <type xmi:idref="<%= xmiid_type %>"/>
 <association xmi:idref="<%= assoc_xmiid %>"/>
 <lowerValue xmi:id="<%= assoc_xmiid %>-end-lowerValue"<%= get_uuid(assoc_xmiid+'-end-lowerValue') %> xmi:type="uml:LiteralInteger"/>
-<upperValue xmi:id="<%= assoc_xmiid %>-end-upperValue"<%= get_uuid(assoc_xmiid+'-end-upperValue') %> xmi:type="uml:LiteralUnlimitedNatural">
-<value>*</value>
-</upperValue>
 </ownedEnd>
 </packagedElement>}
 
@@ -765,10 +762,11 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 		end
 	end
 
-	# Set up storage for handling AggregateTypes correctly
+	# Set up storage for handling Aggregate and Select Types correctly
 	aggTypes = Hash.new
+	specialSelects = Hash.new
 
-	# determine AggregateTypes needing special consideration
+	# determine Aggregate and Select types needing special consideration
 	for schema in schema_list
 		entity_list = schema.contents.find_all{ |e| e.kind_of? EXPSM::Entity }
 		for entity in entity_list
@@ -779,6 +777,28 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 					if orig_domain.class.to_s == "EXPSM::TypeAggregate"
 						if aggTypes[attr.domain].nil?
 							aggTypes[attr.domain] = orig_domain
+						end
+					end
+				end
+				if attr.redeclare_entity
+					attr_domain = NamedType.find_by_name(attr.domain)
+					if attr_domain.instance_of? EXPSM::TypeSelect
+						supertype = NamedType.find_by_name( attr.redeclare_entity )
+						if attr.redeclare_oldname
+							redeclOf = supertype.find_attr_by_name( attr.redeclare_oldname )
+						else
+							redeclOf = supertype.find_attr_by_name( attr.name )
+						end
+						redecl_domain = NamedType.find_by_name( redeclOf.domain )
+						case redecl_domain.class.to_s
+							when 'EXPSM::Entity', 'EXPSM::TypeSelect'
+								if specialSelects[attr.domain].nil?
+									specialSelects[attr.domain] = redecl_domain
+								else
+									if specialSelects[attr.domain] != redecl_domain
+										puts 'Conflicting specializations found for ' + attr.domain
+									end
+								end
 						end
 					end
 				end
@@ -1323,18 +1343,30 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				t = res.result(binding)
 				file.puts t
 				
+				# Deal with ad-hoc subtype constraints on entities
+				superentity = specialSelects[type.name]
+				if !superentity.nil?
+					xmiid = '_2_superentity' + prefix + type.name + '-' + superentity.name
+					xmiid_general = get_prefix.call(superentity.schema)  + superentity.name
+					res = ERB.new(supertype_template)
+					t = res.result(binding)
+					file.puts t
+				end
+
 				superselect = type.extends_item
 				if !superselect.nil?
 					if superselect.kind_of? EXPSM::TypeSelect
-						# Write Select Item template for parent (maps to UML same as EXPRESS supertype)
-						xmiid = '_2_superselect' + prefix + type.name + '-' + superselect.name
-						xmiid_general = get_prefix.call(superselect.schema)  + superselect.name
-						res = ERB.new(supertype_template)
-						t = res.result(binding)
-						file.puts t
+						if superselect != superentity
+							# Write Select Item template for parent (maps to UML same as EXPRESS supertype)
+							xmiid = '_2_superselect' + prefix + type.name + '-' + superselect.name
+							xmiid_general = get_prefix.call(superselect.schema)  + superselect.name
+							res = ERB.new(supertype_template)
+							t = res.result(binding)
+							file.puts t
+						end
 					end
 				end
-
+				
 				# Evaluate and write Select Item template for each item (maps to UML same as EXPRESS supertype)
 				if selectTypeType[type.name] == "Type"
 					for superselect in type.selectedBy
@@ -1357,11 +1389,13 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 											end}
 									end
 								end
-								xmiid = '_2_selectitem' + prefix + type.name + '-' + superName
-								xmiid_general = prefix + superName
-								res = ERB.new(supertype_template)
-								t = res.result(binding)
-								file.puts t
+								if superentity.nil? || (superentity.name != superName)
+									xmiid = '_2_selectitem' + prefix + type.name + '-' + superName
+									xmiid_general = prefix + superName
+									res = ERB.new(supertype_template)
+									t = res.result(binding)
+									file.puts t
+								end
 						end
 					end
 				else
@@ -1377,11 +1411,13 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 										end}
 								end
 							end
-							xmiid = '_2_selectitem' + prefix + type.name + '-' + superName
-							xmiid_general = prefix + superName
-							res = ERB.new(supertype_template)
-							t = res.result(binding)
-							file.puts t
+							if superentity.nil? || (superentity.name != superName)
+								xmiid = '_2_selectitem' + prefix + type.name + '-' + superName
+								xmiid_general = prefix + superName
+								res = ERB.new(supertype_template)
+								t = res.result(binding)
+								file.puts t
+							end
 						end
 					end
 				end
@@ -1437,7 +1473,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 			for attr in attr_list
 				
 				domain_name = attr.domain
-				orig_domain = NamedType.find_by_name( attr.domain )
+				orig_domain = NamedType.find_by_name(domain_name)
 				attr_domain = orig_domain
 				agg_domain = nil
 				attrType = nil
@@ -1448,29 +1484,28 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 						when "EXPSM::Entity"
 							associationNeeded = true
 						when "EXPSM::Type"
-								case selectTypeType[attr_domain.name]
+								case selectTypeType[domain_name]
 									when "Entity", "Hybrid"
 										associationNeeded = true
 								end
 						#ignore unhandled named aggregations
 						when "EXPSM::TypeAggregate"
-							if aggTypes[attr.domain].nil?
+							if aggTypes[domain_name].nil?
 								attrType = attr_domain
 								agg_domain = attr_domain
 								if attr_domain.isBuiltin
 									domain_name = attr_domain.domain
 									attr_domain = nil
 								else
-									newDomain = NamedType.find_by_name( attr_domain.domain )
-									attr_domain = newDomain
-									domain_name = attr_domain.name
+									domain_name = attr_domain.domain
+									attr_domain = NamedType.find_by_name(domain_name)
 									unchanged = false
 								end
 							else
 								associationNeeded = true
 							end
 						when "EXPSM::TypeSelect"
-							case selectTypeType[attr_domain.name]
+							case selectTypeType[domain_name]
 								when "Entity", "Hybrid"
 									associationNeeded = true
 								# ignore removed select types
@@ -1566,13 +1601,13 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 		# Map EXPRESS Inverse Attribute resulting UML Association (the Association is referenced from Class resulting from Entity)
 		for inverse in all_inverse_list
 			if inverse.entity.schema == schema
-				xmiid = '_1_association' + get_prefix.call(inverse.entity.schema) + inverse.entity.name + '-' + inverse.name
+				temp_id = get_prefix.call(inverse.entity.schema) + inverse.entity.name + '-' + inverse.name
+				xmiid = '_1_association' + temp_id
 				owner_xmiid = get_prefix.call(inverse.entity.schema) + inverse.entity.name
-				iattr_xmiid = '_2_attr' + get_prefix.call(inverse.entity.schema) + inverse.entity.name + '-' + inverse.name
+				iattr_xmiid = '_2_attr' + temp_id
 				
-				redefined_xmiid = get_prefix.call(inverse.reverseAttr.entity.schema) + inverse.reverseAttr.entity.name + '-' + inverse.reverseAttr_id
-				general_xmiid = '_2_general' + redefined_xmiid
-				redefined_xmiid = '_1_association' + redefined_xmiid
+				general_xmiid = '_2_general' + temp_id
+				redefined_xmiid = '_1_association' + get_prefix.call(inverse.reverseAttr.entity.schema) + inverse.reverseAttr.entity.name + '-' + inverse.reverseAttr_id
 
 				lower = '1'
 				upper = '1'

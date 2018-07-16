@@ -516,8 +516,8 @@ end %>
 	 
 	# INVERSE ATTRIBUTE ENTITY Create Association Template
 	inverse_entity_association_template = %{<packagedElement xmi:id="<%= xmiid %>"<%= get_uuid(xmiid) %> xmi:type="uml:Association">
-<memberEnd xmi:idref="<%= iattr_xmiid %>"/>
 <memberEnd xmi:idref="<%= xmiid + '-end' %>"/>
+<memberEnd xmi:idref="<%= iattr_xmiid %>"/>
 <ownedEnd xmi:id="<%= xmiid %>-end"<%= get_uuid(xmiid+'-end') %> xmi:type="uml:Property">
 <type xmi:idref="<%= owner_xmiid %>"/>
 <association xmi:idref="<%= xmiid %>"/><% xmiid = xmiid + '-end' %>}
@@ -793,10 +793,10 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 						case redecl_domain.class.to_s
 							when 'EXPSM::Entity', 'EXPSM::TypeSelect'
 								if specialSelects[attr.domain].nil?
-									specialSelects[attr.domain] = redecl_domain
+									specialSelects[attr.domain] = [redecl_domain]
 								else
-									if specialSelects[attr.domain] != redecl_domain
-										puts 'Conflicting specializations found for ' + attr.domain
+									if !specialSelects[attr.domain].include?(redecl_domain)
+										specialSelects[attr.domain].push(redecl_domain)
 									end
 								end
 						end
@@ -1344,19 +1344,20 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				file.puts t
 				
 				# Deal with ad-hoc subtype constraints on entities
-				superentity = specialSelects[type.name]
-				if !superentity.nil?
-					xmiid = '_2_superentity' + prefix + type.name + '-' + superentity.name
-					xmiid_general = get_prefix.call(superentity.schema)  + superentity.name
-					res = ERB.new(supertype_template)
-					t = res.result(binding)
-					file.puts t
+				superentities = specialSelects[type.name]
+				if !superentities.nil?
+					superentities.each {|superentity|
+						xmiid = '_2_superentity' + prefix + type.name + '-' + superentity.name
+						xmiid_general = get_prefix.call(superentity.schema)  + superentity.name
+						res = ERB.new(supertype_template)
+						t = res.result(binding)
+						file.puts t}
 				end
 
 				superselect = type.extends_item
 				if !superselect.nil?
 					if superselect.kind_of? EXPSM::TypeSelect
-						if superselect != superentity
+						if !superentities.include?(superselect)
 							# Write Select Item template for parent (maps to UML same as EXPRESS supertype)
 							xmiid = '_2_superselect' + prefix + type.name + '-' + superselect.name
 							xmiid_general = get_prefix.call(superselect.schema)  + superselect.name
@@ -1389,7 +1390,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 											end}
 									end
 								end
-								if superentity.nil? || (superentity.name != superName)
+								if superentities.nil? || superentities.all?{|superentity| superentity.name != superName}
 									xmiid = '_2_selectitem' + prefix + type.name + '-' + superName
 									xmiid_general = prefix + superName
 									res = ERB.new(supertype_template)
@@ -1411,7 +1412,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 										end}
 								end
 							end
-							if superentity.nil? || (superentity.name != superName)
+							if superentities.nil? || superentities.all?{|superentity| superentity.name != superName}
 								xmiid = '_2_selectitem' + prefix + type.name + '-' + superName
 								xmiid_general = prefix + superName
 								res = ERB.new(supertype_template)

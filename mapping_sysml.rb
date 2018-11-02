@@ -554,7 +554,7 @@ end %>
 <name><%= name %>_LB</name>
 <constrainedElement xmi:idref="<%= xmiid_entity %>"/>
 <specification xmi:id="<%= xmiid %>-spec"<%= get_uuid(xmiid+'-spec') %> xmi:type="uml:OpaqueExpression">
-<body><%= name %>.size() &gt;= <%= bound %></body>
+<body><%= name %>-&gt;isEmpty() or <%= name %>-&gt;size() &gt;= <%= bound %></body>
 <language>OCL2.0</language>
 </specification>
 </ownedRule>}
@@ -1174,6 +1174,8 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				lower = type.dimensions[0].lower
 				if type.dimensions[0].aggrtype == 'ARRAY'
 					puts 'Warning ARRAY not fully supported for '+type.name
+					upper = upper - lower + 1
+					lower = upper
 				end
 				if type.dimensions[0].aggrtype == 'LIST'
 					islist = true

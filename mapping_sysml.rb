@@ -1801,7 +1801,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 					if attrType.rank > 1
 						associationNeeded = true
 						for i in 2..attrType.rank
-							domain_name = attrType.dimensions[i-1].aggrtype+domain_name
+							domain_name = attrType.dimensions[i-1].aggrtype+domain_name+lower+upper
 							nestedAggs[domain_name] = attrType.dimensions[i-1]
 							nestedTypes[domain_name] = attrType
 						end

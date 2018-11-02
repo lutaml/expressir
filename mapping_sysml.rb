@@ -1174,7 +1174,7 @@ dummy = get_uuid(xmiid + "_value-upperValue")
 				lower = type.dimensions[0].lower
 				if type.dimensions[0].aggrtype == 'ARRAY'
 					puts 'Warning ARRAY not fully supported for '+type.name
-					upper = upper - lower + 1
+					upper = (upper.to_i - lower.to_i + 1).to_s
 					lower = upper
 				end
 				if type.dimensions[0].aggrtype == 'LIST'

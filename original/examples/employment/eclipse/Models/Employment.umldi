@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<diagrams:Diagrams xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.topcased.org/DI/1.0" xmlns:diagrams="http://www.topcased.org/Diagrams/1.0" xmi:id="_A578oFbnEeCXeKoxJ0Vc8g" activeDiagram="_A578oVbnEeCXeKoxJ0Vc8g">
+  <model href="Employment.uml#_w8IxIM37EdqwVrslYOdUDA"/>
+  <diagrams xmi:id="_A578oVbnEeCXeKoxJ0Vc8g" position="0,0" size="100,100" name="Employment" viewport="0,0">
+    <property xmi:id="_A6JYAFbnEeCXeKoxJ0Vc8g" key="pageFormatName" value="A3"/>
+    <property xmi:id="_A6JYAVbnEeCXeKoxJ0Vc8g" key="diagramWidth" value="1188"/>
+    <property xmi:id="_A6JYAlbnEeCXeKoxJ0Vc8g" key="diagramHeight" value="1680"/>
+    <property xmi:id="_A6JYA1bnEeCXeKoxJ0Vc8g" key="pageMarginName" value="Small Margin"/>
+    <property xmi:id="_A6JYBFbnEeCXeKoxJ0Vc8g" key="diagramTopMargin" value="20"/>
+    <property xmi:id="_A6JYBVbnEeCXeKoxJ0Vc8g" key="diagramBottomMargin" value="20"/>
+    <property xmi:id="_A6JYBlbnEeCXeKoxJ0Vc8g" key="diagramLeftMargin" value="20"/>
+    <property xmi:id="_A6JYB1bnEeCXeKoxJ0Vc8g" key="diagramRightMargin" value="20"/>
+    <property xmi:id="_A6JYCFbnEeCXeKoxJ0Vc8g" key="orientation" value="landscape"/>
+    <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_A578olbnEeCXeKoxJ0Vc8g" presentation="org.topcased.modeler.uml.classdiagram">
+      <element href="Employment.uml#_w8IxIM37EdqwVrslYOdUDA"/>
+    </semanticModel>
+    <contained xsi:type="di:GraphNode" xmi:id="_kQIOIFbnEeCXeKoxJ0Vc8g" position="130,42" size="180,-1">
+      <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQIOIVbnEeCXeKoxJ0Vc8g" presentation="default">
+        <element href="../Express/employment_schema.xmi#_employment_schema-date"/>
+      </semanticModel>
+      <contained xsi:type="di:GraphNode" xmi:id="_kQIOIlbnEeCXeKoxJ0Vc8g">
+        <property xmi:id="_kQIOI1bnEeCXeKoxJ0Vc8g" key="eStructuralFeatureID" value="37"/>
+        <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQIOJFbnEeCXeKoxJ0Vc8g" presentation="default">
+          <element href="../Express/employment_schema.xmi#_employment_schema-date"/>
+        </semanticModel>
+      </contained>
+      <contained xsi:type="di:GraphNode" xmi:id="_kQIOJVbnEeCXeKoxJ0Vc8g">
+        <property xmi:id="_kQIOJlbnEeCXeKoxJ0Vc8g" key="eStructuralFeatureID" value="38"/>
+        <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQIOJ1bnEeCXeKoxJ0Vc8g" presentation="default">
+          <element href="../Express/employment_schema.xmi#_employment_schema-date"/>
+        </semanticModel>
+      </contained>
+    </contained>
+    <contained xsi:type="di:GraphNode" xmi:id="_kQUbYFbnEeCXeKoxJ0Vc8g" position="453,27" size="180,-1">
+      <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQUbYVbnEeCXeKoxJ0Vc8g" presentation="default">
+        <element href="../Express/employment_schema.xmi#_employment_schema-contract_type"/>
+      </semanticModel>
+      <contained xsi:type="di:GraphNode" xmi:id="_kQUbYlbnEeCXeKoxJ0Vc8g">
+        <property xmi:id="_kQUbY1bnEeCXeKoxJ0Vc8g" key="eStructuralFeatureID" value="39"/>
+        <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQUbZFbnEeCXeKoxJ0Vc8g" presentation="default">
+          <element href="../Express/employment_schema.xmi#_employment_schema-contract_type"/>
+        </semanticModel>
+        <contained xsi:type="di:GraphNode" xmi:id="_kQxuYFbnEeCXeKoxJ0Vc8g" position="0,0" size="-1,-1">
+          <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQxuYVbnEeCXeKoxJ0Vc8g" presentation="default">
+            <element href="../Express/employment_schema.xmi#_1_enumitem_employment_schema-contract_type-contract"/>
+          </semanticModel>
+        </contained>
+        <contained xsi:type="di:GraphNode" xmi:id="_kQ3N8FbnEeCXeKoxJ0Vc8g" position="0,0" size="-1,-1">
+          <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQ3N8VbnEeCXeKoxJ0Vc8g" presentation="default">
+            <element href="../Express/employment_schema.xmi#_1_enumitem_employment_schema-contract_type-atwill"/>
+          </semanticModel>
+        </contained>
+        <contained xsi:type="di:GraphNode" xmi:id="_kQ31AFbnEeCXeKoxJ0Vc8g" position="0,0" size="-1,-1">
+          <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQ31AVbnEeCXeKoxJ0Vc8g" presentation="default">
+            <element href="../Express/employment_schema.xmi#_1_enumitem_employment_schema-contract_type-contractor"/>
+          </semanticModel>
+        </contained>
+      </contained>
+    </contained>
+    <contained xsi:type="di:GraphNode" xmi:id="_kQbJEFbnEeCXeKoxJ0Vc8g" position="469,407" size="147,-1">
+      <anchorage xmi:id="_kRNMMFbnEeCXeKoxJ0Vc8g" graphEdge="_kROaUFbnEeCXeKoxJ0Vc8g _kRTS0FbnEeCXeKoxJ0Vc8g _kRW9MFbnEeCXeKoxJ0Vc8g"/>
+      <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQbJEVbnEeCXeKoxJ0Vc8g" presentation="default">
+        <element href="../Express/employment_schema.xmi#_employment_schema-po"/>
+      </semanticModel>
+      <contained xsi:type="di:GraphNode" xmi:id="_kQbJElbnEeCXeKoxJ0Vc8g">
+        <property xmi:id="_kQbJE1bnEeCXeKoxJ0Vc8g" key="eStructuralFeatureID" value="37"/>
+        <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQbJFFbnEeCXeKoxJ0Vc8g" presentation="default">
+          <element href="../Express/employment_schema.xmi#_employment_schema-po"/>
+        </semanticModel>
+      </contained>
+      <contained xsi:type="di:GraphNode" xmi:id="_kQbJFVbnEeCXeKoxJ0Vc8g">
+        <property xmi:id="_kQbJFlbnEeCXeKoxJ0Vc8g" key="eStructuralFeatureID" value="38 41 "/>
+        <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQbJF1bnEeCXeKoxJ0Vc8g" presentation="default">
+          <element href="../Express/employment_schema.xmi#_employment_schema-po"/>
+        </semanticModel>
+      </contained>
+    </contained>
+    <contained xsi:type="di:GraphNode" xmi:id="_kQid0FbnEeCXeKoxJ0Vc8g" position="127,365" size="190,-1">
+      <anchorage xmi:id="_kRRdoFbnEeCXeKoxJ0Vc8g" graphEdge="_kRTS0FbnEeCXeKoxJ0Vc8g _kRb1sFbnEeCXeKoxJ0Vc8g"/>
+      <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQid0VbnEeCXeKoxJ0Vc8g" presentation="default">
+        <element href="../Express/employment_schema.xmi#_employment_schema-Person"/>
+      </semanticModel>
+      <contained xsi:type="di:GraphNode" xmi:id="_kQid0lbnEeCXeKoxJ0Vc8g">
+        <property xmi:id="_kQid01bnEeCXeKoxJ0Vc8g" key="eStructuralFeatureID" value="37"/>
+        <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQid1FbnEeCXeKoxJ0Vc8g" presentation="default">
+          <element href="../Express/employment_schema.xmi#_employment_schema-Person"/>
+        </semanticModel>
+        <contained xsi:type="di:GraphNode" xmi:id="_kQ31AlbnEeCXeKoxJ0Vc8g" position="0,0" size="-1,-1">
+          <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQ31A1bnEeCXeKoxJ0Vc8g" presentation="default">
+            <element href="../Express/employment_schema.xmi#_2_attr_employment_schema-Person-names"/>
+          </semanticModel>
+        </contained>
+      </contained>
+      <contained xsi:type="di:GraphNode" xmi:id="_kQid1VbnEeCXeKoxJ0Vc8g">
+        <property xmi:id="_kQid1lbnEeCXeKoxJ0Vc8g" key="eStructuralFeatureID" value="47 50 "/>
+        <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQid11bnEeCXeKoxJ0Vc8g" presentation="default">
+          <element href="../Express/employment_schema.xmi#_employment_schema-Person"/>
+        </semanticModel>
+      </contained>
+    </contained>
+    <contained xsi:type="di:GraphNode" xmi:id="_kQmIMFbnEeCXeKoxJ0Vc8g" position="129,464" size="190,-1">
+      <anchorage xmi:id="_kRWWIFbnEeCXeKoxJ0Vc8g" graphEdge="_kRW9MFbnEeCXeKoxJ0Vc8g _kRguMFbnEeCXeKoxJ0Vc8g"/>
+      <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQmIMVbnEeCXeKoxJ0Vc8g" presentation="default">
+        <element href="../Express/employment_schema.xmi#_employment_schema-Organization"/>
+      </semanticModel>
+      <contained xsi:type="di:GraphNode" xmi:id="_kQmIMlbnEeCXeKoxJ0Vc8g">
+        <property xmi:id="_kQmIM1bnEeCXeKoxJ0Vc8g" key="eStructuralFeatureID" value="37"/>
+        <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQmINFbnEeCXeKoxJ0Vc8g" presentation="default">
+          <element href="../Express/employment_schema.xmi#_employment_schema-Organization"/>
+        </semanticModel>
+        <contained xsi:type="di:GraphNode" xmi:id="_kQ4cEFbnEeCXeKoxJ0Vc8g" position="0,0" size="-1,-1">
+          <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQ4cEVbnEeCXeKoxJ0Vc8g" presentation="default">
+            <element href="../Express/employment_schema.xmi#_2_attr_employment_schema-Organization-name"/>
+          </semanticModel>
+        </contained>
+      </contained>
+      <contained xsi:type="di:GraphNode" xmi:id="_kQmINVbnEeCXeKoxJ0Vc8g">
+        <property xmi:id="_kQmINlbnEeCXeKoxJ0Vc8g" key="eStructuralFeatureID" value="47 50 "/>
+        <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQmIN1bnEeCXeKoxJ0Vc8g" presentation="default">
+          <element href="../Express/employment_schema.xmi#_employment_schema-Organization"/>
+        </semanticModel>
+      </contained>
+    </contained>
+    <contained xsi:type="di:GraphNode" xmi:id="_kQpykFbnEeCXeKoxJ0Vc8g" position="111,166" size="219,-1">
+      <anchorage xmi:id="_kRankFbnEeCXeKoxJ0Vc8g" graphEdge="_kRb1sFbnEeCXeKoxJ0Vc8g _kRguMFbnEeCXeKoxJ0Vc8g _kRkYkFbnEeCXeKoxJ0Vc8g"/>
+      <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQpykVbnEeCXeKoxJ0Vc8g" presentation="default">
+        <element href="../Express/employment_schema.xmi#_employment_schema-PersonOrganizationRelationship"/>
+      </semanticModel>
+      <contained xsi:type="di:GraphNode" xmi:id="_kQpyklbnEeCXeKoxJ0Vc8g">
+        <property xmi:id="_kQqZoFbnEeCXeKoxJ0Vc8g" key="eStructuralFeatureID" value="37"/>
+        <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQqZoVbnEeCXeKoxJ0Vc8g" presentation="default">
+          <element href="../Express/employment_schema.xmi#_employment_schema-PersonOrganizationRelationship"/>
+        </semanticModel>
+        <contained xsi:type="di:GraphNode" xmi:id="_kQ5DIFbnEeCXeKoxJ0Vc8g" position="0,0" size="-1,-1">
+          <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQ5DIVbnEeCXeKoxJ0Vc8g" presentation="default">
+            <element href="../Express/employment_schema.xmi#__2_attr_employment_schema-PersonOrganizationRelationship-start_date"/>
+          </semanticModel>
+        </contained>
+        <contained xsi:type="di:GraphNode" xmi:id="_kQ5DIlbnEeCXeKoxJ0Vc8g" position="0,0" size="-1,-1">
+          <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQ5DI1bnEeCXeKoxJ0Vc8g" presentation="default">
+            <element href="../Express/employment_schema.xmi#__2_attr_employment_schema-PersonOrganizationRelationship-end_date"/>
+          </semanticModel>
+        </contained>
+      </contained>
+      <contained xsi:type="di:GraphNode" xmi:id="_kQqZolbnEeCXeKoxJ0Vc8g">
+        <property xmi:id="_kQqZo1bnEeCXeKoxJ0Vc8g" key="eStructuralFeatureID" value="47 50 "/>
+        <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQqZpFbnEeCXeKoxJ0Vc8g" presentation="default">
+          <element href="../Express/employment_schema.xmi#_employment_schema-PersonOrganizationRelationship"/>
+        </semanticModel>
+      </contained>
+    </contained>
+    <contained xsi:type="di:GraphNode" xmi:id="_kQuEAFbnEeCXeKoxJ0Vc8g" position="433,162" size="224,-1">
+      <anchorage xmi:id="_kRNMMVbnEeCXeKoxJ0Vc8g" graphEdge="_kROaUFbnEeCXeKoxJ0Vc8g _kRkYkFbnEeCXeKoxJ0Vc8g"/>
+      <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQuEAVbnEeCXeKoxJ0Vc8g" presentation="default">
+        <element href="../Express/employment_schema.xmi#_employment_schema-Employment"/>
+      </semanticModel>
+      <contained xsi:type="di:GraphNode" xmi:id="_kQuEAlbnEeCXeKoxJ0Vc8g">
+        <property xmi:id="_kQuEA1bnEeCXeKoxJ0Vc8g" key="eStructuralFeatureID" value="37"/>
+        <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQuEBFbnEeCXeKoxJ0Vc8g" presentation="default">
+          <element href="../Express/employment_schema.xmi#_employment_schema-Employment"/>
+        </semanticModel>
+        <contained xsi:type="di:GraphNode" xmi:id="_kQ5qMFbnEeCXeKoxJ0Vc8g" position="0,0" size="-1,-1">
+          <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQ5qMVbnEeCXeKoxJ0Vc8g" presentation="default">
+            <element href="../Express/employment_schema.xmi#_2_attr_employment_schema-Employment-job_title"/>
+          </semanticModel>
+        </contained>
+        <contained xsi:type="di:GraphNode" xmi:id="_kQ5qMlbnEeCXeKoxJ0Vc8g" position="0,0" size="-1,-1">
+          <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQ5qM1bnEeCXeKoxJ0Vc8g" presentation="default">
+            <element href="../Express/employment_schema.xmi#__2_attr_employment_schema-Employment-employment_type"/>
+          </semanticModel>
+        </contained>
+      </contained>
+      <contained xsi:type="di:GraphNode" xmi:id="_kQuEBVbnEeCXeKoxJ0Vc8g">
+        <property xmi:id="_kQuEBlbnEeCXeKoxJ0Vc8g" key="eStructuralFeatureID" value="47 50 "/>
+        <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kQuEB1bnEeCXeKoxJ0Vc8g" presentation="default">
+          <element href="../Express/employment_schema.xmi#_employment_schema-Employment"/>
+        </semanticModel>
+      </contained>
+    </contained>
+    <contained xsi:type="di:GraphEdge" xmi:id="_kROaUFbnEeCXeKoxJ0Vc8g" anchor="_kRNMMFbnEeCXeKoxJ0Vc8g _kRNMMVbnEeCXeKoxJ0Vc8g">
+      <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kROaUVbnEeCXeKoxJ0Vc8g" presentation="default">
+        <element href="../Express/employment_schema.xmi#_1_association_employment_schema-Employment-ended_by"/>
+      </semanticModel>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kROaUlbnEeCXeKoxJ0Vc8g" id="srcNameEdgeObject" uDistance="10" vDistance="10"/>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kROaU1bnEeCXeKoxJ0Vc8g" id="srcPropertiesEdgeObject" uDistance="25" vDistance="10"/>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kROaVFbnEeCXeKoxJ0Vc8g" id="srcCountEdgeObject" uDistance="10" vDistance="-10"/>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kROaVVbnEeCXeKoxJ0Vc8g" id="targetNameEdgeObject" uDistance="10" vDistance="10"/>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kROaVlbnEeCXeKoxJ0Vc8g" id="targetPropertiesEdgeObject" uDistance="25" vDistance="10"/>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kROaV1bnEeCXeKoxJ0Vc8g" id="targetCountEdgeObject" uDistance="10" vDistance="-10"/>
+      <contained xsi:type="di:EdgeObjectOffset" xmi:id="_kROaWFbnEeCXeKoxJ0Vc8g" visible="false" id="middleNameEdgeObject" offset="0,10"/>
+      <contained xsi:type="di:EdgeObjectOffset" xmi:id="_kROaWVbnEeCXeKoxJ0Vc8g" id="stereotypeEdgeObject" offset="0,-10"/>
+    </contained>
+    <contained xsi:type="di:GraphEdge" xmi:id="_kRTS0FbnEeCXeKoxJ0Vc8g" anchor="_kRRdoFbnEeCXeKoxJ0Vc8g _kRNMMFbnEeCXeKoxJ0Vc8g">
+      <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kRTS0VbnEeCXeKoxJ0Vc8g" presentation="default">
+        <element href="../Express/employment_schema.xmi#_2_selectitem_employment_schema-Person-po"/>
+      </semanticModel>
+      <contained xsi:type="di:EdgeObjectOffset" xmi:id="_kRTS0lbnEeCXeKoxJ0Vc8g" id="stereotypeEdgeObject"/>
+    </contained>
+    <contained xsi:type="di:GraphEdge" xmi:id="_kRW9MFbnEeCXeKoxJ0Vc8g" anchor="_kRWWIFbnEeCXeKoxJ0Vc8g _kRNMMFbnEeCXeKoxJ0Vc8g">
+      <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kRW9MVbnEeCXeKoxJ0Vc8g" presentation="default">
+        <element href="../Express/employment_schema.xmi#_2_selectitem_employment_schema-Organization-po"/>
+      </semanticModel>
+      <contained xsi:type="di:EdgeObjectOffset" xmi:id="_kRW9MlbnEeCXeKoxJ0Vc8g" id="stereotypeEdgeObject"/>
+    </contained>
+    <contained xsi:type="di:GraphEdge" xmi:id="_kRb1sFbnEeCXeKoxJ0Vc8g" anchor="_kRRdoFbnEeCXeKoxJ0Vc8g _kRankFbnEeCXeKoxJ0Vc8g">
+      <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kRb1sVbnEeCXeKoxJ0Vc8g" presentation="default">
+        <element href="../Express/employment_schema.xmi#_1_association_employment_schema-PersonOrganizationRelationship-the_person"/>
+      </semanticModel>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kRb1slbnEeCXeKoxJ0Vc8g" id="srcNameEdgeObject" uDistance="10" vDistance="10"/>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kRb1s1bnEeCXeKoxJ0Vc8g" id="srcPropertiesEdgeObject" uDistance="25" vDistance="10"/>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kRb1tFbnEeCXeKoxJ0Vc8g" id="srcCountEdgeObject" uDistance="10" vDistance="-10"/>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kRb1tVbnEeCXeKoxJ0Vc8g" id="targetNameEdgeObject" uDistance="10" vDistance="10"/>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kRb1tlbnEeCXeKoxJ0Vc8g" id="targetPropertiesEdgeObject" uDistance="25" vDistance="10"/>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kRb1t1bnEeCXeKoxJ0Vc8g" id="targetCountEdgeObject" uDistance="10" vDistance="-10"/>
+      <contained xsi:type="di:EdgeObjectOffset" xmi:id="_kRb1uFbnEeCXeKoxJ0Vc8g" visible="false" id="middleNameEdgeObject" offset="0,10"/>
+      <contained xsi:type="di:EdgeObjectOffset" xmi:id="_kRb1uVbnEeCXeKoxJ0Vc8g" id="stereotypeEdgeObject" offset="0,-10"/>
+    </contained>
+    <contained xsi:type="di:GraphEdge" xmi:id="_kRguMFbnEeCXeKoxJ0Vc8g" anchor="_kRWWIFbnEeCXeKoxJ0Vc8g _kRankFbnEeCXeKoxJ0Vc8g">
+      <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kRguMVbnEeCXeKoxJ0Vc8g" presentation="default">
+        <element href="../Express/employment_schema.xmi#_1_association_employment_schema-PersonOrganizationRelationship-the_organization"/>
+      </semanticModel>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kRguMlbnEeCXeKoxJ0Vc8g" id="srcNameEdgeObject" uDistance="10" vDistance="10"/>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kRguM1bnEeCXeKoxJ0Vc8g" id="srcPropertiesEdgeObject" uDistance="25" vDistance="10"/>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kRguNFbnEeCXeKoxJ0Vc8g" id="srcCountEdgeObject" uDistance="10" vDistance="-10"/>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kRguNVbnEeCXeKoxJ0Vc8g" id="targetNameEdgeObject" uDistance="10" vDistance="10"/>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kRguNlbnEeCXeKoxJ0Vc8g" id="targetPropertiesEdgeObject" uDistance="25" vDistance="10"/>
+      <contained xsi:type="di:EdgeObjectUV" xmi:id="_kRguN1bnEeCXeKoxJ0Vc8g" id="targetCountEdgeObject" uDistance="10" vDistance="-10"/>
+      <contained xsi:type="di:EdgeObjectOffset" xmi:id="_kRguOFbnEeCXeKoxJ0Vc8g" visible="false" id="middleNameEdgeObject" offset="0,10"/>
+      <contained xsi:type="di:EdgeObjectOffset" xmi:id="_kRguOVbnEeCXeKoxJ0Vc8g" id="stereotypeEdgeObject" offset="0,-10"/>
+      <waypoints>[-203, 0, -197, 273]</waypoints>
+      <waypoints>[-203, -280, -197, -7]</waypoints>
+    </contained>
+    <contained xsi:type="di:GraphEdge" xmi:id="_kRkYkFbnEeCXeKoxJ0Vc8g" anchor="_kRNMMVbnEeCXeKoxJ0Vc8g _kRankFbnEeCXeKoxJ0Vc8g">
+      <semanticModel xsi:type="di:EMFSemanticModelBridge" xmi:id="_kRkYkVbnEeCXeKoxJ0Vc8g" presentation="default">
+        <element href="../Express/employment_schema.xmi#_2_supertype_employment_schema-Employment-PersonOrganizationRelationship"/>
+      </semanticModel>
+      <contained xsi:type="di:EdgeObjectOffset" xmi:id="_kRkYklbnEeCXeKoxJ0Vc8g" id="stereotypeEdgeObject"/>
+    </contained>
+  </diagrams>
+</diagrams:Diagrams>

@@ -1,1 +1,12 @@
-.DS_Store
+/.bundle/
+/.yardoc
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+/Gemfile.lock
+
+# rspec failure tracking
+.rspec_status

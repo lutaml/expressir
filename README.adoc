@@ -13,18 +13,86 @@ Reeper is a set of Ruby tools for harvesting ISO EXPRESS data models.
 
 See https://www.nist.gov/services-resources/software/reeper[NIST's Reeper page] for further details.
 
-== TODO
 
-We will need to structure this as a Ruby gem with a command-line interface using Thor.
+== Installation
+
+Add this line to your application's Gemfile:
+
+[source, sh]
+----
+gem "reeper"
+----
+
+And then execute:
+
+[source, sh]
+----
+$ bundle install
+----
+
+Or install it yourself as:
+
+[source, sh]
+----
+$ gem install reeper
+----
 
 == Usage
 
-The various mapping files are versioned independently of the `reeper.rb` file.
+TODO: Usages insruction will follow soon.
 
-The tools have been tested on Ubuntu Linux, Windows XP and OS X and so are compatible with
-multiple versions of Ruby.
+== Development
 
-The input format for the tool is an XML format that is based on the standard EXPRESS DTD.
-The freely available Eurostep eep parser (http://www.eurostep.com) can produce this format.
+We are following Sandi Metz's Rules for this gem, you can read
+the http://robots.thoughtbot.com/post/50655960596/sandi-metz-rules-for-developers[description of the rules here] All new code should follow these rules.
+If you make changes in a pre-existing file that violates these rules you should
+fix the violations as part of your contribution.
 
+=== Setup
 
+Clone the repository.
+
+[source, sh]
+----
+git clone https://github.com/metanorma/reeper
+----
+
+Setup your environment.
+
+[source, sh]
+----
+bin/setup
+----
+
+Run the test suite
+
+[source, sh]
+----
+bin/rspec
+----
+
+== Contributing
+
+First, thank you for contributing! We love pull requests from everyone. By
+participating in this project, you hereby grant
+https://www.ribose.com[Ribose Inc.] the right to grant or transfer an unlimited
+number of non exclusive licenses or sub-licenses to third parties, under the
+copyright covering the contribution to use the contribution by all means.
+
+Here are a few technical guidelines to follow:
+
+* Open an https://github.com/metanorma/reeper/issues[issues] to discuss a new
+  feature.
+* Write tests to support your new feature.
+* Make sure the entire test suite passes locally and on CI.
+* Open a Pull Request.
+* https://github.com/thoughtbot/guides/tree/master/protocol/git#write-a-feature[Squash your commits] after receiving feedback.
+* Party!
+
+== Credits
+
+This library was initialially developed by
+https://www.nist.gov/services-resources/software/reeper[NIST], and then forked
+by https://www.ribose.com[Ribose Inc] for futher imporvements, pleast check the
+https://www.nist.gov/services-resources/software/reeper[NIST] for details
+licensing and futher usages.

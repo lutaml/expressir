@@ -43,6 +43,20 @@ $ gem install reeper
 
 TODO: Usages insruction will follow soon.
 
+
+This gem ships with a CLI tool, to check what's available you can simply run
+the script directly from `exe/reeper`, by default it will display some usages
+instructions.
+
+[source, sh]
+----
+./exe/reeper
+
+Commands:
+  reeper help [COMMAND]  # Describe available commands or one specific command
+  reeper version         # The Reeper Version
+----
+
 == Development
 
 We are following Sandi Metz's Rules for this gem, you can read
@@ -97,4 +111,4 @@ This library was initialially developed by
 https://www.nist.gov/services-resources/software/reeper[NIST], and then forked
 by https://www.ribose.com[Ribose Inc] for futher imporvements, pleast check the
 https://www.nist.gov/services-resources/software/reeper[NIST] for details
-licensing gnd futher usages.
+licensing and futher usages.

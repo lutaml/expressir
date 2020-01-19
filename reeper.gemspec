@@ -20,8 +20,11 @@ Gem::Specification.new do |spec|
   spec.files         = `git ls-files`.split("\n")
   spec.test_files    = `git ls-files -- {spec}/*`.split("\n")
 
-  spec.bindir        = "bin"
+  spec.bindir        = "exe"
   spec.require_paths = ["lib"]
+  spec.executables   = %w[reeper]
+
+  spec.add_runtime_dependency "thor", "~> 1.0"
 
   spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "pry", "~> 0.12.2"

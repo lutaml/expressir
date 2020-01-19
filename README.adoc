@@ -1,7 +1,6 @@
 = Reeper
 
-image:https://img.shields.io/github/workflow/status/metanorma/reeper/Ubuntu/master[GitHub
-Workflow Status (branch)]
+image:https://github.com/metanorma/reeper/workflows/ubuntu/badge.svg[GitHub Workflow Status (master), link="https://github.com/metanorma/reeper/actions?workflow=ubuntu"]
 
 WARNING: This is a fork of the NIST Reeper software originally at
 https://sourceforge.net/p/reeper/[Sourceforge]. It is forked for

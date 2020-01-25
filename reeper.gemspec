@@ -25,6 +25,8 @@ Gem::Specification.new do |spec|
   spec.executables   = %w[reeper]
 
   spec.add_runtime_dependency "thor", "~> 1.0"
+  spec.add_runtime_dependency "activesupport", "~> 6.0"
+  spec.add_development_dependency "nokogiri", "~> 1.10"
 
   spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "pry", "~> 0.12.2"

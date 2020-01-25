@@ -7,7 +7,7 @@ https://sourceforge.net/p/reeper/[Sourceforge]. It is forked for
 potential improvements.
 
 The mirrored branch is located at the
-https://github.com/metanorma/reeper/tree/original[`original` branch]
+https://github.com/metanorma/reeper/releases/tag/v0.1[`pre-release` tag]
 
 == Purpose
 

@@ -15,10 +15,48 @@ Reeper is a set of Ruby tools for harvesting ISO EXPRESS data models.
 
 See https://www.nist.gov/services-resources/software/reeper[NIST's Reeper page] for further details.
 
+It accepts the input of the following format:
+
+* EXPRESS XML (ISO 10303-28:2007
+"`Industrial automation systems and integration — Product data representation and exchange — Part 28: Implementation methods: XML representations of EXPRESS schemas and data, using XML schemas`")
+
+NOTE: Reeper does not accept ASCII EXPRESS (ISO 10303-11) input today.
+Something may have to be done about this.
+
+And outputs the following formats:
+
+* W3C OWL
+* OMG SysML (XMI 2.1, XMI 2.5)
+* OMG UML 2 (XMI 2.1)
+* OMG UML 2 for Eclipse (XMI 2.1)
+
+== Origin of name
+
+Reeper was likely to have been named by Eurostep as the "`Ruby
+version`" of their `eep` parser which stood for `Eurostep EXPRESS
+Parser`.
+The origin of the suffix `er` is so far unknown.
+
+== License
+
+Original license described at the
+https://www.nist.gov/services-resources/software/reeper[NIST Reeper page]
+and reproduced below.
+
+This software was funded by NIST and developed by EuroSTEP.
+Pursuant to title 17 Section 105 of the United States Code this
+software is not subject to copyright protection and is in the public
+domain.
+
+We would appreciate acknowledgment if the software is used. Links to
+non-Federal Government Web sites do not imply NIST endorsement of any
+particular product, service, organization, company, information
+provider, or content.
+
 
 == Installation
 
-Add this line to your application's Gemfile:
+Add this line to your application's `Gemfile`:
 
 [source, sh]
 ----

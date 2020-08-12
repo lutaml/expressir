@@ -1,17 +1,17 @@
-= Reeper
+= Expressr
 
-image:https://github.com/metanorma/reeper/workflows/ubuntu/badge.svg[GitHub Workflow Status (master), link="https://github.com/metanorma/reeper/actions?workflow=ubuntu"]
+image:https://github.com/metanorma/expressr/workflows/ubuntu/badge.svg[GitHub Workflow Status (master), link="https://github.com/metanorma/expressr/actions?workflow=ubuntu"]
 
 WARNING: This is a fork of the NIST Reeper software originally at
 https://sourceforge.net/p/reeper/[Sourceforge]. It is forked for
 potential improvements.
 
 The mirrored branch is located at the
-https://github.com/metanorma/reeper/releases/tag/v0.1[`pre-release` tag]
+https://github.com/metanorma/expressr/releases/tag/v0.1[`pre-release` tag]
 
 == Purpose
 
-Reeper is a set of Ruby tools for harvesting ISO EXPRESS data models.
+Expressr is a Ruby parser for EXPRESS and a set of Ruby tools for accessing ISO EXPRESS data models.
 
 See https://www.nist.gov/services-resources/software/reeper[NIST's Reeper page] for further details.
 
@@ -19,9 +19,6 @@ It accepts the input of the following format:
 
 * EXPRESS XML (ISO 10303-28:2007
 "`Industrial automation systems and integration — Product data representation and exchange — Part 28: Implementation methods: XML representations of EXPRESS schemas and data, using XML schemas`")
-
-NOTE: Reeper does not accept ASCII EXPRESS (ISO 10303-11) input today.
-Something may have to be done about this.
 
 And outputs the following formats:
 
@@ -60,7 +57,7 @@ Add this line to your application's `Gemfile`:
 
 [source, sh]
 ----
-gem "reeper"
+gem "expressr"
 ----
 
 And then execute:
@@ -74,7 +71,7 @@ Or install it yourself as:
 
 [source, sh]
 ----
-$ gem install reeper
+$ gem install expressr
 ----
 
 == Usage
@@ -83,16 +80,16 @@ TODO: Usages insruction will follow soon.
 
 
 This gem ships with a CLI tool, to check what's available you can simply run
-the script directly from `exe/reeper`, by default it will display some usages
+the script directly from `exe/expressr`, by default it will display some usages
 instructions.
 
 [source, sh]
 ----
-./exe/reeper
+./exe/expressr
 
 Commands:
-  reeper help [COMMAND]  # Describe available commands or one specific command
-  reeper version         # The Reeper Version
+  expressr help [COMMAND]  # Describe available commands or one specific command
+  expressr version         # The Expressr Version
 ----
 
 == Development
@@ -108,7 +105,7 @@ Clone the repository.
 
 [source, sh]
 ----
-git clone https://github.com/metanorma/reeper
+git clone https://github.com/metanorma/expressr
 ----
 
 Setup your environment.
@@ -135,7 +132,7 @@ copyright covering the contribution to use the contribution by all means.
 
 Here are a few technical guidelines to follow:
 
-* Open an https://github.com/metanorma/reeper/issues[issues] to discuss a new
+* Open an https://github.com/metanorma/expressr/issues[issues] to discuss a new
   feature.
 * Write tests to support your new feature.
 * Make sure the entire test suite passes locally and on CI.

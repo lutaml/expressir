@@ -1,4 +1,4 @@
-module Reeper
+module Expressr
   module ConsoleHelper
     def capture_stdout(&_block)
       original_stdout = $stdout

@@ -5,14 +5,14 @@ how the whole tool chain is working at the moment. Once, we've an understanding
 then let's look at the potential area of improvement, and plan out a high level
 plan to start the development.
 
-### What is it, reeper?
+### What is it, expressr?
 
-* Reeper is a ruby tool to harvest iso express data model
+* Expressr is a ruby tool to harvest iso express data model
 * Express is one of the language to represent data model
-* Reeper tool is used to manipulate iso express data model
-* The input for the reeper is a standard xml document
+* Expressr tool is used to manipulate iso express data model
+* The input for the expressr is a standard xml document
 * XML Spec: http://stepmod.sourceforge.net/express_model_spec/
-* Reeper does the job of representing express model as ruby class
+* Expressr does the job of representing express model as ruby class
 * REXML-based parser that reads EXPRESS as XML and creates the dictionary (i.e.
   instances of the EXPRESS Ruby Classes) and then calls a mapper, that may be
   specified as an option at runtime
@@ -25,11 +25,11 @@ plan to start the development.
 
 ### How does the original version work?
 
-At the core the `reeper.rb` is responsible for everything at moment, it takes
+At the core the `expressr.rb` is responsible for everything at moment, it takes
 an Express XML file as an input and then it parses that XML file and build the
 correct ruby interface for further processing.
 
-This `reeper.rb` also expect one mapping file `deafult to mapping.rb`, and it
+This `expressr.rb` also expect one mapping file `deafult to mapping.rb`, and it
 also expect the file to specify a custom method `map_from_express` to take the
 `Ruby Express Representation` and convert this ruby representation to the
 desire output format.
@@ -39,7 +39,7 @@ export their data to any of those format if necessary, and the use cases for
 those library are as following:
 
 ```ruby
-ruby reeper.rb expxml=<schema.xml> map=<mapping_owl.rb>
+ruby expressr.rb expxml=<schema.xml> map=<mapping_owl.rb>
 ```
 
 ### What are potential improvement area?
@@ -61,8 +61,8 @@ ruby reeper.rb expxml=<schema.xml> map=<mapping_owl.rb>
 ### What are the initial changes?
 
 Initially, we can start by creating a ruby cli gem, group these functionality
-together. This could be named as `reeper`, and this gem will be shipped with an
-executable called `reeper`.
+together. This could be named as `expressr`, and this gem will be shipped with an
+executable called `expressr`.
 
 Second of all, let's add some dedicated interface for the default type, so user
 does not need to know all the details but the name of the interface, for example
@@ -70,16 +70,16 @@ we could expose the transformation as follows:
 
 ```sh
 # Convert to owl
-reeper express2owl file=[express_xml_file] [**options]
+expressr express2owl file=[express_xml_file] [**options]
 
 # Convert to UML
-reeper express2uml file=[express_xml_file] [**options]
+expressr express2uml file=[express_xml_file] [**options]
 
 # Convert to SysML
-reeper express2sysml file=[express_xml_file] [**options]
+expressr express2sysml file=[express_xml_file] [**options]
 
 # Custom conversion
-reeper express2custom file=[express_xml_file] mapping=[custom_mapping.rb]
+expressr express2custom file=[express_xml_file] mapping=[custom_mapping.rb]
 ```
 
 Third of all once this library is functional as the original version then we

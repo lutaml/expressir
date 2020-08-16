@@ -9,45 +9,26 @@ image:https://github.com/lutaml/expressir/workflows/windows/badge.svg[windows]
 Expressir ("`EXPRESS in Ruby`") is a Ruby parser for EXPRESS and
 a set of Ruby tools for accessing ISO EXPRESS data models.
 
-It accepts the input of the following format:
+== Architecture
 
-* EXPRESS data modelling language (ISO 10303-11:2007)
+Expressir consists of 3 parts:
 
-* EXPRESS data modelling language in XML (STEPmod)
+. Parsers. A parser allows Expressir to read EXPRESS files, including:
 
-* EXPRESS XML (ISO 10303-28:2007)
+** EXPRESS data modelling language (ISO 10303-11:2007)
+** EXPRESS data modelling language in XML (STEPmod)
+** EXPRESS XML (ISO 10303-28:2007)
 "`Industrial automation systems and integration — Product data representation and exchange — Part 28: Implementation methods: XML representations of EXPRESS schemas and data, using XML schemas`")
 
-It outputs the following formats:
+. Data model. The data model (`lib/expressir/express`) is the Ruby data model that fully represents an EXPRESS data model.
 
-* W3C OWL
-* OMG SysML (XMI 2.1, XMI 2.5)
-* OMG UML 2 (XMI 2.1)
-* OMG UML 2 for Eclipse (XMI 2.1)
+. Converters. A converter transforms the EXPRESS Ruby data model into an interoperable export format, including:
+** EXPRESS data modelling language (ISO 10303-11:2007)
+** W3C OWL
+** OMG SysML (XMI 2.1, XMI 2.5)
+** OMG UML 2 (XMI 2.1)
+** OMG UML 2 for Eclipse (XMI 2.1)
 
-
-== Installation
-
-Add this line to your application's `Gemfile`:
-
-[source, sh]
-----
-gem "expressir"
-----
-
-And then execute:
-
-[source, sh]
-----
-$ bundle install
-----
-
-Or install it yourself as:
-
-[source, sh]
-----
-$ gem install expressir
-----
 
 == Usage
 
@@ -93,6 +74,30 @@ Run the test suite
 ----
 bin/rspec
 ----
+
+== Installation
+
+Add this line to your application's `Gemfile`:
+
+[source, sh]
+----
+gem "expressir"
+----
+
+And then execute:
+
+[source, sh]
+----
+$ bundle install
+----
+
+Or install it yourself as:
+
+[source, sh]
+----
+$ gem install expressir
+----
+
 
 == Contributing
 

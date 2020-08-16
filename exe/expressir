@@ -16,5 +16,5 @@ class Gem::Specification
 end
 
 # start up the CLI
-require "reeper"
+require "expressir"
 Expressir::Cli.start(ARGV)

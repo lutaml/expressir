@@ -1,6 +1,8 @@
 = Expressir: EXPRESS in Ruby
 
-image:https://github.com/metanorma/expressir/workflows/ubuntu/badge.svg[GitHub Workflow Status (master), link="https://github.com/metanorma/expressir/actions?workflow=ubuntu"]
+image:https://github.com/lutaml/expressir/workflows/ubuntu/badge.svg[ubuntu]
+image:https://github.com/lutaml/expressir/workflows/macos/badge.svg[macos]
+image:https://github.com/lutaml/expressir/workflows/windows/badge.svg[windows]
 
 == Purpose
 
@@ -102,7 +104,7 @@ copyright covering the contribution to use the contribution by all means.
 
 Here are a few technical guidelines to follow:
 
-* Open an https://github.com/metanorma/expressir/issues[issues] to discuss a new
+* Open an https://github.com/lutaml/expressir/issues[issues] to discuss a new
   feature.
 * Write tests to support your new feature.
 * Make sure the entire test suite passes locally and on CI.
@@ -138,6 +140,3 @@ ____
 
 Expressir is created using the structure and examples provided by
 the NIST Reeper software on https://sourceforge.net/p/reeper/[Sourceforge].
-
-
-

@@ -1,5 +1,5 @@
-RSpec.describe Expressr do
+RSpec.describe Expressir do
   it "has a version number" do
-    expect(Expressr::VERSION).not_to be nil
+    expect(Expressir::VERSION).not_to be nil
   end
 end

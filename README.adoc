@@ -1,17 +1,17 @@
-= Expressr
+= Expressir
 
-image:https://github.com/metanorma/expressr/workflows/ubuntu/badge.svg[GitHub Workflow Status (master), link="https://github.com/metanorma/expressr/actions?workflow=ubuntu"]
+image:https://github.com/metanorma/expressir/workflows/ubuntu/badge.svg[GitHub Workflow Status (master), link="https://github.com/metanorma/expressir/actions?workflow=ubuntu"]
 
 WARNING: This is a fork of the NIST Reeper software originally at
 https://sourceforge.net/p/reeper/[Sourceforge]. It is forked for
 potential improvements.
 
 The mirrored branch is located at the
-https://github.com/metanorma/expressr/releases/tag/v0.1[`pre-release` tag]
+https://github.com/metanorma/expressir/releases/tag/v0.1[`pre-release` tag]
 
 == Purpose
 
-Expressr is a Ruby parser for EXPRESS and a set of Ruby tools for accessing ISO EXPRESS data models.
+Expressir is a Ruby parser for EXPRESS and a set of Ruby tools for accessing ISO EXPRESS data models.
 
 See https://www.nist.gov/services-resources/software/reeper[NIST's Reeper page] for further details.
 
@@ -57,7 +57,7 @@ Add this line to your application's `Gemfile`:
 
 [source, sh]
 ----
-gem "expressr"
+gem "expressir"
 ----
 
 And then execute:
@@ -71,7 +71,7 @@ Or install it yourself as:
 
 [source, sh]
 ----
-$ gem install expressr
+$ gem install expressir
 ----
 
 == Usage
@@ -80,16 +80,16 @@ TODO: Usages insruction will follow soon.
 
 
 This gem ships with a CLI tool, to check what's available you can simply run
-the script directly from `exe/expressr`, by default it will display some usages
+the script directly from `exe/expressir`, by default it will display some usages
 instructions.
 
 [source, sh]
 ----
-./exe/expressr
+./exe/expressir
 
 Commands:
-  expressr help [COMMAND]  # Describe available commands or one specific command
-  expressr version         # The Expressr Version
+  expressir help [COMMAND]  # Describe available commands or one specific command
+  expressir version         # The Expressir Version
 ----
 
 == Development
@@ -105,7 +105,7 @@ Clone the repository.
 
 [source, sh]
 ----
-git clone https://github.com/metanorma/expressr
+git clone https://github.com/metanorma/expressir
 ----
 
 Setup your environment.
@@ -132,7 +132,7 @@ copyright covering the contribution to use the contribution by all means.
 
 Here are a few technical guidelines to follow:
 
-* Open an https://github.com/metanorma/expressr/issues[issues] to discuss a new
+* Open an https://github.com/metanorma/expressir/issues[issues] to discuss a new
   feature.
 * Write tests to support your new feature.
 * Make sure the entire test suite passes locally and on CI.

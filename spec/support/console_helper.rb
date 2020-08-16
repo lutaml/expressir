@@ -1,4 +1,4 @@
-module Expressr
+module Expressir
   module ConsoleHelper
     def capture_stdout(&_block)
       original_stdout = $stdout

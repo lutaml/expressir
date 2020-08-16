@@ -1,0 +1,30 @@
+= Reeper
+
+WARNING: This is a fork of the NIST Reeper software originally at
+https://sourceforge.net/p/reeper/[Sourceforge]. It is forked for
+potential improvements.
+
+The mirrored branch is located at the
+https://github.com/metanorma/reeper/tree/original[`original` branch]
+
+== Purpose
+
+Reeper is a set of Ruby tools for harvesting ISO EXPRESS data models.
+
+See https://www.nist.gov/services-resources/software/reeper[NIST's Reeper page] for further details.
+
+== TODO
+
+We will need to structure this as a Ruby gem with a command-line interface using Thor.
+
+== Usage
+
+The various mapping files are versioned independently of the `reeper.rb` file.
+
+The tools have been tested on Ubuntu Linux, Windows XP and OS X and so are compatible with
+multiple versions of Ruby.
+
+The input format for the tool is an XML format that is based on the standard EXPRESS DTD.
+The freely available Eurostep eep parser (http://www.eurostep.com) can produce this format.
+
+

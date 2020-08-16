@@ -1,54 +1,27 @@
-= Expressir
+= Expressir: EXPRESS in Ruby
 
 image:https://github.com/metanorma/expressir/workflows/ubuntu/badge.svg[GitHub Workflow Status (master), link="https://github.com/metanorma/expressir/actions?workflow=ubuntu"]
 
-WARNING: This is a fork of the NIST Reeper software originally at
-https://sourceforge.net/p/reeper/[Sourceforge]. It is forked for
-potential improvements.
-
-The mirrored branch is located at the
-https://github.com/metanorma/expressir/releases/tag/v0.1[`pre-release` tag]
-
 == Purpose
 
-Expressir is a Ruby parser for EXPRESS and a set of Ruby tools for accessing ISO EXPRESS data models.
-
-See https://www.nist.gov/services-resources/software/reeper[NIST's Reeper page] for further details.
+Expressir ("`EXPRESS in Ruby`") is a Ruby parser for EXPRESS and
+a set of Ruby tools for accessing ISO EXPRESS data models.
 
 It accepts the input of the following format:
 
-* EXPRESS XML (ISO 10303-28:2007
+* EXPRESS data modelling language (ISO 10303-11:2007)
+
+* EXPRESS data modelling language in XML (STEPmod)
+
+* EXPRESS XML (ISO 10303-28:2007)
 "`Industrial automation systems and integration — Product data representation and exchange — Part 28: Implementation methods: XML representations of EXPRESS schemas and data, using XML schemas`")
 
-And outputs the following formats:
+It outputs the following formats:
 
 * W3C OWL
 * OMG SysML (XMI 2.1, XMI 2.5)
 * OMG UML 2 (XMI 2.1)
 * OMG UML 2 for Eclipse (XMI 2.1)
-
-== Origin of name
-
-Reeper was likely to have been named by Eurostep as the "`Ruby
-version`" of their `eep` parser which stood for `Eurostep EXPRESS
-Parser`.
-The origin of the suffix `er` is so far unknown.
-
-== License
-
-Original license described at the
-https://www.nist.gov/services-resources/software/reeper[NIST Reeper page]
-and reproduced below.
-
-This software was funded by NIST and developed by EuroSTEP.
-Pursuant to title 17 Section 105 of the United States Code this
-software is not subject to copyright protection and is in the public
-domain.
-
-We would appreciate acknowledgment if the software is used. Links to
-non-Federal Government Web sites do not imply NIST endorsement of any
-particular product, service, organization, company, information
-provider, or content.
 
 
 == Installation
@@ -76,11 +49,8 @@ $ gem install expressir
 
 == Usage
 
-TODO: Usages insruction will follow soon.
-
-
-This gem ships with a CLI tool, to check what's available you can simply run
-the script directly from `exe/expressir`, by default it will display some usages
+This gem ships with a CLI tool. To check what's available you can simply run
+the script directly from `exe/expressir`, by default it will display some usage
 instructions.
 
 [source, sh]
@@ -140,10 +110,34 @@ Here are a few technical guidelines to follow:
 * https://github.com/thoughtbot/guides/tree/master/protocol/git#write-a-feature[Squash your commits] after receiving feedback.
 * Party!
 
+
+== License
+
+Expressir is distributed under the BSD 2-clause license.
+
+Expressir is built on code originally from the NIST Reeper project.
+
+The https://www.nist.gov/services-resources/software/reeper[NIST Reeper license]
+is reproduced below:
+
+[quote]
+____
+This software was funded by NIST and developed by EuroSTEP.
+Pursuant to title 17 Section 105 of the United States Code this
+software is not subject to copyright protection and is in the public
+domain.
+
+We would appreciate acknowledgment if the software is used. Links to
+non-Federal Government Web sites do not imply NIST endorsement of any
+particular product, service, organization, company, information
+provider, or content.
+____
+
+
 == Credits
 
-This library was initialially developed by
-https://www.nist.gov/services-resources/software/reeper[NIST], and then forked
-by https://www.ribose.com[Ribose Inc] for futher imporvements, pleast check the
-https://www.nist.gov/services-resources/software/reeper[NIST] for details
-licensing and futher usages.
+Expressir is created using the structure and examples provided by
+the NIST Reeper software on https://sourceforge.net/p/reeper/[Sourceforge].
+
+
+

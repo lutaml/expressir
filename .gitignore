@@ -9,6 +9,9 @@
 /Gemfile.lock
 /.idea
 /grammar/.antlr
+/grammar/*.class
+/grammar/*.interp
+/grammar/*.tokens
 
 # rspec failure tracking
 .rspec_status

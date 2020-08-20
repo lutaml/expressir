@@ -1,0 +1,81 @@
+# format:
+# file line1,line2,line3
+
+# missing label
+ballots/ballots/ap210_wg12/express/resources/risk_schema.exp 259,260,279,297,316,344,376,377,389,401,402,411,424
+# empty select_list is not allowed
+ballots/ballots/ap233wd2/express/ecco_decision_support_arm_lf.exp 522
+ballots/ballots/annotated_text/associative_text_arm.exp 17,21
+etc/ap210/tools/lksoft/longform_gen/mim_20050410v1_with_resources_longform.exp 1612
+# git conflict marks
+data/modules/ap239_ap242_combined_for_Domain_to_ARM_mapping_reference/ap242/concatenated_mim.exp 4731,9080,9190,9199,12706,12727
+data/modules/ap239_ap242_combined_for_Domain_to_ARM_mapping_reference/ap242/concatenated_arm.exp 1465,1491,3634,8195,13209
+# invalid order of SELECT EXTENSIBLE GENERIC_ENTITY
+ballots/ballots/ap233_SC4-CD_build/express/mim_resources_20070821v1.exp 5327
+ballots/ballots/ap233_SC4-CD_build/express/mim_20070821v1.exp 5320
+# extraneous `;` between entity_id and subsuper
+ballots/ballots/ap233_SC4-CD_build/express/mim_resources_20070821v1.exp 5331
+ballots/ballots/ap233_SC4-CD_build/express/mim_20070821v1.exp 5324
+# invalid usage of BY
+data/modules/ap210_electronic_assembly_interconnect_and_packaging_design/dvlp/ap210_electronic_assembly_interconnect_and_packaging_design_arm_lf-patched-5589.exp 29290,33403
+data/modules/ap210_electronic_assembly_interconnect_and_packaging_design/dvlp/ap210_electronic_assembly_interconnect_and_packaging_design_arm_lf-patchedscript.exp 29290,33403
+# INTYPEOF is not a recognized keyword
+data/modules/ap210_electronic_assembly_interconnect_and_packaging_design/dvlp/pmi/electronic_assembly_interconnect_and_packaging_design_mim.lfepm_500010000.exp 39511,39512
+# missing schema_id
+data/modules/ap210_electronic_assembly_interconnect_and_packaging_design/dvlp/mim_lf-pretty.exp 35
+data/modules/ap210_electronic_assembly_interconnect_and_packaging_design/dvlp/arm_lf_seded_7255-pretty.exp 35
+data/modules/ap242_managed_model_based_3d_engineering/mim_lf-pretty.exp 35
+data/modules/ap242_managed_model_based_3d_engineering/dvlp/mim_lf-pretty.exp 35
+data/modules/ap242_managed_model_based_3d_engineering/dvlp/arm_lf_seded_7255-pretty.exp 35
+data/modules/ap242_managed_model_based_3d_engineering/dvlp/arm_lf_4662.exp 35
+data/modules/ap242_managed_model_based_3d_engineering/dvlp/mim_lf-pretty-5056.exp 35
+data/modules/ap242_managed_model_based_3d_engineering/dvlp/mim_lf-pretty-5690.exp 35
+data/modules/ap242_managed_model_based_3d_engineering/dvlp/mim_lf-pretty-5004.exp 35
+data/modules/ap242_managed_model_based_3d_engineering/dvlp/arm_lf_seded_7255_pretty_grepped.exp 35
+data/modules/ap242_managed_model_based_3d_engineering/dvlp/mim_lf_greped.exp 35
+# extraneous `,` in the end of the list
+ballots/ballots/ap233wd2/express/mim_20060418v1.exp 2959
+ballots/ballots/ap233wd2/express/mim_resources_20060418v1.exp 2966
+# free-form text outside of remark
+ballots/ballots/ap233wd2/express/mim_20060418v1.exp 5548
+ballots/ballots/ap233wd2/express/mim_resources_20060418v1.exp 5555
+data/modules/ap210_electronic_assembly_interconnect_and_packaging_design/concatenated_mim.exp 6
+data/modules/ap210_electronic_assembly_interconnect_and_packaging_design/concatenated_arm.exp 6
+data/modules/solid_with_local_modification/Revisedent.exp 1
+# missing OF between ENUMERATION and enumeration_items
+data/resources/quantities_and_units_schema/quantities_and_units_schema.exp 14,48,108
+# extraneous `;` between WHERE and domain_rule
+data/resources/quantities_and_units_schema/quantities_and_units_schema.exp 185
+# space instead of `_` in enumeration_id
+data/resources/quantities_and_units_schema/quantities_and_units_schema.exp 128
+# `}` instead of `]` in bound_spec
+data/resources/quantities_and_units_schema/quantities_and_units_schema.exp 170
+# missing `;` at the end of entity_head
+data/resources/quantities_and_units_schema/quantities_and_units_schema.exp 169
+# `(` `)` instead of `[` `]` in aggregate_initializer
+data/resources/quantities_and_units_schema/quantities_and_units_schema.exp 10
+# missing EXTENSIBLE with GENERIC_ENTITY select_type
+data/modules/ap239_ap242_combined_for_Domain_to_ARM_mapping_reference/ap210/concatenated_arm.exp 23996
+# empty file, missing at least 1 schema
+ballots/ballots/ap210_wg12/express/mim/mim_resources_20050410v1.exp 1
+# schema version as free-form text, should be in string literal in schema_head
+doc/express-check/express_e2_shtolo_sf.exp 1
+doc/express-check/ir53_from_PW.exp 4
+# invalid remark tags
+data/modules/simplified_cataloguing/dvlp/catalogue_planning.exp 1,3
+# files marked as invalid
+data/modules/ap242_managed_model_based_3d_engineering/dvlp/pmi/concatenated_mim.exp 14
+data/modules/ap242_managed_model_based_3d_engineering/dvlp/pmi/concatenated_arm.exp 13
+# missing `)` at the end of the list
+ballots/ballots/annotated_text/mim_resources_20050407v1.exp 4983
+# AND instead of `|` in query_expression
+data/modules/catalog_data_information/dvlp/express/mim_20060714v1.exp 5440,5441
+# missing `,` in the list
+data/modules/ap239_ap242_combined_for_Domain_to_ARM_mapping_reference/dvlp/arm_concatenated.exp 9790,10187
+# extraneous `)` in nested expression
+ballots/ballots/annotated_text/mim_resources_20050407v1.exp 5880
+# embedded remark starting on the same line as tail remark
+ballots/ballots/ap210_wg12/express/resources/resources.exp 41249
+ballots/ballots/ap210_wg12/express/mim/mim_20050410v1_with_resources.exp 41249
+ballots/ballots/ap210_wg12/express/mim/mim_20050410v1_with_resources2.exp 41320
+ballots/ballots/annotated_text/mim_resources_20050407v1.exp 7194,10525,10570,19562,43066

@@ -4,12 +4,25 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema#"  
   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 
-  <% if dublin_core %>
+<% if dublin_core %>
     xmlns:dc="http://purl.org/dc/elements/1.1/"
-    xmlns:dcterms="http://purl.org/dc/terms/"
+  xmlns:dcterms="http://purl.org/dc/terms/"
   <% end %>
 
   xmlns="<%= schema_uri %>#"
   xml:base="<%= schema_uri %>#"> 
+
+<owl:Ontology rdf:about='' rdfs:label='<%= schema.name %>' >
+  <%= annotations.join("\n") %>
+
+  <% if dublin_core %>
+    <owl:imports rdf:resource="http://purl.org/dc/terms/"/>
+    <owl:imports rdf:resource="http://purl.org/dc/elements/1.1/"/>
+  <% end %>
+</owl:Ontology>
+
+<% if top_class != nil %>
+    <owl:Class rdf:ID='<%= top_class %>' />
+<% end %>
 
 </rdf:RDF>

@@ -6,7 +6,9 @@ module Expressir
       def initialize(document, options)
         @options = options
         @document = document
+        @top_class = options.fetch(:top_class, nil)
         @dublin_core = options.fetch(:dublin_core, false)
+        @annotation_list = options.fetch(:annotation_list, [])
       end
 
       def parse
@@ -19,7 +21,7 @@ module Expressir
 
       private
 
-      attr_reader :document, :dublin_core
+      attr_reader :document, :dublin_core, :annotation_list, :top_class
 
       def erb_template
         @erb_template ||= ERB.new(template)
@@ -35,6 +37,14 @@ module Expressir
 
       def template
         @template ||= File.read(Expressir.lib_path.join("owl", "template.xml.erb"))
+      end
+
+      def annotations
+        annotation_list.map do |tag, value|
+          if value && value != ""
+            "<#{tag} rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">#{value}</#{tag}>"
+          end
+        end
       end
     end
   end

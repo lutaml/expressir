@@ -27,8 +27,16 @@ module Expressir
         @erb_template ||= ERB.new(template)
       end
 
+      # @todo Multiple Schemas
+      #
+      # There could be multiple schemas or a direct schema object might
+      # be provided as input, but that's something we will need to handle
+      # in the future, and we also need to build the filename.
+      #
       def schema
         @schema ||= document.schemas.first
+        # require "pry"
+        # binding.pry
       end
 
       def schema_uri

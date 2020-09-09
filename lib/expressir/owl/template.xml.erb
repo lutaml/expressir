@@ -6,8 +6,8 @@
 
 <% if dublin_core %>
     xmlns:dc="http://purl.org/dc/elements/1.1/"
-  xmlns:dcterms="http://purl.org/dc/terms/"
-  <% end %>
+    xmlns:dcterms="http://purl.org/dc/terms/"
+<% end %>
 
   xmlns="<%= schema_uri %>#"
   xml:base="<%= schema_uri %>#"> 
@@ -24,5 +24,14 @@
 <% if top_class != nil %>
     <owl:Class rdf:ID='<%= top_class %>' />
 <% end %>
+
+<owl:Class rdf:ID='<%= owl_class_name %>'>
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <owl:oneOf rdf:parseType="Collection">
+    <%  enumitem_name_list.each do |name| %>
+      <rdf:Description rdf:ID="<%= owl_class_name + '.' + name %>"/>
+    <% end %>
+  </owl:oneOf>
+</owl:Class>}
 
 </rdf:RDF>

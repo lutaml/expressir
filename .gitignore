@@ -8,7 +8,8 @@
 /tmp/
 /Gemfile.lock
 /.idea
-/grammar/.antlr
+/lib/expressir/express_exp/generated/*.interp
+/lib/expressir/express_exp/generated/*.tokens
 
 # rspec failure tracking
 .rspec_status

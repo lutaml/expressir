@@ -21,17 +21,18 @@
   <% end %>
 </owl:Ontology>
 
-<% if top_class != nil %>
+<% if top_class %>
     <owl:Class rdf:ID='<%= top_class %>' />
 <% end %>
 
-<owl:Class rdf:ID='<%= owl_class_name %>'>
-  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
-  <owl:oneOf rdf:parseType="Collection">
-    <%  enumitem_name_list.each do |name| %>
-      <rdf:Description rdf:ID="<%= owl_class_name + '.' + name %>"/>
-    <% end %>
-  </owl:oneOf>
-</owl:Class>}
-
+<% schema.type_enums.each do |type_enum| %>
+  <owl:Class rdf:ID='<%= type_enum.name %>'>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+    <owl:oneOf rdf:parseType="Collection">
+      <% type_enum.items.each do |item| %>
+        <rdf:Description rdf:ID="<%= type_enum.name + '.' + item.name %>"/>
+      <% end %>    
+    </owl:oneOf>
+  </owl:Class>
+<% end %>
 </rdf:RDF>

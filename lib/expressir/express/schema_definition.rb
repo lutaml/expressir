@@ -51,6 +51,30 @@ module Expressir
         nil
       end
 
+      def types
+        @types ||= contents.find_all do |content|
+          content.kind_of?(Expressir::Express::Type)
+        end
+      end
+
+      def type_enums
+        @type_enums ||= contents.find_all do |content|
+          content.kind_of?(Expressir::Express::TypeEnum)
+        end
+      end
+
+      def type_selects
+        @type_selects ||= contents.find_all do |content|
+          content.kind_of?(Expressir::Express::TypeSelect)
+        end
+      end
+
+      def entities
+        @entities ||= contents.find_all do |content|
+          content.kind_of?(Expressir::Express::Entity)
+        end
+      end
+
       private
 
       def extract_attributes(document)

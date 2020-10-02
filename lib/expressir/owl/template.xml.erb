@@ -35,4 +35,18 @@
     </owl:oneOf>
   </owl:Class>
 <% end %>
+
+<% schema.builtin_types.each do |type| %>
+    <% if !type.instance_of?(Expressir::Express::TypeAggregate) %>
+      <rdfs:Datatype rdf:ID='<%= type.name %>'>
+        <rdfs:subClassOf rdf:resource='<%= datatypes[type.domain] %>'/>
+      </rdfs:Datatype>
+
+    <% else %>
+      <rdfs:Class rdf:ID='<%= type.name %>'>
+        <rdfs:subClassOf rdf:resource='<%= datatypes["LIST"] %>'/>
+      </rdfs:Class>
+    <% end %>
+<% end %>
+
 </rdf:RDF>

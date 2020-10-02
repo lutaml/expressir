@@ -35,7 +35,7 @@ module Expressir
       #
       def schema
         @schema ||= document.schemas.first
-        #
+
         # require "pry"
         # binding.pry
       end
@@ -46,6 +46,19 @@ module Expressir
 
       def template
         @template ||= File.read(Expressir.lib_path.join("owl", "template.xml.erb"))
+      end
+
+      def datatypes
+        @datatypes ||=  Hash.new.tap do |hash|
+          hash["INTEGER"] = 'http://www.w3.org/2001/XMLSchema#integer'
+          hash["REAL"] = 'http://www.w3.org/2001/XMLSchema#float'
+          hash["NUMBER"] = 'http://www.w3.org/2001/XMLSchema#float'
+          hash["BINARY"] = 'http://www.w3.org/2001/XMLSchema#hexBinary'
+          hash["BOOLEAN"] = 'http://www.w3.org/2001/XMLSchema#boolean'
+          hash["LOGICAL"] = 'http://www.w3.org/2001/XMLSchema#boolean'
+          hash["STRING"] = 'http://www.w3.org/2001/XMLSchema#string'
+          hash["LIST"] = "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"
+        end
       end
 
       def annotations

@@ -61,6 +61,10 @@ module Expressir
         @builtin_types ||= types.select(&:isBuiltin)
       end
 
+      def custom_types
+        @custom_types ||= types.reject(&:isBuiltin)
+      end
+
       def type_enums
         @type_enums ||= contents.find_all do |content|
           content.kind_of?(Expressir::Express::TypeEnum)

@@ -39,8 +39,19 @@
 <!-- Builtin types - cleanedup -->
 <% schema.builtin_types.each do |type| %>
   <rdfs:Class rdf:ID='<%= type.name %>'>
-    <rdfs:subClassOf rdf:resource='<%= datatypes["LIST"] %>'/>
+    <rdfs:subClassOf rdf:resource='<%= datatypes[type.domain] %>'/>
   </rdfs:Class>
 <% end %>
 
+<!-- Custom types - cleanedup -->
+<% schema.custom_types.each do |type| %>
+  <owl:Class rdf:ID='<%= type.name %>'>
+    <% if type.kind_of?(Expressir::Express::TypeAggregate) %>
+      <rdfs:subClassOf rdf:resource='<%= datatypes["LIST"] %> '/>
+
+    <% else %>
+      <rdfs:subClassOf rdf:resource='#<%= type.typename %>'/>
+    <% end %>
+  </rdfs:Class>
+<% end %>
 </rdf:RDF>

@@ -35,7 +35,6 @@ module Expressir
       #
       def schema
         @schema ||= document.schemas.first
-        #
         # require "pry"
         # binding.pry
       end

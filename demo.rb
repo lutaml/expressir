@@ -3,7 +3,9 @@
 require 'expressir'
 require 'expressir/express_exp/parser'
 
-file = '../annotated-express/data/resources/action_schema/action_schema.exp'
+# This file is from:
+# https://github.com/metanorma/annotated-express/blob/master/data/resources/action_schema/action_schema.exp
+file = 'action_schema.exp'
 
 # repo = Expressir::ExpressExp::Parser.from_exp(file)
 # schema = repo.schemas.find{|schema| schema.id == "support_resource_schema"}

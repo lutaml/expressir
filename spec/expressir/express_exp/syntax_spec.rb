@@ -1,5 +1,5 @@
 require "spec_helper"
-require_relative "../../../lib/expressir/express_exp/parser"
+require "expressir/express_exp/parser"
 
 RSpec.describe Expressir::ExpressExp::Parser do
   describe ".from_file" do
@@ -1092,7 +1092,8 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x).to be_instance_of(Expressir::Model::Types::Enumeration)
         expect(x.list).to be_instance_of(Array)
         expect(x.list.count).to eq(1)
-        expect(x.list[0]).to eq("test")
+        expect(x.list[0]).to be_instance_of(Expressir::Model::EnumerationItem)
+        expect(x.list[0].id).to eq("test")
       end
 
       types.find{|x| x.id == "enumerationExtensionTypeRefType"}.type.tap do |x|
@@ -1106,8 +1107,8 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.extension_type).to be_instance_of(Expressir::Model::Ref)
         expect(x.extension_type.id).to eq("enumerationType")
         expect(x.extension_list).to be_instance_of(Array)
-        expect(x.extension_list.count).to eq(1)
-        expect(x.extension_list[0]).to eq("test")
+        expect(x.extension_list[0]).to be_instance_of(Expressir::Model::EnumerationItem)
+        expect(x.extension_list[0].id).to eq("test")
       end
 
       # entities
@@ -1199,24 +1200,42 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.explicit[1].type).to be_instance_of(Expressir::Model::Types::Boolean)
       end
 
-      entities.find{|x| x.id == "explicitAttributeRenamedEntity"}.tap do |x|
+      entities.find{|x| x.id == "explicitAttributeRedeclaredEntity"}.tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Entity)
         expect(x.explicit).to be_instance_of(Array)
         expect(x.explicit.count).to eq(1)
         expect(x.explicit[0]).to be_instance_of(Expressir::Model::Explicit)
-        expect(x.explicit[0].id).to be_instance_of(Expressir::Model::RenamedRef)
-        expect(x.explicit[0].id.ref).to be_instance_of(Expressir::Model::Expressions::QualifiedRef)
-        expect(x.explicit[0].id.ref.ref).to be_instance_of(Expressir::Model::Ref)
-        expect(x.explicit[0].id.ref.ref.id).to eq("SELF")
-        expect(x.explicit[0].id.ref.qualifiers).to be_instance_of(Array)
-        expect(x.explicit[0].id.ref.qualifiers.count).to eq(2)
-        expect(x.explicit[0].id.ref.qualifiers[0]).to be_instance_of(Expressir::Model::Expressions::GroupQualifier)
-        expect(x.explicit[0].id.ref.qualifiers[0].entity).to be_instance_of(Expressir::Model::Ref)
-        expect(x.explicit[0].id.ref.qualifiers[0].entity.id).to eq("explicitAttributeEntity")
-        expect(x.explicit[0].id.ref.qualifiers[1]).to be_instance_of(Expressir::Model::Expressions::AttributeQualifier)
-        expect(x.explicit[0].id.ref.qualifiers[1].attribute).to be_instance_of(Expressir::Model::Ref)
-        expect(x.explicit[0].id.ref.qualifiers[1].attribute.id).to eq("test")
-        expect(x.explicit[0].id.id).to eq("test2")
+        expect(x.explicit[0].supertype_attribute).to be_instance_of(Expressir::Model::Expressions::QualifiedRef)
+        expect(x.explicit[0].supertype_attribute.ref).to be_instance_of(Expressir::Model::Ref)
+        expect(x.explicit[0].supertype_attribute.ref.id).to eq("SELF")
+        expect(x.explicit[0].supertype_attribute.qualifiers).to be_instance_of(Array)
+        expect(x.explicit[0].supertype_attribute.qualifiers.count).to eq(2)
+        expect(x.explicit[0].supertype_attribute.qualifiers[0]).to be_instance_of(Expressir::Model::Expressions::GroupQualifier)
+        expect(x.explicit[0].supertype_attribute.qualifiers[0].entity).to be_instance_of(Expressir::Model::Ref)
+        expect(x.explicit[0].supertype_attribute.qualifiers[0].entity.id).to eq("explicitAttributeEntity")
+        expect(x.explicit[0].supertype_attribute.qualifiers[1]).to be_instance_of(Expressir::Model::Expressions::AttributeQualifier)
+        expect(x.explicit[0].supertype_attribute.qualifiers[1].attribute).to be_instance_of(Expressir::Model::Ref)
+        expect(x.explicit[0].supertype_attribute.qualifiers[1].attribute.id).to eq("test")
+        expect(x.explicit[0].type).to be_instance_of(Expressir::Model::Types::Boolean)
+      end
+
+      entities.find{|x| x.id == "explicitAttributeRedeclaredRenamedEntity"}.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Entity)
+        expect(x.explicit).to be_instance_of(Array)
+        expect(x.explicit.count).to eq(1)
+        expect(x.explicit[0]).to be_instance_of(Expressir::Model::Explicit)
+        expect(x.explicit[0].id).to eq("test2")
+        expect(x.explicit[0].supertype_attribute).to be_instance_of(Expressir::Model::Expressions::QualifiedRef)
+        expect(x.explicit[0].supertype_attribute.ref).to be_instance_of(Expressir::Model::Ref)
+        expect(x.explicit[0].supertype_attribute.ref.id).to eq("SELF")
+        expect(x.explicit[0].supertype_attribute.qualifiers).to be_instance_of(Array)
+        expect(x.explicit[0].supertype_attribute.qualifiers.count).to eq(2)
+        expect(x.explicit[0].supertype_attribute.qualifiers[0]).to be_instance_of(Expressir::Model::Expressions::GroupQualifier)
+        expect(x.explicit[0].supertype_attribute.qualifiers[0].entity).to be_instance_of(Expressir::Model::Ref)
+        expect(x.explicit[0].supertype_attribute.qualifiers[0].entity.id).to eq("explicitAttributeEntity")
+        expect(x.explicit[0].supertype_attribute.qualifiers[1]).to be_instance_of(Expressir::Model::Expressions::AttributeQualifier)
+        expect(x.explicit[0].supertype_attribute.qualifiers[1].attribute).to be_instance_of(Expressir::Model::Ref)
+        expect(x.explicit[0].supertype_attribute.qualifiers[1].attribute.id).to eq("test")
         expect(x.explicit[0].type).to be_instance_of(Expressir::Model::Types::Boolean)
       end
 
@@ -1226,6 +1245,47 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.derived.count).to eq(1)
         expect(x.derived[0]).to be_instance_of(Expressir::Model::Derived)
         expect(x.derived[0].id).to eq("test")
+        expect(x.derived[0].type).to be_instance_of(Expressir::Model::Types::Boolean)
+        expect(x.derived[0].expression).to eq(true)
+      end
+
+      entities.find{|x| x.id == "derivedAttributeRedeclaredEntity"}.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Entity)
+        expect(x.derived).to be_instance_of(Array)
+        expect(x.derived.count).to eq(1)
+        expect(x.derived[0]).to be_instance_of(Expressir::Model::Derived)
+        expect(x.derived[0].supertype_attribute).to be_instance_of(Expressir::Model::Expressions::QualifiedRef)
+        expect(x.derived[0].supertype_attribute.ref).to be_instance_of(Expressir::Model::Ref)
+        expect(x.derived[0].supertype_attribute.ref.id).to eq("SELF")
+        expect(x.derived[0].supertype_attribute.qualifiers).to be_instance_of(Array)
+        expect(x.derived[0].supertype_attribute.qualifiers.count).to eq(2)
+        expect(x.derived[0].supertype_attribute.qualifiers[0]).to be_instance_of(Expressir::Model::Expressions::GroupQualifier)
+        expect(x.derived[0].supertype_attribute.qualifiers[0].entity).to be_instance_of(Expressir::Model::Ref)
+        expect(x.derived[0].supertype_attribute.qualifiers[0].entity.id).to eq("explicitAttributeEntity")
+        expect(x.derived[0].supertype_attribute.qualifiers[1]).to be_instance_of(Expressir::Model::Expressions::AttributeQualifier)
+        expect(x.derived[0].supertype_attribute.qualifiers[1].attribute).to be_instance_of(Expressir::Model::Ref)
+        expect(x.derived[0].supertype_attribute.qualifiers[1].attribute.id).to eq("test")
+        expect(x.derived[0].type).to be_instance_of(Expressir::Model::Types::Boolean)
+        expect(x.derived[0].expression).to eq(true)
+      end
+
+      entities.find{|x| x.id == "derivedAttributeRedeclaredRenamedEntity"}.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Entity)
+        expect(x.derived).to be_instance_of(Array)
+        expect(x.derived.count).to eq(1)
+        expect(x.derived[0]).to be_instance_of(Expressir::Model::Derived)
+        expect(x.derived[0].id).to eq("test2")
+        expect(x.derived[0].supertype_attribute).to be_instance_of(Expressir::Model::Expressions::QualifiedRef)
+        expect(x.derived[0].supertype_attribute.ref).to be_instance_of(Expressir::Model::Ref)
+        expect(x.derived[0].supertype_attribute.ref.id).to eq("SELF")
+        expect(x.derived[0].supertype_attribute.qualifiers).to be_instance_of(Array)
+        expect(x.derived[0].supertype_attribute.qualifiers.count).to eq(2)
+        expect(x.derived[0].supertype_attribute.qualifiers[0]).to be_instance_of(Expressir::Model::Expressions::GroupQualifier)
+        expect(x.derived[0].supertype_attribute.qualifiers[0].entity).to be_instance_of(Expressir::Model::Ref)
+        expect(x.derived[0].supertype_attribute.qualifiers[0].entity.id).to eq("explicitAttributeEntity")
+        expect(x.derived[0].supertype_attribute.qualifiers[1]).to be_instance_of(Expressir::Model::Expressions::AttributeQualifier)
+        expect(x.derived[0].supertype_attribute.qualifiers[1].attribute).to be_instance_of(Expressir::Model::Ref)
+        expect(x.derived[0].supertype_attribute.qualifiers[1].attribute.id).to eq("test")
         expect(x.derived[0].type).to be_instance_of(Expressir::Model::Types::Boolean)
         expect(x.derived[0].expression).to eq(true)
       end
@@ -1312,6 +1372,51 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.inverse[0].type.bound2).to eq(9)
         expect(x.inverse[0].type.base_type).to be_instance_of(Expressir::Model::Ref)
         expect(x.inverse[0].type.base_type.id).to eq("explicitAttributeEntity")
+        expect(x.inverse[0].attribute).to be_instance_of(Expressir::Model::Ref)
+        expect(x.inverse[0].attribute.id).to eq("test")
+      end
+
+      entities.find{|x| x.id == "inverseAttributeRedeclaredEntity"}.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Entity)
+        expect(x.inverse).to be_instance_of(Array)
+        expect(x.inverse.count).to eq(1)
+        expect(x.inverse[0]).to be_instance_of(Expressir::Model::Inverse)
+        expect(x.inverse[0].supertype_attribute).to be_instance_of(Expressir::Model::Expressions::QualifiedRef)
+        expect(x.inverse[0].supertype_attribute.ref).to be_instance_of(Expressir::Model::Ref)
+        expect(x.inverse[0].supertype_attribute.ref.id).to eq("SELF")
+        expect(x.inverse[0].supertype_attribute.qualifiers).to be_instance_of(Array)
+        expect(x.inverse[0].supertype_attribute.qualifiers.count).to eq(2)
+        expect(x.inverse[0].supertype_attribute.qualifiers[0]).to be_instance_of(Expressir::Model::Expressions::GroupQualifier)
+        expect(x.inverse[0].supertype_attribute.qualifiers[0].entity).to be_instance_of(Expressir::Model::Ref)
+        expect(x.inverse[0].supertype_attribute.qualifiers[0].entity.id).to eq("explicitAttributeEntity")
+        expect(x.inverse[0].supertype_attribute.qualifiers[1]).to be_instance_of(Expressir::Model::Expressions::AttributeQualifier)
+        expect(x.inverse[0].supertype_attribute.qualifiers[1].attribute).to be_instance_of(Expressir::Model::Ref)
+        expect(x.inverse[0].supertype_attribute.qualifiers[1].attribute.id).to eq("test")
+        expect(x.inverse[0].type).to be_instance_of(Expressir::Model::Ref)
+        expect(x.inverse[0].type.id).to eq("explicitAttributeEntity")
+        expect(x.inverse[0].attribute).to be_instance_of(Expressir::Model::Ref)
+        expect(x.inverse[0].attribute.id).to eq("test")
+      end
+
+      entities.find{|x| x.id == "inverseAttributeRedeclaredRenamedEntity"}.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Entity)
+        expect(x.inverse).to be_instance_of(Array)
+        expect(x.inverse.count).to eq(1)
+        expect(x.inverse[0]).to be_instance_of(Expressir::Model::Inverse)
+        expect(x.inverse[0].id).to eq("test2")
+        expect(x.inverse[0].supertype_attribute).to be_instance_of(Expressir::Model::Expressions::QualifiedRef)
+        expect(x.inverse[0].supertype_attribute.ref).to be_instance_of(Expressir::Model::Ref)
+        expect(x.inverse[0].supertype_attribute.ref.id).to eq("SELF")
+        expect(x.inverse[0].supertype_attribute.qualifiers).to be_instance_of(Array)
+        expect(x.inverse[0].supertype_attribute.qualifiers.count).to eq(2)
+        expect(x.inverse[0].supertype_attribute.qualifiers[0]).to be_instance_of(Expressir::Model::Expressions::GroupQualifier)
+        expect(x.inverse[0].supertype_attribute.qualifiers[0].entity).to be_instance_of(Expressir::Model::Ref)
+        expect(x.inverse[0].supertype_attribute.qualifiers[0].entity.id).to eq("explicitAttributeEntity")
+        expect(x.inverse[0].supertype_attribute.qualifiers[1]).to be_instance_of(Expressir::Model::Expressions::AttributeQualifier)
+        expect(x.inverse[0].supertype_attribute.qualifiers[1].attribute).to be_instance_of(Expressir::Model::Ref)
+        expect(x.inverse[0].supertype_attribute.qualifiers[1].attribute.id).to eq("test")
+        expect(x.inverse[0].type).to be_instance_of(Expressir::Model::Ref)
+        expect(x.inverse[0].type.id).to eq("explicitAttributeEntity")
         expect(x.inverse[0].attribute).to be_instance_of(Expressir::Model::Ref)
         expect(x.inverse[0].attribute.id).to eq("test")
       end
@@ -2416,7 +2521,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.actions).to be_instance_of(Array)
         expect(x.actions.count).to eq(1)
         expect(x.actions[0]).to be_instance_of(Expressir::Model::Statements::CaseAction)
-        expect(x.actions[0].label).to eq(true)
+        expect(x.actions[0].expression).to eq(true)
         expect(x.actions[0].statement).to be_instance_of(Expressir::Model::Statements::Null)
       end
 
@@ -2427,10 +2532,10 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.actions).to be_instance_of(Array)
         expect(x.actions.count).to eq(2)
         expect(x.actions[0]).to be_instance_of(Expressir::Model::Statements::CaseAction)
-        expect(x.actions[0].label).to eq(true)
+        expect(x.actions[0].expression).to eq(true)
         expect(x.actions[0].statement).to be_instance_of(Expressir::Model::Statements::Null)
         expect(x.actions[1]).to be_instance_of(Expressir::Model::Statements::CaseAction)
-        expect(x.actions[1].label).to eq(true)
+        expect(x.actions[1].expression).to eq(true)
         expect(x.actions[1].statement).to be_instance_of(Expressir::Model::Statements::Null)
       end
 
@@ -2441,10 +2546,10 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.actions).to be_instance_of(Array)
         expect(x.actions.count).to eq(2)
         expect(x.actions[0]).to be_instance_of(Expressir::Model::Statements::CaseAction)
-        expect(x.actions[0].label).to eq(true)
+        expect(x.actions[0].expression).to eq(true)
         expect(x.actions[0].statement).to be_instance_of(Expressir::Model::Statements::Null)
         expect(x.actions[1]).to be_instance_of(Expressir::Model::Statements::CaseAction)
-        expect(x.actions[1].label).to eq(true)
+        expect(x.actions[1].expression).to eq(true)
         expect(x.actions[1].statement).to be_instance_of(Expressir::Model::Statements::Null)
       end
 
@@ -2455,7 +2560,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.actions).to be_instance_of(Array)
         expect(x.actions.count).to eq(1)
         expect(x.actions[0]).to be_instance_of(Expressir::Model::Statements::CaseAction)
-        expect(x.actions[0].label).to eq(true)
+        expect(x.actions[0].expression).to eq(true)
         expect(x.actions[0].statement).to be_instance_of(Expressir::Model::Statements::Null)
         expect(x.otherwise_statement).to be_instance_of(Expressir::Model::Statements::Null)
       end
@@ -2473,7 +2578,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
 
       functions.find{|x| x.id == "ifStatement"}.statements[0].tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Statements::If)
-        expect(x.condition).to eq(true)
+        expect(x.expression).to eq(true)
         expect(x.statements).to be_instance_of(Array)
         expect(x.statements.count).to eq(1)
         expect(x.statements[0]).to be_instance_of(Expressir::Model::Statements::Null)
@@ -2481,7 +2586,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
 
       functions.find{|x| x.id == "if2Statement"}.statements[0].tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Statements::If)
-        expect(x.condition).to eq(true)
+        expect(x.expression).to eq(true)
         expect(x.statements).to be_instance_of(Array)
         expect(x.statements.count).to eq(2)
         expect(x.statements[0]).to be_instance_of(Expressir::Model::Statements::Null)
@@ -2490,7 +2595,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
 
       functions.find{|x| x.id == "ifElseStatement"}.statements[0].tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Statements::If)
-        expect(x.condition).to eq(true)
+        expect(x.expression).to eq(true)
         expect(x.statements).to be_instance_of(Array)
         expect(x.statements.count).to eq(1)
         expect(x.statements[0]).to be_instance_of(Expressir::Model::Statements::Null)
@@ -2501,7 +2606,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
 
       functions.find{|x| x.id == "if2ElseStatement"}.statements[0].tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Statements::If)
-        expect(x.condition).to eq(true)
+        expect(x.expression).to eq(true)
         expect(x.statements).to be_instance_of(Array)
         expect(x.statements.count).to eq(2)
         expect(x.statements[0]).to be_instance_of(Expressir::Model::Statements::Null)
@@ -2513,7 +2618,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
 
       functions.find{|x| x.id == "ifElse2Statement"}.statements[0].tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Statements::If)
-        expect(x.condition).to eq(true)
+        expect(x.expression).to eq(true)
         expect(x.statements).to be_instance_of(Array)
         expect(x.statements.count).to eq(1)
         expect(x.statements[0]).to be_instance_of(Expressir::Model::Statements::Null)
@@ -2525,7 +2630,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
 
       functions.find{|x| x.id == "if2Else2Statement"}.statements[0].tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Statements::If)
-        expect(x.condition).to eq(true)
+        expect(x.expression).to eq(true)
         expect(x.statements).to be_instance_of(Array)
         expect(x.statements.count).to eq(2)
         expect(x.statements[0]).to be_instance_of(Expressir::Model::Statements::Null)
@@ -2586,7 +2691,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
 
       functions.find{|x| x.id == "repeatVariableStatement"}.statements[0].tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Statements::Repeat)
-        expect(x.variable).to eq("test")
+        expect(x.id).to eq("test")
         expect(x.bound1).to eq(1)
         expect(x.bound2).to eq(9)
         expect(x.statements).to be_instance_of(Array)
@@ -2596,7 +2701,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
 
       functions.find{|x| x.id == "repeatVariableIncrementStatement"}.statements[0].tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Statements::Repeat)
-        expect(x.variable).to eq("test")
+        expect(x.id).to eq("test")
         expect(x.bound1).to eq(1)
         expect(x.bound2).to eq(9)
         expect(x.increment).to eq(2)

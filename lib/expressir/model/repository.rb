@@ -6,6 +6,12 @@ module Expressir
       def initialize(options = {})
         @schemas = options[:schemas]
       end
+
+      def scope_items
+        items = []
+        items.push(*@schemas) if @schemas
+        items
+      end
     end
   end
 end

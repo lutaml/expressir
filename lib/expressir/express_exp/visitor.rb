@@ -2,6 +2,7 @@ require 'expressir/express_exp/generated/ExpressBaseVisitor'
 require 'expressir/model/constant'
 require 'expressir/model/derived'
 require 'expressir/model/entity'
+require 'expressir/model/enumeration_item'
 require 'expressir/model/explicit'
 require 'expressir/model/function'
 require 'expressir/model/inverse'
@@ -107,6 +108,77 @@ require 'expressir/model/types/string'
 module Expressir
   module ExpressExp
     class Visitor < Generated::ExpressBaseVisitor
+      REMARK_CHANNEL = 2
+
+      def initialize(tokens)
+        @tokens = tokens
+        @attached_remarks = Set.new
+      end
+
+      def visit(ctx)
+        result = super(ctx)
+        attach_remarks(ctx, result)
+        result
+      end
+
+      def attach_remarks(ctx, item)
+        # get remark tokens
+        start_index, stop_index = if ctx.instance_of? Generated::ExpressParser::SyntaxContext
+          [0, @tokens.size - 1]
+        else
+          [ctx.start.token_index, ctx.stop.token_index]
+        end
+        # puts [start_index, stop_index, ctx.class].inspect
+
+        remark_tokens = @tokens.filter_for_channel(start_index, stop_index, REMARK_CHANNEL)
+        if remark_tokens
+          remark_tokens.each do |remark_token|
+            remark_text = remark_token.text
+
+            # check if it is tagged remark
+            match = if remark_text.start_with?('--')
+              remark_text[2..-1].match(/^"([^"]*)"(.*)$/)
+            elsif remark_text.start_with?('(*') and remark_text.end_with?('*)')
+              remark_text[2..-3].match(/^"([^"]*)"(.*)$/m)
+            end
+            if !match
+              next
+            end
+
+            # don't attach already attached tagged remark
+            if @attached_remarks.include? remark_token
+              next
+            end
+
+            # attach tagged remark
+            remark_tag = match[1]
+            remark_content = match[2].strip
+
+            current_item = item
+            remark_tag.split('.').each do |id|
+              if current_item
+                if current_item.class.method_defined? :scope_items
+                  current_item = current_item.scope_items.find{|x| x.id == id}
+                else
+                  current_item = nil
+                  break
+                end
+              else
+                break
+              end
+            end
+
+            if current_item
+              current_item.remarks ||= []
+              current_item.remarks << remark_content
+
+              # mark remark as attached, so that it is not attached again at higher nesting level
+              @attached_remarks << remark_token
+            end
+          end
+        end
+      end
+
       def visitAttributeRef(ctx)
         id = visit(ctx.attributeId())
 
@@ -347,13 +419,7 @@ module Expressir
       end
 
       def visitAttributeDecl(ctx)
-        if ctx.attributeId()
-          visit(ctx.attributeId())
-        elsif ctx.redeclaredAttribute()
-          visit(ctx.redeclaredAttribute())
-        else
-          raise 'Invalid state'
-        end
+        raise 'Invalid state'
       end
 
       def visitAttributeId(ctx)
@@ -439,12 +505,12 @@ module Expressir
       end
 
       def visitCaseAction(ctx)
-        labels = ctx.caseLabel().map{|ctx| visit(ctx.expression())}
+        expressions = ctx.caseLabel().map{|ctx| visit(ctx.expression())}
         statement = visit(ctx.stmt())
 
-        labels.map do |label|
+        expressions.map do |expression|
           Model::Statements::CaseAction.new({
-            label: label,
+            expression: expression,
             statement: statement
           })
         end
@@ -545,12 +611,20 @@ module Expressir
       end
 
       def visitDerivedAttr(ctx)
-        id = visit(ctx.attributeDecl())
+        id = if ctx.attributeDecl().attributeId()
+          visit(ctx.attributeDecl().attributeId())
+        elsif ctx.attributeDecl().redeclaredAttribute() && ctx.attributeDecl().redeclaredAttribute().attributeId()
+          visit(ctx.attributeDecl().redeclaredAttribute().attributeId())
+        end
+        supertype_attribute = if ctx.attributeDecl().redeclaredAttribute() && ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute()
+          visit(ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute())
+        end
         type = visit(ctx.parameterType())
         expression = visit(ctx.expression())
 
         Model::Derived.new({
           id: id,
+          supertype_attribute: supertype_attribute,
           type: type,
           expression: expression
         })
@@ -685,13 +759,13 @@ module Expressir
       def visitEnumerationType(ctx)
         extensible = !!ctx.EXTENSIBLE()
         list = if ctx.enumerationItems()
-          ctx.enumerationItems().enumerationId().map{|ctx| visit(ctx)}
+          ctx.enumerationItems().enumerationId().map{|ctx| handleEnumerationItem(ctx)}
         end
         extension_type = if ctx.enumerationExtension()
           visit(ctx.enumerationExtension().typeRef())
         end
         extension_list = if ctx.enumerationExtension() && ctx.enumerationExtension().enumerationItems()
-          ctx.enumerationExtension().enumerationItems().enumerationId().map{|ctx| visit(ctx)}
+          ctx.enumerationExtension().enumerationItems().enumerationId().map{|ctx| handleEnumerationItem(ctx)}
         end
 
         Model::Types::Enumeration.new({
@@ -707,13 +781,22 @@ module Expressir
       end
 
       def visitExplicitAttr(ctx)
-        ids = ctx.attributeDecl().map{|ctx| visit(ctx)}
+        decls = ctx.attributeDecl()
         optional = !!ctx.OPTIONAL()
         type = visit(ctx.parameterType())
 
-        ids.map do |id|
+        decls.map do |decl|
+          id = if decl.attributeId()
+            visit(decl.attributeId())
+          elsif decl.redeclaredAttribute() && decl.redeclaredAttribute().attributeId()
+            visit(decl.redeclaredAttribute().attributeId())
+          end
+          supertype_attribute = if decl.redeclaredAttribute() && decl.redeclaredAttribute().qualifiedAttribute()
+            visit(decl.redeclaredAttribute().qualifiedAttribute())
+          end
           Model::Explicit.new({
             id: id,
+            supertype_attribute: supertype_attribute,
             optional: optional,
             type: type
           })
@@ -948,7 +1031,7 @@ module Expressir
       end
 
       def visitIfStmt(ctx)
-        condition = visit(ctx.logicalExpression().expression())
+        expression = visit(ctx.logicalExpression().expression())
         else_index = if ctx.ELSE()
           ctx.children.find_index{|x| x == ctx.ELSE()}
         end
@@ -965,7 +1048,7 @@ module Expressir
         end
 
         Model::Statements::If.new({
-          condition: condition,
+          expression: expression,
           statements: statements,
           else_statements: else_statements
         })
@@ -1066,7 +1149,14 @@ module Expressir
       end
 
       def visitInverseAttr(ctx)
-        id = visit(ctx.attributeDecl())
+        id = if ctx.attributeDecl().attributeId()
+          visit(ctx.attributeDecl().attributeId())
+        elsif ctx.attributeDecl().redeclaredAttribute() && ctx.attributeDecl().redeclaredAttribute().attributeId()
+          visit(ctx.attributeDecl().redeclaredAttribute().attributeId())
+        end
+        supertype_attribute = if ctx.attributeDecl().redeclaredAttribute() && ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute()
+          visit(ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute())
+        end
         type = if ctx.SET()
           bound1, bound2 = if ctx.boundSpec()
             [
@@ -1116,6 +1206,7 @@ module Expressir
 
         Model::Inverse.new({
           id: id,
+          supertype_attribute: supertype_attribute,
           type: type,
           attribute: attribute
         })
@@ -1436,17 +1527,7 @@ module Expressir
       end
 
       def visitRedeclaredAttribute(ctx)
-        if ctx.attributeId()
-          ref = visit(ctx.qualifiedAttribute())
-          id = visit(ctx.attributeId())
-
-          Model::RenamedRef.new({
-            ref: ref,
-            id: id
-          })
-        else
-          visit(ctx.qualifiedAttribute())
-        end
+        raise 'Invalid state'
       end
 
       def visitReferencedAttribute(ctx)
@@ -1524,7 +1605,7 @@ module Expressir
       end
 
       def visitRepeatStmt(ctx)
-        variable = if ctx.repeatControl().incrementControl()
+        id = if ctx.repeatControl().incrementControl()
           visit(ctx.repeatControl().incrementControl().variableId())
         end
         bound1, bound2 = if ctx.repeatControl().incrementControl()
@@ -1545,7 +1626,7 @@ module Expressir
         statements = ctx.stmt().map{|ctx| visit(ctx)}
 
         Model::Statements::Repeat.new({
-          variable: variable,
+          id: id,
           bound1: bound1,
           bound2: bound2,
           increment: increment,
@@ -2051,6 +2132,16 @@ module Expressir
 
       def visitWidthSpec(ctx)
         raise 'Invalid state'
+      end
+
+      private
+
+      def handleEnumerationItem(ctx)
+        id = handleSimpleId(ctx.SimpleId())
+
+        Model::EnumerationItem.new({
+          id: id
+        })
       end
 
       def handleBinaryExpression(operands, operators)

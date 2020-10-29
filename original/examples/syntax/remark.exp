@@ -1,0 +1,101 @@
+--"remarkSchema" universal scope - schema before
+
+SCHEMA remarkSchema;
+
+CONSTANT remarkConstant : STRING := 'xxx'; END_CONSTANT;
+TYPE remarkType = STRING; END_TYPE;
+ENTITY remarkEntity;
+  remarkExplicit : STRING;
+  DERIVE remarkDerived : STRING := 'xxx';
+  INVERSE remarkInverse : remarkEntity FOR remarkExplicit;
+  UNIQUE remarkUnique : remarkExplicit;
+  WHERE remarkWhere : TRUE;
+  --"remarkExplicit" entity scope - entity explicit
+  --"remarkDerived" entity scope - entity derived
+  --"remarkInverse" entity scope - entity inverse
+  --"remarkUnique" entity scope - entity unique
+  --"remarkWhere" entity scope - entity where
+END_ENTITY;
+SUBTYPE_CONSTRAINT remarkSubtypeConstraint FOR remarkEntity; END_SUBTYPE_CONSTRAINT;
+FUNCTION remarkFunction (remarkParameter : STRING) : BOOLEAN;
+  TYPE remarkType = STRING; END_TYPE;
+  CONSTANT remarkConstant : STRING := 'xxx'; END_CONSTANT;
+  LOCAL remarkLocal : STRING; END_LOCAL;
+  ;
+  --"remarkParameter" function scope - function parameter
+  --"remarkType" function scope - function type
+  --"remarkConstant" function scope - function constant
+  --"remarkLocal" function scope - function local
+END_FUNCTION;
+PROCEDURE remarkProcedure (remarkParameter : STRING);
+  TYPE remarkType = STRING; END_TYPE;
+  CONSTANT remarkConstant : STRING := 'xxx'; END_CONSTANT;
+  LOCAL remarkLocal : STRING; END_LOCAL;
+  --"remarkParameter" procedure scope - procedure parameter
+  --"remarkType" procedure scope - procedure type
+  --"remarkConstant" procedure scope - procedure constant
+  --"remarkLocal" procedure scope - procedure local
+END_PROCEDURE;
+RULE remarkRule FOR (remarkEntity);
+  TYPE remarkType = STRING; END_TYPE;
+  CONSTANT remarkConstant : STRING := 'xxx'; END_CONSTANT;
+  LOCAL remarkLocal : STRING; END_LOCAL;
+  WHERE remarkWhere : TRUE;
+  --"remarkType" rule scope - rule type
+  --"remarkConstant" rule scope - rule constant
+  --"remarkLocal" rule scope - rule local
+  --"remarkWhere" rule scope - rule where
+END_RULE;
+
+--"remarkConstant" schema scope - constant
+--"remarkType" schema scope - type
+--"remarkEntity" schema scope - entity
+--"remarkEntity.remarkExplicit" schema scope - entity explicit
+--"remarkEntity.remarkDerived" schema scope - entity derived
+--"remarkEntity.remarkInverse" schema scope - entity inverse
+--"remarkEntity.remarkUnique" schema scope - entity unique
+--"remarkEntity.remarkWhere" schema scope - entity where
+--"remarkSubtypeConstraint" schema scope - subtype constraint
+--"remarkFunction" schema scope - function
+--"remarkFunction.remarkParameter" schema scope - function parameter
+--"remarkFunction.remarkType" schema scope - function type
+--"remarkFunction.remarkConstant" schema scope - function constant
+--"remarkFunction.remarkLocal" schema scope - function local
+--"remarkProcedure" schema scope - procedure
+--"remarkProcedure.remarkParameter" schema scope - procedure parameter
+--"remarkProcedure.remarkType" schema scope - procedure type
+--"remarkProcedure.remarkConstant" schema scope - procedure constant
+--"remarkProcedure.remarkLocal" schema scope - procedure local
+--"remarkRule" schema scope - rule
+--"remarkRule.remarkType" schema scope - rule type
+--"remarkRule.remarkConstant" schema scope - rule constant
+--"remarkRule.remarkLocal" schema scope - rule local
+--"remarkRule.remarkWhere" schema scope - rule where
+
+END_SCHEMA;
+
+--"remarkSchema" universal scope - schema
+--"remarkSchema.remarkConstant" universal scope - constant
+--"remarkSchema.remarkType" universal scope - type
+--"remarkSchema.remarkEntity" universal scope - entity
+--"remarkSchema.remarkEntity.remarkExplicit" universal scope - entity explicit
+--"remarkSchema.remarkEntity.remarkDerived" universal scope - entity derived
+--"remarkSchema.remarkEntity.remarkInverse" universal scope - entity inverse
+--"remarkSchema.remarkEntity.remarkUnique" universal scope - entity unique
+--"remarkSchema.remarkEntity.remarkWhere" universal scope - entity where
+--"remarkSchema.remarkSubtypeConstraint" universal scope - subtype constraint
+--"remarkSchema.remarkFunction" universal scope - function
+--"remarkSchema.remarkFunction.remarkParameter" universal scope - function parameter
+--"remarkSchema.remarkFunction.remarkType" universal scope - function type
+--"remarkSchema.remarkFunction.remarkConstant" universal scope - function constant
+--"remarkSchema.remarkFunction.remarkLocal" universal scope - function local
+--"remarkSchema.remarkProcedure" universal scope - procedure
+--"remarkSchema.remarkProcedure.remarkParameter" universal scope - procedure parameter
+--"remarkSchema.remarkProcedure.remarkType" universal scope - procedure type
+--"remarkSchema.remarkProcedure.remarkConstant" universal scope - procedure constant
+--"remarkSchema.remarkProcedure.remarkLocal" universal scope - procedure local
+--"remarkSchema.remarkRule" universal scope - rule
+--"remarkSchema.remarkRule.remarkType" universal scope - rule type
+--"remarkSchema.remarkRule.remarkConstant" universal scope - rule constant
+--"remarkSchema.remarkRule.remarkLocal" universal scope - rule local
+--"remarkSchema.remarkRule.remarkWhere" universal scope - rule where

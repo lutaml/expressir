@@ -93,10 +93,10 @@ CONSTANT
   likeExpression : STRING := 'xxx' LIKE 'xxx';
 
   -- aggregate initializers
-  aggregateExpression : STRING := ['xxx'];
-  aggregateRepeatedExpression : STRING := ['xxx' : 2];
-  aggregateComplexExpression : STRING := [4 + 2];
-  aggregateComplexRepeatedExpression : STRING := [4 + 2 : 4 + 2];
+  aggregateInitializerExpression : STRING := ['xxx'];
+  repeatedAggregateInitializerExpression : STRING := ['xxx' : 2];
+  complexAggregateInitializerExpression : STRING := [4 + 2];
+  complexRepeatedAggregateInitializerExpression : STRING := [4 + 2 : 4 + 2];
 
   -- entity constructors
   entityConstructorExpression : STRING := explicitAttributeEntity(TRUE);

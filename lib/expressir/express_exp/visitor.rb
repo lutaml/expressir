@@ -20,6 +20,7 @@ require 'expressir/model/type'
 require 'expressir/model/unique'
 require 'expressir/model/use'
 require 'expressir/model/where'
+require 'expressir/model/expressions/aggregate_initializer'
 require 'expressir/model/expressions/aggregate_element'
 require 'expressir/model/expressions/attribute_qualifier'
 require 'expressir/model/expressions/entity_constructor'
@@ -322,7 +323,11 @@ module Expressir
       end
 
       def visitAggregateInitializer(ctx)
-        ctx.element().map{|ctx| visit(ctx)}
+        items = ctx.element().map{|ctx| visit(ctx)}
+
+        Model::Expressions::AggregateInitializer.new({
+          items: items
+        })
       end
 
       def visitAggregateSource(ctx)

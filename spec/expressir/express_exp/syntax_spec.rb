@@ -728,47 +728,51 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
 
       # aggregate initializers
-      constants.find{|x| x.id == "aggregateExpression"}.expression.tap do |x|
-        expect(x).to be_instance_of(Array)
-        expect(x.count).to eq(1)
-        expect(x[0]).to eq("xxx")
+      constants.find{|x| x.id == "aggregateInitializerExpression"}.expression.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Expressions::AggregateInitializer)
+        expect(x.items).to be_instance_of(Array)
+        expect(x.items.count).to eq(1)
+        expect(x.items[0]).to eq("xxx")
       end
 
-      constants.find{|x| x.id == "aggregateRepeatedExpression"}.expression.tap do |x|
-        expect(x).to be_instance_of(Array)
-        expect(x.count).to eq(1)
-        expect(x[0]).to be_instance_of(Expressir::Model::Expressions::AggregateElement)
-        expect(x[0].expression).to eq("xxx")
-        expect(x[0].repetition).to eq(2)
+      constants.find{|x| x.id == "repeatedAggregateInitializerExpression"}.expression.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Expressions::AggregateInitializer)
+        expect(x.items).to be_instance_of(Array)
+        expect(x.items.count).to eq(1)
+        expect(x.items[0]).to be_instance_of(Expressir::Model::Expressions::AggregateElement)
+        expect(x.items[0].expression).to eq("xxx")
+        expect(x.items[0].repetition).to eq(2)
       end
 
-      constants.find{|x| x.id == "aggregateComplexExpression"}.expression.tap do |x|
-        expect(x).to be_instance_of(Array)
-        expect(x.count).to eq(1)
-        expect(x[0]).to be_instance_of(Expressir::Model::Expressions::Expression)
-        expect(x[0].operator).to be_instance_of(Expressir::Model::Operators::Addition)
-        expect(x[0].operands).to be_instance_of(Array)
-        expect(x[0].operands.count).to eq(2)
-        expect(x[0].operands[0]).to eq(4)
-        expect(x[0].operands[1]).to eq(2)
+      constants.find{|x| x.id == "complexAggregateInitializerExpression"}.expression.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Expressions::AggregateInitializer)
+        expect(x.items).to be_instance_of(Array)
+        expect(x.items.count).to eq(1)
+        expect(x.items[0]).to be_instance_of(Expressir::Model::Expressions::Expression)
+        expect(x.items[0].operator).to be_instance_of(Expressir::Model::Operators::Addition)
+        expect(x.items[0].operands).to be_instance_of(Array)
+        expect(x.items[0].operands.count).to eq(2)
+        expect(x.items[0].operands[0]).to eq(4)
+        expect(x.items[0].operands[1]).to eq(2)
       end
 
-      constants.find{|x| x.id == "aggregateComplexRepeatedExpression"}.expression.tap do |x|
-        expect(x).to be_instance_of(Array)
-        expect(x.count).to eq(1)
-        expect(x[0]).to be_instance_of(Expressir::Model::Expressions::AggregateElement)
-        expect(x[0].expression).to be_instance_of(Expressir::Model::Expressions::Expression)
-        expect(x[0].expression.operator).to be_instance_of(Expressir::Model::Operators::Addition)
-        expect(x[0].expression.operands).to be_instance_of(Array)
-        expect(x[0].expression.operands.count).to eq(2)
-        expect(x[0].expression.operands[0]).to eq(4)
-        expect(x[0].expression.operands[1]).to eq(2)
-        expect(x[0].repetition).to be_instance_of(Expressir::Model::Expressions::Expression)
-        expect(x[0].repetition.operator).to be_instance_of(Expressir::Model::Operators::Addition)
-        expect(x[0].repetition.operands).to be_instance_of(Array)
-        expect(x[0].repetition.operands.count).to eq(2)
-        expect(x[0].repetition.operands[0]).to eq(4)
-        expect(x[0].repetition.operands[1]).to eq(2)
+      constants.find{|x| x.id == "complexRepeatedAggregateInitializerExpression"}.expression.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Expressions::AggregateInitializer)
+        expect(x.items).to be_instance_of(Array)
+        expect(x.items.count).to eq(1)
+        expect(x.items[0]).to be_instance_of(Expressir::Model::Expressions::AggregateElement)
+        expect(x.items[0].expression).to be_instance_of(Expressir::Model::Expressions::Expression)
+        expect(x.items[0].expression.operator).to be_instance_of(Expressir::Model::Operators::Addition)
+        expect(x.items[0].expression.operands).to be_instance_of(Array)
+        expect(x.items[0].expression.operands.count).to eq(2)
+        expect(x.items[0].expression.operands[0]).to eq(4)
+        expect(x.items[0].expression.operands[1]).to eq(2)
+        expect(x.items[0].repetition).to be_instance_of(Expressir::Model::Expressions::Expression)
+        expect(x.items[0].repetition.operator).to be_instance_of(Expressir::Model::Operators::Addition)
+        expect(x.items[0].repetition.operands).to be_instance_of(Array)
+        expect(x.items[0].repetition.operands.count).to eq(2)
+        expect(x.items[0].repetition.operands[0]).to eq(4)
+        expect(x.items[0].repetition.operands[1]).to eq(2)
       end
 
       # entity constructors
@@ -852,9 +856,10 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.operands).to be_instance_of(Array)
         expect(x.operands.count).to eq(2)
         expect(x.operands[0]).to eq(true)
-        expect(x.operands[1]).to be_instance_of(Array)
-        expect(x.operands[1].count).to eq(1)
-        expect(x.operands[1][0]).to eq(true)
+        expect(x.operands[1]).to be_instance_of(Expressir::Model::Expressions::AggregateInitializer)
+        expect(x.operands[1].items).to be_instance_of(Array)
+        expect(x.operands[1].items.count).to eq(1)
+        expect(x.operands[1].items[0]).to eq(true)
       end
 
       constants.find{|x| x.id == "likeExpression"}.expression.tap do |x|

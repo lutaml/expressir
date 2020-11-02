@@ -9,6 +9,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       schema = repo.schemas.first
 
       schema.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Schema)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(2)
         expect(x.remarks[0]).to eq("universal scope - schema before")
@@ -16,6 +17,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.constants.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Constant)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(2)
         expect(x.remarks[0]).to eq("schema scope - constant")
@@ -23,6 +25,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.types.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Type)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(2)
         expect(x.remarks[0]).to eq("schema scope - type")
@@ -30,6 +33,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.entities.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Entity)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(2)
         expect(x.remarks[0]).to eq("schema scope - entity")
@@ -37,6 +41,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.entities.first.explicit.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Explicit)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("entity scope - entity explicit")
@@ -45,6 +50,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.entities.first.derived.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Derived)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("entity scope - entity derived")
@@ -53,6 +59,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.entities.first.inverse.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Inverse)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("entity scope - entity inverse")
@@ -61,6 +68,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.entities.first.unique.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Unique)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("entity scope - entity unique")
@@ -69,6 +77,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.entities.first.where.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Where)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("entity scope - entity where")
@@ -77,6 +86,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.subtype_constraints.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::SubtypeConstraint)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(2)
         expect(x.remarks[0]).to eq("schema scope - subtype constraint")
@@ -84,6 +94,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.functions.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Function)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(2)
         expect(x.remarks[0]).to eq("schema scope - function")
@@ -91,6 +102,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.functions.first.parameters.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Parameter)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("function scope - function parameter")
@@ -99,6 +111,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.functions.first.types.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Type)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("function scope - function type")
@@ -107,6 +120,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.functions.first.constants.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Constant)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("function scope - function constant")
@@ -115,6 +129,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.functions.first.locals.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Local)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("function scope - function local")
@@ -122,7 +137,30 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.remarks[2]).to eq("universal scope - function local")
       end
       
+      schema.functions.first.statements[0].tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Statements::Alias)
+        expect(x.remarks).to be_instance_of(Array)
+        expect(x.remarks.count).to eq(1)
+        expect(x.remarks[0]).to eq("function alias scope - function alias")
+      end
+      
+      schema.functions.first.statements[1].tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Statements::Repeat)
+        expect(x.remarks).to be_instance_of(Array)
+        expect(x.remarks.count).to eq(1)
+        expect(x.remarks[0]).to eq("function repeat scope - function repeat")
+      end
+      
+      schema.functions.first.statements[2].tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Statements::Assignment)
+        expect(x.expression).to be_instance_of(Expressir::Model::Expressions::Query)
+        expect(x.expression.remarks).to be_instance_of(Array)
+        expect(x.expression.remarks.count).to eq(1)
+        expect(x.expression.remarks[0]).to eq("function query scope - function query")
+      end
+      
       schema.procedures.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Procedure)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(2)
         expect(x.remarks[0]).to eq("schema scope - procedure")
@@ -130,6 +168,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.procedures.first.parameters.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Parameter)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("procedure scope - procedure parameter")
@@ -138,6 +177,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.procedures.first.types.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Type)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("procedure scope - procedure type")
@@ -146,6 +186,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.procedures.first.constants.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Constant)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("procedure scope - procedure constant")
@@ -154,6 +195,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.procedures.first.locals.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Local)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("procedure scope - procedure local")
@@ -161,7 +203,30 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.remarks[2]).to eq("universal scope - procedure local")
       end
       
+      schema.procedures.first.statements[0].tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Statements::Alias)
+        expect(x.remarks).to be_instance_of(Array)
+        expect(x.remarks.count).to eq(1)
+        expect(x.remarks[0]).to eq("procedure alias scope - procedure alias")
+      end
+      
+      schema.procedures.first.statements[1].tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Statements::Repeat)
+        expect(x.remarks).to be_instance_of(Array)
+        expect(x.remarks.count).to eq(1)
+        expect(x.remarks[0]).to eq("procedure repeat scope - procedure repeat")
+      end
+      
+      schema.procedures.first.statements[2].tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Statements::Assignment)
+        expect(x.expression).to be_instance_of(Expressir::Model::Expressions::Query)
+        expect(x.expression.remarks).to be_instance_of(Array)
+        expect(x.expression.remarks.count).to eq(1)
+        expect(x.expression.remarks[0]).to eq("procedure query scope - procedure query")
+      end
+      
       schema.rules.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Rule)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(2)
         expect(x.remarks[0]).to eq("schema scope - rule")
@@ -169,6 +234,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.rules.first.types.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Type)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("rule scope - rule type")
@@ -177,6 +243,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.rules.first.constants.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Constant)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("rule scope - rule constant")
@@ -185,6 +252,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
       
       schema.rules.first.locals.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Local)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("rule scope - rule local")
@@ -192,7 +260,30 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.remarks[2]).to eq("universal scope - rule local")
       end
       
+      schema.rules.first.statements[0].tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Statements::Alias)
+        expect(x.remarks).to be_instance_of(Array)
+        expect(x.remarks.count).to eq(1)
+        expect(x.remarks[0]).to eq("rule alias scope - rule alias")
+      end
+      
+      schema.rules.first.statements[1].tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Statements::Repeat)
+        expect(x.remarks).to be_instance_of(Array)
+        expect(x.remarks.count).to eq(1)
+        expect(x.remarks[0]).to eq("rule repeat scope - rule repeat")
+      end
+      
+      schema.rules.first.statements[2].tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Statements::Assignment)
+        expect(x.expression).to be_instance_of(Expressir::Model::Expressions::Query)
+        expect(x.expression.remarks).to be_instance_of(Array)
+        expect(x.expression.remarks.count).to eq(1)
+        expect(x.expression.remarks[0]).to eq("rule query scope - rule query")
+      end
+      
       schema.rules.first.where.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Where)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
         expect(x.remarks[0]).to eq("rule scope - rule where")

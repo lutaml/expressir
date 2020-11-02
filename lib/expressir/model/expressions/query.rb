@@ -13,6 +13,12 @@ module Expressir
             @expression = options[:expression]
             @remarks = options[:remarks]
           end
+
+          def scope_items
+            items = []
+            items.push(self)
+            items
+          end
         end
       end
     end

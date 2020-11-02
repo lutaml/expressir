@@ -21,6 +21,12 @@ module Expressir
           @statements = options[:statements]
           @remarks = options[:remarks]
         end
+
+        def scope_items
+          items = []
+          items.push(self)
+          items
+        end
       end
     end
   end

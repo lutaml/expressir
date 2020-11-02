@@ -47,7 +47,6 @@ module Expressir
         items.push(*@constants) if @constants
         items.push(*@locals) if @locals
         items.push(*@where) if @where
-        # TODO: statements
         items
       end
     end

@@ -21,7 +21,15 @@ FUNCTION remarkFunction (remarkParameter : STRING) : BOOLEAN;
   TYPE remarkType = STRING; END_TYPE;
   CONSTANT remarkConstant : STRING := 'xxx'; END_CONSTANT;
   LOCAL remarkLocal : STRING; END_LOCAL;
-  ;
+  ALIAS remarkAlias FOR remarkLocal; ;
+    --"remarkAlias" function alias scope - function alias
+  END_ALIAS;
+  REPEAT remarkRepeat := 1 TO 9; ;
+    --"remarkRepeat" function repeat scope - function repeat
+  END_REPEAT;
+  remarkLocal := QUERY(remarkQuery <* remarkLocal | TRUE
+    --"remarkQuery" function query scope - function query
+  );
   --"remarkParameter" function scope - function parameter
   --"remarkType" function scope - function type
   --"remarkConstant" function scope - function constant
@@ -31,6 +39,15 @@ PROCEDURE remarkProcedure (remarkParameter : STRING);
   TYPE remarkType = STRING; END_TYPE;
   CONSTANT remarkConstant : STRING := 'xxx'; END_CONSTANT;
   LOCAL remarkLocal : STRING; END_LOCAL;
+  ALIAS remarkAlias FOR remarkLocal; ;
+    --"remarkAlias" procedure alias scope - procedure alias
+  END_ALIAS;
+  REPEAT remarkRepeat := 1 TO 9; ;
+    --"remarkRepeat" procedure repeat scope - procedure repeat
+  END_REPEAT;
+  remarkLocal := QUERY(remarkQuery <* remarkLocal | TRUE
+    --"remarkQuery" procedure query scope - procedure query
+  );
   --"remarkParameter" procedure scope - procedure parameter
   --"remarkType" procedure scope - procedure type
   --"remarkConstant" procedure scope - procedure constant
@@ -40,6 +57,15 @@ RULE remarkRule FOR (remarkEntity);
   TYPE remarkType = STRING; END_TYPE;
   CONSTANT remarkConstant : STRING := 'xxx'; END_CONSTANT;
   LOCAL remarkLocal : STRING; END_LOCAL;
+  ALIAS remarkAlias FOR remarkLocal; ;
+    --"remarkAlias" rule alias scope - rule alias
+  END_ALIAS;
+  REPEAT remarkRepeat := 1 TO 9; ;
+    --"remarkRepeat" rule repeat scope - rule repeat
+  END_REPEAT;
+  remarkLocal := QUERY(remarkQuery <* remarkLocal | TRUE
+    --"remarkQuery" rule query scope - rule query
+  );
   WHERE remarkWhere : TRUE;
   --"remarkType" rule scope - rule type
   --"remarkConstant" rule scope - rule constant

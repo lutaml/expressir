@@ -12,12 +12,12 @@ CONSTANT
   -- literals
   binaryExpression : STRING := %011110000111100001111000;
   integerExpression : STRING := 999;
-  logicalTrueExpression : STRING := TRUE;
-  logicalFalseExpression : STRING := FALSE;
-  logicalUnknownExpression : STRING := UNKNOWN;
+  trueLogicalExpression : STRING := TRUE;
+  falseLogicalExpression : STRING := FALSE;
+  unknownLogicalExpression : STRING := UNKNOWN;
   realExpression : STRING := 999.999;
-  stringSimpleExpression : STRING := 'xxx';
-  stringEncodedExpression : STRING := "000000780000007800000078";
+  simpleStringExpression : STRING := 'xxx';
+  encodedStringExpression : STRING := "000000780000007800000078";
 
   -- constants
   constEExpression : STRING := CONST_E;

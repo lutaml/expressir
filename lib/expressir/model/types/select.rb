@@ -4,16 +4,16 @@ module Expressir
       class Select
         attr_accessor :extensible
         attr_accessor :generic_entity
-        attr_accessor :list
+        attr_accessor :items
         attr_accessor :extension_type
-        attr_accessor :extension_list
+        attr_accessor :extension_items
 
         def initialize(options = {})
           @extensible = options[:extensible]
           @generic_entity = options[:generic_entity]
-          @list = options[:list]
+          @items = options[:items]
           @extension_type = options[:extension_type]
-          @extension_list = options[:extension_list]
+          @extension_items = options[:extension_items]
         end
       end
     end

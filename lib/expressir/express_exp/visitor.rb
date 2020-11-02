@@ -1,91 +1,5 @@
 require 'expressir/express_exp/generated/ExpressBaseVisitor'
-require 'expressir/model/constant'
-require 'expressir/model/derived'
-require 'expressir/model/entity'
-require 'expressir/model/enumeration_item'
-require 'expressir/model/explicit'
-require 'expressir/model/function'
-require 'expressir/model/inverse'
-require 'expressir/model/local'
-require 'expressir/model/parameter'
-require 'expressir/model/procedure'
-require 'expressir/model/ref'
-require 'expressir/model/reference'
-require 'expressir/model/renamed_ref'
-require 'expressir/model/repository'
-require 'expressir/model/rule'
-require 'expressir/model/schema'
-require 'expressir/model/subtype_constraint'
-require 'expressir/model/type'
-require 'expressir/model/unique'
-require 'expressir/model/use'
-require 'expressir/model/where'
-require 'expressir/model/expressions/aggregate_initializer'
-require 'expressir/model/expressions/aggregate_element'
-require 'expressir/model/expressions/attribute_qualifier'
-require 'expressir/model/expressions/entity_constructor'
-require 'expressir/model/expressions/expression'
-require 'expressir/model/expressions/function_call'
-require 'expressir/model/expressions/group_qualifier'
-require 'expressir/model/expressions/index_qualifier'
-require 'expressir/model/expressions/interval'
-require 'expressir/model/expressions/qualified_ref'
-require 'expressir/model/expressions/query'
-require 'expressir/model/expressions/unknown'
-require 'expressir/model/operators/addition'
-require 'expressir/model/operators/and'
-require 'expressir/model/operators/andor'
-require 'expressir/model/operators/combine'
-require 'expressir/model/operators/equal'
-require 'expressir/model/operators/exponentiation'
-require 'expressir/model/operators/greater_than'
-require 'expressir/model/operators/greater_than_or_equal'
-require 'expressir/model/operators/in'
-require 'expressir/model/operators/instance_equal'
-require 'expressir/model/operators/instance_not_equal'
-require 'expressir/model/operators/integer_division'
-require 'expressir/model/operators/less_than'
-require 'expressir/model/operators/less_than_or_equal'
-require 'expressir/model/operators/like'
-require 'expressir/model/operators/modulo'
-require 'expressir/model/operators/multiplication'
-require 'expressir/model/operators/not'
-require 'expressir/model/operators/not_equal'
-require 'expressir/model/operators/oneof'
-require 'expressir/model/operators/or'
-require 'expressir/model/operators/real_division'
-require 'expressir/model/operators/subtraction'
-require 'expressir/model/operators/unary_plus'
-require 'expressir/model/operators/unary_minus'
-require 'expressir/model/operators/xor'
-require 'expressir/model/statements/alias'
-require 'expressir/model/statements/assignment'
-require 'expressir/model/statements/case'
-require 'expressir/model/statements/case_action'
-require 'expressir/model/statements/compound'
-require 'expressir/model/statements/escape'
-require 'expressir/model/statements/if'
-require 'expressir/model/statements/null'
-require 'expressir/model/statements/procedure_call'
-require 'expressir/model/statements/repeat'
-require 'expressir/model/statements/return'
-require 'expressir/model/statements/skip'
-require 'expressir/model/types/aggregate'
-require 'expressir/model/types/array'
-require 'expressir/model/types/bag'
-require 'expressir/model/types/binary'
-require 'expressir/model/types/boolean'
-require 'expressir/model/types/enumeration'
-require 'expressir/model/types/generic_entity'
-require 'expressir/model/types/generic'
-require 'expressir/model/types/integer'
-require 'expressir/model/types/list'
-require 'expressir/model/types/logical'
-require 'expressir/model/types/number'
-require 'expressir/model/types/real'
-require 'expressir/model/types/set'
-require 'expressir/model/types/select'
-require 'expressir/model/types/string'
+require 'expressir/model'
 
 # issues:
 #
@@ -763,21 +677,21 @@ module Expressir
 
       def visitEnumerationType(ctx)
         extensible = !!ctx.EXTENSIBLE()
-        list = if ctx.enumerationItems()
+        items = if ctx.enumerationItems()
           ctx.enumerationItems().enumerationId().map{|ctx| handleEnumerationItem(ctx)}
         end
         extension_type = if ctx.enumerationExtension()
           visit(ctx.enumerationExtension().typeRef())
         end
-        extension_list = if ctx.enumerationExtension() && ctx.enumerationExtension().enumerationItems()
+        extension_items = if ctx.enumerationExtension() && ctx.enumerationExtension().enumerationItems()
           ctx.enumerationExtension().enumerationItems().enumerationId().map{|ctx| handleEnumerationItem(ctx)}
         end
 
         Model::Types::Enumeration.new({
           extensible: extensible,
-          list: list,
+          items: items,
           extension_type: extension_type,
-          extension_list: extension_list
+          extension_items: extension_items
         })
       end
 
@@ -1280,15 +1194,19 @@ module Expressir
       end
 
       def visitLogicalLiteral(ctx)
-        if ctx.TRUE()
+        value = if ctx.TRUE()
           true
         elsif ctx.FALSE()
           false
         elsif ctx.UNKNOWN()
-          Model::Expressions::Unknown.new()
+          nil
         else
           raise 'Invalid state'
         end
+
+        Model::Literals::Logical.new({
+          value: value
+        })
       end
 
       def visitLogicalType(ctx)
@@ -1768,22 +1686,22 @@ module Expressir
       def visitSelectType(ctx)
         extensible = !!ctx.EXTENSIBLE()
         generic_entity = !!ctx.GENERIC_ENTITY()
-        list = if ctx.selectList()
+        items = if ctx.selectList()
           ctx.selectList().namedTypes().map{|ctx| visit(ctx)}
         end
         extension_type = if ctx.selectExtension()
           visit(ctx.selectExtension().typeRef())
         end
-        extension_list = if ctx.selectExtension() && ctx.selectExtension().selectList()
+        extension_items = if ctx.selectExtension() && ctx.selectExtension().selectList()
           ctx.selectExtension().selectList().namedTypes().map{|ctx| visit(ctx)}
         end
 
         Model::Types::Select.new({
           extensible: extensible,
           generic_entity: generic_entity,
-          list: list,
+          items: items,
           extension_type: extension_type,
-          extension_list: extension_list
+          extension_items: extension_items
         })
       end
 
@@ -2168,16 +2086,27 @@ module Expressir
       end
 
       def handleBinaryLiteral(ctx)
-        bin = ctx.text[1..(ctx.text.length - 1)]
-        [bin].pack('B*')
+        value = ctx.text[1..(ctx.text.length - 1)]
+
+        Model::Literals::Binary.new({
+          value: value
+        })
       end
 
       def handleIntegerLiteral(ctx)
-        ctx.text.to_i
+        value = ctx.text
+
+        Model::Literals::Integer.new({
+          value: value
+        })
       end
 
       def handleRealLiteral(ctx)
-        ctx.text.to_f
+        value = ctx.text
+
+        Model::Literals::Real.new({
+          value: value
+        })
       end
 
       def handleSimpleId(ctx)
@@ -2185,14 +2114,20 @@ module Expressir
       end
 
       def handleSimpleStringLiteral(ctx)
-        ctx.text[1..(ctx.text.length - 2)]
+        value = ctx.text[1..(ctx.text.length - 2)]
+
+        Model::Literals::String.new({
+          value: value
+        })
       end
 
       def handleEncodedStringLiteral(ctx)
-        hex = ctx.text[1..(ctx.text.length - 2)]
-        str = [hex].pack('H*')
-        str.force_encoding('UCS-4BE')
-        str.encode('ASCII-8BIT')
+        value = ctx.text[1..(ctx.text.length - 2)]
+
+        Model::Literals::String.new({
+          value: value,
+          encoded: true
+        })
       end
     end
   end

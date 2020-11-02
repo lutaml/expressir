@@ -7,6 +7,7 @@ module Expressir
       attr_accessor :constants
       attr_accessor :declarations
       attr_accessor :rules
+      attr_accessor :remarks
 
       def initialize(options = {})
         @id = options[:id]
@@ -15,6 +16,7 @@ module Expressir
         @constants = options[:constants]
         @declarations = options[:declarations]
         @rules = options[:rules]
+        @remarks = options[:remarks]
       end
 
       def types
@@ -35,6 +37,14 @@ module Expressir
 
       def procedures
         @declarations.select{|x| x.instance_of? Expressir::Model::Procedure}
+      end
+
+      def scope_items
+        items = []
+        items.push(*@constants) if @constants
+        items.push(*@declarations) if @declarations
+        items.push(*@rules) if @rules
+        items
       end
     end
   end

@@ -6,6 +6,7 @@ module Expressir
       attr_accessor :abstract_supertype
       attr_accessor :total_over
       attr_accessor :subtype_expression
+      attr_accessor :remarks
 
       def initialize(options = {})
         @id = options[:id]
@@ -13,6 +14,7 @@ module Expressir
         @abstract_supertype = options[:abstract_supertype]
         @total_over = options[:total_over]
         @subtype_expression = options[:subtype_expression]
+        @remarks = options[:remarks]
       end
     end
   end

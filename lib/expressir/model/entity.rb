@@ -11,6 +11,7 @@ module Expressir
       attr_accessor :inverse
       attr_accessor :unique
       attr_accessor :where
+      attr_accessor :remarks
 
       def initialize(options = {})
         @id = options[:id]
@@ -23,6 +24,17 @@ module Expressir
         @inverse = options[:inverse]
         @unique = options[:unique]
         @where = options[:where]
+        @remarks = options[:remarks]
+      end
+
+      def scope_items
+        items = []
+        items.push(*@explicit) if @explicit
+        items.push(*@derived) if @derived
+        items.push(*@inverse) if @inverse
+        items.push(*@unique) if @unique
+        items.push(*@where) if @where
+        items
       end
     end
   end

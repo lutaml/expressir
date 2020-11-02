@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency "thor", "~> 1.0"
   spec.add_runtime_dependency "activesupport", "~> 5.0"
-  spec.add_runtime_dependency "antlr4-runtime", "~> 0.2.11"
+  spec.add_runtime_dependency "antlr4-runtime", "~> 0.2.12"
   spec.add_development_dependency "nokogiri", "~> 1.10"
 
   spec.add_development_dependency "bundler", "~> 2.0"

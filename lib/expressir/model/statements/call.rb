@@ -1,13 +1,13 @@
 module Expressir
   module Model
-    module Expressions
-      class QualifiedRef
+    module Statements
+      class Call
         attr_accessor :ref
-        attr_accessor :qualifiers
+        attr_accessor :parameters
 
         def initialize(options = {})
           @ref = options[:ref]
-          @qualifiers = options[:qualifiers]
+          @parameters = options[:parameters]
         end
       end
     end

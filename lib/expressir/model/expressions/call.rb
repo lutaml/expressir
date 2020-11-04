@@ -1,12 +1,12 @@
 module Expressir
   module Model
     module Expressions
-      class FunctionCall
-        attr_accessor :function
+      class Call
+        attr_accessor :ref
         attr_accessor :parameters
 
         def initialize(options = {})
-          @function = options[:function]
+          @ref = options[:ref]
           @parameters = options[:parameters]
         end
       end

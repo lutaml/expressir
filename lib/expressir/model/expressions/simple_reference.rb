@@ -1,11 +1,11 @@
 module Expressir
   module Model
     module Expressions
-      class GroupQualifier
-        attr_accessor :entity
+      class SimpleReference
+        attr_accessor :id
 
         def initialize(options = {})
-          @entity = options[:entity]
+          @id = options[:id]
         end
       end
     end

@@ -1,4 +1,3 @@
-require "pry"
 require "nokogiri"
 require "expressir/express/repository"
 require "expressir/express/schema_definition"

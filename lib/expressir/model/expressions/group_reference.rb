@@ -1,13 +1,13 @@
 module Expressir
   module Model
     module Expressions
-      class EntityConstructor
+      class GroupReference
+        attr_accessor :ref
         attr_accessor :entity
-        attr_accessor :parameters
 
         def initialize(options = {})
+          @ref = options[:ref]
           @entity = options[:entity]
-          @parameters = options[:parameters]
         end
       end
     end

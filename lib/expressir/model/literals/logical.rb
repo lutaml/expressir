@@ -2,6 +2,10 @@ module Expressir
   module Model
     module Literals
       class Logical
+        TRUE = :TRUE
+        FALSE = :FALSE
+        UNKNOWN = :UNKNOWN
+
         attr_accessor :value
 
         def initialize(options = {})

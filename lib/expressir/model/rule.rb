@@ -6,8 +6,8 @@ module Expressir
       attr_accessor :declarations
       attr_accessor :constants
       attr_accessor :locals
-      attr_accessor :where
       attr_accessor :statements
+      attr_accessor :where
       attr_accessor :remarks
 
       def initialize(options = {})
@@ -16,8 +16,8 @@ module Expressir
         @declarations = options[:declarations]
         @constants = options[:constants]
         @locals = options[:locals]
-        @where = options[:where]
         @statements = options[:statements]
+        @where = options[:where]
         @remarks = options[:remarks]
       end
 

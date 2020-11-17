@@ -1,13 +1,17 @@
 module Expressir
   module Model
     module Expressions
-      class Expression
+      class UnaryExpression
+        MINUS = :MINUS
+        NOT = :NOT
+        PLUS = :PLUS
+
         attr_accessor :operator
-        attr_accessor :operands
+        attr_accessor :operand
 
         def initialize(options = {})
           @operator = options[:operator]
-          @operands = options[:operands]
+          @operand = options[:operand]
         end
       end
     end

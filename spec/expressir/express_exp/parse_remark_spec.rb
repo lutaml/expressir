@@ -153,7 +153,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       
       schema.functions.first.statements[2].tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Statements::Assignment)
-        expect(x.expression).to be_instance_of(Expressir::Model::Expressions::Query)
+        expect(x.expression).to be_instance_of(Expressir::Model::Expressions::QueryExpression)
         expect(x.expression.remarks).to be_instance_of(Array)
         expect(x.expression.remarks.count).to eq(1)
         expect(x.expression.remarks[0]).to eq("function query scope - function query")
@@ -219,7 +219,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       
       schema.procedures.first.statements[2].tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Statements::Assignment)
-        expect(x.expression).to be_instance_of(Expressir::Model::Expressions::Query)
+        expect(x.expression).to be_instance_of(Expressir::Model::Expressions::QueryExpression)
         expect(x.expression.remarks).to be_instance_of(Array)
         expect(x.expression.remarks.count).to eq(1)
         expect(x.expression.remarks[0]).to eq("procedure query scope - procedure query")
@@ -276,7 +276,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       
       schema.rules.first.statements[2].tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Statements::Assignment)
-        expect(x.expression).to be_instance_of(Expressir::Model::Expressions::Query)
+        expect(x.expression).to be_instance_of(Expressir::Model::Expressions::QueryExpression)
         expect(x.expression.remarks).to be_instance_of(Array)
         expect(x.expression.remarks.count).to eq(1)
         expect(x.expression.remarks[0]).to eq("rule query scope - rule query")

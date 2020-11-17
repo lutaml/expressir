@@ -1,7 +1,8 @@
 require 'expressir/express_exp/generated/ExpressBaseVisitor'
 require 'expressir/model'
 
-# issues:
+# static shorthands are unwrapped
+# - entity attributes, function/procedure parameters, local variables
 #
 # reference type is not recognized
 # see note in A.1.5 Interpreted identifiers
@@ -11,8 +12,8 @@ require 'expressir/model'
 # > declarations, so that subsequent passes are then able to distinguish a veriable_ref from a function_ref,
 # > for example.
 #
-# - xxxRef - merged to Ref
-# - entityConstructor, functionCall, procedureCall
+# - xxxRef - merged to SimpleReference
+# - entityConstructor, functionCall - merged to Call
 # 
 # difference between generalized and instantiable types is not recognized
 # see note in 8.6.2 Parameter data types
@@ -97,7 +98,7 @@ module Expressir
       def visitAttributeRef(ctx)
         id = visit(ctx.attributeId())
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -105,7 +106,7 @@ module Expressir
       def visitConstantRef(ctx)
         id = visit(ctx.constantId())
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -113,7 +114,7 @@ module Expressir
       def visitEntityRef(ctx)
         id = visit(ctx.entityId())
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -121,7 +122,7 @@ module Expressir
       def visitEnumerationRef(ctx)
         id = visit(ctx.enumerationId())
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -129,7 +130,7 @@ module Expressir
       def visitFunctionRef(ctx)
         id = visit(ctx.functionId())
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -137,7 +138,7 @@ module Expressir
       def visitParameterRef(ctx)
         id = visit(ctx.parameterId())
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -145,7 +146,7 @@ module Expressir
       def visitProcedureRef(ctx)
         id = visit(ctx.procedureId())
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -153,7 +154,7 @@ module Expressir
       def visitRuleLabelRef(ctx)
         id = visit(ctx.ruleLabelId())
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -161,7 +162,7 @@ module Expressir
       def visitRuleRef(ctx)
         id = visit(ctx.ruleId())
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -169,7 +170,7 @@ module Expressir
       def visitSchemaRef(ctx)
         id = visit(ctx.schemaId())
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -177,7 +178,7 @@ module Expressir
       def visitSubtypeConstraintRef(ctx)
         id = visit(ctx.subtypeConstraintId())
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -185,7 +186,7 @@ module Expressir
       def visitTypeLabelRef(ctx)
         id = visit(ctx.typeLabelId())
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -193,7 +194,7 @@ module Expressir
       def visitTypeRef(ctx)
         id = visit(ctx.typeId())
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -201,7 +202,7 @@ module Expressir
       def visitVariableRef(ctx)
         id = visit(ctx.variableId())
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -224,13 +225,13 @@ module Expressir
 
       def visitAddLikeOp(ctx)
         if ctx.text == '+'
-          Model::Operators::Addition.new()
+          Model::Expressions::BinaryExpression::ADDITION
         elsif ctx.text == '-'
-          Model::Operators::Subtraction.new()
+          Model::Expressions::BinaryExpression::SUBTRACTION
         elsif ctx.OR()
-          Model::Operators::Or.new()
+          Model::Expressions::BinaryExpression::OR
         elsif ctx.XOR()
-          Model::Operators::Xor.new()
+          Model::Expressions::BinaryExpression::XOR
         else
           raise 'Invalid state'
         end
@@ -280,17 +281,7 @@ module Expressir
 
       def visitAliasStmt(ctx)
         id = visit(ctx.variableId())
-        expression = if ctx.qualifier().length > 0
-          ref = visit(ctx.generalRef())
-          qualifiers = ctx.qualifier().map{|ctx| visit(ctx)}
-
-          Model::Expressions::QualifiedRef.new({
-            ref: ref,
-            qualifiers: qualifiers
-          })
-        else
-          visit(ctx.generalRef())
-        end
+        expression = handleQualifiedRef(visit(ctx.generalRef()), ctx.qualifier())
         statements = ctx.stmt().map{|ctx| visit(ctx)}
 
         Model::Statements::Alias.new({
@@ -317,19 +308,8 @@ module Expressir
       end
 
       def visitAssignmentStmt(ctx)
+        ref = handleQualifiedRef(visit(ctx.generalRef()), ctx.qualifier())
         expression = visit(ctx.expression())
-
-        ref = if ctx.qualifier().length > 0
-          ref = visit(ctx.generalRef())
-          qualifiers = ctx.qualifier().map{|ctx| visit(ctx)}
-
-          Model::Expressions::QualifiedRef.new({
-            ref: ref,
-            qualifiers: qualifiers
-          })
-        else
-          visit(ctx.generalRef())
-        end
 
         Model::Statements::Assignment.new({
           ref: ref,
@@ -345,20 +325,16 @@ module Expressir
         handleSimpleId(ctx.SimpleId())
       end
 
-      def visitAttributeQualifier(ctx)
-        attribute = visit(ctx.attributeRef())
-
-        Model::Expressions::AttributeQualifier.new({
-          attribute: attribute
-        })
+      def visitAttributeReference(ctx)
+        raise 'Invalid state'
       end
 
       def visitBagType(ctx)
-        bound1, bound2 = if ctx.boundSpec()
-          [
-            visit(ctx.boundSpec().bound1().numericExpression().simpleExpression()),
-            visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-          ]
+        bound1 = if ctx.boundSpec()
+          visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
+        end
+        bound2 = if ctx.boundSpec()
+          visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
         end
         base_type = visit(ctx.instantiableType())
         
@@ -402,7 +378,7 @@ module Expressir
       def visitBuiltInConstant(ctx)
         id = ctx.text
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -410,7 +386,7 @@ module Expressir
       def visitBuiltInFunction(ctx)
         id = ctx.text
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -418,7 +394,7 @@ module Expressir
       def visitBuiltInProcedure(ctx)
         id = ctx.text
 
-        Model::Ref.new({
+        Model::Expressions::SimpleReference.new({
           id: id
         })
       end
@@ -440,14 +416,14 @@ module Expressir
       end
 
       def visitCaseStmt(ctx)
-        selector = visit(ctx.selector().expression())
+        expression = visit(ctx.selector().expression())
         actions = ctx.caseAction().map{|ctx| visit(ctx)}.flatten
         otherwise_statement = if ctx.stmt()
           visit(ctx.stmt())
         end
 
         Model::Statements::Case.new({
-          selector: selector,
+          expression: expression,
           actions: actions,
           otherwise_statement: otherwise_statement
         })
@@ -530,20 +506,20 @@ module Expressir
       end
 
       def visitDerivedAttr(ctx)
+        supertype_attribute = if ctx.attributeDecl().redeclaredAttribute() && ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute()
+          visit(ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute())
+        end
         id = if ctx.attributeDecl().attributeId()
           visit(ctx.attributeDecl().attributeId())
         elsif ctx.attributeDecl().redeclaredAttribute() && ctx.attributeDecl().redeclaredAttribute().attributeId()
           visit(ctx.attributeDecl().redeclaredAttribute().attributeId())
         end
-        supertype_attribute = if ctx.attributeDecl().redeclaredAttribute() && ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute()
-          visit(ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute())
-        end
         type = visit(ctx.parameterType())
         expression = visit(ctx.expression())
 
         Model::Derived.new({
-          id: id,
           supertype_attribute: supertype_attribute,
+          id: id,
           type: type,
           expression: expression
         })
@@ -570,7 +546,7 @@ module Expressir
           expression = visit(ctx.expression())
           repetition = visit(ctx.repetition().numericExpression().simpleExpression())
 
-          Model::Expressions::AggregateElement.new({
+          Model::Expressions::AggregateItem.new({
             expression: expression,
             repetition: repetition
           })
@@ -584,11 +560,11 @@ module Expressir
       end
 
       def visitEntityConstructor(ctx)
-        entity = visit(ctx.entityRef())
+        ref = visit(ctx.entityRef())
         parameters = ctx.expression().map{|ctx| visit(ctx)}
 
-        Model::Expressions::EntityConstructor.new({
-          entity: entity,
+        Model::Expressions::Call.new({
+          ref: ref,
           parameters: parameters
         })
       end
@@ -601,13 +577,13 @@ module Expressir
         abstract_supertype = if ctx.entityHead().subsuper().supertypeConstraint()
           !!ctx.entityHead().subsuper().supertypeConstraint().abstractSupertypeDeclaration()
         end
-        supertypes = if ctx.entityHead().subsuper().subtypeDeclaration()
-          ctx.entityHead().subsuper().subtypeDeclaration().entityRef().map{|ctx| visit(ctx)}
-        end
         subtype_expression = if ctx.entityHead().subsuper().supertypeConstraint() && ctx.entityHead().subsuper().supertypeConstraint().abstractSupertypeDeclaration() && ctx.entityHead().subsuper().supertypeConstraint().abstractSupertypeDeclaration().subtypeConstraint()
           visit(ctx.entityHead().subsuper().supertypeConstraint().abstractSupertypeDeclaration().subtypeConstraint().supertypeExpression())
         elsif ctx.entityHead().subsuper().supertypeConstraint() && ctx.entityHead().subsuper().supertypeConstraint().supertypeRule()
           visit(ctx.entityHead().subsuper().supertypeConstraint().supertypeRule().subtypeConstraint().supertypeExpression())
+        end
+        supertypes = if ctx.entityHead().subsuper().subtypeDeclaration()
+          ctx.entityHead().subsuper().subtypeDeclaration().entityRef().map{|ctx| visit(ctx)}
         end
         explicit = ctx.entityBody().explicitAttr().map{|ctx| visit(ctx)}.flatten
         derived = if ctx.entityBody().deriveClause()
@@ -627,8 +603,8 @@ module Expressir
           id: id,
           abstract: abstract,
           abstract_supertype: abstract_supertype,
-          supertypes: supertypes,
           subtype_expression: subtype_expression,
+          supertypes: supertypes,
           explicit: explicit,
           derived: derived,
           inverse: inverse,
@@ -661,14 +637,10 @@ module Expressir
         if ctx.typeRef()
           ref = visit(ctx.typeRef())
           attribute = visit(ctx.enumerationRef())
-          attribute_qualifier = Model::Expressions::AttributeQualifier.new({
-            attribute: attribute
-          })
-          qualifiers = [attribute_qualifier]
   
-          Model::Expressions::QualifiedRef.new({
+          Model::Expressions::AttributeReference.new({
             ref: ref,
-            qualifiers: qualifiers
+            attribute: attribute
           })
         else
           visit(ctx.enumerationRef())
@@ -705,17 +677,17 @@ module Expressir
         type = visit(ctx.parameterType())
 
         decls.map do |decl|
+          supertype_attribute = if decl.redeclaredAttribute() && decl.redeclaredAttribute().qualifiedAttribute()
+            visit(decl.redeclaredAttribute().qualifiedAttribute())
+          end
           id = if decl.attributeId()
             visit(decl.attributeId())
           elsif decl.redeclaredAttribute() && decl.redeclaredAttribute().attributeId()
             visit(decl.redeclaredAttribute().attributeId())
           end
-          supertype_attribute = if decl.redeclaredAttribute() && decl.redeclaredAttribute().qualifiedAttribute()
-            visit(decl.redeclaredAttribute().qualifiedAttribute())
-          end
           Model::Explicit.new({
-            id: id,
             supertype_attribute: supertype_attribute,
+            id: id,
             optional: optional,
             type: type
           })
@@ -725,11 +697,13 @@ module Expressir
       def visitExpression(ctx)
         if ctx.relOpExtended()
           operator = visit(ctx.relOpExtended())
-          operands = ctx.simpleExpression().map{|ctx| visit(ctx)}
+          operand1 = visit(ctx.simpleExpression()[0])
+          operand2 = visit(ctx.simpleExpression()[1])
 
-          Model::Expressions::Expression.new({
+          Model::Expressions::BinaryExpression.new({
             operator: operator,
-            operands: operands
+            operand1: operand1,
+            operand2: operand2
           })
         else
           visit(ctx.simpleExpression()[0])
@@ -738,12 +712,14 @@ module Expressir
 
       def visitFactor(ctx)
         if ctx.child_at(1) && ctx.child_at(1).text == '**'
-          operator = Model::Operators::Exponentiation.new()
-          operands = ctx.simpleFactor().map{|ctx| visit(ctx)}
+          operator = Model::Expressions::BinaryExpression::EXPONENTIATION
+          operand1 = visit(ctx.simpleFactor()[0])
+          operand2 = visit(ctx.simpleFactor()[1])
 
-          Model::Expressions::Expression.new({
+          Model::Expressions::BinaryExpression.new({
             operator: operator,
-            operands: operands
+            operand1: operand1,
+            operand2: operand2
           })
         else
           visit(ctx.simpleFactor()[0])
@@ -763,7 +739,7 @@ module Expressir
       end
 
       def visitFunctionCall(ctx)
-        function = if ctx.builtInFunction()
+        ref = if ctx.builtInFunction()
           visit(ctx.builtInFunction())
         elsif ctx.functionRef()
           visit(ctx.functionRef())
@@ -774,8 +750,8 @@ module Expressir
           ctx.actualParameterList().parameter().map{|ctx| visit(ctx.expression)}
         end
 
-        Model::Expressions::FunctionCall.new({
-          function: function,
+        Model::Expressions::Call.new({
+          ref: ref,
           parameters: parameters
         })
       end
@@ -842,11 +818,11 @@ module Expressir
       end
 
       def visitGeneralArrayType(ctx)
-        bound1, bound2 = if ctx.boundSpec()
-          [
-            visit(ctx.boundSpec().bound1().numericExpression().simpleExpression()),
-            visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-          ]
+        bound1 = if ctx.boundSpec()
+          visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
+        end
+        bound2 = if ctx.boundSpec()
+          visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
         end
         optional = !!ctx.OPTIONAL()
         unique = !!ctx.UNIQUE()
@@ -862,11 +838,11 @@ module Expressir
       end
 
       def visitGeneralBagType(ctx)
-        bound1, bound2 = if ctx.boundSpec()
-          [
-            visit(ctx.boundSpec().bound1().numericExpression().simpleExpression()),
-            visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-          ]
+        bound1 = if ctx.boundSpec()
+          visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
+        end
+        bound2 = if ctx.boundSpec()
+          visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
         end
         base_type = visit(ctx.parameterType())
         
@@ -878,11 +854,11 @@ module Expressir
       end
 
       def visitGeneralListType(ctx)
-        bound1, bound2 = if ctx.boundSpec()
-          [
-            visit(ctx.boundSpec().bound1().numericExpression().simpleExpression()),
-            visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-          ]
+        bound1 = if ctx.boundSpec()
+          visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
+        end
+        bound2 = if ctx.boundSpec()
+          visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
         end
         unique = !!ctx.UNIQUE()
         base_type = visit(ctx.parameterType())
@@ -906,11 +882,11 @@ module Expressir
       end
 
       def visitGeneralSetType(ctx)
-        bound1, bound2 = if ctx.boundSpec()
-          [
-            visit(ctx.boundSpec().bound1().numericExpression().simpleExpression()),
-            visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-          ]
+        bound1 = if ctx.boundSpec()
+          visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
+        end
+        bound2 = if ctx.boundSpec()
+          visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
         end
         base_type = visit(ctx.parameterType())
         
@@ -941,12 +917,8 @@ module Expressir
         })
       end
 
-      def visitGroupQualifier(ctx)
-        entity = visit(ctx.entityRef())
-
-        Model::Expressions::GroupQualifier.new({
-          entity: entity
-        })
+      def visitGroupReference(ctx)
+        raise 'Invalid state'
       end
 
       def visitIfStmt(ctx)
@@ -993,16 +965,8 @@ module Expressir
         raise 'Invalid state'
       end
 
-      def visitIndexQualifier(ctx)
-        index1 = visit(ctx.index1().index().numericExpression().simpleExpression())
-        index2 = if ctx.index2()
-          visit(ctx.index2().index().numericExpression().simpleExpression())
-        end
-
-        Model::Expressions::IndexQualifier.new({
-          index1: index1,
-          index2: index2
-        })
+      def visitIndexReference(ctx)
+        raise 'Invalid state'
       end
 
       def visitInstantiableType(ctx)
@@ -1059,29 +1023,29 @@ module Expressir
 
       def visitIntervalOp(ctx)
         if ctx.text == '<'
-          Model::Operators::LessThan.new()
+          Model::Expressions::BinaryExpression::LESS_THAN
         elsif ctx.text == '<='
-          Model::Operators::LessThanOrEqual.new()
+          Model::Expressions::BinaryExpression::LESS_THAN_OR_EQUAL
         else
           raise 'Invalid state'
         end
       end
 
       def visitInverseAttr(ctx)
+        supertype_attribute = if ctx.attributeDecl().redeclaredAttribute() && ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute()
+          visit(ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute())
+        end
         id = if ctx.attributeDecl().attributeId()
           visit(ctx.attributeDecl().attributeId())
         elsif ctx.attributeDecl().redeclaredAttribute() && ctx.attributeDecl().redeclaredAttribute().attributeId()
           visit(ctx.attributeDecl().redeclaredAttribute().attributeId())
         end
-        supertype_attribute = if ctx.attributeDecl().redeclaredAttribute() && ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute()
-          visit(ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute())
-        end
         type = if ctx.SET()
-          bound1, bound2 = if ctx.boundSpec()
-            [
-              visit(ctx.boundSpec().bound1().numericExpression().simpleExpression()),
-              visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-            ]
+          bound1 = if ctx.boundSpec()
+            visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
+          end
+          bound2 = if ctx.boundSpec()
+            visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
           end
           base_type = visit(ctx.entityRef()[0])
 
@@ -1091,11 +1055,11 @@ module Expressir
             base_type: base_type
           })
         elsif ctx.BAG()
-          bound1, bound2 = if ctx.boundSpec()
-            [
-              visit(ctx.boundSpec().bound1().numericExpression().simpleExpression()),
-              visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-            ]
+          bound1 = if ctx.boundSpec()
+            visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
+          end
+          bound2 = if ctx.boundSpec()
+            visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
           end
           base_type = visit(ctx.entityRef()[0])
 
@@ -1110,22 +1074,18 @@ module Expressir
         attribute = if ctx.entityRef()[1]
           ref = visit(ctx.entityRef()[1])
           attribute = visit(ctx.attributeRef())
-          attribute_qualifier = Model::Expressions::AttributeQualifier.new({
-            attribute: attribute
-          })
-          qualifiers = [attribute_qualifier]
 
-          Model::Expressions::QualifiedRef.new({
+          Model::Expressions::AttributeReference.new({
             ref: ref,
-            qualifiers: qualifiers
+            attribute: attribute
           })
         else
           visit(ctx.attributeRef())
         end
 
         Model::Inverse.new({
-          id: id,
           supertype_attribute: supertype_attribute,
+          id: id,
           type: type,
           attribute: attribute
         })
@@ -1136,11 +1096,11 @@ module Expressir
       end
 
       def visitListType(ctx)
-        bound1, bound2 = if ctx.boundSpec()
-          [
-            visit(ctx.boundSpec().bound1().numericExpression().simpleExpression()),
-            visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-          ]
+        bound1 = if ctx.boundSpec()
+          visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
+        end
+        bound2 = if ctx.boundSpec()
+          visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
         end
         unique = !!ctx.UNIQUE()
         base_type = visit(ctx.instantiableType())
@@ -1195,11 +1155,11 @@ module Expressir
 
       def visitLogicalLiteral(ctx)
         value = if ctx.TRUE()
-          true
+          Model::Literals::Logical::TRUE
         elsif ctx.FALSE()
-          false
+          Model::Literals::Logical::FALSE
         elsif ctx.UNKNOWN()
-          nil
+          Model::Literals::Logical::UNKNOWN
         else
           raise 'Invalid state'
         end
@@ -1215,17 +1175,17 @@ module Expressir
 
       def visitMultiplicationLikeOp(ctx)
         if ctx.text == '*'
-          Model::Operators::Multiplication.new()
+          Model::Expressions::BinaryExpression::MULTIPLICATION
         elsif ctx.text == '/'
-          Model::Operators::RealDivision.new()
+          Model::Expressions::BinaryExpression::REAL_DIVISION
         elsif ctx.DIV()
-          Model::Operators::IntegerDivision.new()
+          Model::Expressions::BinaryExpression::INTEGER_DIVISION
         elsif ctx.MOD()
-          Model::Operators::Modulo.new()
+          Model::Expressions::BinaryExpression::MODULO
         elsif ctx.AND()
-          Model::Operators::And.new()
+          Model::Expressions::BinaryExpression::AND
         elsif ctx.text == '||'
-          Model::Operators::Combine.new()
+          Model::Expressions::BinaryExpression::COMBINE
         else
           raise 'Invalid state'
         end
@@ -1272,12 +1232,12 @@ module Expressir
       end
 
       def visitOneOf(ctx)
-        operator = Model::Operators::Oneof.new()
-        operands = ctx.supertypeExpression().map{|ctx| visit(ctx)}
+        ref = Model::Expressions::SimpleReference.new({ id: 'ONEOF' })
+        parameters = ctx.supertypeExpression().map{|ctx| visit(ctx)}
 
-        Model::Expressions::Expression.new({
-          operator: operator,
-          operands: operands
+        Model::Expressions::Call.new({
+          ref: ref,
+          parameters: parameters
         })
       end
 
@@ -1313,14 +1273,14 @@ module Expressir
         if ctx.literal()
           visit(ctx.literal())
         elsif ctx.qualifiableFactor()
-          visit(ctx.qualifiableFactor())
+          handleQualifiedRef(visit(ctx.qualifiableFactor()), ctx.qualifier())
         else
           raise 'Invalid state'
         end
       end
 
       def visitProcedureCallStmt(ctx)
-        procedure = if ctx.builtInProcedure()
+        ref = if ctx.builtInProcedure()
           visit(ctx.builtInProcedure())
         elsif ctx.procedureRef()
           visit(ctx.procedureRef())
@@ -1331,8 +1291,8 @@ module Expressir
           ctx.actualParameterList().parameter().map{|ctx| visit(ctx.expression)}
         end
 
-        Model::Statements::ProcedureCall.new({
-          procedure: procedure,
+        Model::Statements::Call.new({
+          ref: ref,
           parameters: parameters
         })
       end
@@ -1346,9 +1306,9 @@ module Expressir
           if var.text == 'VAR'
             parameters.map do |parameter|
               Model::Parameter.new({
+                var: true,
                 id: parameter.id,
-                type: parameter.type,
-                var: true
+                type: parameter.type
               })
             end
           else
@@ -1400,18 +1360,17 @@ module Expressir
 
       def visitQualifiedAttribute(ctx)
         id = ctx.SELF().text
+        entity = visit(ctx.groupQualifier().entityRef())
+        attribute = visit(ctx.attributeQualifier().attributeRef())
 
-        ref = Model::Ref.new({
-          id: id
-        })
-
-        group_qualifier = visit(ctx.groupQualifier())
-        attribute_qualifier = visit(ctx.attributeQualifier())
-        qualifiers = [group_qualifier, attribute_qualifier]
-
-        Model::Expressions::QualifiedRef.new({
-          ref: ref,
-          qualifiers: qualifiers
+        Model::Expressions::AttributeReference.new({
+          ref: Model::Expressions::GroupReference.new({
+            ref: Model::Expressions::SimpleReference.new({
+              id: id
+            }),
+            entity: entity
+          }),
+          attribute: attribute
         })
       end
 
@@ -1432,7 +1391,7 @@ module Expressir
         source = visit(ctx.aggregateSource().simpleExpression())
         expression = visit(ctx.logicalExpression().expression())
 
-        Model::Expressions::Query.new({
+        Model::Expressions::QueryExpression.new({
           id: id,
           source: source,
           expression: expression
@@ -1467,7 +1426,8 @@ module Expressir
         schema = visit(ctx.schemaRef())
         items = ctx.resourceOrRename().map{|ctx| visit(ctx)}
 
-        Model::Reference.new({
+        Model::Interface.new({
+          kind: Model::Interface::REFERENCE,
           schema: schema,
           items: items
         })
@@ -1475,21 +1435,21 @@ module Expressir
 
       def visitRelOp(ctx)
         if ctx.text == '<'
-          Model::Operators::LessThan.new()
+          Model::Expressions::BinaryExpression::LESS_THAN
         elsif ctx.text == '>'
-          Model::Operators::GreaterThan.new()
+          Model::Expressions::BinaryExpression::GREATER_THAN
         elsif ctx.text == '<='
-          Model::Operators::LessThanOrEqual.new()
+          Model::Expressions::BinaryExpression::LESS_THAN_OR_EQUAL
         elsif ctx.text == '>='
-          Model::Operators::GreaterThanOrEqual.new()
+          Model::Expressions::BinaryExpression::GREATER_THAN_OR_EQUAL
         elsif ctx.text == '<>'
-          Model::Operators::NotEqual.new()
+          Model::Expressions::BinaryExpression::NOT_EQUAL
         elsif ctx.text == '='
-          Model::Operators::Equal.new()
+          Model::Expressions::BinaryExpression::EQUAL
         elsif ctx.text == ':<>:'
-          Model::Operators::InstanceNotEqual.new()
+          Model::Expressions::BinaryExpression::INSTANCE_NOT_EQUAL
         elsif ctx.text == ':=:'
-          Model::Operators::InstanceEqual.new()
+          Model::Expressions::BinaryExpression::INSTANCE_EQUAL
         else
           raise 'Invalid state'
         end
@@ -1499,9 +1459,9 @@ module Expressir
         if ctx.relOp()
           visit(ctx.relOp())
         elsif ctx.IN()
-          Model::Operators::In.new()
+          Model::Expressions::BinaryExpression::IN
         elsif ctx.LIKE()
-          Model::Operators::Like.new()
+          Model::Expressions::BinaryExpression::LIKE
         else
           raise 'Invalid state'
         end
@@ -1531,11 +1491,11 @@ module Expressir
         id = if ctx.repeatControl().incrementControl()
           visit(ctx.repeatControl().incrementControl().variableId())
         end
-        bound1, bound2 = if ctx.repeatControl().incrementControl()
-          [
-            visit(ctx.repeatControl().incrementControl().bound1().numericExpression().simpleExpression()),
-            visit(ctx.repeatControl().incrementControl().bound2().numericExpression().simpleExpression())
-          ]
+        bound1 = if ctx.repeatControl().incrementControl()
+          visit(ctx.repeatControl().incrementControl().bound1().numericExpression().simpleExpression())
+        end
+        bound2 = if ctx.repeatControl().incrementControl()
+          visit(ctx.repeatControl().incrementControl().bound2().numericExpression().simpleExpression())
         end
         increment = if ctx.repeatControl().incrementControl() && ctx.repeatControl().incrementControl().increment()
           visit(ctx.repeatControl().incrementControl().increment().numericExpression().simpleExpression())
@@ -1594,7 +1554,9 @@ module Expressir
       end
 
       def visitReturnStmt(ctx)
-        expression = visit(ctx.expression())
+        expression = if ctx.expression()
+          visit(ctx.expression())
+        end
 
         Model::Statements::Return.new({
           expression: expression
@@ -1611,8 +1573,8 @@ module Expressir
         locals = if ctx.algorithmHead().localDecl()
           ctx.algorithmHead().localDecl().localVariable().map{|ctx| visit(ctx)}.flatten
         end
-        where = ctx.whereClause().domainRule().map{|ctx| visit(ctx)}
         statements = ctx.stmt().map{|ctx| visit(ctx)}
+        where = ctx.whereClause().domainRule().map{|ctx| visit(ctx)}
 
         Model::Rule.new({
           id: id,
@@ -1620,8 +1582,8 @@ module Expressir
           declarations: declarations,
           constants: constants,
           locals: locals,
-          where: where,
-          statements: statements
+          statements: statements,
+          where: where
         })
       end
 
@@ -1706,11 +1668,11 @@ module Expressir
       end
 
       def visitSetType(ctx)
-        bound1, bound2 = if ctx.boundSpec()
-          [
-            visit(ctx.boundSpec().bound1().numericExpression().simpleExpression()),
-            visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-          ]
+        bound1 = if ctx.boundSpec()
+          visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
+        end
+        bound2 = if ctx.boundSpec()
+          visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
         end
         base_type = visit(ctx.instantiableType())
         
@@ -1751,17 +1713,17 @@ module Expressir
           operator = visit(ctx.unaryOp())
           operand = visit(ctx.expression())
 
-          Model::Expressions::Expression.new({
+          Model::Expressions::UnaryExpression.new({
             operator: operator,
-            operands: [operand]
+            operand: operand
           })
         elsif ctx.unaryOp() && ctx.primary()
           operator = visit(ctx.unaryOp())
           operand = visit(ctx.primary())
 
-          Model::Expressions::Expression.new({
+          Model::Expressions::UnaryExpression.new({
             operator: operator,
-            operands: [operand]
+            operand: operand
           })
         else
           raise 'Invalid state'
@@ -1895,7 +1857,7 @@ module Expressir
       def visitSupertypeExpression(ctx)
         if ctx.supertypeFactor().length >= 2
           operands = ctx.supertypeFactor().map{|ctx| visit(ctx)}
-          operators = ctx.ANDOR().map{|ctx| Model::Operators::Andor.new()}
+          operators = ctx.ANDOR().map{|ctx| Model::Expressions::BinaryExpression::ANDOR}
 
           handleBinaryExpression(operands, operators)
         else
@@ -1906,7 +1868,7 @@ module Expressir
       def visitSupertypeFactor(ctx)
         if ctx.supertypeTerm().length >= 2
           operands = ctx.supertypeTerm().map{|ctx| visit(ctx)}
-          operators = ctx.AND().map{|ctx| Model::Operators::And.new()}
+          operators = ctx.AND().map{|ctx| Model::Expressions::BinaryExpression::AND}
 
           handleBinaryExpression(operands, operators)
         else
@@ -1987,11 +1949,11 @@ module Expressir
 
       def visitUnaryOp(ctx)
         if ctx.text == '+'
-          Model::Operators::UnaryPlus.new()
+          Model::Expressions::UnaryExpression::PLUS
         elsif ctx.text == '-'
-          Model::Operators::UnaryMinus.new()
+          Model::Expressions::UnaryExpression::MINUS
         elsif ctx.NOT()
-          Model::Operators::Not.new()
+          Model::Expressions::UnaryExpression::NOT
         else
           raise 'Invalid state'
         end
@@ -2031,7 +1993,8 @@ module Expressir
         schema = visit(ctx.schemaRef())
         items = ctx.namedTypeOrRename().map{|ctx| visit(ctx)}
 
-        Model::Use.new({
+        Model::Interface.new({
+          kind: Model::Interface::USE,
           schema: schema,
           items: items
         })
@@ -2072,17 +2035,52 @@ module Expressir
           raise 'Invalid state'
         end
 
-        expression = Model::Expressions::Expression.new({
+        expression = Model::Expressions::BinaryExpression.new({
           operator: operators[0],
-          operands: [operands[0], operands[1]]
+          operand1: operands[0],
+          operand2: operands[1]
         })
         operators[1..(operators.length - 1)].each_with_index do |operator, i|
-          expression = Model::Expressions::Expression.new({
+          expression = Model::Expressions::BinaryExpression.new({
             operator: operator,
-            operands: [expression, operands[i + 2]]
+            operand1: expression,
+            operand2: operands[i + 2]
           })
         end
         expression
+      end
+
+      def handleQualifiedRef(ref, qualifiers)
+        qualifiers.reduce(ref) do |ref, ctx|
+          if ctx.attributeQualifier()
+            attribute = visit(ctx.attributeQualifier().attributeRef())
+
+            Model::Expressions::AttributeReference.new({
+              ref: ref,
+              attribute: attribute
+            })
+          elsif ctx.groupQualifier()
+            entity = visit(ctx.groupQualifier().entityRef())
+
+            Model::Expressions::GroupReference.new({
+              ref: ref,
+              entity: entity
+            })
+          elsif ctx.indexQualifier()
+            index1 = visit(ctx.indexQualifier().index1().index().numericExpression().simpleExpression())
+            index2 = if ctx.indexQualifier().index2()
+              visit(ctx.indexQualifier().index2().index().numericExpression().simpleExpression())
+            end
+
+            Model::Expressions::IndexReference.new({
+              ref: ref,
+              index1: index1,
+              index2: index2
+            })
+          else
+            raise 'Invalid state'
+          end
+        end
       end
 
       def handleBinaryLiteral(ctx)

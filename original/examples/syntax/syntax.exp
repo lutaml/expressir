@@ -10,19 +10,19 @@ REFERENCE FROM referenceItemRenameInterface (test AS test2);
 
 CONSTANT
   -- literals
-  binaryExpression : STRING := %011110000111100001111000;
-  integerExpression : STRING := 999;
-  trueLogicalExpression : STRING := TRUE;
-  falseLogicalExpression : STRING := FALSE;
-  unknownLogicalExpression : STRING := UNKNOWN;
-  realExpression : STRING := 999.999;
+  binaryExpression : BINARY := %011110000111100001111000;
+  integerExpression : INTEGER := 999;
+  trueLogicalExpression : LOGICAL := TRUE;
+  falseLogicalExpression : LOGICAL := FALSE;
+  unknownLogicalExpression : LOGICAL := UNKNOWN;
+  realExpression : REAL := 999.999;
   simpleStringExpression : STRING := 'xxx';
   encodedStringExpression : STRING := "000000780000007800000078";
 
   -- constants
-  constEExpression : STRING := CONST_E;
+  constEExpression : REAL := CONST_E;
   indeterminateExpression : STRING := ?;
-  piExpression : STRING := PI;
+  piExpression : REAL := PI;
   selfExpression : STRING := SELF;
 
   -- functions
@@ -56,9 +56,10 @@ CONSTANT
   valueInExpression : STRING := VALUE_IN(TRUE);
   valueUniqueExpression : STRING := VALUE_UNIQUE(TRUE);
 
-  -- operations
-  unaryPlusExpression : STRING := +4;
-  unaryMinusExpression : STRING := -4;
+  -- operators
+  plusExpression : STRING := +4;
+  minusExpression : STRING := -4;
+  minusAdditionExpression : STRING := -(4 + 2);
   additionExpression : STRING := 4 + 2;
   subtractionExpression : STRING := 4 - 2;
   multiplicationExpression : STRING := 4 * 2;
@@ -76,10 +77,14 @@ CONSTANT
   multiplicationParenthesisAdditionExpression : STRING := 8 * (4 + 2);
   equalExpression : STRING := 4 = 2;
   notEqualExpression : STRING := 4 <> 2;
+  instanceEqualExpression : STRING := 4 :=: 2;
+  instanceNotEqualExpression : STRING := 4 :<>: 2;
   ltExpression : STRING := 4 < 2;
   gtExpression : STRING := 4 > 2;
   lteExpression : STRING := 4 <= 2;
   gteExpression : STRING := 4 >= 2;
+  notExpression : STRING := NOT TRUE;
+  notOrExpression : STRING := NOT (TRUE OR FALSE);
   orExpression : STRING := TRUE OR FALSE;
   andExpression : STRING := TRUE AND FALSE;
   orOrExpression : STRING := TRUE OR FALSE OR TRUE;
@@ -98,12 +103,15 @@ CONSTANT
   complexAggregateInitializerExpression : STRING := [4 + 2];
   complexRepeatedAggregateInitializerExpression : STRING := [4 + 2 : 4 + 2];
 
-  -- entity constructors
-  entityConstructorExpression : STRING := explicitAttributeEntity(TRUE);
+  -- function call or entity constructor
+  callExpression : STRING := parameterFunction(TRUE);
 
-  -- enumeration references
-  enumerationReferenceExpression : STRING := test;
-  attributeEnumerationReferenceExpression : STRING := test.test;
+  -- references
+  simpleReferenceExpression : STRING := test;
+  attributeReferenceExpression : STRING := test.test;
+  groupReferenceExpression : STRING := test\test;
+  indexReferenceExpression : STRING := test[1];
+  index2ReferenceExpression : STRING := test[1:9];
 
   -- intervals
   ltLtIntervalExpression : STRING := {1 < 5 < 9};
@@ -116,9 +124,9 @@ CONSTANT
 END_CONSTANT;
 
 -- types
-TYPE integerType = INTEGER; END_TYPE;
-TYPE integerWhereType = INTEGER; WHERE TRUE; END_TYPE;
-TYPE integerWhereLabelType = INTEGER; WHERE WR1: TRUE; END_TYPE;
+TYPE emptyType = INTEGER; END_TYPE;
+TYPE whereType = INTEGER; WHERE TRUE; END_TYPE;
+TYPE whereLabelType = INTEGER; WHERE WR1 : TRUE; END_TYPE;
 
 -- simple types
 TYPE binaryType = BINARY; END_TYPE;
@@ -126,8 +134,6 @@ TYPE binaryWidthType = BINARY (3); END_TYPE;
 TYPE binaryWidthFixedType = BINARY (3) FIXED; END_TYPE;
 TYPE booleanType = BOOLEAN; END_TYPE;
 TYPE integerType = INTEGER; END_TYPE;
-TYPE integerWhereType = INTEGER; WHERE TRUE; END_TYPE;
-TYPE integerWhereLabelType = INTEGER; WHERE WR1: TRUE; END_TYPE;
 TYPE logicalType = LOGICAL; END_TYPE;
 TYPE numberType = NUMBER; END_TYPE;
 TYPE realType = REAL; END_TYPE;
@@ -154,9 +160,9 @@ TYPE setBoundType = SET [1:9] OF STRING; END_TYPE;
 TYPE selectType = SELECT; END_TYPE;
 TYPE selectExtensibleType = EXTENSIBLE SELECT; END_TYPE;
 TYPE selectExtensibleGenericEntityType = EXTENSIBLE GENERIC_ENTITY SELECT; END_TYPE;
-TYPE selectListType = SELECT (test); END_TYPE;
+TYPE selectListType = SELECT (emptyType); END_TYPE;
 TYPE selectExtensionTypeRefType = SELECT BASED_ON selectType; END_TYPE;
-TYPE selectExtensionTypeRefListType = SELECT BASED_ON selectType WITH (test); END_TYPE;
+TYPE selectExtensionTypeRefListType = SELECT BASED_ON selectType WITH (emptyType); END_TYPE;
 TYPE enumerationType = ENUMERATION; END_TYPE;
 TYPE enumerationExtensibleType = EXTENSIBLE ENUMERATION; END_TYPE;
 TYPE enumerationListType = ENUMERATION OF (test); END_TYPE;
@@ -175,8 +181,8 @@ ENTITY explicitAttributeEntity; test : BOOLEAN; END_ENTITY;
 ENTITY explicitAttributeOptionalEntity; test : OPTIONAL BOOLEAN; END_ENTITY;
 ENTITY explicitAttributeMultipleEntity; test : BOOLEAN; test2 : BOOLEAN; END_ENTITY;
 ENTITY explicitAttributeMultipleShorthandEntity; test, test2 : BOOLEAN; END_ENTITY;
-ENTITY explicitAttributeRedeclaredEntity; SELF\explicitAttributeEntity.test: BOOLEAN; END_ENTITY;
-ENTITY explicitAttributeRedeclaredRenamedEntity; SELF\explicitAttributeEntity.test RENAMED test2: BOOLEAN; END_ENTITY;
+ENTITY explicitAttributeRedeclaredEntity; SELF\explicitAttributeEntity.test : BOOLEAN; END_ENTITY;
+ENTITY explicitAttributeRedeclaredRenamedEntity; SELF\explicitAttributeEntity.test RENAMED test2 : BOOLEAN; END_ENTITY;
 ENTITY derivedAttributeEntity; DERIVE test : BOOLEAN := TRUE; END_ENTITY;
 ENTITY derivedAttributeRedeclaredEntity; DERIVE SELF\explicitAttributeEntity.test : BOOLEAN := TRUE; END_ENTITY;
 ENTITY derivedAttributeRedeclaredRenamedEntity; DERIVE SELF\explicitAttributeEntity.test RENAMED test2 : BOOLEAN := TRUE; END_ENTITY;
@@ -189,30 +195,30 @@ ENTITY inverseAttributeBagBoundEntity; INVERSE test : BAG [1:9] OF explicitAttri
 ENTITY inverseAttributeRedeclaredEntity; INVERSE SELF\explicitAttributeEntity.test : explicitAttributeEntity FOR test; END_ENTITY;
 ENTITY inverseAttributeRedeclaredRenamedEntity; INVERSE SELF\explicitAttributeEntity.test RENAMED test2 : explicitAttributeEntity FOR test; END_ENTITY;
 ENTITY uniqueEntity; UNIQUE test; END_ENTITY;
-ENTITY uniqueLabelEntity; UNIQUE UR1: test; END_ENTITY;
+ENTITY uniqueLabelEntity; UNIQUE UR1 : test; END_ENTITY;
 ENTITY uniqueQualifiedEntity; UNIQUE SELF\explicitAttributeEntity.test; END_ENTITY;
-ENTITY uniqueLabelQualifiedEntity; UNIQUE UR1: SELF\explicitAttributeEntity.test; END_ENTITY;
+ENTITY uniqueLabelQualifiedEntity; UNIQUE UR1 : SELF\explicitAttributeEntity.test; END_ENTITY;
 ENTITY whereEntity; WHERE TRUE; END_ENTITY;
-ENTITY whereLabelEntity; WHERE WR1: TRUE; END_ENTITY;
+ENTITY whereLabelEntity; WHERE WR1 : TRUE; END_ENTITY;
 
 -- subtype constraints
 SUBTYPE_CONSTRAINT emptySubtypeConstraint FOR emptyEntity; END_SUBTYPE_CONSTRAINT;
 SUBTYPE_CONSTRAINT abstractSupertypeSubtypeConstraint FOR emptyEntity; ABSTRACT SUPERTYPE; END_SUBTYPE_CONSTRAINT;
-SUBTYPE_CONSTRAINT totalOverSubtypeConstraint FOR emptyEntity; TOTAL_OVER (a); END_SUBTYPE_CONSTRAINT;
-SUBTYPE_CONSTRAINT supertypeExpressionSubtypeConstraint FOR emptyEntity; a; END_SUBTYPE_CONSTRAINT;
-SUBTYPE_CONSTRAINT supertypeExpressionAndorSubtypeConstraint FOR emptyEntity; a ANDOR b; END_SUBTYPE_CONSTRAINT;
-SUBTYPE_CONSTRAINT supertypeExpressionAndSubtypeConstraint FOR emptyEntity; a AND b; END_SUBTYPE_CONSTRAINT;
-SUBTYPE_CONSTRAINT supertypeExpressionAndorAndSubtypeConstraint FOR emptyEntity; a ANDOR b AND c; END_SUBTYPE_CONSTRAINT;
-SUBTYPE_CONSTRAINT supertypeExpressionAndAndorSubtypeConstraint FOR emptyEntity; a AND b ANDOR c; END_SUBTYPE_CONSTRAINT;
-SUBTYPE_CONSTRAINT supertypeExpressionParenthesisAndorAndSubtypeConstraint FOR emptyEntity; (a ANDOR b) AND c; END_SUBTYPE_CONSTRAINT;
-SUBTYPE_CONSTRAINT supertypeExpressionAndParenthesisAndorSubtypeConstraint FOR emptyEntity; a AND (b ANDOR c); END_SUBTYPE_CONSTRAINT;
-SUBTYPE_CONSTRAINT supertypeExpressionOneofSubtypeConstraint FOR emptyEntity; ONEOF(a, b); END_SUBTYPE_CONSTRAINT;
-SUBTYPE_CONSTRAINT supertypeExpressionAndOneofSubtypeConstraint FOR emptyEntity; a AND ONEOF(b, c); END_SUBTYPE_CONSTRAINT;
-SUBTYPE_CONSTRAINT supertypeExpressionAndorOneofSubtypeConstraint FOR emptyEntity; a ANDOR ONEOF(b, c); END_SUBTYPE_CONSTRAINT;
-SUBTYPE_CONSTRAINT supertypeExpressionOneofAndSubtypeConstraint FOR emptyEntity; ONEOF(a, b) AND c; END_SUBTYPE_CONSTRAINT;
-SUBTYPE_CONSTRAINT supertypeExpressionOneofAndorSubtypeConstraint FOR emptyEntity; ONEOF(a, b) ANDOR c; END_SUBTYPE_CONSTRAINT;
-SUBTYPE_CONSTRAINT supertypeExpressionOneofAndOneofSubtypeConstraint FOR emptyEntity; ONEOF(a, b) AND ONEOF(c, d); END_SUBTYPE_CONSTRAINT;
-SUBTYPE_CONSTRAINT supertypeExpressionOneofAndorOneofSubtypeConstraint FOR emptyEntity; ONEOF(a, b) ANDOR ONEOF(c, d); END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT totalOverSubtypeConstraint FOR emptyEntity; TOTAL_OVER(a); END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT subtypeExpressionSubtypeConstraint FOR emptyEntity; a; END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT subtypeExpressionAndorSubtypeConstraint FOR emptyEntity; a ANDOR b; END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT subtypeExpressionAndSubtypeConstraint FOR emptyEntity; a AND b; END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT subtypeExpressionAndorAndSubtypeConstraint FOR emptyEntity; a ANDOR b AND c; END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT subtypeExpressionAndAndorSubtypeConstraint FOR emptyEntity; a AND b ANDOR c; END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT subtypeExpressionParenthesisAndorAndSubtypeConstraint FOR emptyEntity; (a ANDOR b) AND c; END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT subtypeExpressionAndParenthesisAndorSubtypeConstraint FOR emptyEntity; a AND (b ANDOR c); END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT subtypeExpressionOneofSubtypeConstraint FOR emptyEntity; ONEOF(a, b); END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT subtypeExpressionAndOneofSubtypeConstraint FOR emptyEntity; a AND ONEOF(b, c); END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT subtypeExpressionAndorOneofSubtypeConstraint FOR emptyEntity; a ANDOR ONEOF(b, c); END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT subtypeExpressionOneofAndSubtypeConstraint FOR emptyEntity; ONEOF(a, b) AND c; END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT subtypeExpressionOneofAndorSubtypeConstraint FOR emptyEntity; ONEOF(a, b) ANDOR c; END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT subtypeExpressionOneofAndOneofSubtypeConstraint FOR emptyEntity; ONEOF(a, b) AND ONEOF(c, d); END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT subtypeExpressionOneofAndorOneofSubtypeConstraint FOR emptyEntity; ONEOF(a, b) ANDOR ONEOF(c, d); END_SUBTYPE_CONSTRAINT;
 
 -- functions
 FUNCTION emptyFunction : BOOLEAN; ; END_FUNCTION;
@@ -247,30 +253,19 @@ PROCEDURE multipleShorthandLocalProcedure; LOCAL test, test2 : STRING; END_LOCAL
 PROCEDURE localExpressionProcedure; LOCAL test : STRING := 'xxx'; END_LOCAL; END_PROCEDURE;
 PROCEDURE multipleLocalExpressionProcedure; LOCAL test : STRING := 'xxx'; test2 : STRING := 'xxx'; END_LOCAL; END_PROCEDURE;
 PROCEDURE multipleShorthandLocalExpressionProcedure; LOCAL test, test2 : STRING := 'xxx'; END_LOCAL; END_PROCEDURE;
-
--- rules
-RULE emptyRule FOR (emptyEntity); WHERE TRUE; END_RULE;
-RULE typeRule FOR (emptyEntity); TYPE integerType = INTEGER; END_TYPE; WHERE TRUE; END_RULE;
-RULE constantRule FOR (emptyEntity); CONSTANT test : STRING := 'xxx'; END_CONSTANT; WHERE TRUE; END_RULE;
-RULE multipleConstantRule FOR (emptyEntity); CONSTANT test : STRING := 'xxx'; test2 : STRING := 'xxx'; END_CONSTANT; WHERE TRUE; END_RULE;
-RULE localRule FOR (emptyEntity); LOCAL test : STRING; END_LOCAL; WHERE TRUE; END_RULE;
-RULE multipleLocalRule FOR (emptyEntity); LOCAL test : STRING; test2 : STRING; END_LOCAL; WHERE TRUE; END_RULE;
-RULE multipleShorthandLocalRule FOR (emptyEntity); LOCAL test, test2 : STRING; END_LOCAL; WHERE TRUE; END_RULE;
-RULE localExpressionRule FOR (emptyEntity); LOCAL test : STRING := 'xxx'; END_LOCAL; WHERE TRUE; END_RULE;
-RULE multipleLocalExpressionRule FOR (emptyEntity); LOCAL test : STRING := 'xxx'; test2 : STRING := 'xxx'; END_LOCAL; WHERE TRUE; END_RULE;
-RULE multipleShorthandLocalExpressionRule FOR (emptyEntity); LOCAL test, test2 : STRING := 'xxx'; END_LOCAL; WHERE TRUE; END_RULE;
+PROCEDURE statementProcedure; ; END_PROCEDURE;
 
 -- statements
-FUNCTION aliasStatement : BOOLEAN; ALIAS test FOR test; ; END_ALIAS; END_FUNCTION;
-FUNCTION aliasAttributeStatement : BOOLEAN; ALIAS test FOR test.test; ; END_ALIAS; END_FUNCTION;
-FUNCTION aliasGroupStatement : BOOLEAN; ALIAS test FOR test\test; ; END_ALIAS; END_FUNCTION;
-FUNCTION aliasIndexStatement : BOOLEAN; ALIAS test FOR test[1]; ; END_ALIAS; END_FUNCTION;
-FUNCTION aliasIndex2Statement : BOOLEAN; ALIAS test FOR test[1:9]; ; END_ALIAS; END_FUNCTION;
-FUNCTION assignmentStatement : BOOLEAN; test := TRUE; END_FUNCTION;
-FUNCTION assignmentAttributeStatement : BOOLEAN; test.test := TRUE; END_FUNCTION;
-FUNCTION assignmentGroupStatement : BOOLEAN; test\test := TRUE; END_FUNCTION;
-FUNCTION assignmentIndexStatement : BOOLEAN; test[1] := TRUE; END_FUNCTION;
-FUNCTION assignmentIndex2Statement : BOOLEAN; test[1:9] := TRUE; END_FUNCTION;
+FUNCTION aliasSimpleReferenceStatement : BOOLEAN; ALIAS test FOR test; ; END_ALIAS; END_FUNCTION;
+FUNCTION aliasAttributeReferenceStatement : BOOLEAN; ALIAS test FOR test.test; ; END_ALIAS; END_FUNCTION;
+FUNCTION aliasGroupReferenceStatement : BOOLEAN; ALIAS test FOR test\test; ; END_ALIAS; END_FUNCTION;
+FUNCTION aliasIndexReferenceStatement : BOOLEAN; ALIAS test FOR test[1]; ; END_ALIAS; END_FUNCTION;
+FUNCTION aliasIndex2ReferenceStatement : BOOLEAN; ALIAS test FOR test[1:9]; ; END_ALIAS; END_FUNCTION;
+FUNCTION assignmentSimpleReferenceStatement : BOOLEAN; test := TRUE; END_FUNCTION;
+FUNCTION assignmentAttributeReferenceStatement : BOOLEAN; test.test := TRUE; END_FUNCTION;
+FUNCTION assignmentGroupReferenceStatement : BOOLEAN; test\test := TRUE; END_FUNCTION;
+FUNCTION assignmentIndexReferenceStatement : BOOLEAN; test[1] := TRUE; END_FUNCTION;
+FUNCTION assignmentIndex2ReferenceStatement : BOOLEAN; test[1:9] := TRUE; END_FUNCTION;
 FUNCTION caseStatement : BOOLEAN; CASE test OF TRUE : ; END_CASE; END_FUNCTION;
 FUNCTION caseMultipleStatement : BOOLEAN; CASE test OF TRUE : ; TRUE : ; END_CASE; END_FUNCTION;
 FUNCTION caseMultipleShorthandStatement : BOOLEAN; CASE test OF TRUE, TRUE : ; END_CASE; END_FUNCTION;
@@ -284,17 +279,31 @@ FUNCTION if2ElseStatement : BOOLEAN; IF TRUE THEN ; ; ELSE ; END_IF; END_FUNCTIO
 FUNCTION ifElse2Statement : BOOLEAN; IF TRUE THEN ; ELSE ; ; END_IF; END_FUNCTION;
 FUNCTION if2Else2Statement : BOOLEAN; IF TRUE THEN ; ; ELSE ; ; END_IF; END_FUNCTION;
 FUNCTION nullStatement : BOOLEAN; ; END_FUNCTION;
-FUNCTION procedureCallStatement : BOOLEAN; emptyProcedure; END_FUNCTION;
-FUNCTION procedureCallParameterStatement : BOOLEAN; emptyProcedure(true); END_FUNCTION;
-FUNCTION procedureCallParameter2Statement : BOOLEAN; emptyProcedure(true, true); END_FUNCTION;
-FUNCTION procedureCallInsertStatement : BOOLEAN; INSERT; END_FUNCTION;
-FUNCTION procedureCallRemoveStatement : BOOLEAN; REMOVE; END_FUNCTION;
+FUNCTION callStatement : BOOLEAN; emptyProcedure; END_FUNCTION;
+FUNCTION callParameterStatement : BOOLEAN; emptyProcedure(TRUE); END_FUNCTION;
+FUNCTION callParameter2Statement : BOOLEAN; emptyProcedure(TRUE, TRUE); END_FUNCTION;
+FUNCTION callInsertStatement : BOOLEAN; INSERT; END_FUNCTION;
+FUNCTION callRemoveStatement : BOOLEAN; REMOVE; END_FUNCTION;
 FUNCTION repeatStatement : BOOLEAN; REPEAT; ; END_REPEAT; END_FUNCTION;
 FUNCTION repeatVariableStatement : BOOLEAN; REPEAT test := 1 TO 9; ; END_REPEAT; END_FUNCTION;
 FUNCTION repeatVariableIncrementStatement : BOOLEAN; REPEAT test := 1 TO 9 BY 2; ; END_REPEAT; END_FUNCTION;
 FUNCTION repeatWhileStatement : BOOLEAN; REPEAT WHILE TRUE; ; END_REPEAT; END_FUNCTION;
 FUNCTION repeatUntilStatement : BOOLEAN; REPEAT UNTIL TRUE; ; END_REPEAT; END_FUNCTION;
-FUNCTION returnStatement : BOOLEAN; RETURN (TRUE); END_FUNCTION;
+FUNCTION returnStatement : BOOLEAN; RETURN; END_FUNCTION;
+FUNCTION returnExpressionStatement : BOOLEAN; RETURN (TRUE); END_FUNCTION;
 FUNCTION skipStatement : BOOLEAN; SKIP; END_FUNCTION;
+
+-- rules
+RULE emptyRule FOR (emptyEntity); WHERE TRUE; END_RULE;
+RULE typeRule FOR (emptyEntity); TYPE integerType = INTEGER; END_TYPE; WHERE TRUE; END_RULE;
+RULE constantRule FOR (emptyEntity); CONSTANT test : STRING := 'xxx'; END_CONSTANT; WHERE TRUE; END_RULE;
+RULE multipleConstantRule FOR (emptyEntity); CONSTANT test : STRING := 'xxx'; test2 : STRING := 'xxx'; END_CONSTANT; WHERE TRUE; END_RULE;
+RULE localRule FOR (emptyEntity); LOCAL test : STRING; END_LOCAL; WHERE TRUE; END_RULE;
+RULE multipleLocalRule FOR (emptyEntity); LOCAL test : STRING; test2 : STRING; END_LOCAL; WHERE TRUE; END_RULE;
+RULE multipleShorthandLocalRule FOR (emptyEntity); LOCAL test, test2 : STRING; END_LOCAL; WHERE TRUE; END_RULE;
+RULE localExpressionRule FOR (emptyEntity); LOCAL test : STRING := 'xxx'; END_LOCAL; WHERE TRUE; END_RULE;
+RULE multipleLocalExpressionRule FOR (emptyEntity); LOCAL test : STRING := 'xxx'; test2 : STRING := 'xxx'; END_LOCAL; WHERE TRUE; END_RULE;
+RULE multipleShorthandLocalExpressionRule FOR (emptyEntity); LOCAL test, test2 : STRING := 'xxx'; END_LOCAL; WHERE TRUE; END_RULE;
+RULE statementRule FOR (emptyEntity); ; WHERE TRUE; END_RULE;
 
 END_SCHEMA;

@@ -162,5 +162,11 @@ END_RULE;
 --"remark_schema.remark_rule" schema scope - rule
 --"remark_schema.remark_rule" universal scope - rule
 END_SCHEMA;
+(*"remark_schema"
+Any character within the EXPRESS character set may occur between the start and end of
+an embedded remark including the newline character; therefore, embedded remarks can span
+several physical lines.
+*)
+--"remark_schema" The tail remark is written at the end of a physical line.
 --"remark_schema" universal scope - schema before
 --"remark_schema" universal scope - schema

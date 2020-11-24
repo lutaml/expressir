@@ -11,9 +11,11 @@ RSpec.describe Expressir::ExpressExp::Parser do
       schema.tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Schema)
         expect(x.remarks).to be_instance_of(Array)
-        expect(x.remarks.count).to eq(2)
-        expect(x.remarks[0]).to eq("universal scope - schema before")
-        expect(x.remarks[1]).to eq("universal scope - schema")
+        expect(x.remarks.count).to eq(4)
+        expect(x.remarks[0]).to eq("Any character within the EXPRESS character set may occur between the start and end of\nan embedded remark including the newline character; therefore, embedded remarks can span\nseveral physical lines.")
+        expect(x.remarks[1]).to eq("The tail remark is written at the end of a physical line.")
+        expect(x.remarks[2]).to eq("universal scope - schema before")
+        expect(x.remarks[3]).to eq("universal scope - schema")
       end
       
       schema.constants.first.tap do |x|

@@ -1,3 +1,10 @@
+(*"remark_schema"
+Any character within the EXPRESS character set may occur between the start and end of
+an embedded remark including the newline character; therefore, embedded remarks can span
+several physical lines.
+*)
+--"remark_schema" The tail remark is written at the end of a physical line.
+
 --"remark_schema" universal scope - schema before
 
 SCHEMA remark_schema;
@@ -17,7 +24,7 @@ ENTITY remark_entity;
   --"remark_where" entity scope - entity where
 END_ENTITY;
 SUBTYPE_CONSTRAINT remark_subtype_constraint FOR remark_entity; END_SUBTYPE_CONSTRAINT;
-FUNCTION remark_function (remark_parameter : STRING) : BOOLEAN;
+FUNCTION remark_function(remark_parameter : STRING) : BOOLEAN;
   TYPE remark_type = ENUMERATION OF (remark_enumeration_item); END_TYPE;
   CONSTANT remark_constant : STRING := 'xxx'; END_CONSTANT;
   LOCAL remark_variable : STRING; END_LOCAL;
@@ -36,7 +43,7 @@ FUNCTION remark_function (remark_parameter : STRING) : BOOLEAN;
   --"remark_constant" function scope - function constant
   --"remark_variable" function scope - function variable
 END_FUNCTION;
-PROCEDURE remark_procedure (remark_parameter : STRING);
+PROCEDURE remark_procedure(remark_parameter : STRING);
   TYPE remark_type = ENUMERATION OF (remark_enumeration_item); END_TYPE;
   CONSTANT remark_constant : STRING := 'xxx'; END_CONSTANT;
   LOCAL remark_variable : STRING; END_LOCAL;

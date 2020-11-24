@@ -10,6 +10,7 @@
 /.idea
 /lib/expressir/express_exp/generated/*.interp
 /lib/expressir/express_exp/generated/*.tokens
+/original/examples/syntax/*-pretty.exp
 
 # rspec failure tracking
 .rspec_status

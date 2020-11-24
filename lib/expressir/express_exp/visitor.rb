@@ -33,11 +33,22 @@ module Expressir
 
       def visit(ctx)
         result = super(ctx)
+        attach_parent(ctx, result)
         attach_remarks(ctx, result)
         result
       end
 
-      def attach_remarks(ctx, item)
+      def attach_parent(ctx, node)
+        if node.class.method_defined? :children
+          node.children.each do |child_node|
+            if child_node.class.method_defined? :parent
+              child_node.parent = node
+            end
+          end
+        end
+      end
+
+      def attach_remarks(ctx, node)
         # get remark tokens
         start_index, stop_index = if ctx.instance_of? Generated::ExpressParser::SyntaxContext
           [0, @tokens.size - 1]
@@ -67,16 +78,16 @@ module Expressir
             end
 
             # attach tagged remark
-            remark_tag = match[1]
+            remark_tag = match[1].downcase
             remark_content = match[2].strip
 
-            current_item = item
+            current_node = node
             remark_tag.split('.').each do |id|
-              if current_item
-                if current_item.class.method_defined? :scope_items
-                  current_item = current_item.scope_items.find{|x| x.id == id}
+              if current_node
+                if current_node.class.method_defined? :children
+                  current_node = current_node.children.find{|x| x.id.downcase == id}
                 else
-                  current_item = nil
+                  current_node = nil
                   break
                 end
               else
@@ -84,9 +95,9 @@ module Expressir
               end
             end
 
-            if current_item
-              current_item.remarks ||= []
-              current_item.remarks << remark_content
+            if current_node
+              current_node.remarks ||= []
+              current_node.remarks << remark_content
 
               # mark remark as attached, so that it is not attached again at higher nesting level
               @attached_remarks << remark_token
@@ -400,15 +411,13 @@ module Expressir
       end
 
       def visitCaseAction(ctx)
-        expressions = ctx.caseLabel().map{|ctx| visit(ctx.expression())}
+        labels = ctx.caseLabel().map{|ctx| visit(ctx.expression())}
         statement = visit(ctx.stmt())
 
-        expressions.map do |expression|
-          Model::Statements::CaseAction.new({
-            expression: expression,
-            statement: statement
-          })
-        end
+        Model::Statements::CaseAction.new({
+          labels: labels,
+          statement: statement
+        })
       end
 
       def visitCaseLabel(ctx)
@@ -517,7 +526,8 @@ module Expressir
         type = visit(ctx.parameterType())
         expression = visit(ctx.expression())
 
-        Model::Derived.new({
+        Model::Attribute.new({
+          kind: Model::Attribute::DERIVED,
           supertype_attribute: supertype_attribute,
           id: id,
           type: type,
@@ -572,26 +582,25 @@ module Expressir
       def visitEntityDecl(ctx)
         id = visit(ctx.entityHead().entityId())
         abstract = if ctx.entityHead().subsuper().supertypeConstraint()
-          !!ctx.entityHead().subsuper().supertypeConstraint().abstractEntityDeclaration()
+          !!ctx.entityHead().subsuper().supertypeConstraint().abstractEntityDeclaration() || !!ctx.entityHead().subsuper().supertypeConstraint().abstractSupertypeDeclaration()
         end
-        abstract_supertype = if ctx.entityHead().subsuper().supertypeConstraint()
-          !!ctx.entityHead().subsuper().supertypeConstraint().abstractSupertypeDeclaration()
-        end
-        subtype_expression = if ctx.entityHead().subsuper().supertypeConstraint() && ctx.entityHead().subsuper().supertypeConstraint().abstractSupertypeDeclaration() && ctx.entityHead().subsuper().supertypeConstraint().abstractSupertypeDeclaration().subtypeConstraint()
+        supertype_expression = if ctx.entityHead().subsuper().supertypeConstraint() && ctx.entityHead().subsuper().supertypeConstraint().abstractSupertypeDeclaration() && ctx.entityHead().subsuper().supertypeConstraint().abstractSupertypeDeclaration().subtypeConstraint()
           visit(ctx.entityHead().subsuper().supertypeConstraint().abstractSupertypeDeclaration().subtypeConstraint().supertypeExpression())
         elsif ctx.entityHead().subsuper().supertypeConstraint() && ctx.entityHead().subsuper().supertypeConstraint().supertypeRule()
           visit(ctx.entityHead().subsuper().supertypeConstraint().supertypeRule().subtypeConstraint().supertypeExpression())
         end
-        supertypes = if ctx.entityHead().subsuper().subtypeDeclaration()
+        subtype_of = if ctx.entityHead().subsuper().subtypeDeclaration()
           ctx.entityHead().subsuper().subtypeDeclaration().entityRef().map{|ctx| visit(ctx)}
         end
-        explicit = ctx.entityBody().explicitAttr().map{|ctx| visit(ctx)}.flatten
-        derived = if ctx.entityBody().deriveClause()
-          ctx.entityBody().deriveClause().derivedAttr().map{|ctx| visit(ctx)}
-        end
-        inverse = if ctx.entityBody().inverseClause()
-          ctx.entityBody().inverseClause().inverseAttr().map{|ctx| visit(ctx)}
-        end
+        attributes = [
+          *ctx.entityBody().explicitAttr().map{|ctx| visit(ctx)}.flatten,
+          *if ctx.entityBody().deriveClause()
+            ctx.entityBody().deriveClause().derivedAttr().map{|ctx| visit(ctx)}
+          end,
+          *if ctx.entityBody().inverseClause()
+            ctx.entityBody().inverseClause().inverseAttr().map{|ctx| visit(ctx)}
+          end
+        ]
         unique = if ctx.entityBody().uniqueClause()
           ctx.entityBody().uniqueClause().uniqueRule().map{|ctx| visit(ctx)}
         end
@@ -602,12 +611,9 @@ module Expressir
         Model::Entity.new({
           id: id,
           abstract: abstract,
-          abstract_supertype: abstract_supertype,
-          subtype_expression: subtype_expression,
-          supertypes: supertypes,
-          explicit: explicit,
-          derived: derived,
-          inverse: inverse,
+          supertype_expression: supertype_expression,
+          subtype_of: subtype_of,
+          attributes: attributes,
           unique: unique,
           where: where
         })
@@ -685,7 +691,9 @@ module Expressir
           elsif decl.redeclaredAttribute() && decl.redeclaredAttribute().attributeId()
             visit(decl.redeclaredAttribute().attributeId())
           end
-          Model::Explicit.new({
+
+          Model::Attribute.new({
+            kind: Model::Attribute::EXPLICIT,
             supertype_attribute: supertype_attribute,
             id: id,
             optional: optional,
@@ -764,7 +772,7 @@ module Expressir
         constants = if ctx.algorithmHead().constantDecl()
           ctx.algorithmHead().constantDecl().constantBody().map{|ctx| visit(ctx)}
         end
-        locals = if ctx.algorithmHead().localDecl()
+        variables = if ctx.algorithmHead().localDecl()
           ctx.algorithmHead().localDecl().localVariable().map{|ctx| visit(ctx)}.flatten
         end
         declarations = ctx.algorithmHead().declaration().map{|ctx| visit(ctx)}
@@ -776,7 +784,7 @@ module Expressir
           return_type: return_type,
           declarations: declarations,
           constants: constants,
-          locals: locals,
+          variables: variables,
           statements: statements
         })
       end
@@ -1071,7 +1079,7 @@ module Expressir
         else
           visit(ctx.entityRef()[0])
         end
-        attribute = if ctx.entityRef()[1]
+        expression = if ctx.entityRef()[1]
           ref = visit(ctx.entityRef()[1])
           attribute = visit(ctx.attributeRef())
 
@@ -1083,11 +1091,12 @@ module Expressir
           visit(ctx.attributeRef())
         end
 
-        Model::Inverse.new({
+        Model::Attribute.new({
+          kind: Model::Attribute::INVERSE,
           supertype_attribute: supertype_attribute,
           id: id,
           type: type,
-          attribute: attribute
+          expression: expression
         })
       end
 
@@ -1141,7 +1150,7 @@ module Expressir
         end
 
         ids.map do |id|
-          Model::Local.new({
+          Model::Variable.new({
             id: id,
             type: type,
             expression: expression
@@ -1319,7 +1328,7 @@ module Expressir
         constants = if ctx.algorithmHead().constantDecl()
           ctx.algorithmHead().constantDecl().constantBody().map{|ctx| visit(ctx)}
         end
-        locals = if ctx.algorithmHead().localDecl()
+        variables = if ctx.algorithmHead().localDecl()
           ctx.algorithmHead().localDecl().localVariable().map{|ctx| visit(ctx)}.flatten
         end
         statements = ctx.stmt().map{|ctx| visit(ctx)}
@@ -1329,7 +1338,7 @@ module Expressir
           parameters: parameters,
           declarations: declarations,
           constants: constants,
-          locals: locals,
+          variables: variables,
           statements: statements
         })
       end
@@ -1570,7 +1579,7 @@ module Expressir
         constants = if ctx.algorithmHead().constantDecl()
           ctx.algorithmHead().constantDecl().constantBody().map{|ctx| visit(ctx)}
         end
-        locals = if ctx.algorithmHead().localDecl()
+        variables = if ctx.algorithmHead().localDecl()
           ctx.algorithmHead().localDecl().localVariable().map{|ctx| visit(ctx)}.flatten
         end
         statements = ctx.stmt().map{|ctx| visit(ctx)}
@@ -1581,7 +1590,7 @@ module Expressir
           applies_to: applies_to,
           declarations: declarations,
           constants: constants,
-          locals: locals,
+          variables: variables,
           statements: statements,
           where: where
         })
@@ -1612,16 +1621,17 @@ module Expressir
         constants = if ctx.schemaBody().constantDecl()
           ctx.schemaBody().constantDecl().constantBody().map{|ctx| visit(ctx)}
         end
-        declarations = ctx.schemaBody().declaration().map{|ctx| visit(ctx)}
-        rules = ctx.schemaBody().ruleDecl().map{|ctx| visit(ctx)}
+        declarations = [
+          *ctx.schemaBody().declaration().map{|ctx| visit(ctx)},
+          *ctx.schemaBody().ruleDecl().map{|ctx| visit(ctx)}
+        ]
 
         Model::Schema.new({
           id: id,
           version: version,
           interfaces: interfaces,
           constants: constants,
-          declarations: declarations,
-          rules: rules
+          declarations: declarations
         })
       end
 
@@ -1821,20 +1831,20 @@ module Expressir
       def visitSubtypeConstraintDecl(ctx)
         id = visit(ctx.subtypeConstraintHead().subtypeConstraintId())
         applies_to = visit(ctx.subtypeConstraintHead().entityRef())
-        abstract_supertype = !!ctx.subtypeConstraintBody().abstractSupertype()
+        abstract = !!ctx.subtypeConstraintBody().abstractSupertype()
         total_over = if ctx.subtypeConstraintBody().totalOver()
           ctx.subtypeConstraintBody().totalOver().entityRef().map{|ctx| visit(ctx)}
         end
-        subtype_expression = if ctx.subtypeConstraintBody().supertypeExpression()
+        supertype_expression = if ctx.subtypeConstraintBody().supertypeExpression()
           visit(ctx.subtypeConstraintBody().supertypeExpression())
         end
 
         Model::SubtypeConstraint.new({
           id: id,
           applies_to: applies_to,
-          abstract_supertype: abstract_supertype,
+          abstract: abstract,
           total_over: total_over,
-          subtype_expression: subtype_expression
+          supertype_expression: supertype_expression
         })
       end
 

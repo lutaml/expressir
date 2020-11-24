@@ -9,6 +9,8 @@ module Expressir
         attr_accessor :while_expression
         attr_accessor :until_expression
         attr_accessor :statements
+
+        attr_accessor :parent
         attr_accessor :remarks
 
         def initialize(options = {})
@@ -19,10 +21,9 @@ module Expressir
           @while_expression = options[:while_expression]
           @until_expression = options[:until_expression]
           @statements = options[:statements]
-          @remarks = options[:remarks]
         end
 
-        def scope_items
+        def children
           items = []
           items.push(self)
           items

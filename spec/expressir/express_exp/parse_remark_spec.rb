@@ -30,6 +30,15 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.remarks.count).to eq(2)
         expect(x.remarks[0]).to eq("schema scope - type")
         expect(x.remarks[1]).to eq("universal scope - type")
+
+        expect(x.type).to be_instance_of(Expressir::Model::Types::Enumeration)
+        x.type.items.first.tap do |x|
+          expect(x).to be_instance_of(Expressir::Model::EnumerationItem)
+          expect(x.remarks).to be_instance_of(Array)
+          expect(x.remarks.count).to eq(2)
+          expect(x.remarks[0]).to eq("schema scope - enumeration item")
+          expect(x.remarks[1]).to eq("universal scope - enumeration item")
+        end
       end
       
       schema.entities.first.tap do |x|
@@ -40,31 +49,34 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.remarks[1]).to eq("universal scope - entity")
       end
       
-      schema.entities.first.explicit.first.tap do |x|
-        expect(x).to be_instance_of(Expressir::Model::Explicit)
+      schema.entities.first.explicit_attributes.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Attribute)
+        expect(x.kind).to eq(Expressir::Model::Attribute::EXPLICIT)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
-        expect(x.remarks[0]).to eq("entity scope - entity explicit")
-        expect(x.remarks[1]).to eq("schema scope - entity explicit")
-        expect(x.remarks[2]).to eq("universal scope - entity explicit")
+        expect(x.remarks[0]).to eq("entity scope - entity attribute")
+        expect(x.remarks[1]).to eq("schema scope - entity attribute")
+        expect(x.remarks[2]).to eq("universal scope - entity attribute")
       end
       
-      schema.entities.first.derived.first.tap do |x|
-        expect(x).to be_instance_of(Expressir::Model::Derived)
+      schema.entities.first.derived_attributes.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Attribute)
+        expect(x.kind).to eq(Expressir::Model::Attribute::DERIVED)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
-        expect(x.remarks[0]).to eq("entity scope - entity derived")
-        expect(x.remarks[1]).to eq("schema scope - entity derived")
-        expect(x.remarks[2]).to eq("universal scope - entity derived")
+        expect(x.remarks[0]).to eq("entity scope - entity derived attribute")
+        expect(x.remarks[1]).to eq("schema scope - entity derived attribute")
+        expect(x.remarks[2]).to eq("universal scope - entity derived attribute")
       end
       
-      schema.entities.first.inverse.first.tap do |x|
-        expect(x).to be_instance_of(Expressir::Model::Inverse)
+      schema.entities.first.inverse_attributes.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Attribute)
+        expect(x.kind).to eq(Expressir::Model::Attribute::INVERSE)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
-        expect(x.remarks[0]).to eq("entity scope - entity inverse")
-        expect(x.remarks[1]).to eq("schema scope - entity inverse")
-        expect(x.remarks[2]).to eq("universal scope - entity inverse")
+        expect(x.remarks[0]).to eq("entity scope - entity inverse attribute")
+        expect(x.remarks[1]).to eq("schema scope - entity inverse attribute")
+        expect(x.remarks[2]).to eq("universal scope - entity inverse attribute")
       end
       
       schema.entities.first.unique.first.tap do |x|
@@ -117,6 +129,16 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.remarks[0]).to eq("function scope - function type")
         expect(x.remarks[1]).to eq("schema scope - function type")
         expect(x.remarks[2]).to eq("universal scope - function type")
+
+        expect(x.type).to be_instance_of(Expressir::Model::Types::Enumeration)
+        x.type.items.first.tap do |x|
+          expect(x).to be_instance_of(Expressir::Model::EnumerationItem)
+          expect(x.remarks).to be_instance_of(Array)
+          expect(x.remarks.count).to eq(3)
+          expect(x.remarks[0]).to eq("function scope - function enumeration item")
+          expect(x.remarks[1]).to eq("schema scope - function enumeration item")
+          expect(x.remarks[2]).to eq("universal scope - function enumeration item")
+        end
       end
       
       schema.functions.first.constants.first.tap do |x|
@@ -128,13 +150,13 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.remarks[2]).to eq("universal scope - function constant")
       end
       
-      schema.functions.first.locals.first.tap do |x|
-        expect(x).to be_instance_of(Expressir::Model::Local)
+      schema.functions.first.variables.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Variable)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
-        expect(x.remarks[0]).to eq("function scope - function local")
-        expect(x.remarks[1]).to eq("schema scope - function local")
-        expect(x.remarks[2]).to eq("universal scope - function local")
+        expect(x.remarks[0]).to eq("function scope - function variable")
+        expect(x.remarks[1]).to eq("schema scope - function variable")
+        expect(x.remarks[2]).to eq("universal scope - function variable")
       end
       
       schema.functions.first.statements[0].tap do |x|
@@ -183,6 +205,16 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.remarks[0]).to eq("procedure scope - procedure type")
         expect(x.remarks[1]).to eq("schema scope - procedure type")
         expect(x.remarks[2]).to eq("universal scope - procedure type")
+
+        expect(x.type).to be_instance_of(Expressir::Model::Types::Enumeration)
+        x.type.items.first.tap do |x|
+          expect(x).to be_instance_of(Expressir::Model::EnumerationItem)
+          expect(x.remarks).to be_instance_of(Array)
+          expect(x.remarks.count).to eq(3)
+          expect(x.remarks[0]).to eq("procedure scope - procedure enumeration item")
+          expect(x.remarks[1]).to eq("schema scope - procedure enumeration item")
+          expect(x.remarks[2]).to eq("universal scope - procedure enumeration item")
+        end
       end
       
       schema.procedures.first.constants.first.tap do |x|
@@ -194,13 +226,13 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.remarks[2]).to eq("universal scope - procedure constant")
       end
       
-      schema.procedures.first.locals.first.tap do |x|
-        expect(x).to be_instance_of(Expressir::Model::Local)
+      schema.procedures.first.variables.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Variable)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
-        expect(x.remarks[0]).to eq("procedure scope - procedure local")
-        expect(x.remarks[1]).to eq("schema scope - procedure local")
-        expect(x.remarks[2]).to eq("universal scope - procedure local")
+        expect(x.remarks[0]).to eq("procedure scope - procedure variable")
+        expect(x.remarks[1]).to eq("schema scope - procedure variable")
+        expect(x.remarks[2]).to eq("universal scope - procedure variable")
       end
       
       schema.procedures.first.statements[0].tap do |x|
@@ -240,6 +272,16 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.remarks[0]).to eq("rule scope - rule type")
         expect(x.remarks[1]).to eq("schema scope - rule type")
         expect(x.remarks[2]).to eq("universal scope - rule type")
+
+        expect(x.type).to be_instance_of(Expressir::Model::Types::Enumeration)
+        x.type.items.first.tap do |x|
+          expect(x).to be_instance_of(Expressir::Model::EnumerationItem)
+          expect(x.remarks).to be_instance_of(Array)
+          expect(x.remarks.count).to eq(3)
+          expect(x.remarks[0]).to eq("rule scope - rule enumeration item")
+          expect(x.remarks[1]).to eq("schema scope - rule enumeration item")
+          expect(x.remarks[2]).to eq("universal scope - rule enumeration item")
+        end
       end
       
       schema.rules.first.constants.first.tap do |x|
@@ -251,13 +293,13 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.remarks[2]).to eq("universal scope - rule constant")
       end
       
-      schema.rules.first.locals.first.tap do |x|
-        expect(x).to be_instance_of(Expressir::Model::Local)
+      schema.rules.first.variables.first.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Variable)
         expect(x.remarks).to be_instance_of(Array)
         expect(x.remarks.count).to eq(3)
-        expect(x.remarks[0]).to eq("rule scope - rule local")
-        expect(x.remarks[1]).to eq("schema scope - rule local")
-        expect(x.remarks[2]).to eq("universal scope - rule local")
+        expect(x.remarks[0]).to eq("rule scope - rule variable")
+        expect(x.remarks[1]).to eq("schema scope - rule variable")
+        expect(x.remarks[2]).to eq("universal scope - rule variable")
       end
       
       schema.rules.first.statements[0].tap do |x|

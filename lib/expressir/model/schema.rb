@@ -6,7 +6,7 @@ module Expressir
       attr_accessor :interfaces
       attr_accessor :constants
       attr_accessor :declarations
-      attr_accessor :rules
+
       attr_accessor :remarks
 
       def initialize(options = {})
@@ -15,8 +15,14 @@ module Expressir
         @interfaces = options[:interfaces]
         @constants = options[:constants]
         @declarations = options[:declarations]
-        @rules = options[:rules]
-        @remarks = options[:remarks]
+      end
+
+      def use_interfaces
+        @interfaces.select{|x| x.kind == Expressir::Model::Interface::USE}
+      end
+
+      def reference_interfaces
+        @interfaces.select{|x| x.kind == Expressir::Model::Interface::REFERENCE}
       end
 
       def types
@@ -39,11 +45,21 @@ module Expressir
         @declarations.select{|x| x.instance_of? Expressir::Model::Procedure}
       end
 
-      def scope_items
+      def rules
+        @declarations.select{|x| x.instance_of? Expressir::Model::Rule}
+      end
+
+      def children
         items = []
         items.push(*@constants) if @constants
-        items.push(*@declarations) if @declarations
-        items.push(*@rules) if @rules
+        items.push(*@declarations.flat_map do |x|
+          [
+            x,
+            *if x.instance_of? Expressir::Model::Type and x.type.instance_of? Expressir::Model::Types::Enumeration
+              x.type.items
+            end
+          ]
+        end) if @declarations
         items
       end
     end

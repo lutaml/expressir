@@ -1,127 +1,138 @@
---"remarkSchema" universal scope - schema before
+--"remark_schema" universal scope - schema before
 
-SCHEMA remarkSchema;
+SCHEMA remark_schema;
 
-CONSTANT remarkConstant : STRING := 'xxx'; END_CONSTANT;
-TYPE remarkType = STRING; END_TYPE;
-ENTITY remarkEntity;
-  remarkExplicit : STRING;
-  DERIVE remarkDerived : STRING := 'xxx';
-  INVERSE remarkInverse : remarkEntity FOR remarkExplicit;
-  UNIQUE remarkUnique : remarkExplicit;
-  WHERE remarkWhere : TRUE;
-  --"remarkExplicit" entity scope - entity explicit
-  --"remarkDerived" entity scope - entity derived
-  --"remarkInverse" entity scope - entity inverse
-  --"remarkUnique" entity scope - entity unique
-  --"remarkWhere" entity scope - entity where
+CONSTANT remark_constant : STRING := 'xxx'; END_CONSTANT;
+TYPE remark_type = ENUMERATION OF (remark_enumeration_item); END_TYPE;
+ENTITY remark_entity;
+  remark_attribute : STRING;
+  DERIVE remark_derived_attribute : STRING := 'xxx';
+  INVERSE remark_inverse_attribute : remark_entity FOR remark_attribute;
+  UNIQUE remark_unique : remark_attribute;
+  WHERE remark_where : TRUE;
+  --"remark_attribute" entity scope - entity attribute
+  --"remark_derived_attribute" entity scope - entity derived attribute
+  --"remark_inverse_attribute" entity scope - entity inverse attribute
+  --"remark_unique" entity scope - entity unique
+  --"remark_where" entity scope - entity where
 END_ENTITY;
-SUBTYPE_CONSTRAINT remarkSubtypeConstraint FOR remarkEntity; END_SUBTYPE_CONSTRAINT;
-FUNCTION remarkFunction (remarkParameter : STRING) : BOOLEAN;
-  TYPE remarkType = STRING; END_TYPE;
-  CONSTANT remarkConstant : STRING := 'xxx'; END_CONSTANT;
-  LOCAL remarkLocal : STRING; END_LOCAL;
-  ALIAS remarkAlias FOR remarkLocal; ;
-    --"remarkAlias" function alias scope - function alias
+SUBTYPE_CONSTRAINT remark_subtype_constraint FOR remark_entity; END_SUBTYPE_CONSTRAINT;
+FUNCTION remark_function (remark_parameter : STRING) : BOOLEAN;
+  TYPE remark_type = ENUMERATION OF (remark_enumeration_item); END_TYPE;
+  CONSTANT remark_constant : STRING := 'xxx'; END_CONSTANT;
+  LOCAL remark_variable : STRING; END_LOCAL;
+  ALIAS remark_alias FOR remark_variable; ;
+    --"remark_alias" function alias scope - function alias
   END_ALIAS;
-  REPEAT remarkRepeat := 1 TO 9; ;
-    --"remarkRepeat" function repeat scope - function repeat
+  REPEAT remark_repeat := 1 TO 9; ;
+    --"remark_repeat" function repeat scope - function repeat
   END_REPEAT;
-  remarkLocal := QUERY(remarkQuery <* remarkLocal | TRUE
-    --"remarkQuery" function query scope - function query
+  remark_variable := QUERY(remark_query <* remark_variable | TRUE
+    --"remark_query" function query scope - function query
   );
-  --"remarkParameter" function scope - function parameter
-  --"remarkType" function scope - function type
-  --"remarkConstant" function scope - function constant
-  --"remarkLocal" function scope - function local
+  --"remark_parameter" function scope - function parameter
+  --"remark_type" function scope - function type
+  --"remark_enumeration_item" function scope - function enumeration item
+  --"remark_constant" function scope - function constant
+  --"remark_variable" function scope - function variable
 END_FUNCTION;
-PROCEDURE remarkProcedure (remarkParameter : STRING);
-  TYPE remarkType = STRING; END_TYPE;
-  CONSTANT remarkConstant : STRING := 'xxx'; END_CONSTANT;
-  LOCAL remarkLocal : STRING; END_LOCAL;
-  ALIAS remarkAlias FOR remarkLocal; ;
-    --"remarkAlias" procedure alias scope - procedure alias
+PROCEDURE remark_procedure (remark_parameter : STRING);
+  TYPE remark_type = ENUMERATION OF (remark_enumeration_item); END_TYPE;
+  CONSTANT remark_constant : STRING := 'xxx'; END_CONSTANT;
+  LOCAL remark_variable : STRING; END_LOCAL;
+  ALIAS remark_alias FOR remark_variable; ;
+    --"remark_alias" procedure alias scope - procedure alias
   END_ALIAS;
-  REPEAT remarkRepeat := 1 TO 9; ;
-    --"remarkRepeat" procedure repeat scope - procedure repeat
+  REPEAT remark_repeat := 1 TO 9; ;
+    --"remark_repeat" procedure repeat scope - procedure repeat
   END_REPEAT;
-  remarkLocal := QUERY(remarkQuery <* remarkLocal | TRUE
-    --"remarkQuery" procedure query scope - procedure query
+  remark_variable := QUERY(remark_query <* remark_variable | TRUE
+    --"remark_query" procedure query scope - procedure query
   );
-  --"remarkParameter" procedure scope - procedure parameter
-  --"remarkType" procedure scope - procedure type
-  --"remarkConstant" procedure scope - procedure constant
-  --"remarkLocal" procedure scope - procedure local
+  --"remark_parameter" procedure scope - procedure parameter
+  --"remark_type" procedure scope - procedure type
+  --"remark_enumeration_item" procedure scope - procedure enumeration item
+  --"remark_constant" procedure scope - procedure constant
+  --"remark_variable" procedure scope - procedure variable
 END_PROCEDURE;
-RULE remarkRule FOR (remarkEntity);
-  TYPE remarkType = STRING; END_TYPE;
-  CONSTANT remarkConstant : STRING := 'xxx'; END_CONSTANT;
-  LOCAL remarkLocal : STRING; END_LOCAL;
-  ALIAS remarkAlias FOR remarkLocal; ;
-    --"remarkAlias" rule alias scope - rule alias
+RULE remark_rule FOR (remark_entity);
+  TYPE remark_type = ENUMERATION OF (remark_enumeration_item); END_TYPE;
+  CONSTANT remark_constant : STRING := 'xxx'; END_CONSTANT;
+  LOCAL remark_variable : STRING; END_LOCAL;
+  ALIAS remark_alias FOR remark_variable; ;
+    --"remark_alias" rule alias scope - rule alias
   END_ALIAS;
-  REPEAT remarkRepeat := 1 TO 9; ;
-    --"remarkRepeat" rule repeat scope - rule repeat
+  REPEAT remark_repeat := 1 TO 9; ;
+    --"remark_repeat" rule repeat scope - rule repeat
   END_REPEAT;
-  remarkLocal := QUERY(remarkQuery <* remarkLocal | TRUE
-    --"remarkQuery" rule query scope - rule query
+  remark_variable := QUERY(remark_query <* remark_variable | TRUE
+    --"remark_query" rule query scope - rule query
   );
-  WHERE remarkWhere : TRUE;
-  --"remarkType" rule scope - rule type
-  --"remarkConstant" rule scope - rule constant
-  --"remarkLocal" rule scope - rule local
-  --"remarkWhere" rule scope - rule where
+  WHERE remark_where : TRUE;
+  --"remark_type" rule scope - rule type
+  --"remark_enumeration_item" rule scope - rule enumeration item
+  --"remark_constant" rule scope - rule constant
+  --"remark_variable" rule scope - rule variable
+  --"remark_where" rule scope - rule where
 END_RULE;
 
---"remarkConstant" schema scope - constant
---"remarkType" schema scope - type
---"remarkEntity" schema scope - entity
---"remarkEntity.remarkExplicit" schema scope - entity explicit
---"remarkEntity.remarkDerived" schema scope - entity derived
---"remarkEntity.remarkInverse" schema scope - entity inverse
---"remarkEntity.remarkUnique" schema scope - entity unique
---"remarkEntity.remarkWhere" schema scope - entity where
---"remarkSubtypeConstraint" schema scope - subtype constraint
---"remarkFunction" schema scope - function
---"remarkFunction.remarkParameter" schema scope - function parameter
---"remarkFunction.remarkType" schema scope - function type
---"remarkFunction.remarkConstant" schema scope - function constant
---"remarkFunction.remarkLocal" schema scope - function local
---"remarkProcedure" schema scope - procedure
---"remarkProcedure.remarkParameter" schema scope - procedure parameter
---"remarkProcedure.remarkType" schema scope - procedure type
---"remarkProcedure.remarkConstant" schema scope - procedure constant
---"remarkProcedure.remarkLocal" schema scope - procedure local
---"remarkRule" schema scope - rule
---"remarkRule.remarkType" schema scope - rule type
---"remarkRule.remarkConstant" schema scope - rule constant
---"remarkRule.remarkLocal" schema scope - rule local
---"remarkRule.remarkWhere" schema scope - rule where
+--"remark_constant" schema scope - constant
+--"remark_type" schema scope - type
+--"remark_enumeration_item" schema scope - enumeration item
+--"remark_entity" schema scope - entity
+--"remark_entity.remark_attribute" schema scope - entity attribute
+--"remark_entity.remark_derived_attribute" schema scope - entity derived attribute
+--"remark_entity.remark_inverse_attribute" schema scope - entity inverse attribute
+--"remark_entity.remark_unique" schema scope - entity unique
+--"remark_entity.remark_where" schema scope - entity where
+--"remark_subtype_constraint" schema scope - subtype constraint
+--"remark_function" schema scope - function
+--"remark_function.remark_parameter" schema scope - function parameter
+--"remark_function.remark_type" schema scope - function type
+--"remark_function.remark_enumeration_item" schema scope - function enumeration item
+--"remark_function.remark_constant" schema scope - function constant
+--"remark_function.remark_variable" schema scope - function variable
+--"remark_procedure" schema scope - procedure
+--"remark_procedure.remark_parameter" schema scope - procedure parameter
+--"remark_procedure.remark_type" schema scope - procedure type
+--"remark_procedure.remark_enumeration_item" schema scope - procedure enumeration item
+--"remark_procedure.remark_constant" schema scope - procedure constant
+--"remark_procedure.remark_variable" schema scope - procedure variable
+--"remark_rule" schema scope - rule
+--"remark_rule.remark_type" schema scope - rule type
+--"remark_rule.remark_enumeration_item" schema scope - rule enumeration item
+--"remark_rule.remark_constant" schema scope - rule constant
+--"remark_rule.remark_variable" schema scope - rule variable
+--"remark_rule.remark_where" schema scope - rule where
 
 END_SCHEMA;
 
---"remarkSchema" universal scope - schema
---"remarkSchema.remarkConstant" universal scope - constant
---"remarkSchema.remarkType" universal scope - type
---"remarkSchema.remarkEntity" universal scope - entity
---"remarkSchema.remarkEntity.remarkExplicit" universal scope - entity explicit
---"remarkSchema.remarkEntity.remarkDerived" universal scope - entity derived
---"remarkSchema.remarkEntity.remarkInverse" universal scope - entity inverse
---"remarkSchema.remarkEntity.remarkUnique" universal scope - entity unique
---"remarkSchema.remarkEntity.remarkWhere" universal scope - entity where
---"remarkSchema.remarkSubtypeConstraint" universal scope - subtype constraint
---"remarkSchema.remarkFunction" universal scope - function
---"remarkSchema.remarkFunction.remarkParameter" universal scope - function parameter
---"remarkSchema.remarkFunction.remarkType" universal scope - function type
---"remarkSchema.remarkFunction.remarkConstant" universal scope - function constant
---"remarkSchema.remarkFunction.remarkLocal" universal scope - function local
---"remarkSchema.remarkProcedure" universal scope - procedure
---"remarkSchema.remarkProcedure.remarkParameter" universal scope - procedure parameter
---"remarkSchema.remarkProcedure.remarkType" universal scope - procedure type
---"remarkSchema.remarkProcedure.remarkConstant" universal scope - procedure constant
---"remarkSchema.remarkProcedure.remarkLocal" universal scope - procedure local
---"remarkSchema.remarkRule" universal scope - rule
---"remarkSchema.remarkRule.remarkType" universal scope - rule type
---"remarkSchema.remarkRule.remarkConstant" universal scope - rule constant
---"remarkSchema.remarkRule.remarkLocal" universal scope - rule local
---"remarkSchema.remarkRule.remarkWhere" universal scope - rule where
+--"remark_schema" universal scope - schema
+--"remark_schema.remark_constant" universal scope - constant
+--"remark_schema.remark_type" universal scope - type
+--"remark_schema.remark_enumeration_item" universal scope - enumeration item
+--"remark_schema.remark_entity" universal scope - entity
+--"remark_schema.remark_entity.remark_attribute" universal scope - entity attribute
+--"remark_schema.remark_entity.remark_derived_attribute" universal scope - entity derived attribute
+--"remark_schema.remark_entity.remark_inverse_attribute" universal scope - entity inverse attribute
+--"remark_schema.remark_entity.remark_unique" universal scope - entity unique
+--"remark_schema.remark_entity.remark_where" universal scope - entity where
+--"remark_schema.remark_subtype_constraint" universal scope - subtype constraint
+--"remark_schema.remark_function" universal scope - function
+--"remark_schema.remark_function.remark_parameter" universal scope - function parameter
+--"remark_schema.remark_function.remark_type" universal scope - function type
+--"remark_schema.remark_function.remark_enumeration_item" universal scope - function enumeration item
+--"remark_schema.remark_function.remark_constant" universal scope - function constant
+--"remark_schema.remark_function.remark_variable" universal scope - function variable
+--"remark_schema.remark_procedure" universal scope - procedure
+--"remark_schema.remark_procedure.remark_parameter" universal scope - procedure parameter
+--"remark_schema.remark_procedure.remark_type" universal scope - procedure type
+--"remark_schema.remark_procedure.remark_enumeration_item" universal scope - procedure enumeration item
+--"remark_schema.remark_procedure.remark_constant" universal scope - procedure constant
+--"remark_schema.remark_procedure.remark_variable" universal scope - procedure variable
+--"remark_schema.remark_rule" universal scope - rule
+--"remark_schema.remark_rule.remark_type" universal scope - rule type
+--"remark_schema.remark_rule.remark_enumeration_item" universal scope - rule enumeration item
+--"remark_schema.remark_rule.remark_constant" universal scope - rule constant
+--"remark_schema.remark_rule.remark_variable" universal scope - rule variable
+--"remark_schema.remark_rule.remark_where" universal scope - rule where

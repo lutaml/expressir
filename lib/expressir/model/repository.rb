@@ -7,7 +7,7 @@ module Expressir
         @schemas = options[:schemas]
       end
 
-      def scope_items
+      def children
         items = []
         items.push(*@schemas) if @schemas
         items

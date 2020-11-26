@@ -1,3 +1,6 @@
+require 'expressir/model/scope'
+require 'expressir/model/identifier'
+
 require 'expressir/model/attribute'
 require 'expressir/model/constant'
 require 'expressir/model/entity'

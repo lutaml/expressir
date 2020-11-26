@@ -1,7 +1,9 @@
 module Expressir
   module Model
     class Rule
-      attr_accessor :id
+      include Scope
+      include Identifier
+
       attr_accessor :applies_to
       attr_accessor :declarations
       attr_accessor :constants
@@ -9,11 +11,9 @@ module Expressir
       attr_accessor :statements
       attr_accessor :where
 
-      attr_accessor :parent
-      attr_accessor :remarks
-
       def initialize(options = {})
         @id = options[:id]
+
         @applies_to = options[:applies_to]
         @declarations = options[:declarations]
         @constants = options[:constants]

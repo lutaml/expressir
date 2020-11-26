@@ -2,13 +2,10 @@ module Expressir
   module Model
     module Types
       class Generic
-        attr_accessor :label
-
-        attr_accessor :parent
-        attr_accessor :remarks
+        include Identifier
 
         def initialize(options = {})
-          @label = options[:label]
+          @id = options[:id]
         end
       end
     end

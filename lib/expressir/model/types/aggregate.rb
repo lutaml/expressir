@@ -2,14 +2,13 @@ module Expressir
   module Model
     module Types
       class Aggregate
-        attr_accessor :label
+        include Identifier
+
         attr_accessor :base_type
 
-        attr_accessor :parent
-        attr_accessor :remarks
-
         def initialize(options = {})
-          @label = options[:label]
+          @id = options[:id]
+
           @base_type = options[:base_type]
         end
       end

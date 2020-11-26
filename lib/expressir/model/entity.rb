@@ -1,7 +1,9 @@
 module Expressir
   module Model
     class Entity
-      attr_accessor :id
+      include Scope
+      include Identifier
+
       attr_accessor :abstract
       attr_accessor :supertype_expression
       attr_accessor :subtype_of
@@ -9,11 +11,9 @@ module Expressir
       attr_accessor :unique
       attr_accessor :where
 
-      attr_accessor :parent
-      attr_accessor :remarks
-
       def initialize(options = {})
         @id = options[:id]
+
         @abstract = options[:abstract]
         @supertype_expression = options[:supertype_expression]
         @subtype_of = options[:subtype_of]

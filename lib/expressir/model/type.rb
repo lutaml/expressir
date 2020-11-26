@@ -1,15 +1,15 @@
 module Expressir
   module Model
     class Type
-      attr_accessor :id
+      include Scope
+      include Identifier
+
       attr_accessor :type
       attr_accessor :where
 
-      attr_accessor :parent
-      attr_accessor :remarks
-
       def initialize(options = {})
         @id = options[:id]
+
         @type = options[:type]
         @where = options[:where]
       end

@@ -1,18 +1,18 @@
 module Expressir
   module Model
     class Procedure
-      attr_accessor :id
+      include Scope
+      include Identifier
+
       attr_accessor :parameters
       attr_accessor :declarations
       attr_accessor :constants
       attr_accessor :variables
       attr_accessor :statements
 
-      attr_accessor :parent
-      attr_accessor :remarks
-
       def initialize(options = {})
         @id = options[:id]
+
         @parameters = options[:parameters]
         @declarations = options[:declarations]
         @constants = options[:constants]

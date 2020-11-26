@@ -1,14 +1,13 @@
 module Expressir
   module Model
     class Where
-      attr_accessor :id
-      attr_accessor :expression
+      include Identifier
 
-      attr_accessor :parent
-      attr_accessor :remarks
+      attr_accessor :expression
 
       def initialize(options = {})
         @id = options[:id]
+
         @expression = options[:expression]
       end
     end

@@ -1,13 +1,13 @@
 module Expressir
   module Model
     class Schema
-      attr_accessor :id
+      include Scope
+      include Identifier
+
       attr_accessor :version
       attr_accessor :interfaces
       attr_accessor :constants
       attr_accessor :declarations
-
-      attr_accessor :remarks
 
       def initialize(options = {})
         @id = options[:id]

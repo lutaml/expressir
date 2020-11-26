@@ -2,7 +2,9 @@ module Expressir
   module Model
     module Statements
       class Repeat
-        attr_accessor :id
+        include Scope
+        include Identifier
+
         attr_accessor :bound1
         attr_accessor :bound2
         attr_accessor :increment
@@ -10,11 +12,9 @@ module Expressir
         attr_accessor :until_expression
         attr_accessor :statements
 
-        attr_accessor :parent
-        attr_accessor :remarks
-
         def initialize(options = {})
           @id = options[:id]
+
           @bound1 = options[:bound1]
           @bound2 = options[:bound2]
           @increment = options[:increment]

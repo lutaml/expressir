@@ -1418,7 +1418,7 @@ module Expressir
 
       def format_remark_ref(node)
         [
-          *if node.class.method_defined? :parent and node.parent != node
+          *if node.class.method_defined? :parent and node.parent.class.method_defined? :id and node.parent != node
             [
               node.parent.id,
               '.'

@@ -2,15 +2,15 @@ module Expressir
   module Model
     module Expressions
       class QueryExpression
-        attr_accessor :id
+        include Scope
+        include Identifier
+
         attr_accessor :source
         attr_accessor :expression
 
-        attr_accessor :parent
-        attr_accessor :remarks
-
         def initialize(options = {})
           @id = options[:id]
+
           @source = options[:source]
           @expression = options[:expression]
         end

@@ -78,26 +78,22 @@ module Expressir
             end
 
             # attach tagged remark
-            remark_tag = match[1].downcase
+            remark_tag = match[1]
             remark_content = match[2].strip
 
+            target_node = nil
             current_node = node
-            remark_tag.split('.').each do |id|
-              if current_node
-                if current_node.class.method_defined? :children
-                  current_node = current_node.children.find{|x| x.id.downcase == id}
-                else
-                  current_node = nil
-                  break
-                end
-              else
-                break
-              end
+            if current_node.class.method_defined? :find
+              target_node = current_node.find(remark_tag)
+            end
+            while !target_node and current_node.class.method_defined? :parent and current_node.parent.class.method_defined? :find
+              current_node = current_node.parent
+              target_node = current_node.find(remark_tag)
             end
 
-            if current_node
-              current_node.remarks ||= []
-              current_node.remarks << remark_content
+            if target_node
+              target_node.remarks ||= []
+              target_node.remarks << remark_content
 
               # mark remark as attached, so that it is not attached again at higher nesting level
               @attached_remarks << remark_token
@@ -261,13 +257,13 @@ module Expressir
       end
 
       def visitAggregateType(ctx)
-        label = if ctx.typeLabel()
+        id = if ctx.typeLabel()
           visit(ctx.typeLabel())
         end
         base_type = visit(ctx.parameterType())
 
         Model::Types::Aggregate.new({
-          label: label,
+          id: id,
           base_type: base_type
         })
       end
@@ -527,9 +523,9 @@ module Expressir
         expression = visit(ctx.expression())
 
         Model::Attribute.new({
+          id: id,
           kind: Model::Attribute::DERIVED,
           supertype_attribute: supertype_attribute,
-          id: id,
           type: type,
           expression: expression
         })
@@ -693,9 +689,9 @@ module Expressir
           end
 
           Model::Attribute.new({
+            id: id,
             kind: Model::Attribute::EXPLICIT,
             supertype_attribute: supertype_attribute,
-            id: id,
             optional: optional,
             type: type
           })
@@ -906,22 +902,22 @@ module Expressir
       end
 
       def visitGenericEntityType(ctx)
-        label = if ctx.typeLabel()
+        id = if ctx.typeLabel()
           visit(ctx.typeLabel())
         end
 
         Model::Types::GenericEntity.new({
-          label: label
+          id: id
         })
       end
 
       def visitGenericType(ctx)
-        label = if ctx.typeLabel()
+        id = if ctx.typeLabel()
           visit(ctx.typeLabel())
         end
 
         Model::Types::Generic.new({
-          label: label
+          id: id
         })
       end
 
@@ -1092,9 +1088,9 @@ module Expressir
         end
 
         Model::Attribute.new({
+          id: id,
           kind: Model::Attribute::INVERSE,
           supertype_attribute: supertype_attribute,
-          id: id,
           type: type,
           expression: expression
         })
@@ -1315,8 +1311,8 @@ module Expressir
           if var.text == 'VAR'
             parameters.map do |parameter|
               Model::Parameter.new({
-                var: true,
                 id: parameter.id,
+                var: true,
                 type: parameter.type
               })
             end

@@ -1,6 +1,8 @@
 module Expressir
   module Model
     class Repository
+      include Scope
+
       attr_accessor :schemas
 
       def initialize(options = {})

@@ -1,7 +1,9 @@
 module Expressir
   module Model
     class Function
-      attr_accessor :id
+      include Scope
+      include Identifier
+
       attr_accessor :parameters
       attr_accessor :return_type
       attr_accessor :declarations
@@ -9,11 +11,9 @@ module Expressir
       attr_accessor :variables
       attr_accessor :statements
 
-      attr_accessor :parent
-      attr_accessor :remarks
-
       def initialize(options = {})
         @id = options[:id]
+
         @parameters = options[:parameters]
         @return_type = options[:return_type]
         @declarations = options[:declarations]

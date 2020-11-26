@@ -1,16 +1,15 @@
 module Expressir
   module Model
     class Parameter
+      include Identifier
+
       attr_accessor :var
-      attr_accessor :id
       attr_accessor :type
 
-      attr_accessor :parent
-      attr_accessor :remarks
-
       def initialize(options = {})
-        @var = options[:var]
         @id = options[:id]
+
+        @var = options[:var]
         @type = options[:type]
       end
     end

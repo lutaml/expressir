@@ -80,47 +80,58 @@ ENTITY attribute_redeclared_renamed_entity;
 END_ENTITY;
 
 ENTITY derived_attribute_entity;
-  DERIVE test : BOOLEAN := TRUE;
+  DERIVE
+    test : BOOLEAN := TRUE;
 END_ENTITY;
 
 ENTITY derived_attribute_redeclared_entity;
-  DERIVE SELF\attribute_entity.test : BOOLEAN := TRUE;
+  DERIVE
+    SELF\attribute_entity.test : BOOLEAN := TRUE;
 END_ENTITY;
 
 ENTITY derived_attribute_redeclared_renamed_entity;
-  DERIVE SELF\attribute_entity.test RENAMED test2 : BOOLEAN := TRUE;
+  DERIVE
+    SELF\attribute_entity.test RENAMED test2 : BOOLEAN := TRUE;
 END_ENTITY;
 
 ENTITY inverse_attribute_entity;
-  INVERSE test : attribute_entity FOR test;
+  INVERSE
+    test : attribute_entity FOR test;
 END_ENTITY;
 
 ENTITY inverse_attribute_entity_entity;
-  INVERSE test : attribute_entity FOR attribute_entity.test;
+  INVERSE
+    test : attribute_entity FOR attribute_entity.test;
 END_ENTITY;
 
 ENTITY inverse_attribute_set_entity;
-  INVERSE test : SET OF attribute_entity FOR test;
+  INVERSE
+    test : SET OF attribute_entity FOR test;
 END_ENTITY;
 
 ENTITY inverse_attribute_set_bound_entity;
-  INVERSE test : SET [1:9] OF attribute_entity FOR test;
+  INVERSE
+    test : SET [1:9] OF attribute_entity FOR test;
 END_ENTITY;
 
 ENTITY inverse_attribute_bag_entity;
-  INVERSE test : BAG OF attribute_entity FOR test;
+  INVERSE
+    test : BAG OF attribute_entity FOR test;
 END_ENTITY;
 
 ENTITY inverse_attribute_bag_bound_entity;
-  INVERSE test : BAG [1:9] OF attribute_entity FOR test;
+  INVERSE
+    test : BAG [1:9] OF attribute_entity FOR test;
 END_ENTITY;
 
 ENTITY inverse_attribute_redeclared_entity;
-  INVERSE SELF\attribute_entity.test : attribute_entity FOR test;
+  INVERSE
+    SELF\attribute_entity.test : attribute_entity FOR test;
 END_ENTITY;
 
 ENTITY inverse_attribute_redeclared_renamed_entity;
-  INVERSE SELF\attribute_entity.test RENAMED test2 : attribute_entity FOR test;
+  INVERSE
+    SELF\attribute_entity.test RENAMED test2 : attribute_entity FOR test;
 END_ENTITY;
 
 ENTITY unique_entity;

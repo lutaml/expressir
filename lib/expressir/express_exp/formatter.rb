@@ -171,17 +171,6 @@ module Expressir
 
       def format_attribute(node)
         [
-          *if node.kind == Model::Attribute::DERIVED
-            [
-              'DERIVE',
-              ' '
-            ].join('')
-          elsif node.kind == Model::Attribute::INVERSE
-            [
-              'INVERSE',
-              ' '
-            ].join('')
-          end,
           *if node.supertype_attribute
             [
               format(node.supertype_attribute),
@@ -252,7 +241,7 @@ module Expressir
             *if node.abstract and !node.supertype_expression
               [
                 "\n",
-                '  ',
+                INDENT,
                 'ABSTRACT',
                 ' ',
                 'SUPERTYPE'
@@ -261,7 +250,7 @@ module Expressir
             *if node.abstract and node.supertype_expression
               [
                 "\n",
-                '  ',
+                INDENT,
                 'ABSTRACT',
                 ' ',
                 'SUPERTYPE',
@@ -276,7 +265,7 @@ module Expressir
             *if !node.abstract and node.supertype_expression
               [
                 "\n",
-                '  ',
+                INDENT,
                 'SUPERTYPE',
                 ' ',
                 'OF',
@@ -289,7 +278,7 @@ module Expressir
             *if node.subtype_of and node.subtype_of.length > 0
               [
                 "\n",
-                '  ',
+                INDENT,
                 'SUBTYPE',
                 ' ',
                 'OF',
@@ -301,8 +290,20 @@ module Expressir
             end,
             ';'
           ].join(''),
-          *if node.attributes and node.attributes.length > 0
-            indent(node.attributes.map{|x| format(x)}.join("\n"))
+          *if node.explicit_attributes and node.explicit_attributes.length > 0
+            indent(node.explicit_attributes.map{|x| format(x)}.join("\n"))
+          end,
+          *if node.derived_attributes and node.derived_attributes.length > 0
+            indent([
+              'DERIVE',
+              indent(node.derived_attributes.map{|x| format(x)}.join("\n")),
+            ].join("\n"))
+          end,
+          *if node.inverse_attributes and node.inverse_attributes.length > 0
+            indent([
+              'INVERSE',
+              indent(node.inverse_attributes.map{|x| format(x)}.join("\n")),
+            ].join("\n"))
           end,
           *if node.unique and node.unique.length > 0
             indent([
@@ -316,7 +317,6 @@ module Expressir
               indent(node.where.map{|x| format(x)}.join("\n")),
             ].join("\n"))
           end,
-          *format_scope_remarks(node),
           [
             'END_ENTITY',
             ';'
@@ -373,7 +373,6 @@ module Expressir
           *if node.statements and node.statements.length > 0
             indent(node.statements.map{|x| format(x)}.join("\n"))
           end,
-          *format_scope_remarks(node),
           [
             'END_FUNCTION',
             ';'
@@ -394,7 +393,7 @@ module Expressir
           *if node.items and node.items.length > 0
             [
               "\n",
-              '  ',
+              INDENT,
               '(',
               node.items.map{|x| format(x)},
               ')'
@@ -461,7 +460,6 @@ module Expressir
           *if node.statements and node.statements.length > 0
             indent(node.statements.map{|x| format(x)}.join("\n"))
           end,
-          *format_scope_remarks(node),
           [
             'END_PROCEDURE',
             ';'
@@ -534,7 +532,6 @@ module Expressir
               indent(node.where.map{|x| format(x)}.join("\n"))
             ].join("\n"))
           end,
-          *format_scope_remarks(node),
           [
             'END_RULE',
             ';'
@@ -572,7 +569,6 @@ module Expressir
           *if node.declarations and node.declarations.length > 0
             node.declarations.map{|x| format(x)}.join("\n\n")
           end,
-          *format_scope_remarks(node),
           [
             'END_SCHEMA',
             ';'
@@ -640,7 +636,6 @@ module Expressir
               indent(node.where.map{|x| format(x)}.join("\n"))
             ].join("\n"))
           end,
-          *format_scope_remarks(node),
           [
             'END_TYPE',
             ';'
@@ -842,7 +837,7 @@ module Expressir
           '|',
           ' ',
           format(node.expression),
-          *format_scope_remarks(node).instance_eval{|x| x.length > 0 ? ["\n", *x, "\n"] : x},
+          *format_remarks(node).instance_eval{|x| x.length > 0 ? ["\n", *x, "\n"] : x},
           ')'
         ].join('')
       end
@@ -925,7 +920,7 @@ module Expressir
           *if node.statements and node.statements.length > 0
             indent(node.statements.map{|x| format(x)}.join("\n"))
           end,
-          *format_scope_remarks(node),
+          *format_remarks(node),
           [
             'END_ALIAS',
             ';'
@@ -1094,7 +1089,7 @@ module Expressir
           *if node.statements and node.statements.length > 0
             indent(node.statements.map{|x| format(x)}.join("\n"))
           end,
-          *format_scope_remarks(node),
+          *format_remarks(node),
           [
             'END_REPEAT',
             ';'
@@ -1392,6 +1387,18 @@ module Expressir
         str.split("\n").map{|x| "#{INDENT}#{x}"}.join("\n")
       end
 
+      def format_remark_ref(node)
+        [
+          *if node.class.method_defined? :parent and node.parent.class.method_defined? :id and node.parent != node
+            [
+              format_remark_ref(node.parent),
+              '.'
+            ].join('')
+          end,
+          node.id,
+        ].join('')
+      end
+
       def format_remark(node, remark)
         if remark.include?("\n")
           [
@@ -1416,28 +1423,27 @@ module Expressir
         end
       end
 
-      def format_remark_ref(node)
-        [
-          *if node.class.method_defined? :parent and node.parent.class.method_defined? :id and node.parent != node
-            [
-              node.parent.id,
-              '.'
-            ].join('')
-          end,
-          node.id,
-        ].join('')
+      def format_remarks(node)
+        if node.class.method_defined? :remarks and node.remarks and node.remarks.length > 0
+          node.remarks.map do |remark|
+            format_remark(node, remark)
+          end
+        else
+          []
+        end
       end
 
       def format_scope_remarks(node)
-        node.children.flat_map do |x|
-          if x.remarks and x.remarks.length > 0
-            x.remarks.map do |remark|
-              format_remark(x, remark)
+        [
+          *format_remarks(node),
+          *if node.class.method_defined? :children
+            node.children.flat_map do |x|
+              if x != node
+                format_scope_remarks(x)
+              end
             end
-          else
-            []
           end
-        end
+        ]
       end
     end
   end

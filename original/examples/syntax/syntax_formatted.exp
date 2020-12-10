@@ -402,6 +402,93 @@ PROCEDURE statement_procedure;
   ;
 END_PROCEDURE;
 
+RULE empty_rule FOR (empty_entity);
+  WHERE
+    TRUE;
+END_RULE;
+
+RULE type_rule FOR (empty_entity);
+  TYPE test = BOOLEAN;
+  END_TYPE;
+  WHERE
+    TRUE;
+END_RULE;
+
+RULE constant_rule FOR (empty_entity);
+  CONSTANT
+    test : BOOLEAN := TRUE;
+  END_CONSTANT;
+  WHERE
+    TRUE;
+END_RULE;
+
+RULE multiple_constant_rule FOR (empty_entity);
+  CONSTANT
+    test : BOOLEAN := TRUE;
+    test2 : BOOLEAN := TRUE;
+  END_CONSTANT;
+  WHERE
+    TRUE;
+END_RULE;
+
+RULE variable_rule FOR (empty_entity);
+  LOCAL
+    test : BOOLEAN;
+  END_LOCAL;
+  WHERE
+    TRUE;
+END_RULE;
+
+RULE multiple_variable_rule FOR (empty_entity);
+  LOCAL
+    test : BOOLEAN;
+    test2 : BOOLEAN;
+  END_LOCAL;
+  WHERE
+    TRUE;
+END_RULE;
+
+RULE multiple_shorthand_variable_rule FOR (empty_entity);
+  LOCAL
+    test : BOOLEAN;
+    test2 : BOOLEAN;
+  END_LOCAL;
+  WHERE
+    TRUE;
+END_RULE;
+
+RULE variable_expression_rule FOR (empty_entity);
+  LOCAL
+    test : BOOLEAN := TRUE;
+  END_LOCAL;
+  WHERE
+    TRUE;
+END_RULE;
+
+RULE multiple_variable_expression_rule FOR (empty_entity);
+  LOCAL
+    test : BOOLEAN := TRUE;
+    test2 : BOOLEAN := TRUE;
+  END_LOCAL;
+  WHERE
+    TRUE;
+END_RULE;
+
+RULE multiple_shorthand_variable_expression_rule FOR (empty_entity);
+  LOCAL
+    test : BOOLEAN := TRUE;
+    test2 : BOOLEAN := TRUE;
+  END_LOCAL;
+  WHERE
+    TRUE;
+END_RULE;
+
+RULE statement_rule FOR (empty_entity);
+  ;
+  WHERE
+    TRUE;
+END_RULE;
+
 TYPE binary_type = BINARY;
 END_TYPE;
 
@@ -1097,91 +1184,4 @@ END_FUNCTION;
 FUNCTION query_expression : BOOLEAN;
   RETURN (QUERY(test <* test2 | TRUE));
 END_FUNCTION;
-
-RULE empty_rule FOR (empty_entity);
-  WHERE
-    TRUE;
-END_RULE;
-
-RULE type_rule FOR (empty_entity);
-  TYPE test = BOOLEAN;
-  END_TYPE;
-  WHERE
-    TRUE;
-END_RULE;
-
-RULE constant_rule FOR (empty_entity);
-  CONSTANT
-    test : BOOLEAN := TRUE;
-  END_CONSTANT;
-  WHERE
-    TRUE;
-END_RULE;
-
-RULE multiple_constant_rule FOR (empty_entity);
-  CONSTANT
-    test : BOOLEAN := TRUE;
-    test2 : BOOLEAN := TRUE;
-  END_CONSTANT;
-  WHERE
-    TRUE;
-END_RULE;
-
-RULE variable_rule FOR (empty_entity);
-  LOCAL
-    test : BOOLEAN;
-  END_LOCAL;
-  WHERE
-    TRUE;
-END_RULE;
-
-RULE multiple_variable_rule FOR (empty_entity);
-  LOCAL
-    test : BOOLEAN;
-    test2 : BOOLEAN;
-  END_LOCAL;
-  WHERE
-    TRUE;
-END_RULE;
-
-RULE multiple_shorthand_variable_rule FOR (empty_entity);
-  LOCAL
-    test : BOOLEAN;
-    test2 : BOOLEAN;
-  END_LOCAL;
-  WHERE
-    TRUE;
-END_RULE;
-
-RULE variable_expression_rule FOR (empty_entity);
-  LOCAL
-    test : BOOLEAN := TRUE;
-  END_LOCAL;
-  WHERE
-    TRUE;
-END_RULE;
-
-RULE multiple_variable_expression_rule FOR (empty_entity);
-  LOCAL
-    test : BOOLEAN := TRUE;
-    test2 : BOOLEAN := TRUE;
-  END_LOCAL;
-  WHERE
-    TRUE;
-END_RULE;
-
-RULE multiple_shorthand_variable_expression_rule FOR (empty_entity);
-  LOCAL
-    test : BOOLEAN := TRUE;
-    test2 : BOOLEAN := TRUE;
-  END_LOCAL;
-  WHERE
-    TRUE;
-END_RULE;
-
-RULE statement_rule FOR (empty_entity);
-  ;
-  WHERE
-    TRUE;
-END_RULE;
 END_SCHEMA;

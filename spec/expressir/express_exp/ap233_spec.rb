@@ -1,5 +1,5 @@
 require "spec_helper"
-require_relative "../../../lib/expressir/express_exp/parser"
+require "expressir/express_exp/parser"
 
 RSpec.describe Expressir::ExpressExp::Parser do
   describe ".from_file" do

@@ -1,4 +1,4 @@
-require 'expressir/express_exp/generated/ExpressBaseVisitor'
+require 'express_parser'
 require 'expressir/model'
 
 # static shorthands are unwrapped
@@ -23,19 +23,33 @@ require 'expressir/model'
 
 module Expressir
   module ExpressExp
-    class Visitor < Generated::ExpressBaseVisitor
+    class Visitor < ::ExpressParser::Visitor
       REMARK_CHANNEL = 2
 
       def initialize(tokens)
         @tokens = tokens
         @attached_remarks = Set.new
+
+        super()
       end
 
       def visit(ctx)
         result = super(ctx)
-        attach_parent(ctx, result)
-        attach_remarks(ctx, result)
+        # attach_parent(ctx, result)
+        # attach_remarks(ctx, result)
         result
+      end
+
+      def visit_if(ctx)
+        visit(ctx) if ctx
+      end
+    
+      def visit_if_map(ctx)
+        ctx.map{|ctx2| visit(ctx2)} if ctx
+      end
+    
+      def visit_if_map_flatten(ctx)
+        ctx.map{|ctx2| visit(ctx2)}.flatten if ctx
       end
 
       def attach_parent(ctx, node)
@@ -50,7 +64,7 @@ module Expressir
 
       def attach_remarks(ctx, node)
         # get remark tokens
-        start_index, stop_index = if ctx.instance_of? Generated::ExpressParser::SyntaxContext
+        start_index, stop_index = if ctx.instance_of? ExpressParser::Parser::SyntaxContext
           [0, @tokens.size - 1]
         else
           [ctx.start.token_index, ctx.stop.token_index]
@@ -102,165 +116,208 @@ module Expressir
         end
       end
 
-      def visitAttributeRef(ctx)
-        id = visit(ctx.attributeId())
+      def visit_attribute_ref(ctx)
+        ctx__attribute_id = ctx.attribute_id
+
+        id = visit_if(ctx__attribute_id)
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitConstantRef(ctx)
-        id = visit(ctx.constantId())
+      def visit_constant_ref(ctx)
+        ctx__constant_id = ctx.constant_id
+
+        id = visit_if(ctx__constant_id)
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitEntityRef(ctx)
-        id = visit(ctx.entityId())
+      def visit_entity_ref(ctx)
+        ctx__entity_id = ctx.entity_id
+
+        id = visit_if(ctx__entity_id)
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitEnumerationRef(ctx)
-        id = visit(ctx.enumerationId())
+      def visit_enumeration_ref(ctx)
+        ctx__enumeration_id = ctx.enumeration_id
+
+        id = visit_if(ctx__enumeration_id)
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitFunctionRef(ctx)
-        id = visit(ctx.functionId())
+      def visit_function_ref(ctx)
+        ctx__function_id = ctx.function_id
+
+        id = visit_if(ctx__function_id)
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitParameterRef(ctx)
-        id = visit(ctx.parameterId())
+      def visit_parameter_ref(ctx)
+        ctx__parameter_id = ctx.parameter_id
+
+        id = visit_if(ctx__parameter_id)
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitProcedureRef(ctx)
-        id = visit(ctx.procedureId())
+      def visit_procedure_ref(ctx)
+        ctx__procedure_id = ctx.procedure_id
+
+        id = visit_if(ctx__procedure_id)
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitRuleLabelRef(ctx)
-        id = visit(ctx.ruleLabelId())
+      def visit_rule_label_ref(ctx)
+        ctx__rule_label_id = ctx.rule_label_id
+
+        id = visit_if(ctx__rule_label_id)
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitRuleRef(ctx)
-        id = visit(ctx.ruleId())
+      def visit_rule_ref(ctx)
+        ctx__rule_id = ctx.rule_id
+
+        id = visit_if(ctx__rule_id)
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitSchemaRef(ctx)
-        id = visit(ctx.schemaId())
+      def visit_schema_ref(ctx)
+        ctx__schema_id = ctx.schema_id
+
+        id = visit_if(ctx__schema_id)
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitSubtypeConstraintRef(ctx)
-        id = visit(ctx.subtypeConstraintId())
+      def visit_subtype_constraint_ref(ctx)
+        ctx__subtype_constraint_id = ctx.subtype_constraint_id
+
+        id = visit_if(ctx__subtype_constraint_id)
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitTypeLabelRef(ctx)
-        id = visit(ctx.typeLabelId())
+      def visit_type_label_ref(ctx)
+        ctx__type_label_id = ctx.type_label_id
+
+        id = visit_if(ctx__type_label_id)
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitTypeRef(ctx)
-        id = visit(ctx.typeId())
+      def visit_type_ref(ctx)
+        ctx__type_id = ctx.type_id
+
+        id = visit_if(ctx__type_id)
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitVariableRef(ctx)
-        id = visit(ctx.variableId())
+      def visit_variable_ref(ctx)
+        ctx__variable_id = ctx.variable_id
+
+        id = visit_if(ctx__variable_id)
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitAbstractEntityDeclaration(ctx)
+      def visit_abstract_entity_declaration(ctx)
         raise 'Invalid state'
       end
 
-      def visitAbstractSupertype(ctx)
+      def visit_abstract_supertype(ctx)
         raise 'Invalid state'
       end
 
-      def visitAbstractSupertypeDeclaration(ctx)
-        raise 'Invalid state'
+      def visit_abstract_supertype_declaration(ctx)
+        ctx__subtype_constraint = ctx.subtype_constraint
+
+        visit_if(ctx__subtype_constraint)
       end
 
-      def visitActualParameterList(ctx)
-        raise 'Invalid state'
+      def visit_actual_parameter_list(ctx)
+        ctx__parameter = ctx.parameter
+
+        visit_if_map(ctx__parameter)
       end
 
-      def visitAddLikeOp(ctx)
-        if ctx.text == '+'
+      def visit_add_like_op(ctx)
+        ctx__text = ctx.text
+        ctx__ADDITION = ctx__text == '+'
+        ctx__SUBTRACTION = ctx__text == '-'
+        ctx__OR = ctx.OR
+        ctx__XOR = ctx.XOR
+
+        if ctx__ADDITION
           Model::Expressions::BinaryExpression::ADDITION
-        elsif ctx.text == '-'
+        elsif ctx__SUBTRACTION
           Model::Expressions::BinaryExpression::SUBTRACTION
-        elsif ctx.OR()
+        elsif ctx__OR
           Model::Expressions::BinaryExpression::OR
-        elsif ctx.XOR()
+        elsif ctx__XOR
           Model::Expressions::BinaryExpression::XOR
         else
           raise 'Invalid state'
         end
       end
 
-      def visitAggregateInitializer(ctx)
-        items = ctx.element().map{|ctx| visit(ctx)}
+      def visit_aggregate_initializer(ctx)
+        ctx__element = ctx.element
+
+        items = visit_if_map(ctx__element)
 
         Model::Expressions::AggregateInitializer.new({
           items: items
         })
       end
 
-      def visitAggregateSource(ctx)
-        raise 'Invalid state'
+      def visit_aggregate_source(ctx)
+        ctx__simple_expression = ctx.simple_expression
+
+        visit_if(ctx__simple_expression)
       end
 
-      def visitAggregateType(ctx)
-        id = if ctx.typeLabel()
-          visit(ctx.typeLabel())
-        end
-        base_type = visit(ctx.parameterType())
+      def visit_aggregate_type(ctx)
+        ctx__type_label = ctx.type_label
+        ctx__parameter_type = ctx.parameter_type
+
+        id = visit_if(ctx__type_label)
+        base_type = visit_if(ctx__parameter_type)
 
         Model::Types::Aggregate.new({
           id: id,
@@ -268,28 +325,28 @@ module Expressir
         })
       end
 
-      def visitAggregationTypes(ctx)
-        if ctx.arrayType()
-          visit(ctx.arrayType())
-        elsif ctx.bagType()
-          visit(ctx.bagType())
-        elsif ctx.listType()
-          visit(ctx.listType())
-        elsif ctx.setType()
-          visit(ctx.setType())
-        else
-          raise 'Invalid state'
-        end
+      def visit_aggregation_types(ctx)
+        ctx__array_type = ctx.array_type
+        ctx__bag_type = ctx.bag_type
+        ctx__list_type = ctx.list_type
+        ctx__set_type = ctx.set_type
+
+        visit_if(ctx__array_type || ctx__bag_type || ctx__list_type || ctx__set_type)
       end
 
-      def visitAlgorithmHead(ctx)
+      def visit_algorithm_head(ctx)
         raise 'Invalid state'
       end
 
-      def visitAliasStmt(ctx)
-        id = visit(ctx.variableId())
-        expression = handleQualifiedRef(visit(ctx.generalRef()), ctx.qualifier())
-        statements = ctx.stmt().map{|ctx| visit(ctx)}
+      def visit_alias_stmt(ctx)
+        ctx__variable_id = ctx.variable_id
+        ctx__general_ref = ctx.general_ref
+        ctx__qualifier = ctx.qualifier
+        ctx__stmt = ctx.stmt
+
+        id = visit_if(ctx__variable_id)
+        expression = handle_qualified_ref(visit_if(ctx__general_ref), ctx__qualifier)
+        statements = visit_if_map(ctx__stmt)
 
         Model::Statements::Alias.new({
           id: id,
@@ -298,12 +355,19 @@ module Expressir
         })
       end
 
-      def visitArrayType(ctx)
-        bound1 = visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
-        bound2 = visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-        optional = !!ctx.OPTIONAL()
-        unique = !!ctx.UNIQUE()
-        base_type = visit(ctx.instantiableType())
+      def visit_array_type(ctx)
+        ctx__bound_spec = ctx.bound_spec
+        ctx__OPTIONAL = ctx.OPTIONAL
+        ctx__UNIQUE = ctx.UNIQUE
+        ctx__instantiable_type = ctx.instantiable_type
+        ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
+        ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
+
+        bound1 = visit_if(ctx__bound_spec__bound1)
+        bound2 = visit_if(ctx__bound_spec__bound2)
+        optional = !!ctx__OPTIONAL
+        unique = !!ctx__UNIQUE
+        base_type = visit_if(ctx__instantiable_type)
         
         Model::Types::Array.new({
           bound1: bound1,
@@ -314,9 +378,13 @@ module Expressir
         })
       end
 
-      def visitAssignmentStmt(ctx)
-        ref = handleQualifiedRef(visit(ctx.generalRef()), ctx.qualifier())
-        expression = visit(ctx.expression())
+      def visit_assignment_stmt(ctx)
+        ctx__general_ref = ctx.general_ref
+        ctx__qualifier = ctx.qualifier
+        ctx__expression = ctx.expression
+
+        ref = handle_qualified_ref(visit_if(ctx__general_ref), ctx__qualifier)
+        expression = visit_if(ctx__expression)
 
         Model::Statements::Assignment.new({
           ref: ref,
@@ -324,26 +392,50 @@ module Expressir
         })
       end
 
-      def visitAttributeDecl(ctx)
+      def visit_attribute_decl(ctx)
+        ctx__attribute_id = ctx.attribute_id
+        ctx__redeclared_attribute = ctx.redeclared_attribute
+        ctx__redeclared_attribute__qualified_attribute = ctx__redeclared_attribute&.qualified_attribute
+        ctx__redeclared_attribute__attribute_id = ctx__redeclared_attribute&.attribute_id
+
+        id = visit_if(ctx__attribute_id || ctx__redeclared_attribute__attribute_id)
+        supertype_attribute = visit_if(ctx__redeclared_attribute__qualified_attribute)
+
+        Model::Attribute.new({
+          id: id,
+          supertype_attribute: supertype_attribute
+        })
+      end
+
+      def visit_attribute_id(ctx)
+        ctx__SimpleId = ctx.SimpleId
+
+        handle_simple_id(ctx__SimpleId)
+      end
+
+      def visit_attribute_qualifier(ctx)
+        ctx__attribute_ref = ctx.attribute_ref
+
+        attribute = visit_if(ctx__attribute_ref)
+
+        Model::Expressions::AttributeReference.new({
+          attribute: attribute
+        })
+      end
+
+      def visit_attribute_reference(ctx)
         raise 'Invalid state'
       end
 
-      def visitAttributeId(ctx)
-        handleSimpleId(ctx.SimpleId())
-      end
+      def visit_bag_type(ctx)
+        ctx__bound_spec = ctx.bound_spec
+        ctx__instantiable_type = ctx.instantiable_type
+        ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
+        ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
 
-      def visitAttributeReference(ctx)
-        raise 'Invalid state'
-      end
-
-      def visitBagType(ctx)
-        bound1 = if ctx.boundSpec()
-          visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
-        end
-        bound2 = if ctx.boundSpec()
-          visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-        end
-        base_type = visit(ctx.instantiableType())
+        bound1 = visit_if(ctx__bound_spec__bound1)
+        bound2 = visit_if(ctx__bound_spec__bound2)
+        base_type = visit_if(ctx__instantiable_type)
         
         Model::Types::Bag.new({
           bound1: bound1,
@@ -352,13 +444,13 @@ module Expressir
         })
       end
 
-      def visitBinaryType(ctx)
-        width = if ctx.widthSpec()
-          visit(ctx.widthSpec().width().numericExpression().simpleExpression())
-        end
-        fixed = if ctx.widthSpec()
-          !!ctx.widthSpec().FIXED()
-        end
+      def visit_binary_type(ctx)
+        ctx__width_spec = ctx.width_spec
+        ctx__width_spec__width = ctx__width_spec&.width
+        ctx__width_spec__FIXED = ctx__width_spec&.FIXED
+
+        width = visit_if(ctx__width_spec__width)
+        fixed = !!ctx__width_spec__FIXED
 
         Model::Types::Binary.new({
           width: width,
@@ -366,49 +458,62 @@ module Expressir
         })
       end
 
-      def visitBooleanType(ctx)
-        Model::Types::Boolean.new()
+      def visit_boolean_type(ctx)
+        Model::Types::Boolean.new
       end
 
-      def visitBound1(ctx)
+      def visit_bound1(ctx)
+        ctx__numeric_expression = ctx.numeric_expression
+
+        visit_if(ctx__numeric_expression)
+      end
+
+      def visit_bound2(ctx)
+        ctx__numeric_expression = ctx.numeric_expression
+
+        visit_if(ctx__numeric_expression)
+      end
+
+      def visit_bound_spec(ctx)
         raise 'Invalid state'
       end
 
-      def visitBound2(ctx)
-        raise 'Invalid state'
-      end
+      def visit_built_in_constant(ctx)
+        ctx__text = ctx.text
 
-      def visitBoundSpec(ctx)
-        raise 'Invalid state'
-      end
-
-      def visitBuiltInConstant(ctx)
-        id = ctx.text
+        id = ctx__text
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitBuiltInFunction(ctx)
-        id = ctx.text
+      def visit_built_in_function(ctx)
+        ctx__text = ctx.text
+
+        id = ctx__text
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitBuiltInProcedure(ctx)
-        id = ctx.text
+      def visit_built_in_procedure(ctx)
+        ctx__text = ctx.text
+
+        id = ctx__text
 
         Model::Expressions::SimpleReference.new({
           id: id
         })
       end
 
-      def visitCaseAction(ctx)
-        labels = ctx.caseLabel().map{|ctx| visit(ctx.expression())}
-        statement = visit(ctx.stmt())
+      def visit_case_action(ctx)
+        ctx__case_label = ctx.case_label
+        ctx__stmt = ctx.stmt
+
+        labels = visit_if_map(ctx__case_label)
+        statement = visit_if(ctx__stmt)
 
         Model::Statements::CaseAction.new({
           labels: labels,
@@ -416,16 +521,21 @@ module Expressir
         })
       end
 
-      def visitCaseLabel(ctx)
-        raise 'Invalid state'
+      def visit_case_label(ctx)
+        ctx__expression = ctx.expression
+
+        visit_if(ctx__expression)
       end
 
-      def visitCaseStmt(ctx)
-        expression = visit(ctx.selector().expression())
-        actions = ctx.caseAction().map{|ctx| visit(ctx)}.flatten
-        otherwise_statement = if ctx.stmt()
-          visit(ctx.stmt())
-        end
+      def visit_case_stmt(ctx)
+        ctx__selector = ctx.selector
+        ctx__case_action = ctx.case_action
+        ctx__stmt = ctx.stmt
+        ctx__selector__expression = ctx__selector&.expression
+
+        expression = visit_if(ctx__selector__expression)
+        actions = visit_if_map_flatten(ctx__case_action)
+        otherwise_statement = visit_if(ctx__stmt)
 
         Model::Statements::Case.new({
           expression: expression,
@@ -434,30 +544,32 @@ module Expressir
         })
       end
 
-      def visitCompoundStmt(ctx)
-        statements = ctx.stmt().map{|ctx| visit(ctx)}
+      def visit_compound_stmt(ctx)
+        ctx__stmt = ctx.stmt
+
+        statements = visit_if_map(ctx__stmt)
 
         Model::Statements::Compound.new({
           statements: statements
         })
       end
 
-      def visitConcreteTypes(ctx)
-        if ctx.aggregationTypes()
-          visit(ctx.aggregationTypes())
-        elsif ctx.simpleTypes()
-          visit(ctx.simpleTypes())
-        elsif ctx.typeRef()
-          visit(ctx.typeRef())
-        else
-          raise 'Invalid state'
-        end
+      def visit_concrete_types(ctx)
+        ctx__aggregation_types = ctx.aggregation_types
+        ctx__simple_types = ctx.simple_types
+        ctx__type_ref = ctx.type_ref
+
+        visit_if(ctx__aggregation_types || ctx__simple_types || ctx__type_ref)
       end
 
-      def visitConstantBody(ctx)
-        id = visit(ctx.constantId())
-        type = visit(ctx.instantiableType())
-        expression = visit(ctx.expression())
+      def visit_constant_body(ctx)
+        ctx__constant_id = ctx.constant_id
+        ctx__instantiable_type = ctx.instantiable_type
+        ctx__expression = ctx.expression
+
+        id = visit_if(ctx__constant_id)
+        type = visit_if(ctx__instantiable_type)
+        expression = visit_if(ctx__expression)
 
         Model::Constant.new({
           id: id,
@@ -466,80 +578,72 @@ module Expressir
         })
       end
 
-      def visitConstantDecl(ctx)
-        raise 'Invalid state'
+      def visit_constant_decl(ctx)
+        ctx__constant_body = ctx.constant_body
+
+        visit_if_map(ctx__constant_body)
       end
 
-      def visitConstantFactor(ctx)
-        if ctx.builtInConstant()
-          visit(ctx.builtInConstant())
-        elsif ctx.constantRef()
-          visit(ctx.constantRef())
-        else
-          raise 'Invalid state'
-        end
+      def visit_constant_factor(ctx)
+        ctx__built_in_constant = ctx.built_in_constant
+        ctx__constant_ref = ctx.constant_ref
+
+        visit_if(ctx__built_in_constant || ctx__constant_ref)
       end
 
-      def visitConstantId(ctx)
-        handleSimpleId(ctx.SimpleId())
+      def visit_constant_id(ctx)
+        ctx__SimpleId = ctx.SimpleId
+
+        handle_simple_id(ctx__SimpleId)
       end
 
-      def visitConstructedTypes(ctx)
-        if ctx.enumerationType()
-          visit(ctx.enumerationType())
-        elsif ctx.selectType()
-          visit(ctx.selectType())
-        else
-          raise 'Invalid state'
-        end
+      def visit_constructed_types(ctx)
+        ctx__enumeration_type = ctx.enumeration_type
+        ctx__select_type = ctx.select_type
+
+        visit_if(ctx__enumeration_type || ctx__select_type)
       end
 
-      def visitDeclaration(ctx)
-        if ctx.entityDecl()
-          visit(ctx.entityDecl())
-        elsif ctx.functionDecl()
-          visit(ctx.functionDecl())
-        elsif ctx.procedureDecl()
-          visit(ctx.procedureDecl())
-        elsif ctx.subtypeConstraintDecl()
-          visit(ctx.subtypeConstraintDecl())
-        elsif ctx.typeDecl()
-          visit(ctx.typeDecl())
-        else
-          raise 'Invalid state'
-        end
+      def visit_declaration(ctx)
+        ctx__entity_decl = ctx.entity_decl
+        ctx__function_decl = ctx.function_decl
+        ctx__procedure_decl = ctx.procedure_decl
+        ctx__subtype_constraint_decl = ctx.subtype_constraint_decl
+        ctx__type_decl = ctx.type_decl
+
+        visit_if(ctx__entity_decl || ctx__function_decl || ctx__procedure_decl || ctx__subtype_constraint_decl || ctx__type_decl)
       end
 
-      def visitDerivedAttr(ctx)
-        supertype_attribute = if ctx.attributeDecl().redeclaredAttribute() && ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute()
-          visit(ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute())
-        end
-        id = if ctx.attributeDecl().attributeId()
-          visit(ctx.attributeDecl().attributeId())
-        elsif ctx.attributeDecl().redeclaredAttribute() && ctx.attributeDecl().redeclaredAttribute().attributeId()
-          visit(ctx.attributeDecl().redeclaredAttribute().attributeId())
-        end
-        type = visit(ctx.parameterType())
-        expression = visit(ctx.expression())
+      def visit_derived_attr(ctx)
+        ctx__attribute_decl = ctx.attribute_decl
+        ctx__parameter_type = ctx.parameter_type
+        ctx__expression = ctx.expression
+
+        attribute = visit_if(ctx__attribute_decl)
+        type = visit_if(ctx__parameter_type)
+        expression = visit_if(ctx__expression)
 
         Model::Attribute.new({
-          id: id,
+          id: attribute.id,
           kind: Model::Attribute::DERIVED,
-          supertype_attribute: supertype_attribute,
+          supertype_attribute: attribute.supertype_attribute,
           type: type,
           expression: expression
         })
       end
 
-      def visitDeriveClause(ctx)
-        raise 'Invalid state'
+      def visit_derive_clause(ctx)
+        ctx__derived_attr = ctx.derived_attr
+
+        visit_if_map(ctx__derived_attr)
       end
 
-      def visitDomainRule(ctx)
-        id = if ctx.ruleLabelId()
-          visit(ctx.ruleLabelId())
-        end
-        expression = visit(ctx.expression())
+      def visit_domain_rule(ctx)
+        ctx__rule_label_id = ctx.rule_label_id
+        ctx__expression = ctx.expression
+
+        id = visit_if(ctx__rule_label_id)
+        expression = visit_if(ctx__expression)
 
         Model::Where.new({
           id: id,
@@ -547,27 +651,33 @@ module Expressir
         })
       end
 
-      def visitElement(ctx)
-        if ctx.repetition()
-          expression = visit(ctx.expression())
-          repetition = visit(ctx.repetition().numericExpression().simpleExpression())
+      def visit_element(ctx)
+        ctx__expression = ctx.expression
+        ctx__repetition = ctx.repetition
+
+        if ctx__repetition
+          expression = visit_if(ctx__expression)
+          repetition = visit_if(ctx__repetition)
 
           Model::Expressions::AggregateItem.new({
             expression: expression,
             repetition: repetition
           })
         else
-          visit(ctx.expression())
+          visit_if(ctx__expression)
         end
       end
 
-      def visitEntityBody(ctx)
+      def visit_entity_body(ctx)
         raise 'Invalid state'
       end
 
-      def visitEntityConstructor(ctx)
-        ref = visit(ctx.entityRef())
-        parameters = ctx.expression().map{|ctx| visit(ctx)}
+      def visit_entity_constructor(ctx)
+        ctx__entity_ref = ctx.entity_ref
+        ctx__expression = ctx.expression
+
+        ref = visit_if(ctx__entity_ref)
+        parameters = visit_if_map(ctx__expression)
 
         Model::Expressions::Call.new({
           ref: ref,
@@ -575,34 +685,33 @@ module Expressir
         })
       end
 
-      def visitEntityDecl(ctx)
-        id = visit(ctx.entityHead().entityId())
-        abstract = if ctx.entityHead().subsuper().supertypeConstraint()
-          !!ctx.entityHead().subsuper().supertypeConstraint().abstractEntityDeclaration() || !!ctx.entityHead().subsuper().supertypeConstraint().abstractSupertypeDeclaration()
-        end
-        supertype_expression = if ctx.entityHead().subsuper().supertypeConstraint() && ctx.entityHead().subsuper().supertypeConstraint().abstractSupertypeDeclaration() && ctx.entityHead().subsuper().supertypeConstraint().abstractSupertypeDeclaration().subtypeConstraint()
-          visit(ctx.entityHead().subsuper().supertypeConstraint().abstractSupertypeDeclaration().subtypeConstraint().supertypeExpression())
-        elsif ctx.entityHead().subsuper().supertypeConstraint() && ctx.entityHead().subsuper().supertypeConstraint().supertypeRule()
-          visit(ctx.entityHead().subsuper().supertypeConstraint().supertypeRule().subtypeConstraint().supertypeExpression())
-        end
-        subtype_of = if ctx.entityHead().subsuper().subtypeDeclaration()
-          ctx.entityHead().subsuper().subtypeDeclaration().entityRef().map{|ctx| visit(ctx)}
-        end
+      def visit_entity_decl(ctx)
+        ctx__entity_head = ctx.entity_head
+        ctx__entity_body = ctx.entity_body
+        ctx__entity_head__entity_id = ctx__entity_head&.entity_id
+        ctx__entity_head__subsuper = ctx__entity_head&.subsuper
+        ctx__entity_head__subsuper__supertype_constraint = ctx__entity_head__subsuper&.supertype_constraint
+        ctx__entity_head__subsuper__supertype_constraint__abstract_entity_declaration = ctx__entity_head__subsuper__supertype_constraint&.abstract_entity_declaration
+        ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration = ctx__entity_head__subsuper__supertype_constraint&.abstract_supertype_declaration
+        ctx__entity_head__subsuper__supertype_constraint__supertype_rule = ctx__entity_head__subsuper__supertype_constraint&.supertype_rule
+        ctx__entity_head__subsuper__subtype_declaration = ctx__entity_head__subsuper&.subtype_declaration
+        ctx__entity_body__explicit_attr = ctx__entity_body&.explicit_attr
+        ctx__entity_body__derive_clause = ctx__entity_body&.derive_clause
+        ctx__entity_body__inverse_clause = ctx__entity_body&.inverse_clause
+        ctx__entity_body__unique_clause = ctx__entity_body&.unique_clause
+        ctx__entity_body__where_clause = ctx__entity_body&.where_clause
+
+        id = visit_if(ctx__entity_head__entity_id)
+        abstract = !!(ctx__entity_head__subsuper__supertype_constraint__abstract_entity_declaration || ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration)
+        supertype_expression = visit_if(ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration || ctx__entity_head__subsuper__supertype_constraint__supertype_rule)
+        subtype_of = visit_if(ctx__entity_head__subsuper__subtype_declaration)
         attributes = [
-          *ctx.entityBody().explicitAttr().map{|ctx| visit(ctx)}.flatten,
-          *if ctx.entityBody().deriveClause()
-            ctx.entityBody().deriveClause().derivedAttr().map{|ctx| visit(ctx)}
-          end,
-          *if ctx.entityBody().inverseClause()
-            ctx.entityBody().inverseClause().inverseAttr().map{|ctx| visit(ctx)}
-          end
+          *visit_if_map_flatten(ctx__entity_body__explicit_attr),
+          *visit_if(ctx__entity_body__derive_clause),
+          *visit_if(ctx__entity_body__inverse_clause)
         ]
-        unique = if ctx.entityBody().uniqueClause()
-          ctx.entityBody().uniqueClause().uniqueRule().map{|ctx| visit(ctx)}
-        end
-        where = if ctx.entityBody().whereClause()
-          ctx.entityBody().whereClause().domainRule().map{|ctx| visit(ctx)}
-        end
+        unique = visit_if(ctx__entity_body__unique_clause)
+        where = visit_if(ctx__entity_body__where_clause)
 
         Model::Entity.new({
           id: id,
@@ -615,51 +724,70 @@ module Expressir
         })
       end
 
-      def visitEntityHead(ctx)
+      def visit_entity_head(ctx)
         raise 'Invalid state'
       end
 
-      def visitEntityId(ctx)
-        handleSimpleId(ctx.SimpleId())
+      def visit_entity_id(ctx)
+        ctx__SimpleId = ctx.SimpleId
+
+        handle_simple_id(ctx__SimpleId)
       end
 
-      def visitEnumerationExtension(ctx)
+      def visit_enumeration_extension(ctx)
         raise 'Invalid state'
       end
 
-      def visitEnumerationId(ctx)
-        handleSimpleId(ctx.SimpleId())
+      def visit_enumeration_id(ctx)
+        ctx__SimpleId = ctx.SimpleId
+
+        handle_simple_id(ctx__SimpleId)
       end
 
-      def visitEnumerationItems(ctx)
-        raise 'Invalid state'
+      def visit_enumeration_items(ctx)
+        ctx__enumeration_item = ctx.enumeration_item
+
+        visit_if_map(ctx__enumeration_item)
       end
 
-      def visitEnumerationReference(ctx)
-        if ctx.typeRef()
-          ref = visit(ctx.typeRef())
-          attribute = visit(ctx.enumerationRef())
+      def visit_enumeration_item(ctx)
+        ctx__enumeration_id = ctx.enumeration_id
+
+        id = visit_if(ctx__enumeration_id)
+
+        Model::EnumerationItem.new({
+          id: id
+        })
+      end
+
+      def visit_enumeration_reference(ctx)
+        ctx__type_ref = ctx.type_ref
+        ctx__enumeration_ref = ctx.enumeration_ref
+
+        if ctx__type_ref
+          ref = visit_if(ctx__type_ref)
+          attribute = visit_if(ctx__enumeration_ref)
   
           Model::Expressions::AttributeReference.new({
             ref: ref,
             attribute: attribute
           })
         else
-          visit(ctx.enumerationRef())
+          visit_if(ctx__enumeration_ref)
         end
       end
 
-      def visitEnumerationType(ctx)
-        extensible = !!ctx.EXTENSIBLE()
-        items = if ctx.enumerationItems()
-          ctx.enumerationItems().enumerationId().map{|ctx| handleEnumerationItem(ctx)}
-        end
-        extension_type = if ctx.enumerationExtension()
-          visit(ctx.enumerationExtension().typeRef())
-        end
-        extension_items = if ctx.enumerationExtension() && ctx.enumerationExtension().enumerationItems()
-          ctx.enumerationExtension().enumerationItems().enumerationId().map{|ctx| handleEnumerationItem(ctx)}
-        end
+      def visit_enumeration_type(ctx)
+        ctx__EXTENSIBLE = ctx.EXTENSIBLE
+        ctx__enumeration_items = ctx.enumeration_items
+        ctx__enumeration_extension = ctx.enumeration_extension
+        ctx__enumeration_extension__type_ref = ctx__enumeration_extension&.type_ref
+        ctx__enumeration_extension__enumeration_items = ctx__enumeration_extension&.enumeration_items
+
+        extensible = !!ctx__EXTENSIBLE
+        items = visit_if(ctx__enumeration_items)
+        extension_type = visit_if(ctx__enumeration_extension__type_ref)
+        extension_items = visit_if(ctx__enumeration_extension__enumeration_items)
 
         Model::Types::Enumeration.new({
           extensible: extensible,
@@ -669,40 +797,38 @@ module Expressir
         })
       end
 
-      def visitEscapeStmt(ctx)
-        Model::Statements::Escape.new()
+      def visit_escape_stmt(ctx)
+        Model::Statements::Escape.new
       end
 
-      def visitExplicitAttr(ctx)
-        decls = ctx.attributeDecl()
-        optional = !!ctx.OPTIONAL()
-        type = visit(ctx.parameterType())
+      def visit_explicit_attr(ctx)
+        ctx__attribute_decl = ctx.attribute_decl
+        ctx__OPTIONAL = ctx.OPTIONAL
+        ctx__parameter_type = ctx.parameter_type
 
-        decls.map do |decl|
-          supertype_attribute = if decl.redeclaredAttribute() && decl.redeclaredAttribute().qualifiedAttribute()
-            visit(decl.redeclaredAttribute().qualifiedAttribute())
-          end
-          id = if decl.attributeId()
-            visit(decl.attributeId())
-          elsif decl.redeclaredAttribute() && decl.redeclaredAttribute().attributeId()
-            visit(decl.redeclaredAttribute().attributeId())
-          end
+        attributes = visit_if_map(ctx__attribute_decl)
+        optional = !!ctx__OPTIONAL
+        type = visit_if(ctx__parameter_type)
 
+        attributes.map do |attribute|
           Model::Attribute.new({
-            id: id,
+            id: attribute.id,
             kind: Model::Attribute::EXPLICIT,
-            supertype_attribute: supertype_attribute,
+            supertype_attribute: attribute.supertype_attribute,
             optional: optional,
             type: type
           })
         end
       end
 
-      def visitExpression(ctx)
-        if ctx.relOpExtended()
-          operator = visit(ctx.relOpExtended())
-          operand1 = visit(ctx.simpleExpression()[0])
-          operand2 = visit(ctx.simpleExpression()[1])
+      def visit_expression(ctx)
+        ctx__simple_expression = ctx.simple_expression
+        ctx__rel_op_extended = ctx.rel_op_extended
+
+        if ctx__simple_expression.length == 2
+          operator = visit_if(ctx__rel_op_extended)
+          operand1 = visit_if(ctx__simple_expression[0])
+          operand2 = visit_if(ctx__simple_expression[1])
 
           Model::Expressions::BinaryExpression.new({
             operator: operator,
@@ -710,29 +836,36 @@ module Expressir
             operand2: operand2
           })
         else
-          visit(ctx.simpleExpression()[0])
+          visit_if(ctx__simple_expression[0])
         end
       end
 
-      def visitFactor(ctx)
-        if ctx.child_at(1) && ctx.child_at(1).text == '**'
+      def visit_factor(ctx)
+        ctx__simple_factor = ctx.simple_factor
+
+        if ctx__simple_factor.length == 2
           operator = Model::Expressions::BinaryExpression::EXPONENTIATION
-          operand1 = visit(ctx.simpleFactor()[0])
-          operand2 = visit(ctx.simpleFactor()[1])
+          operand1 = visit(ctx__simple_factor[0])
+          operand2 = visit(ctx__simple_factor[1])
 
           Model::Expressions::BinaryExpression.new({
             operator: operator,
             operand1: operand1,
             operand2: operand2
           })
+        elsif ctx__simple_factor.length == 1
+          visit_if(ctx__simple_factor[0])
         else
-          visit(ctx.simpleFactor()[0])
+          raise 'Invalid state'
         end
       end
 
-      def visitFormalParameter(ctx)
-        ids = ctx.parameterId().map{|ctx| visit(ctx)}
-        type = visit(ctx.parameterType())
+      def visit_formal_parameter(ctx)
+        ctx__parameter_id = ctx.parameter_id
+        ctx__parameter_type = ctx.parameter_type
+
+        ids = visit_if_map(ctx__parameter_id)
+        type = visit_if(ctx__parameter_type)
 
         ids.map do |id|
           Model::Parameter.new({
@@ -742,17 +875,13 @@ module Expressir
         end
       end
 
-      def visitFunctionCall(ctx)
-        ref = if ctx.builtInFunction()
-          visit(ctx.builtInFunction())
-        elsif ctx.functionRef()
-          visit(ctx.functionRef())
-        else
-          raise 'Invalid state'
-        end
-        parameters = if ctx.actualParameterList()
-          ctx.actualParameterList().parameter().map{|ctx| visit(ctx.expression)}
-        end
+      def visit_function_call(ctx)
+        ctx__built_in_function = ctx.built_in_function
+        ctx__function_ref = ctx.function_ref
+        ctx__actual_parameter_list = ctx.actual_parameter_list
+
+        ref = visit_if(ctx__built_in_function || ctx__function_ref)
+        parameters = visit_if(ctx__actual_parameter_list)
 
         Model::Expressions::Call.new({
           ref: ref,
@@ -760,19 +889,24 @@ module Expressir
         })
       end
 
-      def visitFunctionDecl(ctx)
-        id = visit(ctx.functionHead().functionId())
-        parameters = ctx.functionHead().formalParameter().map{|ctx| visit(ctx)}.flatten
-        return_type = visit(ctx.functionHead().parameterType())
-        declarations = ctx.algorithmHead().declaration().map{|ctx| visit(ctx)}
-        constants = if ctx.algorithmHead().constantDecl()
-          ctx.algorithmHead().constantDecl().constantBody().map{|ctx| visit(ctx)}
-        end
-        variables = if ctx.algorithmHead().localDecl()
-          ctx.algorithmHead().localDecl().localVariable().map{|ctx| visit(ctx)}.flatten
-        end
-        declarations = ctx.algorithmHead().declaration().map{|ctx| visit(ctx)}
-        statements = ctx.stmt().map{|ctx| visit(ctx)}
+      def visit_function_decl(ctx)
+        ctx__function_head = ctx.function_head
+        ctx__algorithm_head = ctx.algorithm_head
+        ctx__stmt = ctx.stmt
+        ctx__function_head__function_id = ctx__function_head&.function_id
+        ctx__function_head__formal_parameter = ctx__function_head&.formal_parameter
+        ctx__function_head__parameter_type = ctx__function_head&.parameter_type
+        ctx__algorithm_head__declaration = ctx__algorithm_head&.declaration
+        ctx__algorithm_head__constant_decl = ctx__algorithm_head&.constant_decl
+        ctx__algorithm_head__local_decl = ctx__algorithm_head&.local_decl
+
+        id = visit_if(ctx__function_head__function_id)
+        parameters = visit_if_map_flatten(ctx__function_head__formal_parameter)
+        return_type = visit_if(ctx__function_head__parameter_type)
+        declarations = visit_if_map(ctx__algorithm_head__declaration)
+        constants = visit_if(ctx__algorithm_head__constant_decl)
+        variables = visit_if(ctx__algorithm_head__local_decl)
+        statements = visit_if_map(ctx__stmt)
 
         Model::Function.new({
           id: id,
@@ -785,52 +919,47 @@ module Expressir
         })
       end
 
-      def visitFunctionHead(ctx)
+      def visit_function_head(ctx)
         raise 'Invalid state'
       end
 
-      def visitFunctionId(ctx)
-        handleSimpleId(ctx.SimpleId())
+      def visit_function_id(ctx)
+        ctx__SimpleId = ctx.SimpleId
+
+        handle_simple_id(ctx__SimpleId)
       end
 
-      def visitGeneralizedTypes(ctx)
-        if ctx.aggregateType()
-          visit(ctx.aggregateType())
-        elsif ctx.generalAggregationTypes()
-          visit(ctx.generalAggregationTypes())
-        elsif ctx.genericEntityType()
-          visit(ctx.genericEntityType())
-        elsif ctx.genericType()
-          visit(ctx.genericType())
-        else
-          raise 'Invalid state'
-        end
+      def visit_generalized_types(ctx)
+        ctx__aggregate_type = ctx.aggregate_type
+        ctx__general_aggregation_types = ctx.general_aggregation_types
+        ctx__generic_entity_type = ctx.generic_entity_type
+        ctx__generic_type = ctx.generic_type
+
+        visit_if(ctx__aggregate_type || ctx__general_aggregation_types || ctx__generic_entity_type || ctx__generic_type)
       end
 
-      def visitGeneralAggregationTypes(ctx)
-        if ctx.generalArrayType()
-          visit(ctx.generalArrayType())
-        elsif ctx.generalBagType()
-          visit(ctx.generalBagType())
-        elsif ctx.generalListType()
-          visit(ctx.generalListType())
-        elsif ctx.generalSetType()
-          visit(ctx.generalSetType())
-        else
-          raise 'Invalid state'
-        end
+      def visit_general_aggregation_types(ctx)
+        ctx__general_array_type = ctx.general_array_type
+        ctx__general_bag_type = ctx.general_bag_type
+        ctx__general_list_type = ctx.general_list_type
+        ctx__general_set_type = ctx.general_set_type
+
+        visit_if(ctx__general_array_type || ctx__general_bag_type || ctx__general_list_type || ctx__general_set_type)
       end
 
-      def visitGeneralArrayType(ctx)
-        bound1 = if ctx.boundSpec()
-          visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
-        end
-        bound2 = if ctx.boundSpec()
-          visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-        end
-        optional = !!ctx.OPTIONAL()
-        unique = !!ctx.UNIQUE()
-        base_type = visit(ctx.parameterType())
+      def visit_general_array_type(ctx)
+        ctx__bound_spec = ctx.bound_spec
+        ctx__OPTIONAL = ctx.OPTIONAL
+        ctx__UNIQUE = ctx.UNIQUE
+        ctx__parameter_type = ctx.parameter_type
+        ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
+        ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
+
+        bound1 = visit_if(ctx__bound_spec__bound1)
+        bound2 = visit_if(ctx__bound_spec__bound2)
+        optional = !!ctx__OPTIONAL
+        unique = !!ctx__UNIQUE
+        base_type = visit_if(ctx__parameter_type)
         
         Model::Types::Array.new({
           bound1: bound1,
@@ -841,14 +970,15 @@ module Expressir
         })
       end
 
-      def visitGeneralBagType(ctx)
-        bound1 = if ctx.boundSpec()
-          visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
-        end
-        bound2 = if ctx.boundSpec()
-          visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-        end
-        base_type = visit(ctx.parameterType())
+      def visit_general_bag_type(ctx)
+        ctx__bound_spec = ctx.bound_spec
+        ctx__parameter_type = ctx.parameter_type
+        ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
+        ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
+
+        bound1 = visit_if(ctx__bound_spec__bound1)
+        bound2 = visit_if(ctx__bound_spec__bound2)
+        base_type = visit_if(ctx__parameter_type)
         
         Model::Types::Bag.new({
           bound1: bound1,
@@ -857,15 +987,17 @@ module Expressir
         })
       end
 
-      def visitGeneralListType(ctx)
-        bound1 = if ctx.boundSpec()
-          visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
-        end
-        bound2 = if ctx.boundSpec()
-          visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-        end
-        unique = !!ctx.UNIQUE()
-        base_type = visit(ctx.parameterType())
+      def visit_general_list_type(ctx)
+        ctx__bound_spec = ctx.bound_spec
+        ctx__UNIQUE = ctx.UNIQUE
+        ctx__parameter_type = ctx.parameter_type
+        ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
+        ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
+
+        bound1 = visit_if(ctx__bound_spec__bound1)
+        bound2 = visit_if(ctx__bound_spec__bound2)
+        unique = !!ctx__UNIQUE
+        base_type = visit_if(ctx__parameter_type)
         
         Model::Types::List.new({
           bound1: bound1,
@@ -875,24 +1007,22 @@ module Expressir
         })
       end
 
-      def visitGeneralRef(ctx)
-        if ctx.parameterRef()
-          visit(ctx.parameterRef())
-        elsif ctx.variableId()
-          visit(ctx.variableId())
-        else
-          raise 'Invalid state'
-        end
+      def visit_general_ref(ctx)
+        ctx__parameter_ref = ctx.parameter_ref
+        ctx__variable_id = ctx.variable_id
+
+        visit_if(ctx__parameter_ref || ctx__variable_id)
       end
 
-      def visitGeneralSetType(ctx)
-        bound1 = if ctx.boundSpec()
-          visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
-        end
-        bound2 = if ctx.boundSpec()
-          visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-        end
-        base_type = visit(ctx.parameterType())
+      def visit_general_set_type(ctx)
+        ctx__bound_spec = ctx.bound_spec
+        ctx__parameter_type = ctx.parameter_type
+        ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
+        ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
+
+        bound1 = visit_if(ctx__bound_spec__bound1)
+        bound2 = visit_if(ctx__bound_spec__bound2)
+        base_type = visit_if(ctx__parameter_type)
         
         Model::Types::Set.new({
           bound1: bound1,
@@ -901,46 +1031,48 @@ module Expressir
         })
       end
 
-      def visitGenericEntityType(ctx)
-        id = if ctx.typeLabel()
-          visit(ctx.typeLabel())
-        end
+      def visit_generic_entity_type(ctx)
+        ctx__type_label = ctx.type_label
+
+        id = visit_if(ctx__type_label)
 
         Model::Types::GenericEntity.new({
           id: id
         })
       end
 
-      def visitGenericType(ctx)
-        id = if ctx.typeLabel()
-          visit(ctx.typeLabel())
-        end
+      def visit_generic_type(ctx)
+        ctx__type_label = ctx.type_label
+
+        id = visit_if(ctx__type_label)
 
         Model::Types::Generic.new({
           id: id
         })
       end
 
-      def visitGroupReference(ctx)
+      def visit_group_qualifier(ctx)
+        ctx__entity_ref = ctx.entity_ref
+
+        entity = visit_if(ctx__entity_ref)
+
+        Model::Expressions::GroupReference.new({
+          entity: entity
+        })
+      end
+
+      def visit_group_reference(ctx)
         raise 'Invalid state'
       end
 
-      def visitIfStmt(ctx)
-        expression = visit(ctx.logicalExpression().expression())
-        else_index = if ctx.ELSE()
-          ctx.children.find_index{|x| x == ctx.ELSE()}
-        end
-        else_statement_index = if else_index
-          else_index - ctx.children.find_index{|x| x == ctx.stmt()[0]}
-        end
-        statements = if else_statement_index
-          ctx.stmt()[0..(else_statement_index - 1)].map{|ctx| visit(ctx)}
-        else
-          ctx.stmt().map{|ctx| visit(ctx)}
-        end
-        else_statements = if else_statement_index
-          ctx.stmt()[else_statement_index..(ctx.stmt().length - 1)].map{|ctx| visit(ctx)}
-        end
+      def visit_if_stmt(ctx)
+        ctx__logical_expression = ctx.logical_expression
+        ctx__if_stmt_statements = ctx.if_stmt_statements
+        ctx__if_stmt_else_statements = ctx.if_stmt_else_statements
+
+        expression = visit_if(ctx__logical_expression)
+        statements = visit_if(ctx__if_stmt_statements)
+        else_statements = visit_if(ctx__if_stmt_else_statements)
 
         Model::Statements::If.new({
           expression: expression,
@@ -949,60 +1081,92 @@ module Expressir
         })
       end
 
-      def visitIncrement(ctx)
+      def visit_if_stmt_statements(ctx)
+        ctx__stmt = ctx.stmt
+
+        visit_if_map(ctx__stmt)
+      end
+
+      def visit_if_stmt_else_statements(ctx)
+        ctx__stmt = ctx.stmt
+
+        visit_if_map(ctx__stmt)
+      end
+
+      def visit_increment(ctx)
+        ctx__numeric_expression = ctx.numeric_expression
+
+        visit_if(ctx__numeric_expression)
+      end
+
+      def visit_increment_control(ctx)
         raise 'Invalid state'
       end
 
-      def visitIncrementControl(ctx)
+      def visit_index(ctx)
+        ctx__numeric_expression = ctx.numeric_expression
+
+        visit_if(ctx__numeric_expression)
+      end
+
+      def visit_index1(ctx)
+        ctx__index = ctx.index
+
+        visit_if(ctx__index)
+      end
+
+      def visit_index2(ctx)
+        ctx__index = ctx.index
+
+        visit_if(ctx__index)
+      end
+
+      def visit_index_qualifier(ctx)
+        ctx__index1 = ctx.index1
+        ctx__index2 = ctx.index2
+
+        index1 = visit_if(ctx__index1)
+        index2 = visit_if(ctx__index2)
+
+        Model::Expressions::IndexReference.new({
+          index1: index1,
+          index2: index2
+        })
+      end
+
+      def visit_index_reference(ctx)
         raise 'Invalid state'
       end
 
-      def visitIndex(ctx)
-        raise 'Invalid state'
+      def visit_instantiable_type(ctx)
+        ctx__concrete_types = ctx.concrete_types
+        ctx__entity_ref = ctx.entity_ref
+
+        visit_if(ctx__concrete_types || ctx__entity_ref)
       end
 
-      def visitIndex1(ctx)
-        raise 'Invalid state'
+      def visit_integer_type(ctx)
+        Model::Types::Integer.new
       end
 
-      def visitIndex2(ctx)
-        raise 'Invalid state'
+      def visit_interface_specification(ctx)
+        ctx__reference_clause = ctx.reference_clause
+        ctx__use_clause = ctx.use_clause
+
+        visit_if(ctx__reference_clause || ctx__use_clause)
       end
 
-      def visitIndexReference(ctx)
-        raise 'Invalid state'
-      end
+      def visit_interval(ctx)
+        ctx__interval_low = ctx.interval_low
+        ctx__interval_op = ctx.interval_op
+        ctx__interval_item = ctx.interval_item
+        ctx__interval_high = ctx.interval_high
 
-      def visitInstantiableType(ctx)
-        if ctx.concreteTypes()
-          visit(ctx.concreteTypes())
-        elsif ctx.entityRef()
-          visit(ctx.entityRef())
-        else
-          raise 'Invalid state'
-        end
-      end
-
-      def visitIntegerType(ctx)
-        Model::Types::Integer.new()
-      end
-
-      def visitInterfaceSpecification(ctx)
-        if ctx.referenceClause()
-          visit(ctx.referenceClause())
-        elsif ctx.useClause()
-          visit(ctx.useClause())
-        else
-          raise 'Invalid state'
-        end
-      end
-
-      def visitInterval(ctx)
-        low = visit(ctx.intervalLow().simpleExpression())
-        operator1 = visit(ctx.intervalOp()[0])
-        item = visit(ctx.intervalItem().simpleExpression())
-        operator2 = visit(ctx.intervalOp()[1])
-        high = visit(ctx.intervalHigh().simpleExpression())
+        low = visit_if(ctx__interval_low)
+        operator1 = visit_if(ctx__interval_op[0])
+        item = visit_if(ctx__interval_item)
+        operator2 = visit_if(ctx__interval_op[1])
+        high = visit_if(ctx__interval_high)
 
         Model::Expressions::Interval.new({
           low: low,
@@ -1013,59 +1177,89 @@ module Expressir
         })
       end
 
-      def visitIntervalHigh(ctx)
-        raise 'Invalid state'
+      def visit_interval_high(ctx)
+        ctx__simple_expression = ctx.simple_expression
+
+        visit_if(ctx__simple_expression)
       end
 
-      def visitIntervalItem(ctx)
-        raise 'Invalid state'
+      def visit_interval_item(ctx)
+        ctx__simple_expression = ctx.simple_expression
+
+        visit_if(ctx__simple_expression)
       end
 
-      def visitIntervalLow(ctx)
-        raise 'Invalid state'
+      def visit_interval_low(ctx)
+        ctx__simple_expression = ctx.simple_expression
+
+        visit_if(ctx__simple_expression)
       end
 
-      def visitIntervalOp(ctx)
-        if ctx.text == '<'
+      def visit_interval_op(ctx)
+        ctx__text = ctx.text
+        ctx__LESS_THAN = ctx__text == '<'
+        ctx__LESS_THAN_OR_EQUAL = ctx__text == '<='
+
+        if ctx__LESS_THAN
           Model::Expressions::BinaryExpression::LESS_THAN
-        elsif ctx.text == '<='
+        elsif ctx__LESS_THAN_OR_EQUAL
           Model::Expressions::BinaryExpression::LESS_THAN_OR_EQUAL
         else
           raise 'Invalid state'
         end
       end
 
-      def visitInverseAttr(ctx)
-        supertype_attribute = if ctx.attributeDecl().redeclaredAttribute() && ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute()
-          visit(ctx.attributeDecl().redeclaredAttribute().qualifiedAttribute())
+      def visit_inverse_attr(ctx)
+        ctx__attribute_decl = ctx.attribute_decl
+        ctx__inverse_attr_type = ctx.inverse_attr_type
+        ctx__entity_ref = ctx.entity_ref
+        ctx__attribute_ref = ctx.attribute_ref
+
+        attribute = visit_if(ctx__attribute_decl)
+        type = visit_if(ctx__inverse_attr_type)
+        expression = if ctx__entity_ref
+          ref = visit(ctx__entity_ref)
+          attribute_ref = visit(ctx__attribute_ref)
+
+          Model::Expressions::AttributeReference.new({
+            ref: ref,
+            attribute: attribute_ref
+          })
+        else
+          visit(ctx__attribute_ref)
         end
-        id = if ctx.attributeDecl().attributeId()
-          visit(ctx.attributeDecl().attributeId())
-        elsif ctx.attributeDecl().redeclaredAttribute() && ctx.attributeDecl().redeclaredAttribute().attributeId()
-          visit(ctx.attributeDecl().redeclaredAttribute().attributeId())
-        end
-        type = if ctx.SET()
-          bound1 = if ctx.boundSpec()
-            visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
-          end
-          bound2 = if ctx.boundSpec()
-            visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-          end
-          base_type = visit(ctx.entityRef()[0])
+
+        Model::Attribute.new({
+          id: attribute.id,
+          kind: Model::Attribute::INVERSE,
+          supertype_attribute: attribute.supertype_attribute,
+          type: type,
+          expression: expression
+        })
+      end
+
+      def visit_inverse_attr_type(ctx)
+        ctx__SET = ctx.SET
+        ctx__BAG = ctx.BAG
+        ctx__bound_spec = ctx.bound_spec
+        ctx__entity_ref = ctx.entity_ref
+        ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
+        ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
+
+        if ctx__SET
+          bound1 = visit_if(ctx__bound_spec__bound1)
+          bound2 = visit_if(ctx__bound_spec__bound2)
+          base_type = visit_if(ctx__entity_ref)
 
           Model::Types::Set.new({
             bound1: bound1,
             bound2: bound2,
             base_type: base_type
           })
-        elsif ctx.BAG()
-          bound1 = if ctx.boundSpec()
-            visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
-          end
-          bound2 = if ctx.boundSpec()
-            visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-          end
-          base_type = visit(ctx.entityRef()[0])
+        elsif ctx__BAG
+          bound1 = visit_if(ctx__bound_spec__bound1)
+          bound2 = visit_if(ctx__bound_spec__bound2)
+          base_type = visit_if(ctx__entity_ref)
 
           Model::Types::Bag.new({
             bound1: bound1,
@@ -1073,42 +1267,27 @@ module Expressir
             base_type: base_type
           })
         else
-          visit(ctx.entityRef()[0])
+          visit_if(ctx__entity_ref)
         end
-        expression = if ctx.entityRef()[1]
-          ref = visit(ctx.entityRef()[1])
-          attribute = visit(ctx.attributeRef())
-
-          Model::Expressions::AttributeReference.new({
-            ref: ref,
-            attribute: attribute
-          })
-        else
-          visit(ctx.attributeRef())
-        end
-
-        Model::Attribute.new({
-          id: id,
-          kind: Model::Attribute::INVERSE,
-          supertype_attribute: supertype_attribute,
-          type: type,
-          expression: expression
-        })
       end
 
-      def visitInverseClause(ctx)
-        raise 'Invalid state'
+      def visit_inverse_clause(ctx)
+        ctx__inverse_attr = ctx.inverse_attr
+
+        visit_if_map(ctx__inverse_attr)
       end
 
-      def visitListType(ctx)
-        bound1 = if ctx.boundSpec()
-          visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
-        end
-        bound2 = if ctx.boundSpec()
-          visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-        end
-        unique = !!ctx.UNIQUE()
-        base_type = visit(ctx.instantiableType())
+      def visit_list_type(ctx)
+        ctx__bound_spec = ctx.bound_spec
+        ctx__UNIQUE = ctx.UNIQUE
+        ctx__instantiable_type = ctx.instantiable_type
+        ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
+        ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
+
+        bound1 = visit_if(ctx__bound_spec__bound1)
+        bound2 = visit_if(ctx__bound_spec__bound2)
+        unique = !!ctx__UNIQUE
+        base_type = visit_if(ctx__instantiable_type)
         
         Model::Types::List.new({
           bound1: bound1,
@@ -1118,32 +1297,42 @@ module Expressir
         })
       end
 
-      def visitLiteral(ctx)
-        if ctx.BinaryLiteral()
-          handleBinaryLiteral(ctx.BinaryLiteral())
-        elsif ctx.IntegerLiteral()
-          handleIntegerLiteral(ctx.IntegerLiteral())
-        elsif ctx.logicalLiteral()
-          visit(ctx.logicalLiteral())
-        elsif ctx.RealLiteral()
-          handleRealLiteral(ctx.RealLiteral())
-        elsif ctx.stringLiteral()
-          visit(ctx.stringLiteral())
+      def visit_literal(ctx)
+        ctx__BinaryLiteral = ctx.BinaryLiteral
+        ctx__IntegerLiteral = ctx.IntegerLiteral
+        ctx__logical_literal = ctx.logical_literal
+        ctx__RealLiteral = ctx.RealLiteral
+        ctx__string_literal = ctx.string_literal
+
+        if ctx__BinaryLiteral
+          handle_binary_literal(ctx__BinaryLiteral)
+        elsif ctx__IntegerLiteral
+          handle_integer_literal(ctx__IntegerLiteral)
+        elsif ctx__logical_literal
+          visit(ctx__logical_literal)
+        elsif ctx__RealLiteral
+          handle_real_literal(ctx__RealLiteral)
+        elsif ctx__string_literal
+          visit(ctx__string_literal)
         else
           raise 'Invalid state'
         end
       end
 
-      def visitLocalDecl(ctx)
-        raise 'Invalid state'
+      def visit_local_decl(ctx)
+        ctx__local_variable = ctx.local_variable
+
+        visit_if_map_flatten(ctx__local_variable)
       end
 
-      def visitLocalVariable(ctx)
-        ids = ctx.variableId().map{|ctx| visit(ctx)}
-        type = visit(ctx.parameterType())
-        expression = if ctx.expression()
-          visit(ctx.expression())
-        end
+      def visit_local_variable(ctx)
+        ctx__variable_id = ctx.variable_id
+        ctx__parameter_type = ctx.parameter_type
+        ctx__expression = ctx.expression
+
+        ids = visit_if_map(ctx__variable_id)
+        type = visit_if(ctx__parameter_type)
+        expression = visit_if(ctx__expression)
 
         ids.map do |id|
           Model::Variable.new({
@@ -1154,16 +1343,22 @@ module Expressir
         end
       end
 
-      def visitLogicalExpression(ctx)
-        raise 'Invalid state'
+      def visit_logical_expression(ctx)
+        ctx__expression = ctx.expression
+
+        visit_if(ctx__expression)
       end
 
-      def visitLogicalLiteral(ctx)
-        value = if ctx.TRUE()
+      def visit_logical_literal(ctx)
+        ctx__TRUE = ctx.TRUE
+        ctx__FALSE = ctx.FALSE
+        ctx__UNKNOWN = ctx.UNKNOWN
+
+        value = if ctx__TRUE
           Model::Literals::Logical::TRUE
-        elsif ctx.FALSE()
+        elsif ctx__FALSE
           Model::Literals::Logical::FALSE
-        elsif ctx.UNKNOWN()
+        elsif ctx__UNKNOWN
           Model::Literals::Logical::UNKNOWN
         else
           raise 'Invalid state'
@@ -1174,71 +1369,80 @@ module Expressir
         })
       end
 
-      def visitLogicalType(ctx)
-        Model::Types::Logical.new()
+      def visit_logical_type(ctx)
+        Model::Types::Logical.new
       end
 
-      def visitMultiplicationLikeOp(ctx)
-        if ctx.text == '*'
+      def visit_multiplication_like_op(ctx)
+        ctx__text = ctx.text
+        ctx__MULTIPLICATION = ctx__text == '*'
+        ctx__REAL_DIVISION = ctx__text == '/'
+        ctx__INTEGER_DIVISION = ctx.DIV
+        ctx__MODULO = ctx.MOD
+        ctx__AND = ctx.AND
+        ctx__COMBINE = ctx__text == '||'
+
+        if ctx__MULTIPLICATION
           Model::Expressions::BinaryExpression::MULTIPLICATION
-        elsif ctx.text == '/'
+        elsif ctx__REAL_DIVISION
           Model::Expressions::BinaryExpression::REAL_DIVISION
-        elsif ctx.DIV()
+        elsif ctx__INTEGER_DIVISION
           Model::Expressions::BinaryExpression::INTEGER_DIVISION
-        elsif ctx.MOD()
+        elsif ctx__MODULO
           Model::Expressions::BinaryExpression::MODULO
-        elsif ctx.AND()
+        elsif ctx__AND
           Model::Expressions::BinaryExpression::AND
-        elsif ctx.text == '||'
+        elsif ctx__COMBINE
           Model::Expressions::BinaryExpression::COMBINE
         else
           raise 'Invalid state'
         end
       end
 
-      def visitNamedTypes(ctx)
-        if ctx.entityRef()
-          visit(ctx.entityRef())
-        elsif ctx.typeRef()
-          visit(ctx.typeRef())
-        else
-          raise 'Invalid state'
-        end
+      def visit_named_types(ctx)
+        ctx__entity_ref = ctx.entity_ref
+        ctx__type_ref = ctx.type_ref
+
+        visit_if(ctx__entity_ref || ctx__type_ref)
       end
 
-      def visitNamedTypeOrRename(ctx)
-        if ctx.entityId() || ctx.typeId()
-          ref = visit(ctx.namedTypes())
-          id = if ctx.entityId()
-            visit(ctx.entityId())
-          elsif ctx.typeId()
-            visit(ctx.typeId())
-          end
+      def visit_named_type_or_rename(ctx)
+        ctx__named_types = ctx.named_types
+        ctx__entity_id = ctx.entity_id
+        ctx__type_id = ctx.type_id
 
+        ref = visit_if(ctx__named_types)
+        id = visit_if(ctx__entity_id || ctx__type_id)
+
+        if id
           Model::RenamedRef.new({
             ref: ref,
             id: id
           })
         else
-          visit(ctx.namedTypes())
+          ref
         end
       end
 
-      def visitNullStmt(ctx)
-        Model::Statements::Null.new()
+      def visit_null_stmt(ctx)
+        Model::Statements::Null.new
       end
 
-      def visitNumberType(ctx)
-        Model::Types::Number.new()
+      def visit_number_type(ctx)
+        Model::Types::Number.new
       end
 
-      def visitNumericExpression(ctx)
-        raise 'Invalid state'
+      def visit_numeric_expression(ctx)
+        ctx__simple_expression = ctx.simple_expression
+
+        visit_if(ctx__simple_expression)
       end
 
-      def visitOneOf(ctx)
+      def visit_one_of(ctx)
+        ctx__supertype_expression = ctx.supertype_expression
+
         ref = Model::Expressions::SimpleReference.new({ id: 'ONEOF' })
-        parameters = ctx.supertypeExpression().map{|ctx| visit(ctx)}
+        parameters = visit_if_map(ctx__supertype_expression)
 
         Model::Expressions::Call.new({
           ref: ref,
@@ -1246,55 +1450,59 @@ module Expressir
         })
       end
 
-      def visitParameter(ctx)
-        raise 'Invalid state'
+      def visit_parameter(ctx)
+        ctx__expression = ctx.expression
+
+        visit_if(ctx__expression)
       end
 
-      def visitParameterId(ctx)
-        handleSimpleId(ctx.SimpleId())
+      def visit_parameter_id(ctx)
+        ctx__SimpleId = ctx.SimpleId
+
+        handle_simple_id(ctx__SimpleId)
       end
 
-      def visitParameterType(ctx)
-        if ctx.generalizedTypes()
-          visit(ctx.generalizedTypes())
-        elsif ctx.namedTypes()
-          visit(ctx.namedTypes())
-        elsif ctx.simpleTypes()
-          visit(ctx.simpleTypes())
+      def visit_parameter_type(ctx)
+        ctx__generalized_types = ctx.generalized_types
+        ctx__named_types = ctx.named_types
+        ctx__simple_types = ctx.simple_types
+
+        visit_if(ctx__generalized_types || ctx__named_types || ctx__simple_types)
+      end
+
+      def visit_population(ctx)
+        ctx__entity_ref = ctx.entity_ref
+
+        visit_if(ctx__entity_ref)
+      end
+
+      def visit_precision_spec(ctx)
+        ctx__numeric_expression = ctx.numeric_expression
+
+        visit_if(ctx__numeric_expression)
+      end
+
+      def visit_primary(ctx)
+        ctx__literal = ctx.literal
+        ctx__qualifiable_factor = ctx.qualifiable_factor
+        ctx__qualifier = ctx.qualifier
+
+        if ctx__literal
+          visit(ctx__literal)
+        elsif ctx__qualifiable_factor
+          handle_qualified_ref(visit(ctx__qualifiable_factor), ctx__qualifier)
         else
           raise 'Invalid state'
         end
       end
 
-      def visitPopulation(ctx)
-        raise 'Invalid state'
-      end
+      def visit_procedure_call_stmt(ctx)
+        ctx__built_in_procedure = ctx.built_in_procedure
+        ctx__procedure_ref = ctx.procedure_ref
+        ctx__actual_parameter_list = ctx.actual_parameter_list
 
-      def visitPrecisionSpec(ctx)
-        raise 'Invalid state'
-      end
-
-      def visitPrimary(ctx)
-        if ctx.literal()
-          visit(ctx.literal())
-        elsif ctx.qualifiableFactor()
-          handleQualifiedRef(visit(ctx.qualifiableFactor()), ctx.qualifier())
-        else
-          raise 'Invalid state'
-        end
-      end
-
-      def visitProcedureCallStmt(ctx)
-        ref = if ctx.builtInProcedure()
-          visit(ctx.builtInProcedure())
-        elsif ctx.procedureRef()
-          visit(ctx.procedureRef())
-        else
-          raise 'Invalid state'
-        end
-        parameters = if ctx.actualParameterList()
-          ctx.actualParameterList().parameter().map{|ctx| visit(ctx.expression)}
-        end
+        ref = visit_if(ctx__built_in_procedure || ctx__procedure_ref)
+        parameters = visit_if(ctx__actual_parameter_list)
 
         Model::Statements::Call.new({
           ref: ref,
@@ -1302,32 +1510,22 @@ module Expressir
         })
       end
 
-      def visitProcedureDecl(ctx)
-        id = visit(ctx.procedureHead().procedureId())
-        parameters = ctx.procedureHead().formalParameter().map do |ctx|
-          parameters = visit(ctx)
-          parameters_index = ctx.parent.children.find_index{|x| x == ctx}
-          var = ctx.parent.child_at(parameters_index - 1)
-          if var.text == 'VAR'
-            parameters.map do |parameter|
-              Model::Parameter.new({
-                id: parameter.id,
-                var: true,
-                type: parameter.type
-              })
-            end
-          else
-            parameters
-          end
-        end.flatten
-        declarations = ctx.algorithmHead().declaration().map{|ctx| visit(ctx)}
-        constants = if ctx.algorithmHead().constantDecl()
-          ctx.algorithmHead().constantDecl().constantBody().map{|ctx| visit(ctx)}
-        end
-        variables = if ctx.algorithmHead().localDecl()
-          ctx.algorithmHead().localDecl().localVariable().map{|ctx| visit(ctx)}.flatten
-        end
-        statements = ctx.stmt().map{|ctx| visit(ctx)}
+      def visit_procedure_decl(ctx)
+        ctx__procedure_head = ctx.procedure_head
+        ctx__algorithm_head = ctx.algorithm_head
+        ctx__stmt = ctx.stmt
+        ctx__procedure_head__procedure_id = ctx__procedure_head&.procedure_id
+        ctx__procedure_head__procedure_head_parameter = ctx__procedure_head&.procedure_head_parameter
+        ctx__algorithm_head__declaration = ctx__algorithm_head&.declaration
+        ctx__algorithm_head__constant_decl = ctx__algorithm_head&.constant_decl
+        ctx__algorithm_head__local_decl = ctx__algorithm_head&.local_decl
+
+        id = visit_if(ctx__procedure_head__procedure_id)
+        parameters = visit_if_map_flatten(ctx__procedure_head__procedure_head_parameter)
+        declarations = visit_if_map(ctx__algorithm_head__declaration)
+        constants = visit_if(ctx__algorithm_head__constant_decl)
+        variables = visit_if(ctx__algorithm_head__local_decl)
+        statements = visit_if_map(ctx__stmt)
 
         Model::Procedure.new({
           id: id,
@@ -1339,62 +1537,80 @@ module Expressir
         })
       end
 
-      def visitProcedureHead(ctx)
+      def visit_procedure_head(ctx)
         raise 'Invalid state'
       end
 
-      def visitProcedureId(ctx)
-        handleSimpleId(ctx.SimpleId())
-      end
+      def visit_procedure_head_parameter(ctx)
+        ctx__formal_parameter = ctx.formal_parameter
+        ctx__VAR = ctx.VAR
 
-      def visitQualifiableFactor(ctx)
-        if ctx.attributeRef()
-          visit(ctx.attributeRef())
-        elsif ctx.constantFactor()
-          visit(ctx.constantFactor())
-        elsif ctx.functionCall()
-          visit(ctx.functionCall())
-        elsif ctx.generalRef()
-          visit(ctx.generalRef())
-        elsif ctx.population()
-          visit(ctx.population().entityRef())
+        parameters = visit(ctx__formal_parameter)
+
+        if ctx.VAR
+          parameters.map do |parameter|
+            Model::Parameter.new({
+              id: parameter.id,
+              var: true,
+              type: parameter.type
+            })
+          end
         else
-          raise 'Invalid state'
+          parameters
         end
       end
 
-      def visitQualifiedAttribute(ctx)
-        id = ctx.SELF().text
-        entity = visit(ctx.groupQualifier().entityRef())
-        attribute = visit(ctx.attributeQualifier().attributeRef())
+      def visit_procedure_id(ctx)
+        ctx__SimpleId = ctx.SimpleId
+
+        handle_simple_id(ctx__SimpleId)
+      end
+
+      def visit_qualifiable_factor(ctx)
+        ctx__attribute_ref = ctx.attribute_ref
+        ctx__constant_factor = ctx.constant_factor
+        ctx__function_call = ctx.function_call
+        ctx__general_ref = ctx.general_ref
+        ctx__population = ctx.population
+
+        visit_if(ctx__attribute_ref || ctx__constant_factor || ctx__function_call || ctx__general_ref || ctx__population)
+      end
+
+      def visit_qualified_attribute(ctx)
+        ctx__group_qualifier = ctx.group_qualifier
+        ctx__attribute_qualifier = ctx.attribute_qualifier
+
+        id = 'SELF'
+        group_reference = visit_if(ctx__group_qualifier)
+        attribute_reference = visit_if(ctx__attribute_qualifier)
 
         Model::Expressions::AttributeReference.new({
           ref: Model::Expressions::GroupReference.new({
             ref: Model::Expressions::SimpleReference.new({
               id: id
             }),
-            entity: entity
+            entity: group_reference.entity
           }),
-          attribute: attribute
+          attribute: attribute_reference.attribute
         })
       end
 
-      def visitQualifier(ctx)
-        if ctx.attributeQualifier()
-          visit(ctx.attributeQualifier())
-        elsif ctx.groupQualifier()
-          visit(ctx.groupQualifier())
-        elsif ctx.indexQualifier()
-          visit(ctx.indexQualifier())
-        else
-          raise 'Invalid state'
-        end
+      def visit_qualifier(ctx)
+        ctx__attribute_qualifier = ctx.attribute_qualifier
+        ctx__group_qualifier = ctx.group_qualifier
+        ctx__index_qualifier = ctx.index_qualifier
+
+        visit_if(ctx__attribute_qualifier || ctx__group_qualifier || ctx__index_qualifier)
       end
 
-      def visitQueryExpression(ctx)
-        id = visit(ctx.variableId())
-        source = visit(ctx.aggregateSource().simpleExpression())
-        expression = visit(ctx.logicalExpression().expression())
+      def visit_query_expression(ctx)
+        ctx__variable_id = ctx.variable_id
+        ctx__aggregate_source = ctx.aggregate_source
+        ctx__logical_expression = ctx.logical_expression
+
+        id = visit_if(ctx__variable_id)
+        source = visit_if(ctx__aggregate_source)
+        expression = visit_if(ctx__logical_expression)
 
         Model::Expressions::QueryExpression.new({
           id: id,
@@ -1403,33 +1619,33 @@ module Expressir
         })
       end
 
-      def visitRealType(ctx)
-        precision = if ctx.precisionSpec()
-          visit(ctx.precisionSpec().numericExpression().simpleExpression())
-        end
+      def visit_real_type(ctx)
+        ctx__precision_spec = ctx.precision_spec
+
+        precision = visit_if(ctx__precision_spec)
 
         Model::Types::Real.new({
           precision: precision
         })
       end
 
-      def visitRedeclaredAttribute(ctx)
+      def visit_redeclared_attribute(ctx)
         raise 'Invalid state'
       end
 
-      def visitReferencedAttribute(ctx)
-        if ctx.attributeRef()
-          visit(ctx.attributeRef())
-        elsif ctx.qualifiedAttribute()
-          visit(ctx.qualifiedAttribute())
-        else
-          raise 'Invalid state'
-        end
+      def visit_referenced_attribute(ctx)
+        ctx__attribute_ref = ctx.attribute_ref
+        ctx__qualified_attribute = ctx.qualified_attribute
+
+        visit_if(ctx__attribute_ref || ctx__qualified_attribute)
       end
 
-      def visitReferenceClause(ctx)
-        schema = visit(ctx.schemaRef())
-        items = ctx.resourceOrRename().map{|ctx| visit(ctx)}
+      def visit_reference_clause(ctx)
+        ctx__schema_ref = ctx.schema_ref
+        ctx__resource_or_rename = ctx.resource_or_rename
+
+        schema = visit_if(ctx__schema_ref)
+        items = visit_if_map(ctx__resource_or_rename)
 
         Model::Interface.new({
           kind: Model::Interface::REFERENCE,
@@ -1438,80 +1654,86 @@ module Expressir
         })
       end
 
-      def visitRelOp(ctx)
-        if ctx.text == '<'
+      def visit_rel_op(ctx)
+        ctx__text = ctx.text
+        ctx__LESS_THAN = ctx__text == '<'
+        ctx__GREATER_THAN = ctx__text == '>'
+        ctx__LESS_THAN_OR_EQUAL = ctx__text == '<='
+        ctx__GREATER_THAN_OR_EQUAL = ctx__text == '>='
+        ctx__NOT_EQUAL = ctx__text == '<>'
+        ctx__EQUAL = ctx__text == '='
+        ctx__INSTANCE_NOT_EQUAL = ctx__text == ':<>:'
+        ctx__INSTANCE_EQUAL = ctx__text == ':=:'
+
+        if ctx__LESS_THAN
           Model::Expressions::BinaryExpression::LESS_THAN
-        elsif ctx.text == '>'
+        elsif ctx__GREATER_THAN
           Model::Expressions::BinaryExpression::GREATER_THAN
-        elsif ctx.text == '<='
+        elsif ctx__LESS_THAN_OR_EQUAL
           Model::Expressions::BinaryExpression::LESS_THAN_OR_EQUAL
-        elsif ctx.text == '>='
+        elsif ctx__GREATER_THAN_OR_EQUAL
           Model::Expressions::BinaryExpression::GREATER_THAN_OR_EQUAL
-        elsif ctx.text == '<>'
+        elsif ctx__NOT_EQUAL
           Model::Expressions::BinaryExpression::NOT_EQUAL
-        elsif ctx.text == '='
+        elsif ctx__EQUAL
           Model::Expressions::BinaryExpression::EQUAL
-        elsif ctx.text == ':<>:'
+        elsif ctx__INSTANCE_NOT_EQUAL
           Model::Expressions::BinaryExpression::INSTANCE_NOT_EQUAL
-        elsif ctx.text == ':=:'
+        elsif ctx__INSTANCE_EQUAL
           Model::Expressions::BinaryExpression::INSTANCE_EQUAL
         else
           raise 'Invalid state'
         end
       end
 
-      def visitRelOpExtended(ctx)
-        if ctx.relOp()
-          visit(ctx.relOp())
-        elsif ctx.IN()
+      def visit_rel_op_extended(ctx)
+        ctx__rel_op = ctx.rel_op
+        ctx__IN = ctx.IN
+        ctx__LIKE = ctx.LIKE
+
+        if ctx__rel_op
+          visit(ctx__rel_op)
+        elsif ctx__IN
           Model::Expressions::BinaryExpression::IN
-        elsif ctx.LIKE()
+        elsif ctx__LIKE
           Model::Expressions::BinaryExpression::LIKE
         else
           raise 'Invalid state'
         end
       end
 
-      def visitRenameId(ctx)
-        if ctx.constantId()
-          visit(ctx.constantId())
-        elsif ctx.entityId()
-          visit(ctx.entityId())
-        elsif ctx.functionId()
-          visit(ctx.functionId())
-        elsif ctx.procedureId()
-          visit(ctx.procedureId())
-        elsif ctx.typeId()
-          visit(ctx.typeId())
-        else
-          raise 'Invalid state'
-        end
+      def visit_rename_id(ctx)
+        ctx__constant_id = ctx.constant_id
+        ctx__entity_id = ctx.entity_id
+        ctx__function_id = ctx.function_id
+        ctx__procedure_id = ctx.procedure_id
+        ctx__type_id = ctx.type_id
+
+        visit_if(ctx__constant_id || ctx__entity_id || ctx__function_id || ctx__procedure_id || ctx__type_id)
       end
 
-      def visitRepeatControl(ctx)
+      def visit_repeat_control(ctx)
         raise 'Invalid state'
       end
 
-      def visitRepeatStmt(ctx)
-        id = if ctx.repeatControl().incrementControl()
-          visit(ctx.repeatControl().incrementControl().variableId())
-        end
-        bound1 = if ctx.repeatControl().incrementControl()
-          visit(ctx.repeatControl().incrementControl().bound1().numericExpression().simpleExpression())
-        end
-        bound2 = if ctx.repeatControl().incrementControl()
-          visit(ctx.repeatControl().incrementControl().bound2().numericExpression().simpleExpression())
-        end
-        increment = if ctx.repeatControl().incrementControl() && ctx.repeatControl().incrementControl().increment()
-          visit(ctx.repeatControl().incrementControl().increment().numericExpression().simpleExpression())
-        end
-        while_expression = if ctx.repeatControl().whileControl()
-          visit(ctx.repeatControl().whileControl().logicalExpression().expression())
-        end
-        until_expression = if ctx.repeatControl().untilControl()
-          visit(ctx.repeatControl().untilControl().logicalExpression().expression())
-        end
-        statements = ctx.stmt().map{|ctx| visit(ctx)}
+      def visit_repeat_stmt(ctx)
+        ctx__repeat_control = ctx.repeat_control
+        ctx__stmt = ctx.stmt
+        ctx__repeat_control__increment_control = ctx__repeat_control&.increment_control
+        ctx__repeat_control__increment_control__variable_id = ctx__repeat_control__increment_control&.variable_id
+        ctx__repeat_control__increment_control__bound1 = ctx__repeat_control__increment_control&.bound1
+        ctx__repeat_control__increment_control__bound2 = ctx__repeat_control__increment_control&.bound2
+        ctx__repeat_control__increment_control__increment = ctx__repeat_control__increment_control&.increment
+        ctx__repeat_control__while_control = ctx__repeat_control&.while_control
+        ctx__repeat_control__until_control = ctx__repeat_control&.until_control
+
+        id = visit_if(ctx__repeat_control__increment_control__variable_id)
+        bound1 = visit_if(ctx__repeat_control__increment_control__bound1)
+        bound2 = visit_if(ctx__repeat_control__increment_control__bound2)
+        increment = visit_if(ctx__repeat_control__increment_control__increment)
+        while_expression = visit_if(ctx__repeat_control__while_control)
+        until_expression = visit_if(ctx__repeat_control__until_control)
+        statements = visit_if_map(ctx__stmt)
 
         Model::Statements::Repeat.new({
           id: id,
@@ -1524,62 +1746,71 @@ module Expressir
         })
       end
 
-      def visitRepetition(ctx)
-        raise 'Invalid state'
+      def visit_repetition(ctx)
+        ctx__numeric_expression = ctx.numeric_expression
+
+        visit_if(ctx__numeric_expression)
       end
 
-      def visitResourceOrRename(ctx)
-        if ctx.renameId()
-          ref = visit(ctx.resourceRef())
-          id = visit(ctx.renameId())
+      def visit_resource_or_rename(ctx)
+        ctx__resource_ref = ctx.resource_ref
+        ctx__rename_id = ctx.rename_id
 
-          Model::RenamedRef.new({
-            ref: ref,
-            id: id
-          })
-        else
-          visit(ctx.resourceRef())
-        end
-      end
+        if ctx__resource_ref
+          if ctx__rename_id
+            ref = visit(ctx__resource_ref)
+            id = visit(ctx__rename_id)
 
-      def visitResourceRef(ctx)
-        if ctx.constantRef()
-          visit(ctx.constantRef())
-        elsif ctx.entityRef()
-          visit(ctx.entityRef())
-        elsif ctx.functionRef()
-          visit(ctx.functionRef())
-        elsif ctx.procedureRef()
-          visit(ctx.procedureRef())
-        elsif ctx.typeRef()
-          visit(ctx.typeRef())
+            Model::RenamedRef.new({
+              ref: ref,
+              id: id
+            })
+          else
+            visit(ctx__resource_ref)
+          end
         else
           raise 'Invalid state'
         end
       end
 
-      def visitReturnStmt(ctx)
-        expression = if ctx.expression()
-          visit(ctx.expression())
-        end
+      def visit_resource_ref(ctx)
+        ctx__constant_ref = ctx.constant_ref
+        ctx__entity_ref = ctx.entity_ref
+        ctx__function_ref = ctx.function_ref
+        ctx__procedure_ref = ctx.procedure_ref
+        ctx__type_ref = ctx.type_ref
+
+        visit_if(ctx__constant_ref || ctx__entity_ref || ctx__function_ref || ctx__procedure_ref || ctx__type_ref)
+      end
+
+      def visit_return_stmt(ctx)
+        ctx__expression = ctx.expression
+
+        expression = visit_if(ctx__expression)
 
         Model::Statements::Return.new({
           expression: expression
         })
       end
 
-      def visitRuleDecl(ctx)
-        id = visit(ctx.ruleHead().ruleId())
-        applies_to = ctx.ruleHead().entityRef().map{|ctx| visit(ctx)}
-        declarations = ctx.algorithmHead().declaration().map{|ctx| visit(ctx)}
-        constants = if ctx.algorithmHead().constantDecl()
-          ctx.algorithmHead().constantDecl().constantBody().map{|ctx| visit(ctx)}
-        end
-        variables = if ctx.algorithmHead().localDecl()
-          ctx.algorithmHead().localDecl().localVariable().map{|ctx| visit(ctx)}.flatten
-        end
-        statements = ctx.stmt().map{|ctx| visit(ctx)}
-        where = ctx.whereClause().domainRule().map{|ctx| visit(ctx)}
+      def visit_rule_decl(ctx)
+        ctx__rule_head = ctx.rule_head
+        ctx__algorithm_head = ctx.algorithm_head
+        ctx__stmt = ctx.stmt
+        ctx__where_clause = ctx.where_clause
+        ctx__rule_head__rule_id = ctx__rule_head&.rule_id
+        ctx__rule_head__entity_ref = ctx__rule_head&.entity_ref
+        ctx__algorithm_head__declaration = ctx__algorithm_head&.declaration
+        ctx__algorithm_head__constant_decl = ctx__algorithm_head&.constant_decl
+        ctx__algorithm_head__local_decl = ctx__algorithm_head&.local_decl
+
+        id = visit_if(ctx__rule_head__rule_id)
+        applies_to = visit_if_map(ctx__rule_head__entity_ref)
+        declarations = visit_if_map(ctx__algorithm_head__declaration)
+        constants = visit_if(ctx__algorithm_head__constant_decl)
+        variables = visit_if(ctx__algorithm_head__local_decl)
+        statements = visit_if_map(ctx__stmt)
+        where = visit_if(ctx__where_clause)
 
         Model::Rule.new({
           id: id,
@@ -1592,35 +1823,46 @@ module Expressir
         })
       end
 
-      def visitRuleHead(ctx)
+      def visit_rule_head(ctx)
         raise 'Invalid state'
       end
 
-      def visitRuleId(ctx)
-        handleSimpleId(ctx.SimpleId())
+      def visit_rule_id(ctx)
+        ctx__SimpleId = ctx.SimpleId
+
+        handle_simple_id(ctx__SimpleId)
       end
 
-      def visitRuleLabelId(ctx)
-        handleSimpleId(ctx.SimpleId())
+      def visit_rule_label_id(ctx)
+        ctx__SimpleId = ctx.SimpleId
+
+        handle_simple_id(ctx__SimpleId)
       end
 
-      def visitSchemaBody(ctx)
+      def visit_schema_body(ctx)
         raise 'Invalid state'
       end
 
-      def visitSchemaDecl(ctx)
-        id = visit(ctx.schemaId())
-        version = if ctx.schemaVersionId()
-          visit(ctx.schemaVersionId().stringLiteral())
-        end
-        interfaces = ctx.schemaBody().interfaceSpecification().map{|ctx| visit(ctx)}
-        constants = if ctx.schemaBody().constantDecl()
-          ctx.schemaBody().constantDecl().constantBody().map{|ctx| visit(ctx)}
-        end
-        declarations = [
-          *ctx.schemaBody().declaration().map{|ctx| visit(ctx)},
-          *ctx.schemaBody().ruleDecl().map{|ctx| visit(ctx)}
-        ]
+      def visit_schema_body_declaration(ctx)
+        ctx__declaration = ctx.declaration
+        ctx__rule_decl = ctx.rule_decl
+
+        visit_if(ctx__declaration || ctx__rule_decl)
+      end
+
+      def visit_schema_decl(ctx)
+        ctx__schema_id = ctx.schema_id
+        ctx__schema_version_id = ctx.schema_version_id
+        ctx__schema_body = ctx.schema_body
+        ctx__schema_body__interface_specification = ctx__schema_body&.interface_specification
+        ctx__schema_body__constant_decl = ctx__schema_body&.constant_decl
+        ctx__schema_body__schema_body_declaration = ctx__schema_body&.schema_body_declaration
+
+        id = visit_if(ctx__schema_id)
+        version = visit_if(ctx__schema_version_id)
+        interfaces = visit_if_map(ctx__schema_body__interface_specification)
+        constants = visit_if(ctx__schema_body__constant_decl)
+        declarations = visit_if_map(ctx__schema_body__schema_body_declaration)
 
         Model::Schema.new({
           id: id,
@@ -1631,38 +1873,47 @@ module Expressir
         })
       end
 
-      def visitSchemaId(ctx)
-        handleSimpleId(ctx.SimpleId())
+      def visit_schema_id(ctx)
+        ctx__SimpleId = ctx.SimpleId
+
+        handle_simple_id(ctx__SimpleId)
       end
 
-      def visitSchemaVersionId(ctx)
+      def visit_schema_version_id(ctx)
+        ctx__string_literal = ctx.string_literal
+
+        visit_if(ctx__string_literal)
+      end
+
+      def visit_selector(ctx)
         raise 'Invalid state'
       end
 
-      def visitSelector(ctx)
-        raise 'Invalid state'
+      def visit_select_extension(ctx)
+        ctx__named_types = ctx.named_types
+
+        visit_if_map(ctx__named_types)
       end
 
-      def visitSelectExtension(ctx)
-        raise 'Invalid state'
+      def visit_select_list(ctx)
+        ctx__named_types = ctx.named_types
+
+        visit_if_map(ctx__named_types)
       end
 
-      def visitSelectList(ctx)
-        raise 'Invalid state'
-      end
+      def visit_select_type(ctx)
+        ctx__EXTENSIBLE = ctx.EXTENSIBLE
+        ctx__GENERIC_ENTITY = ctx.GENERIC_ENTITY
+        ctx__select_list = ctx.select_list
+        ctx__select_extension = ctx.select_extension
+        ctx__select_extension__type_ref = ctx.select_extension&.type_ref
+        ctx__select_extension__select_list = ctx__select_extension&.select_list
 
-      def visitSelectType(ctx)
-        extensible = !!ctx.EXTENSIBLE()
-        generic_entity = !!ctx.GENERIC_ENTITY()
-        items = if ctx.selectList()
-          ctx.selectList().namedTypes().map{|ctx| visit(ctx)}
-        end
-        extension_type = if ctx.selectExtension()
-          visit(ctx.selectExtension().typeRef())
-        end
-        extension_items = if ctx.selectExtension() && ctx.selectExtension().selectList()
-          ctx.selectExtension().selectList().namedTypes().map{|ctx| visit(ctx)}
-        end
+        extensible = !!ctx__EXTENSIBLE
+        generic_entity = !!ctx__GENERIC_ENTITY
+        items = visit_if(ctx__select_list)
+        extension_type = visit_if(ctx__select_extension__type_ref)
+        extension_items = visit_if(ctx__select_extension__select_list)
 
         Model::Types::Select.new({
           extensible: extensible,
@@ -1673,14 +1924,15 @@ module Expressir
         })
       end
 
-      def visitSetType(ctx)
-        bound1 = if ctx.boundSpec()
-          visit(ctx.boundSpec().bound1().numericExpression().simpleExpression())
-        end
-        bound2 = if ctx.boundSpec()
-          visit(ctx.boundSpec().bound2().numericExpression().simpleExpression())
-        end
-        base_type = visit(ctx.instantiableType())
+      def visit_set_type(ctx)
+        ctx__bound_spec = ctx.bound_spec
+        ctx__instantiable_type = ctx.instantiable_type
+        ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
+        ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
+
+        bound1 = visit_if(ctx__bound_spec__bound1)
+        bound2 = visit_if(ctx__bound_spec__bound2)
+        base_type = visit_if(ctx__instantiable_type)
         
         Model::Types::Set.new({
           bound1: bound1,
@@ -1689,122 +1941,112 @@ module Expressir
         })
       end
 
-      def visitSimpleExpression(ctx)
-        if ctx.term().length >= 2
-          operands = ctx.term().map{|ctx| visit(ctx)}
-          operators = ctx.addLikeOp().map{|ctx| visit(ctx)}
+      def visit_simple_expression(ctx)
+        ctx__term = ctx.term
+        ctx__add_like_op = ctx.add_like_op
 
-          handleBinaryExpression(operands, operators)
-        else
-          visit(ctx.term()[0])
+        if ctx__term
+          if ctx__term.length >= 2
+            if ctx__add_like_op and ctx__add_like_op.length == ctx__term.length - 1
+              operands = ctx__term.map(&self.method(:visit))
+              operators = ctx__add_like_op.map(&self.method(:visit))
+
+              handle_binary_expression(operands, operators)
+            else
+              raise 'Invalid state'
+            end
+          elsif ctx__term.length == 1
+            visit(ctx__term[0])
+          else
+            raise 'Invalid state'
+          end
         end
       end
 
-      def visitSimpleFactor(ctx)
-        if ctx.aggregateInitializer()
-          visit(ctx.aggregateInitializer())
-        elsif ctx.entityConstructor()
-          visit(ctx.entityConstructor())
-        elsif ctx.enumerationReference()
-          visit(ctx.enumerationReference())
-        elsif ctx.interval()
-          visit(ctx.interval())
-        elsif ctx.queryExpression()
-          visit(ctx.queryExpression())
-        elsif !ctx.unaryOp() && ctx.expression()
-          visit(ctx.expression())
-        elsif !ctx.unaryOp() && ctx.primary()
-          visit(ctx.primary())
-        elsif ctx.unaryOp() && ctx.expression()
-          operator = visit(ctx.unaryOp())
-          operand = visit(ctx.expression())
+      def visit_simple_factor(ctx)
+        ctx__aggregate_initializer = ctx.aggregate_initializer
+        ctx__entity_constructor = ctx.entity_constructor
+        ctx__enumeration_reference = ctx.enumeration_reference
+        ctx__interval = ctx.interval
+        ctx__query_expression = ctx.query_expression
+        ctx__simple_factor_expression = ctx.simple_factor_expression
+        ctx__simple_factor_unary_expression = ctx.simple_factor_unary_expression
 
-          Model::Expressions::UnaryExpression.new({
-            operator: operator,
-            operand: operand
-          })
-        elsif ctx.unaryOp() && ctx.primary()
-          operator = visit(ctx.unaryOp())
-          operand = visit(ctx.primary())
-
-          Model::Expressions::UnaryExpression.new({
-            operator: operator,
-            operand: operand
-          })
-        else
-          raise 'Invalid state'
-        end
+        visit_if(ctx__aggregate_initializer || ctx__entity_constructor || ctx__enumeration_reference || ctx__interval || ctx__query_expression || ctx__simple_factor_expression || ctx__simple_factor_unary_expression)
       end
 
-      def visitSimpleTypes(ctx)
-        if ctx.binaryType()
-          visit(ctx.binaryType())
-        elsif ctx.booleanType()
-          visit(ctx.booleanType())
-        elsif ctx.integerType()
-          visit(ctx.integerType())
-        elsif ctx.logicalType()
-          visit(ctx.logicalType())
-        elsif ctx.numberType()
-          visit(ctx.numberType())
-        elsif ctx.realType()
-          visit(ctx.realType())
-        elsif ctx.stringType()
-          visit(ctx.stringType())
-        else
-          raise 'Invalid state'
-        end
+      def visit_simple_factor_expression(ctx)
+        ctx__expression = ctx.expression
+        ctx__primary = ctx.primary
+        
+        visit_if(ctx__expression || ctx__primary)
       end
 
-      def visitSkipStmt(ctx)
-        Model::Statements::Skip.new()
+      def visit_simple_factor_unary_expression(ctx)
+        ctx__unary_op = ctx.unary_op
+        ctx__simple_factor_expression = ctx.simple_factor_expression
+
+        operator = visit_if(ctx__unary_op)
+        operand = visit_if(ctx__simple_factor_expression)
+
+        Model::Expressions::UnaryExpression.new({
+          operator: operator,
+          operand: operand
+        })
       end
 
-      def visitStmt(ctx)
-        if ctx.aliasStmt()
-          visit(ctx.aliasStmt())
-        elsif ctx.assignmentStmt()
-          visit(ctx.assignmentStmt())
-        elsif ctx.caseStmt()
-          visit(ctx.caseStmt())
-        elsif ctx.compoundStmt()
-          visit(ctx.compoundStmt())
-        elsif ctx.escapeStmt()
-          visit(ctx.escapeStmt())
-        elsif ctx.ifStmt()
-          visit(ctx.ifStmt())
-        elsif ctx.nullStmt()
-          visit(ctx.nullStmt())
-        elsif ctx.procedureCallStmt()
-          visit(ctx.procedureCallStmt())
-        elsif ctx.repeatStmt()
-          visit(ctx.repeatStmt())
-        elsif ctx.returnStmt()
-          visit(ctx.returnStmt())
-        elsif ctx.skipStmt()
-          visit(ctx.skipStmt())
-        else
-          raise 'Invalid state'
-        end
+      def visit_simple_types(ctx)
+        ctx__binary_type = ctx.binary_type
+        ctx__boolean_type = ctx.boolean_type
+        ctx__integer_type = ctx.integer_type
+        ctx__logical_type = ctx.logical_type
+        ctx__number_type = ctx.number_type
+        ctx__real_type = ctx.real_type
+        ctx__string_type = ctx.string_type
+
+        visit_if(ctx__binary_type || ctx__boolean_type || ctx__integer_type || ctx__logical_type || ctx__number_type || ctx__real_type || ctx__string_type)
       end
 
-      def visitStringLiteral(ctx)
-        if ctx.SimpleStringLiteral()
-          handleSimpleStringLiteral(ctx.SimpleStringLiteral())
-        elsif ctx.EncodedStringLiteral()
-          handleEncodedStringLiteral(ctx.EncodedStringLiteral())
+      def visit_skip_stmt(ctx)
+        Model::Statements::Skip.new
+      end
+
+      def visit_stmt(ctx)
+        ctx__alias_stmt = ctx.alias_stmt
+        ctx__assignment_stmt = ctx.assignment_stmt
+        ctx__case_stmt = ctx.case_stmt
+        ctx__compound_stmt = ctx.compound_stmt
+        ctx__escape_stmt = ctx.escape_stmt
+        ctx__if_stmt = ctx.if_stmt
+        ctx__null_stmt = ctx.null_stmt
+        ctx__procedure_call_stmt = ctx.procedure_call_stmt
+        ctx__repeat_stmt = ctx.repeat_stmt
+        ctx__return_stmt = ctx.return_stmt
+        ctx__skip_stmt = ctx.skip_stmt
+
+        visit_if(ctx__alias_stmt || ctx__assignment_stmt || ctx__case_stmt || ctx__compound_stmt || ctx__escape_stmt || ctx__if_stmt || ctx__null_stmt || ctx__procedure_call_stmt || ctx__repeat_stmt || ctx__return_stmt || ctx__skip_stmt)
+      end
+
+      def visit_string_literal(ctx)
+        ctx__SimpleStringLiteral = ctx.SimpleStringLiteral
+        ctx__EncodedStringLiteral = ctx.EncodedStringLiteral
+
+        if ctx__SimpleStringLiteral
+          handle_simple_string_literal(ctx__SimpleStringLiteral)
+        elsif ctx__EncodedStringLiteral
+          handle_encoded_string_literal(ctx__EncodedStringLiteral)
         else
           raise 'Invalid state'
         end
       end
 
-      def visitStringType(ctx)
-        width = if ctx.widthSpec()
-          visit(ctx.widthSpec().width().numericExpression().simpleExpression())
-        end
-        fixed = if ctx.widthSpec()
-          !!ctx.widthSpec().FIXED()
-        end
+      def visit_string_type(ctx)
+        ctx__width_spec = ctx.width_spec
+        ctx__width_spec__width = ctx__width_spec&.width
+        ctx__width_spec__FIXED = ctx__width_spec&.FIXED
+
+        width = visit_if(ctx__width_spec__width)
+        fixed = !!ctx__width_spec__FIXED
 
         Model::Types::String.new({
           width: width,
@@ -1812,28 +2054,34 @@ module Expressir
         })
       end
 
-      def visitSubsuper(ctx)
+      def visit_subsuper(ctx)
         raise 'Invalid state'
       end
 
-      def visitSubtypeConstraint(ctx)
+      def visit_subtype_constraint(ctx)
+        ctx__supertype_expression = ctx.supertype_expression
+
+        visit_if(ctx__supertype_expression)
+      end
+
+      def visit_subtype_constraint_body(ctx)
         raise 'Invalid state'
       end
 
-      def visitSubtypeConstraintBody(ctx)
-        raise 'Invalid state'
-      end
+      def visit_subtype_constraint_decl(ctx)
+        ctx__subtype_constraint_head = ctx.subtype_constraint_head
+        ctx__subtype_constraint_body = ctx.subtype_constraint_body
+        ctx__subtype_constraint_head__subtype_constraint_id = ctx__subtype_constraint_head&.subtype_constraint_id
+        ctx__subtype_constraint_head__entity_ref = ctx__subtype_constraint_head&.entity_ref
+        ctx__subtype_constraint_body__abstract_supertype = ctx__subtype_constraint_body&.abstract_supertype
+        ctx__subtype_constraint_body__total_over = ctx__subtype_constraint_body&.total_over
+        ctx__subtype_constraint_body__supertype_expression = ctx__subtype_constraint_body&.supertype_expression
 
-      def visitSubtypeConstraintDecl(ctx)
-        id = visit(ctx.subtypeConstraintHead().subtypeConstraintId())
-        applies_to = visit(ctx.subtypeConstraintHead().entityRef())
-        abstract = !!ctx.subtypeConstraintBody().abstractSupertype()
-        total_over = if ctx.subtypeConstraintBody().totalOver()
-          ctx.subtypeConstraintBody().totalOver().entityRef().map{|ctx| visit(ctx)}
-        end
-        supertype_expression = if ctx.subtypeConstraintBody().supertypeExpression()
-          visit(ctx.subtypeConstraintBody().supertypeExpression())
-        end
+        id = visit_if(ctx__subtype_constraint_head__subtype_constraint_id)
+        applies_to = visit_if(ctx__subtype_constraint_head__entity_ref)
+        abstract = !!ctx__subtype_constraint_body__abstract_supertype
+        total_over = visit_if(ctx__subtype_constraint_body__total_over)
+        supertype_expression = visit_if(ctx__subtype_constraint_body__supertype_expression)
 
         Model::SubtypeConstraint.new({
           id: id,
@@ -1844,89 +2092,130 @@ module Expressir
         })
       end
 
-      def visitSubtypeConstraintHead(ctx)
+      def visit_subtype_constraint_head(ctx)
         raise 'Invalid state'
       end
 
-      def visitSubtypeConstraintId(ctx)
-        handleSimpleId(ctx.SimpleId())
+      def visit_subtype_constraint_id(ctx)
+        ctx__SimpleId = ctx.SimpleId
+
+        handle_simple_id(ctx__SimpleId)
       end
 
-      def visitSubtypeDeclaration(ctx)
+      def visit_subtype_declaration(ctx)
+        ctx__entity_ref = ctx.entity_ref
+
+        visit_if_map(ctx__entity_ref)
+      end
+
+      def visit_supertype_constraint(ctx)
         raise 'Invalid state'
       end
 
-      def visitSupertypeConstraint(ctx)
-        raise 'Invalid state'
-      end
+      def visit_supertype_expression(ctx)
+        ctx__supertype_factor = ctx.supertype_factor
+        ctx__ANDOR = ctx.ANDOR
 
-      def visitSupertypeExpression(ctx)
-        if ctx.supertypeFactor().length >= 2
-          operands = ctx.supertypeFactor().map{|ctx| visit(ctx)}
-          operators = ctx.ANDOR().map{|ctx| Model::Expressions::BinaryExpression::ANDOR}
+        if ctx__supertype_factor
+          if ctx__supertype_factor.length >= 2
+            if ctx__ANDOR and ctx__ANDOR.length == ctx__supertype_factor.length - 1
+              operands = ctx__supertype_factor.map(&self.method(:visit))
+              operators = ctx__ANDOR.map{Model::Expressions::BinaryExpression::ANDOR}
 
-          handleBinaryExpression(operands, operators)
-        else
-          visit(ctx.supertypeFactor()[0])
+              handle_binary_expression(operands, operators)
+            else
+              raise 'Invalid state'
+            end
+          elsif ctx__supertype_factor.length == 1
+            visit(ctx__supertype_factor[0])
+          else
+            raise 'Invalid state'
+          end
         end
       end
 
-      def visitSupertypeFactor(ctx)
-        if ctx.supertypeTerm().length >= 2
-          operands = ctx.supertypeTerm().map{|ctx| visit(ctx)}
-          operators = ctx.AND().map{|ctx| Model::Expressions::BinaryExpression::AND}
+      def visit_supertype_factor(ctx)
+        ctx__supertype_term = ctx.supertype_term
+        ctx__AND = ctx.AND
 
-          handleBinaryExpression(operands, operators)
-        else
-          visit(ctx.supertypeTerm()[0])
+        if ctx__supertype_term
+          if ctx__supertype_term.length >= 2
+            if ctx__AND and ctx__AND.length == ctx__supertype_term.length - 1
+              operands = ctx__supertype_term.map(&self.method(:visit))
+              operators = ctx__AND.map{Model::Expressions::BinaryExpression::AND}
+
+              handle_binary_expression(operands, operators)
+            else
+              raise 'Invalid state'
+            end
+          elsif ctx__supertype_term.length == 1
+            visit(ctx__supertype_term[0])
+          else
+            raise 'Invalid state'
+          end
         end
       end
 
-      def visitSupertypeRule(ctx)
-        raise 'Invalid state'
+      def visit_supertype_rule(ctx)
+        ctx__subtype_constraint = ctx.subtype_constraint
+
+        visit_if(ctx__subtype_constraint)
       end
 
-      def visitSupertypeTerm(ctx)
-        if ctx.entityRef()
-          visit(ctx.entityRef())
-        elsif ctx.oneOf()
-          visit(ctx.oneOf())
-        elsif ctx.supertypeExpression()
-          visit(ctx.supertypeExpression())
-        else
-          raise 'Invalid state'
-        end
+      def visit_supertype_term(ctx)
+        ctx__entity_ref = ctx.entity_ref
+        ctx__one_of = ctx.one_of
+        ctx__supertype_expression = ctx.supertype_expression
+
+        visit_if(ctx__entity_ref || ctx__one_of || ctx__supertype_expression)
       end
 
-      def visitSyntax(ctx)
-        schemas = ctx.schemaDecl().map{|ctx| visit(ctx)}
+      def visit_syntax(ctx)
+        ctx__schema_decl = ctx.schema_decl
+
+        schemas = visit_if_map(ctx__schema_decl)
 
         Model::Repository.new({
           schemas: schemas
         })
       end
 
-      def visitTerm(ctx)
-        if ctx.factor().length >= 2
-          operands = ctx.factor().map{|ctx| visit(ctx)}
-          operators = ctx.multiplicationLikeOp().map{|ctx| visit(ctx)}
+      def visit_term(ctx)
+        ctx__factor = ctx.factor
+        ctx__multiplication_like_op = ctx.multiplication_like_op
 
-          handleBinaryExpression(operands, operators)
-        else
-          visit(ctx.factor()[0])
+        if ctx__factor
+          if ctx__factor.length >= 2
+            if ctx__multiplication_like_op and ctx__multiplication_like_op.length == ctx__factor.length - 1
+              operands = ctx__factor.map(&self.method(:visit))
+              operators = ctx__multiplication_like_op.map(&self.method(:visit))
+
+              handle_binary_expression(operands, operators)
+            else
+              raise 'Invalid state'
+            end
+          elsif ctx__factor.length == 1
+            visit(ctx__factor[0])
+          else
+            raise 'Invalid state'
+          end
         end
       end
 
-      def visitTotalOver(ctx)
-        raise 'Invalid state'
+      def visit_total_over(ctx)
+        ctx__entity_ref = ctx.entity_ref
+
+        visit_if_map(ctx__entity_ref)
       end
 
-      def visitTypeDecl(ctx)
-        id = visit(ctx.typeId())
-        type = visit(ctx.underlyingType())
-        where = if ctx.whereClause()
-          ctx.whereClause().domainRule().map{|ctx| visit(ctx)}
-        end
+      def visit_type_decl(ctx)
+        ctx__type_id = ctx.type_id
+        ctx__underlying_type = ctx.underlying_type
+        ctx__where_clause = ctx.where_clause
+
+        id = visit_if(ctx__type_id)
+        type = visit_if(ctx__underlying_type)
+        where = visit_if(ctx__where_clause)
 
         Model::Type.new({
           id: id,
@@ -1935,55 +2224,61 @@ module Expressir
         })
       end
 
-      def visitTypeId(ctx)
-        handleSimpleId(ctx.SimpleId())
+      def visit_type_id(ctx)
+        ctx__SimpleId = ctx.SimpleId
+
+        handle_simple_id(ctx__SimpleId)
       end
 
-      def visitTypeLabel(ctx)
-        if ctx.typeLabelId()
-          visit(ctx.typeLabelId())
-        elsif ctx.typeLabelRef()
-          visit(ctx.typeLabelRef())
-        else
-          raise 'Invalid state'
-        end
+      def visit_type_label(ctx)
+        ctx__type_label_id = ctx.type_label_id
+        ctx__type_label_ref = ctx.type_label_ref
+
+        visit_if(ctx__type_label_id || ctx__type_label_ref)
       end
 
-      def visitTypeLabelId(ctx)
-        handleSimpleId(ctx.SimpleId())
+      def visit_type_label_id(ctx)
+        ctx__SimpleId = ctx.SimpleId
+
+        handle_simple_id(ctx__SimpleId)
       end
 
-      def visitUnaryOp(ctx)
-        if ctx.text == '+'
+      def visit_unary_op(ctx)
+        ctx__text = ctx.text
+        ctx__PLUS = ctx__text == '+'
+        ctx__MINUS = ctx__text == '-'
+        ctx__NOT = ctx.NOT
+
+        if ctx__PLUS
           Model::Expressions::UnaryExpression::PLUS
-        elsif ctx.text == '-'
+        elsif ctx__MINUS
           Model::Expressions::UnaryExpression::MINUS
-        elsif ctx.NOT()
+        elsif ctx__NOT
           Model::Expressions::UnaryExpression::NOT
         else
           raise 'Invalid state'
         end
       end
 
-      def visitUnderlyingType(ctx)
-        if ctx.concreteTypes()
-          visit(ctx.concreteTypes())
-        elsif ctx.constructedTypes()
-          visit(ctx.constructedTypes())
-        else
-          raise 'Invalid state'
-        end
+      def visit_underlying_type(ctx)
+        ctx__concrete_types = ctx.concrete_types
+        ctx__constructed_types = ctx.constructed_types
+
+        visit_if(ctx__concrete_types || ctx__constructed_types)
       end
 
-      def visitUniqueClause(ctx)
-        raise 'Invalid state'
+      def visit_unique_clause(ctx)
+        ctx__unique_rule = ctx.unique_rule
+
+        visit_if_map(ctx__unique_rule)
       end
 
-      def visitUniqueRule(ctx)
-        id = if ctx.ruleLabelId()
-          visit(ctx.ruleLabelId())
-        end
-        attributes = ctx.referencedAttribute().map{|ctx| visit(ctx)}
+      def visit_unique_rule(ctx)
+        ctx__rule_label_id = ctx.rule_label_id
+        ctx__referenced_attribute = ctx.referenced_attribute
+
+        id = visit_if(ctx__rule_label_id)
+        attributes = visit_if_map(ctx__referenced_attribute)
 
         Model::Unique.new({
           id: id,
@@ -1991,13 +2286,18 @@ module Expressir
         })
       end
 
-      def visitUntilControl(ctx)
-        raise 'Invalid state'
+      def visit_until_control(ctx)
+        ctx__logical_expression = ctx.logical_expression
+
+        visit_if(ctx__logical_expression)
       end
 
-      def visitUseClause(ctx)
-        schema = visit(ctx.schemaRef())
-        items = ctx.namedTypeOrRename().map{|ctx| visit(ctx)}
+      def visit_use_clause(ctx)
+        ctx__schema_ref = ctx.schema_ref
+        ctx__named_type_or_rename = ctx.named_type_or_rename
+
+        schema = visit_if(ctx__schema_ref)
+        items = visit_if_map(ctx__named_type_or_rename)
 
         Model::Interface.new({
           kind: Model::Interface::USE,
@@ -2006,37 +2306,37 @@ module Expressir
         })
       end
 
-      def visitVariableId(ctx)
-        handleSimpleId(ctx.SimpleId())
+      def visit_variable_id(ctx)
+        ctx__SimpleId = ctx.SimpleId
+
+        handle_simple_id(ctx__SimpleId)
       end
 
-      def visitWhereClause(ctx)
-        raise 'Invalid state'
+      def visit_where_clause(ctx)
+        ctx__domain_rule = ctx.domain_rule
+
+        visit_if_map(ctx__domain_rule)
       end
 
-      def visitWhileControl(ctx)
-        raise 'Invalid state'
+      def visit_while_control(ctx)
+        ctx__logical_expression = ctx.logical_expression
+
+        visit_if(ctx__logical_expression)
       end
 
-      def visitWidth(ctx)
-        raise 'Invalid state'
+      def visit_width(ctx)
+        ctx__numeric_expression = ctx.numeric_expression
+
+        visit_if(ctx__numeric_expression)
       end
 
-      def visitWidthSpec(ctx)
+      def visit_width_spec(ctx)
         raise 'Invalid state'
       end
 
       private
 
-      def handleEnumerationItem(ctx)
-        id = handleSimpleId(ctx.SimpleId())
-
-        Model::EnumerationItem.new({
-          id: id
-        })
-      end
-
-      def handleBinaryExpression(operands, operators)
+      def handle_binary_expression(operands, operators)
         if operands.length != operators.length + 1
           raise 'Invalid state'
         end
@@ -2056,32 +2356,33 @@ module Expressir
         expression
       end
 
-      def handleQualifiedRef(ref, qualifiers)
+      def handle_qualified_ref(ref, qualifiers)
         qualifiers.reduce(ref) do |ref, ctx|
-          if ctx.attributeQualifier()
-            attribute = visit(ctx.attributeQualifier().attributeRef())
+          ctx__attribute_qualifier = ctx.attribute_qualifier
+          ctx__group_qualifier = ctx.group_qualifier
+          ctx__index_qualifier = ctx.index_qualifier
+
+          if ctx__attribute_qualifier
+            attribute_reference = visit_if(ctx__attribute_qualifier)
 
             Model::Expressions::AttributeReference.new({
               ref: ref,
-              attribute: attribute
+              attribute: attribute_reference.attribute
             })
-          elsif ctx.groupQualifier()
-            entity = visit(ctx.groupQualifier().entityRef())
+          elsif ctx__group_qualifier
+            group_reference = visit_if(ctx__group_qualifier)
 
             Model::Expressions::GroupReference.new({
               ref: ref,
-              entity: entity
+              entity: group_reference.entity
             })
-          elsif ctx.indexQualifier()
-            index1 = visit(ctx.indexQualifier().index1().index().numericExpression().simpleExpression())
-            index2 = if ctx.indexQualifier().index2()
-              visit(ctx.indexQualifier().index2().index().numericExpression().simpleExpression())
-            end
+          elsif ctx__index_qualifier
+            index_reference = visit_if(ctx__index_qualifier)
 
             Model::Expressions::IndexReference.new({
               ref: ref,
-              index1: index1,
-              index2: index2
+              index1: index_reference.index1,
+              index2: index_reference.index2
             })
           else
             raise 'Invalid state'
@@ -2089,44 +2390,56 @@ module Expressir
         end
       end
 
-      def handleBinaryLiteral(ctx)
-        value = ctx.text[1..(ctx.text.length - 1)]
+      def handle_binary_literal(ctx)
+        ctx__text = ctx.text
+
+        value = ctx__text[1..(ctx__text.length - 1)]
 
         Model::Literals::Binary.new({
           value: value
         })
       end
 
-      def handleIntegerLiteral(ctx)
-        value = ctx.text
+      def handle_integer_literal(ctx)
+        ctx__text = ctx.text
+
+        value = ctx__text
 
         Model::Literals::Integer.new({
           value: value
         })
       end
 
-      def handleRealLiteral(ctx)
-        value = ctx.text
+      def handle_real_literal(ctx)
+        ctx__text = ctx.text
+
+        value = ctx__text
 
         Model::Literals::Real.new({
           value: value
         })
       end
 
-      def handleSimpleId(ctx)
-        ctx.text
+      def handle_simple_id(ctx)
+        ctx__text = ctx.text
+
+        ctx__text
       end
 
-      def handleSimpleStringLiteral(ctx)
-        value = ctx.text[1..(ctx.text.length - 2)]
+      def handle_simple_string_literal(ctx)
+        ctx__text = ctx.text
+
+        value = ctx__text[1..(ctx__text.length - 2)]
 
         Model::Literals::String.new({
           value: value
         })
       end
 
-      def handleEncodedStringLiteral(ctx)
-        value = ctx.text[1..(ctx.text.length - 2)]
+      def handle_encoded_string_literal(ctx)
+        ctx__text = ctx.text
+
+        value = ctx__text[1..(ctx__text.length - 2)]
 
         Model::Literals::String.new({
           value: value,

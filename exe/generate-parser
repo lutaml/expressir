@@ -1,0 +1,49 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+require 'antlr4-native'
+
+grammar_file = ARGV.shift
+
+# ANTLR does weird things if the grammar file isn't in the current working directory
+temp_grammar_file = File.join(FileUtils.pwd(), File.basename(grammar_file))
+FileUtils.cp(grammar_file, temp_grammar_file)
+
+# generate parser
+generator = Antlr4Native::Generator.new(
+  grammar_files: [File.basename(temp_grammar_file)],
+  output_dir: 'ext',
+  parser_root_method: 'syntax'
+)
+generator.generate
+
+# fix issues with generated parser
+parser_source_file = File.join(*%w(ext express-parser express_parser.cpp))
+
+# - add ParserProxy.visit return value
+parser_source_lines = File.read(parser_source_file).split(/\n/)
+i = parser_source_lines.find_index{|x| x == '  VALUE visit(VisitorProxy* visitor) {'}
+parser_source_lines[i] = '  Object visit(VisitorProxy* visitor) {'
+parser_source_lines[i + 1] = '    auto result = visitor -> visit(this -> parser -> syntax());'
+parser_source_lines[i + 7] = '    return result.as<Object>();'
+
+# - add VisitorProxy.visit return value
+i = parser_source_lines.find_index{|x| x == '  Object ruby_visit(ContextProxy* proxy) {'}
+parser_source_lines[i + 1] = '    auto result = visit(proxy -> getOriginal());'
+parser_source_lines[i + 2] = '    return result.as<Object>();'
+
+# - add VisitorProxy.visitChildren return value
+i = parser_source_lines.find_index{|x| x == '  Object ruby_visitChildren(ContextProxy* proxy) {'}
+parser_source_lines[i + 1] = '    auto result = visitChildren(proxy -> getOriginal());'
+parser_source_lines[i + 2] = '    return result.as<Object>();'
+
+# - add lexer rules null return value
+parser_source_lines.map.with_index.find_all{|x, i| x.start_with?('  auto token = ')}.each do |x, i|
+  parser_source_lines[i] += "\n\n  if (token == nullptr) {\n    return Qnil;\n  }\n"
+end
+
+# write fixed parser file
+File.write(parser_source_file, parser_source_lines.join("\n") + "\n")
+
+# cleanup
+FileUtils.rm(temp_grammar_file)

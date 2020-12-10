@@ -1,7 +1,4 @@
-require 'antlr4/runtime'
-require 'expressir/express_exp/generated/ExpressVisitor'
-require 'expressir/express_exp/generated/ExpressLexer'
-require 'expressir/express_exp/generated/ExpressParser'
+require 'express_parser'
 require 'expressir/express_exp/visitor'
 
 module Expressir
@@ -10,10 +7,11 @@ module Expressir
       def self.from_exp(file)
         input = File.read(file)
 
+=begin
         char_stream = Antlr4::Runtime::CharStreams.from_string(input, 'String')
-        lexer = Generated::ExpressLexer.new(char_stream)
+        lexer = ::ExpressParser::Lexer.new(char_stream)
         token_stream = Antlr4::Runtime::CommonTokenStream.new(lexer)
-        parser = Generated::ExpressParser.new(token_stream)
+        parser = ::ExpressParser::Parser.new(token_stream)
 
         # don't attempt to recover from any parsing error
         parser.instance_variable_set(:@_err_handler, Antlr4::Runtime::BailErrorStrategy.new)
@@ -22,6 +20,12 @@ module Expressir
 
         visitor = Visitor.new(token_stream)
         repo = visitor.visit(parse_tree)
+=end
+
+        parser = ::ExpressParser::Parser.parse(input)
+
+        visitor = Visitor.new(nil)
+        repo = parser.visit(visitor)
 
         repo
       end

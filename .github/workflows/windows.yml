@@ -25,6 +25,9 @@ jobs:
             experimental: true
     steps:
       - uses: actions/checkout@master
+      - name: Checkout submodules
+        run: |
+          git submodule update --init --recursive
       - name: Use Ruby
         uses: actions/setup-ruby@v1
         with:
@@ -35,6 +38,9 @@ jobs:
           gem install bundler
           bundle config --local path vendor/bundle
           bundle install --jobs 4 --retry 3
+      - name: Compile
+        run: |
+          bundle exec rake compile
       - name: Run specs
         run: |
           bundle exec rake

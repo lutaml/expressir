@@ -24,23 +24,26 @@ jobs:
           - ruby: '2.7'
             experimental: true
     steps:
-      - uses: actions/checkout@master
-      - name: Checkout submodules
-        run: |
-          git submodule update --init --recursive
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
       - name: Use Ruby
         uses: actions/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
+
       - name: Update gems
         shell: pwsh
         run: |
           gem install bundler
           bundle config --local path vendor/bundle
           bundle install --jobs 4 --retry 3
+
       - name: Compile
         run: |
           bundle exec rake compile
+
       - name: Run specs
         run: |
           bundle exec rake

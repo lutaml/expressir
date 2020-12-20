@@ -24,21 +24,28 @@ jobs:
           - ruby: '2.7'
             experimental: true
     steps:
-      - uses: actions/checkout@master
-      - name: Checkout submodules
-        run: |
-          git submodule update --init --recursive
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
       - name: Use Ruby
         uses: actions/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
+
+      - name: Install dependencies
+        run: |
+          brew install autoconf automake libtool
+
       - name: Update gems
         run: |
-          sudo gem install bundler --force
+          gem install bundler --force
           bundle install --jobs 4 --retry 3
+
       - name: Compile
         run: |
           bundle exec rake compile
+
       - name: Run specs
         run: |
           bundle exec rake

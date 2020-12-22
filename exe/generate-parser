@@ -25,15 +25,78 @@ parser_source_lines = File.read(parser_source_file).split(/\n/)
 i = parser_source_lines.index{|x| x == '#include "iostream"'}
 parser_source_lines[i] = '#include <iostream>'
 i = parser_source_lines.rindex{|x| x.start_with?('#include "rice/')}
-parser_source_lines[i] += "\n\n" + <<~STR.rstrip
-#ifdef _WIN32
-#undef FALSE
-#undef TRUE
-#undef OPTIONAL
-#undef IN
-#undef OUT
-#endif
-STR
+parser_source_lines[i] += "\n\n" + <<~CPP.rstrip
+  #ifdef _WIN32
+  #undef FALSE
+  #undef TRUE
+  #undef OPTIONAL
+  #undef IN
+  #undef OUT
+  #endif
+CPP
+
+# - declare to_ruby<Token*> before ContentProxy
+i = parser_source_lines.index{|x| x == 'class ContextProxy {'}
+parser_source_lines[i - 1] += "\n" + <<~CPP
+  template <>
+  Object to_ruby<Token*>(Token* const &x);
+CPP
+
+# - add ContentProxy start and stop methods
+i = parser_source_lines.index{|x| x == '  std::string getText() {'}
+parser_source_lines[i + 2] += "\n\n" + <<~CPP.split(/\n/).map{|x| x != "" ? "  " + x : x}.join("\n")
+  Object getStart() {
+    auto token = ((ParserRuleContext*) orig) -> getStart();
+
+    return to_ruby(token);
+  }
+
+  Object getStop() {
+    auto token = ((ParserRuleContext*) orig) -> getStop();
+
+    return to_ruby(token);
+  }
+CPP
+i = parser_source_lines.index{|x| x == '    .define_method("child_count", &ContextProxy::childCount)'}
+parser_source_lines[i] += "\n" + <<~CPP.split(/\n/).map{|x| x != "" ? "    " + x : x}.join("\n")
+  .define_method("start", &ContextProxy::getStart)
+  .define_method("stop", &ContextProxy::getStop)
+CPP
+
+# - add Token channel and token_index methods
+i = parser_source_lines.index{|x| x == '    .define_class<Token>("Token")'}
+parser_source_lines[i] += "\n" + <<~CPP.split(/\n/).map{|x| x != "" ? "    " + x : x}.join("\n")
+  .define_method("channel", &Token::getChannel)
+  .define_method("token_index", &Token::getTokenIndex)
+CPP
+
+# - add ParserProxy syntax and tokens method
+i = parser_source_lines.index{|x| x == '  static ParserProxy* parseFile(string file) {'}
+parser_source_lines[i + 11] += "\n" + <<~CPP.split(/\n/).map{|x| x != "" ? "  " + x : x}.join("\n") + "\n"
+  Object syntax() {
+    auto ctx = this -> parser -> syntax();
+
+    SyntaxContextProxy proxy((ExpressParser::SyntaxContext*) ctx);
+    return to_ruby(proxy);
+  }
+
+  Array getTokens() {
+    Array a;
+
+    std::vector<Token*> tokens = this -> tokens -> getTokens();
+
+    for (auto &token : tokens) {
+      a.push(token);
+    }
+
+    return a;
+  }
+CPP
+i = parser_source_lines.index{|x| x == '    .define_singleton_method("parse_file", &ParserProxy::parseFile)'}
+parser_source_lines[i] += "\n" + <<~CPP.split(/\n/).map{|x| x != "" ? "    " + x : x}.join("\n")
+  .define_method("syntax", &ParserProxy::syntax)
+  .define_method("tokens", &ParserProxy::getTokens)
+CPP
 
 # - add ParserProxy.visit return value
 i = parser_source_lines.index{|x| x == '  VALUE visit(VisitorProxy* visitor) {'}
@@ -53,11 +116,11 @@ parser_source_lines[i + 2] = '    return result.as<Object>();'
 
 # - add lexer rules null return value
 parser_source_lines.map.with_index.find_all{|x, i| x.start_with?('  auto token = ')}.each do |x, i|
-  parser_source_lines[i] += "\n\n" + <<~STR.split(/\n/).map{|x| "  " + x}.join("\n") + "\n"
+  parser_source_lines[i] += "\n\n" + <<~CPP.split(/\n/).map{|x| x != "" ? "  " + x : x}.join("\n") + "\n"
     if (token == nullptr) {
       return Qnil;
     }
-  STR
+  CPP
 end
 
 # write fixed parser file

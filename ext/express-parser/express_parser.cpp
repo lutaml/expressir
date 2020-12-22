@@ -229,10 +229,8 @@ Class rb_cTerminalNode;
 Class rb_cContextProxy;
 
 template <>
-Object to_ruby<Token*>(Token* const &x) {
-  if (!x) return Nil;
-  return Data_Object<Token>(x, rb_cToken, nullptr, nullptr);
-}
+Object to_ruby<Token*>(Token* const &x);
+
 class ContextProxy {
 public:
   ContextProxy(tree::ParseTree* orig) {
@@ -2018,6 +2016,12 @@ public:
 
 };
 
+
+template <>
+Object to_ruby<Token*>(Token* const &x) {
+  if (!x) return Nil;
+  return Data_Object<Token>(x, rb_cToken, nullptr, nullptr);
+}
 
 template <>
 Object to_ruby<tree::ParseTree*>(tree::ParseTree* const &x) {
@@ -15671,6 +15675,16 @@ public:
     return a;
   }
 
+  Object visit(VisitorProxy* visitor) {
+    auto result = visitor -> visit(this -> parser -> syntax());
+
+    // reset for the next visit call
+    this -> lexer -> reset();
+    this -> parser -> reset();
+
+    return result.as<Object>();
+  }
+
   ~ParserProxy() {
     delete this -> parser;
     delete this -> tokens;
@@ -16517,16 +16531,17 @@ void Init_express_parser() {
 
   rb_cToken = rb_mExpressParser
     .define_class<Token>("Token")
-    .define_method("text", &Token::getText)
     .define_method("channel", &Token::getChannel)
-    .define_method("token_index", &Token::getTokenIndex);
+    .define_method("token_index", &Token::getTokenIndex)
+    .define_method("text", &Token::getText);
 
   rb_cParser = rb_mExpressParser
     .define_class<ParserProxy>("Parser")
     .define_singleton_method("parse", &ParserProxy::parse)
     .define_singleton_method("parse_file", &ParserProxy::parseFile)
     .define_method("syntax", &ParserProxy::syntax)
-    .define_method("tokens", &ParserProxy::getTokens);
+    .define_method("tokens", &ParserProxy::getTokens)
+    .define_method("visit", &ParserProxy::visit);
 
   rb_cParseTree = rb_mExpressParser
     .define_class<tree::ParseTree>("ParseTree");

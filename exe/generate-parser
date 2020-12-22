@@ -19,27 +19,45 @@ generator.generate
 
 # fix issues with generated parser
 parser_source_file = File.join(*%w(ext express-parser express_parser.cpp))
+parser_source_lines = File.read(parser_source_file).split(/\n/)
+
+# - fix Rice Windows compatibility
+i = parser_source_lines.index{|x| x == '#include "iostream"'}
+parser_source_lines[i] = '#include <iostream>'
+i = parser_source_lines.rindex{|x| x.start_with?('#include "rice/')}
+parser_source_lines[i] += "\n\n" + <<~STR.rstrip
+#ifdef _WIN32
+#undef FALSE
+#undef TRUE
+#undef OPTIONAL
+#undef IN
+#undef OUT
+#endif
+STR
 
 # - add ParserProxy.visit return value
-parser_source_lines = File.read(parser_source_file).split(/\n/)
-i = parser_source_lines.find_index{|x| x == '  VALUE visit(VisitorProxy* visitor) {'}
+i = parser_source_lines.index{|x| x == '  VALUE visit(VisitorProxy* visitor) {'}
 parser_source_lines[i] = '  Object visit(VisitorProxy* visitor) {'
 parser_source_lines[i + 1] = '    auto result = visitor -> visit(this -> parser -> syntax());'
 parser_source_lines[i + 7] = '    return result.as<Object>();'
 
 # - add VisitorProxy.visit return value
-i = parser_source_lines.find_index{|x| x == '  Object ruby_visit(ContextProxy* proxy) {'}
+i = parser_source_lines.index{|x| x == '  Object ruby_visit(ContextProxy* proxy) {'}
 parser_source_lines[i + 1] = '    auto result = visit(proxy -> getOriginal());'
 parser_source_lines[i + 2] = '    return result.as<Object>();'
 
 # - add VisitorProxy.visitChildren return value
-i = parser_source_lines.find_index{|x| x == '  Object ruby_visitChildren(ContextProxy* proxy) {'}
+i = parser_source_lines.index{|x| x == '  Object ruby_visitChildren(ContextProxy* proxy) {'}
 parser_source_lines[i + 1] = '    auto result = visitChildren(proxy -> getOriginal());'
 parser_source_lines[i + 2] = '    return result.as<Object>();'
 
 # - add lexer rules null return value
 parser_source_lines.map.with_index.find_all{|x, i| x.start_with?('  auto token = ')}.each do |x, i|
-  parser_source_lines[i] += "\n\n  if (token == nullptr) {\n    return Qnil;\n  }\n"
+  parser_source_lines[i] += "\n\n" + <<~STR.split(/\n/).map{|x| "  " + x}.join("\n") + "\n"
+    if (token == nullptr) {
+      return Qnil;
+    }
+  STR
 end
 
 # write fixed parser file

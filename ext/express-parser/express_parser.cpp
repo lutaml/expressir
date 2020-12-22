@@ -12,7 +12,6 @@
 #include "rice/Director.hpp"
 
 #ifdef _WIN32
-// windef.h we will resists you!
 #undef FALSE
 #undef TRUE
 #undef OPTIONAL

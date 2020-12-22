@@ -1,4 +1,4 @@
-#include "iostream"
+#include <iostream>
 
 #include "antlr4-runtime.h"
 
@@ -10,6 +10,15 @@
 #include "rice/Class.hpp"
 #include "rice/Constructor.hpp"
 #include "rice/Director.hpp"
+
+#ifdef _WIN32
+// windef.h we will resists you!
+#undef FALSE
+#undef TRUE
+#undef OPTIONAL
+#undef IN
+#undef OUT
+#endif
 
 using namespace std;
 using namespace Rice;

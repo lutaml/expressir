@@ -71,7 +71,7 @@ module Expressir
         end
         # puts [start_index, stop_index, ctx.class].inspect
 
-        remark_tokens = @tokens[start_index..stop_index].filter{|x| x.channel == REMARK_CHANNEL}
+        remark_tokens = @tokens[start_index..stop_index].select{|x| x.channel == REMARK_CHANNEL}
         if remark_tokens
           remark_tokens.each do |remark_token|
             remark_text = remark_token.text

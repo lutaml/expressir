@@ -35,8 +35,8 @@ module Expressir
 
       def visit(ctx)
         result = super(ctx)
-        # attach_parent(ctx, result)
-        # attach_remarks(ctx, result)
+        attach_parent(ctx, result)
+        attach_remarks(ctx, result)
         result
       end
 
@@ -64,14 +64,14 @@ module Expressir
 
       def attach_remarks(ctx, node)
         # get remark tokens
-        start_index, stop_index = if ctx.instance_of? ExpressParser::Parser::SyntaxContext
+        start_index, stop_index = if ctx.instance_of? ::ExpressParser::SyntaxContext
           [0, @tokens.size - 1]
         else
           [ctx.start.token_index, ctx.stop.token_index]
         end
         # puts [start_index, stop_index, ctx.class].inspect
 
-        remark_tokens = @tokens.filter_for_channel(start_index, stop_index, REMARK_CHANNEL)
+        remark_tokens = @tokens[start_index..stop_index].filter{|x| x.channel == REMARK_CHANNEL}
         if remark_tokens
           remark_tokens.each do |remark_token|
             remark_text = remark_token.text

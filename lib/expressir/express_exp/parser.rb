@@ -24,8 +24,10 @@ module Expressir
 
         parser = ::ExpressParser::Parser.parse(input)
 
-        visitor = Visitor.new(nil)
-        repo = parser.visit(visitor)
+        parse_tree = parser.syntax()
+
+        visitor = Visitor.new(parser.tokens)
+        repo = visitor.visit(parse_tree)
 
         repo
       end

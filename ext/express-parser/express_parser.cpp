@@ -228,6 +228,11 @@ Class rb_cParseTree;
 Class rb_cTerminalNode;
 Class rb_cContextProxy;
 
+template <>
+Object to_ruby<Token*>(Token* const &x) {
+  if (!x) return Nil;
+  return Data_Object<Token>(x, rb_cToken, nullptr, nullptr);
+}
 class ContextProxy {
 public:
   ContextProxy(tree::ParseTree* orig) {
@@ -240,6 +245,18 @@ public:
 
   std::string getText() {
     return orig -> getText();
+  }
+
+  Object getStart() {
+    auto token = ((ParserRuleContext*) orig) -> getStart();
+
+    return to_ruby(token);
+  }
+
+  Object getStop() {
+    auto token = ((ParserRuleContext*) orig) -> getStop();
+
+    return to_ruby(token);
   }
 
   Array getChildren() {
@@ -2001,12 +2018,6 @@ public:
 
 };
 
-
-template <>
-Object to_ruby<Token*>(Token* const &x) {
-  if (!x) return Nil;
-  return Data_Object<Token>(x, rb_cToken, nullptr, nullptr);
-}
 
 template <>
 Object to_ruby<tree::ParseTree*>(tree::ParseTree* const &x) {
@@ -15641,14 +15652,23 @@ public:
     return parser;
   }
 
-  Object visit(VisitorProxy* visitor) {
-    auto result = visitor -> visit(this -> parser -> syntax());
+  Object syntax() {
+    auto ctx = this -> parser -> syntax();
 
-    // reset for the next visit call
-    this -> lexer -> reset();
-    this -> parser -> reset();
+    SyntaxContextProxy proxy((ExpressParser::SyntaxContext*) ctx);
+    return to_ruby(proxy);
+  }
 
-    return result.as<Object>();
+  Array getTokens() {
+    Array a;
+
+    std::vector<Token*> tokens = this -> tokens -> getTokens();
+
+    for (auto &token : tokens) {
+      a.push(token);
+    }
+
+    return a;
   }
 
   ~ParserProxy() {
@@ -16497,13 +16517,16 @@ void Init_express_parser() {
 
   rb_cToken = rb_mExpressParser
     .define_class<Token>("Token")
-    .define_method("text", &Token::getText);
+    .define_method("text", &Token::getText)
+    .define_method("channel", &Token::getChannel)
+    .define_method("token_index", &Token::getTokenIndex);
 
   rb_cParser = rb_mExpressParser
     .define_class<ParserProxy>("Parser")
     .define_singleton_method("parse", &ParserProxy::parse)
     .define_singleton_method("parse_file", &ParserProxy::parseFile)
-    .define_method("visit", &ParserProxy::visit);
+    .define_method("syntax", &ParserProxy::syntax)
+    .define_method("tokens", &ParserProxy::getTokens);
 
   rb_cParseTree = rb_mExpressParser
     .define_class<tree::ParseTree>("ParseTree");
@@ -16512,6 +16535,8 @@ void Init_express_parser() {
     .define_class<ContextProxy>("Context")
     .define_method("children", &ContextProxy::getChildren)
     .define_method("child_count", &ContextProxy::childCount)
+    .define_method("start", &ContextProxy::getStart)
+    .define_method("stop", &ContextProxy::getStop)
     .define_method("text", &ContextProxy::getText)
     .define_method("parent", &ContextProxy::getParent)
     .define_method("==", &ContextProxy::doubleEquals);

@@ -229,7 +229,22 @@ Class rb_cTerminalNode;
 Class rb_cContextProxy;
 
 template <>
-Object to_ruby<Token*>(Token* const &x);
+Object to_ruby<Token*>(Token* const &x) {
+  if (!x) return Nil;
+  return Data_Object<Token>(x, rb_cToken, nullptr, nullptr);
+}
+
+template <>
+Object to_ruby<tree::ParseTree*>(tree::ParseTree* const &x) {
+  if (!x) return Nil;
+  return Data_Object<tree::ParseTree>(x, rb_cParseTree, nullptr, nullptr);
+}
+
+template <>
+Object to_ruby<tree::TerminalNode*>(tree::TerminalNode* const &x) {
+  if (!x) return Nil;
+  return Data_Object<tree::TerminalNode>(x, rb_cTerminalNode, nullptr, nullptr);
+}
 
 class ContextProxy {
 public:
@@ -2016,24 +2031,6 @@ public:
 
 };
 
-
-template <>
-Object to_ruby<Token*>(Token* const &x) {
-  if (!x) return Nil;
-  return Data_Object<Token>(x, rb_cToken, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<tree::ParseTree*>(tree::ParseTree* const &x) {
-  if (!x) return Nil;
-  return Data_Object<tree::ParseTree>(x, rb_cParseTree, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<tree::TerminalNode*>(tree::TerminalNode* const &x) {
-  if (!x) return Nil;
-  return Data_Object<tree::TerminalNode>(x, rb_cTerminalNode, nullptr, nullptr);
-}
 
 template <>
 Object to_ruby<ExpressParser::AttributeRefContext*>(ExpressParser::AttributeRefContext* const &x) {
@@ -4422,7 +4419,6 @@ Object to_ruby<WidthContextProxy*>(WidthContextProxy* const &x) {
   if (!x) return Nil;
   return Data_Object<WidthContextProxy>(x, rb_cWidthContext, nullptr, nullptr);
 }
-
 
 
 Object AttributeRefContextProxy::attributeId() {
@@ -15682,7 +15678,7 @@ public:
     this -> lexer -> reset();
     this -> parser -> reset();
 
-    return result.as<Object>();
+    return result;
   }
 
   ~ParserProxy() {
@@ -16531,9 +16527,9 @@ void Init_express_parser() {
 
   rb_cToken = rb_mExpressParser
     .define_class<Token>("Token")
+    .define_method("text", &Token::getText)
     .define_method("channel", &Token::getChannel)
-    .define_method("token_index", &Token::getTokenIndex)
-    .define_method("text", &Token::getText);
+    .define_method("token_index", &Token::getTokenIndex);
 
   rb_cParser = rb_mExpressParser
     .define_class<ParserProxy>("Parser")
@@ -16550,9 +16546,9 @@ void Init_express_parser() {
     .define_class<ContextProxy>("Context")
     .define_method("children", &ContextProxy::getChildren)
     .define_method("child_count", &ContextProxy::childCount)
+    .define_method("text", &ContextProxy::getText)
     .define_method("start", &ContextProxy::getStart)
     .define_method("stop", &ContextProxy::getStop)
-    .define_method("text", &ContextProxy::getText)
     .define_method("parent", &ContextProxy::getParent)
     .define_method("==", &ContextProxy::doubleEquals);
 

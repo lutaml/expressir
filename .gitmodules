@@ -1,0 +1,3 @@
+[submodule "ext/express-parser/antlr4-upstream"]
+	path = ext/express-parser/antlr4-upstream
+	url = git://github.com/antlr/antlr4

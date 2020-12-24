@@ -24,12 +24,15 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.executables   = %w[expressir]
 
-  spec.add_runtime_dependency "thor", "~> 1.0"
-  spec.add_runtime_dependency "antlr4-runtime", "~> 0.2.12"
-  spec.add_development_dependency "nokogiri", "~> 1.10"
+  spec.extensions = File.join(*%w(ext express-parser extconf.rb))
 
+  spec.add_runtime_dependency "thor", "~> 1.0"
+  spec.add_runtime_dependency "rice", "~> 2.2.0"
+  spec.add_development_dependency "antlr4-native", "~> 1.1.0"
+  spec.add_development_dependency "nokogiri", "~> 1.10"
   spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "pry", "~> 0.12.2"
   spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "rake-compiler", "~> 1.1.1"
   spec.add_development_dependency "rspec", "~> 3.0"
 end

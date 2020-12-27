@@ -6,6 +6,12 @@ RSpec::Core::RakeTask.new(:spec)
 
 task :default => :spec
 
-Rake::ExtensionTask.new "express_parser" do |ext|
+spec = Gem::Specification.load("expressir.gemspec")
+
+# add your default gem packing task
+Gem::PackageTask.new(spec) do |pkg|
+end
+
+Rake::ExtensionTask.new("express_parser", spec) do |ext|
   ext.ext_dir = "ext/express-parser"
 end

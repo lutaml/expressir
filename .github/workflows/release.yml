@@ -71,4 +71,4 @@ jobs:
           :rubygems_api_key: ${RUBYGEMS_API_KEY}
           EOF
           chmod 0600 ~/.gem/credentials
-          for gem in pkg/*.gem; do gem push $gem; done
+          for gem in pkg/*.gem; do gem push -V $gem; done

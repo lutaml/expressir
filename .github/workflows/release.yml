@@ -66,7 +66,7 @@ jobs:
         run: |
           mkdir -p ~/.gem
           touch ~/.gem/credentials
-          cat > ~/.gem/credentials < EOF
+          cat <<'EOF' >> ~/.gem/credentials
           ---
           :rubygems_api_key: ${RUBYGEMS_API_KEY}
           EOF

@@ -65,10 +65,8 @@ jobs:
           RUBYGEMS_API_KEY: ${{secrets.LUTAML_CI_RUBYGEMS_API_KEY}}
         run: |
           mkdir -p ~/.gem
-          touch ~/.gem/credentials
-          cat <<'EOF' >> ~/.gem/credentials
-          ---
-          :rubygems_api_key: ${RUBYGEMS_API_KEY}
-          EOF
+          echo "--" > ~/.gem/credentials
+          echo ":rubygems_api_key: ${RUBYGEMS_API_KEY}" >> ~/.gem/credentials
           chmod 0600 ~/.gem/credentials
+          gem signin
           for gem in pkg/*.gem; do gem push $gem -V -k rubygems ; done

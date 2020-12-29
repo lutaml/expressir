@@ -56,7 +56,7 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.7'
+          ruby-version: '2.6'
 
       - run: ls -l pkg/
 
@@ -65,8 +65,11 @@ jobs:
           RUBYGEMS_API_KEY: ${{secrets.LUTAML_CI_RUBYGEMS_API_KEY}}
         run: |
           mkdir -p ~/.gem
-          echo "--" > ~/.gem/credentials
-          echo ":rubygems_api_key: ${RUBYGEMS_API_KEY}" >> ~/.gem/credentials
+          cat <<'EOF' > ~/.gem/credentials
+          ---
+          :rubygems_api_key: ${RUBYGEMS_API_KEY}
+          EOF
           chmod 0600 ~/.gem/credentials
+          gem -v
           gem signin
           for gem in pkg/*.gem; do gem push $gem -V -k rubygems ; done

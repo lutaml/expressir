@@ -17,7 +17,9 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = spec.homepage
   spec.metadata["changelog_uri"] = "https://github.com/lutaml/expressir/releases"
 
-  spec.files         = `git ls-files`.split("\n")
+  spec.files         = `git ls-files`.split("\n")\
+    + Dir.glob('ext/express-parser/antlr4-upstream/runtime/Cpp/runtime/**/*')
+
   spec.test_files    = `git ls-files -- {spec}/*`.split("\n")
 
   spec.bindir        = "exe"

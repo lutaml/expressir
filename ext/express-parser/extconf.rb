@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'mkmf-rice'
 
 extension_name = 'express_parser'

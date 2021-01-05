@@ -26,9 +26,14 @@ jobs:
 
       - run: bundle install --jobs 4 --retry 3
 
-      - run: bundle exec rake cross native gem RUBY_CC_VERSION=2.4.10:2.5.8:2.6.6:2.7.2:3.0.0
+      - run: gem install gem-compiler
 
-      - run: bundle exec rake
+      - run: gem build expressir.gemspec
+
+      - run: gem compile expressir-*.gem --no-abi-lock --prune --strip --output pkg
+      # - run: bundle exec rake native gem RUBY_CC_VERSION=2.4.10:2.5.8:2.6.6:2.7.2:3.0.0
+
+      # - run: bundle exec rake
 
       - uses: actions/upload-artifact@v2
         with:

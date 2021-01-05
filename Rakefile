@@ -22,4 +22,5 @@ Gem::Specification.prepend(FixRequiredRubyVersion)
 
 ext = Rake::ExtensionTask.new("express_parser", spec) do |ext|
   ext.ext_dir = "ext/express-parser"
+  ext.cross_compile = true
 end

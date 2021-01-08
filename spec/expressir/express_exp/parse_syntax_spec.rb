@@ -2089,6 +2089,11 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.value).to eq("xxx")
       end
 
+      functions.find{|x| x.id == "utf8_simple_string_expression"}.statements[0].expression.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Literals::String)
+        expect(x.value).to eq("UTF8 test: Příliš žluťoučký kůň úpěl ďábelské ódy.")
+      end
+
       functions.find{|x| x.id == "encoded_string_expression"}.statements[0].expression.tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Literals::String)
         expect(x.value).to eq("000000780000007800000078")

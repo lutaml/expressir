@@ -202,6 +202,7 @@ FUNCTION false_logical_expression : BOOLEAN; RETURN (FALSE); END_FUNCTION;
 FUNCTION unknown_logical_expression : BOOLEAN; RETURN (UNKNOWN); END_FUNCTION;
 FUNCTION real_expression : BOOLEAN; RETURN (999.999); END_FUNCTION;
 FUNCTION simple_string_expression : BOOLEAN; RETURN ('xxx'); END_FUNCTION;
+FUNCTION utf8_simple_string_expression : BOOLEAN; RETURN ('UTF8 test: Příliš žluťoučký kůň úpěl ďábelské ódy.'); END_FUNCTION;
 FUNCTION encoded_string_expression : BOOLEAN; RETURN ("000000780000007800000078"); END_FUNCTION;
 
 -- constant expressions

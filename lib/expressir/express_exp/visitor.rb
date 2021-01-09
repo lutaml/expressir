@@ -93,7 +93,7 @@ module Expressir
 
             # attach tagged remark
             remark_tag = match[1]
-            remark_content = match[2].strip
+            remark_content = match[2].strip.force_encoding('UTF-8')
 
             target_node = nil
             current_node = node
@@ -2429,7 +2429,7 @@ module Expressir
       def handle_simple_string_literal(ctx)
         ctx__text = ctx.text
 
-        value = ctx__text[1..(ctx__text.length - 2)]
+        value = ctx__text[1..(ctx__text.length - 2)].force_encoding('UTF-8')
 
         Model::Literals::String.new({
           value: value
@@ -2439,7 +2439,7 @@ module Expressir
       def handle_encoded_string_literal(ctx)
         ctx__text = ctx.text
 
-        value = ctx__text[1..(ctx__text.length - 2)]
+        value = ctx__text[1..(ctx__text.length - 2)].force_encoding('UTF-8')
 
         Model::Literals::String.new({
           value: value,

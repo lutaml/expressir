@@ -829,6 +829,10 @@ FUNCTION simple_string_expression : BOOLEAN;
   RETURN ('xxx');
 END_FUNCTION;
 
+FUNCTION utf8_simple_string_expression : BOOLEAN;
+  RETURN ('UTF8 test: Příliš žluťoučký kůň úpěl ďábelské ódy.');
+END_FUNCTION;
+
 FUNCTION encoded_string_expression : BOOLEAN;
   RETURN ("000000780000007800000078");
 END_FUNCTION;

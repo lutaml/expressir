@@ -5,13 +5,13 @@ module Expressir
         include Scope
         include Identifier
 
-        attr_accessor :source
+        attr_accessor :aggregate_source
         attr_accessor :expression
 
         def initialize(options = {})
           @id = options[:id]
 
-          @source = options[:source]
+          @aggregate_source = options[:aggregate_source]
           @expression = options[:expression]
         end
 

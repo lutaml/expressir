@@ -40,6 +40,7 @@ module Expressir
 
       def visit(ctx)
         result = super(ctx)
+        attach_source(ctx, result)
         attach_parent(ctx, result)
         attach_remarks(ctx, result)
         result
@@ -55,6 +56,13 @@ module Expressir
     
       def visit_if_map_flatten(ctx)
         ctx.map{|ctx2| visit(ctx2)}.flatten if ctx
+      end
+
+      def attach_source(ctx, node)
+        if node.class.method_defined? :source
+          start_index, stop_index = [ctx.start.token_index, ctx.stop.token_index]
+          node.source = @tokens[start_index..stop_index].map{|x| x.text}.join('').force_encoding('UTF-8')
+        end
       end
 
       def attach_parent(ctx, node)
@@ -98,7 +106,7 @@ module Expressir
 
             # attach tagged remark
             remark_tag = match[1]
-            remark_content = match[2].strip
+            remark_content = match[2].strip.force_encoding('UTF-8')
 
             target_node = nil
             current_node = node
@@ -1614,12 +1622,12 @@ module Expressir
         ctx__logical_expression = ctx.logical_expression
 
         id = visit_if(ctx__variable_id)
-        source = visit_if(ctx__aggregate_source)
+        aggregate_source = visit_if(ctx__aggregate_source)
         expression = visit_if(ctx__logical_expression)
 
         Model::Expressions::QueryExpression.new({
           id: id,
-          source: source,
+          aggregate_source: aggregate_source,
           expression: expression
         })
       end
@@ -2434,7 +2442,7 @@ module Expressir
       def handle_simple_string_literal(ctx)
         ctx__text = ctx.text
 
-        value = ctx__text[1..(ctx__text.length - 2)]
+        value = ctx__text[1..(ctx__text.length - 2)].force_encoding('UTF-8')
 
         Model::Literals::String.new({
           value: value
@@ -2444,7 +2452,7 @@ module Expressir
       def handle_encoded_string_literal(ctx)
         ctx__text = ctx.text
 
-        value = ctx__text[1..(ctx__text.length - 2)]
+        value = ctx__text[1..(ctx__text.length - 2)].force_encoding('UTF-8')
 
         Model::Literals::String.new({
           value: value,

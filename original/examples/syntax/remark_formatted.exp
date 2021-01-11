@@ -94,6 +94,7 @@ an embedded remark including the newline character; therefore, embedded remarks 
 several physical lines.
 *)
 --"remark_schema" The tail remark is written at the end of a physical line.
+--"remark_schema" UTF8 test: Příliš žluťoučký kůň úpěl ďábelské ódy.
 --"remark_schema" universal scope - schema before
 --"remark_schema" universal scope - schema
 --"remark_schema.remark_constant" schema scope - constant

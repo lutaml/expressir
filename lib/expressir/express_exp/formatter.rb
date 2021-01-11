@@ -832,7 +832,7 @@ module Expressir
           ' ',
           '<*',
           ' ',
-          format(node.source),
+          format(node.aggregate_source),
           ' ',
           '|',
           ' ',

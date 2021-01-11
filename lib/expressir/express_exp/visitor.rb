@@ -56,7 +56,7 @@ module Expressir
       def attach_source(ctx, node)
         if node.class.method_defined? :source
           start_index, stop_index = [ctx.start.token_index, ctx.stop.token_index]
-          node.source = @tokens[start_index..stop_index].map{|x| x.text}.join('')
+          node.source = @tokens[start_index..stop_index].map{|x| x.text}.join('').force_encoding('UTF-8')
         end
       end
 

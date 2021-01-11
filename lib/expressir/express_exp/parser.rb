@@ -1,4 +1,9 @@
-require 'express_parser'
+begin
+  RUBY_VERSION =~ /(\d+\.\d+)/
+  require_relative "#{$1}/express_parser"
+rescue LoadError
+  require_relative "express_parser"
+end
 require 'expressir/express_exp/visitor'
 
 module Expressir

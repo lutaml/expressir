@@ -1,23 +1,25 @@
 #include <iostream>
 
-#include "antlr4-runtime.h"
+#include <antlr4-runtime.h>
 
-#include "ExpressParser.h"
-#include "ExpressBaseVisitor.h"
-#include "ExpressLexer.h"
+#include "antlrgen/ExpressParser.h"
+#include "antlrgen/ExpressBaseVisitor.h"
+#include "antlrgen/ExpressLexer.h"
 
-#include "rice/Array.hpp"
-#include "rice/Class.hpp"
-#include "rice/Constructor.hpp"
-#include "rice/Director.hpp"
+#include <rice/Array.hpp>
+#include <rice/Class.hpp>
+#include <rice/Constructor.hpp>
+#include <rice/Director.hpp>
 
 #ifdef _WIN32
-#undef FALSE
-#undef TRUE
 #undef OPTIONAL
 #undef IN
 #undef OUT
 #endif
+
+// ruby-3.0
+#undef FALSE
+#undef TRUE
 
 using namespace std;
 using namespace Rice;

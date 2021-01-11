@@ -1,5 +1,10 @@
-require 'express_parser'
-require 'expressir/model'
+begin
+  RUBY_VERSION =~ /(\d+\.\d+)/
+  require_relative "#{$1}/express_parser"
+rescue LoadError
+  require_relative "express_parser"
+end
+require "expressir/model"
 
 # static shorthands are unwrapped
 # - entity attributes, function/procedure parameters, local variables

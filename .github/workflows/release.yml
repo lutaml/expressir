@@ -7,11 +7,11 @@ on:
 
 jobs:
   pack:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        host: [ linux, windows, darwin ]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -19,26 +19,24 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.4'
-
-      - if: matrix.os == 'macos-latest'
-        run: brew install autoconf automake libtool
+          ruby-version: '2.6'
 
       - run: bundle install --jobs 4 --retry 3
 
-      - run: gem install gem-compiler
-
       - run: gem build expressir.gemspec
-
-      - run: gem compile expressir-*.gem --no-abi-lock --prune --strip --output pkg
-      # - run: bundle exec rake native gem RUBY_CC_VERSION=2.4.10:2.5.8:2.6.6:2.7.2:3.0.0
-
-      # - run: bundle exec rake
 
       - uses: actions/upload-artifact@v2
         with:
-          name: pkg-${{ matrix.os }}
+          name: pkg-${{ matrix.host }}
           path: pkg/*.gem
+
+      - run: bundle exec rake gem:${{ matrix.host }}
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: pkg-ruby
+          path: expressir-*.gem
+
 
   release:
     runs-on: ubuntu-18.04
@@ -46,17 +44,22 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: pkg-ubuntu-latest
+          name: pkg-ruby
           path: pkg
 
       - uses: actions/download-artifact@v2
         with:
-          name: pkg-windows-latest
+          name: pkg-linux
           path: pkg
 
       - uses: actions/download-artifact@v2
         with:
-          name: pkg-macos-latest
+          name: pkg-windows
+          path: pkg
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: pkg-darwin
           path: pkg
 
       - uses: ruby/setup-ruby@v1

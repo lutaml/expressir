@@ -36,7 +36,7 @@ if cross_build
 
   if RbConfig::CONFIG['target_os'] =~ /mingw32|mswin/
     # workaround for 'w64-mingw32-as: express_parser.o: too many sections'
-    $CXXFLAGS << " -Wa,-mbig-obj"
+    $CXXFLAGS << " -O3 -Wa,-mbig-obj"
   end
 else
   require 'mkmf-rice'

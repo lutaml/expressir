@@ -248,14 +248,14 @@ namespace "gem" do
   CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux? || cr.darwin? }.map(&:platform).uniq.each do |plat|
     pre_req = case plat
               when /\linux/
-                "sudo yum install -y git &&"
+                "sudo yum install -y git"
               else
-                "sudo apt-get update -y && sudo apt-get install -y automake autoconf libtool build-essential &&"
+                "sudo apt-get update -y && sudo apt-get install -y automake autoconf libtool build-essential"
               end
     desc "build native gem for #{plat} platform"
     task plat do
       RakeCompilerDock.sh <<~EOT, platform: plat
-        #{pre_req}
+        #{pre_req} &&
         gem install bundler --no-document &&
         bundle &&
         bundle exec rake gem:#{plat}:builder MAKE='nice make -j`nproc`'

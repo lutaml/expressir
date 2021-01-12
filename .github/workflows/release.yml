@@ -25,17 +25,18 @@ jobs:
 
       - run: gem build expressir.gemspec
 
-      - uses: actions/upload-artifact@v2
+      - if: matrix.host == 'linux'
+        uses: actions/upload-artifact@v2
         with:
-          name: pkg-${{ matrix.host }}
-          path: pkg/*.gem
+          name: pkg-ruby
+          path: expressir-*.gem
 
       - run: bundle exec rake gem:${{ matrix.host }}
 
       - uses: actions/upload-artifact@v2
         with:
-          name: pkg-ruby
-          path: expressir-*.gem
+          name: pkg-${{ matrix.host }}
+          path: pkg/*.gem
 
 
   release:

@@ -32,22 +32,13 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-
-      - uses: actions/cache@v2
-        with:
-          path: vendor/bundle
-          key: bundle-${{ matrix.os }}-${{ matrix.ruby }}-${{ hashFiles('**/*.gemspec') }}
-          restore-keys: bundle-${{ matrix.os }}-${{ matrix.ruby }}
-
       - if: matrix.os == 'macos-latest'
         run: brew install autoconf automake libtool
 
-      - run: bundle config set path 'vendor/bundle'
-
-      - run: bundle install --jobs 4 --retry 3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
 
       - run: bundle exec rake compile
 

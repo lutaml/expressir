@@ -33,6 +33,11 @@ if cross_build
   src_paths.push("#{rice_subdir}/rice", "#{rice_subdir}/rice/detail")
 
   $INCFLAGS << " -I#{__dir__}/#{rice_subdir}"
+
+  if RbConfig::CONFIG['target_os'] =~ /mingw32|mswin/
+    # workaround for 'w64-mingw32-as: express_parser.o: too many sections'
+    $CXXFLAGS << " -Wa,-mbig-obj"
+  end
 else
   require 'mkmf-rice'
 
@@ -40,7 +45,6 @@ else
 end
 
 $CPPFLAGS << " -std=c++14 -DANTLR4CPP_STATIC -DHAVE_CXX11"
-# $CPPFLAGS << " -Wa,-mbig-obj" # workaround for 'w64-mingw32-as: express_parser.o: too many sections'
 $INCFLAGS << " -I#{__dir__}/#{antlr4_src}"
 $srcs = []
 
@@ -50,4 +54,4 @@ src_paths.each do |src_path|
   $srcs.push(*Dir["#{abs_src_path}/*.cpp"])
 end
 
-create_makefile extension_name
+create_makefile "expressir/express_exp/#{extension_name}"

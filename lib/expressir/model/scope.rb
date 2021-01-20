@@ -2,10 +2,18 @@ module Expressir
   module Model
     module Scope
       def find(path)
-        path.downcase.split(".").reduce(self) do |acc, curr|
-          if acc and acc.class.method_defined? :children
-            acc.children.find{|x| x.id.downcase == curr}
+        current, rest = path.downcase.split(".", 2)
+
+        child = children.find{|x| x.id.downcase == current}
+
+        if rest
+          if child.class.method_defined? :find
+            child.find(rest)
+          else
+            nil
           end
+        else
+          child
         end
       end
 

@@ -1,6 +1,8 @@
 module Expressir
   module Model
     module Scope
+      attr_accessor :source
+
       def find(path)
         current, rest = path.downcase.split(".", 2)
 

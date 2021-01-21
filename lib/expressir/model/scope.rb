@@ -4,6 +4,11 @@ module Expressir
       def find(path)
         current, rest = path.downcase.split(".", 2)
 
+        # ignore `wr:`, `ip:` part
+        if current.include? ":"
+          _, current = current.split(":", 2)
+        end
+
         child = children.find{|x| x.id.downcase == current}
 
         if rest

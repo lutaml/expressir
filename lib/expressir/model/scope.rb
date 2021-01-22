@@ -4,20 +4,54 @@ module Expressir
       attr_accessor :source
 
       def find(path)
-        current, rest = path.downcase.split(".", 2)
+        current_path, _, rest = path.partition(".")
 
-        # ignore `wr:`, `ip:` part
-        if current.include? ":"
-          _, current = current.split(":", 2)
+        # ignore prefix
+        _, _, current_path = current_path.rpartition(":")
+
+        current_path = current_path.downcase
+        child = children.find{|x| x.id.downcase == current_path}
+
+        if !rest.empty? and child.class.method_defined? :find
+          child.find(rest)
+        else
+          child
         end
+      end
 
-        child = children.find{|x| x.id.downcase == current}
+      def find_or_create(path)
+        child = find(path)
 
-        if rest
-          if child.class.method_defined? :find
-            child.find(rest)
+        if !child
+          # check if path should create implicit informal proposal
+          # see https://github.com/lutaml/expressir/issues/50
+          rest, _, current_path = path.rpartition(".")
+
+          if !rest.empty?
+            child = find(rest)
           else
-            nil
+            child = self
+          end
+
+          if child.class.method_defined? :informal_propositions
+            # ignore prefix
+            _, _, current_path = current_path.rpartition(":")
+
+            # match informal proposition id
+            informal_proposition_id = current_path.match(/^IP\d+$/).to_a[0]
+
+            if informal_proposition_id
+              # create implicit informal proposition
+              informal_proposition = Model::InformalProposition.new({
+                id: informal_proposition_id
+              })
+              informal_proposition.parent = child
+
+              child.informal_propositions ||= []
+              child.informal_propositions << informal_proposition
+
+              informal_proposition
+            end
           end
         else
           child

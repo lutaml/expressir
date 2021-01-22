@@ -489,6 +489,11 @@ RULE statement_rule FOR (empty_entity);
     TRUE;
 END_RULE;
 
+RULE where_label_rule FOR (empty_entity);
+  WHERE
+    WR1 : TRUE;
+END_RULE;
+
 TYPE binary_type = BINARY;
 END_TYPE;
 

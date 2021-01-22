@@ -3,6 +3,8 @@ CONSTANT
   remark_constant : STRING := 'xxx';
 END_CONSTANT;
 TYPE remark_type = ENUMERATION OF (remark_enumeration_item);
+  WHERE
+    WR1 : TRUE;
 END_TYPE;
 
 ENTITY remark_entity;
@@ -14,7 +16,7 @@ ENTITY remark_entity;
   UNIQUE
     remark_unique : remark_attribute;
   WHERE
-    remark_where : TRUE;
+    WR1 : TRUE;
 END_ENTITY;
 
 SUBTYPE_CONSTRAINT remark_subtype_constraint FOR remark_entity;
@@ -85,7 +87,7 @@ RULE remark_rule FOR (remark_entity);
   --"remark_query" rule query scope - rule query
   );
   WHERE
-    remark_where : TRUE;
+    WR1 : TRUE;
 END_RULE;
 END_SCHEMA;
 (*"remark_schema"
@@ -101,6 +103,18 @@ several physical lines.
 --"remark_schema.remark_constant" universal scope - constant
 --"remark_schema.remark_type" schema scope - type
 --"remark_schema.remark_type" universal scope - type
+--"remark_schema.remark_type.WR1" type scope - type where
+--"remark_schema.remark_type.WR1" type scope - type where, with prefix
+--"remark_schema.remark_type.WR1" schema scope - type where
+--"remark_schema.remark_type.WR1" schema scope - type where, with prefix
+--"remark_schema.remark_type.WR1" universal scope - type where
+--"remark_schema.remark_type.WR1" universal scope - type where, with prefix
+--"remark_schema.remark_type.IP1" type scope - type informal proposition
+--"remark_schema.remark_type.IP1" type scope - type informal proposition, with prefix
+--"remark_schema.remark_type.IP1" schema scope - type informal proposition
+--"remark_schema.remark_type.IP1" schema scope - type informal proposition, with prefix
+--"remark_schema.remark_type.IP1" universal scope - type informal proposition
+--"remark_schema.remark_type.IP1" universal scope - type informal proposition, with prefix
 --"remark_schema.remark_enumeration_item" schema scope - enumeration item
 --"remark_schema.remark_enumeration_item" universal scope - enumeration item
 --"remark_schema.remark_entity" schema scope - entity
@@ -117,9 +131,18 @@ several physical lines.
 --"remark_schema.remark_entity.remark_unique" entity scope - entity unique
 --"remark_schema.remark_entity.remark_unique" schema scope - entity unique
 --"remark_schema.remark_entity.remark_unique" universal scope - entity unique
---"remark_schema.remark_entity.remark_where" entity scope - entity where
---"remark_schema.remark_entity.remark_where" schema scope - entity where
---"remark_schema.remark_entity.remark_where" universal scope - entity where
+--"remark_schema.remark_entity.WR1" entity scope - entity where
+--"remark_schema.remark_entity.WR1" entity scope - entity where, with prefix
+--"remark_schema.remark_entity.WR1" schema scope - entity where
+--"remark_schema.remark_entity.WR1" schema scope - entity where, with prefix
+--"remark_schema.remark_entity.WR1" universal scope - entity where
+--"remark_schema.remark_entity.WR1" universal scope - entity where, with prefix
+--"remark_schema.remark_entity.IP1" entity scope - entity informal proposition
+--"remark_schema.remark_entity.IP1" entity scope - entity informal proposition, with prefix
+--"remark_schema.remark_entity.IP1" schema scope - entity informal proposition
+--"remark_schema.remark_entity.IP1" schema scope - entity informal proposition, with prefix
+--"remark_schema.remark_entity.IP1" universal scope - entity informal proposition
+--"remark_schema.remark_entity.IP1" universal scope - entity informal proposition, with prefix
 --"remark_schema.remark_subtype_constraint" schema scope - subtype constraint
 --"remark_schema.remark_subtype_constraint" universal scope - subtype constraint
 --"remark_schema.remark_function" schema scope - function
@@ -170,6 +193,15 @@ several physical lines.
 --"remark_schema.remark_rule.remark_variable" rule scope - rule variable
 --"remark_schema.remark_rule.remark_variable" schema scope - rule variable
 --"remark_schema.remark_rule.remark_variable" universal scope - rule variable
---"remark_schema.remark_rule.remark_where" rule scope - rule where
---"remark_schema.remark_rule.remark_where" schema scope - rule where
---"remark_schema.remark_rule.remark_where" universal scope - rule where
+--"remark_schema.remark_rule.WR1" rule scope - rule where
+--"remark_schema.remark_rule.WR1" rule scope - rule where, with prefix
+--"remark_schema.remark_rule.WR1" schema scope - rule where
+--"remark_schema.remark_rule.WR1" schema scope - rule where, with prefix
+--"remark_schema.remark_rule.WR1" universal scope - rule where
+--"remark_schema.remark_rule.WR1" universal scope - rule where, with prefix
+--"remark_schema.remark_rule.IP1" rule scope - rule informal proposition
+--"remark_schema.remark_rule.IP1" rule scope - rule informal proposition, with prefix
+--"remark_schema.remark_rule.IP1" schema scope - rule informal proposition
+--"remark_schema.remark_rule.IP1" schema scope - rule informal proposition, with prefix
+--"remark_schema.remark_rule.IP1" universal scope - rule informal proposition
+--"remark_schema.remark_rule.IP1" universal scope - rule informal proposition, with prefix

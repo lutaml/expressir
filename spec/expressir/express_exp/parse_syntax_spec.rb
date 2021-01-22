@@ -1438,6 +1438,20 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.where[0].expression.value).to eq(Expressir::Model::Literals::Logical::TRUE)
       end
 
+      rules.find{|x| x.id == "where_label_rule"}.tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Rule)
+        expect(x.applies_to).to be_instance_of(Array)
+        expect(x.applies_to.count).to eq(1)
+        expect(x.applies_to[0]).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+        expect(x.applies_to[0].id).to eq("empty_entity")
+        expect(x.where).to be_instance_of(Array)
+        expect(x.where.count).to eq(1)
+        expect(x.where[0]).to be_instance_of(Expressir::Model::Where)
+        expect(x.where[0].id).to eq("WR1")
+        expect(x.where[0].expression).to be_instance_of(Expressir::Model::Literals::Logical)
+        expect(x.where[0].expression.value).to eq(Expressir::Model::Literals::Logical::TRUE)
+      end
+
       # simple types
       types.find{|x| x.id == "binary_type"}.type.tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Types::Binary)

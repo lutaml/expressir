@@ -10,6 +10,7 @@ module Expressir
       attr_accessor :attributes
       attr_accessor :unique
       attr_accessor :where
+      attr_accessor :informal_propositions
 
       def initialize(options = {})
         @id = options[:id]
@@ -20,6 +21,7 @@ module Expressir
         @attributes = options[:attributes]
         @unique = options[:unique]
         @where = options[:where]
+        @informal_propositions = options[:informal_propositions]
       end
 
       def explicit_attributes
@@ -39,6 +41,7 @@ module Expressir
         items.push(*@attributes) if @attributes
         items.push(*@unique) if @unique
         items.push(*@where) if @where
+        items.push(*@informal_propositions) if @informal_propositions
         items
       end
     end

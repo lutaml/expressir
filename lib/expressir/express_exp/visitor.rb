@@ -6,9 +6,6 @@ rescue LoadError
 end
 require "expressir/model"
 
-# static shorthands are unwrapped
-# - entity attributes, function/procedure parameters, local variables
-#
 # reference type is not recognized
 # see note in A.1.5 Interpreted identifiers
 # > It is expected that identifiers matching these syntax rules are known to an implementation.
@@ -25,6 +22,9 @@ require "expressir/model"
 # > A syntactic construct such as ARRAY[1:3] OF REAL satisfies two syntactic productions —
 # > aggregation_type and general_aggregation_type. It is considered to be instantiable no matter which
 # > production it is required to satisfy in the syntax.
+#
+# static shorthands are unwrapped
+# - entity attributes, function/procedure parameters, local variables
 
 module Expressir
   module ExpressExp
@@ -33,7 +33,7 @@ module Expressir
 
       def initialize(tokens)
         @tokens = tokens
-        @attached_remarks = Set.new
+        @attached_remark_tokens = Set.new
 
         super()
       end
@@ -68,10 +68,18 @@ module Expressir
         @tokens[start_index..stop_index]
       end
 
+      def get_source(ctx)
+        source_tokens = get_tokens(ctx)
+        if source_tokens.last.text == '<EOF>'
+          source_tokens.pop
+        end
+
+        source_tokens.map{|x| x.text}.join('').force_encoding('UTF-8')
+      end
+
       def attach_source(ctx, node)
         if node.class.method_defined? :source
-          source_tokens = get_tokens(ctx).select{|x| x.text != '<EOF>'}
-          node.source = source_tokens.map{|x| x.text}.join('').force_encoding('UTF-8')
+          node.source = get_source(ctx)
         end
       end
 
@@ -85,49 +93,52 @@ module Expressir
         end
       end
 
+      def find_remark_target(node, path)
+        current_node = node
+        target_node = nil
+
+        if current_node.class.method_defined? :find_or_create
+          target_node = current_node.find_or_create(path)
+        end
+        while !target_node and current_node.class.method_defined? :parent and current_node.parent.class.method_defined? :find_or_create
+          current_node = current_node.parent
+          target_node = current_node.find_or_create(path)
+        end
+
+        target_node
+      end
+
       def attach_remarks(ctx, node)
         remark_tokens = get_tokens(ctx).select{|x| x.channel == REMARK_CHANNEL}
-        if remark_tokens
-          remark_tokens.each do |remark_token|
-            remark_text = remark_token.text
 
-            # check if it is tagged remark
-            match = if remark_text.start_with?('--')
-              remark_text[2..-1].match(/^"([^"]*)"(.*)$/)
-            elsif remark_text.start_with?('(*') and remark_text.end_with?('*)')
-              remark_text[2..-3].match(/^"([^"]*)"(.*)$/m)
-            end
-            if !match
-              next
-            end
+        # skip already attached remarks
+        remark_tokens = remark_tokens.select{|x| !@attached_remark_tokens.include?(x)}
 
-            # don't attach already attached tagged remark
-            if @attached_remarks.include? remark_token
-              next
-            end
-
-            # attach tagged remark
-            remark_tag = match[1]
-            remark_content = match[2].strip.force_encoding('UTF-8')
-
-            target_node = nil
-            current_node = node
-            if current_node.class.method_defined? :find
-              target_node = current_node.find(remark_tag)
-            end
-            while !target_node and current_node.class.method_defined? :parent and current_node.parent.class.method_defined? :find
-              current_node = current_node.parent
-              target_node = current_node.find(remark_tag)
-            end
-
-            if target_node
-              target_node.remarks ||= []
-              target_node.remarks << remark_content
-
-              # mark remark as attached, so that it is not attached again at higher nesting level
-              @attached_remarks << remark_token
-            end
+        # parse remarks, find remark targets
+        tagged_remark_tokens = remark_tokens.map do |remark_token|
+          _, remark_tag, remark_text = if remark_token.text.start_with?('--')
+            remark_token.text.match(/^--"([^"]*)"(.*)$/).to_a
+          else
+            remark_token.text.match(/^\(\*"([^"]*)"(.*)\*\)$/m).to_a
           end
+
+          if remark_tag
+            remark_target = find_remark_target(node, remark_tag)
+          end
+          if remark_text
+            remark_text = remark_text.strip.force_encoding('UTF-8')
+          end
+
+          [remark_token, remark_target, remark_text]
+        end.select{|x| x[1]}
+
+        tagged_remark_tokens.each do |remark_token, remark_target, remark_text|
+          # attach remark
+          remark_target.remarks ||= []
+          remark_target.remarks << remark_text
+
+          # mark remark as attached, so that it is not attached again at higher nesting level
+          @attached_remark_tokens << remark_token
         end
       end
 

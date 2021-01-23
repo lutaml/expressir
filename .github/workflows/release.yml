@@ -71,14 +71,19 @@ jobs:
 
       - name: Publish to rubygems.org
         env:
-          RUBYGEMS_API_KEY: ${{secrets.LUTAML_CI_RUBYGEMS_API_KEY}}
+          RUBYGEMS_API_KEY: ${{ secrets.LUTAML_CI_RUBYGEMS_API_KEY }}
         run: |
           mkdir -p ~/.gem
-          cat <<'EOF' > ~/.gem/credentials
+          echo "---"
+          cat > ~/.gem/credentials << EOF
           ---
           :rubygems_api_key: ${RUBYGEMS_API_KEY}
           EOF
+          echo "---"
           chmod 0600 ~/.gem/credentials
-          gem -v
-          gem signin
-          for gem in pkg/*.gem; do gem push $gem -V -k rubygems ; done
+          echo "---"
+          ls -la ~/.gem
+          echo "---"
+          gem signin --debug
+          echo "---"
+          for gem in pkg/*.gem; do gem push $gem -V; done

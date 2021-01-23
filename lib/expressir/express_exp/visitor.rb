@@ -58,10 +58,20 @@ module Expressir
         ctx.map{|ctx2| visit(ctx2)}.flatten if ctx
       end
 
+      def get_tokens(ctx)
+        start_index, stop_index = if ctx.instance_of? ::ExpressParser::SyntaxContext
+          [0, @tokens.size - 1]
+        else
+          [ctx.start.token_index, ctx.stop.token_index]
+        end
+
+        @tokens[start_index..stop_index]
+      end
+
       def attach_source(ctx, node)
         if node.class.method_defined? :source
-          start_index, stop_index = [ctx.start.token_index, ctx.stop.token_index]
-          node.source = @tokens[start_index..stop_index].map{|x| x.text}.join('').force_encoding('UTF-8')
+          source_tokens = get_tokens(ctx).select{|x| x.text != '<EOF>'}
+          node.source = source_tokens.map{|x| x.text}.join('').force_encoding('UTF-8')
         end
       end
 
@@ -76,15 +86,7 @@ module Expressir
       end
 
       def attach_remarks(ctx, node)
-        # get remark tokens
-        start_index, stop_index = if ctx.instance_of? ::ExpressParser::SyntaxContext
-          [0, @tokens.size - 1]
-        else
-          [ctx.start.token_index, ctx.stop.token_index]
-        end
-        # puts [start_index, stop_index, ctx.class].inspect
-
-        remark_tokens = @tokens[start_index..stop_index].select{|x| x.channel == REMARK_CHANNEL}
+        remark_tokens = get_tokens(ctx).select{|x| x.channel == REMARK_CHANNEL}
         if remark_tokens
           remark_tokens.each do |remark_token|
             remark_text = remark_token.text

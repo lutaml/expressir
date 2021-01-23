@@ -1,3 +1,4 @@
+-- schema
 SCHEMA syntax_schema 'version';
 
 -- interfaces

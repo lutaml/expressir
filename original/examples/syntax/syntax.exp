@@ -4,9 +4,11 @@ SCHEMA syntax_schema 'version';
 -- interfaces
 USE FROM contract_schema;
 USE FROM contract_schema (contract);
+USE FROM contract_schema (contract, contract2);
 USE FROM contract_schema (contract AS contract2);
 REFERENCE FROM contract_schema;
 REFERENCE FROM contract_schema (contract);
+REFERENCE FROM contract_schema (contract, contract2);
 REFERENCE FROM contract_schema (contract AS contract2);
 
 -- constants

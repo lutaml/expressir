@@ -395,7 +395,7 @@ module Expressir
               "\n",
               INDENT,
               '(',
-              node.items.map{|x| format(x)},
+              node.items.map{|x| format(x)}.join(', '),
               ')'
             ].join('')
           end,

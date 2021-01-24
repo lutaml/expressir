@@ -47,6 +47,19 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.schema).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
         expect(x.schema.id).to eq("contract_schema")
         expect(x.items).to be_instance_of(Array)
+        expect(x.items.count).to eq(2)
+        expect(x.items[0]).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+        expect(x.items[0].id).to eq("contract")
+        expect(x.items[1]).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+        expect(x.items[1].id).to eq("contract2")
+      end
+
+      use_interfaces[3].tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Interface)
+        expect(x.kind).to eq(Expressir::Model::Interface::USE)
+        expect(x.schema).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+        expect(x.schema.id).to eq("contract_schema")
+        expect(x.items).to be_instance_of(Array)
         expect(x.items.count).to eq(1)
         expect(x.items[0]).to be_instance_of(Expressir::Model::RenamedRef)
         expect(x.items[0].ref).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
@@ -73,6 +86,19 @@ RSpec.describe Expressir::ExpressExp::Parser do
       end
 
       reference_interfaces[2].tap do |x|
+        expect(x).to be_instance_of(Expressir::Model::Interface)
+        expect(x.kind).to eq(Expressir::Model::Interface::REFERENCE)
+        expect(x.schema).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+        expect(x.schema.id).to eq("contract_schema")
+        expect(x.items).to be_instance_of(Array)
+        expect(x.items.count).to eq(2)
+        expect(x.items[0]).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+        expect(x.items[0].id).to eq("contract")
+        expect(x.items[1]).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+        expect(x.items[1].id).to eq("contract2")
+      end
+
+      reference_interfaces[3].tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Interface)
         expect(x.kind).to eq(Expressir::Model::Interface::REFERENCE)
         expect(x.schema).to be_instance_of(Expressir::Model::Expressions::SimpleReference)

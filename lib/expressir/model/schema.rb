@@ -9,6 +9,8 @@ module Expressir
       attr_accessor :constants
       attr_accessor :declarations
 
+      attr_accessor :head_source
+
       def initialize(options = {})
         @id = options[:id]
         @version = options[:version]

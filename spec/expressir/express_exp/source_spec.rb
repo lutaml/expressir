@@ -26,7 +26,7 @@ RSpec.describe Expressir::Model::Scope do
 
   def sample_file
     @sample_file ||= Expressir.root_path.join(
-      "original", "examples", "syntax", "syntax.exp"
+      "original", "examples", "syntax", "source.exp"
     )
   end
 end

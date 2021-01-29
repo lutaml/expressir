@@ -10,13 +10,16 @@ RSpec.describe Expressir::Model do
       expect(repo.find('remark_schema')).to be_instance_of(Expressir::Model::Schema)
       expect(repo.find('remark_schema.remark_constant')).to be_instance_of(Expressir::Model::Constant)
       expect(repo.find('remark_schema.remark_type')).to be_instance_of(Expressir::Model::Type)
+      expect(repo.find('remark_schema.remark_type.WR1')).to be_instance_of(Expressir::Model::Where)
+      expect(repo.find('remark_schema.remark_type.wr:WR1')).to be_instance_of(Expressir::Model::Where)
       expect(repo.find('remark_schema.remark_enumeration_item')).to be_instance_of(Expressir::Model::EnumerationItem)
       expect(repo.find('remark_schema.remark_entity')).to be_instance_of(Expressir::Model::Entity)
       expect(repo.find('remark_schema.remark_entity.remark_attribute')).to be_instance_of(Expressir::Model::Attribute)
       expect(repo.find('remark_schema.remark_entity.remark_derived_attribute')).to be_instance_of(Expressir::Model::Attribute)
       expect(repo.find('remark_schema.remark_entity.remark_inverse_attribute')).to be_instance_of(Expressir::Model::Attribute)
       expect(repo.find('remark_schema.remark_entity.remark_unique')).to be_instance_of(Expressir::Model::Unique)
-      expect(repo.find('remark_schema.remark_entity.remark_where')).to be_instance_of(Expressir::Model::Where)
+      expect(repo.find('remark_schema.remark_entity.WR1')).to be_instance_of(Expressir::Model::Where)
+      expect(repo.find('remark_schema.remark_entity.wr:WR1')).to be_instance_of(Expressir::Model::Where)
       expect(repo.find('remark_schema.remark_subtype_constraint')).to be_instance_of(Expressir::Model::SubtypeConstraint)
       expect(repo.find('remark_schema.remark_function')).to be_instance_of(Expressir::Model::Function)
       expect(repo.find('remark_schema.remark_function.remark_parameter')).to be_instance_of(Expressir::Model::Parameter)
@@ -35,7 +38,8 @@ RSpec.describe Expressir::Model do
       expect(repo.find('remark_schema.remark_rule.remark_enumeration_item')).to be_instance_of(Expressir::Model::EnumerationItem)
       expect(repo.find('remark_schema.remark_rule.remark_constant')).to be_instance_of(Expressir::Model::Constant)
       expect(repo.find('remark_schema.remark_rule.remark_variable')).to be_instance_of(Expressir::Model::Variable)
-      expect(repo.find('remark_schema.remark_rule.remark_where')).to be_instance_of(Expressir::Model::Where)
+      expect(repo.find('remark_schema.remark_rule.WR1')).to be_instance_of(Expressir::Model::Where)
+      expect(repo.find('remark_schema.remark_rule.wr:WR1')).to be_instance_of(Expressir::Model::Where)
 
       # schema scope
       schema = repo.schemas.first
@@ -47,7 +51,8 @@ RSpec.describe Expressir::Model do
       expect(schema.find('remark_entity.remark_derived_attribute')).to be_instance_of(Expressir::Model::Attribute)
       expect(schema.find('remark_entity.remark_inverse_attribute')).to be_instance_of(Expressir::Model::Attribute)
       expect(schema.find('remark_entity.remark_unique')).to be_instance_of(Expressir::Model::Unique)
-      expect(schema.find('remark_entity.remark_where')).to be_instance_of(Expressir::Model::Where)
+      expect(schema.find('remark_entity.WR1')).to be_instance_of(Expressir::Model::Where)
+      expect(schema.find('remark_entity.wr:WR1')).to be_instance_of(Expressir::Model::Where)
       expect(schema.find('remark_subtype_constraint')).to be_instance_of(Expressir::Model::SubtypeConstraint)
       expect(schema.find('remark_function')).to be_instance_of(Expressir::Model::Function)
       expect(schema.find('remark_function.remark_parameter')).to be_instance_of(Expressir::Model::Parameter)
@@ -66,7 +71,13 @@ RSpec.describe Expressir::Model do
       expect(schema.find('remark_rule.remark_enumeration_item')).to be_instance_of(Expressir::Model::EnumerationItem)
       expect(schema.find('remark_rule.remark_constant')).to be_instance_of(Expressir::Model::Constant)
       expect(schema.find('remark_rule.remark_variable')).to be_instance_of(Expressir::Model::Variable)
-      expect(schema.find('remark_rule.remark_where')).to be_instance_of(Expressir::Model::Where)
+      expect(schema.find('remark_rule.WR1')).to be_instance_of(Expressir::Model::Where)
+      expect(schema.find('remark_rule.wr:WR1')).to be_instance_of(Expressir::Model::Where)
+
+      # type scope
+      type = schema.types.first
+      expect(type.find('WR1')).to be_instance_of(Expressir::Model::Where)
+      expect(type.find('wr:WR1')).to be_instance_of(Expressir::Model::Where)
 
       # entity scope
       entity = schema.entities.first
@@ -74,7 +85,8 @@ RSpec.describe Expressir::Model do
       expect(entity.find('remark_derived_attribute')).to be_instance_of(Expressir::Model::Attribute)
       expect(entity.find('remark_inverse_attribute')).to be_instance_of(Expressir::Model::Attribute)
       expect(entity.find('remark_unique')).to be_instance_of(Expressir::Model::Unique)
-      expect(entity.find('remark_where')).to be_instance_of(Expressir::Model::Where)
+      expect(entity.find('WR1')).to be_instance_of(Expressir::Model::Where)
+      expect(entity.find('wr:WR1')).to be_instance_of(Expressir::Model::Where)
 
       # function scope
       function = schema.functions.first
@@ -98,7 +110,8 @@ RSpec.describe Expressir::Model do
       expect(rule.find('remark_enumeration_item')).to be_instance_of(Expressir::Model::EnumerationItem)
       expect(rule.find('remark_constant')).to be_instance_of(Expressir::Model::Constant)
       expect(rule.find('remark_variable')).to be_instance_of(Expressir::Model::Variable)
-      expect(rule.find('remark_where')).to be_instance_of(Expressir::Model::Where)
+      expect(rule.find('WR1')).to be_instance_of(Expressir::Model::Where)
+      expect(rule.find('wr:WR1')).to be_instance_of(Expressir::Model::Where)
     end
   end
 

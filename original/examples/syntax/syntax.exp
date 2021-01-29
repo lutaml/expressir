@@ -17,7 +17,7 @@ CONSTANT empty_constant : BOOLEAN := TRUE; END_CONSTANT;
 -- types
 TYPE empty_type = BOOLEAN; END_TYPE;
 TYPE where_type = BOOLEAN; WHERE TRUE; END_TYPE;
-TYPE where_label_type = BOOLEAN; WHERE WR1 : TRUE; END_TYPE; 
+TYPE where_label_type = BOOLEAN; WHERE WR1 : TRUE; END_TYPE;
 
 -- entities
 ENTITY empty_entity; END_ENTITY;
@@ -117,6 +117,7 @@ RULE variable_expression_rule FOR (empty_entity); LOCAL test : BOOLEAN := TRUE; 
 RULE multiple_variable_expression_rule FOR (empty_entity); LOCAL test : BOOLEAN := TRUE; test2 : BOOLEAN := TRUE; END_LOCAL; WHERE TRUE; END_RULE;
 RULE multiple_shorthand_variable_expression_rule FOR (empty_entity); LOCAL test, test2 : BOOLEAN := TRUE; END_LOCAL; WHERE TRUE; END_RULE;
 RULE statement_rule FOR (empty_entity); ; WHERE TRUE; END_RULE;
+RULE where_label_rule FOR (empty_entity); WHERE WR1 : TRUE; END_RULE;
 
 -- simple types
 TYPE binary_type = BINARY; END_TYPE;

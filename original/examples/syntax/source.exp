@@ -1,0 +1,16 @@
+SCHEMA entity_schema;
+-- body
+ENTITY empty_entity; END_ENTITY;
+END_SCHEMA;
+
+SCHEMA version_entity_schema 'version';
+-- body
+ENTITY empty_entity; END_ENTITY;
+END_SCHEMA;
+
+SCHEMA version_interface_entity_schema 'version';
+USE FROM contract_schema;
+REFERENCE FROM contract_schema;
+-- body
+ENTITY empty_entity; END_ENTITY;
+END_SCHEMA;

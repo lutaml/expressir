@@ -58,6 +58,14 @@ module Expressir
         ctx.map{|ctx2| visit(ctx2)}.flatten if ctx
       end
 
+      def get_tokens_source(tokens)
+        if tokens.last.text == '<EOF>'
+          tokens.pop
+        end
+
+        tokens.map{|x| x.text}.join('').force_encoding('UTF-8')
+      end
+
       def get_tokens(ctx)
         start_index, stop_index = if ctx.instance_of? ::ExpressParser::SyntaxContext
           [0, @tokens.size - 1]
@@ -68,18 +76,34 @@ module Expressir
         @tokens[start_index..stop_index]
       end
 
-      def get_source(ctx)
-        source_tokens = get_tokens(ctx)
-        if source_tokens.last.text == '<EOF>'
-          source_tokens.pop
+      def get_head_tokens(ctx)
+        start_index, stop_index = if ctx.instance_of? ::ExpressParser::SchemaDeclContext
+          start_index = ctx.start.token_index
+          stop_index = if ctx.schema_body.interface_specification.length > 0
+            ctx.schema_body.interface_specification.last.stop.token_index
+          elsif ctx.schema_version_id
+            ctx.schema_version_id.stop.token_index + 1
+          else
+            ctx.schema_id.stop.token_index + 1
+          end
+
+          [start_index, stop_index]
         end
 
-        source_tokens.map{|x| x.text}.join('').force_encoding('UTF-8')
+        if start_index and stop_index
+          @tokens[start_index..stop_index]
+        end
       end
 
       def attach_source(ctx, node)
         if node.class.method_defined? :source
-          node.source = get_source(ctx)
+          tokens = get_tokens(ctx)
+          node.source = get_tokens_source(tokens)
+        end
+
+        if node.class.method_defined? :head_source
+          tokens = get_head_tokens(ctx)
+          node.head_source = get_tokens_source(tokens)
         end
       end
 

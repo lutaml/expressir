@@ -1,5 +1,7 @@
 require 'expressir/model/model_element'
 
+require 'expressir/model/cache'
+
 require 'expressir/model/identifier'
 
 require 'expressir/model/attribute'

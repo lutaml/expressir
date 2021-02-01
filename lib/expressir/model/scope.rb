@@ -10,7 +10,7 @@ module Expressir
         _, _, current_path = current_path.rpartition(":")
 
         current_path = current_path.downcase
-        child = children.find{|x| x.id.downcase == current_path}
+        child = children.find{|x| x.id and x.id.downcase == current_path}
 
         if !rest.empty? and child.class.method_defined? :find
           child.find(rest)

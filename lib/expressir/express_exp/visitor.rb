@@ -5,6 +5,7 @@ rescue LoadError
   require_relative "express_parser"
 end
 require "expressir/model"
+require "set"
 
 # reference type is not recognized
 # see note in A.1.5 Interpreted identifiers

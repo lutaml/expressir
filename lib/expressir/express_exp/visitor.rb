@@ -33,7 +33,7 @@ module Expressir
 
       def initialize(tokens)
         @tokens = tokens
-        @attached_remark_tokens = Set.new
+        @attached_remark_tokens = ::Set.new
 
         super()
       end

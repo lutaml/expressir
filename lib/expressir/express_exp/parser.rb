@@ -9,7 +9,7 @@ require 'expressir/express_exp/visitor'
 module Expressir
   module ExpressExp
     class Parser
-      def self.from_exp(file)
+      def self.from_file(file)
         input = File.read(file)
 
 =begin
@@ -35,6 +35,19 @@ module Expressir
         repo = visitor.visit(parse_tree)
 
         repo
+      end
+
+      def self.from_files(files)
+        schemas = files.map{|file| self.from_file(file).schemas}.flatten
+
+        Model::Repository.new({
+          schemas: schemas
+        })
+      end
+
+      # deprecated
+      def self.from_exp(file)
+        self.from_file(file)
       end
     end
   end

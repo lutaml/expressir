@@ -38,9 +38,11 @@ RSpec.describe Expressir::ExpressExp::Parser do
         x.type.items.first.tap do |x|
           expect(x).to be_instance_of(Expressir::Model::EnumerationItem)
           expect(x.remarks).to be_instance_of(Array)
-          expect(x.remarks.count).to eq(2)
+          expect(x.remarks.count).to eq(4)
           expect(x.remarks[0]).to eq("schema scope - enumeration item")
-          expect(x.remarks[1]).to eq("universal scope - enumeration item")
+          expect(x.remarks[1]).to eq("schema scope - enumeration item, on the same level as the type")
+          expect(x.remarks[2]).to eq("universal scope - enumeration item")
+          expect(x.remarks[3]).to eq("universal scope - enumeration item, on the same level as the type")
         end
       end
 
@@ -176,10 +178,13 @@ RSpec.describe Expressir::ExpressExp::Parser do
         x.type.items.first.tap do |x|
           expect(x).to be_instance_of(Expressir::Model::EnumerationItem)
           expect(x.remarks).to be_instance_of(Array)
-          expect(x.remarks.count).to eq(3)
+          expect(x.remarks.count).to eq(6)
           expect(x.remarks[0]).to eq("function scope - function enumeration item")
-          expect(x.remarks[1]).to eq("schema scope - function enumeration item")
-          expect(x.remarks[2]).to eq("universal scope - function enumeration item")
+          expect(x.remarks[1]).to eq("function scope - function enumeration item, on the same level as the type")
+          expect(x.remarks[2]).to eq("schema scope - function enumeration item")
+          expect(x.remarks[3]).to eq("schema scope - function enumeration item, on the same level as the type")
+          expect(x.remarks[4]).to eq("universal scope - function enumeration item")
+          expect(x.remarks[5]).to eq("universal scope - function enumeration item, on the same level as the type")
         end
       end
 
@@ -252,10 +257,13 @@ RSpec.describe Expressir::ExpressExp::Parser do
         x.type.items.first.tap do |x|
           expect(x).to be_instance_of(Expressir::Model::EnumerationItem)
           expect(x.remarks).to be_instance_of(Array)
-          expect(x.remarks.count).to eq(3)
+          expect(x.remarks.count).to eq(6)
           expect(x.remarks[0]).to eq("procedure scope - procedure enumeration item")
-          expect(x.remarks[1]).to eq("schema scope - procedure enumeration item")
-          expect(x.remarks[2]).to eq("universal scope - procedure enumeration item")
+          expect(x.remarks[1]).to eq("procedure scope - procedure enumeration item, on the same level as the type")
+          expect(x.remarks[2]).to eq("schema scope - procedure enumeration item")
+          expect(x.remarks[3]).to eq("schema scope - procedure enumeration item, on the same level as the type")
+          expect(x.remarks[4]).to eq("universal scope - procedure enumeration item")
+          expect(x.remarks[5]).to eq("universal scope - procedure enumeration item, on the same level as the type")
         end
       end
 
@@ -319,10 +327,13 @@ RSpec.describe Expressir::ExpressExp::Parser do
         x.type.items.first.tap do |x|
           expect(x).to be_instance_of(Expressir::Model::EnumerationItem)
           expect(x.remarks).to be_instance_of(Array)
-          expect(x.remarks.count).to eq(3)
+          expect(x.remarks.count).to eq(6)
           expect(x.remarks[0]).to eq("rule scope - rule enumeration item")
-          expect(x.remarks[1]).to eq("schema scope - rule enumeration item")
-          expect(x.remarks[2]).to eq("universal scope - rule enumeration item")
+          expect(x.remarks[1]).to eq("rule scope - rule enumeration item, on the same level as the type")
+          expect(x.remarks[2]).to eq("schema scope - rule enumeration item")
+          expect(x.remarks[3]).to eq("schema scope - rule enumeration item, on the same level as the type")
+          expect(x.remarks[4]).to eq("universal scope - rule enumeration item")
+          expect(x.remarks[5]).to eq("universal scope - rule enumeration item, on the same level as the type")
         end
       end
 

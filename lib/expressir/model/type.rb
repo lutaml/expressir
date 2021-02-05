@@ -18,6 +18,11 @@ module Expressir
 
       def children
         items = []
+        items.push(*[
+          *if @type.instance_of? Expressir::Model::Types::Enumeration
+            @type.items
+          end
+        ])
         items.push(*@where) if @where
         items.push(*@informal_propositions) if @informal_propositions
         items

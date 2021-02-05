@@ -111,7 +111,7 @@ module Expressir
       def attach_parent(ctx, node)
         if node.class.method_defined? :children
           node.children.each do |child_node|
-            if child_node.class.method_defined? :parent
+            if child_node.class.method_defined? :parent and !child_node.parent
               child_node.parent = node
             end
           end

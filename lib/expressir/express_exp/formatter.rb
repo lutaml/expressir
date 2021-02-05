@@ -1437,11 +1437,7 @@ module Expressir
         [
           *format_remarks(node),
           *if node.class.method_defined? :children
-            node.children.flat_map do |x|
-              if x != node
-                format_scope_remarks(x)
-              end
-            end
+            node.children.select{|x| x.parent == node}.flat_map{|x| format_scope_remarks(x)}
           end
         ]
       end

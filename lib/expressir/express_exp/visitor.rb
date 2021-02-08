@@ -46,7 +46,7 @@ module Expressir
       def visit(ctx)
         result = super(ctx)
         attach_source(ctx, result)
-        attach_parent(ctx, result)
+        attach_parent(result)
         attach_remarks(ctx, result)
         result
       end
@@ -124,13 +124,9 @@ module Expressir
         end
       end
 
-      def attach_parent(ctx, node)
-        if node.class.method_defined? :children
-          node.children.each do |child_node|
-            if child_node.class.method_defined? :parent and !child_node.parent
-              child_node.parent = node
-            end
-          end
+      def attach_parent(node)
+        if node.class.method_defined? :attach_parent_to_children
+          node.attach_parent_to_children
         end
       end
 

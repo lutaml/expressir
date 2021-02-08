@@ -10,7 +10,7 @@ module Expressir
           key = variable.to_s.sub(/^@/, '')
           value = instance_variable_get(variable)
 
-          # skip default values (nil, empty array)
+          # skip empty values (nil, empty array)
           if !skip_empty or !(value.nil? or (value.is_a? Array and value.count == 0))
             result[key] = if value.is_a? Array
               value.map do |value|
@@ -51,13 +51,8 @@ module Expressir
 
         node = Object.const_get(node_class).new(node_options)
 
-        # attach parent
-        if node.class.method_defined? :children
-          node.children.each do |child_node|
-            if child_node.class.method_defined? :parent and !child_node.parent
-              child_node.parent = node
-            end
-          end
+        if node.class.method_defined? :attach_parent_to_children
+          node.attach_parent_to_children
         end
 
         node

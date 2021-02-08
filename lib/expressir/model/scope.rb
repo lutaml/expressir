@@ -55,6 +55,14 @@ module Expressir
         end
       end
 
+      def attach_parent_to_children
+        children.each do |child_node|
+          if child_node.class.method_defined? :parent and !child_node.parent
+            child_node.parent = self
+          end
+        end
+      end
+
       def children
         raise 'Not implemented'
       end

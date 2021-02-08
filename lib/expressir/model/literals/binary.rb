@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Literals
-      class Binary
+      class Binary < ModelElement
         attr_accessor :value
 
         def initialize(options = {})

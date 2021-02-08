@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Types
-      class Boolean
+      class Boolean < ModelElement
       end
     end
   end

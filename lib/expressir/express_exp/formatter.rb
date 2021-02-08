@@ -233,6 +233,10 @@ module Expressir
       end
 
       def format_entity(node)
+        explicit_attributes = node.attributes.select{|x| x.kind == Model::Attribute::EXPLICIT}
+        derived_attributes = node.attributes.select{|x| x.kind == Model::Attribute::DERIVED}
+        inverse_attributes = node.attributes.select{|x| x.kind == Model::Attribute::INVERSE}
+
         [
           [
             'ENTITY',
@@ -290,19 +294,19 @@ module Expressir
             end,
             ';'
           ].join(''),
-          *if node.explicit_attributes and node.explicit_attributes.length > 0
-            indent(node.explicit_attributes.map{|x| format(x)}.join("\n"))
+          *if explicit_attributes and explicit_attributes.length > 0
+            indent(explicit_attributes.map{|x| format(x)}.join("\n"))
           end,
-          *if node.derived_attributes and node.derived_attributes.length > 0
+          *if derived_attributes and derived_attributes.length > 0
             indent([
               'DERIVE',
-              indent(node.derived_attributes.map{|x| format(x)}.join("\n")),
+              indent(derived_attributes.map{|x| format(x)}.join("\n")),
             ].join("\n"))
           end,
-          *if node.inverse_attributes and node.inverse_attributes.length > 0
+          *if inverse_attributes and inverse_attributes.length > 0
             indent([
               'INVERSE',
-              indent(node.inverse_attributes.map{|x| format(x)}.join("\n")),
+              indent(inverse_attributes.map{|x| format(x)}.join("\n")),
             ].join("\n"))
           end,
           *if node.unique and node.unique.length > 0
@@ -347,8 +351,20 @@ module Expressir
             format(node.return_type),
             ';'
           ].join(''),
-          *if node.declarations and node.declarations.length > 0
-            indent(node.declarations.map{|x| format(x)}.join("\n"))
+          *if node.types and node.types.length > 0
+            indent(node.types.map{|x| format(x)}.join("\n"))
+          end,
+          *if node.entities and node.entities.length > 0
+            indent(node.entities.map{|x| format(x)}.join("\n"))
+          end,
+          *if node.subtype_constraints and node.subtype_constraints.length > 0
+            indent(node.subtype_constraints.map{|x| format(x)}.join("\n"))
+          end,
+          *if node.functions and node.functions.length > 0
+            indent(node.functions.map{|x| format(x)}.join("\n"))
+          end,
+          *if node.procedures and node.procedures.length > 0
+            indent(node.procedures.map{|x| format(x)}.join("\n"))
           end,
           *if node.constants and node.constants.length > 0
             indent([
@@ -434,8 +450,20 @@ module Expressir
             end,
             ';'
           ].join(''),
-          *if node.declarations and node.declarations.length > 0
-            indent(node.declarations.map{|x| format(x)}.join("\n"))
+          *if node.types and node.types.length > 0
+            indent(node.types.map{|x| format(x)}.join("\n"))
+          end,
+          *if node.entities and node.entities.length > 0
+            indent(node.entities.map{|x| format(x)}.join("\n"))
+          end,
+          *if node.subtype_constraints and node.subtype_constraints.length > 0
+            indent(node.subtype_constraints.map{|x| format(x)}.join("\n"))
+          end,
+          *if node.functions and node.functions.length > 0
+            indent(node.functions.map{|x| format(x)}.join("\n"))
+          end,
+          *if node.procedures and node.procedures.length > 0
+            indent(node.procedures.map{|x| format(x)}.join("\n"))
           end,
           *if node.constants and node.constants.length > 0
             indent([
@@ -500,8 +528,20 @@ module Expressir
             ')',
             ';'
           ].join(''),
-          *if node.declarations and node.declarations.length > 0
-            indent(node.declarations.map{|x| format(x)}.join("\n"))
+          *if node.types and node.types.length > 0
+            indent(node.types.map{|x| format(x)}.join("\n"))
+          end,
+          *if node.entities and node.entities.length > 0
+            indent(node.entities.map{|x| format(x)}.join("\n"))
+          end,
+          *if node.subtype_constraints and node.subtype_constraints.length > 0
+            indent(node.subtype_constraints.map{|x| format(x)}.join("\n"))
+          end,
+          *if node.functions and node.functions.length > 0
+            indent(node.functions.map{|x| format(x)}.join("\n"))
+          end,
+          *if node.procedures and node.procedures.length > 0
+            indent(node.procedures.map{|x| format(x)}.join("\n"))
           end,
           *if node.constants and node.constants.length > 0
             indent([
@@ -566,8 +606,23 @@ module Expressir
               ].join('')
             ].join("\n")
           end,
-          *if node.declarations and node.declarations.length > 0
-            node.declarations.map{|x| format(x)}.join("\n\n")
+          *if node.types and node.types.length > 0
+            node.types.map{|x| format(x)}.join("\n")
+          end,
+          *if node.entities and node.entities.length > 0
+            node.entities.map{|x| format(x)}.join("\n")
+          end,
+          *if node.subtype_constraints and node.subtype_constraints.length > 0
+            node.subtype_constraints.map{|x| format(x)}.join("\n")
+          end,
+          *if node.functions and node.functions.length > 0
+            node.functions.map{|x| format(x)}.join("\n")
+          end,
+          *if node.procedures and node.procedures.length > 0
+            node.procedures.map{|x| format(x)}.join("\n")
+          end,
+          *if node.rules and node.rules.length > 0
+            node.rules.map{|x| format(x)}.join("\n")
           end,
           [
             'END_SCHEMA',
@@ -1226,7 +1281,7 @@ module Expressir
               format(node.extension_type)
             ].join('')
           end,
-          *if node.extension_items
+          *if node.extension_items and node.extension_items.length > 0
             [
               ' ',
               'WITH',
@@ -1330,7 +1385,7 @@ module Expressir
               format(node.extension_type)
             ].join('')
           end,
-          *if node.extension_items
+          *if node.extension_items and node.extension_items.length > 0
             [
               ' ',
               'WITH',

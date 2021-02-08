@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Statements
-      class Skip
+      class Skip < ModelElement
       end
     end
   end

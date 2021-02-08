@@ -26,6 +26,10 @@ require "set"
 #
 # static shorthands are unwrapped
 # - entity attributes, function/procedure parameters, local variables
+#
+# all access to ctx members must happen before calling other visitor code
+# - prevents segfault in ANTLR4 C++ runtime, not sure why they are caused
+# - e.g. see visit_schema_decl
 
 module Expressir
   module ExpressExp
@@ -47,16 +51,28 @@ module Expressir
         result
       end
 
-      def visit_if(ctx)
-        visit(ctx) if ctx
+      def visit_if(ctx, default = nil)
+        if ctx
+          visit(ctx)
+        else
+          default
+        end
       end
     
       def visit_if_map(ctx)
-        ctx.map{|ctx2| visit(ctx2)} if ctx
+        if ctx
+          ctx.map{|ctx2| visit(ctx2)}
+        else
+          []
+        end
       end
     
       def visit_if_map_flatten(ctx)
-        ctx.map{|ctx2| visit(ctx2)}.flatten if ctx
+        if ctx
+          ctx.map{|ctx2| visit(ctx2)}.flatten
+        else
+          []
+        end
       end
 
       def get_tokens_source(tokens)
@@ -416,8 +432,8 @@ module Expressir
 
         bound1 = visit_if(ctx__bound_spec__bound1)
         bound2 = visit_if(ctx__bound_spec__bound2)
-        optional = !!ctx__OPTIONAL
-        unique = !!ctx__UNIQUE
+        optional = ctx__OPTIONAL && true
+        unique = ctx__UNIQUE && true
         base_type = visit_if(ctx__instantiable_type)
         
         Model::Types::Array.new({
@@ -501,7 +517,7 @@ module Expressir
         ctx__width_spec__FIXED = ctx__width_spec&.FIXED
 
         width = visit_if(ctx__width_spec__width)
-        fixed = !!ctx__width_spec__FIXED
+        fixed = ctx__width_spec__FIXED && true
 
         Model::Types::Binary.new({
           width: width,
@@ -753,7 +769,7 @@ module Expressir
         ctx__entity_body__where_clause = ctx__entity_body&.where_clause
 
         id = visit_if(ctx__entity_head__entity_id)
-        abstract = !!(ctx__entity_head__subsuper__supertype_constraint__abstract_entity_declaration || ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration)
+        abstract = (ctx__entity_head__subsuper__supertype_constraint__abstract_entity_declaration || ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration) && true
         supertype_expression = visit_if(ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration || ctx__entity_head__subsuper__supertype_constraint__supertype_rule)
         subtype_of = visit_if(ctx__entity_head__subsuper__subtype_declaration)
         attributes = [
@@ -761,8 +777,8 @@ module Expressir
           *visit_if(ctx__entity_body__derive_clause),
           *visit_if(ctx__entity_body__inverse_clause)
         ]
-        unique = visit_if(ctx__entity_body__unique_clause)
-        where = visit_if(ctx__entity_body__where_clause)
+        unique = visit_if(ctx__entity_body__unique_clause, [])
+        where = visit_if(ctx__entity_body__where_clause, [])
 
         Model::Entity.new({
           id: id,
@@ -835,10 +851,10 @@ module Expressir
         ctx__enumeration_extension__type_ref = ctx__enumeration_extension&.type_ref
         ctx__enumeration_extension__enumeration_items = ctx__enumeration_extension&.enumeration_items
 
-        extensible = !!ctx__EXTENSIBLE
-        items = visit_if(ctx__enumeration_items)
+        extensible = ctx__EXTENSIBLE && true
+        items = visit_if(ctx__enumeration_items, [])
         extension_type = visit_if(ctx__enumeration_extension__type_ref)
-        extension_items = visit_if(ctx__enumeration_extension__enumeration_items)
+        extension_items = visit_if(ctx__enumeration_extension__enumeration_items, [])
 
         Model::Types::Enumeration.new({
           extensible: extensible,
@@ -858,7 +874,7 @@ module Expressir
         ctx__parameter_type = ctx.parameter_type
 
         attributes = visit_if_map(ctx__attribute_decl)
-        optional = !!ctx__OPTIONAL
+        optional = ctx__OPTIONAL && true
         type = visit_if(ctx__parameter_type)
 
         attributes.map do |attribute|
@@ -932,7 +948,7 @@ module Expressir
         ctx__actual_parameter_list = ctx.actual_parameter_list
 
         ref = visit_if(ctx__built_in_function || ctx__function_ref)
-        parameters = visit_if(ctx__actual_parameter_list)
+        parameters = visit_if(ctx__actual_parameter_list, [])
 
         Model::Expressions::Call.new({
           ref: ref,
@@ -955,15 +971,24 @@ module Expressir
         parameters = visit_if_map_flatten(ctx__function_head__formal_parameter)
         return_type = visit_if(ctx__function_head__parameter_type)
         declarations = visit_if_map(ctx__algorithm_head__declaration)
-        constants = visit_if(ctx__algorithm_head__constant_decl)
-        variables = visit_if(ctx__algorithm_head__local_decl)
+        types = declarations.select{|x| x.instance_of? Model::Type}
+        entities = declarations.select{|x| x.instance_of? Model::Entity}
+        subtype_constraints = declarations.select{|x| x.instance_of? Model::SubtypeConstraint}
+        functions = declarations.select{|x| x.instance_of? Model::Function}
+        procedures = declarations.select{|x| x.instance_of? Model::Procedure}
+        constants = visit_if(ctx__algorithm_head__constant_decl, [])
+        variables = visit_if(ctx__algorithm_head__local_decl, [])
         statements = visit_if_map(ctx__stmt)
 
         Model::Function.new({
           id: id,
           parameters: parameters,
           return_type: return_type,
-          declarations: declarations,
+          types: types,
+          entities: entities,
+          subtype_constraints: subtype_constraints,
+          functions: functions,
+          procedures: procedures,
           constants: constants,
           variables: variables,
           statements: statements
@@ -1008,8 +1033,8 @@ module Expressir
 
         bound1 = visit_if(ctx__bound_spec__bound1)
         bound2 = visit_if(ctx__bound_spec__bound2)
-        optional = !!ctx__OPTIONAL
-        unique = !!ctx__UNIQUE
+        optional = ctx__OPTIONAL && true
+        unique = ctx__UNIQUE && true
         base_type = visit_if(ctx__parameter_type)
         
         Model::Types::Array.new({
@@ -1047,7 +1072,7 @@ module Expressir
 
         bound1 = visit_if(ctx__bound_spec__bound1)
         bound2 = visit_if(ctx__bound_spec__bound2)
-        unique = !!ctx__UNIQUE
+        unique = ctx__UNIQUE && true
         base_type = visit_if(ctx__parameter_type)
         
         Model::Types::List.new({
@@ -1122,8 +1147,8 @@ module Expressir
         ctx__if_stmt_else_statements = ctx.if_stmt_else_statements
 
         expression = visit_if(ctx__logical_expression)
-        statements = visit_if(ctx__if_stmt_statements)
-        else_statements = visit_if(ctx__if_stmt_else_statements)
+        statements = visit_if(ctx__if_stmt_statements, [])
+        else_statements = visit_if(ctx__if_stmt_else_statements, [])
 
         Model::Statements::If.new({
           expression: expression,
@@ -1337,7 +1362,7 @@ module Expressir
 
         bound1 = visit_if(ctx__bound_spec__bound1)
         bound2 = visit_if(ctx__bound_spec__bound2)
-        unique = !!ctx__UNIQUE
+        unique = ctx__UNIQUE && true
         base_type = visit_if(ctx__instantiable_type)
         
         Model::Types::List.new({
@@ -1553,7 +1578,7 @@ module Expressir
         ctx__actual_parameter_list = ctx.actual_parameter_list
 
         ref = visit_if(ctx__built_in_procedure || ctx__procedure_ref)
-        parameters = visit_if(ctx__actual_parameter_list)
+        parameters = visit_if(ctx__actual_parameter_list, [])
 
         Model::Statements::Call.new({
           ref: ref,
@@ -1574,14 +1599,23 @@ module Expressir
         id = visit_if(ctx__procedure_head__procedure_id)
         parameters = visit_if_map_flatten(ctx__procedure_head__procedure_head_parameter)
         declarations = visit_if_map(ctx__algorithm_head__declaration)
-        constants = visit_if(ctx__algorithm_head__constant_decl)
-        variables = visit_if(ctx__algorithm_head__local_decl)
+        types = declarations.select{|x| x.instance_of? Model::Type}
+        entities = declarations.select{|x| x.instance_of? Model::Entity}
+        subtype_constraints = declarations.select{|x| x.instance_of? Model::SubtypeConstraint}
+        functions = declarations.select{|x| x.instance_of? Model::Function}
+        procedures = declarations.select{|x| x.instance_of? Model::Procedure}
+        constants = visit_if(ctx__algorithm_head__constant_decl, [])
+        variables = visit_if(ctx__algorithm_head__local_decl, [])
         statements = visit_if_map(ctx__stmt)
 
         Model::Procedure.new({
           id: id,
           parameters: parameters,
-          declarations: declarations,
+          types: types,
+          entities: entities,
+          subtype_constraints: subtype_constraints,
+          functions: functions,
+          procedures: procedures,
           constants: constants,
           variables: variables,
           statements: statements
@@ -1858,15 +1892,24 @@ module Expressir
         id = visit_if(ctx__rule_head__rule_id)
         applies_to = visit_if_map(ctx__rule_head__entity_ref)
         declarations = visit_if_map(ctx__algorithm_head__declaration)
-        constants = visit_if(ctx__algorithm_head__constant_decl)
-        variables = visit_if(ctx__algorithm_head__local_decl)
+        types = declarations.select{|x| x.instance_of? Model::Type}
+        entities = declarations.select{|x| x.instance_of? Model::Entity}
+        subtype_constraints = declarations.select{|x| x.instance_of? Model::SubtypeConstraint}
+        functions = declarations.select{|x| x.instance_of? Model::Function}
+        procedures = declarations.select{|x| x.instance_of? Model::Procedure}
+        constants = visit_if(ctx__algorithm_head__constant_decl, [])
+        variables = visit_if(ctx__algorithm_head__local_decl, [])
         statements = visit_if_map(ctx__stmt)
-        where = visit_if(ctx__where_clause)
+        where = visit_if(ctx__where_clause, [])
 
         Model::Rule.new({
           id: id,
           applies_to: applies_to,
-          declarations: declarations,
+          types: types,
+          entities: entities,
+          subtype_constraints: subtype_constraints,
+          functions: functions,
+          procedures: procedures,
           constants: constants,
           variables: variables,
           statements: statements,
@@ -1912,15 +1955,26 @@ module Expressir
         id = visit_if(ctx__schema_id)
         version = visit_if(ctx__schema_version_id)
         interfaces = visit_if_map(ctx__schema_body__interface_specification)
-        constants = visit_if(ctx__schema_body__constant_decl)
+        constants = visit_if(ctx__schema_body__constant_decl, [])
         declarations = visit_if_map(ctx__schema_body__schema_body_declaration)
+        types = declarations.select{|x| x.instance_of? Model::Type}
+        entities = declarations.select{|x| x.instance_of? Model::Entity}
+        subtype_constraints = declarations.select{|x| x.instance_of? Model::SubtypeConstraint}
+        functions = declarations.select{|x| x.instance_of? Model::Function}
+        procedures = declarations.select{|x| x.instance_of? Model::Procedure}
+        rules = declarations.select{|x| x.instance_of? Model::Rule}
 
         Model::Schema.new({
           id: id,
           version: version,
           interfaces: interfaces,
           constants: constants,
-          declarations: declarations
+          types: types,
+          entities: entities,
+          subtype_constraints: subtype_constraints,
+          functions: functions,
+          procedures: procedures,
+          rules: rules
         })
       end
 
@@ -1960,11 +2014,11 @@ module Expressir
         ctx__select_extension__type_ref = ctx.select_extension&.type_ref
         ctx__select_extension__select_list = ctx__select_extension&.select_list
 
-        extensible = !!ctx__EXTENSIBLE
-        generic_entity = !!ctx__GENERIC_ENTITY
-        items = visit_if(ctx__select_list)
+        extensible = ctx__EXTENSIBLE && true
+        generic_entity = ctx__GENERIC_ENTITY && true
+        items = visit_if(ctx__select_list, [])
         extension_type = visit_if(ctx__select_extension__type_ref)
-        extension_items = visit_if(ctx__select_extension__select_list)
+        extension_items = visit_if(ctx__select_extension__select_list, [])
 
         Model::Types::Select.new({
           extensible: extensible,
@@ -2097,7 +2151,7 @@ module Expressir
         ctx__width_spec__FIXED = ctx__width_spec&.FIXED
 
         width = visit_if(ctx__width_spec__width)
-        fixed = !!ctx__width_spec__FIXED
+        fixed = ctx__width_spec__FIXED && true
 
         Model::Types::String.new({
           width: width,
@@ -2130,7 +2184,7 @@ module Expressir
 
         id = visit_if(ctx__subtype_constraint_head__subtype_constraint_id)
         applies_to = visit_if(ctx__subtype_constraint_head__entity_ref)
-        abstract = !!ctx__subtype_constraint_body__abstract_supertype
+        abstract = ctx__subtype_constraint_body__abstract_supertype && true
         total_over = visit_if(ctx__subtype_constraint_body__total_over)
         supertype_expression = visit_if(ctx__subtype_constraint_body__supertype_expression)
 
@@ -2266,7 +2320,7 @@ module Expressir
 
         id = visit_if(ctx__type_id)
         type = visit_if(ctx__underlying_type)
-        where = visit_if(ctx__where_clause)
+        where = visit_if(ctx__where_clause, [])
 
         Model::Type.new({
           id: id,

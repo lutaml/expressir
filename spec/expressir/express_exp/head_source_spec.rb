@@ -1,14 +1,11 @@
 require "spec_helper"
 require "expressir/express_exp/parser"
 
-RSpec.describe Expressir::Model::Scope do
+RSpec.describe Expressir::ExpressExp::Parser do
   describe ".head_source" do
     it "contains original head source" do
       input = File.read(sample_file)
       repo = Expressir::ExpressExp::Parser.from_exp(sample_file)
-
-      expected_result = input
-      expect(repo.source).to eq(expected_result)
 
       repo.schemas[0].tap do |x|
         start_index = x.source.index("SCHEMA")

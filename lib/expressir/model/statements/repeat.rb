@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Statements
-      class Repeat
+      class Repeat < ModelElement
         include Scope
         include Identifier
 
@@ -14,13 +14,15 @@ module Expressir
 
         def initialize(options = {})
           @id = options[:id]
+          @remarks = options.fetch(:remarks, [])
+          @source = options[:source]
 
           @bound1 = options[:bound1]
           @bound2 = options[:bound2]
           @increment = options[:increment]
           @while_expression = options[:while_expression]
           @until_expression = options[:until_expression]
-          @statements = options[:statements]
+          @statements = options.fetch(:statements, [])
         end
 
         def children

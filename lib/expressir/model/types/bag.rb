@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Types
-      class Bag
+      class Bag < ModelElement
         attr_accessor :bound1
         attr_accessor :bound2
         attr_accessor :base_type

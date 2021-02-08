@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Expressions
-      class QueryExpression
+      class QueryExpression < ModelElement
         include Scope
         include Identifier
 
@@ -10,6 +10,8 @@ module Expressir
 
         def initialize(options = {})
           @id = options[:id]
+          @remarks = options.fetch(:remarks, [])
+          @source = options[:source]
 
           @aggregate_source = options[:aggregate_source]
           @expression = options[:expression]

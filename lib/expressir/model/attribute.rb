@@ -1,6 +1,6 @@
 module Expressir
   module Model
-    class Attribute
+    class Attribute < ModelElement
       include Identifier
 
       EXPLICIT = :EXPLICIT
@@ -15,6 +15,8 @@ module Expressir
 
       def initialize(options = {})
         @id = options[:id]
+        @remarks = options.fetch(:remarks, [])
+        @source = options[:source]
 
         @kind = options[:kind]
         @supertype_attribute = options[:supertype_attribute]

@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Types
-      class Binary
+      class Binary < ModelElement
         attr_accessor :width
         attr_accessor :fixed
 

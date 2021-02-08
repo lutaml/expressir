@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Statements
-      class Null
+      class Null < ModelElement
       end
     end
   end

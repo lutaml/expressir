@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Types
-      class Number
+      class Number < ModelElement
       end
     end
   end

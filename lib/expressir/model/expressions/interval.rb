@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Expressions
-      class Interval
+      class Interval < ModelElement
         attr_accessor :low
         attr_accessor :operator1
         attr_accessor :item

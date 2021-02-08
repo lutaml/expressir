@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Expressions
-      class IndexReference
+      class IndexReference < ModelElement
         attr_accessor :ref
         attr_accessor :index1
         attr_accessor :index2

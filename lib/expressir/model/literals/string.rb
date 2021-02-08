@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Literals
-      class String
+      class String < ModelElement
         attr_accessor :value
         attr_accessor :encoded
 

@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Literals
-      class Logical
+      class Logical < ModelElement
         TRUE = :TRUE
         FALSE = :FALSE
         UNKNOWN = :UNKNOWN

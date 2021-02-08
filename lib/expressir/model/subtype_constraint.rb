@@ -1,6 +1,6 @@
 module Expressir
   module Model
-    class SubtypeConstraint
+    class SubtypeConstraint < ModelElement
       include Scope
       include Identifier
 
@@ -11,6 +11,8 @@ module Expressir
 
       def initialize(options = {})
         @id = options[:id]
+        @remarks = options.fetch(:remarks, [])
+        @source = options[:source]
 
         @applies_to = options[:applies_to]
         @abstract = options[:abstract]

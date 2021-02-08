@@ -78,7 +78,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.remarks[1]).to eq("universal scope - entity")
       end
 
-      schema.entities.first.explicit_attributes.first.tap do |x|
+      schema.entities.first.attributes.find{|x| x.kind == Expressir::Model::Attribute::EXPLICIT}.tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Attribute)
         expect(x.kind).to eq(Expressir::Model::Attribute::EXPLICIT)
         expect(x.remarks).to be_instance_of(Array)
@@ -88,7 +88,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.remarks[2]).to eq("universal scope - entity attribute")
       end
 
-      schema.entities.first.derived_attributes.first.tap do |x|
+      schema.entities.first.attributes.find{|x| x.kind == Expressir::Model::Attribute::DERIVED}.tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Attribute)
         expect(x.kind).to eq(Expressir::Model::Attribute::DERIVED)
         expect(x.remarks).to be_instance_of(Array)
@@ -98,7 +98,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.remarks[2]).to eq("universal scope - entity derived attribute")
       end
 
-      schema.entities.first.inverse_attributes.first.tap do |x|
+      schema.entities.first.attributes.find{|x| x.kind == Expressir::Model::Attribute::INVERSE}.tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Attribute)
         expect(x.kind).to eq(Expressir::Model::Attribute::INVERSE)
         expect(x.remarks).to be_instance_of(Array)

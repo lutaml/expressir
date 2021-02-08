@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Expressions
-      class GroupReference
+      class GroupReference < ModelElement
         attr_accessor :ref
         attr_accessor :entity
 

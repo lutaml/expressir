@@ -1,14 +1,14 @@
 module Expressir
   module Model
     module Statements
-      class Case
+      class Case < ModelElement
         attr_accessor :expression
         attr_accessor :actions
         attr_accessor :otherwise_statement
 
         def initialize(options = {})
           @expression = options[:expression]
-          @actions = options[:actions]
+          @actions = options.fetch(:actions, [])
           @otherwise_statement = options[:otherwise_statement]
         end
       end

@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Types
-      class Integer
+      class Integer < ModelElement
       end
     end
   end

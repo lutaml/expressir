@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Literals
-      class Real
+      class Real < ModelElement
         attr_accessor :value
 
         def initialize(options = {})

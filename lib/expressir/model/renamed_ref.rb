@@ -1,6 +1,6 @@
 module Expressir
   module Model
-    class RenamedRef
+    class RenamedRef < ModelElement
       attr_accessor :ref
       attr_accessor :id
 

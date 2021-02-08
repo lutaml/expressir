@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Expressions
-      class UnaryExpression
+      class UnaryExpression < ModelElement
         MINUS = :MINUS
         NOT = :NOT
         PLUS = :PLUS

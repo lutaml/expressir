@@ -1,60 +1,54 @@
 module Expressir
   module Model
-    class Function
+    class Function < ModelElement
       include Scope
       include Identifier
 
       attr_accessor :parameters
       attr_accessor :return_type
-      attr_accessor :declarations
+      attr_accessor :types
+      attr_accessor :entities
+      attr_accessor :subtype_constraints
+      attr_accessor :functions
+      attr_accessor :procedures
       attr_accessor :constants
       attr_accessor :variables
       attr_accessor :statements
 
       def initialize(options = {})
         @id = options[:id]
+        @remarks = options.fetch(:remarks, [])
+        @source = options[:source]
 
-        @parameters = options[:parameters]
+        @parameters = options.fetch(:parameters, [])
         @return_type = options[:return_type]
-        @declarations = options[:declarations]
-        @constants = options[:constants]
-        @variables = options[:variables]
-        @statements = options[:statements]
-      end
-
-      def types
-        @declarations.select{|x| x.instance_of? Expressir::Model::Type}
-      end
-
-      def entities
-        @declarations.select{|x| x.instance_of? Expressir::Model::Entity}
-      end
-
-      def subtype_constraints
-        @declarations.select{|x| x.instance_of? Expressir::Model::SubtypeConstraint}
-      end
-
-      def functions
-        @declarations.select{|x| x.instance_of? Expressir::Model::Function}
-      end
-
-      def procedures
-        @declarations.select{|x| x.instance_of? Expressir::Model::Procedure}
+        @types = options.fetch(:types, [])
+        @entities = options.fetch(:entities, [])
+        @subtype_constraints = options.fetch(:subtype_constraints, [])
+        @functions = options.fetch(:functions, [])
+        @procedures = options.fetch(:procedures, [])
+        @constants = options.fetch(:constants, [])
+        @variables = options.fetch(:variables, [])
+        @statements = options.fetch(:statements, [])
       end
 
       def children
         items = []
-        items.push(*@parameters) if @parameters
-        items.push(*@declarations.flat_map do |x|
-          [
-            x,
-            *if x.instance_of? Expressir::Model::Type and x.type.instance_of? Expressir::Model::Types::Enumeration
-              x.type.items
-            end
-          ]
-        end) if @declarations
-        items.push(*@constants) if @constants
-        items.push(*@variables) if @variables
+        items.push(*@parameters)
+        items.push(*@types)
+        items.push(*@types.flat_map do |x|
+          if x.type.instance_of? Expressir::Model::Types::Enumeration
+            x.type.items
+          else
+            []
+          end
+        end)
+        items.push(*@entities)
+        items.push(*@subtype_constraints)
+        items.push(*@functions)
+        items.push(*@procedures)
+        items.push(*@constants)
+        items.push(*@variables)
         items
       end
     end

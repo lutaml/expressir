@@ -1,6 +1,6 @@
 module Expressir
   module Model
-    class Type
+    class Type < ModelElement
       include Scope
       include Identifier
 
@@ -10,10 +10,12 @@ module Expressir
 
       def initialize(options = {})
         @id = options[:id]
+        @remarks = options.fetch(:remarks, [])
+        @source = options[:source]
 
         @type = options[:type]
-        @where = options[:where]
-        @informal_propositions = options[:informal_propositions]
+        @where = options.fetch(:where, [])
+        @informal_propositions = options.fetch(:informal_propositions, [])
       end
 
       def children
@@ -23,8 +25,8 @@ module Expressir
             @type.items
           end
         ])
-        items.push(*@where) if @where
-        items.push(*@informal_propositions) if @informal_propositions
+        items.push(*@where)
+        items.push(*@informal_propositions)
         items
       end
     end

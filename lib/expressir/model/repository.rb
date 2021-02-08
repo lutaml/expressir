@@ -1,17 +1,17 @@
 module Expressir
   module Model
-    class Repository
+    class Repository < ModelElement
       include Scope
 
       attr_accessor :schemas
 
       def initialize(options = {})
-        @schemas = options[:schemas]
+        @schemas = options.fetch(:schemas, [])
       end
 
       def children
         items = []
-        items.push(*@schemas) if @schemas
+        items.push(*@schemas)
         items
       end
     end

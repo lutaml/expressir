@@ -1,6 +1,6 @@
 module Expressir
   module Model
-    class Interface
+    class Interface < ModelElement
       USE = :USE
       REFERENCE = :REFERENCE
 
@@ -11,7 +11,7 @@ module Expressir
       def initialize(options = {})
         @kind = options[:kind]
         @schema = options[:schema]
-        @items = options[:items]
+        @items = options.fetch(:items, [])
       end
     end
   end

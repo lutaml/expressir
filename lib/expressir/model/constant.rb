@@ -1,6 +1,6 @@
 module Expressir
   module Model
-    class Constant
+    class Constant < ModelElement
       include Identifier
 
       attr_accessor :type
@@ -8,6 +8,8 @@ module Expressir
 
       def initialize(options = {})
         @id = options[:id]
+        @remarks = options.fetch(:remarks, [])
+        @source = options[:source]
 
         @type = options[:type]
         @expression = options[:expression]

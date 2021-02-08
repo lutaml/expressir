@@ -1,6 +1,6 @@
 module Expressir
   module Model
-    class Entity
+    class Entity < ModelElement
       include Scope
       include Identifier
 
@@ -14,34 +14,24 @@ module Expressir
 
       def initialize(options = {})
         @id = options[:id]
+        @remarks = options.fetch(:remarks, [])
+        @source = options[:source]
 
         @abstract = options[:abstract]
         @supertype_expression = options[:supertype_expression]
         @subtype_of = options[:subtype_of]
-        @attributes = options[:attributes]
-        @unique = options[:unique]
-        @where = options[:where]
-        @informal_propositions = options[:informal_propositions]
-      end
-
-      def explicit_attributes
-        @attributes.select{|x| x.kind == Expressir::Model::Attribute::EXPLICIT}
-      end
-
-      def derived_attributes
-        @attributes.select{|x| x.kind == Expressir::Model::Attribute::DERIVED}
-      end
-
-      def inverse_attributes
-        @attributes.select{|x| x.kind == Expressir::Model::Attribute::INVERSE}
+        @attributes = options.fetch(:attributes, [])
+        @unique = options.fetch(:unique, [])
+        @where = options.fetch(:where, [])
+        @informal_propositions = options.fetch(:informal_propositions, [])
       end
 
       def children
         items = []
-        items.push(*@attributes) if @attributes
-        items.push(*@unique) if @unique
-        items.push(*@where) if @where
-        items.push(*@informal_propositions) if @informal_propositions
+        items.push(*@attributes)
+        items.push(*@unique)
+        items.push(*@where)
+        items.push(*@informal_propositions)
         items
       end
     end

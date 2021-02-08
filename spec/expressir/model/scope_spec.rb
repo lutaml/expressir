@@ -1,7 +1,7 @@
 require "spec_helper"
 require "expressir/express_exp/parser"
 
-RSpec.describe Expressir::Model do
+RSpec.describe Expressir::Model::Scope do
   describe ".find" do
     it "finds an object" do
       repo = Expressir::ExpressExp::Parser.from_exp(sample_file)

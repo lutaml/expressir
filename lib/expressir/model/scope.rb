@@ -1,8 +1,6 @@
 module Expressir
   module Model
     module Scope
-      attr_accessor :source
-
       def find(path)
         current_path, _, rest = path.partition(".")
 
@@ -47,7 +45,6 @@ module Expressir
               })
               informal_proposition.parent = child
 
-              child.informal_propositions ||= []
               child.informal_propositions << informal_proposition
 
               informal_proposition

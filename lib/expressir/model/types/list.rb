@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Types
-      class List
+      class List < ModelElement
         attr_accessor :bound1
         attr_accessor :bound2
         attr_accessor :unique

@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Expressions
-      class AttributeReference
+      class AttributeReference < ModelElement
         attr_accessor :ref
         attr_accessor :attribute
 

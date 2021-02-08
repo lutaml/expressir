@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Statements
-      class Return
+      class Return < ModelElement
         attr_accessor :expression
 
         def initialize(options = {})

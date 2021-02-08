@@ -6,7 +6,6 @@ TYPE remark_type = ENUMERATION OF (remark_enumeration_item);
   WHERE
     WR1 : TRUE;
 END_TYPE;
-
 ENTITY remark_entity;
   remark_attribute : STRING;
   DERIVE
@@ -18,10 +17,8 @@ ENTITY remark_entity;
   WHERE
     WR1 : TRUE;
 END_ENTITY;
-
 SUBTYPE_CONSTRAINT remark_subtype_constraint FOR remark_entity;
 END_SUBTYPE_CONSTRAINT;
-
 FUNCTION remark_function(remark_parameter : STRING) : BOOLEAN;
   TYPE remark_type = ENUMERATION OF (remark_enumeration_item);
   END_TYPE;
@@ -43,7 +40,6 @@ FUNCTION remark_function(remark_parameter : STRING) : BOOLEAN;
   --"remark_query" function query scope - function query
   );
 END_FUNCTION;
-
 PROCEDURE remark_procedure(remark_parameter : STRING);
   TYPE remark_type = ENUMERATION OF (remark_enumeration_item);
   END_TYPE;
@@ -65,7 +61,6 @@ PROCEDURE remark_procedure(remark_parameter : STRING);
   --"remark_query" procedure query scope - procedure query
   );
 END_PROCEDURE;
-
 RULE remark_rule FOR (remark_entity);
   TYPE remark_type = ENUMERATION OF (remark_enumeration_item);
   END_TYPE;

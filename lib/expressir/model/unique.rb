@@ -1,14 +1,16 @@
 module Expressir
   module Model
-    class Unique
+    class Unique < ModelElement
       include Identifier
 
       attr_accessor :attributes
 
       def initialize(options = {})
         @id = options[:id]
+        @remarks = options.fetch(:remarks, [])
+        @source = options[:source]
 
-        @attributes = options[:attributes]
+        @attributes = options.fetch(:attributes, [])
       end
     end
   end

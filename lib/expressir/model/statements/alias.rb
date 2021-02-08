@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Statements
-      class Alias
+      class Alias < ModelElement
         include Scope
         include Identifier
 
@@ -10,9 +10,11 @@ module Expressir
 
         def initialize(options = {})
           @id = options[:id]
+          @remarks = options.fetch(:remarks, [])
+          @source = options[:source]
 
           @expression = options[:expression]
-          @statements = options[:statements]
+          @statements = options.fetch(:statements, [])
         end
 
         def children

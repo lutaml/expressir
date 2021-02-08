@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Statements
-      class Assignment
+      class Assignment < ModelElement
         attr_accessor :ref
         attr_accessor :expression
 

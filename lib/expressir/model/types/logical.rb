@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Types
-      class Logical
+      class Logical < ModelElement
       end
     end
   end

@@ -1,7 +1,7 @@
 module Expressir
   module Model
     module Statements
-      class Escape
+      class Escape < ModelElement
       end
     end
   end

@@ -1,12 +1,14 @@
 module Expressir
   module Model
-    class Where
+    class Where < ModelElement
       include Identifier
 
       attr_accessor :expression
 
       def initialize(options = {})
         @id = options[:id]
+        @remarks = options.fetch(:remarks, [])
+        @source = options[:source]
 
         @expression = options[:expression]
       end

@@ -1,12 +1,17 @@
 module Expressir
   module Model
     class ModelElement
-      CLASS_KEY = '_class' 
+      CLASS_KEY = '_class'
+      SOURCE_KEY = 'source'
 
       def to_hash(options = {})
         skip_empty = options[:skip_empty]
+        formatter = options[:formatter]
 
-        instance_variables.select{|x| x != :@parent}.each_with_object({ CLASS_KEY => self.class.name }) do |variable, result|
+        hash = {}
+        hash[CLASS_KEY] = self.class.name
+
+        instance_variables.select{|x| x != :@parent}.each_with_object(hash) do |variable, result|
           key = variable.to_s.sub(/^@/, '')
           value = instance_variable_get(variable)
 
@@ -27,6 +32,12 @@ module Expressir
             end
           end
         end
+
+        if formatter
+          hash[SOURCE_KEY] = formatter.format(self)
+        end
+
+        hash
       end
 
       def self.from_hash(hash)

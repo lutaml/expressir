@@ -4,6 +4,77 @@ module Expressir
       CLASS_KEY = '_class'
       SOURCE_KEY = 'source'
 
+      attr_accessor :parent
+
+      def initialize(options = {})
+        attach_parent_to_children
+      end
+
+      def path
+        return id if is_a? Statements::Alias or is_a? Statements::Repeat or is_a? Expressions::QueryExpression
+
+        current_node = self
+        path_parts = []
+        loop do
+          if current_node.class.method_defined? :id
+            path_parts << current_node.id
+          end
+
+          current_node = current_node.parent
+          break unless current_node
+        end
+
+        path_parts.reverse.join(".")
+      end
+
+      def attach_parent_to_children
+        instance_variables.select{|x| x != :@parent}.each do |variable|
+          value = instance_variable_get(variable)
+
+          if value.is_a? Array
+            value.each do |value|
+              if value.is_a? ModelElement
+                value.parent = self
+              end
+            end
+          elsif value.is_a? ModelElement
+            value.parent = self
+          end
+        end
+      end
+
+      def find(path)
+        return self if path.empty?
+
+        path_parts = path.downcase.split(/\./).map do |current_path|
+          _, _, current_path = current_path.rpartition(":") # ignore prefix
+          current_path
+        end
+
+        current_scope = self
+        target_node = nil
+        loop do
+          # find in current scope
+          current_node = current_scope
+          path_parts.each do |current_path|
+            current_node = current_node.children.find{|x| x.id and x.id.downcase == current_path}
+            break unless current_node
+          end
+          target_node = current_node
+          break if target_node
+
+          # retry search in parent scope
+          current_scope = current_scope.parent
+          break unless current_scope
+        end
+
+        target_node
+      end
+
+      def children
+        []
+      end
+
       def to_hash(options = {})
         skip_empty = options[:skip_empty]
         formatter = options[:formatter]
@@ -61,10 +132,6 @@ module Expressir
         end
 
         node = Object.const_get(node_class).new(node_options)
-
-        if node.class.method_defined? :attach_parent_to_children
-          node.attach_parent_to_children
-        end
 
         node
       end

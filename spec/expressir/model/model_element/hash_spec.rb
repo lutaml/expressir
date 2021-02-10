@@ -33,9 +33,14 @@ RSpec.describe Expressir::Model::ModelElement do
 
   describe ".to_hash" do
     it "exports an object to a hash" do
-      repo = Expressir::ExpressExp::Parser.from_exp(sample_file)
+      repo = Expressir::ExpressExp::Parser.from_file(sample_file)
 
-      result = repo.to_hash
+      class CustomFormatter < Expressir::ExpressExp::Formatter
+        def format_schema(node)
+          "Oook."
+        end
+      end
+      result = repo.to_hash(formatter: CustomFormatter)
       
       expect(result).to be_instance_of(Hash)
       expect(result["_class"]).to eq("Expressir::Model::Repository")
@@ -49,22 +54,6 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(result["schemas"].first["entities"].first).to be_instance_of(Hash)
       expect(result["schemas"].first["entities"].first["_class"]).to eq("Expressir::Model::Entity")
       expect(result["schemas"].first["entities"].first["id"]).to eq("empty_entity")
-    end
-
-    it "exports an object to a hash with a custom formatter" do
-      repo = Expressir::ExpressExp::Parser.from_exp(sample_file)
-
-      class CustomFormatter < Expressir::ExpressExp::Formatter
-        def format_schema(node)
-          "Oook."
-        end
-      end
-      result = repo.to_hash({ formatter: CustomFormatter })
-
-      expect(result).to be_instance_of(Hash)
-      expect(result["_class"]).to eq("Expressir::Model::Repository")
-      expect(result["schemas"]).to be_instance_of(Array)
-      expect(result["schemas"].count).to eq(1)
       expect(result["schemas"].first["source"]).to eq("Oook.")
     end
   end

@@ -3,8 +3,8 @@ require "expressir/express_exp/parser"
 
 RSpec.describe Expressir::ExpressExp::Parser do
   describe ".from_file" do
-    it "build an instance from a file" do
-      repo = Expressir::ExpressExp::Parser.from_exp(sample_file)
+    it "parses syntax" do
+      repo = Expressir::ExpressExp::Parser.from_file(sample_file)
 
       schemas = repo.schemas
 
@@ -242,6 +242,10 @@ RSpec.describe Expressir::ExpressExp::Parser do
 
       entities.find{|x| x.id == "attribute_redeclared_entity"}.tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Entity)
+        expect(x.subtype_of).to be_instance_of(Array)
+        expect(x.subtype_of.count).to eq(1)
+        expect(x.subtype_of[0]).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+        expect(x.subtype_of[0].id).to eq("attribute_entity")
         expect(x.attributes).to be_instance_of(Array)
         expect(x.attributes.count).to eq(1)
         expect(x.attributes[0]).to be_instance_of(Expressir::Model::Attribute)
@@ -259,6 +263,10 @@ RSpec.describe Expressir::ExpressExp::Parser do
 
       entities.find{|x| x.id == "attribute_redeclared_renamed_entity"}.tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Entity)
+        expect(x.subtype_of).to be_instance_of(Array)
+        expect(x.subtype_of.count).to eq(1)
+        expect(x.subtype_of[0]).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+        expect(x.subtype_of[0].id).to eq("attribute_entity")
         expect(x.attributes).to be_instance_of(Array)
         expect(x.attributes.count).to eq(1)
         expect(x.attributes[0]).to be_instance_of(Expressir::Model::Attribute)
@@ -289,6 +297,10 @@ RSpec.describe Expressir::ExpressExp::Parser do
 
       entities.find{|x| x.id == "derived_attribute_redeclared_entity"}.tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Entity)
+        expect(x.subtype_of).to be_instance_of(Array)
+        expect(x.subtype_of.count).to eq(1)
+        expect(x.subtype_of[0]).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+        expect(x.subtype_of[0].id).to eq("attribute_entity")
         expect(x.attributes).to be_instance_of(Array)
         expect(x.attributes.count).to eq(1)
         expect(x.attributes[0]).to be_instance_of(Expressir::Model::Attribute)
@@ -308,6 +320,10 @@ RSpec.describe Expressir::ExpressExp::Parser do
 
       entities.find{|x| x.id == "derived_attribute_redeclared_renamed_entity"}.tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Entity)
+        expect(x.subtype_of).to be_instance_of(Array)
+        expect(x.subtype_of.count).to eq(1)
+        expect(x.subtype_of[0]).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+        expect(x.subtype_of[0].id).to eq("attribute_entity")
         expect(x.attributes).to be_instance_of(Array)
         expect(x.attributes.count).to eq(1)
         expect(x.attributes[0]).to be_instance_of(Expressir::Model::Attribute)
@@ -421,6 +437,10 @@ RSpec.describe Expressir::ExpressExp::Parser do
 
       entities.find{|x| x.id == "inverse_attribute_redeclared_entity"}.tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Entity)
+        expect(x.subtype_of).to be_instance_of(Array)
+        expect(x.subtype_of.count).to eq(1)
+        expect(x.subtype_of[0]).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+        expect(x.subtype_of[0].id).to eq("attribute_entity")
         expect(x.attributes).to be_instance_of(Array)
         expect(x.attributes.count).to eq(1)
         expect(x.attributes[0]).to be_instance_of(Expressir::Model::Attribute)
@@ -441,6 +461,10 @@ RSpec.describe Expressir::ExpressExp::Parser do
 
       entities.find{|x| x.id == "inverse_attribute_redeclared_renamed_entity"}.tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Entity)
+        expect(x.subtype_of).to be_instance_of(Array)
+        expect(x.subtype_of.count).to eq(1)
+        expect(x.subtype_of[0]).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+        expect(x.subtype_of[0].id).to eq("attribute_entity")
         expect(x.attributes).to be_instance_of(Array)
         expect(x.attributes.count).to eq(1)
         expect(x.attributes[0]).to be_instance_of(Expressir::Model::Attribute)
@@ -495,8 +519,12 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.unique[0].attributes[0].id).to eq("test")
       end
 
-      entities.find{|x| x.id == "unique_qualified_entity"}.tap do |x|
+      entities.find{|x| x.id == "unique_redeclared_entity"}.tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Entity)
+        expect(x.subtype_of).to be_instance_of(Array)
+        expect(x.subtype_of.count).to eq(1)
+        expect(x.subtype_of[0]).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+        expect(x.subtype_of[0].id).to eq("attribute_entity")
         expect(x.unique).to be_instance_of(Array)
         expect(x.unique.count).to eq(1)
         expect(x.unique[0]).to be_instance_of(Expressir::Model::Unique)
@@ -524,8 +552,12 @@ RSpec.describe Expressir::ExpressExp::Parser do
         expect(x.unique[0].attributes[0].id).to eq("test")
       end
 
-      entities.find{|x| x.id == "unique_label_qualified_entity"}.tap do |x|
+      entities.find{|x| x.id == "unique_label_redeclared_entity"}.tap do |x|
         expect(x).to be_instance_of(Expressir::Model::Entity)
+        expect(x.subtype_of).to be_instance_of(Array)
+        expect(x.subtype_of.count).to eq(1)
+        expect(x.subtype_of[0]).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+        expect(x.subtype_of[0].id).to eq("attribute_entity")
         expect(x.unique).to be_instance_of(Array)
         expect(x.unique.count).to eq(1)
         expect(x.unique[0]).to be_instance_of(Expressir::Model::Unique)
@@ -1489,19 +1521,6 @@ RSpec.describe Expressir::ExpressExp::Parser do
           expect(x.statements[0]).to be_instance_of(Expressir::Model::Statements::Null)
         end
 
-        x.procedures.find{|x| x.id == "alias_attribute_reference_statement"}.statements[0].tap do |x|
-          expect(x).to be_instance_of(Expressir::Model::Statements::Alias)
-          expect(x.id).to eq("test")
-          expect(x.expression).to be_instance_of(Expressir::Model::Expressions::AttributeReference)
-          expect(x.expression.ref).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
-          expect(x.expression.ref.id).to eq("test")
-          expect(x.expression.attribute).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
-          expect(x.expression.attribute.id).to eq("test")
-          expect(x.statements).to be_instance_of(Array)
-          expect(x.statements.count).to eq(1)
-          expect(x.statements[0]).to be_instance_of(Expressir::Model::Statements::Null)
-        end
-
         x.procedures.find{|x| x.id == "alias_group_reference_statement"}.statements[0].tap do |x|
           expect(x).to be_instance_of(Expressir::Model::Statements::Alias)
           expect(x.id).to eq("test")
@@ -1509,7 +1528,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
           expect(x.expression.ref).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
           expect(x.expression.ref.id).to eq("test")
           expect(x.expression.entity).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
-          expect(x.expression.entity.id).to eq("test")
+          expect(x.expression.entity.id).to eq("test2")
           expect(x.statements).to be_instance_of(Array)
           expect(x.statements.count).to eq(1)
           expect(x.statements[0]).to be_instance_of(Expressir::Model::Statements::Null)
@@ -1543,21 +1562,23 @@ RSpec.describe Expressir::ExpressExp::Parser do
           expect(x.statements[0]).to be_instance_of(Expressir::Model::Statements::Null)
         end
 
+        x.procedures.find{|x| x.id == "alias_attribute_reference_statement"}.statements[0].tap do |x|
+          expect(x).to be_instance_of(Expressir::Model::Statements::Alias)
+          expect(x.id).to eq("test")
+          expect(x.expression).to be_instance_of(Expressir::Model::Expressions::AttributeReference)
+          expect(x.expression.ref).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+          expect(x.expression.ref.id).to eq("test")
+          expect(x.expression.attribute).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+          expect(x.expression.attribute.id).to eq("test2")
+          expect(x.statements).to be_instance_of(Array)
+          expect(x.statements.count).to eq(1)
+          expect(x.statements[0]).to be_instance_of(Expressir::Model::Statements::Null)
+        end
+
         x.procedures.find{|x| x.id == "assignment_simple_reference_statement"}.statements[0].tap do |x|
           expect(x).to be_instance_of(Expressir::Model::Statements::Assignment)
           expect(x.ref).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
           expect(x.ref.id).to eq("test")
-          expect(x.expression).to be_instance_of(Expressir::Model::Literals::Logical)
-          expect(x.expression.value).to eq(Expressir::Model::Literals::Logical::TRUE)
-        end
-
-        x.procedures.find{|x| x.id == "assignment_attribute_reference_statement"}.statements[0].tap do |x|
-          expect(x).to be_instance_of(Expressir::Model::Statements::Assignment)
-          expect(x.ref).to be_instance_of(Expressir::Model::Expressions::AttributeReference)
-          expect(x.ref.ref).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
-          expect(x.ref.ref.id).to eq("test")
-          expect(x.ref.attribute).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
-          expect(x.ref.attribute.id).to eq("test")
           expect(x.expression).to be_instance_of(Expressir::Model::Literals::Logical)
           expect(x.expression.value).to eq(Expressir::Model::Literals::Logical::TRUE)
         end
@@ -1568,7 +1589,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
           expect(x.ref.ref).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
           expect(x.ref.ref.id).to eq("test")
           expect(x.ref.entity).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
-          expect(x.ref.entity.id).to eq("test")
+          expect(x.ref.entity.id).to eq("test2")
           expect(x.expression).to be_instance_of(Expressir::Model::Literals::Logical)
           expect(x.expression.value).to eq(Expressir::Model::Literals::Logical::TRUE)
         end
@@ -1593,6 +1614,17 @@ RSpec.describe Expressir::ExpressExp::Parser do
           expect(x.ref.index1.value).to eq("1")
           expect(x.ref.index2).to be_instance_of(Expressir::Model::Literals::Integer)
           expect(x.ref.index2.value).to eq("9")
+          expect(x.expression).to be_instance_of(Expressir::Model::Literals::Logical)
+          expect(x.expression.value).to eq(Expressir::Model::Literals::Logical::TRUE)
+        end
+
+        x.procedures.find{|x| x.id == "assignment_attribute_reference_statement"}.statements[0].tap do |x|
+          expect(x).to be_instance_of(Expressir::Model::Statements::Assignment)
+          expect(x.ref).to be_instance_of(Expressir::Model::Expressions::AttributeReference)
+          expect(x.ref.ref).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+          expect(x.ref.ref.id).to eq("test")
+          expect(x.ref.attribute).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+          expect(x.ref.attribute.id).to eq("test2")
           expect(x.expression).to be_instance_of(Expressir::Model::Literals::Logical)
           expect(x.expression.value).to eq(Expressir::Model::Literals::Logical::TRUE)
         end
@@ -2911,29 +2943,21 @@ RSpec.describe Expressir::ExpressExp::Parser do
         # reference expressions
         x.variables.find{|x| x.id == "simple_reference_expression"}.expression.tap do |x|
           expect(x).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
-          expect(x.id).to eq("simple_string_expression")
-        end
-
-        x.variables.find{|x| x.id == "attribute_reference_expression"}.expression.tap do |x|
-          expect(x).to be_instance_of(Expressir::Model::Expressions::AttributeReference)
-          expect(x.ref).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
-          expect(x.ref.id).to eq("simple_string_expression")
-          expect(x.attribute).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
-          expect(x.attribute.id).to eq("test")
+          expect(x.id).to eq("test")
         end
 
         x.variables.find{|x| x.id == "group_reference_expression"}.expression.tap do |x|
           expect(x).to be_instance_of(Expressir::Model::Expressions::GroupReference)
           expect(x.ref).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
-          expect(x.ref.id).to eq("simple_string_expression")
+          expect(x.ref.id).to eq("test")
           expect(x.entity).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
-          expect(x.entity.id).to eq("test")
+          expect(x.entity.id).to eq("test2")
         end
 
         x.variables.find{|x| x.id == "index_reference_expression"}.expression.tap do |x|
           expect(x).to be_instance_of(Expressir::Model::Expressions::IndexReference)
           expect(x.ref).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
-          expect(x.ref.id).to eq("simple_string_expression")
+          expect(x.ref.id).to eq("test")
           expect(x.index1).to be_instance_of(Expressir::Model::Literals::Integer)
           expect(x.index1.value).to eq("1")
         end
@@ -2941,11 +2965,19 @@ RSpec.describe Expressir::ExpressExp::Parser do
         x.variables.find{|x| x.id == "index2_reference_expression"}.expression.tap do |x|
           expect(x).to be_instance_of(Expressir::Model::Expressions::IndexReference)
           expect(x.ref).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
-          expect(x.ref.id).to eq("simple_string_expression")
+          expect(x.ref.id).to eq("test")
           expect(x.index1).to be_instance_of(Expressir::Model::Literals::Integer)
           expect(x.index1.value).to eq("1")
           expect(x.index2).to be_instance_of(Expressir::Model::Literals::Integer)
           expect(x.index2.value).to eq("9")
+        end
+
+        x.variables.find{|x| x.id == "attribute_reference_expression"}.expression.tap do |x|
+          expect(x).to be_instance_of(Expressir::Model::Expressions::AttributeReference)
+          expect(x.ref).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+          expect(x.ref.id).to eq("test")
+          expect(x.attribute).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
+          expect(x.attribute.id).to eq("test2")
         end
 
         # interval expressions
@@ -3003,7 +3035,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
           expect(x.operand1).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
           expect(x.operand1.id).to eq("test")
           expect(x.operand2).to be_instance_of(Expressir::Model::Expressions::SimpleReference)
-          expect(x.operand2.id).to eq("test")
+          expect(x.operand2.id).to eq("test2")
         end
 
         x.variables.find{|x| x.id == "in_expression"}.expression.tap do |x|

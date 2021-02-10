@@ -1,12 +1,12 @@
 module Expressir
   module Model
     class Repository < ModelElement
-      include Scope
-
       attr_accessor :schemas
 
       def initialize(options = {})
         @schemas = options.fetch(:schemas, [])
+
+        super
       end
 
       def children

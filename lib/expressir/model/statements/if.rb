@@ -10,6 +10,8 @@ module Expressir
           @expression = options[:expression]
           @statements = options.fetch(:statements, [])
           @else_statements = options.fetch(:else_statements, [])
+
+          super
         end
       end
     end

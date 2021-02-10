@@ -3,8 +3,8 @@ require "expressir/express_exp/parser"
 
 RSpec.describe Expressir::ExpressExp::Parser do
   describe ".from_file" do
-    it "build an instance from a file" do
-      repo = Expressir::ExpressExp::Parser.from_exp(sample_file)
+    it "parses remark" do
+      repo = Expressir::ExpressExp::Parser.from_file(sample_file)
 
       schema = repo.schemas.first
 

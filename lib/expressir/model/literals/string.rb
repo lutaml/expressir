@@ -8,6 +8,8 @@ module Expressir
         def initialize(options = {})
           @value = options[:value]
           @encoded = options[:encoded]
+
+          super
         end
       end
     end

@@ -11,6 +11,8 @@ module Expressir
         @source = options[:source]
 
         @expression = options[:expression]
+
+        super
       end
     end
   end

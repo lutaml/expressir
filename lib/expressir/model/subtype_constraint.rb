@@ -1,7 +1,6 @@
 module Expressir
   module Model
     class SubtypeConstraint < ModelElement
-      include Scope
       include Identifier
 
       attr_accessor :applies_to
@@ -18,6 +17,8 @@ module Expressir
         @abstract = options[:abstract]
         @total_over = options[:total_over]
         @supertype_expression = options[:supertype_expression]
+
+        super
       end
 
       def children

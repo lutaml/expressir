@@ -8,6 +8,8 @@ module Expressir
         def initialize(options = {})
           @labels = options.fetch(:labels, [])
           @statement = options[:statement]
+
+          super
         end
       end
     end

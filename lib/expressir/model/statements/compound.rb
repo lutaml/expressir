@@ -6,6 +6,8 @@ module Expressir
 
         def initialize(options = {})
           @statements = options.fetch(:statements, [])
+
+          super
         end
       end
     end

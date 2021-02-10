@@ -6,6 +6,8 @@ module Expressir
 
         def initialize(options = {})
           @items = options.fetch(:items, [])
+
+          super
         end
       end
     end

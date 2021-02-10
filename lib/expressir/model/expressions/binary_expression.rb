@@ -33,6 +33,8 @@ module Expressir
           @operator = options[:operator]
           @operand1 = options[:operand1]
           @operand2 = options[:operand2]
+
+          super
         end
       end
     end

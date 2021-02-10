@@ -14,6 +14,8 @@ module Expressir
           @optional = options[:optional]
           @unique = options[:unique]
           @base_type = options[:base_type]
+
+          super
         end
       end
     end

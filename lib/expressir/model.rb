@@ -1,6 +1,5 @@
 require 'expressir/model/model_element'
 
-require 'expressir/model/scope'
 require 'expressir/model/identifier'
 
 require 'expressir/model/attribute'

@@ -12,6 +12,8 @@ module Expressir
         def initialize(options = {})
           @operator = options[:operator]
           @operand = options[:operand]
+
+          super
         end
       end
     end

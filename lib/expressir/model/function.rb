@@ -1,7 +1,6 @@
 module Expressir
   module Model
     class Function < ModelElement
-      include Scope
       include Identifier
 
       attr_accessor :parameters
@@ -30,19 +29,15 @@ module Expressir
         @constants = options.fetch(:constants, [])
         @variables = options.fetch(:variables, [])
         @statements = options.fetch(:statements, [])
+
+        super
       end
 
       def children
         items = []
         items.push(*@parameters)
         items.push(*@types)
-        items.push(*@types.flat_map do |x|
-          if x.type.instance_of? Expressir::Model::Types::Enumeration
-            x.type.items
-          else
-            []
-          end
-        end)
+        items.push(*@types.flat_map{|x| x.type.is_a?(Expressir::Model::Types::Enumeration) ? x.type.items : []})
         items.push(*@entities)
         items.push(*@subtype_constraints)
         items.push(*@functions)

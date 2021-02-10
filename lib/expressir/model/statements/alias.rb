@@ -2,7 +2,6 @@ module Expressir
   module Model
     module Statements
       class Alias < ModelElement
-        include Scope
         include Identifier
 
         attr_accessor :expression
@@ -15,6 +14,8 @@ module Expressir
 
           @expression = options[:expression]
           @statements = options.fetch(:statements, [])
+
+          super
         end
 
         def children

@@ -5,7 +5,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
   describe ".source" do
     it "contains original source" do
       input = File.read(sample_file)
-      repo = Expressir::ExpressExp::Parser.from_exp(sample_file)
+      repo = Expressir::ExpressExp::Parser.from_file(sample_file)
 
       schema = repo.schemas.first
       start_index = input.index("SCHEMA")

@@ -4,8 +4,8 @@ require "expressir/express_exp/formatter"
 
 RSpec.describe Expressir::ExpressExp::Formatter do
   describe ".format" do
-    it "formats a file" do
-      repo = Expressir::ExpressExp::Parser.from_exp(input_file)
+    it "formats syntax" do
+      repo = Expressir::ExpressExp::Parser.from_file(input_file)
 
       result = Expressir::ExpressExp::Formatter.format(repo)
       expected_result = File.read(output_file)

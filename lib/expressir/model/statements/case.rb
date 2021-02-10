@@ -10,6 +10,8 @@ module Expressir
           @expression = options[:expression]
           @actions = options.fetch(:actions, [])
           @otherwise_statement = options[:otherwise_statement]
+
+          super
         end
       end
     end

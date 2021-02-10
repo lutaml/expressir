@@ -14,6 +14,8 @@ module Expressir
           @item = options[:item]
           @operator2 = options[:operator2]
           @high = options[:high]
+
+          super
         end
       end
     end

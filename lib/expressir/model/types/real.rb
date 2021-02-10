@@ -6,6 +6,8 @@ module Expressir
 
         def initialize(options = {})
           @precision = options[:precision]
+
+          super
         end
       end
     end

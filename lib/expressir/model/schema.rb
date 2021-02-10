@@ -1,7 +1,6 @@
 module Expressir
   module Model
     class Schema < ModelElement
-      include Scope
       include Identifier
 
       attr_accessor :head_source
@@ -31,19 +30,17 @@ module Expressir
         @functions = options.fetch(:functions, [])
         @procedures = options.fetch(:procedures, [])
         @rules = options.fetch(:rules, [])
+
+        super
       end
 
       def children
         items = []
+        # TODO: select interface items
+        items.push(*@interfaces.flat_map{|x| parent.schemas.find{|y| x.schema.id == y.id}&.children || []})
         items.push(*@constants)
         items.push(*@types)
-        items.push(*@types.flat_map do |x|
-          if x.type.instance_of? Expressir::Model::Types::Enumeration
-            x.type.items
-          else
-            []
-          end
-        end)
+        items.push(*@types.flat_map{|x| x.type.is_a?(Expressir::Model::Types::Enumeration) ? x.type.items : []})
         items.push(*@entities)
         items.push(*@subtype_constraints)
         items.push(*@functions)

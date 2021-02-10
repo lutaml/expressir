@@ -13,6 +13,8 @@ module Expressir
 
         @var = options[:var]
         @type = options[:type]
+
+        super
       end
     end
   end

@@ -8,6 +8,8 @@ module Expressir
         def initialize(options = {})
           @ref = options[:ref]
           @attribute = options[:attribute]
+
+          super
         end
       end
     end

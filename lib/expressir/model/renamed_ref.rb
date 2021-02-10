@@ -7,6 +7,8 @@ module Expressir
       def initialize(options = {})
         @ref = options[:ref]
         @id = options[:id]
+
+        super
       end
     end
   end

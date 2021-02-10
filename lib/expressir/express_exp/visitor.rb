@@ -14,7 +14,7 @@ require "set"
 # > method of gaining this information is multi-pass parsing: the first pass collects the identifiers from their
 # > declarations, so that subsequent passes are then able to distinguish a veriable_ref from a function_ref,
 # > for example.
-#
+# - such multi-pass parsing is not implemented yet
 # - xxxRef - merged to SimpleReference
 # - entityConstructor, functionCall - merged to Call
 # 
@@ -44,11 +44,10 @@ module Expressir
       end
 
       def visit(ctx)
-        result = super(ctx)
-        attach_source(ctx, result)
-        attach_parent(result)
-        attach_remarks(ctx, result)
-        result
+        node = super(ctx)
+        attach_source(ctx, node)
+        attach_remarks(ctx, node)
+        node
       end
 
       def visit_if(ctx, default = nil)
@@ -84,7 +83,7 @@ module Expressir
       end
 
       def get_tokens(ctx)
-        start_index, stop_index = if ctx.instance_of? ::ExpressParser::SyntaxContext
+        start_index, stop_index = if ctx.is_a? ::ExpressParser::SyntaxContext
           [0, @tokens.size - 1]
         else
           [ctx.start.token_index, ctx.stop.token_index]
@@ -94,7 +93,7 @@ module Expressir
       end
 
       def get_head_tokens(ctx)
-        start_index, stop_index = if ctx.instance_of? ::ExpressParser::SchemaDeclContext
+        start_index, stop_index = if ctx.is_a? ::ExpressParser::SchemaDeclContext
           start_index = ctx.start.token_index
           stop_index = if ctx.schema_body.interface_specification.length > 0
             ctx.schema_body.interface_specification.last.stop.token_index
@@ -124,25 +123,30 @@ module Expressir
         end
       end
 
-      def attach_parent(node)
-        if node.class.method_defined? :attach_parent_to_children
-          node.attach_parent_to_children
-        end
-      end
-
       def find_remark_target(node, path)
-        current_node = node
-        target_node = nil
+        target_node = node.find(path)
+        return target_node if target_node
 
-        if current_node.class.method_defined? :find_or_create
-          target_node = current_node.find_or_create(path)
-        end
-        while !target_node and current_node.class.method_defined? :parent and current_node.parent.class.method_defined? :find_or_create
-          current_node = current_node.parent
-          target_node = current_node.find_or_create(path)
-        end
+        # check if path should create implicit informal proposal
+        # see https://github.com/lutaml/expressir/issues/50
+        rest, _, current_path = path.rpartition(".") # get last path part
+        _, _, current_path = current_path.rpartition(":") # ignore prefix
 
-        target_node
+        # match informal proposition id
+        informal_proposition_id = current_path.match(/^IP\d+$/).to_a[0]
+        return unless informal_proposition_id
+
+        # find informal proposition target
+        target_node = node.find(rest)
+        return unless target_node and target_node.class.method_defined? :informal_propositions
+
+        # create implicit informal proposition
+        informal_proposition = Model::InformalProposition.new({
+          id: informal_proposition_id
+        })
+        target_node.informal_propositions << informal_proposition
+        informal_proposition.parent = target_node
+        informal_proposition
       end
 
       def attach_remarks(ctx, node)
@@ -767,7 +771,7 @@ module Expressir
         id = visit_if(ctx__entity_head__entity_id)
         abstract = (ctx__entity_head__subsuper__supertype_constraint__abstract_entity_declaration || ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration) && true
         supertype_expression = visit_if(ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration || ctx__entity_head__subsuper__supertype_constraint__supertype_rule)
-        subtype_of = visit_if(ctx__entity_head__subsuper__subtype_declaration)
+        subtype_of = visit_if(ctx__entity_head__subsuper__subtype_declaration, [])
         attributes = [
           *visit_if_map_flatten(ctx__entity_body__explicit_attr),
           *visit_if(ctx__entity_body__derive_clause),
@@ -967,11 +971,11 @@ module Expressir
         parameters = visit_if_map_flatten(ctx__function_head__formal_parameter)
         return_type = visit_if(ctx__function_head__parameter_type)
         declarations = visit_if_map(ctx__algorithm_head__declaration)
-        types = declarations.select{|x| x.instance_of? Model::Type}
-        entities = declarations.select{|x| x.instance_of? Model::Entity}
-        subtype_constraints = declarations.select{|x| x.instance_of? Model::SubtypeConstraint}
-        functions = declarations.select{|x| x.instance_of? Model::Function}
-        procedures = declarations.select{|x| x.instance_of? Model::Procedure}
+        types = declarations.select{|x| x.is_a? Model::Type}
+        entities = declarations.select{|x| x.is_a? Model::Entity}
+        subtype_constraints = declarations.select{|x| x.is_a? Model::SubtypeConstraint}
+        functions = declarations.select{|x| x.is_a? Model::Function}
+        procedures = declarations.select{|x| x.is_a? Model::Procedure}
         constants = visit_if(ctx__algorithm_head__constant_decl, [])
         variables = visit_if(ctx__algorithm_head__local_decl, [])
         statements = visit_if_map(ctx__stmt)
@@ -1595,11 +1599,11 @@ module Expressir
         id = visit_if(ctx__procedure_head__procedure_id)
         parameters = visit_if_map_flatten(ctx__procedure_head__procedure_head_parameter)
         declarations = visit_if_map(ctx__algorithm_head__declaration)
-        types = declarations.select{|x| x.instance_of? Model::Type}
-        entities = declarations.select{|x| x.instance_of? Model::Entity}
-        subtype_constraints = declarations.select{|x| x.instance_of? Model::SubtypeConstraint}
-        functions = declarations.select{|x| x.instance_of? Model::Function}
-        procedures = declarations.select{|x| x.instance_of? Model::Procedure}
+        types = declarations.select{|x| x.is_a? Model::Type}
+        entities = declarations.select{|x| x.is_a? Model::Entity}
+        subtype_constraints = declarations.select{|x| x.is_a? Model::SubtypeConstraint}
+        functions = declarations.select{|x| x.is_a? Model::Function}
+        procedures = declarations.select{|x| x.is_a? Model::Procedure}
         constants = visit_if(ctx__algorithm_head__constant_decl, [])
         variables = visit_if(ctx__algorithm_head__local_decl, [])
         statements = visit_if_map(ctx__stmt)
@@ -1837,20 +1841,16 @@ module Expressir
         ctx__resource_ref = ctx.resource_ref
         ctx__rename_id = ctx.rename_id
 
-        if ctx__resource_ref
-          if ctx__rename_id
-            ref = visit(ctx__resource_ref)
-            id = visit(ctx__rename_id)
+        ref = visit_if(ctx__resource_ref)
+        id = visit_if(ctx__rename_id)
 
-            Model::RenamedRef.new({
-              ref: ref,
-              id: id
-            })
-          else
-            visit(ctx__resource_ref)
-          end
+        if id
+          Model::RenamedRef.new({
+            ref: ref,
+            id: id
+          })
         else
-          raise 'Invalid state'
+          ref
         end
       end
 
@@ -1888,11 +1888,11 @@ module Expressir
         id = visit_if(ctx__rule_head__rule_id)
         applies_to = visit_if_map(ctx__rule_head__entity_ref)
         declarations = visit_if_map(ctx__algorithm_head__declaration)
-        types = declarations.select{|x| x.instance_of? Model::Type}
-        entities = declarations.select{|x| x.instance_of? Model::Entity}
-        subtype_constraints = declarations.select{|x| x.instance_of? Model::SubtypeConstraint}
-        functions = declarations.select{|x| x.instance_of? Model::Function}
-        procedures = declarations.select{|x| x.instance_of? Model::Procedure}
+        types = declarations.select{|x| x.is_a? Model::Type}
+        entities = declarations.select{|x| x.is_a? Model::Entity}
+        subtype_constraints = declarations.select{|x| x.is_a? Model::SubtypeConstraint}
+        functions = declarations.select{|x| x.is_a? Model::Function}
+        procedures = declarations.select{|x| x.is_a? Model::Procedure}
         constants = visit_if(ctx__algorithm_head__constant_decl, [])
         variables = visit_if(ctx__algorithm_head__local_decl, [])
         statements = visit_if_map(ctx__stmt)
@@ -1953,12 +1953,12 @@ module Expressir
         interfaces = visit_if_map(ctx__schema_body__interface_specification)
         constants = visit_if(ctx__schema_body__constant_decl, [])
         declarations = visit_if_map(ctx__schema_body__schema_body_declaration)
-        types = declarations.select{|x| x.instance_of? Model::Type}
-        entities = declarations.select{|x| x.instance_of? Model::Entity}
-        subtype_constraints = declarations.select{|x| x.instance_of? Model::SubtypeConstraint}
-        functions = declarations.select{|x| x.instance_of? Model::Function}
-        procedures = declarations.select{|x| x.instance_of? Model::Procedure}
-        rules = declarations.select{|x| x.instance_of? Model::Rule}
+        types = declarations.select{|x| x.is_a? Model::Type}
+        entities = declarations.select{|x| x.is_a? Model::Entity}
+        subtype_constraints = declarations.select{|x| x.is_a? Model::SubtypeConstraint}
+        functions = declarations.select{|x| x.is_a? Model::Function}
+        procedures = declarations.select{|x| x.is_a? Model::Procedure}
+        rules = declarations.select{|x| x.is_a? Model::Rule}
 
         Model::Schema.new({
           id: id,

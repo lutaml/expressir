@@ -2,7 +2,6 @@ module Expressir
   module Model
     module Expressions
       class QueryExpression < ModelElement
-        include Scope
         include Identifier
 
         attr_accessor :aggregate_source
@@ -15,6 +14,8 @@ module Expressir
 
           @aggregate_source = options[:aggregate_source]
           @expression = options[:expression]
+
+          super
         end
 
         def children

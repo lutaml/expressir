@@ -5,7 +5,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
   describe ".head_source" do
     it "contains original head source" do
       input = File.read(sample_file)
-      repo = Expressir::ExpressExp::Parser.from_exp(sample_file)
+      repo = Expressir::ExpressExp::Parser.from_file(sample_file)
 
       repo.schemas[0].tap do |x|
         start_index = x.source.index("SCHEMA")

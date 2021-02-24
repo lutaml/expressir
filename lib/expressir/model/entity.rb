@@ -1,7 +1,6 @@
 module Expressir
   module Model
     class Entity < ModelElement
-      include Scope
       include Identifier
 
       attr_accessor :abstract
@@ -19,11 +18,13 @@ module Expressir
 
         @abstract = options[:abstract]
         @supertype_expression = options[:supertype_expression]
-        @subtype_of = options[:subtype_of]
+        @subtype_of = options.fetch(:subtype_of, [])
         @attributes = options.fetch(:attributes, [])
         @unique = options.fetch(:unique, [])
         @where = options.fetch(:where, [])
         @informal_propositions = options.fetch(:informal_propositions, [])
+
+        super
       end
 
       def children

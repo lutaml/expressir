@@ -12,6 +12,8 @@ module Expressir
           @bound2 = options[:bound2]
           @unique = options[:unique]
           @base_type = options[:base_type]
+
+          super
         end
       end
     end

@@ -1,7 +1,6 @@
 module Expressir
   module Model
     class Type < ModelElement
-      include Scope
       include Identifier
 
       attr_accessor :type
@@ -16,15 +15,13 @@ module Expressir
         @type = options[:type]
         @where = options.fetch(:where, [])
         @informal_propositions = options.fetch(:informal_propositions, [])
+
+        super
       end
 
       def children
         items = []
-        items.push(*[
-          *if @type.instance_of? Expressir::Model::Types::Enumeration
-            @type.items
-          end
-        ])
+        items.push(*@type.is_a?(Expressir::Model::Types::Enumeration) ? @type.items : [])
         items.push(*@where)
         items.push(*@informal_propositions)
         items

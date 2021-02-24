@@ -8,6 +8,8 @@ module Expressir
         def initialize(options = {})
           @width = options[:width]
           @fixed = options[:fixed]
+
+          super
         end
       end
     end

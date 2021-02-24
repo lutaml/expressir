@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require "expressir/express_exp/parser"
+require "expressir/express_exp/hyperlink_formatter"
+
+input_files = [
+  '../iso-10303-stepmod/data/resources/action_schema/action_schema_annotated.exp',
+  '../iso-10303-stepmod/data/resources/basic_attribute_schema/basic_attribute_schema_annotated.exp',
+  '../iso-10303-stepmod/data/resources/support_resource_schema/support_resource_schema_annotated.exp'
+]
+
+repo = Expressir::ExpressExp::Parser.from_files(input_files)
+schema = repo.schemas.find{|x| x.id == 'action_schema'}
+result = Expressir::ExpressExp::HyperlinkFormatter.format(schema)
+
+puts result

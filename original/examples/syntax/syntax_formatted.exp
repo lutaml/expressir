@@ -61,21 +61,25 @@ ENTITY attribute_multiple_shorthand_entity;
   test : BOOLEAN;
   test2 : BOOLEAN;
 END_ENTITY;
-ENTITY attribute_redeclared_entity;
+ENTITY attribute_redeclared_entity
+  SUBTYPE OF (attribute_entity);
   SELF\attribute_entity.test : BOOLEAN;
 END_ENTITY;
-ENTITY attribute_redeclared_renamed_entity;
+ENTITY attribute_redeclared_renamed_entity
+  SUBTYPE OF (attribute_entity);
   SELF\attribute_entity.test RENAMED test2 : BOOLEAN;
 END_ENTITY;
 ENTITY derived_attribute_entity;
   DERIVE
     test : BOOLEAN := TRUE;
 END_ENTITY;
-ENTITY derived_attribute_redeclared_entity;
+ENTITY derived_attribute_redeclared_entity
+  SUBTYPE OF (attribute_entity);
   DERIVE
     SELF\attribute_entity.test : BOOLEAN := TRUE;
 END_ENTITY;
-ENTITY derived_attribute_redeclared_renamed_entity;
+ENTITY derived_attribute_redeclared_renamed_entity
+  SUBTYPE OF (attribute_entity);
   DERIVE
     SELF\attribute_entity.test RENAMED test2 : BOOLEAN := TRUE;
 END_ENTITY;
@@ -103,11 +107,13 @@ ENTITY inverse_attribute_bag_bound_entity;
   INVERSE
     test : BAG [1:9] OF attribute_entity FOR test;
 END_ENTITY;
-ENTITY inverse_attribute_redeclared_entity;
+ENTITY inverse_attribute_redeclared_entity
+  SUBTYPE OF (attribute_entity);
   INVERSE
     SELF\attribute_entity.test : attribute_entity FOR test;
 END_ENTITY;
-ENTITY inverse_attribute_redeclared_renamed_entity;
+ENTITY inverse_attribute_redeclared_renamed_entity
+  SUBTYPE OF (attribute_entity);
   INVERSE
     SELF\attribute_entity.test RENAMED test2 : attribute_entity FOR test;
 END_ENTITY;
@@ -121,11 +127,13 @@ ENTITY unique_label_entity;
   UNIQUE
     UR1 : test;
 END_ENTITY;
-ENTITY unique_qualified_entity;
+ENTITY unique_redeclared_entity
+  SUBTYPE OF (attribute_entity);
   UNIQUE
     SELF\attribute_entity.test;
 END_ENTITY;
-ENTITY unique_label_qualified_entity;
+ENTITY unique_label_redeclared_entity
+  SUBTYPE OF (attribute_entity);
   UNIQUE
     UR1 : SELF\attribute_entity.test;
 END_ENTITY;
@@ -331,13 +339,8 @@ PROCEDURE statements;
       ;
     END_ALIAS;
   END_PROCEDURE;
-  PROCEDURE alias_attribute_reference_statement;
-    ALIAS test FOR test.test;
-      ;
-    END_ALIAS;
-  END_PROCEDURE;
   PROCEDURE alias_group_reference_statement;
-    ALIAS test FOR test\test;
+    ALIAS test FOR test\test2;
       ;
     END_ALIAS;
   END_PROCEDURE;
@@ -351,20 +354,25 @@ PROCEDURE statements;
       ;
     END_ALIAS;
   END_PROCEDURE;
+  PROCEDURE alias_attribute_reference_statement;
+    ALIAS test FOR test.test2;
+      ;
+    END_ALIAS;
+  END_PROCEDURE;
   PROCEDURE assignment_simple_reference_statement;
     test := TRUE;
   END_PROCEDURE;
-  PROCEDURE assignment_attribute_reference_statement;
-    test.test := TRUE;
-  END_PROCEDURE;
   PROCEDURE assignment_group_reference_statement;
-    test\test := TRUE;
+    test\test2 := TRUE;
   END_PROCEDURE;
   PROCEDURE assignment_index_reference_statement;
     test[1] := TRUE;
   END_PROCEDURE;
   PROCEDURE assignment_index2_reference_statement;
     test[1:9] := TRUE;
+  END_PROCEDURE;
+  PROCEDURE assignment_attribute_reference_statement;
+    test.test2 := TRUE;
   END_PROCEDURE;
   PROCEDURE case_statement;
     CASE test OF
@@ -651,7 +659,7 @@ PROCEDURE expressions;
     and_or_expression : BOOLEAN := TRUE AND FALSE OR TRUE;
     parenthesis_or_and_expression : BOOLEAN := (TRUE OR FALSE) AND TRUE;
     and_parenthesis_or_expression : BOOLEAN := TRUE AND (FALSE OR TRUE);
-    combine_expression : BOOLEAN := test || test;
+    combine_expression : BOOLEAN := test || test2;
     in_expression : BOOLEAN := TRUE IN [TRUE];
     like_expression : BOOLEAN := 'xxx' LIKE 'xxx';
     aggregate_initializer_expression : BOOLEAN := [4];
@@ -659,11 +667,11 @@ PROCEDURE expressions;
     complex_aggregate_initializer_expression : BOOLEAN := [4 + 2];
     complex_repeated_aggregate_initializer_expression : BOOLEAN := [4 + 2:4 + 2];
     call_expression : BOOLEAN := parameter_function(TRUE);
-    simple_reference_expression : BOOLEAN := simple_string_expression;
-    attribute_reference_expression : BOOLEAN := simple_string_expression.test;
-    group_reference_expression : BOOLEAN := simple_string_expression\test;
-    index_reference_expression : BOOLEAN := simple_string_expression[1];
-    index2_reference_expression : BOOLEAN := simple_string_expression[1:9];
+    simple_reference_expression : BOOLEAN := test;
+    group_reference_expression : BOOLEAN := test\test2;
+    index_reference_expression : BOOLEAN := test[1];
+    index2_reference_expression : BOOLEAN := test[1:9];
+    attribute_reference_expression : BOOLEAN := test.test2;
     lt_lt_interval_expression : BOOLEAN := {1 < 5 < 9};
     lte_lt_interval_expression : BOOLEAN := {1 <= 5 < 9};
     lt_lte_interval_expression : BOOLEAN := {1 < 5 <= 9};

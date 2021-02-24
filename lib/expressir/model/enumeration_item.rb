@@ -7,6 +7,8 @@ module Expressir
         @id = options[:id]
         @remarks = options.fetch(:remarks, [])
         @source = options[:source]
+
+        super
       end
     end
   end

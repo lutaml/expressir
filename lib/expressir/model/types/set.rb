@@ -10,6 +10,8 @@ module Expressir
           @bound1 = options[:bound1]
           @bound2 = options[:bound2]
           @base_type = options[:base_type]
+
+          super
         end
       end
     end

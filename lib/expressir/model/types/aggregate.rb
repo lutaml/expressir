@@ -12,6 +12,8 @@ module Expressir
           @source = options[:source]
 
           @base_type = options[:base_type]
+
+          super
         end
       end
     end

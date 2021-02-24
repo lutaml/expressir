@@ -11,6 +11,8 @@ module Expressir
         @source = options[:source]
 
         @attributes = options.fetch(:attributes, [])
+
+        super
       end
     end
   end

@@ -12,6 +12,8 @@ module Expressir
           @items = options.fetch(:items, [])
           @extension_type = options[:extension_type]
           @extension_items = options.fetch(:extension_items, [])
+
+          super
         end
       end
     end

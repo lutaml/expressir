@@ -1,0 +1,8 @@
+SCHEMA hyperlink_schema;
+ENTITY test; END_ENTITY;
+ENTITY empty_entity; END_ENTITY;
+ENTITY attribute_entity; test : BOOLEAN; END_ENTITY;
+ENTITY subtype_empty_entity SUBTYPE OF (empty_entity); END_ENTITY;
+ENTITY subtype_attribute_entity SUBTYPE OF (attribute_entity); SELF\attribute_entity.test : BOOLEAN; END_ENTITY;
+ENTITY subtype_missing_entity SUBTYPE OF (missing_entity); END_ENTITY;
+END_SCHEMA;

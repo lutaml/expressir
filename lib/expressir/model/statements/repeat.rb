@@ -2,7 +2,6 @@ module Expressir
   module Model
     module Statements
       class Repeat < ModelElement
-        include Scope
         include Identifier
 
         attr_accessor :bound1
@@ -23,6 +22,8 @@ module Expressir
           @while_expression = options[:while_expression]
           @until_expression = options[:until_expression]
           @statements = options.fetch(:statements, [])
+
+          super
         end
 
         def children

@@ -23,6 +23,8 @@ module Expressir
         @optional = options[:optional]
         @type = options[:type]
         @expression = options[:expression]
+
+        super
       end
     end
   end

@@ -12,6 +12,8 @@ module Expressir
         @kind = options[:kind]
         @schema = options[:schema]
         @items = options.fetch(:items, [])
+
+        super
       end
     end
   end

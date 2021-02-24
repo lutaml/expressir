@@ -10,6 +10,8 @@ module Expressir
 
         def initialize(options = {})
           @value = options[:value]
+
+          super
         end
       end
     end

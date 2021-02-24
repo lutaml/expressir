@@ -8,6 +8,8 @@ module Expressir
         def initialize(options = {})
           @ref = options[:ref]
           @entity = options[:entity]
+
+          super
         end
       end
     end

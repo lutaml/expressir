@@ -1,10 +1,10 @@
 require "spec_helper"
 require "expressir/express_exp/parser"
 
-RSpec.describe Expressir::Model::Scope do
+RSpec.describe Expressir::Model::ModelElement do
   describe ".find" do
     it "finds an object" do
-      repo = Expressir::ExpressExp::Parser.from_exp(sample_file)
+      repo = Expressir::ExpressExp::Parser.from_file(sample_file)
 
       # universal scope
       expect(repo.find('remark_schema')).to be_instance_of(Expressir::Model::Schema)
@@ -112,6 +112,11 @@ RSpec.describe Expressir::Model::Scope do
       expect(rule.find('remark_variable')).to be_instance_of(Expressir::Model::Variable)
       expect(rule.find('WR1')).to be_instance_of(Expressir::Model::Where)
       expect(rule.find('wr:WR1')).to be_instance_of(Expressir::Model::Where)
+
+      # retry search in parent scope
+      expect(entity.find('remark_type')).to be_instance_of(Expressir::Model::Type)
+      expect(entity.find('remark_type.WR1')).to be_instance_of(Expressir::Model::Where)
+      expect(entity.find('remark_type.wr:WR1')).to be_instance_of(Expressir::Model::Where)
     end
   end
 

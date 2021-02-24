@@ -1,7 +1,6 @@
 module Expressir
   module Model
     class Rule < ModelElement
-      include Scope
       include Identifier
 
       attr_accessor :applies_to
@@ -21,7 +20,7 @@ module Expressir
         @remarks = options.fetch(:remarks, [])
         @source = options[:source]
 
-        @applies_to = options[:applies_to]
+        @applies_to = options.fetch(:applies_to, [])
         @types = options.fetch(:types, [])
         @entities = options.fetch(:entities, [])
         @subtype_constraints = options.fetch(:subtype_constraints, [])
@@ -32,18 +31,14 @@ module Expressir
         @statements = options.fetch(:statements, [])
         @where = options.fetch(:where, [])
         @informal_propositions = options.fetch(:informal_propositions, [])
+
+        super
       end
 
       def children
         items = []
         items.push(*@types)
-        items.push(*@types.flat_map do |x|
-          if x.type.instance_of? Expressir::Model::Types::Enumeration
-            x.type.items
-          else
-            []
-          end
-        end)
+        items.push(*@types.flat_map{|x| x.type.is_a?(Expressir::Model::Types::Enumeration) ? x.type.items : []})
         items.push(*@entities)
         items.push(*@subtype_constraints)
         items.push(*@functions)

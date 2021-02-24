@@ -8,6 +8,8 @@ module Expressir
         def initialize(options = {})
           @ref = options[:ref]
           @parameters = options.fetch(:parameters, [])
+
+          super
         end
       end
     end

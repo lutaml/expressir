@@ -38,129 +38,129 @@ module Expressir
       end
 
       def format(node)
-        if node.instance_of? Model::Attribute
+        if node.is_a? Model::Attribute
           format_attribute(node)
-        elsif node.instance_of? Model::Constant
+        elsif node.is_a? Model::Constant
           format_constant(node)
-        elsif node.instance_of? Model::Entity
+        elsif node.is_a? Model::Entity
           format_entity(node)
-        elsif node.instance_of? Model::EnumerationItem
+        elsif node.is_a? Model::EnumerationItem
           format_enumeration_item(node)
-        elsif node.instance_of? Model::Function
+        elsif node.is_a? Model::Function
           format_function(node)
-        elsif node.instance_of? Model::Interface
+        elsif node.is_a? Model::Interface
           format_interface(node)
-        elsif node.instance_of? Model::Parameter
+        elsif node.is_a? Model::Parameter
           format_parameter(node)
-        elsif node.instance_of? Model::Procedure
+        elsif node.is_a? Model::Procedure
           format_procedure(node)
-        elsif node.instance_of? Model::RenamedRef
+        elsif node.is_a? Model::RenamedRef
           format_renamed_ref(node)
-        elsif node.instance_of? Model::Repository
+        elsif node.is_a? Model::Repository
           format_repository(node)
-        elsif node.instance_of? Model::Rule
+        elsif node.is_a? Model::Rule
           format_rule(node)
-        elsif node.instance_of? Model::Schema
+        elsif node.is_a? Model::Schema
           format_schema(node)
-        elsif node.instance_of? Model::SubtypeConstraint
+        elsif node.is_a? Model::SubtypeConstraint
           format_subtype_constraint(node)
-        elsif node.instance_of? Model::Type
+        elsif node.is_a? Model::Type
           format_type(node)
-        elsif node.instance_of? Model::Unique
+        elsif node.is_a? Model::Unique
           format_unique(node)
-        elsif node.instance_of? Model::Variable
+        elsif node.is_a? Model::Variable
           format_variable(node)
-        elsif node.instance_of? Model::Where
+        elsif node.is_a? Model::Where
           format_where(node)
-        elsif node.instance_of? Model::Expressions::AggregateInitializer
+        elsif node.is_a? Model::Expressions::AggregateInitializer
           format_expressions_aggregate_initializer(node)
-        elsif node.instance_of? Model::Expressions::AggregateItem
+        elsif node.is_a? Model::Expressions::AggregateItem
           format_expressions_aggregate_item(node)
-        elsif node.instance_of? Model::Expressions::AttributeReference
+        elsif node.is_a? Model::Expressions::AttributeReference
           format_expressions_attribute_reference(node)
-        elsif node.instance_of? Model::Expressions::BinaryExpression
+        elsif node.is_a? Model::Expressions::BinaryExpression
           format_expressions_binary_expression(node)
-        elsif node.instance_of? Model::Expressions::Call
+        elsif node.is_a? Model::Expressions::Call
           format_expressions_call(node)
-        elsif node.instance_of? Model::Expressions::EntityConstructor
+        elsif node.is_a? Model::Expressions::EntityConstructor
           format_expressions_entity_constructor(node)
-        elsif node.instance_of? Model::Expressions::GroupReference
+        elsif node.is_a? Model::Expressions::GroupReference
           format_expressions_group_reference(node)
-        elsif node.instance_of? Model::Expressions::IndexReference
+        elsif node.is_a? Model::Expressions::IndexReference
           format_expressions_index_reference(node)
-        elsif node.instance_of? Model::Expressions::Interval
+        elsif node.is_a? Model::Expressions::Interval
           format_expressions_interval(node)
-        elsif node.instance_of? Model::Expressions::QueryExpression
+        elsif node.is_a? Model::Expressions::QueryExpression
           format_expressions_query_expression(node)
-        elsif node.instance_of? Model::Expressions::SimpleReference
+        elsif node.is_a? Model::Expressions::SimpleReference
           format_expressions_simple_reference(node)
-        elsif node.instance_of? Model::Expressions::UnaryExpression
+        elsif node.is_a? Model::Expressions::UnaryExpression
           format_expressions_unary_expression(node)
-        elsif node.instance_of? Model::Literals::Binary
+        elsif node.is_a? Model::Literals::Binary
           format_literals_binary(node)
-        elsif node.instance_of? Model::Literals::Integer
+        elsif node.is_a? Model::Literals::Integer
           format_literals_integer(node)
-        elsif node.instance_of? Model::Literals::Logical
+        elsif node.is_a? Model::Literals::Logical
           format_literals_logical(node)
-        elsif node.instance_of? Model::Literals::Real
+        elsif node.is_a? Model::Literals::Real
           format_literals_real(node)
-        elsif node.instance_of? Model::Literals::String
+        elsif node.is_a? Model::Literals::String
           format_literals_string(node)
-        elsif node.instance_of? Model::Statements::Alias
+        elsif node.is_a? Model::Statements::Alias
           format_statements_alias(node)
-        elsif node.instance_of? Model::Statements::Assignment
+        elsif node.is_a? Model::Statements::Assignment
           format_statements_assignment(node)
-        elsif node.instance_of? Model::Statements::Call
+        elsif node.is_a? Model::Statements::Call
           format_statements_call(node)
-        elsif node.instance_of? Model::Statements::Case
+        elsif node.is_a? Model::Statements::Case
           format_statements_case(node)
-        elsif node.instance_of? Model::Statements::CaseAction
+        elsif node.is_a? Model::Statements::CaseAction
           format_statements_case_action(node)
-        elsif node.instance_of? Model::Statements::Compound
+        elsif node.is_a? Model::Statements::Compound
           format_statements_compound(node)
-        elsif node.instance_of? Model::Statements::Escape
+        elsif node.is_a? Model::Statements::Escape
           format_statements_escape(node)
-        elsif node.instance_of? Model::Statements::If
+        elsif node.is_a? Model::Statements::If
           format_statements_if(node)
-        elsif node.instance_of? Model::Statements::Null
+        elsif node.is_a? Model::Statements::Null
           format_statements_null(node)
-        elsif node.instance_of? Model::Statements::Repeat
+        elsif node.is_a? Model::Statements::Repeat
           format_statements_repeat(node)
-        elsif node.instance_of? Model::Statements::Return
+        elsif node.is_a? Model::Statements::Return
           format_statements_return(node)
-        elsif node.instance_of? Model::Statements::Skip
+        elsif node.is_a? Model::Statements::Skip
           format_statements_skip(node)
-        elsif node.instance_of? Model::Types::Aggregate
+        elsif node.is_a? Model::Types::Aggregate
           format_types_aggregate(node)
-        elsif node.instance_of? Model::Types::Array
+        elsif node.is_a? Model::Types::Array
           format_types_array(node)
-        elsif node.instance_of? Model::Types::Bag
+        elsif node.is_a? Model::Types::Bag
           format_types_bag(node)
-        elsif node.instance_of? Model::Types::Binary
+        elsif node.is_a? Model::Types::Binary
           format_types_binary(node)
-        elsif node.instance_of? Model::Types::Boolean
+        elsif node.is_a? Model::Types::Boolean
           format_types_boolean(node)
-        elsif node.instance_of? Model::Types::Enumeration
+        elsif node.is_a? Model::Types::Enumeration
           format_types_enumeration(node)
-        elsif node.instance_of? Model::Types::GenericEntity
+        elsif node.is_a? Model::Types::GenericEntity
           format_types_generic_entity(node)
-        elsif node.instance_of? Model::Types::Generic
+        elsif node.is_a? Model::Types::Generic
           format_types_generic(node)
-        elsif node.instance_of? Model::Types::Integer
+        elsif node.is_a? Model::Types::Integer
           format_types_integer(node)
-        elsif node.instance_of? Model::Types::List
+        elsif node.is_a? Model::Types::List
           format_types_list(node)
-        elsif node.instance_of? Model::Types::Logical
+        elsif node.is_a? Model::Types::Logical
           format_types_logical(node)
-        elsif node.instance_of? Model::Types::Number
+        elsif node.is_a? Model::Types::Number
           format_types_number(node)
-        elsif node.instance_of? Model::Types::Real
+        elsif node.is_a? Model::Types::Real
           format_types_real(node)
-        elsif node.instance_of? Model::Types::Select
+        elsif node.is_a? Model::Types::Select
           format_types_select(node)
-        elsif node.instance_of? Model::Types::Set
+        elsif node.is_a? Model::Types::Set
           format_types_set(node)
-        elsif node.instance_of? Model::Types::String
+        elsif node.is_a? Model::Types::String
           format_types_string(node)
         else
           puts node.class
@@ -509,8 +509,7 @@ module Expressir
         [
           *if node.schemas and node.schemas.length > 0
             node.schemas.map{|node| format(node)}
-          end,
-          *format_scope_remarks(node)
+          end
         ].join("\n")
       end
 
@@ -627,7 +626,8 @@ module Expressir
           [
             'END_SCHEMA',
             ';'
-          ].join('')
+          ].join(''),
+          *format_scope_remarks(node)
         ].join("\n")
       end
 
@@ -773,11 +773,11 @@ module Expressir
 
       def format_expressions_binary_expression(node)
         [
-          *if node.operand1.instance_of? Model::Expressions::BinaryExpression and OPERATOR_PRECEDENCE[node.operand1.operator] > OPERATOR_PRECEDENCE[node.operator]
+          *if node.operand1.is_a? Model::Expressions::BinaryExpression and OPERATOR_PRECEDENCE[node.operand1.operator] > OPERATOR_PRECEDENCE[node.operator]
             '('
           end,
           format(node.operand1),
-          *if node.operand1.instance_of? Model::Expressions::BinaryExpression and OPERATOR_PRECEDENCE[node.operand1.operator] > OPERATOR_PRECEDENCE[node.operator]
+          *if node.operand1.is_a? Model::Expressions::BinaryExpression and OPERATOR_PRECEDENCE[node.operand1.operator] > OPERATOR_PRECEDENCE[node.operator]
             ')'
           end,
           ' ',
@@ -806,11 +806,11 @@ module Expressir
             when Model::Expressions::BinaryExpression::XOR then 'XOR'
           end,
           ' ',
-          *if node.operand2.instance_of? Model::Expressions::BinaryExpression and OPERATOR_PRECEDENCE[node.operand2.operator] > OPERATOR_PRECEDENCE[node.operator]
+          *if node.operand2.is_a? Model::Expressions::BinaryExpression and OPERATOR_PRECEDENCE[node.operand2.operator] > OPERATOR_PRECEDENCE[node.operator]
             '('
           end,
           format(node.operand2),
-          *if node.operand2.instance_of? Model::Expressions::BinaryExpression and OPERATOR_PRECEDENCE[node.operand2.operator] > OPERATOR_PRECEDENCE[node.operator]
+          *if node.operand2.is_a? Model::Expressions::BinaryExpression and OPERATOR_PRECEDENCE[node.operand2.operator] > OPERATOR_PRECEDENCE[node.operator]
             ')'
           end,
         ].join('')
@@ -911,11 +911,11 @@ module Expressir
           if node.operator == Model::Expressions::UnaryExpression::NOT
             ' '
           end,
-          *if node.operand.instance_of? Model::Expressions::BinaryExpression
+          *if node.operand.is_a? Model::Expressions::BinaryExpression
             '('
           end,
           format(node.operand),
-          *if node.operand.instance_of? Model::Expressions::BinaryExpression
+          *if node.operand.is_a? Model::Expressions::BinaryExpression
             ')'
           end
         ].join('')
@@ -1442,25 +1442,13 @@ module Expressir
         str.split("\n").map{|x| "#{INDENT}#{x}"}.join("\n")
       end
 
-      def format_remark_ref(node)
-        [
-          *if node.class.method_defined? :parent and node.parent.class.method_defined? :id and node.parent != node
-            [
-              format_remark_ref(node.parent),
-              '.'
-            ].join('')
-          end,
-          node.id,
-        ].join('')
-      end
-
       def format_remark(node, remark)
         if remark.include?("\n")
           [
             [
               '(*',
               '"',
-              format_remark_ref(node),
+              node.path,
               '"',
             ].join(''),
             remark,
@@ -1470,7 +1458,7 @@ module Expressir
           [
             '--',
             '"',
-            format_remark_ref(node),
+            node.path,
             '"',
             ' ',
             remark
@@ -1479,7 +1467,7 @@ module Expressir
       end
 
       def format_remarks(node)
-        if node.class.method_defined? :remarks and node.remarks and node.remarks.length > 0
+        if node.class.method_defined? :remarks
           node.remarks.map do |remark|
             format_remark(node, remark)
           end
@@ -1491,9 +1479,7 @@ module Expressir
       def format_scope_remarks(node)
         [
           *format_remarks(node),
-          *if node.class.method_defined? :children
-            node.children.select{|x| x.parent == node}.flat_map{|x| format_scope_remarks(x)}
-          end
+          *node.children.select{|x| !x.is_a? Model::EnumerationItem or node.is_a? Model::Type}.flat_map{|x| format_scope_remarks(x)}
         ]
       end
     end

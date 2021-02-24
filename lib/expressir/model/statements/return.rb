@@ -6,6 +6,8 @@ module Expressir
 
         def initialize(options = {})
           @expression = options[:expression]
+
+          super
         end
       end
     end

@@ -8,6 +8,8 @@ module Expressir
         def initialize(options = {})
           @expression = options[:expression]
           @repetition = options[:repetition]
+
+          super
         end
       end
     end

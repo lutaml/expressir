@@ -34,10 +34,19 @@ module Expressir
         super
       end
 
-      def children
+      def children(item_ids = [])
         items = []
-        # TODO: select interface items
-        items.push(*@interfaces.flat_map{|x| parent.schemas.find{|y| x.schema.id == y.id}&.children || []})
+        unless item_ids.length > 0
+          items.push(*@interfaces.flat_map do |interface|
+            schema = parent.schemas.find{|y| interface.schema.id == y.id}
+            interface_item_ids = if interface.items
+              # TODO: support renamed references
+              interface.items.select{|x| x.is_a? Model::Expressions::SimpleReference}.map{|x| x.id}
+            end
+            schema_items = schema&.children(interface_item_ids) || []
+            schema_items
+          end)
+        end
         items.push(*@constants)
         items.push(*@types)
         items.push(*@types.flat_map{|x| x.type.is_a?(Expressir::Model::Types::Enumeration) ? x.type.items : []})
@@ -46,6 +55,9 @@ module Expressir
         items.push(*@functions)
         items.push(*@procedures)
         items.push(*@rules)
+        if item_ids.length > 0
+          items = items.select{|x| item_ids.include?(x.id)}
+        end
         items
       end
     end

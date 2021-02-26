@@ -34,6 +34,8 @@ module Expressir
         visitor = Visitor.new(parser.tokens)
         repo = visitor.visit(parse_tree)
 
+        repo.schemas.each{|schema| schema.file = file}
+
         repo
       end
 

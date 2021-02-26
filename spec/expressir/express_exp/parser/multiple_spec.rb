@@ -8,10 +8,15 @@ RSpec.describe Expressir::ExpressExp::Parser do
 
       schemas = repo.schemas
       expect(schemas.count).to eq(5)
+      expect(schemas[0].file).to eq(sample_files[0])
       expect(schemas[0].id).to eq("syntax_schema")
+      expect(schemas[1].file).to eq(sample_files[1])
       expect(schemas[1].id).to eq("remark_schema")
+      expect(schemas[2].file).to eq(sample_files[2])
       expect(schemas[2].id).to eq("entity_schema")
+      expect(schemas[3].file).to eq(sample_files[2])
       expect(schemas[3].id).to eq("version_entity_schema")
+      expect(schemas[4].file).to eq(sample_files[2])
       expect(schemas[4].id).to eq("version_interface_entity_schema")
     end
   end

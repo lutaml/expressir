@@ -1,6 +1,8 @@
 module Expressir
   module Model
     class Schema < ModelElement
+      attr_accessor :file
+
       include Identifier
 
       attr_accessor :head_source
@@ -16,6 +18,8 @@ module Expressir
       attr_accessor :rules
 
       def initialize(options = {})
+        @file = options[:file]
+
         @id = options[:id]
         @remarks = options.fetch(:remarks, [])
         @source = options[:source]

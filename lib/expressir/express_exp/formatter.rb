@@ -50,8 +50,8 @@ module Expressir
           format_function(node)
         elsif node.is_a? Model::Interface
           format_interface(node)
-        elsif node.is_a? Model::InterfacedItem
-          format_interfaced_item(node)
+        elsif node.is_a? Model::InterfaceItem
+          format_interface_item(node)
         elsif node.is_a? Model::Parameter
           format_parameter(node)
         elsif node.is_a? Model::Procedure
@@ -419,10 +419,10 @@ module Expressir
         ].join('')
       end
 
-      def format_interfaced_item(node)
+      def format_interface_item(node)
         [
-          format(node.base_item),
-          *if node.id != node.base_item.id
+          format(node.ref),
+          *if node.id
             [
               ' ',
               'AS',

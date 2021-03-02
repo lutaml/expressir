@@ -1487,12 +1487,12 @@ module Expressir
         ctx__entity_id = ctx.entity_id
         ctx__type_id = ctx.type_id
 
-        base_item = visit_if(ctx__named_types)
-        id = visit_if(ctx__entity_id || ctx__type_id) || base_item.id
+        ref = visit_if(ctx__named_types)
+        id = visit_if(ctx__entity_id || ctx__type_id)
 
-        Model::InterfacedItem.new({
-          id: id,
-          base_item: base_item
+        Model::InterfaceItem.new({
+          ref: ref,
+          id: id
         })
       end
 
@@ -1837,12 +1837,12 @@ module Expressir
         ctx__resource_ref = ctx.resource_ref
         ctx__rename_id = ctx.rename_id
 
-        base_item = visit_if(ctx__resource_ref)
-        id = visit_if(ctx__rename_id) || base_item.id
+        ref = visit_if(ctx__resource_ref)
+        id = visit_if(ctx__rename_id)
 
-        Model::InterfacedItem.new({
-          id: id,
-          base_item: base_item
+        Model::InterfaceItem.new({
+          ref: ref,
+          id: id
         })
       end
 

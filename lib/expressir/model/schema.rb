@@ -48,9 +48,9 @@ module Expressir
               schema_children = schema.children(true) # prevent infinite recursion
               if interface.items.length > 0
                 interface.items.map do |item|
-                  id = item.id
-                  base_item_id = item.base_item.id.downcase
-                  base_item = schema_children.find{|x| x.id and x.id.downcase == base_item_id}
+                  ref_id = item.ref.id.downcase
+                  id = item.id || ref_id
+                  base_item = schema_children.find{|x| x.id and x.id.downcase == ref_id}
 
                   interfaced_item = InterfacedItem.new({
                     id: id

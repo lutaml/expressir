@@ -38,30 +38,53 @@ module Expressir
         super
       end
 
-      def children(item_ids = nil)
+      def children(skip_references = false)
         items = []
-        unless item_ids and item_ids.length > 0
+        unless skip_references
           items.push(*@interfaces.flat_map do |interface|
-            schema = parent.schemas.find{|y| interface.schema.id == y.id}
-            interface_item_ids = if interface.items
-              # TODO: support renamed references
-              interface.items.select{|x| x.is_a? Model::Expressions::SimpleReference}.map{|x| x.id}
+            schema_id = interface.schema.id.downcase
+            schema = parent.schemas.find{|x| x.id.downcase == schema_id}
+            if schema
+              schema_children = schema.children(true) # prevent infinite recursion
+              if interface.items.length > 0
+                interface.items.map do |item|
+                  id = item.id
+                  base_item_id = item.base_item.id.downcase
+                  base_item = schema_children.find{|x| x.id and x.id.downcase == base_item_id}
+
+                  interfaced_item = InterfacedItem.new({
+                    id: id
+                  })
+                  interfaced_item.base_item = base_item # skip overriding parent
+                  interfaced_item.parent = self
+                  interfaced_item
+                end
+              else
+                schema_children.map do |item|
+                  id = item.id
+                  base_item = item
+
+                  interfaced_item = InterfacedItem.new({
+                    id: id
+                  })
+                  interfaced_item.base_item = base_item # skip overriding parent
+                  interfaced_item.parent = self
+                  interfaced_item
+                end
+              end
+            else
+              []
             end
-            schema_items = schema&.children(interface_item_ids) || []
-            schema_items
           end)
         end
         items.push(*@constants)
         items.push(*@types)
-        items.push(*@types.flat_map{|x| x.type.is_a?(Expressir::Model::Types::Enumeration) ? x.type.items : []})
+        items.push(*@types.flat_map{|x| x.type.is_a?(Types::Enumeration) ? x.type.items : []})
         items.push(*@entities)
         items.push(*@subtype_constraints)
         items.push(*@functions)
         items.push(*@procedures)
         items.push(*@rules)
-        if item_ids and item_ids.length > 0
-          items = items.select{|x| item_ids.include?(x.id)}
-        end
         items
       end
     end

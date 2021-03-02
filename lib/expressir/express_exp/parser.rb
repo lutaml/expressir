@@ -42,9 +42,13 @@ module Expressir
       def self.from_files(files)
         schemas = files.map{|file| self.from_file(file).schemas}.flatten
 
-        Model::Repository.new({
+        repo = Model::Repository.new({
           schemas: schemas
         })
+
+        repo.schemas.each{|schema| schema.parent = repo}
+
+        repo
       end
 
       # deprecated

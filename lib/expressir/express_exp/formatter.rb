@@ -50,12 +50,12 @@ module Expressir
           format_function(node)
         elsif node.is_a? Model::Interface
           format_interface(node)
+        elsif node.is_a? Model::InterfacedItem
+          format_interfaced_item(node)
         elsif node.is_a? Model::Parameter
           format_parameter(node)
         elsif node.is_a? Model::Procedure
           format_procedure(node)
-        elsif node.is_a? Model::RenamedRef
-          format_renamed_ref(node)
         elsif node.is_a? Model::Repository
           format_repository(node)
         elsif node.is_a? Model::Rule
@@ -419,6 +419,20 @@ module Expressir
         ].join('')
       end
 
+      def format_interfaced_item(node)
+        [
+          format(node.base_item),
+          *if node.id != node.base_item.id
+            [
+              ' ',
+              'AS',
+              ' ',
+              node.id
+            ]
+          end
+        ].join('')
+      end
+
       def format_parameter(node)
         [
           *if node.var
@@ -493,16 +507,6 @@ module Expressir
             ';'
           ].join('')
         ].join("\n")
-      end
-
-      def format_renamed_ref(node)
-        [
-          format(node.ref),
-          ' ',
-          'AS',
-          ' ',
-          node.id
-        ].join('')
       end
 
       def format_repository(node)

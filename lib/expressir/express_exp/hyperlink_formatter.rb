@@ -7,7 +7,11 @@ module Expressir
         return node.id if node.parent.is_a? Model::Expressions::AttributeReference
 
         # skip hyperlink if target node can't be found
-        target_node = node.find(node.id)
+        target_node = if node.parent.is_a? Model::InterfacedItem and node.parent.parent.is_a? Model::Interface
+          node.find("#{node.parent.parent.schema.id}.#{node.parent.base_item.id}")
+        else
+          node.find(node.id)
+        end
         return node.id unless target_node
 
         # skip hyperlink for implicit scopes

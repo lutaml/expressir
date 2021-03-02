@@ -38,7 +38,7 @@ module Expressir
       def children
         items = []
         items.push(*@types)
-        items.push(*@types.flat_map{|x| x.type.is_a?(Expressir::Model::Types::Enumeration) ? x.type.items : []})
+        items.push(*@types.flat_map{|x| x.type.is_a?(Types::Enumeration) ? x.type.items : []})
         items.push(*@entities)
         items.push(*@subtype_constraints)
         items.push(*@functions)

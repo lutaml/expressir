@@ -691,9 +691,9 @@ module Expressir
         expression = visit_if(ctx__expression)
 
         Model::Attribute.new({
-          id: attribute.id,
+          id: attribute.id, # reuse
           kind: Model::Attribute::DERIVED,
-          supertype_attribute: attribute.supertype_attribute,
+          supertype_attribute: attribute.supertype_attribute, # reuse
           type: type,
           expression: expression
         })
@@ -879,9 +879,9 @@ module Expressir
 
         attributes.map do |attribute|
           Model::Attribute.new({
-            id: attribute.id,
+            id: attribute.id, # reuse
             kind: Model::Attribute::EXPLICIT,
-            supertype_attribute: attribute.supertype_attribute,
+            supertype_attribute: attribute.supertype_attribute, # reuse
             optional: optional,
             type: type
           })
@@ -1306,9 +1306,9 @@ module Expressir
         end
 
         Model::Attribute.new({
-          id: attribute.id,
+          id: attribute.id, # reuse
           kind: Model::Attribute::INVERSE,
-          supertype_attribute: attribute.supertype_attribute,
+          supertype_attribute: attribute.supertype_attribute, # reuse
           type: type,
           expression: expression
         })
@@ -1487,17 +1487,13 @@ module Expressir
         ctx__entity_id = ctx.entity_id
         ctx__type_id = ctx.type_id
 
-        ref = visit_if(ctx__named_types)
-        id = visit_if(ctx__entity_id || ctx__type_id)
+        base_item = visit_if(ctx__named_types)
+        id = visit_if(ctx__entity_id || ctx__type_id) || base_item.id
 
-        if id
-          Model::RenamedRef.new({
-            ref: ref,
-            id: id
-          })
-        else
-          ref
-        end
+        Model::InterfacedItem.new({
+          id: id,
+          base_item: base_item
+        })
       end
 
       def visit_null_stmt(ctx)
@@ -1674,9 +1670,9 @@ module Expressir
             ref: Model::Expressions::SimpleReference.new({
               id: id
             }),
-            entity: group_reference.entity
+            entity: group_reference.entity # reuse
           }),
-          attribute: attribute_reference.attribute
+          attribute: attribute_reference.attribute # reuse
         })
       end
 
@@ -1841,17 +1837,13 @@ module Expressir
         ctx__resource_ref = ctx.resource_ref
         ctx__rename_id = ctx.rename_id
 
-        ref = visit_if(ctx__resource_ref)
-        id = visit_if(ctx__rename_id)
+        base_item = visit_if(ctx__resource_ref)
+        id = visit_if(ctx__rename_id) || base_item.id
 
-        if id
-          Model::RenamedRef.new({
-            ref: ref,
-            id: id
-          })
-        else
-          ref
-        end
+        Model::InterfacedItem.new({
+          id: id,
+          base_item: base_item
+        })
       end
 
       def visit_resource_ref(ctx)

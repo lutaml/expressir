@@ -21,7 +21,7 @@ module Expressir
 
       def children
         items = []
-        items.push(*@type.is_a?(Expressir::Model::Types::Enumeration) ? @type.items : [])
+        items.push(*@type.is_a?(Types::Enumeration) ? @type.items : [])
         items.push(*@where)
         items.push(*@informal_propositions)
         items

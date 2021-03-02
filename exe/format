@@ -4,17 +4,24 @@ require "expressir/express_exp/parser"
 require "expressir/express_exp/hyperlink_formatter"
 
 input_files = [
-  '../iso-10303-stepmod/data/resources/action_schema/action_schema_annotated.exp',
-  '../iso-10303-stepmod/data/resources/basic_attribute_schema/basic_attribute_schema_annotated.exp',
-  '../iso-10303-stepmod/data/resources/support_resource_schema/support_resource_schema_annotated.exp',
-  # cyclic reference
+  # basic test
+  # '../iso-10303-stepmod/data/resources/action_schema/action_schema_annotated.exp',
+  # '../iso-10303-stepmod/data/resources/basic_attribute_schema/basic_attribute_schema_annotated.exp',
+  # '../iso-10303-stepmod/data/resources/support_resource_schema/support_resource_schema_annotated.exp',
+  # cyclic reference test
   # '../iso-10303-stepmod/data/resources/product_property_definition_schema/product_property_definition_schema_annotated.exp',
   # '../iso-10303-stepmod/data/resources/product_property_representation_schema/product_property_representation_schema_annotated.exp'
+  # renamed reference test
+  '../iso-10303-stepmod/ballots/ballots/ap210_wg12/express/resources/mathematical_functions_schema.exp',
+  '../iso-10303-stepmod/data/resources/iso13584_expressions_schema/iso13584_expressions_schema.exp',
+  # all valid iso-10303-stepmod files (takes 10 min)
+  # *`bundle exec ../stepmod-utils/exe/stepmod-find-express-files ../iso-10303-stepmod`.strip.split("\n").map{|file| File.exists?(file.sub(/\.exp$/, '_annotated.exp')) ? file.sub(/\.exp$/, '_annotated.exp') : file}
 ]
 
 repo = Expressir::ExpressExp::Parser.from_files(input_files)
-schema = repo.schemas.find{|x| x.id == 'action_schema'}
+# schema = repo.schemas.find{|x| x.id == 'action_schema'}
 # schema = repo.schemas.find{|x| x.id == 'product_property_definition_schema'}
+schema = repo.schemas.find{|x| x.id == 'mathematical_functions_schema'}
 result = Expressir::ExpressExp::HyperlinkFormatter.format(schema)
 
 puts result

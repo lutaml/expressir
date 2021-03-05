@@ -5,8 +5,6 @@ module Expressir
 
       include Identifier
 
-      attr_accessor :head_source
-
       attr_accessor :version
       attr_accessor :interfaces
       attr_accessor :constants
@@ -23,7 +21,6 @@ module Expressir
         @id = options[:id]
         @remarks = options.fetch(:remarks, [])
         @source = options[:source]
-        @head_source = options[:head_source]
 
         @version = options[:version]
         @interfaces = options.fetch(:interfaces, [])

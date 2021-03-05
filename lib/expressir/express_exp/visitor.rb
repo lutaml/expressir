@@ -92,34 +92,10 @@ module Expressir
         @tokens[start_index..stop_index]
       end
 
-      def get_head_tokens(ctx)
-        start_index, stop_index = if ctx.is_a? ::ExpressParser::SchemaDeclContext
-          start_index = ctx.start.token_index
-          stop_index = if ctx.schema_body.interface_specification.length > 0
-            ctx.schema_body.interface_specification.last.stop.token_index
-          elsif ctx.schema_version_id
-            ctx.schema_version_id.stop.token_index + 1
-          else
-            ctx.schema_id.stop.token_index + 1
-          end
-
-          [start_index, stop_index]
-        end
-
-        if start_index and stop_index
-          @tokens[start_index..stop_index]
-        end
-      end
-
       def attach_source(ctx, node)
         if node.class.method_defined? :source
           tokens = get_tokens(ctx)
           node.source = get_tokens_source(tokens)
-        end
-
-        if node.class.method_defined? :head_source
-          tokens = get_head_tokens(ctx)
-          node.head_source = get_tokens_source(tokens)
         end
       end
 

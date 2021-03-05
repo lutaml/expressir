@@ -19,9 +19,9 @@ module Expressir
         end
 
         def children
-          items = []
-          items.push(self)
-          items
+          [
+            self
+          ]
         end
       end
     end

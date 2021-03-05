@@ -163,7 +163,8 @@ module Expressir
         elsif node.is_a? Model::Types::String
           format_types_string(node)
         else
-          puts node.class
+          STDERR.puts "#{node.class.name} format not implemented"
+          ''
         end
       end
 
@@ -245,51 +246,55 @@ module Expressir
             *if node.abstract and !node.supertype_expression
               [
                 "\n",
-                INDENT,
-                'ABSTRACT',
-                ' ',
-                'SUPERTYPE'
+                indent([
+                  'ABSTRACT',
+                  ' ',
+                  'SUPERTYPE'
+                ].join(''))
               ].join('')
             end,
             *if node.abstract and node.supertype_expression
               [
                 "\n",
-                INDENT,
-                'ABSTRACT',
-                ' ',
-                'SUPERTYPE',
-                ' ',
-                'OF',
-                ' ',
-                '(',
-                format(node.supertype_expression),
-                ')'
+                indent([
+                  'ABSTRACT',
+                  ' ',
+                  'SUPERTYPE',
+                  ' ',
+                  'OF',
+                  ' ',
+                  '(',
+                  format(node.supertype_expression),
+                  ')'
+                ].join(''))
               ].join('')
             end,
             *if !node.abstract and node.supertype_expression
               [
                 "\n",
-                INDENT,
-                'SUPERTYPE',
-                ' ',
-                'OF',
-                ' ',
-                '(',
-                format(node.supertype_expression),
-                ')'
+                indent([
+                  'SUPERTYPE',
+                  ' ',
+                  'OF',
+                  ' ',
+                  '(',
+                  format(node.supertype_expression),
+                  ')'
+                ].join(''))
               ].join('')
             end,
-            *if node.subtype_of and node.subtype_of.length > 0
+            *if node.subtype_of.length > 0
               [
                 "\n",
-                INDENT,
-                'SUBTYPE',
-                ' ',
-                'OF',
-                ' ',
-                '(',
-                node.subtype_of.map{|x| format(x)}.join(', '),
-                ')'
+                indent([
+                  'SUBTYPE',
+                  ' ',
+                  'OF',
+                  ' ',
+                  '(',
+                  node.subtype_of.map{|x| format(x)}.join(', '),
+                  ')'
+                ].join(''))
               ].join('')
             end,
             ';'
@@ -298,28 +303,28 @@ module Expressir
             indent(explicit_attributes.map{|x| format(x)}.join("\n"))
           end,
           *if derived_attributes and derived_attributes.length > 0
-            indent([
+            [
               'DERIVE',
               indent(derived_attributes.map{|x| format(x)}.join("\n")),
-            ].join("\n"))
+            ]
           end,
           *if inverse_attributes and inverse_attributes.length > 0
-            indent([
+            [
               'INVERSE',
               indent(inverse_attributes.map{|x| format(x)}.join("\n")),
-            ].join("\n"))
+            ]
           end,
-          *if node.unique and node.unique.length > 0
-            indent([
+          *if node.unique.length > 0
+            [
               'UNIQUE',
               indent(node.unique.map{|x| format(x)}.join("\n"))
-            ].join("\n"))
+            ]
           end,
-          *if node.where and node.where.length > 0
-            indent([
+          *if node.where.length > 0
+            [
               'WHERE',
               indent(node.where.map{|x| format(x)}.join("\n")),
-            ].join("\n"))
+            ]
           end,
           [
             'END_ENTITY',
@@ -338,10 +343,11 @@ module Expressir
             'FUNCTION',
             ' ',
             node.id,
-            *if node.parameters and node.parameters.length > 0
+            *if node.parameters.length > 0
+              parameter_indent = INDENT_CHAR * "FUNCTION #{node.id}(".length
               [
                 '(',
-                node.parameters.map{|x| format(x)}.join('; '),
+                node.parameters.map{|x| format(x)}.join(";\n#{parameter_indent}"),
                 ')'
               ].join('')
             end,
@@ -351,22 +357,22 @@ module Expressir
             format(node.return_type),
             ';'
           ].join(''),
-          *if node.types and node.types.length > 0
+          *if node.types.length > 0
             indent(node.types.map{|x| format(x)}.join("\n"))
           end,
-          *if node.entities and node.entities.length > 0
+          *if node.entities.length > 0
             indent(node.entities.map{|x| format(x)}.join("\n"))
           end,
-          *if node.subtype_constraints and node.subtype_constraints.length > 0
+          *if node.subtype_constraints.length > 0
             indent(node.subtype_constraints.map{|x| format(x)}.join("\n"))
           end,
-          *if node.functions and node.functions.length > 0
+          *if node.functions.length > 0
             indent(node.functions.map{|x| format(x)}.join("\n"))
           end,
-          *if node.procedures and node.procedures.length > 0
+          *if node.procedures.length > 0
             indent(node.procedures.map{|x| format(x)}.join("\n"))
           end,
-          *if node.constants and node.constants.length > 0
+          *if node.constants.length > 0
             indent([
               'CONSTANT',
               indent(node.constants.map{|x| format(x)}.join("\n")),
@@ -376,7 +382,7 @@ module Expressir
               ].join('')
             ].join("\n"))
           end,
-          *if node.variables and node.variables.length > 0
+          *if node.variables.length > 0
             indent([
               'LOCAL',
               indent(node.variables.map{|x| format(x)}.join("\n")),
@@ -386,7 +392,7 @@ module Expressir
               ].join('')
             ].join("\n"))
           end,
-          *if node.statements and node.statements.length > 0
+          *if node.statements.length > 0
             indent(node.statements.map{|x| format(x)}.join("\n"))
           end,
           [
@@ -406,13 +412,15 @@ module Expressir
           'FROM',
           ' ',
           format(node.schema),
-          *if node.items and node.items.length > 0
+          *if node.items.length > 0
+            item_indent = INDENT_CHAR * '('.length
             [
               "\n",
-              INDENT,
-              '(',
-              node.items.map{|x| format(x)}.join(', '),
-              ')'
+              indent([
+                '(',
+                node.items.map{|x| format(x)}.join(",\n#{item_indent}"),
+                ')'
+              ].join(''))
             ].join('')
           end,
           ';',
@@ -455,31 +463,32 @@ module Expressir
             'PROCEDURE',
             ' ',
             node.id,
-            *if node.parameters and node.parameters.length > 0
+            *if node.parameters.length > 0
+              parameter_indent = INDENT_CHAR * "PROCEDURE #{node.id}(".length
               [
                 '(',
-                node.parameters.map{|x| format(x)}.join('; '),
+                node.parameters.map{|x| format(x)}.join(";\n#{parameter_indent}"),
                 ')'
               ].join('')
             end,
             ';'
           ].join(''),
-          *if node.types and node.types.length > 0
+          *if node.types.length > 0
             indent(node.types.map{|x| format(x)}.join("\n"))
           end,
-          *if node.entities and node.entities.length > 0
+          *if node.entities.length > 0
             indent(node.entities.map{|x| format(x)}.join("\n"))
           end,
-          *if node.subtype_constraints and node.subtype_constraints.length > 0
+          *if node.subtype_constraints.length > 0
             indent(node.subtype_constraints.map{|x| format(x)}.join("\n"))
           end,
-          *if node.functions and node.functions.length > 0
+          *if node.functions.length > 0
             indent(node.functions.map{|x| format(x)}.join("\n"))
           end,
-          *if node.procedures and node.procedures.length > 0
+          *if node.procedures.length > 0
             indent(node.procedures.map{|x| format(x)}.join("\n"))
           end,
-          *if node.constants and node.constants.length > 0
+          *if node.constants.length > 0
             indent([
               'CONSTANT',
               indent(node.constants.map{|x| format(x)}.join("\n")),
@@ -489,7 +498,7 @@ module Expressir
               ].join('')
             ].join("\n"))
           end,
-          *if node.variables and node.variables.length > 0
+          *if node.variables.length > 0
             indent([
               'LOCAL',
               indent(node.variables.map{|x| format(x)}.join("\n")),
@@ -499,7 +508,7 @@ module Expressir
               ].join('')
             ].join("\n"))
           end,
-          *if node.statements and node.statements.length > 0
+          *if node.statements.length > 0
             indent(node.statements.map{|x| format(x)}.join("\n"))
           end,
           [
@@ -510,11 +519,7 @@ module Expressir
       end
 
       def format_repository(node)
-        [
-          *if node.schemas and node.schemas.length > 0
-            node.schemas.map{|node| format(node)}
-          end
-        ].join("\n")
+        node.schemas.map{|node| format(node)}.join("\n\n")
       end
 
       def format_rule(node)
@@ -531,22 +536,22 @@ module Expressir
             ')',
             ';'
           ].join(''),
-          *if node.types and node.types.length > 0
+          *if node.types.length > 0
             indent(node.types.map{|x| format(x)}.join("\n"))
           end,
-          *if node.entities and node.entities.length > 0
+          *if node.entities.length > 0
             indent(node.entities.map{|x| format(x)}.join("\n"))
           end,
-          *if node.subtype_constraints and node.subtype_constraints.length > 0
+          *if node.subtype_constraints.length > 0
             indent(node.subtype_constraints.map{|x| format(x)}.join("\n"))
           end,
-          *if node.functions and node.functions.length > 0
+          *if node.functions.length > 0
             indent(node.functions.map{|x| format(x)}.join("\n"))
           end,
-          *if node.procedures and node.procedures.length > 0
+          *if node.procedures.length > 0
             indent(node.procedures.map{|x| format(x)}.join("\n"))
           end,
-          *if node.constants and node.constants.length > 0
+          *if node.constants.length > 0
             indent([
               'CONSTANT',
               indent(node.constants.map{|x| format(x)}.join("\n")),
@@ -556,7 +561,7 @@ module Expressir
               ].join('')
             ].join("\n"))
           end,
-          *if node.variables and node.variables.length > 0
+          *if node.variables.length > 0
             indent([
               'LOCAL',
               indent(node.variables.map{|x| format(x)}.join("\n")),
@@ -566,14 +571,14 @@ module Expressir
               ].join('')
             ].join("\n"))
           end,
-          *if node.statements and node.statements.length > 0
+          *if node.statements.length > 0
             indent(node.statements.map{|x| format(x)}.join("\n"))
           end,
-          *if node.where and node.where.length > 0
-            indent([
+          *if node.where.length > 0
+            [
               'WHERE',
               indent(node.where.map{|x| format(x)}.join("\n"))
-            ].join("\n"))
+            ]
           end,
           [
             'END_RULE',
@@ -582,7 +587,7 @@ module Expressir
         ].join("\n")
       end
 
-      def format_schema(node)
+      def format_schema_head(node)
         [
           [
             'SCHEMA',
@@ -596,10 +601,18 @@ module Expressir
             end,
             ';'
           ].join(''),
-          *if node.interfaces and node.interfaces.length > 0
-            node.interfaces.map{|x| format(x)}.join("\n")
-          end,
-          *if node.constants and node.constants.length > 0
+          *if node.interfaces.length > 0
+            [
+              '',
+              node.interfaces.map{|x| format(x)}.join("\n")
+            ]
+          end
+        ].join("\n")
+      end
+
+      def format_schema(node)
+        schema_declarations = [
+          *if node.constants.length > 0
             [
               'CONSTANT',
               indent(node.constants.map{|x| format(x)}.join("\n")),
@@ -609,23 +622,34 @@ module Expressir
               ].join('')
             ].join("\n")
           end,
-          *if node.types and node.types.length > 0
-            node.types.map{|x| format(x)}.join("\n")
+          *if node.types.length > 0
+            node.types.map{|x| format(x)}
           end,
-          *if node.entities and node.entities.length > 0
-            node.entities.map{|x| format(x)}.join("\n")
+          *if node.entities.length > 0
+            node.entities.map{|x| format(x)}
           end,
-          *if node.subtype_constraints and node.subtype_constraints.length > 0
-            node.subtype_constraints.map{|x| format(x)}.join("\n")
+          *if node.subtype_constraints.length > 0
+            node.subtype_constraints.map{|x| format(x)}
           end,
-          *if node.functions and node.functions.length > 0
-            node.functions.map{|x| format(x)}.join("\n")
+          *if node.functions.length > 0
+            node.functions.map{|x| format(x)}
+          end,
+          *if node.rules.length > 0
+            node.rules.map{|x| format(x)}
           end,
           *if node.procedures and node.procedures.length > 0
-            node.procedures.map{|x| format(x)}.join("\n")
-          end,
-          *if node.rules and node.rules.length > 0
-            node.rules.map{|x| format(x)}.join("\n")
+            node.procedures.map{|x| format(x)}
+          end
+        ]
+
+        [
+          format_schema_head(node),
+          *if schema_declarations.length > 0
+            [
+              '',
+              schema_declarations.join("\n\n"),
+              ''
+            ]
           end,
           [
             'END_SCHEMA',
@@ -655,7 +679,7 @@ module Expressir
               ';'
             ].join(''))
           end,
-          *if node.total_over and node.total_over.length > 0
+          *if node.total_over.length > 0
             indent([
               'TOTAL_OVER',
               '(',
@@ -689,11 +713,11 @@ module Expressir
             format(node.type),
             ';',
           ].join(''),
-          *if node.where and node.where.length > 0
-            indent([
+          *if node.where.length > 0
+            [
               'WHERE',
               indent(node.where.map{|x| format(x)}.join("\n"))
-            ].join("\n"))
+            ]
           end,
           [
             'END_TYPE',
@@ -707,7 +731,6 @@ module Expressir
           *if node.id
             [
               node.id,
-              ' ',
               ':',
               ' '
             ].join('')
@@ -741,7 +764,6 @@ module Expressir
           *if node.id
             [
               node.id,
-              ' ',
               ':',
               ' '
             ].join('')
@@ -976,7 +998,7 @@ module Expressir
             format(node.expression),
             ';'
           ].join(''),
-          *if node.statements and node.statements.length > 0
+          *if node.statements.length > 0
             indent(node.statements.map{|x| format(x)}.join("\n"))
           end,
           *format_remarks(node),
@@ -1001,7 +1023,7 @@ module Expressir
       def format_statements_call(node)
         [
           format(node.ref),
-          *if node.parameters and node.parameters.length > 0
+          *if node.parameters.length > 0
             [
               '(',
               node.parameters.map{|x| format(x)}.join(', '),
@@ -1021,7 +1043,7 @@ module Expressir
             ' ',
             'OF'
           ].join(''),
-          *if node.actions and node.actions.length > 0
+          *if node.actions.length > 0
             node.actions.map{|x| format(x)}
           end,
           *if node.otherwise_statement
@@ -1055,7 +1077,7 @@ module Expressir
       def format_statements_compound(node)
         [
           'BEGIN',
-          *if node.statements and node.statements.length > 0
+          *if node.statements.length > 0
             indent(node.statements.map{|x| format(x)}.join("\n"))
           end,
           [
@@ -1081,10 +1103,10 @@ module Expressir
             ' ',
             'THEN'
           ].join(''),
-          *if node.statements and node.statements.length > 0
+          *if node.statements.length > 0
             indent(node.statements.map{|x| format(x)}.join("\n"))
           end,
-          *if node.else_statements and node.else_statements.length > 0
+          *if node.else_statements.length > 0
             [
               'ELSE',
               indent(node.else_statements.map{|x| format(x)}.join("\n")),
@@ -1145,7 +1167,7 @@ module Expressir
             end,
             ';'
           ].join(''),
-          *if node.statements and node.statements.length > 0
+          *if node.statements.length > 0
             indent(node.statements.map{|x| format(x)}.join("\n"))
           end,
           *format_remarks(node),
@@ -1267,14 +1289,17 @@ module Expressir
             ].join('')
           end,
           'ENUMERATION',
-          *if node.items and node.items.length > 0
+          *if node.items.length > 0
+            item_indent = INDENT_CHAR * '('.length
             [
               ' ',
               'OF',
-              ' ',
-              '(',
-              node.items.map{|x| format(x)}.join(', '),
-              ')'
+              "\n",
+              indent([
+                '(',
+                node.items.map{|x| format(x)}.join(",\n#{item_indent}"),
+                ')'
+              ].join(''))
             ].join('')
           end,
           *if node.extension_type
@@ -1285,25 +1310,44 @@ module Expressir
               format(node.extension_type)
             ].join('')
           end,
-          *if node.extension_items and node.extension_items.length > 0
+          *if node.extension_items.length > 0
+            item_indent = INDENT_CHAR * '('.length
             [
               ' ',
               'WITH',
-              ' ',
-              '(',
-              node.extension_items.map{|x| format(x)}.join(', '),
-              ')'
+              "\n",
+              indent([
+                '(',
+                node.extension_items.map{|x| format(x)}.join(",\n#{item_indent}"),
+                ')'
+              ].join(''))
             ].join('')
           end
         ].join('')
       end
 
       def format_types_generic_entity(node)
-        'GENERIC_ENTITY'
+        [
+          'GENERIC_ENTITY',
+          *if node.id
+            [
+              ':',
+              node.id
+            ]
+          end
+        ].join('')
       end
 
       def format_types_generic(node)
-        'GENERIC'
+        [
+          'GENERIC',
+          *if node.id
+            [
+              ':',
+              node.id
+            ]
+          end
+        ].join('')
       end
 
       def format_types_integer(node)
@@ -1373,12 +1417,15 @@ module Expressir
             ].join('')
           end,
           'SELECT',
-          *if node.items and node.items.length > 0
+          *if node.items.length > 0
+            item_indent = INDENT_CHAR * '('.length
             [
-              ' ',
-              '(',
-              node.items.map{|x| format(x)}.join(', '),
-              ')'
+              "\n",
+              indent([
+                '(',
+                node.items.map{|x| format(x)}.join(",\n#{item_indent}"),
+                ')'
+              ].join(''))
             ].join('')
           end,
           *if node.extension_type
@@ -1389,14 +1436,17 @@ module Expressir
               format(node.extension_type)
             ].join('')
           end,
-          *if node.extension_items and node.extension_items.length > 0
+          *if node.extension_items.length > 0
+            item_indent = INDENT_CHAR * '('.length
             [
               ' ',
               'WITH',
-              ' ',
-              '(',
-              node.extension_items.map{|x| format(x)}.join(', '),
-              ')'
+              "\n",
+              indent([
+                '(',
+                node.extension_items.map{|x| format(x)}.join(",\n#{item_indent}"),
+                ')'
+              ].join(''))
             ].join('')
           end
         ].join('')

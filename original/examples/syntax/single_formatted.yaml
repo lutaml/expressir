@@ -1,0 +1,18 @@
+---
+_class: Expressir::Model::Repository
+schemas:
+- _class: Expressir::Model::Schema
+  id: single_schema
+  entities:
+  - _class: Expressir::Model::Entity
+    id: empty_entity
+    source: |-
+      ENTITY empty_entity;
+      END_ENTITY;
+  source: |-
+    SCHEMA single_schema;
+
+    ENTITY empty_entity;
+    END_ENTITY;
+
+    END_SCHEMA;

@@ -19,12 +19,16 @@ module Expressir
         super
       end
 
+      def enumeration_items
+        type.is_a?(Types::Enumeration) ? type.items : []
+      end
+
       def children
-        items = []
-        items.push(*@type.is_a?(Types::Enumeration) ? @type.items : [])
-        items.push(*@where)
-        items.push(*@informal_propositions)
-        items
+        [
+          *enumeration_items,
+          *where,
+          *informal_propositions
+        ]
       end
     end
   end

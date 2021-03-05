@@ -6,54 +6,54 @@ rescue LoadError
 end
 require 'expressir/express_exp/visitor'
 
+=begin
+char_stream = Antlr4::Runtime::CharStreams.from_string(input, 'String')
+lexer = ::ExpressParser::Lexer.new(char_stream)
+token_stream = Antlr4::Runtime::CommonTokenStream.new(lexer)
+parser = ::ExpressParser::Parser.new(token_stream)
+
+# don't attempt to recover from any parsing error
+parser.instance_variable_set(:@_err_handler, Antlr4::Runtime::BailErrorStrategy.new)
+
+parse_tree = parser.syntax()
+
+visitor = Visitor.new(token_stream)
+repo = visitor.visit(parse_tree)
+=end
+
 module Expressir
   module ExpressExp
     class Parser
-      def self.from_file(file)
+      def self.from_file(file, options = {})
         input = File.read(file)
-
-=begin
-        char_stream = Antlr4::Runtime::CharStreams.from_string(input, 'String')
-        lexer = ::ExpressParser::Lexer.new(char_stream)
-        token_stream = Antlr4::Runtime::CommonTokenStream.new(lexer)
-        parser = ::ExpressParser::Parser.new(token_stream)
-
-        # don't attempt to recover from any parsing error
-        parser.instance_variable_set(:@_err_handler, Antlr4::Runtime::BailErrorStrategy.new)
-
-        parse_tree = parser.syntax()
-
-        visitor = Visitor.new(token_stream)
-        repo = visitor.visit(parse_tree)
-=end
 
         parser = ::ExpressParser::Parser.parse(input)
 
         parse_tree = parser.syntax()
 
-        visitor = Visitor.new(parser.tokens)
-        repo = visitor.visit(parse_tree)
+        visitor = Visitor.new(parser.tokens, options)
+        repository = visitor.visit(parse_tree)
 
-        repo.schemas.each{|schema| schema.file = file}
+        repository.schemas.each{|schema| schema.file = file}
 
-        repo
+        repository
       end
 
-      def self.from_files(files)
-        schemas = files.map{|file| self.from_file(file).schemas}.flatten
+      def self.from_files(files, options = {})
+        schemas = files.each_with_index.map do |file, i|
+          # start = Time.now
+          repository = self.from_file(file, options)
+          # STDERR.puts "#{i+1}/#{files.length} #{file} #{Time.now - start}"
+          repository.schemas
+        end.flatten
 
-        repo = Model::Repository.new({
+        repository = Model::Repository.new({
           schemas: schemas
         })
 
-        repo.schemas.each{|schema| schema.parent = repo}
+        repository.schemas.each{|schema| schema.parent = repository}
 
-        repo
-      end
-
-      # deprecated
-      def self.from_exp(file)
-        self.from_file(file)
+        repository
       end
     end
   end

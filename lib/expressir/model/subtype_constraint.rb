@@ -15,15 +15,10 @@ module Expressir
 
         @applies_to = options[:applies_to]
         @abstract = options[:abstract]
-        @total_over = options[:total_over]
+        @total_over = options.fetch(:total_over, [])
         @supertype_expression = options[:supertype_expression]
 
         super
-      end
-
-      def children
-        items = []
-        items
       end
     end
   end

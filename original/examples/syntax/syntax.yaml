@@ -1,0 +1,3438 @@
+---
+_class: Expressir::Model::Repository
+schemas:
+- _class: Expressir::Model::Schema
+  id: syntax_schema
+  version:
+    _class: Expressir::Model::Literals::String
+    value: version
+  interfaces:
+  - _class: Expressir::Model::Interface
+    kind: :USE
+    schema:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: contract_schema
+  - _class: Expressir::Model::Interface
+    kind: :USE
+    schema:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: contract_schema
+    items:
+    - _class: Expressir::Model::InterfaceItem
+      ref:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: contract
+  - _class: Expressir::Model::Interface
+    kind: :USE
+    schema:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: contract_schema
+    items:
+    - _class: Expressir::Model::InterfaceItem
+      ref:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: contract
+    - _class: Expressir::Model::InterfaceItem
+      ref:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: contract2
+  - _class: Expressir::Model::Interface
+    kind: :USE
+    schema:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: contract_schema
+    items:
+    - _class: Expressir::Model::InterfaceItem
+      ref:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: contract
+      id: contract2
+  - _class: Expressir::Model::Interface
+    kind: :REFERENCE
+    schema:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: contract_schema
+  - _class: Expressir::Model::Interface
+    kind: :REFERENCE
+    schema:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: contract_schema
+    items:
+    - _class: Expressir::Model::InterfaceItem
+      ref:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: contract
+  - _class: Expressir::Model::Interface
+    kind: :REFERENCE
+    schema:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: contract_schema
+    items:
+    - _class: Expressir::Model::InterfaceItem
+      ref:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: contract
+    - _class: Expressir::Model::InterfaceItem
+      ref:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: contract2
+  - _class: Expressir::Model::Interface
+    kind: :REFERENCE
+    schema:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: contract_schema
+    items:
+    - _class: Expressir::Model::InterfaceItem
+      ref:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: contract
+      id: contract2
+  constants:
+  - _class: Expressir::Model::Constant
+    id: empty_constant
+    type:
+      _class: Expressir::Model::Types::Boolean
+    expression:
+      _class: Expressir::Model::Literals::Logical
+      value: :TRUE
+  types:
+  - _class: Expressir::Model::Type
+    id: empty_type
+    type:
+      _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Type
+    id: where_type
+    type:
+      _class: Expressir::Model::Types::Boolean
+    where:
+    - _class: Expressir::Model::Where
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Type
+    id: where_label_type
+    type:
+      _class: Expressir::Model::Types::Boolean
+    where:
+    - _class: Expressir::Model::Where
+      id: WR1
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  entities:
+  - _class: Expressir::Model::Entity
+    id: empty_entity
+  - _class: Expressir::Model::Entity
+    id: abstract_entity
+    abstract: true
+  - _class: Expressir::Model::Entity
+    id: abstract_supertype_entity
+    abstract: true
+  - _class: Expressir::Model::Entity
+    id: abstract_supertype_constraint_entity
+    abstract: true
+    supertype_expression:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+  - _class: Expressir::Model::Entity
+    id: supertype_constraint_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+  - _class: Expressir::Model::Entity
+    id: subtype_entity
+    subtype_of:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+  - _class: Expressir::Model::Entity
+    id: supertype_constraint_subtype_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    subtype_of:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+  - _class: Expressir::Model::Entity
+    id: attribute_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test
+      kind: :EXPLICIT
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Entity
+    id: attribute_optional_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test
+      kind: :EXPLICIT
+      optional: true
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Entity
+    id: attribute_multiple_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test
+      kind: :EXPLICIT
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Attribute
+      id: test2
+      kind: :EXPLICIT
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Entity
+    id: attribute_multiple_shorthand_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test
+      kind: :EXPLICIT
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Attribute
+      id: test2
+      kind: :EXPLICIT
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Entity
+    id: attribute_redeclared_entity
+    subtype_of:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: attribute_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      kind: :EXPLICIT
+      supertype_attribute:
+        _class: Expressir::Model::Expressions::AttributeReference
+        ref:
+          _class: Expressir::Model::Expressions::GroupReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: SELF
+          entity:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: attribute_entity
+        attribute:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Entity
+    id: attribute_redeclared_renamed_entity
+    subtype_of:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: attribute_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test2
+      kind: :EXPLICIT
+      supertype_attribute:
+        _class: Expressir::Model::Expressions::AttributeReference
+        ref:
+          _class: Expressir::Model::Expressions::GroupReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: SELF
+          entity:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: attribute_entity
+        attribute:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Entity
+    id: derived_attribute_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test
+      kind: :DERIVED
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Entity
+    id: derived_attribute_redeclared_entity
+    subtype_of:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: attribute_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      kind: :DERIVED
+      supertype_attribute:
+        _class: Expressir::Model::Expressions::AttributeReference
+        ref:
+          _class: Expressir::Model::Expressions::GroupReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: SELF
+          entity:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: attribute_entity
+        attribute:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Entity
+    id: derived_attribute_redeclared_renamed_entity
+    subtype_of:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: attribute_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test2
+      kind: :DERIVED
+      supertype_attribute:
+        _class: Expressir::Model::Expressions::AttributeReference
+        ref:
+          _class: Expressir::Model::Expressions::GroupReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: SELF
+          entity:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: attribute_entity
+        attribute:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Entity
+    id: inverse_attribute_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test
+      kind: :INVERSE
+      type:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: attribute_entity
+      expression:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: test
+  - _class: Expressir::Model::Entity
+    id: inverse_attribute_entity_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test
+      kind: :INVERSE
+      type:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: attribute_entity
+      expression:
+        _class: Expressir::Model::Expressions::AttributeReference
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: attribute_entity
+        attribute:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+  - _class: Expressir::Model::Entity
+    id: inverse_attribute_set_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test
+      kind: :INVERSE
+      type:
+        _class: Expressir::Model::Types::Set
+        base_type:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: attribute_entity
+      expression:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: test
+  - _class: Expressir::Model::Entity
+    id: inverse_attribute_set_bound_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test
+      kind: :INVERSE
+      type:
+        _class: Expressir::Model::Types::Set
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+        base_type:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: attribute_entity
+      expression:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: test
+  - _class: Expressir::Model::Entity
+    id: inverse_attribute_bag_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test
+      kind: :INVERSE
+      type:
+        _class: Expressir::Model::Types::Bag
+        base_type:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: attribute_entity
+      expression:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: test
+  - _class: Expressir::Model::Entity
+    id: inverse_attribute_bag_bound_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test
+      kind: :INVERSE
+      type:
+        _class: Expressir::Model::Types::Bag
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+        base_type:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: attribute_entity
+      expression:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: test
+  - _class: Expressir::Model::Entity
+    id: inverse_attribute_redeclared_entity
+    subtype_of:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: attribute_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      kind: :INVERSE
+      supertype_attribute:
+        _class: Expressir::Model::Expressions::AttributeReference
+        ref:
+          _class: Expressir::Model::Expressions::GroupReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: SELF
+          entity:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: attribute_entity
+        attribute:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+      type:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: attribute_entity
+      expression:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: test
+  - _class: Expressir::Model::Entity
+    id: inverse_attribute_redeclared_renamed_entity
+    subtype_of:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: attribute_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test2
+      kind: :INVERSE
+      supertype_attribute:
+        _class: Expressir::Model::Expressions::AttributeReference
+        ref:
+          _class: Expressir::Model::Expressions::GroupReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: SELF
+          entity:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: attribute_entity
+        attribute:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+      type:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: attribute_entity
+      expression:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: test
+  - _class: Expressir::Model::Entity
+    id: unique_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test
+      kind: :EXPLICIT
+      type:
+        _class: Expressir::Model::Types::Boolean
+    unique:
+    - _class: Expressir::Model::Unique
+      attributes:
+      - _class: Expressir::Model::Expressions::SimpleReference
+        id: test
+  - _class: Expressir::Model::Entity
+    id: unique_label_entity
+    attributes:
+    - _class: Expressir::Model::Attribute
+      id: test
+      kind: :EXPLICIT
+      type:
+        _class: Expressir::Model::Types::Boolean
+    unique:
+    - _class: Expressir::Model::Unique
+      id: UR1
+      attributes:
+      - _class: Expressir::Model::Expressions::SimpleReference
+        id: test
+  - _class: Expressir::Model::Entity
+    id: unique_redeclared_entity
+    subtype_of:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: attribute_entity
+    unique:
+    - _class: Expressir::Model::Unique
+      attributes:
+      - _class: Expressir::Model::Expressions::AttributeReference
+        ref:
+          _class: Expressir::Model::Expressions::GroupReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: SELF
+          entity:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: attribute_entity
+        attribute:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+  - _class: Expressir::Model::Entity
+    id: unique_label_redeclared_entity
+    subtype_of:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: attribute_entity
+    unique:
+    - _class: Expressir::Model::Unique
+      id: UR1
+      attributes:
+      - _class: Expressir::Model::Expressions::AttributeReference
+        ref:
+          _class: Expressir::Model::Expressions::GroupReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: SELF
+          entity:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: attribute_entity
+        attribute:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+  - _class: Expressir::Model::Entity
+    id: where_entity
+    where:
+    - _class: Expressir::Model::Where
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Entity
+    id: where_label_entity
+    where:
+    - _class: Expressir::Model::Where
+      id: WR1
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  subtype_constraints:
+  - _class: Expressir::Model::SubtypeConstraint
+    id: empty_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+  - _class: Expressir::Model::SubtypeConstraint
+    id: abstract_supertype_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    abstract: true
+  - _class: Expressir::Model::SubtypeConstraint
+    id: total_over_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    total_over:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: a
+  - _class: Expressir::Model::SubtypeConstraint
+    id: supertype_expression_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: a
+  - _class: Expressir::Model::SubtypeConstraint
+    id: supertype_expression_andor_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::BinaryExpression
+      operator: :ANDOR
+      operand1:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: a
+      operand2:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: b
+  - _class: Expressir::Model::SubtypeConstraint
+    id: supertype_expression_and_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::BinaryExpression
+      operator: :AND
+      operand1:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: a
+      operand2:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: b
+  - _class: Expressir::Model::SubtypeConstraint
+    id: supertype_expression_andor_and_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::BinaryExpression
+      operator: :ANDOR
+      operand1:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: a
+      operand2:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :AND
+        operand1:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: b
+        operand2:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: c
+  - _class: Expressir::Model::SubtypeConstraint
+    id: supertype_expression_and_andor_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::BinaryExpression
+      operator: :ANDOR
+      operand1:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :AND
+        operand1:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: a
+        operand2:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: b
+      operand2:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: c
+  - _class: Expressir::Model::SubtypeConstraint
+    id: supertype_expression_parenthesis_andor_and_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::BinaryExpression
+      operator: :AND
+      operand1:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :ANDOR
+        operand1:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: a
+        operand2:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: b
+      operand2:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: c
+  - _class: Expressir::Model::SubtypeConstraint
+    id: supertype_expression_and_parenthesis_andor_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::BinaryExpression
+      operator: :AND
+      operand1:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: a
+      operand2:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :ANDOR
+        operand1:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: b
+        operand2:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: c
+  - _class: Expressir::Model::SubtypeConstraint
+    id: supertype_expression_oneof_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::Call
+      ref:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: ONEOF
+      parameters:
+      - _class: Expressir::Model::Expressions::SimpleReference
+        id: a
+      - _class: Expressir::Model::Expressions::SimpleReference
+        id: b
+  - _class: Expressir::Model::SubtypeConstraint
+    id: supertype_expression_and_oneof_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::BinaryExpression
+      operator: :AND
+      operand1:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: a
+      operand2:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: ONEOF
+        parameters:
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: b
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: c
+  - _class: Expressir::Model::SubtypeConstraint
+    id: supertype_expression_andor_oneof_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::BinaryExpression
+      operator: :ANDOR
+      operand1:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: a
+      operand2:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: ONEOF
+        parameters:
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: b
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: c
+  - _class: Expressir::Model::SubtypeConstraint
+    id: supertype_expression_oneof_and_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::BinaryExpression
+      operator: :AND
+      operand1:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: ONEOF
+        parameters:
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: a
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: b
+      operand2:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: c
+  - _class: Expressir::Model::SubtypeConstraint
+    id: supertype_expression_oneof_andor_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::BinaryExpression
+      operator: :ANDOR
+      operand1:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: ONEOF
+        parameters:
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: a
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: b
+      operand2:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: c
+  - _class: Expressir::Model::SubtypeConstraint
+    id: supertype_expression_oneof_and_oneof_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::BinaryExpression
+      operator: :AND
+      operand1:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: ONEOF
+        parameters:
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: a
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: b
+      operand2:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: ONEOF
+        parameters:
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: c
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: d
+  - _class: Expressir::Model::SubtypeConstraint
+    id: supertype_expression_oneof_andor_oneof_subtype_constraint
+    applies_to:
+      _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    supertype_expression:
+      _class: Expressir::Model::Expressions::BinaryExpression
+      operator: :ANDOR
+      operand1:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: ONEOF
+        parameters:
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: a
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: b
+      operand2:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: ONEOF
+        parameters:
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: c
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: d
+  functions:
+  - _class: Expressir::Model::Function
+    id: empty_function
+    return_type:
+      _class: Expressir::Model::Types::Boolean
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Function
+    id: parameter_function
+    parameters:
+    - _class: Expressir::Model::Parameter
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    return_type:
+      _class: Expressir::Model::Types::Boolean
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Function
+    id: multiple_parameter_function
+    parameters:
+    - _class: Expressir::Model::Parameter
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Parameter
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+    return_type:
+      _class: Expressir::Model::Types::Boolean
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Function
+    id: multiple_shorthand_parameter_function
+    parameters:
+    - _class: Expressir::Model::Parameter
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Parameter
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+    return_type:
+      _class: Expressir::Model::Types::Boolean
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Function
+    id: type_function
+    return_type:
+      _class: Expressir::Model::Types::Boolean
+    types:
+    - _class: Expressir::Model::Type
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Function
+    id: constant_function
+    return_type:
+      _class: Expressir::Model::Types::Boolean
+    constants:
+    - _class: Expressir::Model::Constant
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Function
+    id: multiple_constant_function
+    return_type:
+      _class: Expressir::Model::Types::Boolean
+    constants:
+    - _class: Expressir::Model::Constant
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    - _class: Expressir::Model::Constant
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Function
+    id: variable_function
+    return_type:
+      _class: Expressir::Model::Types::Boolean
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Function
+    id: multiple_variable_function
+    return_type:
+      _class: Expressir::Model::Types::Boolean
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Function
+    id: multiple_shorthand_variable_function
+    return_type:
+      _class: Expressir::Model::Types::Boolean
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Function
+    id: variable_expression_function
+    return_type:
+      _class: Expressir::Model::Types::Boolean
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Function
+    id: multiple_variable_expression_function
+    return_type:
+      _class: Expressir::Model::Types::Boolean
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Function
+    id: multiple_shorthand_variable_expression_function
+    return_type:
+      _class: Expressir::Model::Types::Boolean
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  rules:
+  - _class: Expressir::Model::Rule
+    id: empty_rule
+    applies_to:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    where:
+    - _class: Expressir::Model::Where
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Rule
+    id: type_rule
+    applies_to:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    types:
+    - _class: Expressir::Model::Type
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    where:
+    - _class: Expressir::Model::Where
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Rule
+    id: constant_rule
+    applies_to:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    constants:
+    - _class: Expressir::Model::Constant
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    where:
+    - _class: Expressir::Model::Where
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Rule
+    id: multiple_constant_rule
+    applies_to:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    constants:
+    - _class: Expressir::Model::Constant
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    - _class: Expressir::Model::Constant
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    where:
+    - _class: Expressir::Model::Where
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Rule
+    id: variable_rule
+    applies_to:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    where:
+    - _class: Expressir::Model::Where
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Rule
+    id: multiple_variable_rule
+    applies_to:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+    where:
+    - _class: Expressir::Model::Where
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Rule
+    id: multiple_shorthand_variable_rule
+    applies_to:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+    where:
+    - _class: Expressir::Model::Where
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Rule
+    id: variable_expression_rule
+    applies_to:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    where:
+    - _class: Expressir::Model::Where
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Rule
+    id: multiple_variable_expression_rule
+    applies_to:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    where:
+    - _class: Expressir::Model::Where
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Rule
+    id: multiple_shorthand_variable_expression_rule
+    applies_to:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    where:
+    - _class: Expressir::Model::Where
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Rule
+    id: statement_rule
+    applies_to:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    statements:
+    - _class: Expressir::Model::Statements::Null
+    where:
+    - _class: Expressir::Model::Where
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Rule
+    id: where_label_rule
+    applies_to:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+    where:
+    - _class: Expressir::Model::Where
+      id: WR1
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  procedures:
+  - _class: Expressir::Model::Procedure
+    id: empty_procedure
+  - _class: Expressir::Model::Procedure
+    id: parameter_procedure
+    parameters:
+    - _class: Expressir::Model::Parameter
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Procedure
+    id: multiple_parameter_procedure
+    parameters:
+    - _class: Expressir::Model::Parameter
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Parameter
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Procedure
+    id: multiple_shorthand_parameter_procedure
+    parameters:
+    - _class: Expressir::Model::Parameter
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Parameter
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Procedure
+    id: variable_parameter_procedure
+    parameters:
+    - _class: Expressir::Model::Parameter
+      id: test
+      var: true
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Procedure
+    id: multiple_variable_parameter_procedure
+    parameters:
+    - _class: Expressir::Model::Parameter
+      id: test
+      var: true
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Parameter
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Procedure
+    id: multiple_variable_parameter2_procedure
+    parameters:
+    - _class: Expressir::Model::Parameter
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Parameter
+      id: test2
+      var: true
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Procedure
+    id: multiple_shorthand_variable_parameter_procedure
+    parameters:
+    - _class: Expressir::Model::Parameter
+      id: test
+      var: true
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Parameter
+      id: test2
+      var: true
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Procedure
+    id: type_procedure
+    types:
+    - _class: Expressir::Model::Type
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Procedure
+    id: constant_procedure
+    constants:
+    - _class: Expressir::Model::Constant
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Procedure
+    id: multiple_constant_procedure
+    constants:
+    - _class: Expressir::Model::Constant
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    - _class: Expressir::Model::Constant
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Procedure
+    id: variable_procedure
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Procedure
+    id: multiple_variable_procedure
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Procedure
+    id: multiple_shorthand_variable_procedure
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+  - _class: Expressir::Model::Procedure
+    id: variable_expression_procedure
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Procedure
+    id: multiple_variable_expression_procedure
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Procedure
+    id: multiple_shorthand_variable_expression_procedure
+    variables:
+    - _class: Expressir::Model::Variable
+      id: test
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+  - _class: Expressir::Model::Procedure
+    id: statement_procedure
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Procedure
+    id: statements
+    procedures:
+    - _class: Expressir::Model::Procedure
+      id: alias_simple_reference_statement
+      statements:
+      - _class: Expressir::Model::Statements::Alias
+        id: test
+        expression:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+        statements:
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: alias_group_reference_statement
+      statements:
+      - _class: Expressir::Model::Statements::Alias
+        id: test
+        expression:
+          _class: Expressir::Model::Expressions::GroupReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: test
+          entity:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: test2
+        statements:
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: alias_index_reference_statement
+      statements:
+      - _class: Expressir::Model::Statements::Alias
+        id: test
+        expression:
+          _class: Expressir::Model::Expressions::IndexReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: test
+          index1:
+            _class: Expressir::Model::Literals::Integer
+            value: '1'
+        statements:
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: alias_index2_reference_statement
+      statements:
+      - _class: Expressir::Model::Statements::Alias
+        id: test
+        expression:
+          _class: Expressir::Model::Expressions::IndexReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: test
+          index1:
+            _class: Expressir::Model::Literals::Integer
+            value: '1'
+          index2:
+            _class: Expressir::Model::Literals::Integer
+            value: '9'
+        statements:
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: alias_attribute_reference_statement
+      statements:
+      - _class: Expressir::Model::Statements::Alias
+        id: test
+        expression:
+          _class: Expressir::Model::Expressions::AttributeReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: test
+          attribute:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: test2
+        statements:
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: assignment_simple_reference_statement
+      statements:
+      - _class: Expressir::Model::Statements::Assignment
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+        expression:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Procedure
+      id: assignment_group_reference_statement
+      statements:
+      - _class: Expressir::Model::Statements::Assignment
+        ref:
+          _class: Expressir::Model::Expressions::GroupReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: test
+          entity:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: test2
+        expression:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Procedure
+      id: assignment_index_reference_statement
+      statements:
+      - _class: Expressir::Model::Statements::Assignment
+        ref:
+          _class: Expressir::Model::Expressions::IndexReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: test
+          index1:
+            _class: Expressir::Model::Literals::Integer
+            value: '1'
+        expression:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Procedure
+      id: assignment_index2_reference_statement
+      statements:
+      - _class: Expressir::Model::Statements::Assignment
+        ref:
+          _class: Expressir::Model::Expressions::IndexReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: test
+          index1:
+            _class: Expressir::Model::Literals::Integer
+            value: '1'
+          index2:
+            _class: Expressir::Model::Literals::Integer
+            value: '9'
+        expression:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Procedure
+      id: assignment_attribute_reference_statement
+      statements:
+      - _class: Expressir::Model::Statements::Assignment
+        ref:
+          _class: Expressir::Model::Expressions::AttributeReference
+          ref:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: test
+          attribute:
+            _class: Expressir::Model::Expressions::SimpleReference
+            id: test2
+        expression:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Procedure
+      id: case_statement
+      statements:
+      - _class: Expressir::Model::Statements::Case
+        expression:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+        actions:
+        - _class: Expressir::Model::Statements::CaseAction
+          labels:
+          - _class: Expressir::Model::Literals::Logical
+            value: :TRUE
+          statement:
+            _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: case_multiple_statement
+      statements:
+      - _class: Expressir::Model::Statements::Case
+        expression:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+        actions:
+        - _class: Expressir::Model::Statements::CaseAction
+          labels:
+          - _class: Expressir::Model::Literals::Logical
+            value: :TRUE
+          statement:
+            _class: Expressir::Model::Statements::Null
+        - _class: Expressir::Model::Statements::CaseAction
+          labels:
+          - _class: Expressir::Model::Literals::Logical
+            value: :TRUE
+          statement:
+            _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: case_multiple_shorthand_statement
+      statements:
+      - _class: Expressir::Model::Statements::Case
+        expression:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+        actions:
+        - _class: Expressir::Model::Statements::CaseAction
+          labels:
+          - _class: Expressir::Model::Literals::Logical
+            value: :TRUE
+          - _class: Expressir::Model::Literals::Logical
+            value: :TRUE
+          statement:
+            _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: case_otherwise_statement
+      statements:
+      - _class: Expressir::Model::Statements::Case
+        expression:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+        actions:
+        - _class: Expressir::Model::Statements::CaseAction
+          labels:
+          - _class: Expressir::Model::Literals::Logical
+            value: :TRUE
+          statement:
+            _class: Expressir::Model::Statements::Null
+        otherwise_statement:
+          _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: compound_statement
+      statements:
+      - _class: Expressir::Model::Statements::Compound
+        statements:
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: escape_statement
+      statements:
+      - _class: Expressir::Model::Statements::Escape
+    - _class: Expressir::Model::Procedure
+      id: if_statement
+      statements:
+      - _class: Expressir::Model::Statements::If
+        expression:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+        statements:
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: if2_statement
+      statements:
+      - _class: Expressir::Model::Statements::If
+        expression:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+        statements:
+        - _class: Expressir::Model::Statements::Null
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: if_else_statement
+      statements:
+      - _class: Expressir::Model::Statements::If
+        expression:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+        statements:
+        - _class: Expressir::Model::Statements::Null
+        else_statements:
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: if2_else_statement
+      statements:
+      - _class: Expressir::Model::Statements::If
+        expression:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+        statements:
+        - _class: Expressir::Model::Statements::Null
+        - _class: Expressir::Model::Statements::Null
+        else_statements:
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: if_else2_statement
+      statements:
+      - _class: Expressir::Model::Statements::If
+        expression:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+        statements:
+        - _class: Expressir::Model::Statements::Null
+        else_statements:
+        - _class: Expressir::Model::Statements::Null
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: if2_else2_statement
+      statements:
+      - _class: Expressir::Model::Statements::If
+        expression:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+        statements:
+        - _class: Expressir::Model::Statements::Null
+        - _class: Expressir::Model::Statements::Null
+        else_statements:
+        - _class: Expressir::Model::Statements::Null
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: null_statement
+      statements:
+      - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: call_statement
+      statements:
+      - _class: Expressir::Model::Statements::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: empty_procedure
+    - _class: Expressir::Model::Procedure
+      id: call_parameter_statement
+      statements:
+      - _class: Expressir::Model::Statements::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: empty_procedure
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Procedure
+      id: call_parameter2_statement
+      statements:
+      - _class: Expressir::Model::Statements::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: empty_procedure
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Procedure
+      id: call_insert_statement
+      statements:
+      - _class: Expressir::Model::Statements::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: INSERT
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Procedure
+      id: call_remove_statement
+      statements:
+      - _class: Expressir::Model::Statements::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: REMOVE
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Procedure
+      id: repeat_statement
+      statements:
+      - _class: Expressir::Model::Statements::Repeat
+        statements:
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: repeat_variable_statement
+      statements:
+      - _class: Expressir::Model::Statements::Repeat
+        id: test
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+        statements:
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: repeat_variable_increment_statement
+      statements:
+      - _class: Expressir::Model::Statements::Repeat
+        id: test
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+        increment:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        statements:
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: repeat_while_statement
+      statements:
+      - _class: Expressir::Model::Statements::Repeat
+        while_expression:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+        statements:
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: repeat_until_statement
+      statements:
+      - _class: Expressir::Model::Statements::Repeat
+        until_expression:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+        statements:
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Procedure
+      id: return_statement
+      statements:
+      - _class: Expressir::Model::Statements::Return
+    - _class: Expressir::Model::Procedure
+      id: return_expression_statement
+      statements:
+      - _class: Expressir::Model::Statements::Return
+        expression:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Procedure
+      id: skip_statement
+      statements:
+      - _class: Expressir::Model::Statements::Skip
+  - _class: Expressir::Model::Procedure
+    id: types
+    types:
+    - _class: Expressir::Model::Type
+      id: binary_type
+      type:
+        _class: Expressir::Model::Types::Binary
+    - _class: Expressir::Model::Type
+      id: binary_width_type
+      type:
+        _class: Expressir::Model::Types::Binary
+        width:
+          _class: Expressir::Model::Literals::Integer
+          value: '3'
+    - _class: Expressir::Model::Type
+      id: binary_width_fixed_type
+      type:
+        _class: Expressir::Model::Types::Binary
+        width:
+          _class: Expressir::Model::Literals::Integer
+          value: '3'
+        fixed: true
+    - _class: Expressir::Model::Type
+      id: boolean_type
+      type:
+        _class: Expressir::Model::Types::Boolean
+    - _class: Expressir::Model::Type
+      id: integer_type
+      type:
+        _class: Expressir::Model::Types::Integer
+    - _class: Expressir::Model::Type
+      id: logical_type
+      type:
+        _class: Expressir::Model::Types::Logical
+    - _class: Expressir::Model::Type
+      id: number_type
+      type:
+        _class: Expressir::Model::Types::Number
+    - _class: Expressir::Model::Type
+      id: real_type
+      type:
+        _class: Expressir::Model::Types::Real
+    - _class: Expressir::Model::Type
+      id: real_precision_type
+      type:
+        _class: Expressir::Model::Types::Real
+        precision:
+          _class: Expressir::Model::Literals::Integer
+          value: '3'
+    - _class: Expressir::Model::Type
+      id: string_type
+      type:
+        _class: Expressir::Model::Types::String
+    - _class: Expressir::Model::Type
+      id: string_width_type
+      type:
+        _class: Expressir::Model::Types::String
+        width:
+          _class: Expressir::Model::Literals::Integer
+          value: '3'
+    - _class: Expressir::Model::Type
+      id: string_width_fixed_type
+      type:
+        _class: Expressir::Model::Types::String
+        width:
+          _class: Expressir::Model::Literals::Integer
+          value: '3'
+        fixed: true
+    - _class: Expressir::Model::Type
+      id: array_type
+      type:
+        _class: Expressir::Model::Types::Array
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+        base_type:
+          _class: Expressir::Model::Types::String
+    - _class: Expressir::Model::Type
+      id: array_optional_type
+      type:
+        _class: Expressir::Model::Types::Array
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+        optional: true
+        base_type:
+          _class: Expressir::Model::Types::String
+    - _class: Expressir::Model::Type
+      id: array_unique_type
+      type:
+        _class: Expressir::Model::Types::Array
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+        unique: true
+        base_type:
+          _class: Expressir::Model::Types::String
+    - _class: Expressir::Model::Type
+      id: array_optional_unique_type
+      type:
+        _class: Expressir::Model::Types::Array
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+        optional: true
+        unique: true
+        base_type:
+          _class: Expressir::Model::Types::String
+    - _class: Expressir::Model::Type
+      id: bag_type
+      type:
+        _class: Expressir::Model::Types::Bag
+        base_type:
+          _class: Expressir::Model::Types::String
+    - _class: Expressir::Model::Type
+      id: bag_bound_type
+      type:
+        _class: Expressir::Model::Types::Bag
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+        base_type:
+          _class: Expressir::Model::Types::String
+    - _class: Expressir::Model::Type
+      id: list_type
+      type:
+        _class: Expressir::Model::Types::List
+        base_type:
+          _class: Expressir::Model::Types::String
+    - _class: Expressir::Model::Type
+      id: list_bound_type
+      type:
+        _class: Expressir::Model::Types::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+        base_type:
+          _class: Expressir::Model::Types::String
+    - _class: Expressir::Model::Type
+      id: list_unique_type
+      type:
+        _class: Expressir::Model::Types::List
+        unique: true
+        base_type:
+          _class: Expressir::Model::Types::String
+    - _class: Expressir::Model::Type
+      id: list_bound_unique_type
+      type:
+        _class: Expressir::Model::Types::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+        unique: true
+        base_type:
+          _class: Expressir::Model::Types::String
+    - _class: Expressir::Model::Type
+      id: set_type
+      type:
+        _class: Expressir::Model::Types::Set
+        base_type:
+          _class: Expressir::Model::Types::String
+    - _class: Expressir::Model::Type
+      id: set_bound_type
+      type:
+        _class: Expressir::Model::Types::Set
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+        base_type:
+          _class: Expressir::Model::Types::String
+    - _class: Expressir::Model::Type
+      id: select_type
+      type:
+        _class: Expressir::Model::Types::Select
+    - _class: Expressir::Model::Type
+      id: select_extensible_type
+      type:
+        _class: Expressir::Model::Types::Select
+        extensible: true
+    - _class: Expressir::Model::Type
+      id: select_extensible_generic_entity_type
+      type:
+        _class: Expressir::Model::Types::Select
+        extensible: true
+        generic_entity: true
+    - _class: Expressir::Model::Type
+      id: select_list_type
+      type:
+        _class: Expressir::Model::Types::Select
+        items:
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: empty_type
+    - _class: Expressir::Model::Type
+      id: select_list_multiple_type
+      type:
+        _class: Expressir::Model::Types::Select
+        items:
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: empty_type
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: empty_type
+    - _class: Expressir::Model::Type
+      id: select_extension_type_ref_type
+      type:
+        _class: Expressir::Model::Types::Select
+        extension_type:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: select_type
+    - _class: Expressir::Model::Type
+      id: select_extension_type_ref_list_type
+      type:
+        _class: Expressir::Model::Types::Select
+        extension_type:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: select_type
+        extension_items:
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: empty_type
+    - _class: Expressir::Model::Type
+      id: select_extension_type_ref_list_multiple_type
+      type:
+        _class: Expressir::Model::Types::Select
+        extension_type:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: select_type
+        extension_items:
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: empty_type
+        - _class: Expressir::Model::Expressions::SimpleReference
+          id: empty_type
+    - _class: Expressir::Model::Type
+      id: enumeration_type
+      type:
+        _class: Expressir::Model::Types::Enumeration
+    - _class: Expressir::Model::Type
+      id: enumeration_extensible_type
+      type:
+        _class: Expressir::Model::Types::Enumeration
+        extensible: true
+    - _class: Expressir::Model::Type
+      id: enumeration_list_type
+      type:
+        _class: Expressir::Model::Types::Enumeration
+        items:
+        - _class: Expressir::Model::EnumerationItem
+          id: test
+    - _class: Expressir::Model::Type
+      id: enumeration_list_multiple_type
+      type:
+        _class: Expressir::Model::Types::Enumeration
+        items:
+        - _class: Expressir::Model::EnumerationItem
+          id: test
+        - _class: Expressir::Model::EnumerationItem
+          id: test2
+    - _class: Expressir::Model::Type
+      id: enumeration_extension_type_ref_type
+      type:
+        _class: Expressir::Model::Types::Enumeration
+        extension_type:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: enumeration_type
+    - _class: Expressir::Model::Type
+      id: enumeration_extension_type_ref_list_type
+      type:
+        _class: Expressir::Model::Types::Enumeration
+        extension_type:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: enumeration_type
+        extension_items:
+        - _class: Expressir::Model::EnumerationItem
+          id: test
+    - _class: Expressir::Model::Type
+      id: enumeration_extension_type_ref_list_multiple_type
+      type:
+        _class: Expressir::Model::Types::Enumeration
+        extension_type:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: enumeration_type
+        extension_items:
+        - _class: Expressir::Model::EnumerationItem
+          id: test
+        - _class: Expressir::Model::EnumerationItem
+          id: test2
+    functions:
+    - _class: Expressir::Model::Function
+      id: generic_type
+      return_type:
+        _class: Expressir::Model::Types::Generic
+      statements:
+      - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Function
+      id: generic_label_type
+      return_type:
+        _class: Expressir::Model::Types::Generic
+        id: label
+      statements:
+      - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Function
+      id: generic_entity_type
+      return_type:
+        _class: Expressir::Model::Types::GenericEntity
+      statements:
+      - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Function
+      id: generic_entity_label_type
+      return_type:
+        _class: Expressir::Model::Types::GenericEntity
+        id: label
+      statements:
+      - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Procedure
+    id: expressions
+    variables:
+    - _class: Expressir::Model::Variable
+      id: binary_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Binary
+        value: '011110000111100001111000'
+    - _class: Expressir::Model::Variable
+      id: integer_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Integer
+        value: '999'
+    - _class: Expressir::Model::Variable
+      id: true_logical_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: false_logical_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :FALSE
+    - _class: Expressir::Model::Variable
+      id: unknown_logical_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: :UNKNOWN
+    - _class: Expressir::Model::Variable
+      id: real_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Real
+        value: '999.999'
+    - _class: Expressir::Model::Variable
+      id: simple_string_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::String
+        value: xxx
+    - _class: Expressir::Model::Variable
+      id: utf8_simple_string_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::String
+        value: 'UTF8 test: Příliš žluťoučký kůň úpěl ďábelské ódy.'
+    - _class: Expressir::Model::Variable
+      id: encoded_string_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Literals::String
+        value: '000000780000007800000078'
+        encoded: true
+    - _class: Expressir::Model::Variable
+      id: const_e_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: CONST_E
+    - _class: Expressir::Model::Variable
+      id: indeterminate_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: "?"
+    - _class: Expressir::Model::Variable
+      id: pi_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: PI
+    - _class: Expressir::Model::Variable
+      id: self_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: SELF
+    - _class: Expressir::Model::Variable
+      id: abs_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: ABS
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: acos_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: ACOS
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: asin_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: ASIN
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: atan_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: ATAN
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: blength_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: BLENGTH
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: cos_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: COS
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: exists_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: EXISTS
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: exp_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: EXP
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: format_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: FORMAT
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: hibound_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: HIBOUND
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: hiindex_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: HIINDEX
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: length_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: LENGTH
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: lobound_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: LOBOUND
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: loindex_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: LOINDEX
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: log_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: LOG
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: log2_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: LOG2
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: log10_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: LOG10
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: nvl_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: NVL
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: odd_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: ODD
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: rolesof_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: ROLESOF
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: sin_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: SIN
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: sizeof_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: SIZEOF
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: sqrt_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: SQRT
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: tan_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: TAN
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: typeof_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: TYPEOF
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: usedin_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: USEDIN
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: value_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: VALUE
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: value_in_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: VALUE_IN
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: value_unique_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: VALUE_UNIQUE
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: plus_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::UnaryExpression
+        operator: :PLUS
+        operand:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+    - _class: Expressir::Model::Variable
+      id: plus_addition_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::UnaryExpression
+        operator: :PLUS
+        operand:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :ADDITION
+          operand1:
+            _class: Expressir::Model::Literals::Integer
+            value: '4'
+          operand2:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+    - _class: Expressir::Model::Variable
+      id: minus_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::UnaryExpression
+        operator: :MINUS
+        operand:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+    - _class: Expressir::Model::Variable
+      id: minus_addition_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::UnaryExpression
+        operator: :MINUS
+        operand:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :ADDITION
+          operand1:
+            _class: Expressir::Model::Literals::Integer
+            value: '4'
+          operand2:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+    - _class: Expressir::Model::Variable
+      id: addition_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :ADDITION
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: subtraction_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :SUBTRACTION
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: multiplication_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :MULTIPLICATION
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: real_division_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :REAL_DIVISION
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: integer_division_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :INTEGER_DIVISION
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: modulo_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :MODULO
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: exponentiation_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :EXPONENTIATION
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: addition_addition_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :ADDITION
+        operand1:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :ADDITION
+          operand1:
+            _class: Expressir::Model::Literals::Integer
+            value: '4'
+          operand2:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+    - _class: Expressir::Model::Variable
+      id: subtraction_subtraction_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :SUBTRACTION
+        operand1:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :SUBTRACTION
+          operand1:
+            _class: Expressir::Model::Literals::Integer
+            value: '4'
+          operand2:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+    - _class: Expressir::Model::Variable
+      id: addition_subtraction_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :SUBTRACTION
+        operand1:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :ADDITION
+          operand1:
+            _class: Expressir::Model::Literals::Integer
+            value: '4'
+          operand2:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+    - _class: Expressir::Model::Variable
+      id: subtraction_addition_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :ADDITION
+        operand1:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :SUBTRACTION
+          operand1:
+            _class: Expressir::Model::Literals::Integer
+            value: '4'
+          operand2:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+    - _class: Expressir::Model::Variable
+      id: addition_multiplication_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :ADDITION
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '8'
+        operand2:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :MULTIPLICATION
+          operand1:
+            _class: Expressir::Model::Literals::Integer
+            value: '4'
+          operand2:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+    - _class: Expressir::Model::Variable
+      id: multiplication_addition_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :ADDITION
+        operand1:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :MULTIPLICATION
+          operand1:
+            _class: Expressir::Model::Literals::Integer
+            value: '8'
+          operand2:
+            _class: Expressir::Model::Literals::Integer
+            value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: parenthesis_addition_multiplication_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :MULTIPLICATION
+        operand1:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :ADDITION
+          operand1:
+            _class: Expressir::Model::Literals::Integer
+            value: '8'
+          operand2:
+            _class: Expressir::Model::Literals::Integer
+            value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: multiplication_parenthesis_addition_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :MULTIPLICATION
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '8'
+        operand2:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :ADDITION
+          operand1:
+            _class: Expressir::Model::Literals::Integer
+            value: '4'
+          operand2:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+    - _class: Expressir::Model::Variable
+      id: equal_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :EQUAL
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: not_equal_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :NOT_EQUAL
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: instance_equal_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :INSTANCE_EQUAL
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: instance_not_equal_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :INSTANCE_NOT_EQUAL
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: lt_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :LESS_THAN
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: gt_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :GREATER_THAN
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: lte_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :LESS_THAN_OR_EQUAL
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: gte_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :GREATER_THAN_OR_EQUAL
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+    - _class: Expressir::Model::Variable
+      id: not_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::UnaryExpression
+        operator: :NOT
+        operand:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: not_or_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::UnaryExpression
+        operator: :NOT
+        operand:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :OR
+          operand1:
+            _class: Expressir::Model::Literals::Logical
+            value: :TRUE
+          operand2:
+            _class: Expressir::Model::Literals::Logical
+            value: :FALSE
+    - _class: Expressir::Model::Variable
+      id: or_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :OR
+        operand1:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+        operand2:
+          _class: Expressir::Model::Literals::Logical
+          value: :FALSE
+    - _class: Expressir::Model::Variable
+      id: and_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :AND
+        operand1:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+        operand2:
+          _class: Expressir::Model::Literals::Logical
+          value: :FALSE
+    - _class: Expressir::Model::Variable
+      id: or_or_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :OR
+        operand1:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :OR
+          operand1:
+            _class: Expressir::Model::Literals::Logical
+            value: :TRUE
+          operand2:
+            _class: Expressir::Model::Literals::Logical
+            value: :FALSE
+        operand2:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: and_and_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :AND
+        operand1:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :AND
+          operand1:
+            _class: Expressir::Model::Literals::Logical
+            value: :TRUE
+          operand2:
+            _class: Expressir::Model::Literals::Logical
+            value: :FALSE
+        operand2:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: or_and_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :OR
+        operand1:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+        operand2:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :AND
+          operand1:
+            _class: Expressir::Model::Literals::Logical
+            value: :FALSE
+          operand2:
+            _class: Expressir::Model::Literals::Logical
+            value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: and_or_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :OR
+        operand1:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :AND
+          operand1:
+            _class: Expressir::Model::Literals::Logical
+            value: :TRUE
+          operand2:
+            _class: Expressir::Model::Literals::Logical
+            value: :FALSE
+        operand2:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: parenthesis_or_and_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :AND
+        operand1:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :OR
+          operand1:
+            _class: Expressir::Model::Literals::Logical
+            value: :TRUE
+          operand2:
+            _class: Expressir::Model::Literals::Logical
+            value: :FALSE
+        operand2:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: and_parenthesis_or_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :AND
+        operand1:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+        operand2:
+          _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :OR
+          operand1:
+            _class: Expressir::Model::Literals::Logical
+            value: :FALSE
+          operand2:
+            _class: Expressir::Model::Literals::Logical
+            value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: combine_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :COMBINE
+        operand1:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+        operand2:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test2
+    - _class: Expressir::Model::Variable
+      id: in_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :IN
+        operand1:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+        operand2:
+          _class: Expressir::Model::Expressions::AggregateInitializer
+          items:
+          - _class: Expressir::Model::Literals::Logical
+            value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: like_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: :LIKE
+        operand1:
+          _class: Expressir::Model::Literals::String
+          value: xxx
+        operand2:
+          _class: Expressir::Model::Literals::String
+          value: xxx
+    - _class: Expressir::Model::Variable
+      id: aggregate_initializer_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::AggregateInitializer
+        items:
+        - _class: Expressir::Model::Literals::Integer
+          value: '4'
+    - _class: Expressir::Model::Variable
+      id: repeated_aggregate_initializer_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::AggregateInitializer
+        items:
+        - _class: Expressir::Model::Expressions::AggregateItem
+          expression:
+            _class: Expressir::Model::Literals::Integer
+            value: '4'
+          repetition:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+    - _class: Expressir::Model::Variable
+      id: complex_aggregate_initializer_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::AggregateInitializer
+        items:
+        - _class: Expressir::Model::Expressions::BinaryExpression
+          operator: :ADDITION
+          operand1:
+            _class: Expressir::Model::Literals::Integer
+            value: '4'
+          operand2:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+    - _class: Expressir::Model::Variable
+      id: complex_repeated_aggregate_initializer_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::AggregateInitializer
+        items:
+        - _class: Expressir::Model::Expressions::AggregateItem
+          expression:
+            _class: Expressir::Model::Expressions::BinaryExpression
+            operator: :ADDITION
+            operand1:
+              _class: Expressir::Model::Literals::Integer
+              value: '4'
+            operand2:
+              _class: Expressir::Model::Literals::Integer
+              value: '2'
+          repetition:
+            _class: Expressir::Model::Expressions::BinaryExpression
+            operator: :ADDITION
+            operand1:
+              _class: Expressir::Model::Literals::Integer
+              value: '4'
+            operand2:
+              _class: Expressir::Model::Literals::Integer
+              value: '2'
+    - _class: Expressir::Model::Variable
+      id: call_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Call
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: parameter_function
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: :TRUE
+    - _class: Expressir::Model::Variable
+      id: simple_reference_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::SimpleReference
+        id: test
+    - _class: Expressir::Model::Variable
+      id: group_reference_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::GroupReference
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+        entity:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test2
+    - _class: Expressir::Model::Variable
+      id: index_reference_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::IndexReference
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+        index1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+    - _class: Expressir::Model::Variable
+      id: index2_reference_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::IndexReference
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+        index1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        index2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+    - _class: Expressir::Model::Variable
+      id: attribute_reference_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::AttributeReference
+        ref:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test
+        attribute:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test2
+    - _class: Expressir::Model::Variable
+      id: lt_lt_interval_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Interval
+        low:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        operator1: :LESS_THAN
+        item:
+          _class: Expressir::Model::Literals::Integer
+          value: '5'
+        operator2: :LESS_THAN
+        high:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+    - _class: Expressir::Model::Variable
+      id: lte_lt_interval_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Interval
+        low:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        operator1: :LESS_THAN_OR_EQUAL
+        item:
+          _class: Expressir::Model::Literals::Integer
+          value: '5'
+        operator2: :LESS_THAN
+        high:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+    - _class: Expressir::Model::Variable
+      id: lt_lte_interval_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Interval
+        low:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        operator1: :LESS_THAN
+        item:
+          _class: Expressir::Model::Literals::Integer
+          value: '5'
+        operator2: :LESS_THAN_OR_EQUAL
+        high:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+    - _class: Expressir::Model::Variable
+      id: lte_lte_interval_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Interval
+        low:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        operator1: :LESS_THAN_OR_EQUAL
+        item:
+          _class: Expressir::Model::Literals::Integer
+          value: '5'
+        operator2: :LESS_THAN_OR_EQUAL
+        high:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+    - _class: Expressir::Model::Variable
+      id: query_expression
+      type:
+        _class: Expressir::Model::Types::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::QueryExpression
+        id: test
+        aggregate_source:
+          _class: Expressir::Model::Expressions::SimpleReference
+          id: test2
+        expression:
+          _class: Expressir::Model::Literals::Logical
+          value: :TRUE

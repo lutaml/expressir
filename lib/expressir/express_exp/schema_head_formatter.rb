@@ -1,8 +1,6 @@
-require "expressir/express_exp/formatter"
-
 module Expressir
   module ExpressExp
-    class SchemaHeadFormatter < Formatter
+    module SchemaHeadFormatter
       def format_schema(node)
         [
           "SCHEMA #{node.id}#{node.version ? " #{format(node.version)}" : ""};",

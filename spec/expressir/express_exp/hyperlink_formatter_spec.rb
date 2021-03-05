@@ -1,5 +1,6 @@
 require "spec_helper"
 require "expressir/express_exp/parser"
+require "expressir/express_exp/formatter"
 require "expressir/express_exp/hyperlink_formatter"
 
 RSpec.describe Expressir::ExpressExp::HyperlinkFormatter do
@@ -7,7 +8,10 @@ RSpec.describe Expressir::ExpressExp::HyperlinkFormatter do
     it "formats hyperlink" do
       repo = Expressir::ExpressExp::Parser.from_file(input_file)
 
-      result = Expressir::ExpressExp::HyperlinkFormatter.format(repo)
+      class CustomFormatter < Expressir::ExpressExp::Formatter
+        include Expressir::ExpressExp::HyperlinkFormatter
+      end
+      result = CustomFormatter.format(repo)
       expected_result = File.read(output_file)
 
       expect(result).to eq(expected_result)

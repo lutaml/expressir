@@ -1,8 +1,6 @@
-require "expressir/express_exp/formatter"
-
 module Expressir
   module ExpressExp
-    class HyperlinkFormatter < Formatter
+    module HyperlinkFormatter
       def format_expressions_simple_reference(node)
         return node.id if node.parent.is_a? Model::Expressions::AttributeReference
 

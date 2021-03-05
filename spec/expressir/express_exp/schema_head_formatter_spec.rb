@@ -1,5 +1,6 @@
 require "spec_helper"
 require "expressir/express_exp/parser"
+require "expressir/express_exp/formatter"
 require "expressir/express_exp/schema_head_formatter"
 
 RSpec.describe Expressir::ExpressExp::SchemaHeadFormatter do
@@ -7,7 +8,10 @@ RSpec.describe Expressir::ExpressExp::SchemaHeadFormatter do
     it "formats schema head" do
       repo = Expressir::ExpressExp::Parser.from_file(sample_file)
 
-      result = Expressir::ExpressExp::SchemaHeadFormatter.format(repo)
+      class CustomFormatter < Expressir::ExpressExp::Formatter
+        include Expressir::ExpressExp::SchemaHeadFormatter
+      end
+      result = CustomFormatter.format(repo)
 
       expect(result).to eq(<<~EXP.strip
         SCHEMA syntax_schema 'version';

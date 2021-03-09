@@ -10,9 +10,9 @@ module Expressir
       end
 
       def children
-        items = []
-        items.push(*@schemas)
-        items
+        [
+          *schemas
+        ]
       end
     end
   end

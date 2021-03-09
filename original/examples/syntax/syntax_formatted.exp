@@ -1,223 +1,286 @@
 SCHEMA syntax_schema 'version';
+
 USE FROM contract_schema;
 USE FROM contract_schema
   (contract);
 USE FROM contract_schema
-  (contract, contract2);
+  (contract,
+   contract2);
 USE FROM contract_schema
   (contract AS contract2);
 REFERENCE FROM contract_schema;
 REFERENCE FROM contract_schema
   (contract);
 REFERENCE FROM contract_schema
-  (contract, contract2);
+  (contract,
+   contract2);
 REFERENCE FROM contract_schema
   (contract AS contract2);
+
 CONSTANT
   empty_constant : BOOLEAN := TRUE;
 END_CONSTANT;
+
 TYPE empty_type = BOOLEAN;
 END_TYPE;
+
 TYPE where_type = BOOLEAN;
-  WHERE
-    TRUE;
+WHERE
+  TRUE;
 END_TYPE;
+
 TYPE where_label_type = BOOLEAN;
-  WHERE
-    WR1 : TRUE;
+WHERE
+  WR1: TRUE;
 END_TYPE;
+
 ENTITY empty_entity;
 END_ENTITY;
+
 ENTITY abstract_entity
   ABSTRACT SUPERTYPE;
 END_ENTITY;
+
 ENTITY abstract_supertype_entity
   ABSTRACT SUPERTYPE;
 END_ENTITY;
+
 ENTITY abstract_supertype_constraint_entity
   ABSTRACT SUPERTYPE OF (empty_entity);
 END_ENTITY;
+
 ENTITY supertype_constraint_entity
   SUPERTYPE OF (empty_entity);
 END_ENTITY;
+
 ENTITY subtype_entity
   SUBTYPE OF (empty_entity);
 END_ENTITY;
+
 ENTITY supertype_constraint_subtype_entity
   SUPERTYPE OF (empty_entity)
   SUBTYPE OF (empty_entity);
 END_ENTITY;
+
 ENTITY attribute_entity;
   test : BOOLEAN;
 END_ENTITY;
+
 ENTITY attribute_optional_entity;
   test : OPTIONAL BOOLEAN;
 END_ENTITY;
+
 ENTITY attribute_multiple_entity;
   test : BOOLEAN;
   test2 : BOOLEAN;
 END_ENTITY;
+
 ENTITY attribute_multiple_shorthand_entity;
   test : BOOLEAN;
   test2 : BOOLEAN;
 END_ENTITY;
+
 ENTITY attribute_redeclared_entity
   SUBTYPE OF (attribute_entity);
   SELF\attribute_entity.test : BOOLEAN;
 END_ENTITY;
+
 ENTITY attribute_redeclared_renamed_entity
   SUBTYPE OF (attribute_entity);
   SELF\attribute_entity.test RENAMED test2 : BOOLEAN;
 END_ENTITY;
+
 ENTITY derived_attribute_entity;
-  DERIVE
-    test : BOOLEAN := TRUE;
+DERIVE
+  test : BOOLEAN := TRUE;
 END_ENTITY;
+
 ENTITY derived_attribute_redeclared_entity
   SUBTYPE OF (attribute_entity);
-  DERIVE
-    SELF\attribute_entity.test : BOOLEAN := TRUE;
+DERIVE
+  SELF\attribute_entity.test : BOOLEAN := TRUE;
 END_ENTITY;
+
 ENTITY derived_attribute_redeclared_renamed_entity
   SUBTYPE OF (attribute_entity);
-  DERIVE
-    SELF\attribute_entity.test RENAMED test2 : BOOLEAN := TRUE;
+DERIVE
+  SELF\attribute_entity.test RENAMED test2 : BOOLEAN := TRUE;
 END_ENTITY;
+
 ENTITY inverse_attribute_entity;
-  INVERSE
-    test : attribute_entity FOR test;
+INVERSE
+  test : attribute_entity FOR test;
 END_ENTITY;
+
 ENTITY inverse_attribute_entity_entity;
-  INVERSE
-    test : attribute_entity FOR attribute_entity.test;
+INVERSE
+  test : attribute_entity FOR attribute_entity.test;
 END_ENTITY;
+
 ENTITY inverse_attribute_set_entity;
-  INVERSE
-    test : SET OF attribute_entity FOR test;
+INVERSE
+  test : SET OF attribute_entity FOR test;
 END_ENTITY;
+
 ENTITY inverse_attribute_set_bound_entity;
-  INVERSE
-    test : SET [1:9] OF attribute_entity FOR test;
+INVERSE
+  test : SET [1:9] OF attribute_entity FOR test;
 END_ENTITY;
+
 ENTITY inverse_attribute_bag_entity;
-  INVERSE
-    test : BAG OF attribute_entity FOR test;
+INVERSE
+  test : BAG OF attribute_entity FOR test;
 END_ENTITY;
+
 ENTITY inverse_attribute_bag_bound_entity;
-  INVERSE
-    test : BAG [1:9] OF attribute_entity FOR test;
+INVERSE
+  test : BAG [1:9] OF attribute_entity FOR test;
 END_ENTITY;
+
 ENTITY inverse_attribute_redeclared_entity
   SUBTYPE OF (attribute_entity);
-  INVERSE
-    SELF\attribute_entity.test : attribute_entity FOR test;
+INVERSE
+  SELF\attribute_entity.test : attribute_entity FOR test;
 END_ENTITY;
+
 ENTITY inverse_attribute_redeclared_renamed_entity
   SUBTYPE OF (attribute_entity);
-  INVERSE
-    SELF\attribute_entity.test RENAMED test2 : attribute_entity FOR test;
+INVERSE
+  SELF\attribute_entity.test RENAMED test2 : attribute_entity FOR test;
 END_ENTITY;
+
 ENTITY unique_entity;
   test : BOOLEAN;
-  UNIQUE
-    test;
+UNIQUE
+  test;
 END_ENTITY;
+
 ENTITY unique_label_entity;
   test : BOOLEAN;
-  UNIQUE
-    UR1 : test;
+UNIQUE
+  UR1: test;
 END_ENTITY;
+
 ENTITY unique_redeclared_entity
   SUBTYPE OF (attribute_entity);
-  UNIQUE
-    SELF\attribute_entity.test;
+UNIQUE
+  SELF\attribute_entity.test;
 END_ENTITY;
+
 ENTITY unique_label_redeclared_entity
   SUBTYPE OF (attribute_entity);
-  UNIQUE
-    UR1 : SELF\attribute_entity.test;
+UNIQUE
+  UR1: SELF\attribute_entity.test;
 END_ENTITY;
+
 ENTITY where_entity;
-  WHERE
-    TRUE;
+WHERE
+  TRUE;
 END_ENTITY;
+
 ENTITY where_label_entity;
-  WHERE
-    WR1 : TRUE;
+WHERE
+  WR1: TRUE;
 END_ENTITY;
+
 SUBTYPE_CONSTRAINT empty_subtype_constraint FOR empty_entity;
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT abstract_supertype_subtype_constraint FOR empty_entity;
   ABSTRACT SUPERTYPE;
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT total_over_subtype_constraint FOR empty_entity;
   TOTAL_OVER(a);
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT supertype_expression_subtype_constraint FOR empty_entity;
   a;
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT supertype_expression_andor_subtype_constraint FOR empty_entity;
   a ANDOR b;
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT supertype_expression_and_subtype_constraint FOR empty_entity;
   a AND b;
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT supertype_expression_andor_and_subtype_constraint FOR empty_entity;
   a ANDOR b AND c;
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT supertype_expression_and_andor_subtype_constraint FOR empty_entity;
   a AND b ANDOR c;
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT supertype_expression_parenthesis_andor_and_subtype_constraint FOR empty_entity;
   (a ANDOR b) AND c;
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT supertype_expression_and_parenthesis_andor_subtype_constraint FOR empty_entity;
   a AND (b ANDOR c);
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT supertype_expression_oneof_subtype_constraint FOR empty_entity;
   ONEOF(a, b);
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT supertype_expression_and_oneof_subtype_constraint FOR empty_entity;
   a AND ONEOF(b, c);
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT supertype_expression_andor_oneof_subtype_constraint FOR empty_entity;
   a ANDOR ONEOF(b, c);
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT supertype_expression_oneof_and_subtype_constraint FOR empty_entity;
   ONEOF(a, b) AND c;
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT supertype_expression_oneof_andor_subtype_constraint FOR empty_entity;
   ONEOF(a, b) ANDOR c;
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT supertype_expression_oneof_and_oneof_subtype_constraint FOR empty_entity;
   ONEOF(a, b) AND ONEOF(c, d);
 END_SUBTYPE_CONSTRAINT;
+
 SUBTYPE_CONSTRAINT supertype_expression_oneof_andor_oneof_subtype_constraint FOR empty_entity;
   ONEOF(a, b) ANDOR ONEOF(c, d);
 END_SUBTYPE_CONSTRAINT;
+
 FUNCTION empty_function : BOOLEAN;
   ;
 END_FUNCTION;
+
 FUNCTION parameter_function(test : BOOLEAN) : BOOLEAN;
   ;
 END_FUNCTION;
-FUNCTION multiple_parameter_function(test : BOOLEAN; test2 : BOOLEAN) : BOOLEAN;
+
+FUNCTION multiple_parameter_function(test : BOOLEAN;
+                                     test2 : BOOLEAN) : BOOLEAN;
   ;
 END_FUNCTION;
-FUNCTION multiple_shorthand_parameter_function(test : BOOLEAN; test2 : BOOLEAN) : BOOLEAN;
+
+FUNCTION multiple_shorthand_parameter_function(test : BOOLEAN;
+                                               test2 : BOOLEAN) : BOOLEAN;
   ;
 END_FUNCTION;
+
 FUNCTION type_function : BOOLEAN;
   TYPE test = BOOLEAN;
   END_TYPE;
   ;
 END_FUNCTION;
+
 FUNCTION constant_function : BOOLEAN;
   CONSTANT
     test : BOOLEAN := TRUE;
   END_CONSTANT;
   ;
 END_FUNCTION;
+
 FUNCTION multiple_constant_function : BOOLEAN;
   CONSTANT
     test : BOOLEAN := TRUE;
@@ -225,12 +288,14 @@ FUNCTION multiple_constant_function : BOOLEAN;
   END_CONSTANT;
   ;
 END_FUNCTION;
+
 FUNCTION variable_function : BOOLEAN;
   LOCAL
     test : BOOLEAN;
   END_LOCAL;
   ;
 END_FUNCTION;
+
 FUNCTION multiple_variable_function : BOOLEAN;
   LOCAL
     test : BOOLEAN;
@@ -238,6 +303,7 @@ FUNCTION multiple_variable_function : BOOLEAN;
   END_LOCAL;
   ;
 END_FUNCTION;
+
 FUNCTION multiple_shorthand_variable_function : BOOLEAN;
   LOCAL
     test : BOOLEAN;
@@ -245,12 +311,14 @@ FUNCTION multiple_shorthand_variable_function : BOOLEAN;
   END_LOCAL;
   ;
 END_FUNCTION;
+
 FUNCTION variable_expression_function : BOOLEAN;
   LOCAL
     test : BOOLEAN := TRUE;
   END_LOCAL;
   ;
 END_FUNCTION;
+
 FUNCTION multiple_variable_expression_function : BOOLEAN;
   LOCAL
     test : BOOLEAN := TRUE;
@@ -258,6 +326,7 @@ FUNCTION multiple_variable_expression_function : BOOLEAN;
   END_LOCAL;
   ;
 END_FUNCTION;
+
 FUNCTION multiple_shorthand_variable_expression_function : BOOLEAN;
   LOCAL
     test : BOOLEAN := TRUE;
@@ -265,74 +334,190 @@ FUNCTION multiple_shorthand_variable_expression_function : BOOLEAN;
   END_LOCAL;
   ;
 END_FUNCTION;
+
+RULE empty_rule FOR (empty_entity);
+WHERE
+  TRUE;
+END_RULE;
+
+RULE type_rule FOR (empty_entity);
+  TYPE test = BOOLEAN;
+  END_TYPE;
+WHERE
+  TRUE;
+END_RULE;
+
+RULE constant_rule FOR (empty_entity);
+  CONSTANT
+    test : BOOLEAN := TRUE;
+  END_CONSTANT;
+WHERE
+  TRUE;
+END_RULE;
+
+RULE multiple_constant_rule FOR (empty_entity);
+  CONSTANT
+    test : BOOLEAN := TRUE;
+    test2 : BOOLEAN := TRUE;
+  END_CONSTANT;
+WHERE
+  TRUE;
+END_RULE;
+
+RULE variable_rule FOR (empty_entity);
+  LOCAL
+    test : BOOLEAN;
+  END_LOCAL;
+WHERE
+  TRUE;
+END_RULE;
+
+RULE multiple_variable_rule FOR (empty_entity);
+  LOCAL
+    test : BOOLEAN;
+    test2 : BOOLEAN;
+  END_LOCAL;
+WHERE
+  TRUE;
+END_RULE;
+
+RULE multiple_shorthand_variable_rule FOR (empty_entity);
+  LOCAL
+    test : BOOLEAN;
+    test2 : BOOLEAN;
+  END_LOCAL;
+WHERE
+  TRUE;
+END_RULE;
+
+RULE variable_expression_rule FOR (empty_entity);
+  LOCAL
+    test : BOOLEAN := TRUE;
+  END_LOCAL;
+WHERE
+  TRUE;
+END_RULE;
+
+RULE multiple_variable_expression_rule FOR (empty_entity);
+  LOCAL
+    test : BOOLEAN := TRUE;
+    test2 : BOOLEAN := TRUE;
+  END_LOCAL;
+WHERE
+  TRUE;
+END_RULE;
+
+RULE multiple_shorthand_variable_expression_rule FOR (empty_entity);
+  LOCAL
+    test : BOOLEAN := TRUE;
+    test2 : BOOLEAN := TRUE;
+  END_LOCAL;
+WHERE
+  TRUE;
+END_RULE;
+
+RULE statement_rule FOR (empty_entity);
+  ;
+WHERE
+  TRUE;
+END_RULE;
+
+RULE where_label_rule FOR (empty_entity);
+WHERE
+  WR1: TRUE;
+END_RULE;
+
 PROCEDURE empty_procedure;
 END_PROCEDURE;
+
 PROCEDURE parameter_procedure(test : BOOLEAN);
 END_PROCEDURE;
-PROCEDURE multiple_parameter_procedure(test : BOOLEAN; test2 : BOOLEAN);
+
+PROCEDURE multiple_parameter_procedure(test : BOOLEAN;
+                                       test2 : BOOLEAN);
 END_PROCEDURE;
-PROCEDURE multiple_shorthand_parameter_procedure(test : BOOLEAN; test2 : BOOLEAN);
+
+PROCEDURE multiple_shorthand_parameter_procedure(test : BOOLEAN;
+                                                 test2 : BOOLEAN);
 END_PROCEDURE;
+
 PROCEDURE variable_parameter_procedure(VAR test : BOOLEAN);
 END_PROCEDURE;
-PROCEDURE multiple_variable_parameter_procedure(VAR test : BOOLEAN; test2 : BOOLEAN);
+
+PROCEDURE multiple_variable_parameter_procedure(VAR test : BOOLEAN;
+                                                test2 : BOOLEAN);
 END_PROCEDURE;
-PROCEDURE multiple_variable_parameter2_procedure(test : BOOLEAN; VAR test2 : BOOLEAN);
+
+PROCEDURE multiple_variable_parameter2_procedure(test : BOOLEAN;
+                                                 VAR test2 : BOOLEAN);
 END_PROCEDURE;
-PROCEDURE multiple_shorthand_variable_parameter_procedure(VAR test : BOOLEAN; VAR test2 : BOOLEAN);
+
+PROCEDURE multiple_shorthand_variable_parameter_procedure(VAR test : BOOLEAN;
+                                                          VAR test2 : BOOLEAN);
 END_PROCEDURE;
+
 PROCEDURE type_procedure;
   TYPE test = BOOLEAN;
   END_TYPE;
 END_PROCEDURE;
+
 PROCEDURE constant_procedure;
   CONSTANT
     test : BOOLEAN := TRUE;
   END_CONSTANT;
 END_PROCEDURE;
+
 PROCEDURE multiple_constant_procedure;
   CONSTANT
     test : BOOLEAN := TRUE;
     test2 : BOOLEAN := TRUE;
   END_CONSTANT;
 END_PROCEDURE;
+
 PROCEDURE variable_procedure;
   LOCAL
     test : BOOLEAN;
   END_LOCAL;
 END_PROCEDURE;
+
 PROCEDURE multiple_variable_procedure;
   LOCAL
     test : BOOLEAN;
     test2 : BOOLEAN;
   END_LOCAL;
 END_PROCEDURE;
+
 PROCEDURE multiple_shorthand_variable_procedure;
   LOCAL
     test : BOOLEAN;
     test2 : BOOLEAN;
   END_LOCAL;
 END_PROCEDURE;
+
 PROCEDURE variable_expression_procedure;
   LOCAL
     test : BOOLEAN := TRUE;
   END_LOCAL;
 END_PROCEDURE;
+
 PROCEDURE multiple_variable_expression_procedure;
   LOCAL
     test : BOOLEAN := TRUE;
     test2 : BOOLEAN := TRUE;
   END_LOCAL;
 END_PROCEDURE;
+
 PROCEDURE multiple_shorthand_variable_expression_procedure;
   LOCAL
     test : BOOLEAN := TRUE;
     test2 : BOOLEAN := TRUE;
   END_LOCAL;
 END_PROCEDURE;
+
 PROCEDURE statement_procedure;
   ;
 END_PROCEDURE;
+
 PROCEDURE statements;
   PROCEDURE alias_simple_reference_statement;
     ALIAS test FOR test;
@@ -506,6 +691,7 @@ PROCEDURE statements;
     SKIP;
   END_PROCEDURE;
 END_PROCEDURE;
+
 PROCEDURE types;
   TYPE binary_type = BINARY;
   END_TYPE;
@@ -561,23 +747,56 @@ PROCEDURE types;
   END_TYPE;
   TYPE select_extensible_generic_entity_type = EXTENSIBLE GENERIC_ENTITY SELECT;
   END_TYPE;
-  TYPE select_list_type = SELECT (empty_type);
+  TYPE select_list_type = SELECT
+    (empty_type);
+  END_TYPE;
+  TYPE select_list_multiple_type = SELECT
+    (empty_type,
+     empty_type);
   END_TYPE;
   TYPE select_extension_type_ref_type = SELECT BASED_ON select_type;
   END_TYPE;
-  TYPE select_extension_type_ref_list_type = SELECT BASED_ON select_type WITH (empty_type);
+  TYPE select_extension_type_ref_list_type = SELECT BASED_ON select_type WITH
+    (empty_type);
+  END_TYPE;
+  TYPE select_extension_type_ref_list_multiple_type = SELECT BASED_ON select_type WITH
+    (empty_type,
+     empty_type);
   END_TYPE;
   TYPE enumeration_type = ENUMERATION;
   END_TYPE;
   TYPE enumeration_extensible_type = EXTENSIBLE ENUMERATION;
   END_TYPE;
-  TYPE enumeration_list_type = ENUMERATION OF (test);
+  TYPE enumeration_list_type = ENUMERATION OF
+    (test);
+  END_TYPE;
+  TYPE enumeration_list_multiple_type = ENUMERATION OF
+    (test,
+     test2);
   END_TYPE;
   TYPE enumeration_extension_type_ref_type = ENUMERATION BASED_ON enumeration_type;
   END_TYPE;
-  TYPE enumeration_extension_type_ref_list_type = ENUMERATION BASED_ON enumeration_type WITH (test);
+  TYPE enumeration_extension_type_ref_list_type = ENUMERATION BASED_ON enumeration_type WITH
+    (test);
   END_TYPE;
+  TYPE enumeration_extension_type_ref_list_multiple_type = ENUMERATION BASED_ON enumeration_type WITH
+    (test,
+     test2);
+  END_TYPE;
+  FUNCTION generic_type : GENERIC;
+    ;
+  END_FUNCTION;
+  FUNCTION generic_label_type : GENERIC:label;
+    ;
+  END_FUNCTION;
+  FUNCTION generic_entity_type : GENERIC_ENTITY;
+    ;
+  END_FUNCTION;
+  FUNCTION generic_entity_label_type : GENERIC_ENTITY:label;
+    ;
+  END_FUNCTION;
 END_PROCEDURE;
+
 PROCEDURE expressions;
   LOCAL
     binary_expression : BOOLEAN := %011110000111100001111000;
@@ -679,84 +898,5 @@ PROCEDURE expressions;
     query_expression : BOOLEAN := QUERY(test <* test2 | TRUE);
   END_LOCAL;
 END_PROCEDURE;
-RULE empty_rule FOR (empty_entity);
-  WHERE
-    TRUE;
-END_RULE;
-RULE type_rule FOR (empty_entity);
-  TYPE test = BOOLEAN;
-  END_TYPE;
-  WHERE
-    TRUE;
-END_RULE;
-RULE constant_rule FOR (empty_entity);
-  CONSTANT
-    test : BOOLEAN := TRUE;
-  END_CONSTANT;
-  WHERE
-    TRUE;
-END_RULE;
-RULE multiple_constant_rule FOR (empty_entity);
-  CONSTANT
-    test : BOOLEAN := TRUE;
-    test2 : BOOLEAN := TRUE;
-  END_CONSTANT;
-  WHERE
-    TRUE;
-END_RULE;
-RULE variable_rule FOR (empty_entity);
-  LOCAL
-    test : BOOLEAN;
-  END_LOCAL;
-  WHERE
-    TRUE;
-END_RULE;
-RULE multiple_variable_rule FOR (empty_entity);
-  LOCAL
-    test : BOOLEAN;
-    test2 : BOOLEAN;
-  END_LOCAL;
-  WHERE
-    TRUE;
-END_RULE;
-RULE multiple_shorthand_variable_rule FOR (empty_entity);
-  LOCAL
-    test : BOOLEAN;
-    test2 : BOOLEAN;
-  END_LOCAL;
-  WHERE
-    TRUE;
-END_RULE;
-RULE variable_expression_rule FOR (empty_entity);
-  LOCAL
-    test : BOOLEAN := TRUE;
-  END_LOCAL;
-  WHERE
-    TRUE;
-END_RULE;
-RULE multiple_variable_expression_rule FOR (empty_entity);
-  LOCAL
-    test : BOOLEAN := TRUE;
-    test2 : BOOLEAN := TRUE;
-  END_LOCAL;
-  WHERE
-    TRUE;
-END_RULE;
-RULE multiple_shorthand_variable_expression_rule FOR (empty_entity);
-  LOCAL
-    test : BOOLEAN := TRUE;
-    test2 : BOOLEAN := TRUE;
-  END_LOCAL;
-  WHERE
-    TRUE;
-END_RULE;
-RULE statement_rule FOR (empty_entity);
-  ;
-  WHERE
-    TRUE;
-END_RULE;
-RULE where_label_rule FOR (empty_entity);
-  WHERE
-    WR1 : TRUE;
-END_RULE;
+
 END_SCHEMA;

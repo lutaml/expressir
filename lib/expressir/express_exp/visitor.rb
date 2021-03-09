@@ -36,8 +36,10 @@ module Expressir
     class Visitor < ::ExpressParser::Visitor
       REMARK_CHANNEL = 2
 
-      def initialize(tokens)
+      def initialize(tokens, options = {})
         @tokens = tokens
+        @include_source = options[:include_source]
+
         @attached_remark_tokens = ::Set.new
 
         super()
@@ -45,7 +47,9 @@ module Expressir
 
       def visit(ctx)
         node = super(ctx)
-        attach_source(ctx, node)
+        if @include_source
+          attach_source(ctx, node)
+        end
         attach_remarks(ctx, node)
         node
       end
@@ -121,6 +125,7 @@ module Expressir
           id: informal_proposition_id
         })
         target_node.informal_propositions << informal_proposition
+        target_node.reset_children_by_id
         informal_proposition.parent = target_node
         informal_proposition
       end
@@ -1925,8 +1930,8 @@ module Expressir
         entities = declarations.select{|x| x.is_a? Model::Entity}
         subtype_constraints = declarations.select{|x| x.is_a? Model::SubtypeConstraint}
         functions = declarations.select{|x| x.is_a? Model::Function}
-        procedures = declarations.select{|x| x.is_a? Model::Procedure}
         rules = declarations.select{|x| x.is_a? Model::Rule}
+        procedures = declarations.select{|x| x.is_a? Model::Procedure}
 
         Model::Schema.new({
           id: id,
@@ -1937,8 +1942,8 @@ module Expressir
           entities: entities,
           subtype_constraints: subtype_constraints,
           functions: functions,
-          procedures: procedures,
-          rules: rules
+          rules: rules,
+          procedures: procedures
         })
       end
 
@@ -2149,7 +2154,7 @@ module Expressir
         id = visit_if(ctx__subtype_constraint_head__subtype_constraint_id)
         applies_to = visit_if(ctx__subtype_constraint_head__entity_ref)
         abstract = ctx__subtype_constraint_body__abstract_supertype && true
-        total_over = visit_if(ctx__subtype_constraint_body__total_over)
+        total_over = visit_if(ctx__subtype_constraint_body__total_over, [])
         supertype_expression = visit_if(ctx__subtype_constraint_body__supertype_expression)
 
         Model::SubtypeConstraint.new({

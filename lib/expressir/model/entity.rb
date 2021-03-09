@@ -28,12 +28,12 @@ module Expressir
       end
 
       def children
-        items = []
-        items.push(*@attributes)
-        items.push(*@unique)
-        items.push(*@where)
-        items.push(*@informal_propositions)
-        items
+        [
+          *attributes,
+          *unique,
+          *where,
+          *informal_propositions
+        ]
       end
     end
   end

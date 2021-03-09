@@ -3,10 +3,13 @@ module Expressir
     class InformalProposition < ModelElement
       include Identifier
 
+      undef :source
+      undef :source=
+
       def initialize(options = {})
         @id = options[:id]
         @remarks = options.fetch(:remarks, [])
-        @source = options[:source]
+        # @source = options[:source]
 
         super
       end

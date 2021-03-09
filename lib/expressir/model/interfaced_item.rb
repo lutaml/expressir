@@ -3,12 +3,15 @@ module Expressir
     class InterfacedItem < ModelElement
       include Identifier
 
+      undef :source
+      undef :source=
+
       attr_accessor :base_item
 
       def initialize(options = {})
         @id = options[:id]
         @remarks = options.fetch(:remarks, [])
-        @source = options[:source]
+        # @source = options[:source]
 
         @base_item = options[:base_item]
 

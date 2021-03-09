@@ -17,7 +17,7 @@ CONSTANT empty_constant : BOOLEAN := TRUE; END_CONSTANT;
 -- types
 TYPE empty_type = BOOLEAN; END_TYPE;
 TYPE where_type = BOOLEAN; WHERE TRUE; END_TYPE;
-TYPE where_label_type = BOOLEAN; WHERE WR1 : TRUE; END_TYPE;
+TYPE where_label_type = BOOLEAN; WHERE WR1: TRUE; END_TYPE;
 
 -- entities
 ENTITY empty_entity; END_ENTITY;
@@ -45,11 +45,11 @@ ENTITY inverse_attribute_bag_bound_entity; INVERSE test : BAG [1:9] OF attribute
 ENTITY inverse_attribute_redeclared_entity SUBTYPE OF (attribute_entity); INVERSE SELF\attribute_entity.test : attribute_entity FOR test; END_ENTITY;
 ENTITY inverse_attribute_redeclared_renamed_entity SUBTYPE OF (attribute_entity); INVERSE SELF\attribute_entity.test RENAMED test2 : attribute_entity FOR test; END_ENTITY;
 ENTITY unique_entity; test : BOOLEAN; UNIQUE test; END_ENTITY;
-ENTITY unique_label_entity; test : BOOLEAN; UNIQUE UR1 : test; END_ENTITY;
+ENTITY unique_label_entity; test : BOOLEAN; UNIQUE UR1: test; END_ENTITY;
 ENTITY unique_redeclared_entity SUBTYPE OF (attribute_entity); UNIQUE SELF\attribute_entity.test; END_ENTITY;
-ENTITY unique_label_redeclared_entity SUBTYPE OF (attribute_entity); UNIQUE UR1 : SELF\attribute_entity.test; END_ENTITY;
+ENTITY unique_label_redeclared_entity SUBTYPE OF (attribute_entity); UNIQUE UR1: SELF\attribute_entity.test; END_ENTITY;
 ENTITY where_entity; WHERE TRUE; END_ENTITY;
-ENTITY where_label_entity; WHERE WR1 : TRUE; END_ENTITY;
+ENTITY where_label_entity; WHERE WR1: TRUE; END_ENTITY;
 
 -- subtype constraints
 SUBTYPE_CONSTRAINT empty_subtype_constraint FOR empty_entity; END_SUBTYPE_CONSTRAINT;
@@ -85,6 +85,20 @@ FUNCTION variable_expression_function : BOOLEAN; LOCAL test : BOOLEAN := TRUE; E
 FUNCTION multiple_variable_expression_function : BOOLEAN; LOCAL test : BOOLEAN := TRUE; test2 : BOOLEAN := TRUE; END_LOCAL; ; END_FUNCTION;
 FUNCTION multiple_shorthand_variable_expression_function : BOOLEAN; LOCAL test, test2 : BOOLEAN := TRUE; END_LOCAL; ; END_FUNCTION;
 
+-- rules
+RULE empty_rule FOR (empty_entity); WHERE TRUE; END_RULE;
+RULE type_rule FOR (empty_entity); TYPE test = BOOLEAN; END_TYPE; WHERE TRUE; END_RULE;
+RULE constant_rule FOR (empty_entity); CONSTANT test : BOOLEAN := TRUE; END_CONSTANT; WHERE TRUE; END_RULE;
+RULE multiple_constant_rule FOR (empty_entity); CONSTANT test : BOOLEAN := TRUE; test2 : BOOLEAN := TRUE; END_CONSTANT; WHERE TRUE; END_RULE;
+RULE variable_rule FOR (empty_entity); LOCAL test : BOOLEAN; END_LOCAL; WHERE TRUE; END_RULE;
+RULE multiple_variable_rule FOR (empty_entity); LOCAL test : BOOLEAN; test2 : BOOLEAN; END_LOCAL; WHERE TRUE; END_RULE;
+RULE multiple_shorthand_variable_rule FOR (empty_entity); LOCAL test, test2 : BOOLEAN; END_LOCAL; WHERE TRUE; END_RULE;
+RULE variable_expression_rule FOR (empty_entity); LOCAL test : BOOLEAN := TRUE; END_LOCAL; WHERE TRUE; END_RULE;
+RULE multiple_variable_expression_rule FOR (empty_entity); LOCAL test : BOOLEAN := TRUE; test2 : BOOLEAN := TRUE; END_LOCAL; WHERE TRUE; END_RULE;
+RULE multiple_shorthand_variable_expression_rule FOR (empty_entity); LOCAL test, test2 : BOOLEAN := TRUE; END_LOCAL; WHERE TRUE; END_RULE;
+RULE statement_rule FOR (empty_entity); ; WHERE TRUE; END_RULE;
+RULE where_label_rule FOR (empty_entity); WHERE WR1: TRUE; END_RULE;
+
 -- procedures
 PROCEDURE empty_procedure; END_PROCEDURE;
 PROCEDURE parameter_procedure(test : BOOLEAN); END_PROCEDURE;
@@ -104,20 +118,6 @@ PROCEDURE variable_expression_procedure; LOCAL test : BOOLEAN := TRUE; END_LOCAL
 PROCEDURE multiple_variable_expression_procedure; LOCAL test : BOOLEAN := TRUE; test2 : BOOLEAN := TRUE; END_LOCAL; END_PROCEDURE;
 PROCEDURE multiple_shorthand_variable_expression_procedure; LOCAL test, test2 : BOOLEAN := TRUE; END_LOCAL; END_PROCEDURE;
 PROCEDURE statement_procedure; ; END_PROCEDURE;
-
--- rules
-RULE empty_rule FOR (empty_entity); WHERE TRUE; END_RULE;
-RULE type_rule FOR (empty_entity); TYPE test = BOOLEAN; END_TYPE; WHERE TRUE; END_RULE;
-RULE constant_rule FOR (empty_entity); CONSTANT test : BOOLEAN := TRUE; END_CONSTANT; WHERE TRUE; END_RULE;
-RULE multiple_constant_rule FOR (empty_entity); CONSTANT test : BOOLEAN := TRUE; test2 : BOOLEAN := TRUE; END_CONSTANT; WHERE TRUE; END_RULE;
-RULE variable_rule FOR (empty_entity); LOCAL test : BOOLEAN; END_LOCAL; WHERE TRUE; END_RULE;
-RULE multiple_variable_rule FOR (empty_entity); LOCAL test : BOOLEAN; test2 : BOOLEAN; END_LOCAL; WHERE TRUE; END_RULE;
-RULE multiple_shorthand_variable_rule FOR (empty_entity); LOCAL test, test2 : BOOLEAN; END_LOCAL; WHERE TRUE; END_RULE;
-RULE variable_expression_rule FOR (empty_entity); LOCAL test : BOOLEAN := TRUE; END_LOCAL; WHERE TRUE; END_RULE;
-RULE multiple_variable_expression_rule FOR (empty_entity); LOCAL test : BOOLEAN := TRUE; test2 : BOOLEAN := TRUE; END_LOCAL; WHERE TRUE; END_RULE;
-RULE multiple_shorthand_variable_expression_rule FOR (empty_entity); LOCAL test, test2 : BOOLEAN := TRUE; END_LOCAL; WHERE TRUE; END_RULE;
-RULE statement_rule FOR (empty_entity); ; WHERE TRUE; END_RULE;
-RULE where_label_rule FOR (empty_entity); WHERE WR1 : TRUE; END_RULE;
 
 PROCEDURE statements;
   -- statements
@@ -193,13 +193,23 @@ PROCEDURE types;
   TYPE select_extensible_type = EXTENSIBLE SELECT; END_TYPE;
   TYPE select_extensible_generic_entity_type = EXTENSIBLE GENERIC_ENTITY SELECT; END_TYPE;
   TYPE select_list_type = SELECT (empty_type); END_TYPE;
+  TYPE select_list_multiple_type = SELECT (empty_type, empty_type); END_TYPE;
   TYPE select_extension_type_ref_type = SELECT BASED_ON select_type; END_TYPE;
   TYPE select_extension_type_ref_list_type = SELECT BASED_ON select_type WITH (empty_type); END_TYPE;
+  TYPE select_extension_type_ref_list_multiple_type = SELECT BASED_ON select_type WITH (empty_type, empty_type); END_TYPE;
   TYPE enumeration_type = ENUMERATION; END_TYPE;
   TYPE enumeration_extensible_type = EXTENSIBLE ENUMERATION; END_TYPE;
   TYPE enumeration_list_type = ENUMERATION OF (test); END_TYPE;
+  TYPE enumeration_list_multiple_type = ENUMERATION OF (test, test2); END_TYPE;
   TYPE enumeration_extension_type_ref_type = ENUMERATION BASED_ON enumeration_type; END_TYPE;
   TYPE enumeration_extension_type_ref_list_type = ENUMERATION BASED_ON enumeration_type WITH (test); END_TYPE;
+  TYPE enumeration_extension_type_ref_list_multiple_type = ENUMERATION BASED_ON enumeration_type WITH (test, test2); END_TYPE;
+
+  -- generic types
+  FUNCTION generic_type : GENERIC; ; END_FUNCTION;
+  FUNCTION generic_label_type : GENERIC:label; ; END_FUNCTION;
+  FUNCTION generic_entity_type : GENERIC_ENTITY; ; END_FUNCTION;
+  FUNCTION generic_entity_label_type : GENERIC_ENTITY:label; ; END_FUNCTION;
 END_PROCEDURE;
 
 PROCEDURE expressions;

@@ -10,6 +10,10 @@ module Expressir
         attach_parent_to_children
       end
 
+      def model_instance_variables
+        instance_variables.select{|x| x != :@file && x != :@parent && x != :@children_by_id}
+      end
+
       def path
         return id if is_a? Statements::Alias or is_a? Statements::Repeat or is_a? Expressions::QueryExpression
 
@@ -28,7 +32,7 @@ module Expressir
       end
 
       def attach_parent_to_children
-        instance_variables.select{|x| x != :@parent}.each do |variable|
+        model_instance_variables.each do |variable|
           value = instance_variable_get(variable)
 
           if value.is_a? Array
@@ -57,7 +61,7 @@ module Expressir
           # find in current scope
           current_node = current_scope
           path_parts.each do |current_path|
-            current_node = current_node.children.find{|x| x.id and x.id.downcase == current_path}
+            current_node = current_node.children_by_id[current_path]
             break unless current_node
           end
           target_node = current_node
@@ -75,19 +79,28 @@ module Expressir
         []
       end
 
+      def children_by_id
+        @children_by_id ||= children.select{|x| x.id}.map{|x| [x.id.downcase, x]}.to_h
+      end
+
+      def reset_children_by_id
+        @children_by_id = nil
+      end
+
       def to_hash(options = {})
-        skip_empty = options[:skip_empty]
+        include_empty = options[:include_empty] || !options[:skip_empty] # TODO: remove skip_empty
         formatter = options[:formatter]
 
         hash = {}
         hash[CLASS_KEY] = self.class.name
 
-        instance_variables.select{|x| x != :@parent}.each_with_object(hash) do |variable, result|
+        model_instance_variables.each_with_object(hash) do |variable, result|
           key = variable.to_s.sub(/^@/, '')
           value = instance_variable_get(variable)
+          empty = value.nil? || (value.is_a?(Array) && value.count == 0)
 
-          # skip empty values (nil, empty array)
-          if !skip_empty or !(value.nil? or (value.is_a? Array and value.count == 0))
+          # skip empty values
+          if !empty or include_empty
             result[key] = if value.is_a? Array
               value.map do |value|
                 if value.is_a? ModelElement
@@ -104,7 +117,7 @@ module Expressir
           end
         end
 
-        if formatter
+        if self.class.method_defined? :source and formatter
           hash[SOURCE_KEY] = formatter.format(self)
         end
 

@@ -12,8 +12,8 @@ module Expressir
       attr_accessor :entities
       attr_accessor :subtype_constraints
       attr_accessor :functions
-      attr_accessor :procedures
       attr_accessor :rules
+      attr_accessor :procedures
 
       def initialize(options = {})
         @file = options[:file]
@@ -29,60 +29,67 @@ module Expressir
         @entities = options.fetch(:entities, [])
         @subtype_constraints = options.fetch(:subtype_constraints, [])
         @functions = options.fetch(:functions, [])
-        @procedures = options.fetch(:procedures, [])
         @rules = options.fetch(:rules, [])
+        @procedures = options.fetch(:procedures, [])
 
         super
       end
 
-      def children(skip_references = false)
-        items = []
-        unless skip_references
-          items.push(*@interfaces.flat_map do |interface|
-            schema_id = interface.schema.id.downcase
-            schema = parent.schemas.find{|x| x.id.downcase == schema_id}
-            if schema
-              schema_children = schema.children(true) # prevent infinite recursion
-              if interface.items.length > 0
-                interface.items.map do |item|
-                  ref_id = item.ref.id.downcase
-                  id = item.id || ref_id
-                  base_item = schema_children.find{|x| x.id and x.id.downcase == ref_id}
+      def create_interfaced_item(id, base_item)
+        interfaced_item = InterfacedItem.new({
+          id: id
+        })
+        interfaced_item.base_item = base_item # skip overriding parent
+        interfaced_item.parent = self
+        interfaced_item
+      end
 
-                  interfaced_item = InterfacedItem.new({
-                    id: id
-                  })
-                  interfaced_item.base_item = base_item # skip overriding parent
-                  interfaced_item.parent = self
-                  interfaced_item
-                end
-              else
-                schema_children.map do |item|
-                  id = item.id
-                  base_item = item
-
-                  interfaced_item = InterfacedItem.new({
-                    id: id
-                  })
-                  interfaced_item.base_item = base_item # skip overriding parent
-                  interfaced_item.parent = self
-                  interfaced_item
+      def interfaced_items
+        interfaces.flat_map do |interface|
+          schema = parent.children_by_id[interface.schema.id.downcase]
+          if schema
+            schema_safe_children = schema.safe_children
+            schema_safe_children_by_id = schema_safe_children.select{|x| x.id}.map{|x| [x.id.downcase, x]}.to_h
+            if interface.items.length > 0
+              interface.items.map do |interface_item|
+                base_item = schema_safe_children_by_id[interface_item.ref.id.downcase]
+                if base_item
+                  id = interface_item.id || base_item.id
+                  create_interfaced_item(id, base_item)
                 end
               end
             else
-              []
+              schema_safe_children.map do |base_item|
+                id = base_item.id
+                create_interfaced_item(id, base_item)
+              end
             end
-          end)
-        end
-        items.push(*@constants)
-        items.push(*@types)
-        items.push(*@types.flat_map{|x| x.type.is_a?(Types::Enumeration) ? x.type.items : []})
-        items.push(*@entities)
-        items.push(*@subtype_constraints)
-        items.push(*@functions)
-        items.push(*@procedures)
-        items.push(*@rules)
-        items
+          end
+        end.select{|x| x}
+      end
+
+      def enumeration_items
+        types.flat_map{|x| x.enumeration_items}
+      end
+
+      def safe_children
+        [
+          *constants,
+          *types,
+          *enumeration_items,
+          *entities,
+          *subtype_constraints,
+          *functions,
+          *rules,
+          *procedures
+        ]
+      end
+
+      def children
+        [
+          *interfaced_items,
+          *safe_children
+        ]
       end
     end
   end

@@ -35,19 +35,23 @@ module Expressir
         super
       end
 
+      def enumeration_items
+        types.flat_map{|x| x.enumeration_items}
+      end
+
       def children
-        items = []
-        items.push(*@types)
-        items.push(*@types.flat_map{|x| x.type.is_a?(Types::Enumeration) ? x.type.items : []})
-        items.push(*@entities)
-        items.push(*@subtype_constraints)
-        items.push(*@functions)
-        items.push(*@procedures)
-        items.push(*@constants)
-        items.push(*@variables)
-        items.push(*@where)
-        items.push(*@informal_propositions)
-        items
+        [
+          *types,
+          *enumeration_items,
+          *entities,
+          *subtype_constraints,
+          *functions,
+          *procedures,
+          *constants,
+          *variables,
+          *where,
+          *informal_propositions
+        ]
       end
     end
   end

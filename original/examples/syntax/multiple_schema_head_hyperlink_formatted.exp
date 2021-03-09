@@ -1,0 +1,13 @@
+SCHEMA multiple_schema1;
+
+REFERENCE FROM {{{<<express:multiple_schema2,multiple_schema2>>}}};
+REFERENCE FROM {{{<<express:multiple_schema3,multiple_schema3>>}}}
+  ({{{<<express:multiple_schema3.attribute_entity3,attribute_entity3>>}}});
+REFERENCE FROM {{{<<express:multiple_schema4,multiple_schema4>>}}}
+  ({{{<<express:multiple_schema4.attribute_entity,attribute_entity>>}}} AS attribute_entity4);
+
+SCHEMA multiple_schema2;
+
+SCHEMA multiple_schema3;
+
+SCHEMA multiple_schema4;

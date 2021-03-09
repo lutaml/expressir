@@ -1,7 +1,7 @@
-SCHEMA hyperlink_schema;
-REFERENCE FROM hyperlink_schema2;
-REFERENCE FROM hyperlink_schema3 (attribute_entity3);
-REFERENCE FROM hyperlink_schema4 (attribute_entity AS attribute_entity4);
+SCHEMA multiple_schema1;
+REFERENCE FROM multiple_schema2;
+REFERENCE FROM multiple_schema3 (attribute_entity3);
+REFERENCE FROM multiple_schema4 (attribute_entity AS attribute_entity4);
 ENTITY test; END_ENTITY;
 ENTITY empty_entity; END_ENTITY;
 ENTITY attribute_entity; test : BOOLEAN; END_ENTITY;
@@ -12,12 +12,12 @@ ENTITY subtype_attribute_entity3 SUBTYPE OF (attribute_entity3); SELF\attribute_
 ENTITY subtype_attribute_entity4 SUBTYPE OF (attribute_entity4); SELF\attribute_entity4.test : BOOLEAN; END_ENTITY;
 ENTITY subtype_missing_entity SUBTYPE OF (missing_entity); END_ENTITY;
 END_SCHEMA;
-SCHEMA hyperlink_schema2;
+SCHEMA multiple_schema2;
 ENTITY attribute_entity2; test : BOOLEAN; END_ENTITY;
 END_SCHEMA;
-SCHEMA hyperlink_schema3;
+SCHEMA multiple_schema3;
 ENTITY attribute_entity3; test : BOOLEAN; END_ENTITY;
 END_SCHEMA;
-SCHEMA hyperlink_schema4;
+SCHEMA multiple_schema4;
 ENTITY attribute_entity; test : BOOLEAN; END_ENTITY;
 END_SCHEMA;

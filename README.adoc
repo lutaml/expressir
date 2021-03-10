@@ -1,8 +1,6 @@
 = Expressir: EXPRESS in Ruby
 
-image:https://github.com/lutaml/expressir/workflows/ubuntu/badge.svg[ubuntu]
-image:https://github.com/lutaml/expressir/workflows/macos/badge.svg[macos]
-image:https://github.com/lutaml/expressir/workflows/windows/badge.svg[windows]
+image:https://github.com/lutaml/expressir/workflows/rake/badge.svg["Build Status", link="https://github.com/lutaml/expressir/actions?workflow=rake"]
 
 == Purpose
 

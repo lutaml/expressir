@@ -1,5 +1,7 @@
 = Expressir: EXPRESS in Ruby
 
+image:https://img.shields.io/gem/v/expressir.svg["Gem Version", link="https://rubygems.org/gems/expressir"]
+// image:https://codeclimate.com/github/lutaml/expressir/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/lutaml/expressir"]
 image:https://github.com/lutaml/expressir/workflows/rake/badge.svg["Build Status", link="https://github.com/lutaml/expressir/actions?workflow=rake"]
 
 == Purpose

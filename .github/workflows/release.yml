@@ -1,9 +1,15 @@
 name: release
 
 on:
+  workflow_dispatch:
+    inputs:
+      next_version:
+        description: |
+          Next release version. Possible values: x.y.z, major, minor, patch or pre|rc|etc
+        required: true
+        default: 'patch'
   push:
     tags: [ v* ]
-  workflow_dispatch:
 
 jobs:
   pack:
@@ -19,10 +25,16 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.6'
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
 
-      - run: bundle install --jobs 4 --retry 3
+      - if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          gem bump --version ${{ github.event.inputs.next_version }} --tag --push
 
+      # build gem WITHOUT pre-built native extension
       - run: gem build expressir.gemspec
 
       - if: matrix.host == 'linux'
@@ -31,6 +43,7 @@ jobs:
           name: pkg-ruby
           path: expressir-*.gem
 
+      # build gem WITH pre-built native extension
       - run: bundle exec rake gem:${{ matrix.host }}
 
       - uses: actions/upload-artifact@v2
@@ -38,8 +51,7 @@ jobs:
           name: pkg-${{ matrix.host }}
           path: pkg/*.gem
 
-
-  release:
+  publish:
     runs-on: ubuntu-18.04
     needs: pack
     steps:

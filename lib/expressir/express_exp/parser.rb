@@ -5,7 +5,6 @@ rescue LoadError
   require_relative "express_parser"
 end
 require 'expressir/express_exp/visitor'
-require 'pathname'
 
 =begin
 char_stream = Antlr4::Runtime::CharStreams.from_string(input, 'String')
@@ -26,8 +25,6 @@ module Expressir
   module ExpressExp
     class Parser
       def self.from_file(file, options = {})
-        root_path = options[:root_path]
-
         input = File.read(file)
 
         parser = ::ExpressParser::Parser.parse(input)
@@ -38,7 +35,7 @@ module Expressir
         repository = visitor.visit(parse_tree)
 
         repository.schemas.each do |schema|
-          schema.file = root_path ? Pathname.new(file).relative_path_from(root_path).to_s : File.basename(file)
+          schema.file = file.to_s
         end
 
         repository

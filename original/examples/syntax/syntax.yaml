@@ -2,7 +2,7 @@
 _class: Expressir::Model::Repository
 schemas:
 - _class: Expressir::Model::Schema
-  file: syntax.exp
+  file: original/examples/syntax/syntax.exp
   id: syntax_schema
   version:
     _class: Expressir::Model::Literals::String

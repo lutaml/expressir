@@ -2,6 +2,9 @@ module Expressir
   module Model
     class ModelElement
       CLASS_KEY = '_class'
+      FILE_KEY = 'file'
+      PARENT_KEY = 'parent'
+      CHILDREN_BY_ID_KEY = 'children_by_id'
       SOURCE_KEY = 'source'
 
       attr_accessor :parent
@@ -11,7 +14,8 @@ module Expressir
       end
 
       def model_instance_variables
-        instance_variables.select{|x| x != :@file && x != :@parent && x != :@children_by_id}
+        skip_variables = [FILE_KEY, PARENT_KEY, CHILDREN_BY_ID_KEY].map{|x| "@#{x}".to_sym}
+        instance_variables.select{|x| !skip_variables.include?(x)}
       end
 
       def path
@@ -88,11 +92,15 @@ module Expressir
       end
 
       def to_hash(options = {})
-        include_empty = options[:include_empty] || !options[:skip_empty] # TODO: remove skip_empty
+        root_path = options[:root_path]
         formatter = options[:formatter]
+        include_empty = options[:include_empty] || !options[:skip_empty] # TODO: remove skip_empty
 
         hash = {}
         hash[CLASS_KEY] = self.class.name
+        if self.is_a? Schema and file
+          hash[FILE_KEY] = root_path ? File.expand_path("#{root_path}/#{file}") : file
+        end
 
         model_instance_variables.each_with_object(hash) do |variable, result|
           key = variable.to_s.sub(/^@/, '')

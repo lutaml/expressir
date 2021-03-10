@@ -1,3 +1,4 @@
+require "yaml"
 require "spec_helper"
 require "expressir/express_exp/parser"
 require "expressir/express_exp/formatter"

@@ -1,9 +1,0 @@
----
-_class: Expressir::Model::Repository
-schemas:
-- _class: Expressir::Model::Schema
-  file: original/examples/syntax/single.exp
-  id: single_schema
-  entities:
-  - _class: Expressir::Model::Entity
-    id: empty_entity

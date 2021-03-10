@@ -2,7 +2,7 @@
 _class: Expressir::Model::Repository
 schemas:
 - _class: Expressir::Model::Schema
-  file: remark.exp
+  file: original/examples/syntax/remark.exp
   id: remark_schema
   remarks:
   - |-

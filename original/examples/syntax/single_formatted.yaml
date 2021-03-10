@@ -2,7 +2,7 @@
 _class: Expressir::Model::Repository
 schemas:
 - _class: Expressir::Model::Schema
-  file: single.exp
+  file: original/examples/syntax/single.exp
   id: single_schema
   entities:
   - _class: Expressir::Model::Entity

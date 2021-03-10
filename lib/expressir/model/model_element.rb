@@ -1,3 +1,5 @@
+require 'pathname'
+
 module Expressir
   module Model
     class ModelElement
@@ -99,17 +101,17 @@ module Expressir
         hash = {}
         hash[CLASS_KEY] = self.class.name
         if self.is_a? Schema and file
-          hash[FILE_KEY] = root_path ? File.expand_path("#{root_path}/#{file}") : file
+          hash[FILE_KEY] = root_path ? Pathname.new(file).relative_path_from(root_path).to_s : file
         end
 
-        model_instance_variables.each_with_object(hash) do |variable, result|
+        model_instance_variables.each do |variable|
           key = variable.to_s.sub(/^@/, '')
           value = instance_variable_get(variable)
           empty = value.nil? || (value.is_a?(Array) && value.count == 0)
 
           # skip empty values
           if !empty or include_empty
-            result[key] = if value.is_a? Array
+            hash[key] = if value.is_a? Array
               value.map do |value|
                 if value.is_a? ModelElement
                   value.to_hash(options)
@@ -132,21 +134,28 @@ module Expressir
         hash
       end
 
-      def self.from_hash(hash)
+      def self.from_hash(hash, options = {})
+        root_path = options[:root_path]
+
         node_class = hash[CLASS_KEY]
-        node_options = hash.select{|x| x != CLASS_KEY}.each_with_object({}) do |(variable, value), result|
+        node_options = {}
+        if node_class == 'Expressir::Model::Schema' and hash[FILE_KEY]
+          node_options[FILE_KEY.to_sym] = root_path ? File.expand_path("#{root_path}/#{hash[FILE_KEY]}") : hash[FILE_KEY]
+        end
+
+        hash.select{|x| x != CLASS_KEY && x != FILE_KEY}.each do |variable, value|
           key = variable.to_sym
 
-          result[key] = if value.is_a? Array
+          node_options[key] = if value.is_a? Array
             value.map do |value|
               if value.is_a? Hash
-                self.from_hash(value)
+                self.from_hash(value, options)
               else
                 value
               end
             end
           elsif value.is_a? Hash
-            self.from_hash(value)
+            self.from_hash(value, options)
           else
             value
           end

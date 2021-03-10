@@ -6,27 +6,13 @@ require "expressir/express_exp/formatter"
 
 RSpec.describe Expressir::Model::ModelElement do
   describe ".to_hash" do
-    it "exports an object with a root path (single.exp)" do
-      exp_file = Expressir.root_path.join("original", "examples", "syntax", "single.exp")
-      yaml_file = Expressir.root_path.join("original", "examples", "syntax", "single_root_path.yaml")
-      root_path = Expressir.root_path
-
-      repo = Expressir::ExpressExp::Parser.from_file(exp_file, root_path: root_path)
-
-      result = YAML.dump(repo.to_hash(skip_empty: true))
-      # File.write(yaml_file, result)
-      expected_result = File.read(yaml_file)
-      
-      expect(result).to eq(expected_result)
-    end
-
     it "exports an object with a formatter (single.exp)" do
       exp_file = Expressir.root_path.join("original", "examples", "syntax", "single.exp")
       yaml_file = Expressir.root_path.join("original", "examples", "syntax", "single_formatted.yaml")
 
       repo = Expressir::ExpressExp::Parser.from_file(exp_file)
 
-      result = YAML.dump(repo.to_hash(formatter: Expressir::ExpressExp::Formatter, skip_empty: true))
+      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path, formatter: Expressir::ExpressExp::Formatter, skip_empty: true))
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
       
@@ -39,9 +25,9 @@ RSpec.describe Expressir::Model::ModelElement do
       yaml_file = Expressir.root_path.join("original", "examples", "syntax", "single.yaml")
 
       input = YAML.load(File.read(yaml_file))
-      repo = Expressir::Model::ModelElement.from_hash(input)
+      repo = Expressir::Model::ModelElement.from_hash(input, root_path: Expressir.root_path)
 
-      result = YAML.dump(repo.to_hash(skip_empty: true))
+      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path, skip_empty: true))
       expected_result = File.read(yaml_file)
 
       expect(result).to eq(expected_result)
@@ -51,9 +37,9 @@ RSpec.describe Expressir::Model::ModelElement do
       yaml_file = Expressir.root_path.join("original", "examples", "syntax", "multiple.yaml")
 
       input = YAML.load(File.read(yaml_file))
-      repo = Expressir::Model::ModelElement.from_hash(input)
+      repo = Expressir::Model::ModelElement.from_hash(input, root_path: Expressir.root_path)
 
-      result = YAML.dump(repo.to_hash(skip_empty: true))
+      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path, skip_empty: true))
       expected_result = File.read(yaml_file)
 
       expect(result).to eq(expected_result)
@@ -63,9 +49,9 @@ RSpec.describe Expressir::Model::ModelElement do
       yaml_file = Expressir.root_path.join("original", "examples", "syntax", "syntax.yaml")
 
       input = YAML.load(File.read(yaml_file))
-      repo = Expressir::Model::ModelElement.from_hash(input)
+      repo = Expressir::Model::ModelElement.from_hash(input, root_path: Expressir.root_path)
 
-      result = YAML.dump(repo.to_hash(skip_empty: true))
+      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path, skip_empty: true))
       expected_result = File.read(yaml_file)
 
       expect(result).to eq(expected_result)
@@ -75,9 +61,9 @@ RSpec.describe Expressir::Model::ModelElement do
       yaml_file = Expressir.root_path.join("original", "examples", "syntax", "remark.yaml")
 
       input = YAML.load(File.read(yaml_file))
-      repo = Expressir::Model::ModelElement.from_hash(input)
+      repo = Expressir::Model::ModelElement.from_hash(input, root_path: Expressir.root_path)
 
-      result = YAML.dump(repo.to_hash(skip_empty: true))
+      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path, skip_empty: true))
       expected_result = File.read(yaml_file)
 
       expect(result).to eq(expected_result)

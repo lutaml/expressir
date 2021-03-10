@@ -2,7 +2,7 @@
 _class: Expressir::Model::Repository
 schemas:
 - _class: Expressir::Model::Schema
-  file: multiple.exp
+  file: original/examples/syntax/multiple.exp
   id: multiple_schema1
   interfaces:
   - _class: Expressir::Model::Interface
@@ -147,7 +147,7 @@ schemas:
     - _class: Expressir::Model::Expressions::SimpleReference
       id: missing_entity
 - _class: Expressir::Model::Schema
-  file: multiple.exp
+  file: original/examples/syntax/multiple.exp
   id: multiple_schema2
   entities:
   - _class: Expressir::Model::Entity
@@ -159,7 +159,7 @@ schemas:
       type:
         _class: Expressir::Model::Types::Boolean
 - _class: Expressir::Model::Schema
-  file: multiple.exp
+  file: original/examples/syntax/multiple.exp
   id: multiple_schema3
   entities:
   - _class: Expressir::Model::Entity
@@ -171,7 +171,7 @@ schemas:
       type:
         _class: Expressir::Model::Types::Boolean
 - _class: Expressir::Model::Schema
-  file: multiple.exp
+  file: original/examples/syntax/multiple.exp
   id: multiple_schema4
   entities:
   - _class: Expressir::Model::Entity

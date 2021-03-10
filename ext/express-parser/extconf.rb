@@ -37,6 +37,8 @@ if cross_build
   if RbConfig::CONFIG['target_os'] =~ /mingw32|mswin/
     # workaround for 'w64-mingw32-as: express_parser.o: too many sections'
     $CXXFLAGS << " -O3 -Wa,-mbig-obj"
+    # workaround for LoadError: 127: The specified procedure could not be found.
+    $DLDFLAGS << " -static -static-libgcc -static-libstdc++"
   end
 else
   require 'mkmf-rice'

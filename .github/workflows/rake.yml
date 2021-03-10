@@ -43,3 +43,8 @@ jobs:
       - run: bundle exec rake compile
 
       - run: bundle exec rake
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: express_parser-${{ matrix.os }}-${{ matrix.ruby }}
+          path: lib/expressir/express_exp/express_parser.so

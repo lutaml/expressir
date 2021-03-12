@@ -5,7 +5,7 @@ require 'expressir/model'
 module Expressir
   module ExpressExp
     class Cache
-      def self.to_file(file, model, options = {})
+      def self.to_file(file, content, options = {})
         root_path = options[:root_path]
         test_overwrite_version = options[:test_overwrite_version] # don't use, only for tests
 
@@ -13,7 +13,7 @@ module Expressir
 
         cache = Model::Cache.new({
           version: version,
-          model: model
+          content: content
         })
 
         hash = cache.to_hash(root_path: root_path, skip_empty: true)
@@ -38,7 +38,7 @@ module Expressir
           raise CacheLoadError.new("Cache version mismatch, cache version is #{cache.version}, Expressir version is #{VERSION}")
         end
 
-        cache.model
+        cache.content
       end
     end
 

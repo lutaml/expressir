@@ -2,11 +2,11 @@ module Expressir
   module Model
     class Cache < ModelElement
       attr_accessor :version
-      attr_accessor :model
+      attr_accessor :content
 
       def initialize(options = {})
         @version = options[:version]
-        @model = options[:model]
+        @content = options[:content]
       end
     end
   end

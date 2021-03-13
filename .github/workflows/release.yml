@@ -26,7 +26,9 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.6'
-          bundler-cache: true
+          # bundler-cache: true
+
+      - run: bundle install --jobs 4 --retry 3
 
       - if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |

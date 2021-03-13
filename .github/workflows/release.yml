@@ -13,7 +13,6 @@ on:
 
 jobs:
   bump:
-    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
@@ -24,7 +23,8 @@ jobs:
         with:
           ruby-version: '2.6'
 
-      - run: |
+      - if: ${{ github.event_name == 'workflow_dispatch' }} # unfortunatelly cannot keep this condition on job level
+        run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           gem install gem-release
@@ -33,7 +33,6 @@ jobs:
   pack:
     runs-on: ubuntu-18.04
     needs: bump
-    if: always() # because bump can be skipped
     strategy:
       fail-fast: false
       matrix:

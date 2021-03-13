@@ -12,8 +12,27 @@ on:
     tags: [ v* ]
 
 jobs:
+  bump:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.6'
+
+      - run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          gem install gem-release
+          gem bump --version ${{ github.event.inputs.next_version }} --tag --push
+
   pack:
     runs-on: ubuntu-18.04
+    needs: bump
     strategy:
       fail-fast: false
       matrix:
@@ -29,12 +48,6 @@ jobs:
           # bundler-cache: true
 
       - run: bundle install --jobs 4 --retry 3
-
-      - if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          gem bump --version ${{ github.event.inputs.next_version }} --tag --push
 
       # build gem WITHOUT pre-built native extension
       - run: gem build expressir.gemspec

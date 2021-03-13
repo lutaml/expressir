@@ -33,6 +33,7 @@ jobs:
   pack:
     runs-on: ubuntu-18.04
     needs: bump
+    if: always() # because bump can be skipped
     strategy:
       fail-fast: false
       matrix:
@@ -45,7 +46,8 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.6'
-          # bundler-cache: true
+          # bundler-cache: true important to not use cache because it leads to "cannot find -lrice"
+          # more info https://github.com/lutaml/expressir/runs/2097658383?check_suite_focus=true#step:7:2126
 
       - run: bundle install --jobs 4 --retry 3
 

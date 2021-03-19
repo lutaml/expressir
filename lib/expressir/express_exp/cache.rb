@@ -35,7 +35,7 @@ module Expressir
         cache = Model::ModelElement.from_hash(hash, root_path: root_path)
 
         if cache.version != version
-          raise CacheLoadError.new("Cache version mismatch, cache version is #{cache.version}, Expressir version is #{VERSION}")
+          raise CacheLoadError.new("Cache version mismatch, cache version is #{cache.version}, Expressir version is #{version}")
         end
 
         cache.content

@@ -14,6 +14,7 @@ module Expressir
       def initialize(options = {})
         @id = options[:id]
         @remarks = options.fetch(:remarks, [])
+        @remark_items = options.fetch(:remark_items, [])
         @source = options[:source]
 
         @abstract = options[:abstract]
@@ -32,7 +33,8 @@ module Expressir
           *attributes,
           *unique,
           *where,
-          *informal_propositions
+          *informal_propositions,
+          *remark_items
         ]
       end
     end

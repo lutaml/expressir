@@ -16,6 +16,7 @@ module Expressir
       def initialize(options = {})
         @id = options[:id]
         @remarks = options.fetch(:remarks, [])
+        @remark_items = options.fetch(:remark_items, [])
         @source = options[:source]
 
         @kind = options[:kind]
@@ -25,6 +26,12 @@ module Expressir
         @expression = options[:expression]
 
         super
+      end
+
+      def children
+        [
+          *remark_items
+        ]
       end
     end
   end

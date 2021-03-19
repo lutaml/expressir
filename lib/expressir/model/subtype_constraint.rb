@@ -11,6 +11,7 @@ module Expressir
       def initialize(options = {})
         @id = options[:id]
         @remarks = options.fetch(:remarks, [])
+        @remark_items = options.fetch(:remark_items, [])
         @source = options[:source]
 
         @applies_to = options[:applies_to]
@@ -19,6 +20,12 @@ module Expressir
         @supertype_expression = options[:supertype_expression]
 
         super
+      end
+
+      def children
+        [
+          *remark_items
+        ]
       end
     end
   end

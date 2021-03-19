@@ -20,6 +20,7 @@ module Expressir
 
         @id = options[:id]
         @remarks = options.fetch(:remarks, [])
+        @remark_items = options.fetch(:remark_items, [])
         @source = options[:source]
 
         @version = options[:version]
@@ -81,7 +82,8 @@ module Expressir
           *subtype_constraints,
           *functions,
           *rules,
-          *procedures
+          *procedures,
+          *remark_items
         ]
       end
 

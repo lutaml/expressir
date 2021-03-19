@@ -1,15 +1,12 @@
 module Expressir
   module Model
-    class InformalProposition < ModelElement
-      include Identifier
-
-      undef :source
-      undef :source=
+    class RemarkItem < ModelElement
+      attr_accessor :id
+      attr_accessor :remarks
 
       def initialize(options = {})
         @id = options[:id]
         @remarks = options.fetch(:remarks, [])
-        # @source = options[:source]
 
         super
       end

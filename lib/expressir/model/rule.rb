@@ -18,6 +18,7 @@ module Expressir
       def initialize(options = {})
         @id = options[:id]
         @remarks = options.fetch(:remarks, [])
+        @remark_items = options.fetch(:remark_items, [])
         @source = options[:source]
 
         @applies_to = options.fetch(:applies_to, [])
@@ -50,7 +51,8 @@ module Expressir
           *constants,
           *variables,
           *where,
-          *informal_propositions
+          *informal_propositions,
+          *remark_items
         ]
       end
     end

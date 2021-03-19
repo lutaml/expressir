@@ -8,11 +8,18 @@ module Expressir
       def initialize(options = {})
         @id = options[:id]
         @remarks = options.fetch(:remarks, [])
+        @remark_items = options.fetch(:remark_items, [])
         @source = options[:source]
 
         @attributes = options.fetch(:attributes, [])
 
         super
+      end
+
+      def children
+        [
+          *remark_items
+        ]
       end
     end
   end

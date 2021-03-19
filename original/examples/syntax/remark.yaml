@@ -13,6 +13,12 @@ schemas:
   - 'UTF8 test: Příliš žluťoučký kůň úpěl ďábelské ódy.'
   - universal scope - schema before
   - universal scope - schema
+  remark_items:
+  - _class: Expressir::Model::RemarkItem
+    id: remark_item
+    remarks:
+    - schema scope - schema remark item
+    - universal scope - schema remark item
   constants:
   - _class: Expressir::Model::Constant
     id: remark_constant
@@ -54,7 +60,7 @@ schemas:
         _class: Expressir::Model::Literals::Logical
         value: :TRUE
     informal_propositions:
-    - _class: Expressir::Model::InformalProposition
+    - _class: Expressir::Model::RemarkItem
       id: IP1
       remarks:
       - type scope - type informal proposition
@@ -128,7 +134,7 @@ schemas:
         _class: Expressir::Model::Literals::Logical
         value: :TRUE
     informal_propositions:
-    - _class: Expressir::Model::InformalProposition
+    - _class: Expressir::Model::RemarkItem
       id: IP1
       remarks:
       - entity scope - entity informal proposition
@@ -341,7 +347,7 @@ schemas:
         _class: Expressir::Model::Literals::Logical
         value: :TRUE
     informal_propositions:
-    - _class: Expressir::Model::InformalProposition
+    - _class: Expressir::Model::RemarkItem
       id: IP1
       remarks:
       - rule scope - rule informal proposition

@@ -16,6 +16,7 @@ module Expressir
       def initialize(options = {})
         @id = options[:id]
         @remarks = options.fetch(:remarks, [])
+        @remark_items = options.fetch(:remark_items, [])
         @source = options[:source]
 
         @parameters = options.fetch(:parameters, [])
@@ -45,7 +46,8 @@ module Expressir
           *functions,
           *procedures,
           *constants,
-          *variables
+          *variables,
+          *remark_items
         ]
       end
     end

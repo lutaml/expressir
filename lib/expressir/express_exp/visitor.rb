@@ -107,27 +107,28 @@ module Expressir
         target_node = node.find(path)
         return target_node if target_node
 
-        # check if path should create implicit informal proposal
-        # see https://github.com/lutaml/expressir/issues/50
+        # check if path can create implicit remark item
+        # see https://github.com/lutaml/expressir/issues/78
         rest, _, current_path = path.rpartition(".") # get last path part
         _, _, current_path = current_path.rpartition(":") # ignore prefix
+        parent_node = node.find(rest)
+        if parent_node and parent_node.class.method_defined? :remark_items
+          remark_item = Model::RemarkItem.new({
+            id: current_path
+          })
+          remark_item.parent = parent_node
 
-        # match informal proposition id
-        informal_proposition_id = current_path.match(/^IP\d+$/).to_a[0]
-        return unless informal_proposition_id
-
-        # find informal proposition target
-        target_node = node.find(rest)
-        return unless target_node and target_node.class.method_defined? :informal_propositions
-
-        # create implicit informal proposition
-        informal_proposition = Model::InformalProposition.new({
-          id: informal_proposition_id
-        })
-        target_node.informal_propositions << informal_proposition
-        target_node.reset_children_by_id
-        informal_proposition.parent = target_node
-        informal_proposition
+          # check if path can create implicit informal proposition
+          # see https://github.com/lutaml/expressir/issues/50
+          if parent_node.class.method_defined? :informal_propositions and current_path.match(/^IP\d+$/)
+            parent_node.informal_propositions << remark_item
+          else
+            parent_node.remark_items << remark_item
+          end
+          parent_node.reset_children_by_id
+          
+          remark_item
+        end
       end
 
       def attach_remarks(ctx, node)

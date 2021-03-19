@@ -223,3 +223,5 @@ several physical lines.
 --"remark_schema.remark_procedure.remark_variable" procedure scope - procedure variable
 --"remark_schema.remark_procedure.remark_variable" schema scope - procedure variable
 --"remark_schema.remark_procedure.remark_variable" universal scope - procedure variable
+--"remark_schema.remark_item" schema scope - schema remark item
+--"remark_schema.remark_item" universal scope - schema remark item

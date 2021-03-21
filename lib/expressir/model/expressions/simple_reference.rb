@@ -4,8 +4,12 @@ module Expressir
       class SimpleReference < ModelElement
         model_attr_accessor :id
 
+        model_attr_accessor :base_path
+
         def initialize(options = {})
           @id = options[:id]
+
+          @base_path = options[:base_path]
 
           super
         end

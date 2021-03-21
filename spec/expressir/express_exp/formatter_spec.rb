@@ -75,6 +75,22 @@ RSpec.describe Expressir::ExpressExp::Formatter do
       expect(result).to eq(expected_result)
     end
 
+    it "exports an object with hyperlink formatter (syntax.exp)" do
+      exp_file = Expressir.root_path.join("original", "examples", "syntax", "syntax.exp")
+      formatted_exp_file = Expressir.root_path.join("original", "examples", "syntax", "syntax_hyperlink_formatted.exp")
+
+      repo = Expressir::ExpressExp::Parser.from_file(exp_file)
+
+      formatter = Class.new(Expressir::ExpressExp::Formatter) do
+        include Expressir::ExpressExp::HyperlinkFormatter
+      end
+      result = formatter.format(repo)
+      # File.write(formatted_exp_file, result)
+      expected_result = File.read(formatted_exp_file)
+
+      expect(result).to eq(expected_result)
+    end
+
     it "exports an object with hyperlink formatter (multiple.exp)" do
       exp_file = Expressir.root_path.join("original", "examples", "syntax", "multiple.exp")
       formatted_exp_file = Expressir.root_path.join("original", "examples", "syntax", "multiple_hyperlink_formatted.exp")

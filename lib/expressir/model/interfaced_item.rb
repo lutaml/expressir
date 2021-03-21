@@ -17,10 +17,6 @@ module Expressir
         super
       end
 
-      def path
-        base_item.path
-      end
-
       def children
         [
           *remark_items

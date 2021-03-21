@@ -1502,7 +1502,7 @@ module Expressir
             [
               '(*',
               '"',
-              node.path,
+              node.path || node.id,
               '"',
             ].join(''),
             remark,
@@ -1512,7 +1512,7 @@ module Expressir
           [
             '--',
             '"',
-            node.path,
+            node.path || node.id,
             '"',
             ' ',
             remark

@@ -10,26 +10,31 @@ schemas:
     schema:
       _class: Expressir::Model::Expressions::SimpleReference
       id: multiple_schema2
+      base_path: multiple_schema2
   - _class: Expressir::Model::Interface
     kind: :REFERENCE
     schema:
       _class: Expressir::Model::Expressions::SimpleReference
       id: multiple_schema3
+      base_path: multiple_schema3
     items:
     - _class: Expressir::Model::InterfaceItem
       ref:
         _class: Expressir::Model::Expressions::SimpleReference
         id: attribute_entity3
+        base_path: multiple_schema3.attribute_entity3
   - _class: Expressir::Model::Interface
     kind: :REFERENCE
     schema:
       _class: Expressir::Model::Expressions::SimpleReference
       id: multiple_schema4
+      base_path: multiple_schema4
     items:
     - _class: Expressir::Model::InterfaceItem
       ref:
         _class: Expressir::Model::Expressions::SimpleReference
         id: attribute_entity
+        base_path: multiple_schema4.attribute_entity
       id: attribute_entity4
   entities:
   - _class: Expressir::Model::Entity
@@ -49,11 +54,13 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::Expressions::SimpleReference
       id: empty_entity
+      base_path: multiple_schema1.empty_entity
   - _class: Expressir::Model::Entity
     id: subtype_attribute_entity
     subtype_of:
     - _class: Expressir::Model::Expressions::SimpleReference
       id: attribute_entity
+      base_path: multiple_schema1.attribute_entity
     attributes:
     - _class: Expressir::Model::Attribute
       kind: :EXPLICIT
@@ -67,6 +74,7 @@ schemas:
           entity:
             _class: Expressir::Model::Expressions::SimpleReference
             id: attribute_entity
+            base_path: multiple_schema1.attribute_entity
         attribute:
           _class: Expressir::Model::Expressions::SimpleReference
           id: test
@@ -77,6 +85,7 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::Expressions::SimpleReference
       id: attribute_entity2
+      base_path: multiple_schema2.attribute_entity2
     attributes:
     - _class: Expressir::Model::Attribute
       kind: :EXPLICIT
@@ -90,6 +99,7 @@ schemas:
           entity:
             _class: Expressir::Model::Expressions::SimpleReference
             id: attribute_entity2
+            base_path: multiple_schema2.attribute_entity2
         attribute:
           _class: Expressir::Model::Expressions::SimpleReference
           id: test
@@ -100,6 +110,7 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::Expressions::SimpleReference
       id: attribute_entity3
+      base_path: multiple_schema3.attribute_entity3
     attributes:
     - _class: Expressir::Model::Attribute
       kind: :EXPLICIT
@@ -113,6 +124,7 @@ schemas:
           entity:
             _class: Expressir::Model::Expressions::SimpleReference
             id: attribute_entity3
+            base_path: multiple_schema3.attribute_entity3
         attribute:
           _class: Expressir::Model::Expressions::SimpleReference
           id: test
@@ -123,6 +135,7 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::Expressions::SimpleReference
       id: attribute_entity4
+      base_path: multiple_schema4.attribute_entity
     attributes:
     - _class: Expressir::Model::Attribute
       kind: :EXPLICIT
@@ -136,6 +149,7 @@ schemas:
           entity:
             _class: Expressir::Model::Expressions::SimpleReference
             id: attribute_entity4
+            base_path: multiple_schema4.attribute_entity
         attribute:
           _class: Expressir::Model::Expressions::SimpleReference
           id: test

@@ -10,10 +10,24 @@ schemas:
     source: |-
       ENTITY empty_entity;
       END_ENTITY;
+  - _class: Expressir::Model::Entity
+    id: subtype_empty_entity
+    subtype_of:
+    - _class: Expressir::Model::Expressions::SimpleReference
+      id: empty_entity
+      base_path: single_schema.empty_entity
+    source: |-
+      ENTITY subtype_empty_entity
+        SUBTYPE OF (empty_entity);
+      END_ENTITY;
   source: |-
     SCHEMA single_schema;
 
     ENTITY empty_entity;
+    END_ENTITY;
+
+    ENTITY subtype_empty_entity
+      SUBTYPE OF (empty_entity);
     END_ENTITY;
 
     END_SCHEMA;

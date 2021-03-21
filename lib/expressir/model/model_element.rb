@@ -14,18 +14,21 @@ module Expressir
       end
 
       def path
-        return id if is_a? Statements::Alias or is_a? Statements::Repeat or is_a? Expressions::QueryExpression
+        # this creates an implicit scope
+        return if is_a? Statements::Alias or is_a? Statements::Repeat or is_a? Expressions::QueryExpression
 
         current_node = self
         path_parts = []
         loop do
-          if current_node.class.method_defined? :id
+          if current_node.class.method_defined? :id and !(current_node.is_a? Expressions::SimpleReference)
             path_parts << current_node.id
           end
 
           current_node = current_node.parent
           break unless current_node
         end
+
+        return if path_parts.empty?
 
         path_parts.reverse.join(".")
       end

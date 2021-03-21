@@ -2,7 +2,7 @@ module Expressir
   module Model
     module Literals
       class Integer < ModelElement
-        attr_accessor :value
+        model_attr_accessor :value
 
         def initialize(options = {})
           @value = options[:value]

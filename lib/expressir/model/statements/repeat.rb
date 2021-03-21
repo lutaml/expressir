@@ -4,12 +4,12 @@ module Expressir
       class Repeat < ModelElement
         include Identifier
 
-        attr_accessor :bound1
-        attr_accessor :bound2
-        attr_accessor :increment
-        attr_accessor :while_expression
-        attr_accessor :until_expression
-        attr_accessor :statements
+        model_attr_accessor :bound1
+        model_attr_accessor :bound2
+        model_attr_accessor :increment
+        model_attr_accessor :while_expression
+        model_attr_accessor :until_expression
+        model_attr_accessor :statements
 
         def initialize(options = {})
           @id = options[:id]

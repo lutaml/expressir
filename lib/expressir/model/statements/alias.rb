@@ -4,8 +4,8 @@ module Expressir
       class Alias < ModelElement
         include Identifier
 
-        attr_accessor :expression
-        attr_accessor :statements
+        model_attr_accessor :expression
+        model_attr_accessor :statements
 
         def initialize(options = {})
           @id = options[:id]

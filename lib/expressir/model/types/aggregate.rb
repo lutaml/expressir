@@ -4,7 +4,7 @@ module Expressir
       class Aggregate < ModelElement
         include Identifier
 
-        attr_accessor :base_type
+        model_attr_accessor :base_type
 
         def initialize(options = {})
           @id = options[:id]

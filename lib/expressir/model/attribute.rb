@@ -7,11 +7,11 @@ module Expressir
       DERIVED = :DERIVED
       INVERSE = :INVERSE
 
-      attr_accessor :kind
-      attr_accessor :supertype_attribute
-      attr_accessor :optional
-      attr_accessor :type
-      attr_accessor :expression
+      model_attr_accessor :kind
+      model_attr_accessor :supertype_attribute
+      model_attr_accessor :optional
+      model_attr_accessor :type
+      model_attr_accessor :expression
 
       def initialize(options = {})
         @id = options[:id]

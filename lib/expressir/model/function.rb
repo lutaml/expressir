@@ -3,16 +3,16 @@ module Expressir
     class Function < ModelElement
       include Identifier
 
-      attr_accessor :parameters
-      attr_accessor :return_type
-      attr_accessor :types
-      attr_accessor :entities
-      attr_accessor :subtype_constraints
-      attr_accessor :functions
-      attr_accessor :procedures
-      attr_accessor :constants
-      attr_accessor :variables
-      attr_accessor :statements
+      model_attr_accessor :parameters
+      model_attr_accessor :return_type
+      model_attr_accessor :types
+      model_attr_accessor :entities
+      model_attr_accessor :subtype_constraints
+      model_attr_accessor :functions
+      model_attr_accessor :procedures
+      model_attr_accessor :constants
+      model_attr_accessor :variables
+      model_attr_accessor :statements
 
       def initialize(options = {})
         @id = options[:id]

@@ -2,8 +2,8 @@ module Expressir
   module Model
     module Expressions
       class Call < ModelElement
-        attr_accessor :ref
-        attr_accessor :parameters
+        model_attr_accessor :ref
+        model_attr_accessor :parameters
 
         def initialize(options = {})
           @ref = options[:ref]

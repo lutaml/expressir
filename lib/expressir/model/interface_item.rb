@@ -1,8 +1,8 @@
 module Expressir
   module Model
     class InterfaceItem < ModelElement
-      attr_accessor :ref
-      attr_accessor :id
+      model_attr_accessor :ref
+      model_attr_accessor :id
 
       def initialize(options = {})
         @ref = options[:ref] 

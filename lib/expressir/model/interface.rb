@@ -4,9 +4,9 @@ module Expressir
       USE = :USE
       REFERENCE = :REFERENCE
 
-      attr_accessor :kind
-      attr_accessor :schema
-      attr_accessor :items
+      model_attr_accessor :kind
+      model_attr_accessor :schema
+      model_attr_accessor :items
 
       def initialize(options = {})
         @kind = options[:kind]

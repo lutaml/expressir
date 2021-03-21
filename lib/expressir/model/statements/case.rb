@@ -2,9 +2,9 @@ module Expressir
   module Model
     module Statements
       class Case < ModelElement
-        attr_accessor :expression
-        attr_accessor :actions
-        attr_accessor :otherwise_statement
+        model_attr_accessor :expression
+        model_attr_accessor :actions
+        model_attr_accessor :otherwise_statement
 
         def initialize(options = {})
           @expression = options[:expression]

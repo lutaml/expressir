@@ -3,7 +3,7 @@ module Expressir
     class Where < ModelElement
       include Identifier
 
-      attr_accessor :expression
+      model_attr_accessor :expression
 
       def initialize(options = {})
         @id = options[:id]

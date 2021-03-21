@@ -6,7 +6,7 @@ module Expressir
         FALSE = :FALSE
         UNKNOWN = :UNKNOWN
 
-        attr_accessor :value
+        model_attr_accessor :value
 
         def initialize(options = {})
           @value = options[:value]

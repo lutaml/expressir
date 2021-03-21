@@ -3,8 +3,8 @@ module Expressir
     class Parameter < ModelElement
       include Identifier
 
-      attr_accessor :var
-      attr_accessor :type
+      model_attr_accessor :var
+      model_attr_accessor :type
 
       def initialize(options = {})
         @id = options[:id]

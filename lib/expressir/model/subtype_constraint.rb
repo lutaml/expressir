@@ -3,10 +3,10 @@ module Expressir
     class SubtypeConstraint < ModelElement
       include Identifier
 
-      attr_accessor :applies_to
-      attr_accessor :abstract
-      attr_accessor :total_over
-      attr_accessor :supertype_expression
+      model_attr_accessor :applies_to
+      model_attr_accessor :abstract
+      model_attr_accessor :total_over
+      model_attr_accessor :supertype_expression
 
       def initialize(options = {})
         @id = options[:id]

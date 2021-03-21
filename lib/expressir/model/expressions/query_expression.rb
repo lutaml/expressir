@@ -4,8 +4,8 @@ module Expressir
       class QueryExpression < ModelElement
         include Identifier
 
-        attr_accessor :aggregate_source
-        attr_accessor :expression
+        model_attr_accessor :aggregate_source
+        model_attr_accessor :expression
 
         def initialize(options = {})
           @id = options[:id]

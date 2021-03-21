@@ -5,19 +5,12 @@ module Expressir
     class ModelElement
       CLASS_KEY = '_class'
       FILE_KEY = 'file'
-      PARENT_KEY = 'parent'
-      CHILDREN_BY_ID_KEY = 'children_by_id'
       SOURCE_KEY = 'source'
 
       attr_accessor :parent
 
       def initialize(options = {})
         attach_parent_to_children
-      end
-
-      def model_instance_variables
-        skip_variables = [FILE_KEY, PARENT_KEY, CHILDREN_BY_ID_KEY].map{|x| "@#{x}".to_sym}
-        instance_variables.select{|x| !skip_variables.include?(x)}
       end
 
       def path
@@ -38,8 +31,8 @@ module Expressir
       end
 
       def attach_parent_to_children
-        model_instance_variables.each do |variable|
-          value = instance_variable_get(variable)
+        self.class.model_attrs.each do |variable|
+          value = self.send(variable)
 
           if value.is_a? Array
             value.each do |value|
@@ -100,18 +93,14 @@ module Expressir
 
         hash = {}
         hash[CLASS_KEY] = self.class.name
-        if self.is_a? Schema and file
-          hash[FILE_KEY] = root_path ? Pathname.new(file).relative_path_from(root_path).to_s : file
-        end
 
-        model_instance_variables.each do |variable|
-          key = variable.to_s.sub(/^@/, '')
-          value = instance_variable_get(variable)
+        self.class.model_attrs.each do |variable|
+          value = self.send(variable)
           empty = value.nil? || (value.is_a?(Array) && value.count == 0)
 
           # skip empty values
           if !empty or include_empty
-            hash[key] = if value.is_a? Array
+            hash[variable.to_s] = if value.is_a? Array
               value.map do |value|
                 if value.is_a? ModelElement
                   value.to_hash(options)
@@ -127,6 +116,10 @@ module Expressir
           end
         end
 
+        if self.is_a? Schema and file
+          hash[FILE_KEY] = root_path ? Pathname.new(file).relative_path_from(root_path).to_s : file
+        end
+
         if self.class.method_defined? :source and formatter
           hash[SOURCE_KEY] = formatter.format(self)
         end
@@ -137,16 +130,13 @@ module Expressir
       def self.from_hash(hash, options = {})
         root_path = options[:root_path]
 
-        node_class = hash[CLASS_KEY]
+        node_class = Object.const_get(hash[CLASS_KEY])
         node_options = {}
-        if node_class == 'Expressir::Model::Schema' and hash[FILE_KEY]
-          node_options[FILE_KEY.to_sym] = root_path ? File.expand_path("#{root_path}/#{hash[FILE_KEY]}") : hash[FILE_KEY]
-        end
 
-        hash.select{|x| x != CLASS_KEY && x != FILE_KEY}.each do |variable, value|
-          key = variable.to_sym
+        node_class.model_attrs.each do |variable|
+          value = hash[variable.to_s]
 
-          node_options[key] = if value.is_a? Array
+          node_options[variable] = if value.is_a? Array
             value.map do |value|
               if value.is_a? Hash
                 self.from_hash(value, options)
@@ -161,9 +151,24 @@ module Expressir
           end
         end
 
-        node = Object.const_get(node_class).new(node_options)
+        if node_class == Schema and hash[FILE_KEY]
+          node_options[FILE_KEY.to_sym] = root_path ? File.expand_path("#{root_path}/#{hash[FILE_KEY]}") : hash[FILE_KEY]
+        end
+
+        node = node_class.new(node_options)
 
         node
+      end
+
+      def self.model_attrs
+        @model_attrs ||= []
+      end
+
+      def self.model_attr_accessor(*vars)
+        @model_attrs ||= []
+        @model_attrs.concat(vars)
+
+        attr_accessor *vars
       end
     end
   end

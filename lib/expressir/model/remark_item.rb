@@ -1,8 +1,8 @@
 module Expressir
   module Model
     class RemarkItem < ModelElement
-      attr_accessor :id
-      attr_accessor :remarks
+      model_attr_accessor :id
+      model_attr_accessor :remarks
 
       def initialize(options = {})
         @id = options[:id]

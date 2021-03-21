@@ -1,7 +1,7 @@
 module Expressir
   module Model
     class Repository < ModelElement
-      attr_accessor :schemas
+      model_attr_accessor :schemas
 
       def initialize(options = {})
         @schemas = options.fetch(:schemas, [])

@@ -1,11 +1,11 @@
 module Expressir
   module Model
     class InterfacedItem < ModelElement
-      attr_accessor :id
-      attr_accessor :remarks
-      attr_accessor :remark_items
+      model_attr_accessor :id
+      model_attr_accessor :remarks
+      model_attr_accessor :remark_items
 
-      attr_accessor :base_item
+      model_attr_accessor :base_item
 
       def initialize(options = {})
         @id = options[:id]

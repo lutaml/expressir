@@ -1,10 +1,12 @@
 module Expressir
   module Model
     module Identifier
-      attr_accessor :id
-      attr_accessor :remarks
-      attr_accessor :remark_items
-      attr_accessor :source
+      def self.included(mod)
+        mod.model_attr_accessor :id
+        mod.model_attr_accessor :remarks
+        mod.model_attr_accessor :remark_items
+        mod.model_attr_accessor :source
+      end
     end
   end
 end

@@ -3,9 +3,9 @@ module Expressir
     class Type < ModelElement
       include Identifier
 
-      attr_accessor :type
-      attr_accessor :where
-      attr_accessor :informal_propositions
+      model_attr_accessor :type
+      model_attr_accessor :where
+      model_attr_accessor :informal_propositions
 
       def initialize(options = {})
         @id = options[:id]

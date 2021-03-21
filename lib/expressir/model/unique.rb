@@ -3,7 +3,7 @@ module Expressir
     class Unique < ModelElement
       include Identifier
 
-      attr_accessor :attributes
+      model_attr_accessor :attributes
 
       def initialize(options = {})
         @id = options[:id]

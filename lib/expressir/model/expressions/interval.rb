@@ -2,11 +2,11 @@ module Expressir
   module Model
     module Expressions
       class Interval < ModelElement
-        attr_accessor :low
-        attr_accessor :operator1
-        attr_accessor :item
-        attr_accessor :operator2
-        attr_accessor :high
+        model_attr_accessor :low
+        model_attr_accessor :operator1
+        model_attr_accessor :item
+        model_attr_accessor :operator2
+        model_attr_accessor :high
 
         def initialize(options = {})
           @low = options[:low]

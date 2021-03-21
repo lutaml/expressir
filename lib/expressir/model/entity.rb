@@ -3,13 +3,13 @@ module Expressir
     class Entity < ModelElement
       include Identifier
 
-      attr_accessor :abstract
-      attr_accessor :supertype_expression
-      attr_accessor :subtype_of
-      attr_accessor :attributes
-      attr_accessor :unique
-      attr_accessor :where
-      attr_accessor :informal_propositions
+      model_attr_accessor :abstract
+      model_attr_accessor :supertype_expression
+      model_attr_accessor :subtype_of
+      model_attr_accessor :attributes
+      model_attr_accessor :unique
+      model_attr_accessor :where
+      model_attr_accessor :informal_propositions
 
       def initialize(options = {})
         @id = options[:id]

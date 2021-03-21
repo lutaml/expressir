@@ -2,9 +2,9 @@ module Expressir
   module Model
     module Statements
       class If < ModelElement
-        attr_accessor :expression
-        attr_accessor :statements
-        attr_accessor :else_statements
+        model_attr_accessor :expression
+        model_attr_accessor :statements
+        model_attr_accessor :else_statements
 
         def initialize(options = {})
           @expression = options[:expression]

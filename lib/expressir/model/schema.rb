@@ -1,19 +1,19 @@
 module Expressir
   module Model
     class Schema < ModelElement
-      attr_accessor :file
+      model_attr_accessor :file
 
       include Identifier
 
-      attr_accessor :version
-      attr_accessor :interfaces
-      attr_accessor :constants
-      attr_accessor :types
-      attr_accessor :entities
-      attr_accessor :subtype_constraints
-      attr_accessor :functions
-      attr_accessor :rules
-      attr_accessor :procedures
+      model_attr_accessor :version
+      model_attr_accessor :interfaces
+      model_attr_accessor :constants
+      model_attr_accessor :types
+      model_attr_accessor :entities
+      model_attr_accessor :subtype_constraints
+      model_attr_accessor :functions
+      model_attr_accessor :rules
+      model_attr_accessor :procedures
 
       def initialize(options = {})
         @file = options[:file]

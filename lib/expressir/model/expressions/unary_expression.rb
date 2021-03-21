@@ -6,8 +6,8 @@ module Expressir
         NOT = :NOT
         PLUS = :PLUS
 
-        attr_accessor :operator
-        attr_accessor :operand
+        model_attr_accessor :operator
+        model_attr_accessor :operand
 
         def initialize(options = {})
           @operator = options[:operator]

@@ -2,8 +2,8 @@ module Expressir
   module Model
     module Statements
       class Assignment < ModelElement
-        attr_accessor :ref
-        attr_accessor :expression
+        model_attr_accessor :ref
+        model_attr_accessor :expression
 
         def initialize(options = {})
           @ref = options[:ref]

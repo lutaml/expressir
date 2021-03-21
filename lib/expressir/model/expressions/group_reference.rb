@@ -2,8 +2,8 @@ module Expressir
   module Model
     module Expressions
       class GroupReference < ModelElement
-        attr_accessor :ref
-        attr_accessor :entity
+        model_attr_accessor :ref
+        model_attr_accessor :entity
 
         def initialize(options = {})
           @ref = options[:ref]

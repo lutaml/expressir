@@ -2,8 +2,8 @@ module Expressir
   module Model
     module Statements
       class CaseAction < ModelElement
-        attr_accessor :labels
-        attr_accessor :statement
+        model_attr_accessor :labels
+        model_attr_accessor :statement
 
         def initialize(options = {})
           @labels = options.fetch(:labels, [])

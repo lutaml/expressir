@@ -25,9 +25,9 @@ module Expressir
         SUBTRACTION = :SUBTRACTION
         XOR = :XOR
 
-        attr_accessor :operator
-        attr_accessor :operand1
-        attr_accessor :operand2
+        model_attr_accessor :operator
+        model_attr_accessor :operand1
+        model_attr_accessor :operand2
 
         def initialize(options = {})
           @operator = options[:operator]

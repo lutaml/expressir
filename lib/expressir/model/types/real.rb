@@ -2,7 +2,7 @@ module Expressir
   module Model
     module Types
       class Real < ModelElement
-        attr_accessor :precision
+        model_attr_accessor :precision
 
         def initialize(options = {})
           @precision = options[:precision]

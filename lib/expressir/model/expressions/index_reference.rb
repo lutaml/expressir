@@ -2,9 +2,9 @@ module Expressir
   module Model
     module Expressions
       class IndexReference < ModelElement
-        attr_accessor :ref
-        attr_accessor :index1
-        attr_accessor :index2
+        model_attr_accessor :ref
+        model_attr_accessor :index1
+        model_attr_accessor :index2
 
         def initialize(options = {})
           @ref = options[:ref]

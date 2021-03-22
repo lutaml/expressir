@@ -40,6 +40,13 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
+      - uses: actions/cache@v2
+        with:
+          path: |
+            tmp/*/express_parser/*/express_parser.bundle
+            tmp/*/express_parser/*/express_parser.so
+          key: ${{ runner.os }}-${{ matrix.ruby }}-${{ hashFiles('ext/express-parser/extconf.rb', 'ext/express-parser/antlrgen/**', 'ext/express-parser/express_parser.cpp', '.git/modules/ext/express-parser/antlr4-upstream/HEAD') }}
+
       - run: bundle exec rake compile
 
       - run: bundle exec rake

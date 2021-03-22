@@ -74,6 +74,10 @@ module Expressir
           break unless current_scope
         end
 
+        if target_node.is_a? Model::InterfacedItem
+          target_node = target_node.base_item
+        end
+
         target_node
       end
 

@@ -86,7 +86,7 @@ RSpec.describe Expressir::ExpressExp::Parser do
       expect(schemas[0].file).to eq(exp_files[0].to_s)
       expect(schemas[0].id).to eq("single_schema")
       expect(schemas[1].file).to eq(exp_files[1].to_s)
-      expect(schemas[1].id).to eq("multiple_schema1")
+      expect(schemas[1].id).to eq("multiple_schema")
       expect(schemas[2].file).to eq(exp_files[1].to_s)
       expect(schemas[2].id).to eq("multiple_schema2")
       expect(schemas[3].file).to eq(exp_files[1].to_s)

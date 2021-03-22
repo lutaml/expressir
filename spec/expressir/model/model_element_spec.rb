@@ -71,7 +71,57 @@ RSpec.describe Expressir::Model::ModelElement do
   end
 
   describe ".find" do
-    it "finds an object" do
+    it "finds an object (single.exp)" do
+      exp_file = Expressir.root_path.join("original", "examples", "syntax", "single.exp")
+
+      repo = Expressir::ExpressExp::Parser.from_file(exp_file)
+
+      # universal scope
+      expect(repo.find('single_schema')).to be_instance_of(Expressir::Model::Schema)
+      expect(repo.find('single_schema.empty_entity')).to be_instance_of(Expressir::Model::Entity)
+
+      # schema scope
+      schema = repo.schemas.first
+      expect(schema.find('empty_entity')).to be_instance_of(Expressir::Model::Entity)
+    end
+
+    it "finds an object (multiple.exp)" do
+      exp_file = Expressir.root_path.join("original", "examples", "syntax", "multiple.exp")
+
+      repo = Expressir::ExpressExp::Parser.from_file(exp_file)
+
+      # universal scope
+      expect(repo.find('multiple_schema')).to be_instance_of(Expressir::Model::Schema)
+      expect(repo.find('multiple_schema.empty_entity')).to be_instance_of(Expressir::Model::Entity)
+      expect(repo.find('multiple_schema.attribute_entity')).to be_instance_of(Expressir::Model::Entity)
+      expect(repo.find('multiple_schema.attribute_entity2')).to be_instance_of(Expressir::Model::Entity)
+      expect(repo.find('multiple_schema.attribute_entity3')).to be_instance_of(Expressir::Model::Entity)
+      expect(repo.find('multiple_schema.attribute_entity4')).to be_instance_of(Expressir::Model::Entity)
+
+      # schema scope
+      schema = repo.schemas.first
+      expect(schema.find('empty_entity')).to be_instance_of(Expressir::Model::Entity)
+      expect(schema.find('attribute_entity')).to be_instance_of(Expressir::Model::Entity)
+      expect(schema.find('attribute_entity2')).to be_instance_of(Expressir::Model::Entity)
+      expect(schema.find('attribute_entity3')).to be_instance_of(Expressir::Model::Entity)
+      expect(schema.find('attribute_entity4')).to be_instance_of(Expressir::Model::Entity)
+    end
+
+    it "finds an object (syntax.exp)" do
+      exp_file = Expressir.root_path.join("original", "examples", "syntax", "syntax.exp")
+
+      repo = Expressir::ExpressExp::Parser.from_file(exp_file)
+
+      # universal scope
+      expect(repo.find('syntax_schema')).to be_instance_of(Expressir::Model::Schema)
+      expect(repo.find('syntax_schema.empty_entity')).to be_instance_of(Expressir::Model::Entity)
+
+      # schema scope
+      schema = repo.schemas.first
+      expect(schema.find('empty_entity')).to be_instance_of(Expressir::Model::Entity)
+    end
+
+    it "finds an object (remark.exp)" do
       exp_file = Expressir.root_path.join("original", "examples", "syntax", "remark.exp")
 
       repo = Expressir::ExpressExp::Parser.from_file(exp_file)
@@ -116,6 +166,7 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(repo.find('remark_schema.remark_rule.wr:WR1')).to be_instance_of(Expressir::Model::Where)
       expect(repo.find('remark_schema.remark_rule.IP1')).to be_instance_of(Expressir::Model::RemarkItem)
       expect(repo.find('remark_schema.remark_rule.ip:IP1')).to be_instance_of(Expressir::Model::RemarkItem)
+      expect(repo.find('remark_schema.remark_item')).to be_instance_of(Expressir::Model::RemarkItem)
 
       # schema scope
       schema = repo.schemas.first
@@ -157,6 +208,7 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(schema.find('remark_rule.wr:WR1')).to be_instance_of(Expressir::Model::Where)
       expect(schema.find('remark_rule.IP1')).to be_instance_of(Expressir::Model::RemarkItem)
       expect(schema.find('remark_rule.ip:IP1')).to be_instance_of(Expressir::Model::RemarkItem)
+      expect(schema.find('remark_item')).to be_instance_of(Expressir::Model::RemarkItem)
 
       # type scope
       type = schema.types.first

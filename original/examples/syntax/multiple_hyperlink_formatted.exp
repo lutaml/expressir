@@ -1,4 +1,4 @@
-SCHEMA multiple_schema1;
+SCHEMA multiple_schema;
 
 REFERENCE FROM {{{<<express:multiple_schema2,multiple_schema2>>}}};
 REFERENCE FROM {{{<<express:multiple_schema3,multiple_schema3>>}}}
@@ -17,12 +17,12 @@ ENTITY attribute_entity;
 END_ENTITY;
 
 ENTITY subtype_empty_entity
-  SUBTYPE OF ({{{<<express:multiple_schema1.empty_entity,empty_entity>>}}});
+  SUBTYPE OF ({{{<<express:multiple_schema.empty_entity,empty_entity>>}}});
 END_ENTITY;
 
 ENTITY subtype_attribute_entity
-  SUBTYPE OF ({{{<<express:multiple_schema1.attribute_entity,attribute_entity>>}}});
-  SELF\{{{<<express:multiple_schema1.attribute_entity,attribute_entity>>}}}.test : BOOLEAN;
+  SUBTYPE OF ({{{<<express:multiple_schema.attribute_entity,attribute_entity>>}}});
+  SELF\{{{<<express:multiple_schema.attribute_entity,attribute_entity>>}}}.test : BOOLEAN;
 END_ENTITY;
 
 ENTITY subtype_attribute_entity2

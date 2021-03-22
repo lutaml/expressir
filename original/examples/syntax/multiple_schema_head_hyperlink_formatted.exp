@@ -1,4 +1,4 @@
-SCHEMA multiple_schema1;
+SCHEMA multiple_schema;
 
 REFERENCE FROM {{{<<express:multiple_schema2,multiple_schema2>>}}};
 REFERENCE FROM {{{<<express:multiple_schema3,multiple_schema3>>}}}

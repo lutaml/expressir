@@ -22,10 +22,6 @@ module Expressir
         end
         return unless base_item
 
-        if base_item.is_a? Model::InterfacedItem
-          base_item = base_item.base_item
-        end
-
         node.base_path = base_item.path
       end
     end

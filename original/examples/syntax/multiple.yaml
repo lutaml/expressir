@@ -3,7 +3,7 @@ _class: Expressir::Model::Repository
 schemas:
 - _class: Expressir::Model::Schema
   file: original/examples/syntax/multiple.exp
-  id: multiple_schema1
+  id: multiple_schema
   interfaces:
   - _class: Expressir::Model::Interface
     kind: :REFERENCE
@@ -54,13 +54,13 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::Expressions::SimpleReference
       id: empty_entity
-      base_path: multiple_schema1.empty_entity
+      base_path: multiple_schema.empty_entity
   - _class: Expressir::Model::Entity
     id: subtype_attribute_entity
     subtype_of:
     - _class: Expressir::Model::Expressions::SimpleReference
       id: attribute_entity
-      base_path: multiple_schema1.attribute_entity
+      base_path: multiple_schema.attribute_entity
     attributes:
     - _class: Expressir::Model::Attribute
       kind: :EXPLICIT
@@ -74,7 +74,7 @@ schemas:
           entity:
             _class: Expressir::Model::Expressions::SimpleReference
             id: attribute_entity
-            base_path: multiple_schema1.attribute_entity
+            base_path: multiple_schema.attribute_entity
         attribute:
           _class: Expressir::Model::Expressions::SimpleReference
           id: test

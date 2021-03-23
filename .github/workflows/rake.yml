@@ -46,7 +46,7 @@ jobs:
             tmp/*/express_parser/*/Makefile
             tmp/*/express_parser/*/express_parser.so
             tmp/*/express_parser/*/express_parser.bundle
-          key: ${{ runner.os }}-${{ matrix.ruby }}-${{ hashFiles('ext/express-parser/extconf.rb', 'ext/express-parser/antlrgen/**', 'ext/express-parser/express_parser.cpp', '.git/modules/ext/express-parser/antlr4-upstream/HEAD') }}
+          key: v2-${{ runner.os }}-${{ matrix.ruby }}-${{ hashFiles('ext/express-parser/extconf.rb', 'ext/express-parser/antlrgen/**', 'ext/express-parser/express_parser.cpp', '.git/modules/ext/express-parser/antlr4-upstream/HEAD') }}
 
       - run: bundle exec rake compile
 

@@ -42,15 +42,10 @@ jobs:
 
       - uses: actions/cache@v2
         with:
-          path: |
-            tmp/*/express_parser/*/Makefile
-            tmp/*/express_parser/*/express_parser.so
-            tmp/*/express_parser/*/express_parser.bundle
-          key: v2-${{ runner.os }}-${{ matrix.ruby }}-${{ hashFiles('ext/express-parser/extconf.rb', 'ext/express-parser/antlrgen/**', 'ext/express-parser/express_parser.cpp', '.git/modules/ext/express-parser/antlr4-upstream/HEAD') }}
+          path: lib/expressir/express_exp/express_parser.*
+          key: v3-${{ runner.os }}-${{ matrix.ruby }}-${{ hashFiles('ext/express-parser/extconf.rb', 'ext/express-parser/antlrgen/**', 'ext/express-parser/express_parser.cpp', '.git/modules/ext/express-parser/antlr4-upstream/HEAD') }}
 
-      - if: matrix.os != 'windows-latest'
-        run: ls -R tmp/
-
-      - run: bundle exec rake compile
+      - if: hashFiles('lib/expressir/express_exp/express_parser.*') == ''
+        run: bundle exec rake compile
 
       - run: bundle exec rake

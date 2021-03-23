@@ -48,6 +48,9 @@ jobs:
             tmp/*/express_parser/*/express_parser.bundle
           key: v2-${{ runner.os }}-${{ matrix.ruby }}-${{ hashFiles('ext/express-parser/extconf.rb', 'ext/express-parser/antlrgen/**', 'ext/express-parser/express_parser.cpp', '.git/modules/ext/express-parser/antlr4-upstream/HEAD') }}
 
+      - if: matrix.os != 'windows-latest'
+        run: ls -R tmp/
+
       - run: bundle exec rake compile
 
       - run: bundle exec rake

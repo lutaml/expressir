@@ -46,6 +46,8 @@ module Expressir
       end
 
       def interfaced_items
+        return [] unless parent
+
         interfaces.flat_map do |interface|
           schema = parent.children_by_id[interface.schema.id.downcase]
           if schema

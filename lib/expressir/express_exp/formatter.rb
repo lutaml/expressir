@@ -62,6 +62,8 @@ module Expressir
           format_rule(node)
         elsif node.is_a? Model::Schema
           format_schema(node)
+        elsif node.is_a? Model::SchemaVersion
+          format_schema_version(node)
         elsif node.is_a? Model::SubtypeConstraint
           format_subtype_constraint(node)
         elsif node.is_a? Model::Type
@@ -657,6 +659,14 @@ module Expressir
           ].join(''),
           *format_scope_remarks(node)
         ].join("\n")
+      end
+
+      def format_schema_version(node)
+        [
+          "'",
+          node.value,
+          "'"
+        ].join('')
       end
 
       def format_subtype_constraint(node)

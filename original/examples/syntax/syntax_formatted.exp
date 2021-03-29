@@ -1,4 +1,4 @@
-SCHEMA syntax_schema 'version';
+SCHEMA syntax_schema '{ISO standard 10303 part(41) object(1) version(8)}';
 
 USE FROM contract_schema;
 USE FROM contract_schema

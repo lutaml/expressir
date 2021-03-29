@@ -5,8 +5,24 @@ schemas:
   file: original/examples/syntax/syntax.exp
   id: syntax_schema
   version:
-    _class: Expressir::Model::Literals::String
-    value: version
+    _class: Expressir::Model::SchemaVersion
+    value: "{ISO standard 10303 part(41) object(1) version(8)}"
+    items:
+    - _class: Expressir::Model::SchemaVersionItem
+      name: ISO
+    - _class: Expressir::Model::SchemaVersionItem
+      name: standard
+    - _class: Expressir::Model::SchemaVersionItem
+      value: '10303'
+    - _class: Expressir::Model::SchemaVersionItem
+      name: part
+      value: '41'
+    - _class: Expressir::Model::SchemaVersionItem
+      name: object
+      value: '1'
+    - _class: Expressir::Model::SchemaVersionItem
+      name: version
+      value: '8'
   interfaces:
   - _class: Expressir::Model::Interface
     kind: :USE

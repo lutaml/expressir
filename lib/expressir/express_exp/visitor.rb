@@ -1957,7 +1957,33 @@ module Expressir
       def visit_schema_version_id(ctx)
         ctx__string_literal = ctx.string_literal
 
-        visit_if(ctx__string_literal)
+        value = visit_if(ctx__string_literal)
+        value = value.value
+
+        items = if value.start_with?('{') and value.end_with?('}')
+          parts = value.sub(/^\{/, '').sub(/\}$/, '').split(' ')
+          parts.map do |part|
+            if match = part.match(/^(.+)\((\d+)\)$/)
+              Model::SchemaVersionItem.new({
+                name: match[1],
+                value: match[2]
+              })
+            elsif part.match(/^\d+$/)
+              Model::SchemaVersionItem.new({
+                value: part
+              })
+            else
+              Model::SchemaVersionItem.new({
+                name: part
+              })
+            end
+          end
+        end
+        
+        Model::SchemaVersion.new({
+          value: value,
+          items: items
+        })
       end
 
       def visit_selector(ctx)

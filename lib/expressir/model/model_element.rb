@@ -34,7 +34,6 @@ module Expressir
       end
 
       def attach_parent_to_children
-
         self.class.model_attrs.each do |variable|
           value = self.send(variable)
 

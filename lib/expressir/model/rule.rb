@@ -17,21 +17,21 @@ module Expressir
 
       def initialize(options = {})
         @id = options[:id]
-        @remarks = options.fetch(:remarks, [])
-        @remark_items = options.fetch(:remark_items, [])
+        @remarks = options[:remarks] || []
+        @remark_items = options[:remark_items] || []
         @source = options[:source]
 
-        @applies_to = options.fetch(:applies_to, [])
-        @types = options.fetch(:types, [])
-        @entities = options.fetch(:entities, [])
-        @subtype_constraints = options.fetch(:subtype_constraints, [])
-        @functions = options.fetch(:functions, [])
-        @procedures = options.fetch(:procedures, [])
-        @constants = options.fetch(:constants, [])
-        @variables = options.fetch(:variables, [])
-        @statements = options.fetch(:statements, [])
-        @where = options.fetch(:where, [])
-        @informal_propositions = options.fetch(:informal_propositions, [])
+        @applies_to = options[:applies_to] || []
+        @types = options[:types] || []
+        @entities = options[:entities] || []
+        @subtype_constraints = options[:subtype_constraints] || []
+        @functions = options[:functions] || []
+        @procedures = options[:procedures] || []
+        @constants = options[:constants] || []
+        @variables = options[:variables] || []
+        @statements = options[:statements] || []
+        @where = options[:where] || []
+        @informal_propositions = options[:informal_propositions] || []
 
         super
       end

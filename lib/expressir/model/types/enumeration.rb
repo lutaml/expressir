@@ -9,9 +9,9 @@ module Expressir
 
         def initialize(options = {})
           @extensible = options[:extensible]
-          @items = options.fetch(:items, [])
+          @items = options[:items] || []
           @extension_type = options[:extension_type]
-          @extension_items = options.fetch(:extension_items, [])
+          @extension_items = options[:extension_items] || []
 
           super
         end

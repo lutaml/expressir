@@ -9,13 +9,13 @@ module Expressir
 
       def initialize(options = {})
         @id = options[:id]
-        @remarks = options.fetch(:remarks, [])
-        @remark_items = options.fetch(:remark_items, [])
+        @remarks = options[:remarks] || []
+        @remark_items = options[:remark_items] || []
         @source = options[:source]
 
         @type = options[:type]
-        @where = options.fetch(:where, [])
-        @informal_propositions = options.fetch(:informal_propositions, [])
+        @where = options[:where] || []
+        @informal_propositions = options[:informal_propositions] || []
 
         super
       end

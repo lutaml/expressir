@@ -11,7 +11,7 @@ module Expressir
       def initialize(options = {})
         @kind = options[:kind]
         @schema = options[:schema]
-        @items = options.fetch(:items, [])
+        @items = options[:items] || []
 
         super
       end

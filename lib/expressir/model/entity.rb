@@ -13,17 +13,17 @@ module Expressir
 
       def initialize(options = {})
         @id = options[:id]
-        @remarks = options.fetch(:remarks, [])
-        @remark_items = options.fetch(:remark_items, [])
+        @remarks = options[:remarks] || []
+        @remark_items = options[:remark_items] || []
         @source = options[:source]
 
         @abstract = options[:abstract]
         @supertype_expression = options[:supertype_expression]
-        @subtype_of = options.fetch(:subtype_of, [])
-        @attributes = options.fetch(:attributes, [])
-        @unique = options.fetch(:unique, [])
-        @where = options.fetch(:where, [])
-        @informal_propositions = options.fetch(:informal_propositions, [])
+        @subtype_of = options[:subtype_of] || []
+        @attributes = options[:attributes] || []
+        @unique = options[:unique] || []
+        @where = options[:where] || []
+        @informal_propositions = options[:informal_propositions] || []
 
         super
       end

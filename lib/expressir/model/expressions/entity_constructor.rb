@@ -7,7 +7,7 @@ module Expressir
 
         def initialize(options = {})
           @entity = options[:entity]
-          @parameters = options.fetch(:parameters, [])
+          @parameters = options[:parameters] || []
 
           super
         end

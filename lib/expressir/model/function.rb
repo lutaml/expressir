@@ -16,20 +16,20 @@ module Expressir
 
       def initialize(options = {})
         @id = options[:id]
-        @remarks = options.fetch(:remarks, [])
-        @remark_items = options.fetch(:remark_items, [])
+        @remarks = options[:remarks] || []
+        @remark_items = options[:remark_items] || []
         @source = options[:source]
 
-        @parameters = options.fetch(:parameters, [])
+        @parameters = options[:parameters] || []
         @return_type = options[:return_type]
-        @types = options.fetch(:types, [])
-        @entities = options.fetch(:entities, [])
-        @subtype_constraints = options.fetch(:subtype_constraints, [])
-        @functions = options.fetch(:functions, [])
-        @procedures = options.fetch(:procedures, [])
-        @constants = options.fetch(:constants, [])
-        @variables = options.fetch(:variables, [])
-        @statements = options.fetch(:statements, [])
+        @types = options[:types] || []
+        @entities = options[:entities] || []
+        @subtype_constraints = options[:subtype_constraints] || []
+        @functions = options[:functions] || []
+        @procedures = options[:procedures] || []
+        @constants = options[:constants] || []
+        @variables = options[:variables] || []
+        @statements = options[:statements] || []
 
         super
       end

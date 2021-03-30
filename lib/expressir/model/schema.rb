@@ -19,19 +19,19 @@ module Expressir
         @file = options[:file]
 
         @id = options[:id]
-        @remarks = options.fetch(:remarks, [])
-        @remark_items = options.fetch(:remark_items, [])
+        @remarks = options[:remarks] || []
+        @remark_items = options[:remark_items] || []
         @source = options[:source]
 
         @version = options[:version]
-        @interfaces = options.fetch(:interfaces, [])
-        @constants = options.fetch(:constants, [])
-        @types = options.fetch(:types, [])
-        @entities = options.fetch(:entities, [])
-        @subtype_constraints = options.fetch(:subtype_constraints, [])
-        @functions = options.fetch(:functions, [])
-        @rules = options.fetch(:rules, [])
-        @procedures = options.fetch(:procedures, [])
+        @interfaces = options[:interfaces] || []
+        @constants = options[:constants] || []
+        @types = options[:types] || []
+        @entities = options[:entities] || []
+        @subtype_constraints = options[:subtype_constraints] || []
+        @functions = options[:functions] || []
+        @rules = options[:rules] || []
+        @procedures = options[:procedures] || []
 
         super
       end

@@ -10,13 +10,13 @@ module Expressir
 
       def initialize(options = {})
         @id = options[:id]
-        @remarks = options.fetch(:remarks, [])
-        @remark_items = options.fetch(:remark_items, [])
+        @remarks = options[:remarks] || []
+        @remark_items = options[:remark_items] || []
         @source = options[:source]
 
         @applies_to = options[:applies_to]
         @abstract = options[:abstract]
-        @total_over = options.fetch(:total_over, [])
+        @total_over = options[:total_over] || []
         @supertype_expression = options[:supertype_expression]
 
         super

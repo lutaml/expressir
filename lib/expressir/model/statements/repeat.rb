@@ -13,8 +13,8 @@ module Expressir
 
         def initialize(options = {})
           @id = options[:id]
-          @remarks = options.fetch(:remarks, [])
-          @remark_items = options.fetch(:remark_items, [])
+          @remarks = options[:remarks] || []
+          @remark_items = options[:remark_items] || []
           @source = options[:source]
 
           @bound1 = options[:bound1]
@@ -22,7 +22,7 @@ module Expressir
           @increment = options[:increment]
           @while_expression = options[:while_expression]
           @until_expression = options[:until_expression]
-          @statements = options.fetch(:statements, [])
+          @statements = options[:statements] || []
 
           super
         end

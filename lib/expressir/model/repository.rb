@@ -4,7 +4,7 @@ module Expressir
       model_attr_accessor :schemas
 
       def initialize(options = {})
-        @schemas = options.fetch(:schemas, [])
+        @schemas = options[:schemas] || []
 
         super
       end

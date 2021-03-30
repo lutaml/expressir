@@ -8,8 +8,8 @@ module Expressir
 
         def initialize(options = {})
           @expression = options[:expression]
-          @statements = options.fetch(:statements, [])
-          @else_statements = options.fetch(:else_statements, [])
+          @statements = options[:statements] || []
+          @else_statements = options[:else_statements] || []
 
           super
         end

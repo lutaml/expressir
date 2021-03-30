@@ -8,7 +8,7 @@ module Expressir
 
         def initialize(options = {})
           @expression = options[:expression]
-          @actions = options.fetch(:actions, [])
+          @actions = options[:actions] || []
           @otherwise_statement = options[:otherwise_statement]
 
           super

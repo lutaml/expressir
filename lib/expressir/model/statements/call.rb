@@ -7,7 +7,7 @@ module Expressir
 
         def initialize(options = {})
           @ref = options[:ref]
-          @parameters = options.fetch(:parameters, [])
+          @parameters = options[:parameters] || []
 
           super
         end

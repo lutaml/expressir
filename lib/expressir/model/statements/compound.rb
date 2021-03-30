@@ -5,7 +5,7 @@ module Expressir
         model_attr_accessor :statements
 
         def initialize(options = {})
-          @statements = options.fetch(:statements, [])
+          @statements = options[:statements] || []
 
           super
         end

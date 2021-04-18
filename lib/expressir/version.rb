@@ -1,3 +1,3 @@
 module Expressir
-  VERSION = "0.2.27".freeze
+  VERSION = "1.0.0".freeze
 end

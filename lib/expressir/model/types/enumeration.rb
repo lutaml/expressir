@@ -3,15 +3,13 @@ module Expressir
     module Types
       class Enumeration < ModelElement
         model_attr_accessor :extensible
+        model_attr_accessor :based_on
         model_attr_accessor :items
-        model_attr_accessor :extension_type
-        model_attr_accessor :extension_items
 
         def initialize(options = {})
           @extensible = options[:extensible]
+          @based_on = options[:based_on]
           @items = options[:items] || []
-          @extension_type = options[:extension_type]
-          @extension_items = options[:extension_items] || []
 
           super
         end

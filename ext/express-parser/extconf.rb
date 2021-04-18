@@ -56,4 +56,4 @@ src_paths.each do |src_path|
   $srcs.push(*Dir["#{abs_src_path}/*.cpp"])
 end
 
-create_makefile "expressir/express_exp/#{extension_name}"
+create_makefile "expressir/express/#{extension_name}"

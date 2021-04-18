@@ -2,7 +2,6 @@ require "expressir/version"
 
 require "expressir/cli"
 require "expressir/config"
-require "expressir/express"
 
 module Expressir
   class Error < StandardError; end

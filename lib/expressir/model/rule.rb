@@ -12,7 +12,7 @@ module Expressir
       model_attr_accessor :constants
       model_attr_accessor :variables
       model_attr_accessor :statements
-      model_attr_accessor :where
+      model_attr_accessor :where_rules
       model_attr_accessor :informal_propositions
 
       def initialize(options = {})
@@ -30,7 +30,7 @@ module Expressir
         @constants = options[:constants] || []
         @variables = options[:variables] || []
         @statements = options[:statements] || []
-        @where = options[:where] || []
+        @where_rules = options[:where_rules] || []
         @informal_propositions = options[:informal_propositions] || []
 
         super
@@ -50,7 +50,7 @@ module Expressir
           *procedures,
           *constants,
           *variables,
-          *where,
+          *where_rules,
           *informal_propositions,
           *remark_items
         ]

@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency "thor", "~> 1.0"
   spec.add_runtime_dependency "rice", "~> 3"
+  spec.add_development_dependency "asciidoctor", "~> 2.0.13"
   spec.add_development_dependency "antlr4-native", "~> 1.1.0"
   spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "pry", "~> 0.12.2"
@@ -40,4 +41,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake-compiler", "~> 1.1"
   spec.add_development_dependency "rake-compiler-dock", "~> 1.1"
   spec.add_development_dependency "rspec", "~> 3.0"
+  spec.add_development_dependency "yard", "~> 0.9.26"
+  spec.add_development_dependency "webrick", "~> 1.7.0"
 end

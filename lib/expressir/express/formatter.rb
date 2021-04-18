@@ -6,7 +6,6 @@ module Expressir
       INDENT_CHAR = ' '
       INDENT_WIDTH = 2
       INDENT = INDENT_CHAR * INDENT_WIDTH
-
       OPERATOR_PRECEDENCE = {
         Model::Expressions::BinaryExpression::EXPONENTIATION => 1,
         Model::Expressions::BinaryExpression::MULTIPLICATION => 2,
@@ -29,73 +28,112 @@ module Expressir
         Model::Expressions::BinaryExpression::INSTANCE_NOT_EQUAL => 4,
         Model::Expressions::BinaryExpression::IN => 4,
         Model::Expressions::BinaryExpression::LIKE => 4,
-        Model::Expressions::BinaryExpression::ANDOR => 4,
+      }
+      SUPERTYPE_OPERATOR_PRECEDENCE = {
+        Model::SupertypeExpressions::BinarySupertypeExpression::AND => 1,
+        Model::SupertypeExpressions::BinarySupertypeExpression::ANDOR => 2,
       }
 
+      private_constant :INDENT_CHAR
+      private_constant :INDENT_WIDTH
+      private_constant :INDENT
+      private_constant :OPERATOR_PRECEDENCE
+      private_constant :SUPERTYPE_OPERATOR_PRECEDENCE
+
+      # Formats Express model into an Express code
+      # @param [Model::ModelElement] node
+      # @return [String]
       def self.format(node)
         formatter = self.new
         formatter.format(node)
       end
 
+      # Formats Express model into an Express code
+      # @param [Model::ModelElement] node
+      # @return [String]
       def format(node)
-        if node.is_a? Model::Attribute
-          format_attribute(node)
-        elsif node.is_a? Model::Constant
-          format_constant(node)
-        elsif node.is_a? Model::Entity
-          format_entity(node)
-        elsif node.is_a? Model::EnumerationItem
-          format_enumeration_item(node)
-        elsif node.is_a? Model::Function
-          format_function(node)
-        elsif node.is_a? Model::Interface
-          format_interface(node)
-        elsif node.is_a? Model::InterfaceItem
-          format_interface_item(node)
-        elsif node.is_a? Model::Parameter
-          format_parameter(node)
-        elsif node.is_a? Model::Procedure
-          format_procedure(node)
-        elsif node.is_a? Model::Repository
+        if node.is_a? Model::Repository
           format_repository(node)
-        elsif node.is_a? Model::Rule
-          format_rule(node)
-        elsif node.is_a? Model::Schema
-          format_schema(node)
-        elsif node.is_a? Model::SchemaVersion
-          format_schema_version(node)
-        elsif node.is_a? Model::SubtypeConstraint
-          format_subtype_constraint(node)
-        elsif node.is_a? Model::Type
-          format_type(node)
-        elsif node.is_a? Model::UniqueRule
-          format_unique_rule(node)
-        elsif node.is_a? Model::Variable
-          format_variable(node)
-        elsif node.is_a? Model::WhereRule
-          format_where_rule(node)
+        elsif node.is_a? Model::Declarations::Attribute
+          format_declarations_attribute(node)
+        elsif node.is_a? Model::Declarations::Constant
+          format_declarations_constant(node)
+        elsif node.is_a? Model::Declarations::Entity
+          format_declarations_entity(node)
+        elsif node.is_a? Model::Declarations::Function
+          format_declarations_function(node)
+        elsif node.is_a? Model::Declarations::Interface
+          format_declarations_interface(node)
+        elsif node.is_a? Model::Declarations::InterfaceItem
+          format_declarations_interface_item(node)
+        elsif node.is_a? Model::Declarations::Parameter
+          format_declarations_parameter(node)
+        elsif node.is_a? Model::Declarations::Procedure
+          format_declarations_procedure(node)
+        elsif node.is_a? Model::Declarations::Rule
+          format_declarations_rule(node)
+        elsif node.is_a? Model::Declarations::Schema
+          format_declarations_schema(node)
+        elsif node.is_a? Model::Declarations::SchemaVersion
+          format_declarations_schema_version(node)
+        elsif node.is_a? Model::Declarations::SubtypeConstraint
+          format_declarations_subtype_constraint(node)
+        elsif node.is_a? Model::Declarations::Type
+          format_declarations_type(node)
+        elsif node.is_a? Model::Declarations::UniqueRule
+          format_declarations_unique_rule(node)
+        elsif node.is_a? Model::Declarations::Variable
+          format_declarations_variable(node)
+        elsif node.is_a? Model::Declarations::WhereRule
+          format_declarations_where_rule(node)
+        elsif node.is_a? Model::DataTypes::Aggregate
+          format_data_types_aggregate(node)
+        elsif node.is_a? Model::DataTypes::Array
+          format_data_types_array(node)
+        elsif node.is_a? Model::DataTypes::Bag
+          format_data_types_bag(node)
+        elsif node.is_a? Model::DataTypes::Binary
+          format_data_types_binary(node)
+        elsif node.is_a? Model::DataTypes::Boolean
+          format_data_types_boolean(node)
+        elsif node.is_a? Model::DataTypes::Enumeration
+          format_data_types_enumeration(node)
+        elsif node.is_a? Model::DataTypes::EnumerationItem
+          format_data_types_enumeration_item(node)
+        elsif node.is_a? Model::DataTypes::GenericEntity
+          format_data_types_generic_entity(node)
+        elsif node.is_a? Model::DataTypes::Generic
+          format_data_types_generic(node)
+        elsif node.is_a? Model::DataTypes::Integer
+          format_data_types_integer(node)
+        elsif node.is_a? Model::DataTypes::List
+          format_data_types_list(node)
+        elsif node.is_a? Model::DataTypes::Logical
+          format_data_types_logical(node)
+        elsif node.is_a? Model::DataTypes::Number
+          format_data_types_number(node)
+        elsif node.is_a? Model::DataTypes::Real
+          format_data_types_real(node)
+        elsif node.is_a? Model::DataTypes::Select
+          format_data_types_select(node)
+        elsif node.is_a? Model::DataTypes::Set
+          format_data_types_set(node)
+        elsif node.is_a? Model::DataTypes::String
+          format_data_types_string(node)
         elsif node.is_a? Model::Expressions::AggregateInitializer
           format_expressions_aggregate_initializer(node)
-        elsif node.is_a? Model::Expressions::AggregateItem
-          format_expressions_aggregate_item(node)
-        elsif node.is_a? Model::Expressions::AttributeReference
-          format_expressions_attribute_reference(node)
+        elsif node.is_a? Model::Expressions::AggregateInitializerItem
+          format_expressions_aggregate_initializer_item(node)
         elsif node.is_a? Model::Expressions::BinaryExpression
           format_expressions_binary_expression(node)
-        elsif node.is_a? Model::Expressions::Call
-          format_expressions_call(node)
         elsif node.is_a? Model::Expressions::EntityConstructor
           format_expressions_entity_constructor(node)
-        elsif node.is_a? Model::Expressions::GroupReference
-          format_expressions_group_reference(node)
-        elsif node.is_a? Model::Expressions::IndexReference
-          format_expressions_index_reference(node)
+        elsif node.is_a? Model::Expressions::FunctionCall
+          format_expressions_function_call(node)
         elsif node.is_a? Model::Expressions::Interval
           format_expressions_interval(node)
         elsif node.is_a? Model::Expressions::QueryExpression
           format_expressions_query_expression(node)
-        elsif node.is_a? Model::Expressions::SimpleReference
-          format_expressions_simple_reference(node)
         elsif node.is_a? Model::Expressions::UnaryExpression
           format_expressions_unary_expression(node)
         elsif node.is_a? Model::Literals::Binary
@@ -108,12 +146,18 @@ module Expressir
           format_literals_real(node)
         elsif node.is_a? Model::Literals::String
           format_literals_string(node)
+        elsif node.is_a? Model::References::AttributeReference
+          format_references_attribute_reference(node)
+        elsif node.is_a? Model::References::GroupReference
+          format_references_group_reference(node)
+        elsif node.is_a? Model::References::IndexReference
+          format_references_index_reference(node)
+        elsif node.is_a? Model::References::SimpleReference
+          format_references_simple_reference(node)
         elsif node.is_a? Model::Statements::Alias
           format_statements_alias(node)
         elsif node.is_a? Model::Statements::Assignment
           format_statements_assignment(node)
-        elsif node.is_a? Model::Statements::Call
-          format_statements_call(node)
         elsif node.is_a? Model::Statements::Case
           format_statements_case(node)
         elsif node.is_a? Model::Statements::CaseAction
@@ -126,44 +170,18 @@ module Expressir
           format_statements_if(node)
         elsif node.is_a? Model::Statements::Null
           format_statements_null(node)
+        elsif node.is_a? Model::Statements::ProcedureCall
+          format_statements_procedure_call(node)
         elsif node.is_a? Model::Statements::Repeat
           format_statements_repeat(node)
         elsif node.is_a? Model::Statements::Return
           format_statements_return(node)
         elsif node.is_a? Model::Statements::Skip
           format_statements_skip(node)
-        elsif node.is_a? Model::Types::Aggregate
-          format_types_aggregate(node)
-        elsif node.is_a? Model::Types::Array
-          format_types_array(node)
-        elsif node.is_a? Model::Types::Bag
-          format_types_bag(node)
-        elsif node.is_a? Model::Types::Binary
-          format_types_binary(node)
-        elsif node.is_a? Model::Types::Boolean
-          format_types_boolean(node)
-        elsif node.is_a? Model::Types::Enumeration
-          format_types_enumeration(node)
-        elsif node.is_a? Model::Types::GenericEntity
-          format_types_generic_entity(node)
-        elsif node.is_a? Model::Types::Generic
-          format_types_generic(node)
-        elsif node.is_a? Model::Types::Integer
-          format_types_integer(node)
-        elsif node.is_a? Model::Types::List
-          format_types_list(node)
-        elsif node.is_a? Model::Types::Logical
-          format_types_logical(node)
-        elsif node.is_a? Model::Types::Number
-          format_types_number(node)
-        elsif node.is_a? Model::Types::Real
-          format_types_real(node)
-        elsif node.is_a? Model::Types::Select
-          format_types_select(node)
-        elsif node.is_a? Model::Types::Set
-          format_types_set(node)
-        elsif node.is_a? Model::Types::String
-          format_types_string(node)
+        elsif node.is_a? Model::SupertypeExpressions::BinarySupertypeExpression
+          format_supertype_expressions_binary_supertype_expression(node)
+        elsif node.is_a? Model::SupertypeExpressions::OneofSupertypeExpression
+          format_supertype_expressions_oneof_supertype_expression(node)
         else
           STDERR.puts "#{node.class.name} format not implemented"
           ''
@@ -172,7 +190,11 @@ module Expressir
 
       private
 
-      def format_attribute(node)
+      def format_repository(node)
+        node.schemas.map{|x| format(x)}.join("\n\n")
+      end
+
+      def format_declarations_attribute(node)
         [
           *if node.supertype_attribute
             [
@@ -201,14 +223,14 @@ module Expressir
           end,
           ' ',
           format(node.type),
-          *if node.kind == Model::Attribute::DERIVED
+          *if node.kind == Model::Declarations::Attribute::DERIVED
             [
               ' ',
               ':=',
               ' ',
               format(node.expression)
             ].join('')
-          elsif node.kind == Model::Attribute::INVERSE
+          elsif node.kind == Model::Declarations::Attribute::INVERSE
             [
               ' ',
               'FOR',
@@ -220,7 +242,7 @@ module Expressir
         ].join('')
       end
 
-      def format_constant(node)
+      def format_declarations_constant(node)
         [
           node.id,
           ' ',
@@ -235,10 +257,10 @@ module Expressir
         ].join('')
       end
 
-      def format_entity(node)
-        explicit_attributes = node.attributes.select{|x| x.kind == Model::Attribute::EXPLICIT}
-        derived_attributes = node.attributes.select{|x| x.kind == Model::Attribute::DERIVED}
-        inverse_attributes = node.attributes.select{|x| x.kind == Model::Attribute::INVERSE}
+      def format_declarations_entity(node)
+        explicit_attributes = node.attributes.select{|x| x.kind == Model::Declarations::Attribute::EXPLICIT}
+        derived_attributes = node.attributes.select{|x| x.kind == Model::Declarations::Attribute::DERIVED}
+        inverse_attributes = node.attributes.select{|x| x.kind == Model::Declarations::Attribute::INVERSE}
 
         [
           [
@@ -335,11 +357,7 @@ module Expressir
         ].join("\n")
       end
 
-      def format_enumeration_item(node)
-        node.id
-      end
-
-      def format_function(node)
+      def format_declarations_function(node)
         [
           [
             'FUNCTION',
@@ -404,11 +422,11 @@ module Expressir
         ].join("\n")
       end
 
-      def format_interface(node)
+      def format_declarations_interface(node)
         [
           case node.kind
-            when Model::Interface::USE then 'USE'
-            when Model::Interface::REFERENCE then 'REFERENCE'
+            when Model::Declarations::Interface::USE then 'USE'
+            when Model::Declarations::Interface::REFERENCE then 'REFERENCE'
           end,
           ' ',
           'FROM',
@@ -429,7 +447,7 @@ module Expressir
         ].join('')
       end
 
-      def format_interface_item(node)
+      def format_declarations_interface_item(node)
         [
           format(node.ref),
           *if node.id
@@ -443,7 +461,7 @@ module Expressir
         ].join('')
       end
 
-      def format_parameter(node)
+      def format_declarations_parameter(node)
         [
           *if node.var
             [
@@ -459,7 +477,7 @@ module Expressir
         ].join('')
       end
 
-      def format_procedure(node)
+      def format_declarations_procedure(node)
         [
           [
             'PROCEDURE',
@@ -520,11 +538,7 @@ module Expressir
         ].join("\n")
       end
 
-      def format_repository(node)
-        node.schemas.map{|node| format(node)}.join("\n\n")
-      end
-
-      def format_rule(node)
+      def format_declarations_rule(node)
         [
           [
             'RULE',
@@ -589,7 +603,7 @@ module Expressir
         ].join("\n")
       end
 
-      def format_schema_head(node)
+      def format_declarations_schema_head(node)
         [
           [
             'SCHEMA',
@@ -612,7 +626,7 @@ module Expressir
         ].join("\n")
       end
 
-      def format_schema(node)
+      def format_declarations_schema(node)
         schema_declarations = [
           *if node.constants.length > 0
             [
@@ -645,7 +659,7 @@ module Expressir
         ]
 
         [
-          format_schema_head(node),
+          format_declarations_schema_head(node),
           *if schema_declarations.length > 0
             [
               '',
@@ -661,7 +675,7 @@ module Expressir
         ].join("\n")
       end
 
-      def format_schema_version(node)
+      def format_declarations_schema_version(node)
         [
           "'",
           node.value,
@@ -669,7 +683,7 @@ module Expressir
         ].join('')
       end
 
-      def format_subtype_constraint(node)
+      def format_declarations_subtype_constraint(node)
         [
           [
             'SUBTYPE_CONSTRAINT',
@@ -711,7 +725,7 @@ module Expressir
         ].join("\n")
       end
 
-      def format_type(node)
+      def format_declarations_type(node)
         [
           [
             'TYPE',
@@ -736,7 +750,7 @@ module Expressir
         ].join("\n")
       end
 
-      def format_unique_rule(node)
+      def format_declarations_unique_rule(node)
         [
           *if node.id
             [
@@ -750,7 +764,7 @@ module Expressir
         ].join('')
       end
 
-      def format_variable(node)
+      def format_declarations_variable(node)
         [
           node.id,
           ' ',
@@ -769,7 +783,7 @@ module Expressir
         ].join('')
       end
 
-      def format_where_rule(node)
+      def format_declarations_where_rule(node)
         [
           *if node.id
             [
@@ -791,19 +805,11 @@ module Expressir
         ].join('')
       end
 
-      def format_expressions_aggregate_item(node)
+      def format_expressions_aggregate_initializer_item(node)
         [
           format(node.expression),
           ':',
           format(node.repetition)
-        ].join('')
-      end
-
-      def format_expressions_attribute_reference(node)
-        [
-          format(node.ref),
-          '.',
-          format(node.attribute)
         ].join('')
       end
 
@@ -820,7 +826,6 @@ module Expressir
           case node.operator
             when Model::Expressions::BinaryExpression::ADDITION then '+'
             when Model::Expressions::BinaryExpression::AND then 'AND'
-            when Model::Expressions::BinaryExpression::ANDOR then 'ANDOR'
             when Model::Expressions::BinaryExpression::COMBINE then '||'
             when Model::Expressions::BinaryExpression::EQUAL then '='
             when Model::Expressions::BinaryExpression::EXPONENTIATION then '**'
@@ -852,15 +857,6 @@ module Expressir
         ].join('')
       end
 
-      def format_expressions_call(node)
-        [
-          format(node.ref),
-          '(',
-          node.parameters.map{|x| format(x)}.join(', '),
-          ')'
-        ].join('')
-      end
-
       def format_expressions_entity_constructor(node)
         [
           format(node.entity),
@@ -870,26 +866,12 @@ module Expressir
         ].join('')
       end
 
-      def format_expressions_group_reference(node)
+      def format_expressions_function_call(node)
         [
-          format(node.ref),
-          '\\',
-          format(node.entity)
-        ].join('')
-      end
-
-      def format_expressions_index_reference(node)
-        [
-          format(node.ref),
-          '[',
-          format(node.index1),
-          *if node.index2
-            [
-              ':',
-              format(node.index2)
-            ].join('')
-          end,
-          ']'
+          format(node.function),
+          '(',
+          node.parameters.map{|x| format(x)}.join(', '),
+          ')'
         ].join('')
       end
 
@@ -899,15 +881,15 @@ module Expressir
           format(node.low),
           ' ',
           case node.operator1
-            when Model::Expressions::BinaryExpression::LESS_THAN then '<'
-            when Model::Expressions::BinaryExpression::LESS_THAN_OR_EQUAL then '<='
+            when Model::Expressions::Interval::LESS_THAN then '<'
+            when Model::Expressions::Interval::LESS_THAN_OR_EQUAL then '<='
           end,
           ' ',
           format(node.item),
           ' ',
           case node.operator2
-            when Model::Expressions::BinaryExpression::LESS_THAN then '<'
-            when Model::Expressions::BinaryExpression::LESS_THAN_OR_EQUAL then '<='
+            when Model::Expressions::Interval::LESS_THAN then '<'
+            when Model::Expressions::Interval::LESS_THAN_OR_EQUAL then '<='
           end,
           ' ',
           format(node.high),
@@ -931,10 +913,6 @@ module Expressir
           *format_remarks(node).instance_eval{|x| x.length > 0 ? ["\n", *x, "\n"] : x},
           ')'
         ].join('')
-      end
-
-      def format_expressions_simple_reference(node)
-        node.id
       end
 
       def format_expressions_unary_expression(node)
@@ -996,6 +974,41 @@ module Expressir
         end
       end
 
+      def format_references_attribute_reference(node)
+        [
+          format(node.ref),
+          '.',
+          format(node.attribute)
+        ].join('')
+      end
+
+      def format_references_group_reference(node)
+        [
+          format(node.ref),
+          '\\',
+          format(node.entity)
+        ].join('')
+      end
+
+      def format_references_index_reference(node)
+        [
+          format(node.ref),
+          '[',
+          format(node.index1),
+          *if node.index2
+            [
+              ':',
+              format(node.index2)
+            ].join('')
+          end,
+          ']'
+        ].join('')
+      end
+
+      def format_references_simple_reference(node)
+        node.id
+      end
+
       def format_statements_alias(node)
         [
           [
@@ -1030,9 +1043,9 @@ module Expressir
         ].join('')
       end
 
-      def format_statements_call(node)
+      def format_statements_procedure_call(node)
         [
-          format(node.ref),
+          format(node.procedure),
           *if node.parameters.length > 0
             [
               '(',
@@ -1210,11 +1223,45 @@ module Expressir
         ].join('')
       end
 
-      def format_types_aggregate(node)
+      def format_supertype_expressions_binary_supertype_expression(node)
+        [
+          *if node.operand1.is_a? Model::SupertypeExpressions::BinarySupertypeExpression and SUPERTYPE_OPERATOR_PRECEDENCE[node.operand1.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator]
+            '('
+          end,
+          format(node.operand1),
+          *if node.operand1.is_a? Model::SupertypeExpressions::BinarySupertypeExpression and SUPERTYPE_OPERATOR_PRECEDENCE[node.operand1.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator]
+            ')'
+          end,
+          ' ',
+          case node.operator
+            when Model::SupertypeExpressions::BinarySupertypeExpression::AND then 'AND'
+            when Model::SupertypeExpressions::BinarySupertypeExpression::ANDOR then 'ANDOR'
+          end,
+          ' ',
+          *if node.operand2.is_a? Model::SupertypeExpressions::BinarySupertypeExpression and SUPERTYPE_OPERATOR_PRECEDENCE[node.operand2.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator]
+            '('
+          end,
+          format(node.operand2),
+          *if node.operand2.is_a? Model::SupertypeExpressions::BinarySupertypeExpression and SUPERTYPE_OPERATOR_PRECEDENCE[node.operand2.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator]
+            ')'
+          end,
+        ].join('')
+      end
+
+      def format_supertype_expressions_oneof_supertype_expression(node)
+        [
+          'ONEOF',
+          '(',
+          node.operands.map{|x| format(x)}.join(', '),
+          ')'
+        ].join('')
+      end
+
+      def format_data_types_aggregate(node)
         'AGGREGATE'
       end
 
-      def format_types_array(node)
+      def format_data_types_array(node)
         [
           'ARRAY',
           *if node.bound1 and node.bound2
@@ -1246,7 +1293,7 @@ module Expressir
         ].join('')
       end
 
-      def format_types_bag(node)
+      def format_data_types_bag(node)
         [
           'BAG',
           *if node.bound1 and node.bound2
@@ -1266,7 +1313,7 @@ module Expressir
         ].join('')
       end
 
-      def format_types_binary(node)
+      def format_data_types_binary(node)
         [
           'BINARY',
           *if node.width
@@ -1286,11 +1333,11 @@ module Expressir
         ].join('')
       end
 
-      def format_types_boolean(node)
+      def format_data_types_boolean(node)
         'BOOLEAN'
       end
 
-      def format_types_enumeration(node)
+      def format_data_types_enumeration(node)
         [
           *if node.extensible
             [
@@ -1339,7 +1386,11 @@ module Expressir
         ].join('')
       end
 
-      def format_types_generic_entity(node)
+      def format_data_types_enumeration_item(node)
+        node.id
+      end
+
+      def format_data_types_generic_entity(node)
         [
           'GENERIC_ENTITY',
           *if node.id
@@ -1351,7 +1402,7 @@ module Expressir
         ].join('')
       end
 
-      def format_types_generic(node)
+      def format_data_types_generic(node)
         [
           'GENERIC',
           *if node.id
@@ -1363,11 +1414,11 @@ module Expressir
         ].join('')
       end
 
-      def format_types_integer(node)
+      def format_data_types_integer(node)
         'INTEGER'
       end
 
-      def format_types_list(node)
+      def format_data_types_list(node)
         [
           'LIST',
           *if node.bound1 and node.bound2
@@ -1393,15 +1444,15 @@ module Expressir
         ].join('')
       end
 
-      def format_types_logical(node)
+      def format_data_types_logical(node)
         'LOGICAL'
       end
 
-      def format_types_number(node)
+      def format_data_types_number(node)
         'NUMBER'
       end
 
-      def format_types_real(node)
+      def format_data_types_real(node)
         [
           'REAL',
           *if node.precision
@@ -1415,7 +1466,7 @@ module Expressir
         ].join('')
       end
 
-      def format_types_select(node)
+      def format_data_types_select(node)
         [
           *if node.extensible
             [
@@ -1468,7 +1519,7 @@ module Expressir
         ].join('')
       end
 
-      def format_types_set(node)
+      def format_data_types_set(node)
         [
           'SET',
           *if node.bound1 and node.bound2
@@ -1488,7 +1539,7 @@ module Expressir
         ].join('')
       end
 
-      def format_types_string(node)
+      def format_data_types_string(node)
         [
           'STRING',
           *if node.width
@@ -1549,7 +1600,7 @@ module Expressir
       def format_scope_remarks(node)
         [
           *format_remarks(node),
-          *node.children.select{|x| !x.is_a? Model::EnumerationItem or node.is_a? Model::Type}.flat_map{|x| format_scope_remarks(x)}
+          *node.children.select{|x| !x.is_a? Model::DataTypes::EnumerationItem or node.is_a? Model::Declarations::Type}.flat_map{|x| format_scope_remarks(x)}
         ]
       end
     end

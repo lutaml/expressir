@@ -5,17 +5,19 @@ module Expressir
   module Express
     class ResolveReferencesModelVisitor < ModelVisitor
       def visit(node)
-        if node.is_a? Model::Expressions::SimpleReference
-          visit_expressions_simple_reference(node)
+        if node.is_a? Model::References::SimpleReference
+          visit_references_simple_reference(node)
         end
 
         super
       end
 
-      def visit_expressions_simple_reference(node)
-        return if node.parent.is_a? Model::Expressions::AttributeReference
+      private
 
-        if node.parent.is_a? Model::InterfaceItem
+      def visit_references_simple_reference(node)
+        return if node.parent.is_a? Model::References::AttributeReference
+
+        if node.parent.is_a? Model::Declarations::InterfaceItem
           base_item = node.find("#{node.parent.parent.schema.id}.#{node.parent.ref.id}")
         else
           base_item = node.find(node.id)

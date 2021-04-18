@@ -2,17 +2,25 @@ require 'pathname'
 
 module Expressir
   module Model
+    # Base model element
     class ModelElement
       CLASS_KEY = '_class'
       FILE_KEY = 'file'
       SOURCE_KEY = 'source'
 
+      private_constant :CLASS_KEY
+      private_constant :FILE_KEY
+      private_constant :SOURCE_KEY
+
+      # @return [ModelElement]
       attr_accessor :parent
 
+      # @param [Hash] options
       def initialize(options = {})
         attach_parent_to_children
       end
 
+      # @return [String]
       def path
         # this creates an implicit scope
         return if is_a? Statements::Alias or is_a? Statements::Repeat or is_a? Expressions::QueryExpression
@@ -20,7 +28,7 @@ module Expressir
         current_node = self
         path_parts = []
         loop do
-          if current_node.class.method_defined? :id and !(current_node.is_a? Expressions::SimpleReference)
+          if current_node.class.method_defined? :id and !(current_node.is_a? References::SimpleReference)
             path_parts << current_node.id
           end
 
@@ -33,22 +41,8 @@ module Expressir
         path_parts.reverse.join(".")
       end
 
-      def attach_parent_to_children
-        self.class.model_attrs.each do |variable|
-          value = self.send(variable)
-
-          if value.is_a? Array
-            value.each do |value|
-              if value.is_a? ModelElement
-                value.parent = self
-              end
-            end
-          elsif value.is_a? ModelElement
-            value.parent = self
-          end
-        end
-      end
-
+      # @param [String] path
+      # @return [ModelElement]
       def find(path)
         return self if path.empty?
 
@@ -74,30 +68,34 @@ module Expressir
           break unless current_scope
         end
 
-        if target_node.is_a? Model::InterfacedItem
+        if target_node.is_a? Model::Declarations::InterfacedItem
           target_node = target_node.base_item
         end
 
         target_node
       end
 
+      # @return [Array<Declaration>]
       def children
         []
       end
 
+      # @return [Hash<String, Declaration>]
       def children_by_id
         @children_by_id ||= children.select{|x| x.id}.map{|x| [x.id.downcase, x]}.to_h
       end
 
+      # @return [nil]
       def reset_children_by_id
         @children_by_id = nil
+        nil
       end
-
-      def to_hash(options = {})
-        root_path = options[:root_path]
-        formatter = options[:formatter]
-        include_empty = options[:include_empty]
-
+      
+      # @param [String] root_path
+      # @param [Express::Formatter] formatter
+      # @param [Boolean] include_empty
+      # @return [Hash]
+      def to_hash(root_path: nil, formatter: nil, include_empty: nil)
         hash = {}
         hash[CLASS_KEY] = self.class.name
 
@@ -110,20 +108,20 @@ module Expressir
             hash[variable.to_s] = if value.is_a? Array
               value.map do |value|
                 if value.is_a? ModelElement
-                  value.to_hash(options)
+                  value.to_hash(root_path: root_path, formatter: formatter, include_empty: include_empty)
                 else
                   value
                 end
               end
             elsif value.is_a? ModelElement
-              value.to_hash(options)
+              value.to_hash(root_path: root_path, formatter: formatter, include_empty: include_empty)
             else
               value
             end
           end
         end
 
-        if self.is_a? Schema and file
+        if self.is_a? Declarations::Schema and file
           hash[FILE_KEY] = root_path ? Pathname.new(file).relative_path_from(root_path).to_s : file
         end
 
@@ -133,10 +131,11 @@ module Expressir
 
         hash
       end
-
-      def self.from_hash(hash, options = {})
-        root_path = options[:root_path]
-
+      
+      # @param [Hash] hash
+      # @param [String] root_path
+      # @return [ModelElement]
+      def self.from_hash(hash, root_path: nil)
         node_class = Object.const_get(hash[CLASS_KEY])
         node_options = {}
 
@@ -146,19 +145,19 @@ module Expressir
           node_options[variable] = if value.is_a? Array
             value.map do |value|
               if value.is_a? Hash
-                self.from_hash(value, options)
+                self.from_hash(value, root_path: root_path)
               else
                 value
               end
             end
           elsif value.is_a? Hash
-            self.from_hash(value, options)
+            self.from_hash(value, root_path: root_path)
           else
             value
           end
         end
 
-        if node_class == Schema and hash[FILE_KEY]
+        if node_class == Declarations::Schema and hash[FILE_KEY]
           node_options[FILE_KEY.to_sym] = root_path ? File.expand_path("#{root_path}/#{hash[FILE_KEY]}") : hash[FILE_KEY]
         end
 
@@ -167,15 +166,42 @@ module Expressir
         node
       end
 
+      # @return [Array<Symbol>]
       def self.model_attrs
         @model_attrs ||= []
       end
 
-      def self.model_attr_accessor(*vars)
+      # Define a new model attribute
+      # @param attr_name [Symbol] attribute name
+      # @param attr_type [Symbol] attribute type
+      # @!macro [attach] model_attr_accessor
+      #   @!attribute $1
+      #     @return [$2]
+      def self.model_attr_accessor(attr_name, attr_type = nil)
         @model_attrs ||= []
-        @model_attrs.concat(vars)
+        @model_attrs << attr_name
 
-        attr_accessor *vars
+        attr_accessor attr_name
+      end
+
+      private
+
+      # @return [nil]
+      def attach_parent_to_children
+        self.class.model_attrs.each do |variable|
+          value = self.send(variable)
+
+          if value.is_a? Array
+            value.each do |value|
+              if value.is_a? ModelElement
+                value.parent = self
+              end
+            end
+          elsif value.is_a? ModelElement
+            value.parent = self
+          end
+        end
+        nil
       end
     end
   end

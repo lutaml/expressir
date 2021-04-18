@@ -1,0 +1,11 @@
+# macro must be defined first, see https://stackoverflow.com/a/10344776/1823988
+lib/expressir/model/model_element.rb
+lib/expressir/model/data_type.rb
+lib/expressir/model/declaration.rb
+lib/expressir/model/expression.rb
+lib/expressir/model/literal.rb
+lib/expressir/model/reference.rb
+lib/expressir/model/statement.rb
+lib/expressir/model/supertype_expression.rb
+
+lib/**/*.rb

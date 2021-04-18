@@ -2,11 +2,11 @@
 
 require "yaml"
 require "tempfile"
-require "expressir/express_exp/parser"
-require "expressir/express_exp/formatter"
-require "expressir/express_exp/schema_head_formatter"
-require "expressir/express_exp/hyperlink_formatter"
-require "expressir/express_exp/cache"
+require "expressir/express/parser"
+require "expressir/express/formatter"
+require "expressir/express/schema_head_formatter"
+require "expressir/express/hyperlink_formatter"
+require "expressir/express/cache"
 
 exp_files = [
   # basic test
@@ -53,17 +53,17 @@ exp_files = [
 ]
 
 start = Time.now
-repository = Expressir::ExpressExp::Parser.from_files(exp_files)
+repository = Expressir::Express::Parser.from_files(exp_files)
 puts "Parser.from_files time:  #{(Time.now - start).round(2)}s"
 
 temp_file = Tempfile.new
 begin
   start = Time.now
-  Expressir::ExpressExp::Cache.to_file(temp_file, repository)
+  Expressir::Express::Cache.to_file(temp_file, repository)
   puts "Cache.to_file time:      #{(Time.now - start).round(2)}s"
 
   start = Time.now
-  repository = Expressir::ExpressExp::Cache.from_file(temp_file)
+  repository = Expressir::Express::Cache.from_file(temp_file)
   puts "Cache.from_file time:    #{(Time.now - start).round(2)}s"
 ensure
   temp_file.close
@@ -71,9 +71,9 @@ ensure
 end
 
 start = Time.now
-formatter = Class.new(Expressir::ExpressExp::Formatter) do
-  include Expressir::ExpressExp::SchemaHeadFormatter
-  include Expressir::ExpressExp::HyperlinkFormatter
+formatter = Class.new(Expressir::Express::Formatter) do
+  include Expressir::Express::SchemaHeadFormatter
+  include Expressir::Express::HyperlinkFormatter
 end
 result = repository.to_hash(formatter: formatter, skip_empty: true)
 puts "Repository.to_hash time: #{(Time.now - start).round(2)}s"

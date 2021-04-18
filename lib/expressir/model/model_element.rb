@@ -96,7 +96,7 @@ module Expressir
       def to_hash(options = {})
         root_path = options[:root_path]
         formatter = options[:formatter]
-        include_empty = options[:include_empty] || !options[:skip_empty] # TODO: remove skip_empty
+        include_empty = options[:include_empty]
 
         hash = {}
         hash[CLASS_KEY] = self.class.name

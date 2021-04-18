@@ -8,8 +8,8 @@
 /tmp/
 /Gemfile.lock
 /.idea
-/lib/expressir/express_exp/express_parser.bundle
-/original/examples/syntax/*-pretty.exp
+/lib/expressir/express/express_parser.bundle
+/spec/syntax/*-pretty.exp
 
 # rspec failure tracking
 .rspec_status

@@ -7,8 +7,8 @@ module Expressir
       model_attr_accessor :supertype_expression
       model_attr_accessor :subtype_of
       model_attr_accessor :attributes
-      model_attr_accessor :unique
-      model_attr_accessor :where
+      model_attr_accessor :unique_rules
+      model_attr_accessor :where_rules
       model_attr_accessor :informal_propositions
 
       def initialize(options = {})
@@ -21,8 +21,8 @@ module Expressir
         @supertype_expression = options[:supertype_expression]
         @subtype_of = options[:subtype_of] || []
         @attributes = options[:attributes] || []
-        @unique = options[:unique] || []
-        @where = options[:where] || []
+        @unique_rules = options[:unique_rules] || []
+        @where_rules = options[:where_rules] || []
         @informal_propositions = options[:informal_propositions] || []
 
         super
@@ -31,8 +31,8 @@ module Expressir
       def children
         [
           *attributes,
-          *unique,
-          *where,
+          *unique_rules,
+          *where_rules,
           *informal_propositions,
           *remark_items
         ]

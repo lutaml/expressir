@@ -3,8 +3,8 @@ module Expressir
     class Type < ModelElement
       include Identifier
 
-      model_attr_accessor :type
-      model_attr_accessor :where
+      model_attr_accessor :underlying_type
+      model_attr_accessor :where_rules
       model_attr_accessor :informal_propositions
 
       def initialize(options = {})
@@ -13,21 +13,21 @@ module Expressir
         @remark_items = options[:remark_items] || []
         @source = options[:source]
 
-        @type = options[:type]
-        @where = options[:where] || []
+        @underlying_type = options[:underlying_type]
+        @where_rules = options[:where_rules] || []
         @informal_propositions = options[:informal_propositions] || []
 
         super
       end
 
       def enumeration_items
-        type.is_a?(Types::Enumeration) ? type.items : []
+        underlying_type.is_a?(Types::Enumeration) ? underlying_type.items : []
       end
 
       def children
         [
           *enumeration_items,
-          *where,
+          *where_rules,
           *informal_propositions,
           *remark_items
         ]

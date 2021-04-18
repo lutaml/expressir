@@ -1,11 +1,17 @@
 module Expressir
   module Model
     module Statements
-      class If < ModelElement
-        model_attr_accessor :expression
-        model_attr_accessor :statements
-        model_attr_accessor :else_statements
+      # Specified in ISO 10303-11:2004
+      # - section 13.7 If ... Then ... Else statement
+      class If < Statement
+        model_attr_accessor :expression, 'Expression'
+        model_attr_accessor :statements, 'Array<Statement>'
+        model_attr_accessor :else_statements, 'Array<Statement>'
 
+        # @param [Hash] options
+        # @option options [Expression] :expression
+        # @option options [Array<Statement>] :statements
+        # @option options [Array<Statement>] :else_statements
         def initialize(options = {})
           @expression = options[:expression]
           @statements = options[:statements] || []

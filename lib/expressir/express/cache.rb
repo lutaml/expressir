@@ -5,28 +5,34 @@ require 'expressir/model'
 module Expressir
   module Express
     class Cache
-      def self.to_file(file, content, options = {})
-        root_path = options[:root_path]
-        test_overwrite_version = options[:test_overwrite_version] # don't use, only for tests
-
+      # Save Express model into a cache file
+      # @param file [String] cache file path
+      # @param content [Model::ModelElement] Express model
+      # @param root_path [String] Express repository root path, to be stripped from Express file paths to create a portable cache file
+      # @param test_overwrite_version [String] don't use, only for tests
+      # @return [nil]
+      def self.to_file(file, content, root_path: nil, test_overwrite_version: nil)
         version = test_overwrite_version || VERSION
 
-        cache = Model::Cache.new({
+        cache = Model::Cache.new(
           version: version,
           content: content
-        })
+        )
 
         hash = cache.to_hash(root_path: root_path)
         yaml = YAML.dump(hash)
         yaml_compressed = Zlib::Deflate.deflate(yaml)
 
         File.binwrite(file, yaml_compressed)
+        nil
       end
 
-      def self.from_file(file, options = {})
-        root_path = options[:root_path]
-        test_overwrite_version = options[:test_overwrite_version] # don't use, only for tests
-
+      # Load Express model from a cache file
+      # @param file [String] cache file path
+      # @param root_path [String] Express repository root path, to be prepended to Express file paths if loading a portable cache file
+      # @param test_overwrite_version [String] don't use, only for tests
+      # @return [Model::ModelElement] Express model
+      def self.from_file(file, root_path: nil, test_overwrite_version: nil)
         version = test_overwrite_version || VERSION
 
         yaml_compressed = File.binread(file)

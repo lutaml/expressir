@@ -1,7 +1,21 @@
 module Expressir
   module Express
+    # Formatter module - format references as hyperlinks
+    # @example Include into Formatter subclass
+    #   formatter = Class.new(Expressir::Express::Formatter) do
+    #     include Expressir::Express::HyperlinkFormatter
+    #   end
     module HyperlinkFormatter
-      def format_expressions_simple_reference(node)
+      # @!visibility private
+      def self.included(mod)
+        if !mod.superclass.private_method_defined? :format_references_simple_reference
+          raise 'Missing method'
+        end
+      end
+
+      private
+
+      def format_references_simple_reference(node)
         return node.id unless node.base_path
 
         # find closest node with path

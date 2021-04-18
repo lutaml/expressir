@@ -2,6 +2,7 @@ require "expressir/model"
 
 module Expressir
   module Express
+    # @abstract
     class ModelVisitor
       def visit(node)
         node.class.model_attrs.each do |variable|

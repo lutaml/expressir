@@ -25,16 +25,19 @@ repo = visitor.visit(parse_tree)
 module Expressir
   module Express
     class Parser
-      def self.from_file(file, options = {})
-        skip_references = options[:skip_references]
-
+      # Parses Express file into an Express model
+      # @param [String] file Express file path
+      # @param [Boolean] skip_references skip resolving references
+      # @param [Boolean] include_source attach original source code to model elements
+      # @return [Model::Repository]
+      def self.from_file(file, skip_references: nil, include_source: nil)
         input = File.read(file)
 
         parser = ::ExpressParser::Parser.parse(input)
 
         parse_tree = parser.syntax()
 
-        visitor = Visitor.new(parser.tokens, options)
+        visitor = Visitor.new(parser.tokens, include_source: include_source)
         repository = visitor.visit(parse_tree)
 
         repository.schemas.each do |schema|
@@ -49,19 +52,22 @@ module Expressir
         repository
       end
 
-      def self.from_files(files, options = {})
-        skip_references = options[:skip_references]
-
+      # Parses Express files into an Express model
+      # @param [Array<String>] files Express file paths
+      # @param [Boolean] skip_references skip resolving references
+      # @param [Boolean] include_source attach original source code to model elements
+      # @return [Model::Repository]
+      def self.from_files(files, skip_references: nil, include_source: nil)
         schemas = files.each_with_index.map do |file, i|
           # start = Time.now
-          repository = self.from_file(file, options.merge(skip_references: true))
+          repository = self.from_file(file, skip_references: true)
           # STDERR.puts "#{i+1}/#{files.length} #{file} #{Time.now - start}"
           repository.schemas
         end.flatten
 
-        repository = Model::Repository.new({
+        repository = Model::Repository.new(
           schemas: schemas
-        })
+        )
 
         unless skip_references
           resolve_references_model_visitor = ResolveReferencesModelVisitor.new

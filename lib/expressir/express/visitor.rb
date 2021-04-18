@@ -16,7 +16,7 @@ require "set"
 # > for example.
 # - such multi-pass parsing is not implemented yet
 # - xxxRef - merged to SimpleReference
-# - entityConstructor, functionCall - merged to Call
+# - entityConstructor, functionCall - merged to FunctionCall
 # 
 # difference between generalized and instantiable types is not recognized
 # see note in 8.6.2 Parameter data types
@@ -36,9 +36,13 @@ module Expressir
     class Visitor < ::ExpressParser::Visitor
       REMARK_CHANNEL = 2
 
-      def initialize(tokens, options = {})
+      private_constant :REMARK_CHANNEL
+
+      # @param [Array<::ExpressParser::Token>] tokens
+      # @param [Boolean] include_source attach original source code to model elements
+      def initialize(tokens, include_source: nil)
         @tokens = tokens
-        @include_source = options[:include_source]
+        @include_source = include_source
 
         @attached_remark_tokens = ::Set.new
 
@@ -53,6 +57,8 @@ module Expressir
         attach_remarks(ctx, node)
         node
       end
+
+      private
 
       def visit_if(ctx, default = nil)
         if ctx
@@ -113,9 +119,9 @@ module Expressir
         _, _, current_path = current_path.rpartition(":") # ignore prefix
         parent_node = node.find(rest)
         if parent_node and parent_node.class.method_defined? :remark_items
-          remark_item = Model::RemarkItem.new({
+          remark_item = Model::Declarations::RemarkItem.new(
             id: current_path
-          })
+          )
           remark_item.parent = parent_node
 
           # check if path can create implicit informal proposition
@@ -170,9 +176,9 @@ module Expressir
 
         id = visit_if(ctx__attribute_id)
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_constant_ref(ctx)
@@ -180,9 +186,9 @@ module Expressir
 
         id = visit_if(ctx__constant_id)
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_entity_ref(ctx)
@@ -190,9 +196,9 @@ module Expressir
 
         id = visit_if(ctx__entity_id)
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_enumeration_ref(ctx)
@@ -200,9 +206,9 @@ module Expressir
 
         id = visit_if(ctx__enumeration_id)
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_function_ref(ctx)
@@ -210,9 +216,9 @@ module Expressir
 
         id = visit_if(ctx__function_id)
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_parameter_ref(ctx)
@@ -220,9 +226,9 @@ module Expressir
 
         id = visit_if(ctx__parameter_id)
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_procedure_ref(ctx)
@@ -230,9 +236,9 @@ module Expressir
 
         id = visit_if(ctx__procedure_id)
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_rule_label_ref(ctx)
@@ -240,9 +246,9 @@ module Expressir
 
         id = visit_if(ctx__rule_label_id)
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_rule_ref(ctx)
@@ -250,9 +256,9 @@ module Expressir
 
         id = visit_if(ctx__rule_id)
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_schema_ref(ctx)
@@ -260,9 +266,9 @@ module Expressir
 
         id = visit_if(ctx__schema_id)
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_subtype_constraint_ref(ctx)
@@ -270,9 +276,9 @@ module Expressir
 
         id = visit_if(ctx__subtype_constraint_id)
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_type_label_ref(ctx)
@@ -280,9 +286,9 @@ module Expressir
 
         id = visit_if(ctx__type_label_id)
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_type_ref(ctx)
@@ -290,9 +296,9 @@ module Expressir
 
         id = visit_if(ctx__type_id)
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_variable_ref(ctx)
@@ -300,9 +306,9 @@ module Expressir
 
         id = visit_if(ctx__variable_id)
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_abstract_entity_declaration(ctx)
@@ -350,9 +356,9 @@ module Expressir
 
         items = visit_if_map(ctx__element)
 
-        Model::Expressions::AggregateInitializer.new({
+        Model::Expressions::AggregateInitializer.new(
           items: items
-        })
+        )
       end
 
       def visit_aggregate_source(ctx)
@@ -368,10 +374,10 @@ module Expressir
         id = visit_if(ctx__type_label)
         base_type = visit_if(ctx__parameter_type)
 
-        Model::Types::Aggregate.new({
+        Model::DataTypes::Aggregate.new(
           id: id,
           base_type: base_type
-        })
+        )
       end
 
       def visit_aggregation_types(ctx)
@@ -397,11 +403,11 @@ module Expressir
         expression = handle_qualified_ref(visit_if(ctx__general_ref), ctx__qualifier)
         statements = visit_if_map(ctx__stmt)
 
-        Model::Statements::Alias.new({
+        Model::Statements::Alias.new(
           id: id,
           expression: expression,
           statements: statements
-        })
+        )
       end
 
       def visit_array_type(ctx)
@@ -418,13 +424,13 @@ module Expressir
         unique = ctx__UNIQUE && true
         base_type = visit_if(ctx__instantiable_type)
         
-        Model::Types::Array.new({
+        Model::DataTypes::Array.new(
           bound1: bound1,
           bound2: bound2,
           optional: optional,
           unique: unique,
           base_type: base_type
-        })
+        )
       end
 
       def visit_assignment_stmt(ctx)
@@ -435,10 +441,10 @@ module Expressir
         ref = handle_qualified_ref(visit_if(ctx__general_ref), ctx__qualifier)
         expression = visit_if(ctx__expression)
 
-        Model::Statements::Assignment.new({
+        Model::Statements::Assignment.new(
           ref: ref,
           expression: expression
-        })
+        )
       end
 
       def visit_attribute_decl(ctx)
@@ -450,10 +456,10 @@ module Expressir
         id = visit_if(ctx__attribute_id || ctx__redeclared_attribute__attribute_id)
         supertype_attribute = visit_if(ctx__redeclared_attribute__qualified_attribute)
 
-        Model::Attribute.new({
+        Model::Declarations::Attribute.new(
           id: id,
           supertype_attribute: supertype_attribute
-        })
+        )
       end
 
       def visit_attribute_id(ctx)
@@ -467,9 +473,9 @@ module Expressir
 
         attribute = visit_if(ctx__attribute_ref)
 
-        Model::Expressions::AttributeReference.new({
+        Model::References::AttributeReference.new(
           attribute: attribute
-        })
+        )
       end
 
       def visit_attribute_reference(ctx)
@@ -486,11 +492,11 @@ module Expressir
         bound2 = visit_if(ctx__bound_spec__bound2)
         base_type = visit_if(ctx__instantiable_type)
         
-        Model::Types::Bag.new({
+        Model::DataTypes::Bag.new(
           bound1: bound1,
           bound2: bound2,
           base_type: base_type
-        })
+        )
       end
 
       def visit_binary_type(ctx)
@@ -501,14 +507,14 @@ module Expressir
         width = visit_if(ctx__width_spec__width)
         fixed = ctx__width_spec__FIXED && true
 
-        Model::Types::Binary.new({
+        Model::DataTypes::Binary.new(
           width: width,
           fixed: fixed
-        })
+        )
       end
 
       def visit_boolean_type(ctx)
-        Model::Types::Boolean.new
+        Model::DataTypes::Boolean.new
       end
 
       def visit_bound1(ctx)
@@ -532,9 +538,9 @@ module Expressir
 
         id = ctx__text
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_built_in_function(ctx)
@@ -542,9 +548,9 @@ module Expressir
 
         id = ctx__text
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_built_in_procedure(ctx)
@@ -552,9 +558,9 @@ module Expressir
 
         id = ctx__text
 
-        Model::Expressions::SimpleReference.new({
+        Model::References::SimpleReference.new(
           id: id
-        })
+        )
       end
 
       def visit_case_action(ctx)
@@ -564,10 +570,10 @@ module Expressir
         labels = visit_if_map(ctx__case_label)
         statement = visit_if(ctx__stmt)
 
-        Model::Statements::CaseAction.new({
+        Model::Statements::CaseAction.new(
           labels: labels,
           statement: statement
-        })
+        )
       end
 
       def visit_case_label(ctx)
@@ -586,11 +592,11 @@ module Expressir
         actions = visit_if_map_flatten(ctx__case_action)
         otherwise_statement = visit_if(ctx__stmt)
 
-        Model::Statements::Case.new({
+        Model::Statements::Case.new(
           expression: expression,
           actions: actions,
           otherwise_statement: otherwise_statement
-        })
+        )
       end
 
       def visit_compound_stmt(ctx)
@@ -598,9 +604,9 @@ module Expressir
 
         statements = visit_if_map(ctx__stmt)
 
-        Model::Statements::Compound.new({
+        Model::Statements::Compound.new(
           statements: statements
-        })
+        )
       end
 
       def visit_concrete_types(ctx)
@@ -620,11 +626,11 @@ module Expressir
         type = visit_if(ctx__instantiable_type)
         expression = visit_if(ctx__expression)
 
-        Model::Constant.new({
+        Model::Declarations::Constant.new(
           id: id,
           type: type,
           expression: expression
-        })
+        )
       end
 
       def visit_constant_decl(ctx)
@@ -672,13 +678,13 @@ module Expressir
         type = visit_if(ctx__parameter_type)
         expression = visit_if(ctx__expression)
 
-        Model::Attribute.new({
+        Model::Declarations::Attribute.new(
           id: attribute.id, # reuse
-          kind: Model::Attribute::DERIVED,
+          kind: Model::Declarations::Attribute::DERIVED,
           supertype_attribute: attribute.supertype_attribute, # reuse
           type: type,
           expression: expression
-        })
+        )
       end
 
       def visit_derive_clause(ctx)
@@ -694,10 +700,10 @@ module Expressir
         id = visit_if(ctx__rule_label_id)
         expression = visit_if(ctx__expression)
 
-        Model::WhereRule.new({
+        Model::Declarations::WhereRule.new(
           id: id,
           expression: expression
-        })
+        )
       end
 
       def visit_element(ctx)
@@ -708,10 +714,10 @@ module Expressir
           expression = visit_if(ctx__expression)
           repetition = visit_if(ctx__repetition)
 
-          Model::Expressions::AggregateItem.new({
+          Model::Expressions::AggregateInitializerItem.new(
             expression: expression,
             repetition: repetition
-          })
+          )
         else
           visit_if(ctx__expression)
         end
@@ -725,13 +731,17 @@ module Expressir
         ctx__entity_ref = ctx.entity_ref
         ctx__expression = ctx.expression
 
-        ref = visit_if(ctx__entity_ref)
+        entity = visit_if(ctx__entity_ref)
         parameters = visit_if_map(ctx__expression)
 
-        Model::Expressions::Call.new({
-          ref: ref,
+        # Model::Expressions::EntityConstructor.new(
+        #   entity: entity,
+        #   parameters: parameters
+        # )
+        Model::Expressions::FunctionCall.new(
+          function: entity,
           parameters: parameters
-        })
+        )
       end
 
       def visit_entity_decl(ctx)
@@ -762,7 +772,7 @@ module Expressir
         unique_rules = visit_if(ctx__entity_body__unique_clause, [])
         where_rules = visit_if(ctx__entity_body__where_clause, [])
 
-        Model::Entity.new({
+        Model::Declarations::Entity.new(
           id: id,
           abstract: abstract,
           supertype_expression: supertype_expression,
@@ -770,7 +780,7 @@ module Expressir
           attributes: attributes,
           unique_rules: unique_rules,
           where_rules: where_rules
-        })
+        )
       end
 
       def visit_entity_head(ctx)
@@ -804,9 +814,9 @@ module Expressir
 
         id = visit_if(ctx__enumeration_id)
 
-        Model::EnumerationItem.new({
+        Model::DataTypes::EnumerationItem.new(
           id: id
-        })
+        )
       end
 
       def visit_enumeration_reference(ctx)
@@ -817,10 +827,10 @@ module Expressir
           ref = visit_if(ctx__type_ref)
           attribute = visit_if(ctx__enumeration_ref)
   
-          Model::Expressions::AttributeReference.new({
+          Model::References::AttributeReference.new(
             ref: ref,
             attribute: attribute
-          })
+          )
         else
           visit_if(ctx__enumeration_ref)
         end
@@ -837,11 +847,11 @@ module Expressir
         based_on = visit_if(ctx__enumeration_extension__type_ref)
         items = visit_if(ctx__enumeration_items || ctx__enumeration_extension__enumeration_items, [])
 
-        Model::Types::Enumeration.new({
+        Model::DataTypes::Enumeration.new(
           extensible: extensible,
           based_on: based_on,
           items: items
-        })
+        )
       end
 
       def visit_escape_stmt(ctx)
@@ -858,13 +868,13 @@ module Expressir
         type = visit_if(ctx__parameter_type)
 
         attributes.map do |attribute|
-          Model::Attribute.new({
+          Model::Declarations::Attribute.new(
             id: attribute.id, # reuse
-            kind: Model::Attribute::EXPLICIT,
+            kind: Model::Declarations::Attribute::EXPLICIT,
             supertype_attribute: attribute.supertype_attribute, # reuse
             optional: optional,
             type: type
-          })
+          )
         end
       end
 
@@ -877,11 +887,11 @@ module Expressir
           operand1 = visit_if(ctx__simple_expression[0])
           operand2 = visit_if(ctx__simple_expression[1])
 
-          Model::Expressions::BinaryExpression.new({
+          Model::Expressions::BinaryExpression.new(
             operator: operator,
             operand1: operand1,
             operand2: operand2
-          })
+          )
         else
           visit_if(ctx__simple_expression[0])
         end
@@ -895,11 +905,11 @@ module Expressir
           operand1 = visit(ctx__simple_factor[0])
           operand2 = visit(ctx__simple_factor[1])
 
-          Model::Expressions::BinaryExpression.new({
+          Model::Expressions::BinaryExpression.new(
             operator: operator,
             operand1: operand1,
             operand2: operand2
-          })
+          )
         elsif ctx__simple_factor.length == 1
           visit_if(ctx__simple_factor[0])
         else
@@ -915,10 +925,10 @@ module Expressir
         type = visit_if(ctx__parameter_type)
 
         ids.map do |id|
-          Model::Parameter.new({
+          Model::Declarations::Parameter.new(
             id: id,
             type: type
-          })
+          )
         end
       end
 
@@ -927,13 +937,13 @@ module Expressir
         ctx__function_ref = ctx.function_ref
         ctx__actual_parameter_list = ctx.actual_parameter_list
 
-        ref = visit_if(ctx__built_in_function || ctx__function_ref)
+        function = visit_if(ctx__built_in_function || ctx__function_ref)
         parameters = visit_if(ctx__actual_parameter_list, [])
 
-        Model::Expressions::Call.new({
-          ref: ref,
+        Model::Expressions::FunctionCall.new(
+          function: function,
           parameters: parameters
-        })
+        )
       end
 
       def visit_function_decl(ctx)
@@ -951,16 +961,16 @@ module Expressir
         parameters = visit_if_map_flatten(ctx__function_head__formal_parameter)
         return_type = visit_if(ctx__function_head__parameter_type)
         declarations = visit_if_map(ctx__algorithm_head__declaration)
-        types = declarations.select{|x| x.is_a? Model::Type}
-        entities = declarations.select{|x| x.is_a? Model::Entity}
-        subtype_constraints = declarations.select{|x| x.is_a? Model::SubtypeConstraint}
-        functions = declarations.select{|x| x.is_a? Model::Function}
-        procedures = declarations.select{|x| x.is_a? Model::Procedure}
+        types = declarations.select{|x| x.is_a? Model::Declarations::Type}
+        entities = declarations.select{|x| x.is_a? Model::Declarations::Entity}
+        subtype_constraints = declarations.select{|x| x.is_a? Model::Declarations::SubtypeConstraint}
+        functions = declarations.select{|x| x.is_a? Model::Declarations::Function}
+        procedures = declarations.select{|x| x.is_a? Model::Declarations::Procedure}
         constants = visit_if(ctx__algorithm_head__constant_decl, [])
         variables = visit_if(ctx__algorithm_head__local_decl, [])
         statements = visit_if_map(ctx__stmt)
 
-        Model::Function.new({
+        Model::Declarations::Function.new(
           id: id,
           parameters: parameters,
           return_type: return_type,
@@ -972,7 +982,7 @@ module Expressir
           constants: constants,
           variables: variables,
           statements: statements
-        })
+        )
       end
 
       def visit_function_head(ctx)
@@ -1017,13 +1027,13 @@ module Expressir
         unique = ctx__UNIQUE && true
         base_type = visit_if(ctx__parameter_type)
         
-        Model::Types::Array.new({
+        Model::DataTypes::Array.new(
           bound1: bound1,
           bound2: bound2,
           optional: optional,
           unique: unique,
           base_type: base_type
-        })
+        )
       end
 
       def visit_general_bag_type(ctx)
@@ -1036,11 +1046,11 @@ module Expressir
         bound2 = visit_if(ctx__bound_spec__bound2)
         base_type = visit_if(ctx__parameter_type)
         
-        Model::Types::Bag.new({
+        Model::DataTypes::Bag.new(
           bound1: bound1,
           bound2: bound2,
           base_type: base_type
-        })
+        )
       end
 
       def visit_general_list_type(ctx)
@@ -1055,12 +1065,12 @@ module Expressir
         unique = ctx__UNIQUE && true
         base_type = visit_if(ctx__parameter_type)
         
-        Model::Types::List.new({
+        Model::DataTypes::List.new(
           bound1: bound1,
           bound2: bound2,
           unique: unique,
           base_type: base_type
-        })
+        )
       end
 
       def visit_general_ref(ctx)
@@ -1080,11 +1090,11 @@ module Expressir
         bound2 = visit_if(ctx__bound_spec__bound2)
         base_type = visit_if(ctx__parameter_type)
         
-        Model::Types::Set.new({
+        Model::DataTypes::Set.new(
           bound1: bound1,
           bound2: bound2,
           base_type: base_type
-        })
+        )
       end
 
       def visit_generic_entity_type(ctx)
@@ -1092,9 +1102,9 @@ module Expressir
 
         id = visit_if(ctx__type_label)
 
-        Model::Types::GenericEntity.new({
+        Model::DataTypes::GenericEntity.new(
           id: id
-        })
+        )
       end
 
       def visit_generic_type(ctx)
@@ -1102,9 +1112,9 @@ module Expressir
 
         id = visit_if(ctx__type_label)
 
-        Model::Types::Generic.new({
+        Model::DataTypes::Generic.new(
           id: id
-        })
+        )
       end
 
       def visit_group_qualifier(ctx)
@@ -1112,9 +1122,9 @@ module Expressir
 
         entity = visit_if(ctx__entity_ref)
 
-        Model::Expressions::GroupReference.new({
+        Model::References::GroupReference.new(
           entity: entity
-        })
+        )
       end
 
       def visit_group_reference(ctx)
@@ -1130,11 +1140,11 @@ module Expressir
         statements = visit_if(ctx__if_stmt_statements, [])
         else_statements = visit_if(ctx__if_stmt_else_statements, [])
 
-        Model::Statements::If.new({
+        Model::Statements::If.new(
           expression: expression,
           statements: statements,
           else_statements: else_statements
-        })
+        )
       end
 
       def visit_if_stmt_statements(ctx)
@@ -1184,10 +1194,10 @@ module Expressir
         index1 = visit_if(ctx__index1)
         index2 = visit_if(ctx__index2)
 
-        Model::Expressions::IndexReference.new({
+        Model::References::IndexReference.new(
           index1: index1,
           index2: index2
-        })
+        )
       end
 
       def visit_index_reference(ctx)
@@ -1202,7 +1212,7 @@ module Expressir
       end
 
       def visit_integer_type(ctx)
-        Model::Types::Integer.new
+        Model::DataTypes::Integer.new
       end
 
       def visit_interface_specification(ctx)
@@ -1224,13 +1234,13 @@ module Expressir
         operator2 = visit_if(ctx__interval_op[1])
         high = visit_if(ctx__interval_high)
 
-        Model::Expressions::Interval.new({
+        Model::Expressions::Interval.new(
           low: low,
           operator1: operator1,
           item: item,
           operator2: operator2,
           high: high
-        })
+        )
       end
 
       def visit_interval_high(ctx)
@@ -1257,9 +1267,9 @@ module Expressir
         ctx__LESS_THAN_OR_EQUAL = ctx__text == '<='
 
         if ctx__LESS_THAN
-          Model::Expressions::BinaryExpression::LESS_THAN
+          Model::Expressions::Interval::LESS_THAN
         elsif ctx__LESS_THAN_OR_EQUAL
-          Model::Expressions::BinaryExpression::LESS_THAN_OR_EQUAL
+          Model::Expressions::Interval::LESS_THAN_OR_EQUAL
         else
           raise 'Invalid state'
         end
@@ -1277,21 +1287,21 @@ module Expressir
           ref = visit(ctx__entity_ref)
           attribute_ref = visit(ctx__attribute_ref)
 
-          Model::Expressions::AttributeReference.new({
+          Model::References::AttributeReference.new(
             ref: ref,
             attribute: attribute_ref
-          })
+          )
         else
           visit(ctx__attribute_ref)
         end
 
-        Model::Attribute.new({
+        Model::Declarations::Attribute.new(
           id: attribute.id, # reuse
-          kind: Model::Attribute::INVERSE,
+          kind: Model::Declarations::Attribute::INVERSE,
           supertype_attribute: attribute.supertype_attribute, # reuse
           type: type,
           expression: expression
-        })
+        )
       end
 
       def visit_inverse_attr_type(ctx)
@@ -1307,21 +1317,21 @@ module Expressir
           bound2 = visit_if(ctx__bound_spec__bound2)
           base_type = visit_if(ctx__entity_ref)
 
-          Model::Types::Set.new({
+          Model::DataTypes::Set.new(
             bound1: bound1,
             bound2: bound2,
             base_type: base_type
-          })
+          )
         elsif ctx__BAG
           bound1 = visit_if(ctx__bound_spec__bound1)
           bound2 = visit_if(ctx__bound_spec__bound2)
           base_type = visit_if(ctx__entity_ref)
 
-          Model::Types::Bag.new({
+          Model::DataTypes::Bag.new(
             bound1: bound1,
             bound2: bound2,
             base_type: base_type
-          })
+          )
         else
           visit_if(ctx__entity_ref)
         end
@@ -1345,12 +1355,12 @@ module Expressir
         unique = ctx__UNIQUE && true
         base_type = visit_if(ctx__instantiable_type)
         
-        Model::Types::List.new({
+        Model::DataTypes::List.new(
           bound1: bound1,
           bound2: bound2,
           unique: unique,
           base_type: base_type
-        })
+        )
       end
 
       def visit_literal(ctx)
@@ -1391,11 +1401,11 @@ module Expressir
         expression = visit_if(ctx__expression)
 
         ids.map do |id|
-          Model::Variable.new({
+          Model::Declarations::Variable.new(
             id: id,
             type: type,
             expression: expression
-          })
+          )
         end
       end
 
@@ -1420,13 +1430,13 @@ module Expressir
           raise 'Invalid state'
         end
 
-        Model::Literals::Logical.new({
+        Model::Literals::Logical.new(
           value: value
-        })
+        )
       end
 
       def visit_logical_type(ctx)
-        Model::Types::Logical.new
+        Model::DataTypes::Logical.new
       end
 
       def visit_multiplication_like_op(ctx)
@@ -1470,10 +1480,10 @@ module Expressir
         ref = visit_if(ctx__named_types)
         id = visit_if(ctx__entity_id || ctx__type_id)
 
-        Model::InterfaceItem.new({
+        Model::Declarations::InterfaceItem.new(
           ref: ref,
           id: id
-        })
+        )
       end
 
       def visit_null_stmt(ctx)
@@ -1481,7 +1491,7 @@ module Expressir
       end
 
       def visit_number_type(ctx)
-        Model::Types::Number.new
+        Model::DataTypes::Number.new
       end
 
       def visit_numeric_expression(ctx)
@@ -1493,13 +1503,11 @@ module Expressir
       def visit_one_of(ctx)
         ctx__supertype_expression = ctx.supertype_expression
 
-        ref = Model::Expressions::SimpleReference.new({ id: 'ONEOF' })
-        parameters = visit_if_map(ctx__supertype_expression)
+        operands = visit_if_map(ctx__supertype_expression)
 
-        Model::Expressions::Call.new({
-          ref: ref,
-          parameters: parameters
-        })
+        Model::SupertypeExpressions::OneofSupertypeExpression.new(
+          operands: operands
+        )
       end
 
       def visit_parameter(ctx)
@@ -1553,13 +1561,13 @@ module Expressir
         ctx__procedure_ref = ctx.procedure_ref
         ctx__actual_parameter_list = ctx.actual_parameter_list
 
-        ref = visit_if(ctx__built_in_procedure || ctx__procedure_ref)
+        procedure = visit_if(ctx__built_in_procedure || ctx__procedure_ref)
         parameters = visit_if(ctx__actual_parameter_list, [])
 
-        Model::Statements::Call.new({
-          ref: ref,
+        Model::Statements::ProcedureCall.new(
+          procedure: procedure,
           parameters: parameters
-        })
+        )
       end
 
       def visit_procedure_decl(ctx)
@@ -1575,16 +1583,16 @@ module Expressir
         id = visit_if(ctx__procedure_head__procedure_id)
         parameters = visit_if_map_flatten(ctx__procedure_head__procedure_head_parameter)
         declarations = visit_if_map(ctx__algorithm_head__declaration)
-        types = declarations.select{|x| x.is_a? Model::Type}
-        entities = declarations.select{|x| x.is_a? Model::Entity}
-        subtype_constraints = declarations.select{|x| x.is_a? Model::SubtypeConstraint}
-        functions = declarations.select{|x| x.is_a? Model::Function}
-        procedures = declarations.select{|x| x.is_a? Model::Procedure}
+        types = declarations.select{|x| x.is_a? Model::Declarations::Type}
+        entities = declarations.select{|x| x.is_a? Model::Declarations::Entity}
+        subtype_constraints = declarations.select{|x| x.is_a? Model::Declarations::SubtypeConstraint}
+        functions = declarations.select{|x| x.is_a? Model::Declarations::Function}
+        procedures = declarations.select{|x| x.is_a? Model::Declarations::Procedure}
         constants = visit_if(ctx__algorithm_head__constant_decl, [])
         variables = visit_if(ctx__algorithm_head__local_decl, [])
         statements = visit_if_map(ctx__stmt)
 
-        Model::Procedure.new({
+        Model::Declarations::Procedure.new(
           id: id,
           parameters: parameters,
           types: types,
@@ -1595,7 +1603,7 @@ module Expressir
           constants: constants,
           variables: variables,
           statements: statements
-        })
+        )
       end
 
       def visit_procedure_head(ctx)
@@ -1610,11 +1618,11 @@ module Expressir
 
         if ctx.VAR
           parameters.map do |parameter|
-            Model::Parameter.new({
+            Model::Declarations::Parameter.new(
               id: parameter.id,
               var: true,
               type: parameter.type
-            })
+            )
           end
         else
           parameters
@@ -1645,15 +1653,15 @@ module Expressir
         group_reference = visit_if(ctx__group_qualifier)
         attribute_reference = visit_if(ctx__attribute_qualifier)
 
-        Model::Expressions::AttributeReference.new({
-          ref: Model::Expressions::GroupReference.new({
-            ref: Model::Expressions::SimpleReference.new({
+        Model::References::AttributeReference.new(
+          ref: Model::References::GroupReference.new(
+            ref: Model::References::SimpleReference.new(
               id: id
-            }),
+            ),
             entity: group_reference.entity # reuse
-          }),
+          ),
           attribute: attribute_reference.attribute # reuse
-        })
+        )
       end
 
       def visit_qualifier(ctx)
@@ -1673,11 +1681,11 @@ module Expressir
         aggregate_source = visit_if(ctx__aggregate_source)
         expression = visit_if(ctx__logical_expression)
 
-        Model::Expressions::QueryExpression.new({
+        Model::Expressions::QueryExpression.new(
           id: id,
           aggregate_source: aggregate_source,
           expression: expression
-        })
+        )
       end
 
       def visit_real_type(ctx)
@@ -1685,9 +1693,9 @@ module Expressir
 
         precision = visit_if(ctx__precision_spec)
 
-        Model::Types::Real.new({
+        Model::DataTypes::Real.new(
           precision: precision
-        })
+        )
       end
 
       def visit_redeclared_attribute(ctx)
@@ -1708,11 +1716,11 @@ module Expressir
         schema = visit_if(ctx__schema_ref)
         items = visit_if_map(ctx__resource_or_rename)
 
-        Model::Interface.new({
-          kind: Model::Interface::REFERENCE,
+        Model::Declarations::Interface.new(
+          kind: Model::Declarations::Interface::REFERENCE,
           schema: schema,
           items: items
-        })
+        )
       end
 
       def visit_rel_op(ctx)
@@ -1796,7 +1804,7 @@ module Expressir
         until_expression = visit_if(ctx__repeat_control__until_control)
         statements = visit_if_map(ctx__stmt)
 
-        Model::Statements::Repeat.new({
+        Model::Statements::Repeat.new(
           id: id,
           bound1: bound1,
           bound2: bound2,
@@ -1804,7 +1812,7 @@ module Expressir
           while_expression: while_expression,
           until_expression: until_expression,
           statements: statements
-        })
+        )
       end
 
       def visit_repetition(ctx)
@@ -1820,10 +1828,10 @@ module Expressir
         ref = visit_if(ctx__resource_ref)
         id = visit_if(ctx__rename_id)
 
-        Model::InterfaceItem.new({
+        Model::Declarations::InterfaceItem.new(
           ref: ref,
           id: id
-        })
+        )
       end
 
       def visit_resource_ref(ctx)
@@ -1841,9 +1849,9 @@ module Expressir
 
         expression = visit_if(ctx__expression)
 
-        Model::Statements::Return.new({
+        Model::Statements::Return.new(
           expression: expression
-        })
+        )
       end
 
       def visit_rule_decl(ctx)
@@ -1860,17 +1868,17 @@ module Expressir
         id = visit_if(ctx__rule_head__rule_id)
         applies_to = visit_if_map(ctx__rule_head__entity_ref)
         declarations = visit_if_map(ctx__algorithm_head__declaration)
-        types = declarations.select{|x| x.is_a? Model::Type}
-        entities = declarations.select{|x| x.is_a? Model::Entity}
-        subtype_constraints = declarations.select{|x| x.is_a? Model::SubtypeConstraint}
-        functions = declarations.select{|x| x.is_a? Model::Function}
-        procedures = declarations.select{|x| x.is_a? Model::Procedure}
+        types = declarations.select{|x| x.is_a? Model::Declarations::Type}
+        entities = declarations.select{|x| x.is_a? Model::Declarations::Entity}
+        subtype_constraints = declarations.select{|x| x.is_a? Model::Declarations::SubtypeConstraint}
+        functions = declarations.select{|x| x.is_a? Model::Declarations::Function}
+        procedures = declarations.select{|x| x.is_a? Model::Declarations::Procedure}
         constants = visit_if(ctx__algorithm_head__constant_decl, [])
         variables = visit_if(ctx__algorithm_head__local_decl, [])
         statements = visit_if_map(ctx__stmt)
         where_rules = visit_if(ctx__where_clause, [])
 
-        Model::Rule.new({
+        Model::Declarations::Rule.new(
           id: id,
           applies_to: applies_to,
           types: types,
@@ -1882,7 +1890,7 @@ module Expressir
           variables: variables,
           statements: statements,
           where_rules: where_rules
-        })
+        )
       end
 
       def visit_rule_head(ctx)
@@ -1925,14 +1933,14 @@ module Expressir
         interfaces = visit_if_map(ctx__schema_body__interface_specification)
         constants = visit_if(ctx__schema_body__constant_decl, [])
         declarations = visit_if_map(ctx__schema_body__schema_body_declaration)
-        types = declarations.select{|x| x.is_a? Model::Type}
-        entities = declarations.select{|x| x.is_a? Model::Entity}
-        subtype_constraints = declarations.select{|x| x.is_a? Model::SubtypeConstraint}
-        functions = declarations.select{|x| x.is_a? Model::Function}
-        rules = declarations.select{|x| x.is_a? Model::Rule}
-        procedures = declarations.select{|x| x.is_a? Model::Procedure}
+        types = declarations.select{|x| x.is_a? Model::Declarations::Type}
+        entities = declarations.select{|x| x.is_a? Model::Declarations::Entity}
+        subtype_constraints = declarations.select{|x| x.is_a? Model::Declarations::SubtypeConstraint}
+        functions = declarations.select{|x| x.is_a? Model::Declarations::Function}
+        rules = declarations.select{|x| x.is_a? Model::Declarations::Rule}
+        procedures = declarations.select{|x| x.is_a? Model::Declarations::Procedure}
 
-        Model::Schema.new({
+        Model::Declarations::Schema.new(
           id: id,
           version: version,
           interfaces: interfaces,
@@ -1943,7 +1951,7 @@ module Expressir
           functions: functions,
           rules: rules,
           procedures: procedures
-        })
+        )
       end
 
       def visit_schema_id(ctx)
@@ -1962,26 +1970,26 @@ module Expressir
           parts = value.sub(/^\{/, '').sub(/\}$/, '').split(' ')
           parts.map do |part|
             if match = part.match(/^(.+)\((\d+)\)$/)
-              Model::SchemaVersionItem.new({
+              Model::Declarations::SchemaVersionItem.new(
                 name: match[1],
                 value: match[2]
-              })
+              )
             elsif part.match(/^\d+$/)
-              Model::SchemaVersionItem.new({
+              Model::Declarations::SchemaVersionItem.new(
                 value: part
-              })
+              )
             else
-              Model::SchemaVersionItem.new({
+              Model::Declarations::SchemaVersionItem.new(
                 name: part
-              })
+              )
             end
           end
         end
         
-        Model::SchemaVersion.new({
+        Model::Declarations::SchemaVersion.new(
           value: value,
           items: items
-        })
+        )
       end
 
       def visit_selector(ctx)
@@ -2013,12 +2021,12 @@ module Expressir
         based_on = visit_if(ctx__select_extension__type_ref)
         items = visit_if(ctx__select_list || ctx__select_extension__select_list, [])
 
-        Model::Types::Select.new({
+        Model::DataTypes::Select.new(
           extensible: extensible,
           generic_entity: generic_entity,
           based_on: based_on,
           items: items
-        })
+        )
       end
 
       def visit_set_type(ctx)
@@ -2031,11 +2039,11 @@ module Expressir
         bound2 = visit_if(ctx__bound_spec__bound2)
         base_type = visit_if(ctx__instantiable_type)
         
-        Model::Types::Set.new({
+        Model::DataTypes::Set.new(
           bound1: bound1,
           bound2: bound2,
           base_type: base_type
-        })
+        )
       end
 
       def visit_simple_expression(ctx)
@@ -2086,10 +2094,10 @@ module Expressir
         operator = visit_if(ctx__unary_op)
         operand = visit_if(ctx__simple_factor_expression)
 
-        Model::Expressions::UnaryExpression.new({
+        Model::Expressions::UnaryExpression.new(
           operator: operator,
           operand: operand
-        })
+        )
       end
 
       def visit_simple_types(ctx)
@@ -2145,10 +2153,10 @@ module Expressir
         width = visit_if(ctx__width_spec__width)
         fixed = ctx__width_spec__FIXED && true
 
-        Model::Types::String.new({
+        Model::DataTypes::String.new(
           width: width,
           fixed: fixed
-        })
+        )
       end
 
       def visit_subsuper(ctx)
@@ -2180,13 +2188,13 @@ module Expressir
         total_over = visit_if(ctx__subtype_constraint_body__total_over, [])
         supertype_expression = visit_if(ctx__subtype_constraint_body__supertype_expression)
 
-        Model::SubtypeConstraint.new({
+        Model::Declarations::SubtypeConstraint.new(
           id: id,
           applies_to: applies_to,
           abstract: abstract,
           total_over: total_over,
           supertype_expression: supertype_expression
-        })
+        )
       end
 
       def visit_subtype_constraint_head(ctx)
@@ -2217,9 +2225,9 @@ module Expressir
           if ctx__supertype_factor.length >= 2
             if ctx__ANDOR and ctx__ANDOR.length == ctx__supertype_factor.length - 1
               operands = ctx__supertype_factor.map(&self.method(:visit))
-              operators = ctx__ANDOR.map{Model::Expressions::BinaryExpression::ANDOR}
+              operators = ctx__ANDOR.map{Model::SupertypeExpressions::BinarySupertypeExpression::ANDOR}
 
-              handle_binary_expression(operands, operators)
+              handle_binary_supertype_expression(operands, operators)
             else
               raise 'Invalid state'
             end
@@ -2239,9 +2247,9 @@ module Expressir
           if ctx__supertype_term.length >= 2
             if ctx__AND and ctx__AND.length == ctx__supertype_term.length - 1
               operands = ctx__supertype_term.map(&self.method(:visit))
-              operators = ctx__AND.map{Model::Expressions::BinaryExpression::AND}
+              operators = ctx__AND.map{Model::SupertypeExpressions::BinarySupertypeExpression::AND}
 
-              handle_binary_expression(operands, operators)
+              handle_binary_supertype_expression(operands, operators)
             else
               raise 'Invalid state'
             end
@@ -2272,9 +2280,9 @@ module Expressir
 
         schemas = visit_if_map(ctx__schema_decl)
 
-        Model::Repository.new({
+        Model::Repository.new(
           schemas: schemas
-        })
+        )
       end
 
       def visit_term(ctx)
@@ -2314,11 +2322,11 @@ module Expressir
         underlying_type = visit_if(ctx__underlying_type)
         where_rules = visit_if(ctx__where_clause, [])
 
-        Model::Type.new({
+        Model::Declarations::Type.new(
           id: id,
           underlying_type: underlying_type,
           where_rules: where_rules
-        })
+        )
       end
 
       def visit_type_id(ctx)
@@ -2377,10 +2385,10 @@ module Expressir
         id = visit_if(ctx__rule_label_id)
         attributes = visit_if_map(ctx__referenced_attribute)
 
-        Model::UniqueRule.new({
+        Model::Declarations::UniqueRule.new(
           id: id,
           attributes: attributes
-        })
+        )
       end
 
       def visit_until_control(ctx)
@@ -2396,11 +2404,11 @@ module Expressir
         schema = visit_if(ctx__schema_ref)
         items = visit_if_map(ctx__named_type_or_rename)
 
-        Model::Interface.new({
-          kind: Model::Interface::USE,
+        Model::Declarations::Interface.new(
+          kind: Model::Declarations::Interface::USE,
           schema: schema,
           items: items
-        })
+        )
       end
 
       def visit_variable_id(ctx)
@@ -2431,24 +2439,42 @@ module Expressir
         raise 'Invalid state'
       end
 
-      private
-
       def handle_binary_expression(operands, operators)
         if operands.length != operators.length + 1
           raise 'Invalid state'
         end
 
-        expression = Model::Expressions::BinaryExpression.new({
+        expression = Model::Expressions::BinaryExpression.new(
           operator: operators[0],
           operand1: operands[0],
           operand2: operands[1]
-        })
+        )
         operators[1..(operators.length - 1)].each_with_index do |operator, i|
-          expression = Model::Expressions::BinaryExpression.new({
+          expression = Model::Expressions::BinaryExpression.new(
             operator: operator,
             operand1: expression,
             operand2: operands[i + 2]
-          })
+          )
+        end
+        expression
+      end
+
+      def handle_binary_supertype_expression(operands, operators)
+        if operands.length != operators.length + 1
+          raise 'Invalid state'
+        end
+
+        expression = Model::SupertypeExpressions::BinarySupertypeExpression.new(
+          operator: operators[0],
+          operand1: operands[0],
+          operand2: operands[1]
+        )
+        operators[1..(operators.length - 1)].each_with_index do |operator, i|
+          expression = Model::SupertypeExpressions::BinarySupertypeExpression.new(
+            operator: operator,
+            operand1: expression,
+            operand2: operands[i + 2]
+          )
         end
         expression
       end
@@ -2462,25 +2488,25 @@ module Expressir
           if ctx__attribute_qualifier
             attribute_reference = visit_if(ctx__attribute_qualifier)
 
-            Model::Expressions::AttributeReference.new({
+            Model::References::AttributeReference.new(
               ref: ref,
               attribute: attribute_reference.attribute
-            })
+            )
           elsif ctx__group_qualifier
             group_reference = visit_if(ctx__group_qualifier)
 
-            Model::Expressions::GroupReference.new({
+            Model::References::GroupReference.new(
               ref: ref,
               entity: group_reference.entity
-            })
+            )
           elsif ctx__index_qualifier
             index_reference = visit_if(ctx__index_qualifier)
 
-            Model::Expressions::IndexReference.new({
+            Model::References::IndexReference.new(
               ref: ref,
               index1: index_reference.index1,
               index2: index_reference.index2
-            })
+            )
           else
             raise 'Invalid state'
           end
@@ -2492,9 +2518,9 @@ module Expressir
 
         value = ctx__text[1..(ctx__text.length - 1)]
 
-        Model::Literals::Binary.new({
+        Model::Literals::Binary.new(
           value: value
-        })
+        )
       end
 
       def handle_integer_literal(ctx)
@@ -2502,9 +2528,9 @@ module Expressir
 
         value = ctx__text
 
-        Model::Literals::Integer.new({
+        Model::Literals::Integer.new(
           value: value
-        })
+        )
       end
 
       def handle_real_literal(ctx)
@@ -2512,9 +2538,9 @@ module Expressir
 
         value = ctx__text
 
-        Model::Literals::Real.new({
+        Model::Literals::Real.new(
           value: value
-        })
+        )
       end
 
       def handle_simple_id(ctx)
@@ -2528,9 +2554,9 @@ module Expressir
 
         value = ctx__text[1..(ctx__text.length - 2)].force_encoding('UTF-8')
 
-        Model::Literals::String.new({
+        Model::Literals::String.new(
           value: value
-        })
+        )
       end
 
       def handle_encoded_string_literal(ctx)
@@ -2538,10 +2564,10 @@ module Expressir
 
         value = ctx__text[1..(ctx__text.length - 2)].force_encoding('UTF-8')
 
-        Model::Literals::String.new({
+        Model::Literals::String.new(
           value: value,
           encoded: true
-        })
+        )
       end
     end
   end

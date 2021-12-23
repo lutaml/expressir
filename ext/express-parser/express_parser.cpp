@@ -6,10 +6,8 @@
 #include "antlrgen/ExpressBaseVisitor.h"
 #include "antlrgen/ExpressLexer.h"
 
-#include <rice/Array.hpp>
-#include <rice/Class.hpp>
-#include <rice/Constructor.hpp>
-#include <rice/Director.hpp>
+#include <rice/rice.hpp>
+#include <rice/stl.hpp>
 
 #ifdef _WIN32
 #undef OPTIONAL
@@ -20,6 +18,8 @@
 // ruby-3.0
 #undef FALSE
 #undef TRUE
+
+#undef TYPE
 
 using namespace std;
 using namespace Rice;
@@ -230,22 +230,33 @@ Class rb_cParseTree;
 Class rb_cTerminalNode;
 Class rb_cContextProxy;
 
-template <>
-Object to_ruby<Token*>(Token* const &x) {
-  if (!x) return Nil;
-  return Data_Object<Token>(x, rb_cToken, nullptr, nullptr);
-}
+namespace Rice::detail {
+  template <>
+  class To_Ruby<Token*> {
+  public:
+    VALUE convert(Token* const &x) {
+      if (!x) return Nil;
+      return Data_Object<Token>(x, false, rb_cToken);
+    }
+  };
 
-template <>
-Object to_ruby<tree::ParseTree*>(tree::ParseTree* const &x) {
-  if (!x) return Nil;
-  return Data_Object<tree::ParseTree>(x, rb_cParseTree, nullptr, nullptr);
-}
+  template <>
+  class To_Ruby<tree::ParseTree*> {
+  public:
+    VALUE convert(tree::ParseTree* const &x) {
+      if (!x) return Nil;
+      return Data_Object<tree::ParseTree>(x, false, rb_cParseTree);
+    }
+  };
 
-template <>
-Object to_ruby<tree::TerminalNode*>(tree::TerminalNode* const &x) {
-  if (!x) return Nil;
-  return Data_Object<tree::TerminalNode>(x, rb_cTerminalNode, nullptr, nullptr);
+  template <>
+  class To_Ruby<tree::TerminalNode*> {
+  public:
+    VALUE convert(tree::TerminalNode* const &x) {
+      if (!x) return Nil;
+      return Data_Object<tree::TerminalNode>(x, false, rb_cTerminalNode);
+    }
+  };
 }
 
 class ContextProxy {
@@ -265,13 +276,13 @@ public:
   Object getStart() {
     auto token = ((ParserRuleContext*) orig) -> getStart();
 
-    return to_ruby(token);
+    return detail::To_Ruby<Token*>().convert(token);
   }
 
   Object getStop() {
     auto token = ((ParserRuleContext*) orig) -> getStop();
 
-    return to_ruby(token);
+    return detail::To_Ruby<Token*>().convert(token);
   }
 
   Array getChildren() {
@@ -312,7 +323,7 @@ public:
 
   bool doubleEquals(Object other) {
     if (other.is_a(rb_cContextProxy)) {
-      return from_ruby<ContextProxy*>(other) -> getOriginal() == getOriginal();
+      return detail::From_Ruby<ContextProxy*>().convert(other) -> getOriginal() == getOriginal();
     } else {
       return false;
     }
@@ -332,6 +343,7 @@ class TerminalNodeProxy : public ContextProxy {
 public:
   TerminalNodeProxy(tree::ParseTree* tree) : ContextProxy(tree) { }
 };
+
 
 class AttributeRefContextProxy : public ContextProxy {
 public:
@@ -2034,2392 +2046,3984 @@ public:
 };
 
 
-template <>
-Object to_ruby<ExpressParser::AttributeRefContext*>(ExpressParser::AttributeRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::AttributeRefContext>(x, rb_cAttributeRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<AttributeRefContextProxy*>(AttributeRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<AttributeRefContextProxy>(x, rb_cAttributeRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::AttributeIdContext*>(ExpressParser::AttributeIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::AttributeIdContext>(x, rb_cAttributeIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<AttributeIdContextProxy*>(AttributeIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<AttributeIdContextProxy>(x, rb_cAttributeIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ConstantRefContext*>(ExpressParser::ConstantRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ConstantRefContext>(x, rb_cConstantRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ConstantRefContextProxy*>(ConstantRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ConstantRefContextProxy>(x, rb_cConstantRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ConstantIdContext*>(ExpressParser::ConstantIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ConstantIdContext>(x, rb_cConstantIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ConstantIdContextProxy*>(ConstantIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ConstantIdContextProxy>(x, rb_cConstantIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::EntityRefContext*>(ExpressParser::EntityRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::EntityRefContext>(x, rb_cEntityRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<EntityRefContextProxy*>(EntityRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<EntityRefContextProxy>(x, rb_cEntityRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::EntityIdContext*>(ExpressParser::EntityIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::EntityIdContext>(x, rb_cEntityIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<EntityIdContextProxy*>(EntityIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<EntityIdContextProxy>(x, rb_cEntityIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::EnumerationRefContext*>(ExpressParser::EnumerationRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::EnumerationRefContext>(x, rb_cEnumerationRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<EnumerationRefContextProxy*>(EnumerationRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<EnumerationRefContextProxy>(x, rb_cEnumerationRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::EnumerationIdContext*>(ExpressParser::EnumerationIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::EnumerationIdContext>(x, rb_cEnumerationIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<EnumerationIdContextProxy*>(EnumerationIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<EnumerationIdContextProxy>(x, rb_cEnumerationIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::FunctionRefContext*>(ExpressParser::FunctionRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::FunctionRefContext>(x, rb_cFunctionRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<FunctionRefContextProxy*>(FunctionRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<FunctionRefContextProxy>(x, rb_cFunctionRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::FunctionIdContext*>(ExpressParser::FunctionIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::FunctionIdContext>(x, rb_cFunctionIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<FunctionIdContextProxy*>(FunctionIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<FunctionIdContextProxy>(x, rb_cFunctionIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ParameterRefContext*>(ExpressParser::ParameterRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ParameterRefContext>(x, rb_cParameterRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ParameterRefContextProxy*>(ParameterRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ParameterRefContextProxy>(x, rb_cParameterRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ParameterIdContext*>(ExpressParser::ParameterIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ParameterIdContext>(x, rb_cParameterIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ParameterIdContextProxy*>(ParameterIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ParameterIdContextProxy>(x, rb_cParameterIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ProcedureRefContext*>(ExpressParser::ProcedureRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ProcedureRefContext>(x, rb_cProcedureRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ProcedureRefContextProxy*>(ProcedureRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ProcedureRefContextProxy>(x, rb_cProcedureRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ProcedureIdContext*>(ExpressParser::ProcedureIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ProcedureIdContext>(x, rb_cProcedureIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ProcedureIdContextProxy*>(ProcedureIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ProcedureIdContextProxy>(x, rb_cProcedureIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::RuleLabelRefContext*>(ExpressParser::RuleLabelRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::RuleLabelRefContext>(x, rb_cRuleLabelRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<RuleLabelRefContextProxy*>(RuleLabelRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<RuleLabelRefContextProxy>(x, rb_cRuleLabelRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::RuleLabelIdContext*>(ExpressParser::RuleLabelIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::RuleLabelIdContext>(x, rb_cRuleLabelIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<RuleLabelIdContextProxy*>(RuleLabelIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<RuleLabelIdContextProxy>(x, rb_cRuleLabelIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::RuleRefContext*>(ExpressParser::RuleRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::RuleRefContext>(x, rb_cRuleRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<RuleRefContextProxy*>(RuleRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<RuleRefContextProxy>(x, rb_cRuleRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::RuleIdContext*>(ExpressParser::RuleIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::RuleIdContext>(x, rb_cRuleIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<RuleIdContextProxy*>(RuleIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<RuleIdContextProxy>(x, rb_cRuleIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SchemaRefContext*>(ExpressParser::SchemaRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SchemaRefContext>(x, rb_cSchemaRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SchemaRefContextProxy*>(SchemaRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SchemaRefContextProxy>(x, rb_cSchemaRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SchemaIdContext*>(ExpressParser::SchemaIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SchemaIdContext>(x, rb_cSchemaIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SchemaIdContextProxy*>(SchemaIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SchemaIdContextProxy>(x, rb_cSchemaIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SubtypeConstraintRefContext*>(ExpressParser::SubtypeConstraintRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SubtypeConstraintRefContext>(x, rb_cSubtypeConstraintRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SubtypeConstraintRefContextProxy*>(SubtypeConstraintRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SubtypeConstraintRefContextProxy>(x, rb_cSubtypeConstraintRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SubtypeConstraintIdContext*>(ExpressParser::SubtypeConstraintIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SubtypeConstraintIdContext>(x, rb_cSubtypeConstraintIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SubtypeConstraintIdContextProxy*>(SubtypeConstraintIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SubtypeConstraintIdContextProxy>(x, rb_cSubtypeConstraintIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::TypeLabelRefContext*>(ExpressParser::TypeLabelRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::TypeLabelRefContext>(x, rb_cTypeLabelRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<TypeLabelRefContextProxy*>(TypeLabelRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<TypeLabelRefContextProxy>(x, rb_cTypeLabelRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::TypeLabelIdContext*>(ExpressParser::TypeLabelIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::TypeLabelIdContext>(x, rb_cTypeLabelIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<TypeLabelIdContextProxy*>(TypeLabelIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<TypeLabelIdContextProxy>(x, rb_cTypeLabelIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::TypeRefContext*>(ExpressParser::TypeRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::TypeRefContext>(x, rb_cTypeRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<TypeRefContextProxy*>(TypeRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<TypeRefContextProxy>(x, rb_cTypeRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::TypeIdContext*>(ExpressParser::TypeIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::TypeIdContext>(x, rb_cTypeIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<TypeIdContextProxy*>(TypeIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<TypeIdContextProxy>(x, rb_cTypeIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::VariableRefContext*>(ExpressParser::VariableRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::VariableRefContext>(x, rb_cVariableRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<VariableRefContextProxy*>(VariableRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<VariableRefContextProxy>(x, rb_cVariableRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::VariableIdContext*>(ExpressParser::VariableIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::VariableIdContext>(x, rb_cVariableIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<VariableIdContextProxy*>(VariableIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<VariableIdContextProxy>(x, rb_cVariableIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::AbstractEntityDeclarationContext*>(ExpressParser::AbstractEntityDeclarationContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::AbstractEntityDeclarationContext>(x, rb_cAbstractEntityDeclarationContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<AbstractEntityDeclarationContextProxy*>(AbstractEntityDeclarationContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<AbstractEntityDeclarationContextProxy>(x, rb_cAbstractEntityDeclarationContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::AbstractSupertypeContext*>(ExpressParser::AbstractSupertypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::AbstractSupertypeContext>(x, rb_cAbstractSupertypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<AbstractSupertypeContextProxy*>(AbstractSupertypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<AbstractSupertypeContextProxy>(x, rb_cAbstractSupertypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::AbstractSupertypeDeclarationContext*>(ExpressParser::AbstractSupertypeDeclarationContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::AbstractSupertypeDeclarationContext>(x, rb_cAbstractSupertypeDeclarationContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<AbstractSupertypeDeclarationContextProxy*>(AbstractSupertypeDeclarationContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<AbstractSupertypeDeclarationContextProxy>(x, rb_cAbstractSupertypeDeclarationContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SubtypeConstraintContext*>(ExpressParser::SubtypeConstraintContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SubtypeConstraintContext>(x, rb_cSubtypeConstraintContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SubtypeConstraintContextProxy*>(SubtypeConstraintContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SubtypeConstraintContextProxy>(x, rb_cSubtypeConstraintContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ActualParameterListContext*>(ExpressParser::ActualParameterListContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ActualParameterListContext>(x, rb_cActualParameterListContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ActualParameterListContextProxy*>(ActualParameterListContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ActualParameterListContextProxy>(x, rb_cActualParameterListContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ParameterContext*>(ExpressParser::ParameterContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ParameterContext>(x, rb_cParameterContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ParameterContextProxy*>(ParameterContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ParameterContextProxy>(x, rb_cParameterContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::AddLikeOpContext*>(ExpressParser::AddLikeOpContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::AddLikeOpContext>(x, rb_cAddLikeOpContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<AddLikeOpContextProxy*>(AddLikeOpContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<AddLikeOpContextProxy>(x, rb_cAddLikeOpContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::AggregateInitializerContext*>(ExpressParser::AggregateInitializerContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::AggregateInitializerContext>(x, rb_cAggregateInitializerContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<AggregateInitializerContextProxy*>(AggregateInitializerContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<AggregateInitializerContextProxy>(x, rb_cAggregateInitializerContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ElementContext*>(ExpressParser::ElementContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ElementContext>(x, rb_cElementContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ElementContextProxy*>(ElementContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ElementContextProxy>(x, rb_cElementContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::AggregateSourceContext*>(ExpressParser::AggregateSourceContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::AggregateSourceContext>(x, rb_cAggregateSourceContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<AggregateSourceContextProxy*>(AggregateSourceContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<AggregateSourceContextProxy>(x, rb_cAggregateSourceContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SimpleExpressionContext*>(ExpressParser::SimpleExpressionContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SimpleExpressionContext>(x, rb_cSimpleExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SimpleExpressionContextProxy*>(SimpleExpressionContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SimpleExpressionContextProxy>(x, rb_cSimpleExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::AggregateTypeContext*>(ExpressParser::AggregateTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::AggregateTypeContext>(x, rb_cAggregateTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<AggregateTypeContextProxy*>(AggregateTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<AggregateTypeContextProxy>(x, rb_cAggregateTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ParameterTypeContext*>(ExpressParser::ParameterTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ParameterTypeContext>(x, rb_cParameterTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ParameterTypeContextProxy*>(ParameterTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ParameterTypeContextProxy>(x, rb_cParameterTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::TypeLabelContext*>(ExpressParser::TypeLabelContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::TypeLabelContext>(x, rb_cTypeLabelContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<TypeLabelContextProxy*>(TypeLabelContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<TypeLabelContextProxy>(x, rb_cTypeLabelContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::AggregationTypesContext*>(ExpressParser::AggregationTypesContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::AggregationTypesContext>(x, rb_cAggregationTypesContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<AggregationTypesContextProxy*>(AggregationTypesContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<AggregationTypesContextProxy>(x, rb_cAggregationTypesContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ArrayTypeContext*>(ExpressParser::ArrayTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ArrayTypeContext>(x, rb_cArrayTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ArrayTypeContextProxy*>(ArrayTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ArrayTypeContextProxy>(x, rb_cArrayTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::BagTypeContext*>(ExpressParser::BagTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::BagTypeContext>(x, rb_cBagTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<BagTypeContextProxy*>(BagTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<BagTypeContextProxy>(x, rb_cBagTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ListTypeContext*>(ExpressParser::ListTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ListTypeContext>(x, rb_cListTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ListTypeContextProxy*>(ListTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ListTypeContextProxy>(x, rb_cListTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SetTypeContext*>(ExpressParser::SetTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SetTypeContext>(x, rb_cSetTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SetTypeContextProxy*>(SetTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SetTypeContextProxy>(x, rb_cSetTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::AlgorithmHeadContext*>(ExpressParser::AlgorithmHeadContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::AlgorithmHeadContext>(x, rb_cAlgorithmHeadContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<AlgorithmHeadContextProxy*>(AlgorithmHeadContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<AlgorithmHeadContextProxy>(x, rb_cAlgorithmHeadContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::DeclarationContext*>(ExpressParser::DeclarationContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::DeclarationContext>(x, rb_cDeclarationContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<DeclarationContextProxy*>(DeclarationContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<DeclarationContextProxy>(x, rb_cDeclarationContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ConstantDeclContext*>(ExpressParser::ConstantDeclContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ConstantDeclContext>(x, rb_cConstantDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ConstantDeclContextProxy*>(ConstantDeclContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ConstantDeclContextProxy>(x, rb_cConstantDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::LocalDeclContext*>(ExpressParser::LocalDeclContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::LocalDeclContext>(x, rb_cLocalDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<LocalDeclContextProxy*>(LocalDeclContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<LocalDeclContextProxy>(x, rb_cLocalDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::AliasStmtContext*>(ExpressParser::AliasStmtContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::AliasStmtContext>(x, rb_cAliasStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<AliasStmtContextProxy*>(AliasStmtContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<AliasStmtContextProxy>(x, rb_cAliasStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::GeneralRefContext*>(ExpressParser::GeneralRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::GeneralRefContext>(x, rb_cGeneralRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<GeneralRefContextProxy*>(GeneralRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<GeneralRefContextProxy>(x, rb_cGeneralRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::StmtContext*>(ExpressParser::StmtContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::StmtContext>(x, rb_cStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<StmtContextProxy*>(StmtContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<StmtContextProxy>(x, rb_cStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::QualifierContext*>(ExpressParser::QualifierContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::QualifierContext>(x, rb_cQualifierContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<QualifierContextProxy*>(QualifierContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<QualifierContextProxy>(x, rb_cQualifierContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::BoundSpecContext*>(ExpressParser::BoundSpecContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::BoundSpecContext>(x, rb_cBoundSpecContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<BoundSpecContextProxy*>(BoundSpecContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<BoundSpecContextProxy>(x, rb_cBoundSpecContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::InstantiableTypeContext*>(ExpressParser::InstantiableTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::InstantiableTypeContext>(x, rb_cInstantiableTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<InstantiableTypeContextProxy*>(InstantiableTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<InstantiableTypeContextProxy>(x, rb_cInstantiableTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::AssignmentStmtContext*>(ExpressParser::AssignmentStmtContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::AssignmentStmtContext>(x, rb_cAssignmentStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<AssignmentStmtContextProxy*>(AssignmentStmtContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<AssignmentStmtContextProxy>(x, rb_cAssignmentStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ExpressionContext*>(ExpressParser::ExpressionContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ExpressionContext>(x, rb_cExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressionContextProxy*>(ExpressionContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressionContextProxy>(x, rb_cExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::AttributeDeclContext*>(ExpressParser::AttributeDeclContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::AttributeDeclContext>(x, rb_cAttributeDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<AttributeDeclContextProxy*>(AttributeDeclContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<AttributeDeclContextProxy>(x, rb_cAttributeDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::RedeclaredAttributeContext*>(ExpressParser::RedeclaredAttributeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::RedeclaredAttributeContext>(x, rb_cRedeclaredAttributeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<RedeclaredAttributeContextProxy*>(RedeclaredAttributeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<RedeclaredAttributeContextProxy>(x, rb_cRedeclaredAttributeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::AttributeQualifierContext*>(ExpressParser::AttributeQualifierContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::AttributeQualifierContext>(x, rb_cAttributeQualifierContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<AttributeQualifierContextProxy*>(AttributeQualifierContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<AttributeQualifierContextProxy>(x, rb_cAttributeQualifierContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::BinaryTypeContext*>(ExpressParser::BinaryTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::BinaryTypeContext>(x, rb_cBinaryTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<BinaryTypeContextProxy*>(BinaryTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<BinaryTypeContextProxy>(x, rb_cBinaryTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::WidthSpecContext*>(ExpressParser::WidthSpecContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::WidthSpecContext>(x, rb_cWidthSpecContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<WidthSpecContextProxy*>(WidthSpecContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<WidthSpecContextProxy>(x, rb_cWidthSpecContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::BooleanTypeContext*>(ExpressParser::BooleanTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::BooleanTypeContext>(x, rb_cBooleanTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<BooleanTypeContextProxy*>(BooleanTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<BooleanTypeContextProxy>(x, rb_cBooleanTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::Bound1Context*>(ExpressParser::Bound1Context* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::Bound1Context>(x, rb_cBound1Context, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<Bound1ContextProxy*>(Bound1ContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<Bound1ContextProxy>(x, rb_cBound1Context, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::NumericExpressionContext*>(ExpressParser::NumericExpressionContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::NumericExpressionContext>(x, rb_cNumericExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<NumericExpressionContextProxy*>(NumericExpressionContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<NumericExpressionContextProxy>(x, rb_cNumericExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::Bound2Context*>(ExpressParser::Bound2Context* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::Bound2Context>(x, rb_cBound2Context, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<Bound2ContextProxy*>(Bound2ContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<Bound2ContextProxy>(x, rb_cBound2Context, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::BuiltInConstantContext*>(ExpressParser::BuiltInConstantContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::BuiltInConstantContext>(x, rb_cBuiltInConstantContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<BuiltInConstantContextProxy*>(BuiltInConstantContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<BuiltInConstantContextProxy>(x, rb_cBuiltInConstantContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::BuiltInFunctionContext*>(ExpressParser::BuiltInFunctionContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::BuiltInFunctionContext>(x, rb_cBuiltInFunctionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<BuiltInFunctionContextProxy*>(BuiltInFunctionContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<BuiltInFunctionContextProxy>(x, rb_cBuiltInFunctionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::BuiltInProcedureContext*>(ExpressParser::BuiltInProcedureContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::BuiltInProcedureContext>(x, rb_cBuiltInProcedureContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<BuiltInProcedureContextProxy*>(BuiltInProcedureContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<BuiltInProcedureContextProxy>(x, rb_cBuiltInProcedureContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::CaseActionContext*>(ExpressParser::CaseActionContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::CaseActionContext>(x, rb_cCaseActionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<CaseActionContextProxy*>(CaseActionContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<CaseActionContextProxy>(x, rb_cCaseActionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::CaseLabelContext*>(ExpressParser::CaseLabelContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::CaseLabelContext>(x, rb_cCaseLabelContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<CaseLabelContextProxy*>(CaseLabelContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<CaseLabelContextProxy>(x, rb_cCaseLabelContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::CaseStmtContext*>(ExpressParser::CaseStmtContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::CaseStmtContext>(x, rb_cCaseStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<CaseStmtContextProxy*>(CaseStmtContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<CaseStmtContextProxy>(x, rb_cCaseStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SelectorContext*>(ExpressParser::SelectorContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SelectorContext>(x, rb_cSelectorContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SelectorContextProxy*>(SelectorContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SelectorContextProxy>(x, rb_cSelectorContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::CompoundStmtContext*>(ExpressParser::CompoundStmtContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::CompoundStmtContext>(x, rb_cCompoundStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<CompoundStmtContextProxy*>(CompoundStmtContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<CompoundStmtContextProxy>(x, rb_cCompoundStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ConcreteTypesContext*>(ExpressParser::ConcreteTypesContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ConcreteTypesContext>(x, rb_cConcreteTypesContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ConcreteTypesContextProxy*>(ConcreteTypesContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ConcreteTypesContextProxy>(x, rb_cConcreteTypesContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SimpleTypesContext*>(ExpressParser::SimpleTypesContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SimpleTypesContext>(x, rb_cSimpleTypesContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SimpleTypesContextProxy*>(SimpleTypesContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SimpleTypesContextProxy>(x, rb_cSimpleTypesContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ConstantBodyContext*>(ExpressParser::ConstantBodyContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ConstantBodyContext>(x, rb_cConstantBodyContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ConstantBodyContextProxy*>(ConstantBodyContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ConstantBodyContextProxy>(x, rb_cConstantBodyContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ConstantFactorContext*>(ExpressParser::ConstantFactorContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ConstantFactorContext>(x, rb_cConstantFactorContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ConstantFactorContextProxy*>(ConstantFactorContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ConstantFactorContextProxy>(x, rb_cConstantFactorContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ConstructedTypesContext*>(ExpressParser::ConstructedTypesContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ConstructedTypesContext>(x, rb_cConstructedTypesContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ConstructedTypesContextProxy*>(ConstructedTypesContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ConstructedTypesContextProxy>(x, rb_cConstructedTypesContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::EnumerationTypeContext*>(ExpressParser::EnumerationTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::EnumerationTypeContext>(x, rb_cEnumerationTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<EnumerationTypeContextProxy*>(EnumerationTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<EnumerationTypeContextProxy>(x, rb_cEnumerationTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SelectTypeContext*>(ExpressParser::SelectTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SelectTypeContext>(x, rb_cSelectTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SelectTypeContextProxy*>(SelectTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SelectTypeContextProxy>(x, rb_cSelectTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::EntityDeclContext*>(ExpressParser::EntityDeclContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::EntityDeclContext>(x, rb_cEntityDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<EntityDeclContextProxy*>(EntityDeclContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<EntityDeclContextProxy>(x, rb_cEntityDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::FunctionDeclContext*>(ExpressParser::FunctionDeclContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::FunctionDeclContext>(x, rb_cFunctionDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<FunctionDeclContextProxy*>(FunctionDeclContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<FunctionDeclContextProxy>(x, rb_cFunctionDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ProcedureDeclContext*>(ExpressParser::ProcedureDeclContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ProcedureDeclContext>(x, rb_cProcedureDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ProcedureDeclContextProxy*>(ProcedureDeclContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ProcedureDeclContextProxy>(x, rb_cProcedureDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SubtypeConstraintDeclContext*>(ExpressParser::SubtypeConstraintDeclContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SubtypeConstraintDeclContext>(x, rb_cSubtypeConstraintDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SubtypeConstraintDeclContextProxy*>(SubtypeConstraintDeclContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SubtypeConstraintDeclContextProxy>(x, rb_cSubtypeConstraintDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::TypeDeclContext*>(ExpressParser::TypeDeclContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::TypeDeclContext>(x, rb_cTypeDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<TypeDeclContextProxy*>(TypeDeclContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<TypeDeclContextProxy>(x, rb_cTypeDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::DerivedAttrContext*>(ExpressParser::DerivedAttrContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::DerivedAttrContext>(x, rb_cDerivedAttrContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<DerivedAttrContextProxy*>(DerivedAttrContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<DerivedAttrContextProxy>(x, rb_cDerivedAttrContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::DeriveClauseContext*>(ExpressParser::DeriveClauseContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::DeriveClauseContext>(x, rb_cDeriveClauseContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<DeriveClauseContextProxy*>(DeriveClauseContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<DeriveClauseContextProxy>(x, rb_cDeriveClauseContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::DomainRuleContext*>(ExpressParser::DomainRuleContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::DomainRuleContext>(x, rb_cDomainRuleContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<DomainRuleContextProxy*>(DomainRuleContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<DomainRuleContextProxy>(x, rb_cDomainRuleContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::RepetitionContext*>(ExpressParser::RepetitionContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::RepetitionContext>(x, rb_cRepetitionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<RepetitionContextProxy*>(RepetitionContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<RepetitionContextProxy>(x, rb_cRepetitionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::EntityBodyContext*>(ExpressParser::EntityBodyContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::EntityBodyContext>(x, rb_cEntityBodyContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<EntityBodyContextProxy*>(EntityBodyContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<EntityBodyContextProxy>(x, rb_cEntityBodyContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ExplicitAttrContext*>(ExpressParser::ExplicitAttrContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ExplicitAttrContext>(x, rb_cExplicitAttrContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExplicitAttrContextProxy*>(ExplicitAttrContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExplicitAttrContextProxy>(x, rb_cExplicitAttrContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::InverseClauseContext*>(ExpressParser::InverseClauseContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::InverseClauseContext>(x, rb_cInverseClauseContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<InverseClauseContextProxy*>(InverseClauseContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<InverseClauseContextProxy>(x, rb_cInverseClauseContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::UniqueClauseContext*>(ExpressParser::UniqueClauseContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::UniqueClauseContext>(x, rb_cUniqueClauseContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<UniqueClauseContextProxy*>(UniqueClauseContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<UniqueClauseContextProxy>(x, rb_cUniqueClauseContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::WhereClauseContext*>(ExpressParser::WhereClauseContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::WhereClauseContext>(x, rb_cWhereClauseContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<WhereClauseContextProxy*>(WhereClauseContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<WhereClauseContextProxy>(x, rb_cWhereClauseContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::EntityConstructorContext*>(ExpressParser::EntityConstructorContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::EntityConstructorContext>(x, rb_cEntityConstructorContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<EntityConstructorContextProxy*>(EntityConstructorContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<EntityConstructorContextProxy>(x, rb_cEntityConstructorContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::EntityHeadContext*>(ExpressParser::EntityHeadContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::EntityHeadContext>(x, rb_cEntityHeadContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<EntityHeadContextProxy*>(EntityHeadContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<EntityHeadContextProxy>(x, rb_cEntityHeadContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SubsuperContext*>(ExpressParser::SubsuperContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SubsuperContext>(x, rb_cSubsuperContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SubsuperContextProxy*>(SubsuperContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SubsuperContextProxy>(x, rb_cSubsuperContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::EnumerationExtensionContext*>(ExpressParser::EnumerationExtensionContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::EnumerationExtensionContext>(x, rb_cEnumerationExtensionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<EnumerationExtensionContextProxy*>(EnumerationExtensionContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<EnumerationExtensionContextProxy>(x, rb_cEnumerationExtensionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::EnumerationItemsContext*>(ExpressParser::EnumerationItemsContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::EnumerationItemsContext>(x, rb_cEnumerationItemsContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<EnumerationItemsContextProxy*>(EnumerationItemsContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<EnumerationItemsContextProxy>(x, rb_cEnumerationItemsContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::EnumerationItemContext*>(ExpressParser::EnumerationItemContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::EnumerationItemContext>(x, rb_cEnumerationItemContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<EnumerationItemContextProxy*>(EnumerationItemContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<EnumerationItemContextProxy>(x, rb_cEnumerationItemContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::EnumerationReferenceContext*>(ExpressParser::EnumerationReferenceContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::EnumerationReferenceContext>(x, rb_cEnumerationReferenceContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<EnumerationReferenceContextProxy*>(EnumerationReferenceContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<EnumerationReferenceContextProxy>(x, rb_cEnumerationReferenceContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::EscapeStmtContext*>(ExpressParser::EscapeStmtContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::EscapeStmtContext>(x, rb_cEscapeStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<EscapeStmtContextProxy*>(EscapeStmtContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<EscapeStmtContextProxy>(x, rb_cEscapeStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::RelOpExtendedContext*>(ExpressParser::RelOpExtendedContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::RelOpExtendedContext>(x, rb_cRelOpExtendedContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<RelOpExtendedContextProxy*>(RelOpExtendedContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<RelOpExtendedContextProxy>(x, rb_cRelOpExtendedContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::FactorContext*>(ExpressParser::FactorContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::FactorContext>(x, rb_cFactorContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<FactorContextProxy*>(FactorContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<FactorContextProxy>(x, rb_cFactorContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SimpleFactorContext*>(ExpressParser::SimpleFactorContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SimpleFactorContext>(x, rb_cSimpleFactorContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SimpleFactorContextProxy*>(SimpleFactorContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SimpleFactorContextProxy>(x, rb_cSimpleFactorContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::FormalParameterContext*>(ExpressParser::FormalParameterContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::FormalParameterContext>(x, rb_cFormalParameterContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<FormalParameterContextProxy*>(FormalParameterContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<FormalParameterContextProxy>(x, rb_cFormalParameterContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::FunctionCallContext*>(ExpressParser::FunctionCallContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::FunctionCallContext>(x, rb_cFunctionCallContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<FunctionCallContextProxy*>(FunctionCallContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<FunctionCallContextProxy>(x, rb_cFunctionCallContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::FunctionHeadContext*>(ExpressParser::FunctionHeadContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::FunctionHeadContext>(x, rb_cFunctionHeadContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<FunctionHeadContextProxy*>(FunctionHeadContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<FunctionHeadContextProxy>(x, rb_cFunctionHeadContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::GeneralizedTypesContext*>(ExpressParser::GeneralizedTypesContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::GeneralizedTypesContext>(x, rb_cGeneralizedTypesContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<GeneralizedTypesContextProxy*>(GeneralizedTypesContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<GeneralizedTypesContextProxy>(x, rb_cGeneralizedTypesContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::GeneralAggregationTypesContext*>(ExpressParser::GeneralAggregationTypesContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::GeneralAggregationTypesContext>(x, rb_cGeneralAggregationTypesContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<GeneralAggregationTypesContextProxy*>(GeneralAggregationTypesContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<GeneralAggregationTypesContextProxy>(x, rb_cGeneralAggregationTypesContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::GenericEntityTypeContext*>(ExpressParser::GenericEntityTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::GenericEntityTypeContext>(x, rb_cGenericEntityTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<GenericEntityTypeContextProxy*>(GenericEntityTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<GenericEntityTypeContextProxy>(x, rb_cGenericEntityTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::GenericTypeContext*>(ExpressParser::GenericTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::GenericTypeContext>(x, rb_cGenericTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<GenericTypeContextProxy*>(GenericTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<GenericTypeContextProxy>(x, rb_cGenericTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::GeneralArrayTypeContext*>(ExpressParser::GeneralArrayTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::GeneralArrayTypeContext>(x, rb_cGeneralArrayTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<GeneralArrayTypeContextProxy*>(GeneralArrayTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<GeneralArrayTypeContextProxy>(x, rb_cGeneralArrayTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::GeneralBagTypeContext*>(ExpressParser::GeneralBagTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::GeneralBagTypeContext>(x, rb_cGeneralBagTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<GeneralBagTypeContextProxy*>(GeneralBagTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<GeneralBagTypeContextProxy>(x, rb_cGeneralBagTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::GeneralListTypeContext*>(ExpressParser::GeneralListTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::GeneralListTypeContext>(x, rb_cGeneralListTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<GeneralListTypeContextProxy*>(GeneralListTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<GeneralListTypeContextProxy>(x, rb_cGeneralListTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::GeneralSetTypeContext*>(ExpressParser::GeneralSetTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::GeneralSetTypeContext>(x, rb_cGeneralSetTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<GeneralSetTypeContextProxy*>(GeneralSetTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<GeneralSetTypeContextProxy>(x, rb_cGeneralSetTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::GroupQualifierContext*>(ExpressParser::GroupQualifierContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::GroupQualifierContext>(x, rb_cGroupQualifierContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<GroupQualifierContextProxy*>(GroupQualifierContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<GroupQualifierContextProxy>(x, rb_cGroupQualifierContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::IfStmtContext*>(ExpressParser::IfStmtContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::IfStmtContext>(x, rb_cIfStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<IfStmtContextProxy*>(IfStmtContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<IfStmtContextProxy>(x, rb_cIfStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::LogicalExpressionContext*>(ExpressParser::LogicalExpressionContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::LogicalExpressionContext>(x, rb_cLogicalExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<LogicalExpressionContextProxy*>(LogicalExpressionContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<LogicalExpressionContextProxy>(x, rb_cLogicalExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::IfStmtStatementsContext*>(ExpressParser::IfStmtStatementsContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::IfStmtStatementsContext>(x, rb_cIfStmtStatementsContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<IfStmtStatementsContextProxy*>(IfStmtStatementsContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<IfStmtStatementsContextProxy>(x, rb_cIfStmtStatementsContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::IfStmtElseStatementsContext*>(ExpressParser::IfStmtElseStatementsContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::IfStmtElseStatementsContext>(x, rb_cIfStmtElseStatementsContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<IfStmtElseStatementsContextProxy*>(IfStmtElseStatementsContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<IfStmtElseStatementsContextProxy>(x, rb_cIfStmtElseStatementsContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::IncrementContext*>(ExpressParser::IncrementContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::IncrementContext>(x, rb_cIncrementContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<IncrementContextProxy*>(IncrementContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<IncrementContextProxy>(x, rb_cIncrementContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::IncrementControlContext*>(ExpressParser::IncrementControlContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::IncrementControlContext>(x, rb_cIncrementControlContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<IncrementControlContextProxy*>(IncrementControlContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<IncrementControlContextProxy>(x, rb_cIncrementControlContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::IndexContext*>(ExpressParser::IndexContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::IndexContext>(x, rb_cIndexContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<IndexContextProxy*>(IndexContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<IndexContextProxy>(x, rb_cIndexContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::Index1Context*>(ExpressParser::Index1Context* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::Index1Context>(x, rb_cIndex1Context, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<Index1ContextProxy*>(Index1ContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<Index1ContextProxy>(x, rb_cIndex1Context, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::Index2Context*>(ExpressParser::Index2Context* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::Index2Context>(x, rb_cIndex2Context, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<Index2ContextProxy*>(Index2ContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<Index2ContextProxy>(x, rb_cIndex2Context, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::IndexQualifierContext*>(ExpressParser::IndexQualifierContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::IndexQualifierContext>(x, rb_cIndexQualifierContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<IndexQualifierContextProxy*>(IndexQualifierContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<IndexQualifierContextProxy>(x, rb_cIndexQualifierContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::IntegerTypeContext*>(ExpressParser::IntegerTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::IntegerTypeContext>(x, rb_cIntegerTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<IntegerTypeContextProxy*>(IntegerTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<IntegerTypeContextProxy>(x, rb_cIntegerTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::InterfaceSpecificationContext*>(ExpressParser::InterfaceSpecificationContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::InterfaceSpecificationContext>(x, rb_cInterfaceSpecificationContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<InterfaceSpecificationContextProxy*>(InterfaceSpecificationContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<InterfaceSpecificationContextProxy>(x, rb_cInterfaceSpecificationContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ReferenceClauseContext*>(ExpressParser::ReferenceClauseContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ReferenceClauseContext>(x, rb_cReferenceClauseContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ReferenceClauseContextProxy*>(ReferenceClauseContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ReferenceClauseContextProxy>(x, rb_cReferenceClauseContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::UseClauseContext*>(ExpressParser::UseClauseContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::UseClauseContext>(x, rb_cUseClauseContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<UseClauseContextProxy*>(UseClauseContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<UseClauseContextProxy>(x, rb_cUseClauseContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::IntervalContext*>(ExpressParser::IntervalContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::IntervalContext>(x, rb_cIntervalContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<IntervalContextProxy*>(IntervalContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<IntervalContextProxy>(x, rb_cIntervalContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::IntervalLowContext*>(ExpressParser::IntervalLowContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::IntervalLowContext>(x, rb_cIntervalLowContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<IntervalLowContextProxy*>(IntervalLowContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<IntervalLowContextProxy>(x, rb_cIntervalLowContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::IntervalOpContext*>(ExpressParser::IntervalOpContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::IntervalOpContext>(x, rb_cIntervalOpContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<IntervalOpContextProxy*>(IntervalOpContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<IntervalOpContextProxy>(x, rb_cIntervalOpContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::IntervalItemContext*>(ExpressParser::IntervalItemContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::IntervalItemContext>(x, rb_cIntervalItemContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<IntervalItemContextProxy*>(IntervalItemContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<IntervalItemContextProxy>(x, rb_cIntervalItemContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::IntervalHighContext*>(ExpressParser::IntervalHighContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::IntervalHighContext>(x, rb_cIntervalHighContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<IntervalHighContextProxy*>(IntervalHighContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<IntervalHighContextProxy>(x, rb_cIntervalHighContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::InverseAttrContext*>(ExpressParser::InverseAttrContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::InverseAttrContext>(x, rb_cInverseAttrContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<InverseAttrContextProxy*>(InverseAttrContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<InverseAttrContextProxy>(x, rb_cInverseAttrContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::InverseAttrTypeContext*>(ExpressParser::InverseAttrTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::InverseAttrTypeContext>(x, rb_cInverseAttrTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<InverseAttrTypeContextProxy*>(InverseAttrTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<InverseAttrTypeContextProxy>(x, rb_cInverseAttrTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::LiteralContext*>(ExpressParser::LiteralContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::LiteralContext>(x, rb_cLiteralContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<LiteralContextProxy*>(LiteralContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<LiteralContextProxy>(x, rb_cLiteralContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::LogicalLiteralContext*>(ExpressParser::LogicalLiteralContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::LogicalLiteralContext>(x, rb_cLogicalLiteralContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<LogicalLiteralContextProxy*>(LogicalLiteralContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<LogicalLiteralContextProxy>(x, rb_cLogicalLiteralContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::StringLiteralContext*>(ExpressParser::StringLiteralContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::StringLiteralContext>(x, rb_cStringLiteralContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<StringLiteralContextProxy*>(StringLiteralContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<StringLiteralContextProxy>(x, rb_cStringLiteralContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::LocalVariableContext*>(ExpressParser::LocalVariableContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::LocalVariableContext>(x, rb_cLocalVariableContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<LocalVariableContextProxy*>(LocalVariableContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<LocalVariableContextProxy>(x, rb_cLocalVariableContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::LogicalTypeContext*>(ExpressParser::LogicalTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::LogicalTypeContext>(x, rb_cLogicalTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<LogicalTypeContextProxy*>(LogicalTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<LogicalTypeContextProxy>(x, rb_cLogicalTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::MultiplicationLikeOpContext*>(ExpressParser::MultiplicationLikeOpContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::MultiplicationLikeOpContext>(x, rb_cMultiplicationLikeOpContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<MultiplicationLikeOpContextProxy*>(MultiplicationLikeOpContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<MultiplicationLikeOpContextProxy>(x, rb_cMultiplicationLikeOpContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::NamedTypesContext*>(ExpressParser::NamedTypesContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::NamedTypesContext>(x, rb_cNamedTypesContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<NamedTypesContextProxy*>(NamedTypesContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<NamedTypesContextProxy>(x, rb_cNamedTypesContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::NamedTypeOrRenameContext*>(ExpressParser::NamedTypeOrRenameContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::NamedTypeOrRenameContext>(x, rb_cNamedTypeOrRenameContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<NamedTypeOrRenameContextProxy*>(NamedTypeOrRenameContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<NamedTypeOrRenameContextProxy>(x, rb_cNamedTypeOrRenameContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::NullStmtContext*>(ExpressParser::NullStmtContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::NullStmtContext>(x, rb_cNullStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<NullStmtContextProxy*>(NullStmtContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<NullStmtContextProxy>(x, rb_cNullStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::NumberTypeContext*>(ExpressParser::NumberTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::NumberTypeContext>(x, rb_cNumberTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<NumberTypeContextProxy*>(NumberTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<NumberTypeContextProxy>(x, rb_cNumberTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::OneOfContext*>(ExpressParser::OneOfContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::OneOfContext>(x, rb_cOneOfContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<OneOfContextProxy*>(OneOfContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<OneOfContextProxy>(x, rb_cOneOfContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SupertypeExpressionContext*>(ExpressParser::SupertypeExpressionContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SupertypeExpressionContext>(x, rb_cSupertypeExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SupertypeExpressionContextProxy*>(SupertypeExpressionContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SupertypeExpressionContextProxy>(x, rb_cSupertypeExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::PopulationContext*>(ExpressParser::PopulationContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::PopulationContext>(x, rb_cPopulationContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<PopulationContextProxy*>(PopulationContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<PopulationContextProxy>(x, rb_cPopulationContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::PrecisionSpecContext*>(ExpressParser::PrecisionSpecContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::PrecisionSpecContext>(x, rb_cPrecisionSpecContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<PrecisionSpecContextProxy*>(PrecisionSpecContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<PrecisionSpecContextProxy>(x, rb_cPrecisionSpecContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::PrimaryContext*>(ExpressParser::PrimaryContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::PrimaryContext>(x, rb_cPrimaryContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<PrimaryContextProxy*>(PrimaryContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<PrimaryContextProxy>(x, rb_cPrimaryContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::QualifiableFactorContext*>(ExpressParser::QualifiableFactorContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::QualifiableFactorContext>(x, rb_cQualifiableFactorContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<QualifiableFactorContextProxy*>(QualifiableFactorContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<QualifiableFactorContextProxy>(x, rb_cQualifiableFactorContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ProcedureCallStmtContext*>(ExpressParser::ProcedureCallStmtContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ProcedureCallStmtContext>(x, rb_cProcedureCallStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ProcedureCallStmtContextProxy*>(ProcedureCallStmtContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ProcedureCallStmtContextProxy>(x, rb_cProcedureCallStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ProcedureHeadContext*>(ExpressParser::ProcedureHeadContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ProcedureHeadContext>(x, rb_cProcedureHeadContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ProcedureHeadContextProxy*>(ProcedureHeadContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ProcedureHeadContextProxy>(x, rb_cProcedureHeadContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ProcedureHeadParameterContext*>(ExpressParser::ProcedureHeadParameterContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ProcedureHeadParameterContext>(x, rb_cProcedureHeadParameterContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ProcedureHeadParameterContextProxy*>(ProcedureHeadParameterContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ProcedureHeadParameterContextProxy>(x, rb_cProcedureHeadParameterContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::QualifiedAttributeContext*>(ExpressParser::QualifiedAttributeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::QualifiedAttributeContext>(x, rb_cQualifiedAttributeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<QualifiedAttributeContextProxy*>(QualifiedAttributeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<QualifiedAttributeContextProxy>(x, rb_cQualifiedAttributeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::QueryExpressionContext*>(ExpressParser::QueryExpressionContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::QueryExpressionContext>(x, rb_cQueryExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<QueryExpressionContextProxy*>(QueryExpressionContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<QueryExpressionContextProxy>(x, rb_cQueryExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::RealTypeContext*>(ExpressParser::RealTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::RealTypeContext>(x, rb_cRealTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<RealTypeContextProxy*>(RealTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<RealTypeContextProxy>(x, rb_cRealTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ReferencedAttributeContext*>(ExpressParser::ReferencedAttributeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ReferencedAttributeContext>(x, rb_cReferencedAttributeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ReferencedAttributeContextProxy*>(ReferencedAttributeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ReferencedAttributeContextProxy>(x, rb_cReferencedAttributeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ResourceOrRenameContext*>(ExpressParser::ResourceOrRenameContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ResourceOrRenameContext>(x, rb_cResourceOrRenameContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ResourceOrRenameContextProxy*>(ResourceOrRenameContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ResourceOrRenameContextProxy>(x, rb_cResourceOrRenameContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::RelOpContext*>(ExpressParser::RelOpContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::RelOpContext>(x, rb_cRelOpContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<RelOpContextProxy*>(RelOpContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<RelOpContextProxy>(x, rb_cRelOpContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::RenameIdContext*>(ExpressParser::RenameIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::RenameIdContext>(x, rb_cRenameIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<RenameIdContextProxy*>(RenameIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<RenameIdContextProxy>(x, rb_cRenameIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::RepeatControlContext*>(ExpressParser::RepeatControlContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::RepeatControlContext>(x, rb_cRepeatControlContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<RepeatControlContextProxy*>(RepeatControlContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<RepeatControlContextProxy>(x, rb_cRepeatControlContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::WhileControlContext*>(ExpressParser::WhileControlContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::WhileControlContext>(x, rb_cWhileControlContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<WhileControlContextProxy*>(WhileControlContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<WhileControlContextProxy>(x, rb_cWhileControlContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::UntilControlContext*>(ExpressParser::UntilControlContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::UntilControlContext>(x, rb_cUntilControlContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<UntilControlContextProxy*>(UntilControlContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<UntilControlContextProxy>(x, rb_cUntilControlContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::RepeatStmtContext*>(ExpressParser::RepeatStmtContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::RepeatStmtContext>(x, rb_cRepeatStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<RepeatStmtContextProxy*>(RepeatStmtContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<RepeatStmtContextProxy>(x, rb_cRepeatStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ResourceRefContext*>(ExpressParser::ResourceRefContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ResourceRefContext>(x, rb_cResourceRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ResourceRefContextProxy*>(ResourceRefContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ResourceRefContextProxy>(x, rb_cResourceRefContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::ReturnStmtContext*>(ExpressParser::ReturnStmtContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::ReturnStmtContext>(x, rb_cReturnStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ReturnStmtContextProxy*>(ReturnStmtContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ReturnStmtContextProxy>(x, rb_cReturnStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::RuleDeclContext*>(ExpressParser::RuleDeclContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::RuleDeclContext>(x, rb_cRuleDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<RuleDeclContextProxy*>(RuleDeclContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<RuleDeclContextProxy>(x, rb_cRuleDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::RuleHeadContext*>(ExpressParser::RuleHeadContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::RuleHeadContext>(x, rb_cRuleHeadContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<RuleHeadContextProxy*>(RuleHeadContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<RuleHeadContextProxy>(x, rb_cRuleHeadContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SchemaBodyContext*>(ExpressParser::SchemaBodyContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SchemaBodyContext>(x, rb_cSchemaBodyContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SchemaBodyContextProxy*>(SchemaBodyContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SchemaBodyContextProxy>(x, rb_cSchemaBodyContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SchemaBodyDeclarationContext*>(ExpressParser::SchemaBodyDeclarationContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SchemaBodyDeclarationContext>(x, rb_cSchemaBodyDeclarationContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SchemaBodyDeclarationContextProxy*>(SchemaBodyDeclarationContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SchemaBodyDeclarationContextProxy>(x, rb_cSchemaBodyDeclarationContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SchemaDeclContext*>(ExpressParser::SchemaDeclContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SchemaDeclContext>(x, rb_cSchemaDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SchemaDeclContextProxy*>(SchemaDeclContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SchemaDeclContextProxy>(x, rb_cSchemaDeclContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SchemaVersionIdContext*>(ExpressParser::SchemaVersionIdContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SchemaVersionIdContext>(x, rb_cSchemaVersionIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SchemaVersionIdContextProxy*>(SchemaVersionIdContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SchemaVersionIdContextProxy>(x, rb_cSchemaVersionIdContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SelectExtensionContext*>(ExpressParser::SelectExtensionContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SelectExtensionContext>(x, rb_cSelectExtensionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SelectExtensionContextProxy*>(SelectExtensionContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SelectExtensionContextProxy>(x, rb_cSelectExtensionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SelectListContext*>(ExpressParser::SelectListContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SelectListContext>(x, rb_cSelectListContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SelectListContextProxy*>(SelectListContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SelectListContextProxy>(x, rb_cSelectListContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::TermContext*>(ExpressParser::TermContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::TermContext>(x, rb_cTermContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<TermContextProxy*>(TermContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<TermContextProxy>(x, rb_cTermContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SimpleFactorExpressionContext*>(ExpressParser::SimpleFactorExpressionContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SimpleFactorExpressionContext>(x, rb_cSimpleFactorExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SimpleFactorExpressionContextProxy*>(SimpleFactorExpressionContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SimpleFactorExpressionContextProxy>(x, rb_cSimpleFactorExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SimpleFactorUnaryExpressionContext*>(ExpressParser::SimpleFactorUnaryExpressionContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SimpleFactorUnaryExpressionContext>(x, rb_cSimpleFactorUnaryExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SimpleFactorUnaryExpressionContextProxy*>(SimpleFactorUnaryExpressionContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SimpleFactorUnaryExpressionContextProxy>(x, rb_cSimpleFactorUnaryExpressionContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::UnaryOpContext*>(ExpressParser::UnaryOpContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::UnaryOpContext>(x, rb_cUnaryOpContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<UnaryOpContextProxy*>(UnaryOpContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<UnaryOpContextProxy>(x, rb_cUnaryOpContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::StringTypeContext*>(ExpressParser::StringTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::StringTypeContext>(x, rb_cStringTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<StringTypeContextProxy*>(StringTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<StringTypeContextProxy>(x, rb_cStringTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SkipStmtContext*>(ExpressParser::SkipStmtContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SkipStmtContext>(x, rb_cSkipStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SkipStmtContextProxy*>(SkipStmtContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SkipStmtContextProxy>(x, rb_cSkipStmtContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SupertypeConstraintContext*>(ExpressParser::SupertypeConstraintContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SupertypeConstraintContext>(x, rb_cSupertypeConstraintContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SupertypeConstraintContextProxy*>(SupertypeConstraintContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SupertypeConstraintContextProxy>(x, rb_cSupertypeConstraintContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SubtypeDeclarationContext*>(ExpressParser::SubtypeDeclarationContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SubtypeDeclarationContext>(x, rb_cSubtypeDeclarationContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SubtypeDeclarationContextProxy*>(SubtypeDeclarationContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SubtypeDeclarationContextProxy>(x, rb_cSubtypeDeclarationContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SubtypeConstraintBodyContext*>(ExpressParser::SubtypeConstraintBodyContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SubtypeConstraintBodyContext>(x, rb_cSubtypeConstraintBodyContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SubtypeConstraintBodyContextProxy*>(SubtypeConstraintBodyContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SubtypeConstraintBodyContextProxy>(x, rb_cSubtypeConstraintBodyContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::TotalOverContext*>(ExpressParser::TotalOverContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::TotalOverContext>(x, rb_cTotalOverContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<TotalOverContextProxy*>(TotalOverContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<TotalOverContextProxy>(x, rb_cTotalOverContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SubtypeConstraintHeadContext*>(ExpressParser::SubtypeConstraintHeadContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SubtypeConstraintHeadContext>(x, rb_cSubtypeConstraintHeadContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SubtypeConstraintHeadContextProxy*>(SubtypeConstraintHeadContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SubtypeConstraintHeadContextProxy>(x, rb_cSubtypeConstraintHeadContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SupertypeRuleContext*>(ExpressParser::SupertypeRuleContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SupertypeRuleContext>(x, rb_cSupertypeRuleContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SupertypeRuleContextProxy*>(SupertypeRuleContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SupertypeRuleContextProxy>(x, rb_cSupertypeRuleContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SupertypeFactorContext*>(ExpressParser::SupertypeFactorContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SupertypeFactorContext>(x, rb_cSupertypeFactorContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SupertypeFactorContextProxy*>(SupertypeFactorContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SupertypeFactorContextProxy>(x, rb_cSupertypeFactorContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SupertypeTermContext*>(ExpressParser::SupertypeTermContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SupertypeTermContext>(x, rb_cSupertypeTermContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SupertypeTermContextProxy*>(SupertypeTermContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SupertypeTermContextProxy>(x, rb_cSupertypeTermContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::SyntaxContext*>(ExpressParser::SyntaxContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::SyntaxContext>(x, rb_cSyntaxContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<SyntaxContextProxy*>(SyntaxContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<SyntaxContextProxy>(x, rb_cSyntaxContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::UnderlyingTypeContext*>(ExpressParser::UnderlyingTypeContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::UnderlyingTypeContext>(x, rb_cUnderlyingTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<UnderlyingTypeContextProxy*>(UnderlyingTypeContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<UnderlyingTypeContextProxy>(x, rb_cUnderlyingTypeContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::UniqueRuleContext*>(ExpressParser::UniqueRuleContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::UniqueRuleContext>(x, rb_cUniqueRuleContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<UniqueRuleContextProxy*>(UniqueRuleContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<UniqueRuleContextProxy>(x, rb_cUniqueRuleContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<ExpressParser::WidthContext*>(ExpressParser::WidthContext* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ExpressParser::WidthContext>(x, rb_cWidthContext, nullptr, nullptr);
-}
-
-template <>
-Object to_ruby<WidthContextProxy*>(WidthContextProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<WidthContextProxy>(x, rb_cWidthContext, nullptr, nullptr);
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::AttributeRefContext*> {
+  public:
+    VALUE convert(ExpressParser::AttributeRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::AttributeRefContext>(x, false, rb_cAttributeRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<AttributeRefContextProxy*> {
+  public:
+    VALUE convert(AttributeRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<AttributeRefContextProxy>(x, false, rb_cAttributeRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::AttributeIdContext*> {
+  public:
+    VALUE convert(ExpressParser::AttributeIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::AttributeIdContext>(x, false, rb_cAttributeIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<AttributeIdContextProxy*> {
+  public:
+    VALUE convert(AttributeIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<AttributeIdContextProxy>(x, false, rb_cAttributeIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ConstantRefContext*> {
+  public:
+    VALUE convert(ExpressParser::ConstantRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ConstantRefContext>(x, false, rb_cConstantRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ConstantRefContextProxy*> {
+  public:
+    VALUE convert(ConstantRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ConstantRefContextProxy>(x, false, rb_cConstantRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ConstantIdContext*> {
+  public:
+    VALUE convert(ExpressParser::ConstantIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ConstantIdContext>(x, false, rb_cConstantIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ConstantIdContextProxy*> {
+  public:
+    VALUE convert(ConstantIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ConstantIdContextProxy>(x, false, rb_cConstantIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::EntityRefContext*> {
+  public:
+    VALUE convert(ExpressParser::EntityRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::EntityRefContext>(x, false, rb_cEntityRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<EntityRefContextProxy*> {
+  public:
+    VALUE convert(EntityRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<EntityRefContextProxy>(x, false, rb_cEntityRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::EntityIdContext*> {
+  public:
+    VALUE convert(ExpressParser::EntityIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::EntityIdContext>(x, false, rb_cEntityIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<EntityIdContextProxy*> {
+  public:
+    VALUE convert(EntityIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<EntityIdContextProxy>(x, false, rb_cEntityIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::EnumerationRefContext*> {
+  public:
+    VALUE convert(ExpressParser::EnumerationRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::EnumerationRefContext>(x, false, rb_cEnumerationRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<EnumerationRefContextProxy*> {
+  public:
+    VALUE convert(EnumerationRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<EnumerationRefContextProxy>(x, false, rb_cEnumerationRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::EnumerationIdContext*> {
+  public:
+    VALUE convert(ExpressParser::EnumerationIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::EnumerationIdContext>(x, false, rb_cEnumerationIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<EnumerationIdContextProxy*> {
+  public:
+    VALUE convert(EnumerationIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<EnumerationIdContextProxy>(x, false, rb_cEnumerationIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::FunctionRefContext*> {
+  public:
+    VALUE convert(ExpressParser::FunctionRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::FunctionRefContext>(x, false, rb_cFunctionRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<FunctionRefContextProxy*> {
+  public:
+    VALUE convert(FunctionRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<FunctionRefContextProxy>(x, false, rb_cFunctionRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::FunctionIdContext*> {
+  public:
+    VALUE convert(ExpressParser::FunctionIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::FunctionIdContext>(x, false, rb_cFunctionIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<FunctionIdContextProxy*> {
+  public:
+    VALUE convert(FunctionIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<FunctionIdContextProxy>(x, false, rb_cFunctionIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ParameterRefContext*> {
+  public:
+    VALUE convert(ExpressParser::ParameterRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ParameterRefContext>(x, false, rb_cParameterRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ParameterRefContextProxy*> {
+  public:
+    VALUE convert(ParameterRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ParameterRefContextProxy>(x, false, rb_cParameterRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ParameterIdContext*> {
+  public:
+    VALUE convert(ExpressParser::ParameterIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ParameterIdContext>(x, false, rb_cParameterIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ParameterIdContextProxy*> {
+  public:
+    VALUE convert(ParameterIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ParameterIdContextProxy>(x, false, rb_cParameterIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ProcedureRefContext*> {
+  public:
+    VALUE convert(ExpressParser::ProcedureRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ProcedureRefContext>(x, false, rb_cProcedureRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ProcedureRefContextProxy*> {
+  public:
+    VALUE convert(ProcedureRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ProcedureRefContextProxy>(x, false, rb_cProcedureRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ProcedureIdContext*> {
+  public:
+    VALUE convert(ExpressParser::ProcedureIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ProcedureIdContext>(x, false, rb_cProcedureIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ProcedureIdContextProxy*> {
+  public:
+    VALUE convert(ProcedureIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ProcedureIdContextProxy>(x, false, rb_cProcedureIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::RuleLabelRefContext*> {
+  public:
+    VALUE convert(ExpressParser::RuleLabelRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::RuleLabelRefContext>(x, false, rb_cRuleLabelRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<RuleLabelRefContextProxy*> {
+  public:
+    VALUE convert(RuleLabelRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<RuleLabelRefContextProxy>(x, false, rb_cRuleLabelRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::RuleLabelIdContext*> {
+  public:
+    VALUE convert(ExpressParser::RuleLabelIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::RuleLabelIdContext>(x, false, rb_cRuleLabelIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<RuleLabelIdContextProxy*> {
+  public:
+    VALUE convert(RuleLabelIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<RuleLabelIdContextProxy>(x, false, rb_cRuleLabelIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::RuleRefContext*> {
+  public:
+    VALUE convert(ExpressParser::RuleRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::RuleRefContext>(x, false, rb_cRuleRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<RuleRefContextProxy*> {
+  public:
+    VALUE convert(RuleRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<RuleRefContextProxy>(x, false, rb_cRuleRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::RuleIdContext*> {
+  public:
+    VALUE convert(ExpressParser::RuleIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::RuleIdContext>(x, false, rb_cRuleIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<RuleIdContextProxy*> {
+  public:
+    VALUE convert(RuleIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<RuleIdContextProxy>(x, false, rb_cRuleIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SchemaRefContext*> {
+  public:
+    VALUE convert(ExpressParser::SchemaRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SchemaRefContext>(x, false, rb_cSchemaRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SchemaRefContextProxy*> {
+  public:
+    VALUE convert(SchemaRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SchemaRefContextProxy>(x, false, rb_cSchemaRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SchemaIdContext*> {
+  public:
+    VALUE convert(ExpressParser::SchemaIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SchemaIdContext>(x, false, rb_cSchemaIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SchemaIdContextProxy*> {
+  public:
+    VALUE convert(SchemaIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SchemaIdContextProxy>(x, false, rb_cSchemaIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SubtypeConstraintRefContext*> {
+  public:
+    VALUE convert(ExpressParser::SubtypeConstraintRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SubtypeConstraintRefContext>(x, false, rb_cSubtypeConstraintRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SubtypeConstraintRefContextProxy*> {
+  public:
+    VALUE convert(SubtypeConstraintRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SubtypeConstraintRefContextProxy>(x, false, rb_cSubtypeConstraintRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SubtypeConstraintIdContext*> {
+  public:
+    VALUE convert(ExpressParser::SubtypeConstraintIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SubtypeConstraintIdContext>(x, false, rb_cSubtypeConstraintIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SubtypeConstraintIdContextProxy*> {
+  public:
+    VALUE convert(SubtypeConstraintIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SubtypeConstraintIdContextProxy>(x, false, rb_cSubtypeConstraintIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::TypeLabelRefContext*> {
+  public:
+    VALUE convert(ExpressParser::TypeLabelRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::TypeLabelRefContext>(x, false, rb_cTypeLabelRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<TypeLabelRefContextProxy*> {
+  public:
+    VALUE convert(TypeLabelRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<TypeLabelRefContextProxy>(x, false, rb_cTypeLabelRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::TypeLabelIdContext*> {
+  public:
+    VALUE convert(ExpressParser::TypeLabelIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::TypeLabelIdContext>(x, false, rb_cTypeLabelIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<TypeLabelIdContextProxy*> {
+  public:
+    VALUE convert(TypeLabelIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<TypeLabelIdContextProxy>(x, false, rb_cTypeLabelIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::TypeRefContext*> {
+  public:
+    VALUE convert(ExpressParser::TypeRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::TypeRefContext>(x, false, rb_cTypeRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<TypeRefContextProxy*> {
+  public:
+    VALUE convert(TypeRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<TypeRefContextProxy>(x, false, rb_cTypeRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::TypeIdContext*> {
+  public:
+    VALUE convert(ExpressParser::TypeIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::TypeIdContext>(x, false, rb_cTypeIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<TypeIdContextProxy*> {
+  public:
+    VALUE convert(TypeIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<TypeIdContextProxy>(x, false, rb_cTypeIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::VariableRefContext*> {
+  public:
+    VALUE convert(ExpressParser::VariableRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::VariableRefContext>(x, false, rb_cVariableRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<VariableRefContextProxy*> {
+  public:
+    VALUE convert(VariableRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<VariableRefContextProxy>(x, false, rb_cVariableRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::VariableIdContext*> {
+  public:
+    VALUE convert(ExpressParser::VariableIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::VariableIdContext>(x, false, rb_cVariableIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<VariableIdContextProxy*> {
+  public:
+    VALUE convert(VariableIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<VariableIdContextProxy>(x, false, rb_cVariableIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::AbstractEntityDeclarationContext*> {
+  public:
+    VALUE convert(ExpressParser::AbstractEntityDeclarationContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::AbstractEntityDeclarationContext>(x, false, rb_cAbstractEntityDeclarationContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<AbstractEntityDeclarationContextProxy*> {
+  public:
+    VALUE convert(AbstractEntityDeclarationContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<AbstractEntityDeclarationContextProxy>(x, false, rb_cAbstractEntityDeclarationContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::AbstractSupertypeContext*> {
+  public:
+    VALUE convert(ExpressParser::AbstractSupertypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::AbstractSupertypeContext>(x, false, rb_cAbstractSupertypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<AbstractSupertypeContextProxy*> {
+  public:
+    VALUE convert(AbstractSupertypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<AbstractSupertypeContextProxy>(x, false, rb_cAbstractSupertypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::AbstractSupertypeDeclarationContext*> {
+  public:
+    VALUE convert(ExpressParser::AbstractSupertypeDeclarationContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::AbstractSupertypeDeclarationContext>(x, false, rb_cAbstractSupertypeDeclarationContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<AbstractSupertypeDeclarationContextProxy*> {
+  public:
+    VALUE convert(AbstractSupertypeDeclarationContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<AbstractSupertypeDeclarationContextProxy>(x, false, rb_cAbstractSupertypeDeclarationContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SubtypeConstraintContext*> {
+  public:
+    VALUE convert(ExpressParser::SubtypeConstraintContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SubtypeConstraintContext>(x, false, rb_cSubtypeConstraintContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SubtypeConstraintContextProxy*> {
+  public:
+    VALUE convert(SubtypeConstraintContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SubtypeConstraintContextProxy>(x, false, rb_cSubtypeConstraintContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ActualParameterListContext*> {
+  public:
+    VALUE convert(ExpressParser::ActualParameterListContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ActualParameterListContext>(x, false, rb_cActualParameterListContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ActualParameterListContextProxy*> {
+  public:
+    VALUE convert(ActualParameterListContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ActualParameterListContextProxy>(x, false, rb_cActualParameterListContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ParameterContext*> {
+  public:
+    VALUE convert(ExpressParser::ParameterContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ParameterContext>(x, false, rb_cParameterContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ParameterContextProxy*> {
+  public:
+    VALUE convert(ParameterContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ParameterContextProxy>(x, false, rb_cParameterContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::AddLikeOpContext*> {
+  public:
+    VALUE convert(ExpressParser::AddLikeOpContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::AddLikeOpContext>(x, false, rb_cAddLikeOpContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<AddLikeOpContextProxy*> {
+  public:
+    VALUE convert(AddLikeOpContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<AddLikeOpContextProxy>(x, false, rb_cAddLikeOpContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::AggregateInitializerContext*> {
+  public:
+    VALUE convert(ExpressParser::AggregateInitializerContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::AggregateInitializerContext>(x, false, rb_cAggregateInitializerContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<AggregateInitializerContextProxy*> {
+  public:
+    VALUE convert(AggregateInitializerContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<AggregateInitializerContextProxy>(x, false, rb_cAggregateInitializerContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ElementContext*> {
+  public:
+    VALUE convert(ExpressParser::ElementContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ElementContext>(x, false, rb_cElementContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ElementContextProxy*> {
+  public:
+    VALUE convert(ElementContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ElementContextProxy>(x, false, rb_cElementContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::AggregateSourceContext*> {
+  public:
+    VALUE convert(ExpressParser::AggregateSourceContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::AggregateSourceContext>(x, false, rb_cAggregateSourceContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<AggregateSourceContextProxy*> {
+  public:
+    VALUE convert(AggregateSourceContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<AggregateSourceContextProxy>(x, false, rb_cAggregateSourceContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SimpleExpressionContext*> {
+  public:
+    VALUE convert(ExpressParser::SimpleExpressionContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SimpleExpressionContext>(x, false, rb_cSimpleExpressionContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SimpleExpressionContextProxy*> {
+  public:
+    VALUE convert(SimpleExpressionContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SimpleExpressionContextProxy>(x, false, rb_cSimpleExpressionContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::AggregateTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::AggregateTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::AggregateTypeContext>(x, false, rb_cAggregateTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<AggregateTypeContextProxy*> {
+  public:
+    VALUE convert(AggregateTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<AggregateTypeContextProxy>(x, false, rb_cAggregateTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ParameterTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::ParameterTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ParameterTypeContext>(x, false, rb_cParameterTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ParameterTypeContextProxy*> {
+  public:
+    VALUE convert(ParameterTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ParameterTypeContextProxy>(x, false, rb_cParameterTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::TypeLabelContext*> {
+  public:
+    VALUE convert(ExpressParser::TypeLabelContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::TypeLabelContext>(x, false, rb_cTypeLabelContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<TypeLabelContextProxy*> {
+  public:
+    VALUE convert(TypeLabelContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<TypeLabelContextProxy>(x, false, rb_cTypeLabelContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::AggregationTypesContext*> {
+  public:
+    VALUE convert(ExpressParser::AggregationTypesContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::AggregationTypesContext>(x, false, rb_cAggregationTypesContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<AggregationTypesContextProxy*> {
+  public:
+    VALUE convert(AggregationTypesContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<AggregationTypesContextProxy>(x, false, rb_cAggregationTypesContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ArrayTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::ArrayTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ArrayTypeContext>(x, false, rb_cArrayTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ArrayTypeContextProxy*> {
+  public:
+    VALUE convert(ArrayTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ArrayTypeContextProxy>(x, false, rb_cArrayTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::BagTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::BagTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::BagTypeContext>(x, false, rb_cBagTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<BagTypeContextProxy*> {
+  public:
+    VALUE convert(BagTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<BagTypeContextProxy>(x, false, rb_cBagTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ListTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::ListTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ListTypeContext>(x, false, rb_cListTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ListTypeContextProxy*> {
+  public:
+    VALUE convert(ListTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ListTypeContextProxy>(x, false, rb_cListTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SetTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::SetTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SetTypeContext>(x, false, rb_cSetTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SetTypeContextProxy*> {
+  public:
+    VALUE convert(SetTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SetTypeContextProxy>(x, false, rb_cSetTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::AlgorithmHeadContext*> {
+  public:
+    VALUE convert(ExpressParser::AlgorithmHeadContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::AlgorithmHeadContext>(x, false, rb_cAlgorithmHeadContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<AlgorithmHeadContextProxy*> {
+  public:
+    VALUE convert(AlgorithmHeadContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<AlgorithmHeadContextProxy>(x, false, rb_cAlgorithmHeadContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::DeclarationContext*> {
+  public:
+    VALUE convert(ExpressParser::DeclarationContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::DeclarationContext>(x, false, rb_cDeclarationContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<DeclarationContextProxy*> {
+  public:
+    VALUE convert(DeclarationContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<DeclarationContextProxy>(x, false, rb_cDeclarationContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ConstantDeclContext*> {
+  public:
+    VALUE convert(ExpressParser::ConstantDeclContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ConstantDeclContext>(x, false, rb_cConstantDeclContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ConstantDeclContextProxy*> {
+  public:
+    VALUE convert(ConstantDeclContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ConstantDeclContextProxy>(x, false, rb_cConstantDeclContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::LocalDeclContext*> {
+  public:
+    VALUE convert(ExpressParser::LocalDeclContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::LocalDeclContext>(x, false, rb_cLocalDeclContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<LocalDeclContextProxy*> {
+  public:
+    VALUE convert(LocalDeclContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<LocalDeclContextProxy>(x, false, rb_cLocalDeclContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::AliasStmtContext*> {
+  public:
+    VALUE convert(ExpressParser::AliasStmtContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::AliasStmtContext>(x, false, rb_cAliasStmtContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<AliasStmtContextProxy*> {
+  public:
+    VALUE convert(AliasStmtContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<AliasStmtContextProxy>(x, false, rb_cAliasStmtContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::GeneralRefContext*> {
+  public:
+    VALUE convert(ExpressParser::GeneralRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::GeneralRefContext>(x, false, rb_cGeneralRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<GeneralRefContextProxy*> {
+  public:
+    VALUE convert(GeneralRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<GeneralRefContextProxy>(x, false, rb_cGeneralRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::StmtContext*> {
+  public:
+    VALUE convert(ExpressParser::StmtContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::StmtContext>(x, false, rb_cStmtContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<StmtContextProxy*> {
+  public:
+    VALUE convert(StmtContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<StmtContextProxy>(x, false, rb_cStmtContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::QualifierContext*> {
+  public:
+    VALUE convert(ExpressParser::QualifierContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::QualifierContext>(x, false, rb_cQualifierContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<QualifierContextProxy*> {
+  public:
+    VALUE convert(QualifierContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<QualifierContextProxy>(x, false, rb_cQualifierContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::BoundSpecContext*> {
+  public:
+    VALUE convert(ExpressParser::BoundSpecContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::BoundSpecContext>(x, false, rb_cBoundSpecContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<BoundSpecContextProxy*> {
+  public:
+    VALUE convert(BoundSpecContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<BoundSpecContextProxy>(x, false, rb_cBoundSpecContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::InstantiableTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::InstantiableTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::InstantiableTypeContext>(x, false, rb_cInstantiableTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<InstantiableTypeContextProxy*> {
+  public:
+    VALUE convert(InstantiableTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<InstantiableTypeContextProxy>(x, false, rb_cInstantiableTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::AssignmentStmtContext*> {
+  public:
+    VALUE convert(ExpressParser::AssignmentStmtContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::AssignmentStmtContext>(x, false, rb_cAssignmentStmtContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<AssignmentStmtContextProxy*> {
+  public:
+    VALUE convert(AssignmentStmtContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<AssignmentStmtContextProxy>(x, false, rb_cAssignmentStmtContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ExpressionContext*> {
+  public:
+    VALUE convert(ExpressParser::ExpressionContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ExpressionContext>(x, false, rb_cExpressionContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ExpressionContextProxy*> {
+  public:
+    VALUE convert(ExpressionContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressionContextProxy>(x, false, rb_cExpressionContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::AttributeDeclContext*> {
+  public:
+    VALUE convert(ExpressParser::AttributeDeclContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::AttributeDeclContext>(x, false, rb_cAttributeDeclContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<AttributeDeclContextProxy*> {
+  public:
+    VALUE convert(AttributeDeclContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<AttributeDeclContextProxy>(x, false, rb_cAttributeDeclContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::RedeclaredAttributeContext*> {
+  public:
+    VALUE convert(ExpressParser::RedeclaredAttributeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::RedeclaredAttributeContext>(x, false, rb_cRedeclaredAttributeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<RedeclaredAttributeContextProxy*> {
+  public:
+    VALUE convert(RedeclaredAttributeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<RedeclaredAttributeContextProxy>(x, false, rb_cRedeclaredAttributeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::AttributeQualifierContext*> {
+  public:
+    VALUE convert(ExpressParser::AttributeQualifierContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::AttributeQualifierContext>(x, false, rb_cAttributeQualifierContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<AttributeQualifierContextProxy*> {
+  public:
+    VALUE convert(AttributeQualifierContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<AttributeQualifierContextProxy>(x, false, rb_cAttributeQualifierContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::BinaryTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::BinaryTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::BinaryTypeContext>(x, false, rb_cBinaryTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<BinaryTypeContextProxy*> {
+  public:
+    VALUE convert(BinaryTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<BinaryTypeContextProxy>(x, false, rb_cBinaryTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::WidthSpecContext*> {
+  public:
+    VALUE convert(ExpressParser::WidthSpecContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::WidthSpecContext>(x, false, rb_cWidthSpecContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<WidthSpecContextProxy*> {
+  public:
+    VALUE convert(WidthSpecContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<WidthSpecContextProxy>(x, false, rb_cWidthSpecContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::BooleanTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::BooleanTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::BooleanTypeContext>(x, false, rb_cBooleanTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<BooleanTypeContextProxy*> {
+  public:
+    VALUE convert(BooleanTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<BooleanTypeContextProxy>(x, false, rb_cBooleanTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::Bound1Context*> {
+  public:
+    VALUE convert(ExpressParser::Bound1Context* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::Bound1Context>(x, false, rb_cBound1Context);
+    }
+  };
+
+  template <>
+  class To_Ruby<Bound1ContextProxy*> {
+  public:
+    VALUE convert(Bound1ContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<Bound1ContextProxy>(x, false, rb_cBound1Context);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::NumericExpressionContext*> {
+  public:
+    VALUE convert(ExpressParser::NumericExpressionContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::NumericExpressionContext>(x, false, rb_cNumericExpressionContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<NumericExpressionContextProxy*> {
+  public:
+    VALUE convert(NumericExpressionContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<NumericExpressionContextProxy>(x, false, rb_cNumericExpressionContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::Bound2Context*> {
+  public:
+    VALUE convert(ExpressParser::Bound2Context* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::Bound2Context>(x, false, rb_cBound2Context);
+    }
+  };
+
+  template <>
+  class To_Ruby<Bound2ContextProxy*> {
+  public:
+    VALUE convert(Bound2ContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<Bound2ContextProxy>(x, false, rb_cBound2Context);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::BuiltInConstantContext*> {
+  public:
+    VALUE convert(ExpressParser::BuiltInConstantContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::BuiltInConstantContext>(x, false, rb_cBuiltInConstantContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<BuiltInConstantContextProxy*> {
+  public:
+    VALUE convert(BuiltInConstantContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<BuiltInConstantContextProxy>(x, false, rb_cBuiltInConstantContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::BuiltInFunctionContext*> {
+  public:
+    VALUE convert(ExpressParser::BuiltInFunctionContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::BuiltInFunctionContext>(x, false, rb_cBuiltInFunctionContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<BuiltInFunctionContextProxy*> {
+  public:
+    VALUE convert(BuiltInFunctionContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<BuiltInFunctionContextProxy>(x, false, rb_cBuiltInFunctionContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::BuiltInProcedureContext*> {
+  public:
+    VALUE convert(ExpressParser::BuiltInProcedureContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::BuiltInProcedureContext>(x, false, rb_cBuiltInProcedureContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<BuiltInProcedureContextProxy*> {
+  public:
+    VALUE convert(BuiltInProcedureContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<BuiltInProcedureContextProxy>(x, false, rb_cBuiltInProcedureContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::CaseActionContext*> {
+  public:
+    VALUE convert(ExpressParser::CaseActionContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::CaseActionContext>(x, false, rb_cCaseActionContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<CaseActionContextProxy*> {
+  public:
+    VALUE convert(CaseActionContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<CaseActionContextProxy>(x, false, rb_cCaseActionContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::CaseLabelContext*> {
+  public:
+    VALUE convert(ExpressParser::CaseLabelContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::CaseLabelContext>(x, false, rb_cCaseLabelContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<CaseLabelContextProxy*> {
+  public:
+    VALUE convert(CaseLabelContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<CaseLabelContextProxy>(x, false, rb_cCaseLabelContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::CaseStmtContext*> {
+  public:
+    VALUE convert(ExpressParser::CaseStmtContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::CaseStmtContext>(x, false, rb_cCaseStmtContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<CaseStmtContextProxy*> {
+  public:
+    VALUE convert(CaseStmtContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<CaseStmtContextProxy>(x, false, rb_cCaseStmtContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SelectorContext*> {
+  public:
+    VALUE convert(ExpressParser::SelectorContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SelectorContext>(x, false, rb_cSelectorContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SelectorContextProxy*> {
+  public:
+    VALUE convert(SelectorContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SelectorContextProxy>(x, false, rb_cSelectorContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::CompoundStmtContext*> {
+  public:
+    VALUE convert(ExpressParser::CompoundStmtContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::CompoundStmtContext>(x, false, rb_cCompoundStmtContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<CompoundStmtContextProxy*> {
+  public:
+    VALUE convert(CompoundStmtContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<CompoundStmtContextProxy>(x, false, rb_cCompoundStmtContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ConcreteTypesContext*> {
+  public:
+    VALUE convert(ExpressParser::ConcreteTypesContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ConcreteTypesContext>(x, false, rb_cConcreteTypesContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ConcreteTypesContextProxy*> {
+  public:
+    VALUE convert(ConcreteTypesContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ConcreteTypesContextProxy>(x, false, rb_cConcreteTypesContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SimpleTypesContext*> {
+  public:
+    VALUE convert(ExpressParser::SimpleTypesContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SimpleTypesContext>(x, false, rb_cSimpleTypesContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SimpleTypesContextProxy*> {
+  public:
+    VALUE convert(SimpleTypesContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SimpleTypesContextProxy>(x, false, rb_cSimpleTypesContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ConstantBodyContext*> {
+  public:
+    VALUE convert(ExpressParser::ConstantBodyContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ConstantBodyContext>(x, false, rb_cConstantBodyContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ConstantBodyContextProxy*> {
+  public:
+    VALUE convert(ConstantBodyContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ConstantBodyContextProxy>(x, false, rb_cConstantBodyContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ConstantFactorContext*> {
+  public:
+    VALUE convert(ExpressParser::ConstantFactorContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ConstantFactorContext>(x, false, rb_cConstantFactorContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ConstantFactorContextProxy*> {
+  public:
+    VALUE convert(ConstantFactorContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ConstantFactorContextProxy>(x, false, rb_cConstantFactorContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ConstructedTypesContext*> {
+  public:
+    VALUE convert(ExpressParser::ConstructedTypesContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ConstructedTypesContext>(x, false, rb_cConstructedTypesContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ConstructedTypesContextProxy*> {
+  public:
+    VALUE convert(ConstructedTypesContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ConstructedTypesContextProxy>(x, false, rb_cConstructedTypesContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::EnumerationTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::EnumerationTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::EnumerationTypeContext>(x, false, rb_cEnumerationTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<EnumerationTypeContextProxy*> {
+  public:
+    VALUE convert(EnumerationTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<EnumerationTypeContextProxy>(x, false, rb_cEnumerationTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SelectTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::SelectTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SelectTypeContext>(x, false, rb_cSelectTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SelectTypeContextProxy*> {
+  public:
+    VALUE convert(SelectTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SelectTypeContextProxy>(x, false, rb_cSelectTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::EntityDeclContext*> {
+  public:
+    VALUE convert(ExpressParser::EntityDeclContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::EntityDeclContext>(x, false, rb_cEntityDeclContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<EntityDeclContextProxy*> {
+  public:
+    VALUE convert(EntityDeclContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<EntityDeclContextProxy>(x, false, rb_cEntityDeclContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::FunctionDeclContext*> {
+  public:
+    VALUE convert(ExpressParser::FunctionDeclContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::FunctionDeclContext>(x, false, rb_cFunctionDeclContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<FunctionDeclContextProxy*> {
+  public:
+    VALUE convert(FunctionDeclContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<FunctionDeclContextProxy>(x, false, rb_cFunctionDeclContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ProcedureDeclContext*> {
+  public:
+    VALUE convert(ExpressParser::ProcedureDeclContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ProcedureDeclContext>(x, false, rb_cProcedureDeclContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ProcedureDeclContextProxy*> {
+  public:
+    VALUE convert(ProcedureDeclContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ProcedureDeclContextProxy>(x, false, rb_cProcedureDeclContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SubtypeConstraintDeclContext*> {
+  public:
+    VALUE convert(ExpressParser::SubtypeConstraintDeclContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SubtypeConstraintDeclContext>(x, false, rb_cSubtypeConstraintDeclContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SubtypeConstraintDeclContextProxy*> {
+  public:
+    VALUE convert(SubtypeConstraintDeclContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SubtypeConstraintDeclContextProxy>(x, false, rb_cSubtypeConstraintDeclContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::TypeDeclContext*> {
+  public:
+    VALUE convert(ExpressParser::TypeDeclContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::TypeDeclContext>(x, false, rb_cTypeDeclContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<TypeDeclContextProxy*> {
+  public:
+    VALUE convert(TypeDeclContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<TypeDeclContextProxy>(x, false, rb_cTypeDeclContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::DerivedAttrContext*> {
+  public:
+    VALUE convert(ExpressParser::DerivedAttrContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::DerivedAttrContext>(x, false, rb_cDerivedAttrContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<DerivedAttrContextProxy*> {
+  public:
+    VALUE convert(DerivedAttrContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<DerivedAttrContextProxy>(x, false, rb_cDerivedAttrContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::DeriveClauseContext*> {
+  public:
+    VALUE convert(ExpressParser::DeriveClauseContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::DeriveClauseContext>(x, false, rb_cDeriveClauseContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<DeriveClauseContextProxy*> {
+  public:
+    VALUE convert(DeriveClauseContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<DeriveClauseContextProxy>(x, false, rb_cDeriveClauseContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::DomainRuleContext*> {
+  public:
+    VALUE convert(ExpressParser::DomainRuleContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::DomainRuleContext>(x, false, rb_cDomainRuleContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<DomainRuleContextProxy*> {
+  public:
+    VALUE convert(DomainRuleContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<DomainRuleContextProxy>(x, false, rb_cDomainRuleContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::RepetitionContext*> {
+  public:
+    VALUE convert(ExpressParser::RepetitionContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::RepetitionContext>(x, false, rb_cRepetitionContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<RepetitionContextProxy*> {
+  public:
+    VALUE convert(RepetitionContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<RepetitionContextProxy>(x, false, rb_cRepetitionContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::EntityBodyContext*> {
+  public:
+    VALUE convert(ExpressParser::EntityBodyContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::EntityBodyContext>(x, false, rb_cEntityBodyContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<EntityBodyContextProxy*> {
+  public:
+    VALUE convert(EntityBodyContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<EntityBodyContextProxy>(x, false, rb_cEntityBodyContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ExplicitAttrContext*> {
+  public:
+    VALUE convert(ExpressParser::ExplicitAttrContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ExplicitAttrContext>(x, false, rb_cExplicitAttrContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ExplicitAttrContextProxy*> {
+  public:
+    VALUE convert(ExplicitAttrContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExplicitAttrContextProxy>(x, false, rb_cExplicitAttrContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::InverseClauseContext*> {
+  public:
+    VALUE convert(ExpressParser::InverseClauseContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::InverseClauseContext>(x, false, rb_cInverseClauseContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<InverseClauseContextProxy*> {
+  public:
+    VALUE convert(InverseClauseContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<InverseClauseContextProxy>(x, false, rb_cInverseClauseContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::UniqueClauseContext*> {
+  public:
+    VALUE convert(ExpressParser::UniqueClauseContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::UniqueClauseContext>(x, false, rb_cUniqueClauseContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<UniqueClauseContextProxy*> {
+  public:
+    VALUE convert(UniqueClauseContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<UniqueClauseContextProxy>(x, false, rb_cUniqueClauseContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::WhereClauseContext*> {
+  public:
+    VALUE convert(ExpressParser::WhereClauseContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::WhereClauseContext>(x, false, rb_cWhereClauseContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<WhereClauseContextProxy*> {
+  public:
+    VALUE convert(WhereClauseContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<WhereClauseContextProxy>(x, false, rb_cWhereClauseContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::EntityConstructorContext*> {
+  public:
+    VALUE convert(ExpressParser::EntityConstructorContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::EntityConstructorContext>(x, false, rb_cEntityConstructorContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<EntityConstructorContextProxy*> {
+  public:
+    VALUE convert(EntityConstructorContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<EntityConstructorContextProxy>(x, false, rb_cEntityConstructorContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::EntityHeadContext*> {
+  public:
+    VALUE convert(ExpressParser::EntityHeadContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::EntityHeadContext>(x, false, rb_cEntityHeadContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<EntityHeadContextProxy*> {
+  public:
+    VALUE convert(EntityHeadContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<EntityHeadContextProxy>(x, false, rb_cEntityHeadContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SubsuperContext*> {
+  public:
+    VALUE convert(ExpressParser::SubsuperContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SubsuperContext>(x, false, rb_cSubsuperContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SubsuperContextProxy*> {
+  public:
+    VALUE convert(SubsuperContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SubsuperContextProxy>(x, false, rb_cSubsuperContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::EnumerationExtensionContext*> {
+  public:
+    VALUE convert(ExpressParser::EnumerationExtensionContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::EnumerationExtensionContext>(x, false, rb_cEnumerationExtensionContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<EnumerationExtensionContextProxy*> {
+  public:
+    VALUE convert(EnumerationExtensionContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<EnumerationExtensionContextProxy>(x, false, rb_cEnumerationExtensionContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::EnumerationItemsContext*> {
+  public:
+    VALUE convert(ExpressParser::EnumerationItemsContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::EnumerationItemsContext>(x, false, rb_cEnumerationItemsContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<EnumerationItemsContextProxy*> {
+  public:
+    VALUE convert(EnumerationItemsContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<EnumerationItemsContextProxy>(x, false, rb_cEnumerationItemsContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::EnumerationItemContext*> {
+  public:
+    VALUE convert(ExpressParser::EnumerationItemContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::EnumerationItemContext>(x, false, rb_cEnumerationItemContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<EnumerationItemContextProxy*> {
+  public:
+    VALUE convert(EnumerationItemContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<EnumerationItemContextProxy>(x, false, rb_cEnumerationItemContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::EnumerationReferenceContext*> {
+  public:
+    VALUE convert(ExpressParser::EnumerationReferenceContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::EnumerationReferenceContext>(x, false, rb_cEnumerationReferenceContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<EnumerationReferenceContextProxy*> {
+  public:
+    VALUE convert(EnumerationReferenceContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<EnumerationReferenceContextProxy>(x, false, rb_cEnumerationReferenceContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::EscapeStmtContext*> {
+  public:
+    VALUE convert(ExpressParser::EscapeStmtContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::EscapeStmtContext>(x, false, rb_cEscapeStmtContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<EscapeStmtContextProxy*> {
+  public:
+    VALUE convert(EscapeStmtContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<EscapeStmtContextProxy>(x, false, rb_cEscapeStmtContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::RelOpExtendedContext*> {
+  public:
+    VALUE convert(ExpressParser::RelOpExtendedContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::RelOpExtendedContext>(x, false, rb_cRelOpExtendedContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<RelOpExtendedContextProxy*> {
+  public:
+    VALUE convert(RelOpExtendedContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<RelOpExtendedContextProxy>(x, false, rb_cRelOpExtendedContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::FactorContext*> {
+  public:
+    VALUE convert(ExpressParser::FactorContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::FactorContext>(x, false, rb_cFactorContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<FactorContextProxy*> {
+  public:
+    VALUE convert(FactorContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<FactorContextProxy>(x, false, rb_cFactorContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SimpleFactorContext*> {
+  public:
+    VALUE convert(ExpressParser::SimpleFactorContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SimpleFactorContext>(x, false, rb_cSimpleFactorContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SimpleFactorContextProxy*> {
+  public:
+    VALUE convert(SimpleFactorContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SimpleFactorContextProxy>(x, false, rb_cSimpleFactorContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::FormalParameterContext*> {
+  public:
+    VALUE convert(ExpressParser::FormalParameterContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::FormalParameterContext>(x, false, rb_cFormalParameterContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<FormalParameterContextProxy*> {
+  public:
+    VALUE convert(FormalParameterContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<FormalParameterContextProxy>(x, false, rb_cFormalParameterContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::FunctionCallContext*> {
+  public:
+    VALUE convert(ExpressParser::FunctionCallContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::FunctionCallContext>(x, false, rb_cFunctionCallContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<FunctionCallContextProxy*> {
+  public:
+    VALUE convert(FunctionCallContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<FunctionCallContextProxy>(x, false, rb_cFunctionCallContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::FunctionHeadContext*> {
+  public:
+    VALUE convert(ExpressParser::FunctionHeadContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::FunctionHeadContext>(x, false, rb_cFunctionHeadContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<FunctionHeadContextProxy*> {
+  public:
+    VALUE convert(FunctionHeadContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<FunctionHeadContextProxy>(x, false, rb_cFunctionHeadContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::GeneralizedTypesContext*> {
+  public:
+    VALUE convert(ExpressParser::GeneralizedTypesContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::GeneralizedTypesContext>(x, false, rb_cGeneralizedTypesContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<GeneralizedTypesContextProxy*> {
+  public:
+    VALUE convert(GeneralizedTypesContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<GeneralizedTypesContextProxy>(x, false, rb_cGeneralizedTypesContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::GeneralAggregationTypesContext*> {
+  public:
+    VALUE convert(ExpressParser::GeneralAggregationTypesContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::GeneralAggregationTypesContext>(x, false, rb_cGeneralAggregationTypesContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<GeneralAggregationTypesContextProxy*> {
+  public:
+    VALUE convert(GeneralAggregationTypesContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<GeneralAggregationTypesContextProxy>(x, false, rb_cGeneralAggregationTypesContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::GenericEntityTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::GenericEntityTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::GenericEntityTypeContext>(x, false, rb_cGenericEntityTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<GenericEntityTypeContextProxy*> {
+  public:
+    VALUE convert(GenericEntityTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<GenericEntityTypeContextProxy>(x, false, rb_cGenericEntityTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::GenericTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::GenericTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::GenericTypeContext>(x, false, rb_cGenericTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<GenericTypeContextProxy*> {
+  public:
+    VALUE convert(GenericTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<GenericTypeContextProxy>(x, false, rb_cGenericTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::GeneralArrayTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::GeneralArrayTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::GeneralArrayTypeContext>(x, false, rb_cGeneralArrayTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<GeneralArrayTypeContextProxy*> {
+  public:
+    VALUE convert(GeneralArrayTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<GeneralArrayTypeContextProxy>(x, false, rb_cGeneralArrayTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::GeneralBagTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::GeneralBagTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::GeneralBagTypeContext>(x, false, rb_cGeneralBagTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<GeneralBagTypeContextProxy*> {
+  public:
+    VALUE convert(GeneralBagTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<GeneralBagTypeContextProxy>(x, false, rb_cGeneralBagTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::GeneralListTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::GeneralListTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::GeneralListTypeContext>(x, false, rb_cGeneralListTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<GeneralListTypeContextProxy*> {
+  public:
+    VALUE convert(GeneralListTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<GeneralListTypeContextProxy>(x, false, rb_cGeneralListTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::GeneralSetTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::GeneralSetTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::GeneralSetTypeContext>(x, false, rb_cGeneralSetTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<GeneralSetTypeContextProxy*> {
+  public:
+    VALUE convert(GeneralSetTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<GeneralSetTypeContextProxy>(x, false, rb_cGeneralSetTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::GroupQualifierContext*> {
+  public:
+    VALUE convert(ExpressParser::GroupQualifierContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::GroupQualifierContext>(x, false, rb_cGroupQualifierContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<GroupQualifierContextProxy*> {
+  public:
+    VALUE convert(GroupQualifierContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<GroupQualifierContextProxy>(x, false, rb_cGroupQualifierContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::IfStmtContext*> {
+  public:
+    VALUE convert(ExpressParser::IfStmtContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::IfStmtContext>(x, false, rb_cIfStmtContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<IfStmtContextProxy*> {
+  public:
+    VALUE convert(IfStmtContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<IfStmtContextProxy>(x, false, rb_cIfStmtContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::LogicalExpressionContext*> {
+  public:
+    VALUE convert(ExpressParser::LogicalExpressionContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::LogicalExpressionContext>(x, false, rb_cLogicalExpressionContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<LogicalExpressionContextProxy*> {
+  public:
+    VALUE convert(LogicalExpressionContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<LogicalExpressionContextProxy>(x, false, rb_cLogicalExpressionContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::IfStmtStatementsContext*> {
+  public:
+    VALUE convert(ExpressParser::IfStmtStatementsContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::IfStmtStatementsContext>(x, false, rb_cIfStmtStatementsContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<IfStmtStatementsContextProxy*> {
+  public:
+    VALUE convert(IfStmtStatementsContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<IfStmtStatementsContextProxy>(x, false, rb_cIfStmtStatementsContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::IfStmtElseStatementsContext*> {
+  public:
+    VALUE convert(ExpressParser::IfStmtElseStatementsContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::IfStmtElseStatementsContext>(x, false, rb_cIfStmtElseStatementsContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<IfStmtElseStatementsContextProxy*> {
+  public:
+    VALUE convert(IfStmtElseStatementsContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<IfStmtElseStatementsContextProxy>(x, false, rb_cIfStmtElseStatementsContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::IncrementContext*> {
+  public:
+    VALUE convert(ExpressParser::IncrementContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::IncrementContext>(x, false, rb_cIncrementContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<IncrementContextProxy*> {
+  public:
+    VALUE convert(IncrementContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<IncrementContextProxy>(x, false, rb_cIncrementContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::IncrementControlContext*> {
+  public:
+    VALUE convert(ExpressParser::IncrementControlContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::IncrementControlContext>(x, false, rb_cIncrementControlContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<IncrementControlContextProxy*> {
+  public:
+    VALUE convert(IncrementControlContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<IncrementControlContextProxy>(x, false, rb_cIncrementControlContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::IndexContext*> {
+  public:
+    VALUE convert(ExpressParser::IndexContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::IndexContext>(x, false, rb_cIndexContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<IndexContextProxy*> {
+  public:
+    VALUE convert(IndexContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<IndexContextProxy>(x, false, rb_cIndexContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::Index1Context*> {
+  public:
+    VALUE convert(ExpressParser::Index1Context* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::Index1Context>(x, false, rb_cIndex1Context);
+    }
+  };
+
+  template <>
+  class To_Ruby<Index1ContextProxy*> {
+  public:
+    VALUE convert(Index1ContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<Index1ContextProxy>(x, false, rb_cIndex1Context);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::Index2Context*> {
+  public:
+    VALUE convert(ExpressParser::Index2Context* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::Index2Context>(x, false, rb_cIndex2Context);
+    }
+  };
+
+  template <>
+  class To_Ruby<Index2ContextProxy*> {
+  public:
+    VALUE convert(Index2ContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<Index2ContextProxy>(x, false, rb_cIndex2Context);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::IndexQualifierContext*> {
+  public:
+    VALUE convert(ExpressParser::IndexQualifierContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::IndexQualifierContext>(x, false, rb_cIndexQualifierContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<IndexQualifierContextProxy*> {
+  public:
+    VALUE convert(IndexQualifierContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<IndexQualifierContextProxy>(x, false, rb_cIndexQualifierContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::IntegerTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::IntegerTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::IntegerTypeContext>(x, false, rb_cIntegerTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<IntegerTypeContextProxy*> {
+  public:
+    VALUE convert(IntegerTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<IntegerTypeContextProxy>(x, false, rb_cIntegerTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::InterfaceSpecificationContext*> {
+  public:
+    VALUE convert(ExpressParser::InterfaceSpecificationContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::InterfaceSpecificationContext>(x, false, rb_cInterfaceSpecificationContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<InterfaceSpecificationContextProxy*> {
+  public:
+    VALUE convert(InterfaceSpecificationContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<InterfaceSpecificationContextProxy>(x, false, rb_cInterfaceSpecificationContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ReferenceClauseContext*> {
+  public:
+    VALUE convert(ExpressParser::ReferenceClauseContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ReferenceClauseContext>(x, false, rb_cReferenceClauseContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ReferenceClauseContextProxy*> {
+  public:
+    VALUE convert(ReferenceClauseContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ReferenceClauseContextProxy>(x, false, rb_cReferenceClauseContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::UseClauseContext*> {
+  public:
+    VALUE convert(ExpressParser::UseClauseContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::UseClauseContext>(x, false, rb_cUseClauseContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<UseClauseContextProxy*> {
+  public:
+    VALUE convert(UseClauseContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<UseClauseContextProxy>(x, false, rb_cUseClauseContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::IntervalContext*> {
+  public:
+    VALUE convert(ExpressParser::IntervalContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::IntervalContext>(x, false, rb_cIntervalContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<IntervalContextProxy*> {
+  public:
+    VALUE convert(IntervalContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<IntervalContextProxy>(x, false, rb_cIntervalContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::IntervalLowContext*> {
+  public:
+    VALUE convert(ExpressParser::IntervalLowContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::IntervalLowContext>(x, false, rb_cIntervalLowContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<IntervalLowContextProxy*> {
+  public:
+    VALUE convert(IntervalLowContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<IntervalLowContextProxy>(x, false, rb_cIntervalLowContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::IntervalOpContext*> {
+  public:
+    VALUE convert(ExpressParser::IntervalOpContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::IntervalOpContext>(x, false, rb_cIntervalOpContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<IntervalOpContextProxy*> {
+  public:
+    VALUE convert(IntervalOpContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<IntervalOpContextProxy>(x, false, rb_cIntervalOpContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::IntervalItemContext*> {
+  public:
+    VALUE convert(ExpressParser::IntervalItemContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::IntervalItemContext>(x, false, rb_cIntervalItemContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<IntervalItemContextProxy*> {
+  public:
+    VALUE convert(IntervalItemContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<IntervalItemContextProxy>(x, false, rb_cIntervalItemContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::IntervalHighContext*> {
+  public:
+    VALUE convert(ExpressParser::IntervalHighContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::IntervalHighContext>(x, false, rb_cIntervalHighContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<IntervalHighContextProxy*> {
+  public:
+    VALUE convert(IntervalHighContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<IntervalHighContextProxy>(x, false, rb_cIntervalHighContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::InverseAttrContext*> {
+  public:
+    VALUE convert(ExpressParser::InverseAttrContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::InverseAttrContext>(x, false, rb_cInverseAttrContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<InverseAttrContextProxy*> {
+  public:
+    VALUE convert(InverseAttrContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<InverseAttrContextProxy>(x, false, rb_cInverseAttrContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::InverseAttrTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::InverseAttrTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::InverseAttrTypeContext>(x, false, rb_cInverseAttrTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<InverseAttrTypeContextProxy*> {
+  public:
+    VALUE convert(InverseAttrTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<InverseAttrTypeContextProxy>(x, false, rb_cInverseAttrTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::LiteralContext*> {
+  public:
+    VALUE convert(ExpressParser::LiteralContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::LiteralContext>(x, false, rb_cLiteralContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<LiteralContextProxy*> {
+  public:
+    VALUE convert(LiteralContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<LiteralContextProxy>(x, false, rb_cLiteralContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::LogicalLiteralContext*> {
+  public:
+    VALUE convert(ExpressParser::LogicalLiteralContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::LogicalLiteralContext>(x, false, rb_cLogicalLiteralContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<LogicalLiteralContextProxy*> {
+  public:
+    VALUE convert(LogicalLiteralContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<LogicalLiteralContextProxy>(x, false, rb_cLogicalLiteralContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::StringLiteralContext*> {
+  public:
+    VALUE convert(ExpressParser::StringLiteralContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::StringLiteralContext>(x, false, rb_cStringLiteralContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<StringLiteralContextProxy*> {
+  public:
+    VALUE convert(StringLiteralContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<StringLiteralContextProxy>(x, false, rb_cStringLiteralContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::LocalVariableContext*> {
+  public:
+    VALUE convert(ExpressParser::LocalVariableContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::LocalVariableContext>(x, false, rb_cLocalVariableContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<LocalVariableContextProxy*> {
+  public:
+    VALUE convert(LocalVariableContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<LocalVariableContextProxy>(x, false, rb_cLocalVariableContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::LogicalTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::LogicalTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::LogicalTypeContext>(x, false, rb_cLogicalTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<LogicalTypeContextProxy*> {
+  public:
+    VALUE convert(LogicalTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<LogicalTypeContextProxy>(x, false, rb_cLogicalTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::MultiplicationLikeOpContext*> {
+  public:
+    VALUE convert(ExpressParser::MultiplicationLikeOpContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::MultiplicationLikeOpContext>(x, false, rb_cMultiplicationLikeOpContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<MultiplicationLikeOpContextProxy*> {
+  public:
+    VALUE convert(MultiplicationLikeOpContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<MultiplicationLikeOpContextProxy>(x, false, rb_cMultiplicationLikeOpContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::NamedTypesContext*> {
+  public:
+    VALUE convert(ExpressParser::NamedTypesContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::NamedTypesContext>(x, false, rb_cNamedTypesContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<NamedTypesContextProxy*> {
+  public:
+    VALUE convert(NamedTypesContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<NamedTypesContextProxy>(x, false, rb_cNamedTypesContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::NamedTypeOrRenameContext*> {
+  public:
+    VALUE convert(ExpressParser::NamedTypeOrRenameContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::NamedTypeOrRenameContext>(x, false, rb_cNamedTypeOrRenameContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<NamedTypeOrRenameContextProxy*> {
+  public:
+    VALUE convert(NamedTypeOrRenameContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<NamedTypeOrRenameContextProxy>(x, false, rb_cNamedTypeOrRenameContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::NullStmtContext*> {
+  public:
+    VALUE convert(ExpressParser::NullStmtContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::NullStmtContext>(x, false, rb_cNullStmtContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<NullStmtContextProxy*> {
+  public:
+    VALUE convert(NullStmtContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<NullStmtContextProxy>(x, false, rb_cNullStmtContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::NumberTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::NumberTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::NumberTypeContext>(x, false, rb_cNumberTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<NumberTypeContextProxy*> {
+  public:
+    VALUE convert(NumberTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<NumberTypeContextProxy>(x, false, rb_cNumberTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::OneOfContext*> {
+  public:
+    VALUE convert(ExpressParser::OneOfContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::OneOfContext>(x, false, rb_cOneOfContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<OneOfContextProxy*> {
+  public:
+    VALUE convert(OneOfContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<OneOfContextProxy>(x, false, rb_cOneOfContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SupertypeExpressionContext*> {
+  public:
+    VALUE convert(ExpressParser::SupertypeExpressionContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SupertypeExpressionContext>(x, false, rb_cSupertypeExpressionContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SupertypeExpressionContextProxy*> {
+  public:
+    VALUE convert(SupertypeExpressionContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SupertypeExpressionContextProxy>(x, false, rb_cSupertypeExpressionContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::PopulationContext*> {
+  public:
+    VALUE convert(ExpressParser::PopulationContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::PopulationContext>(x, false, rb_cPopulationContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<PopulationContextProxy*> {
+  public:
+    VALUE convert(PopulationContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<PopulationContextProxy>(x, false, rb_cPopulationContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::PrecisionSpecContext*> {
+  public:
+    VALUE convert(ExpressParser::PrecisionSpecContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::PrecisionSpecContext>(x, false, rb_cPrecisionSpecContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<PrecisionSpecContextProxy*> {
+  public:
+    VALUE convert(PrecisionSpecContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<PrecisionSpecContextProxy>(x, false, rb_cPrecisionSpecContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::PrimaryContext*> {
+  public:
+    VALUE convert(ExpressParser::PrimaryContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::PrimaryContext>(x, false, rb_cPrimaryContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<PrimaryContextProxy*> {
+  public:
+    VALUE convert(PrimaryContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<PrimaryContextProxy>(x, false, rb_cPrimaryContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::QualifiableFactorContext*> {
+  public:
+    VALUE convert(ExpressParser::QualifiableFactorContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::QualifiableFactorContext>(x, false, rb_cQualifiableFactorContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<QualifiableFactorContextProxy*> {
+  public:
+    VALUE convert(QualifiableFactorContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<QualifiableFactorContextProxy>(x, false, rb_cQualifiableFactorContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ProcedureCallStmtContext*> {
+  public:
+    VALUE convert(ExpressParser::ProcedureCallStmtContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ProcedureCallStmtContext>(x, false, rb_cProcedureCallStmtContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ProcedureCallStmtContextProxy*> {
+  public:
+    VALUE convert(ProcedureCallStmtContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ProcedureCallStmtContextProxy>(x, false, rb_cProcedureCallStmtContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ProcedureHeadContext*> {
+  public:
+    VALUE convert(ExpressParser::ProcedureHeadContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ProcedureHeadContext>(x, false, rb_cProcedureHeadContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ProcedureHeadContextProxy*> {
+  public:
+    VALUE convert(ProcedureHeadContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ProcedureHeadContextProxy>(x, false, rb_cProcedureHeadContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ProcedureHeadParameterContext*> {
+  public:
+    VALUE convert(ExpressParser::ProcedureHeadParameterContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ProcedureHeadParameterContext>(x, false, rb_cProcedureHeadParameterContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ProcedureHeadParameterContextProxy*> {
+  public:
+    VALUE convert(ProcedureHeadParameterContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ProcedureHeadParameterContextProxy>(x, false, rb_cProcedureHeadParameterContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::QualifiedAttributeContext*> {
+  public:
+    VALUE convert(ExpressParser::QualifiedAttributeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::QualifiedAttributeContext>(x, false, rb_cQualifiedAttributeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<QualifiedAttributeContextProxy*> {
+  public:
+    VALUE convert(QualifiedAttributeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<QualifiedAttributeContextProxy>(x, false, rb_cQualifiedAttributeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::QueryExpressionContext*> {
+  public:
+    VALUE convert(ExpressParser::QueryExpressionContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::QueryExpressionContext>(x, false, rb_cQueryExpressionContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<QueryExpressionContextProxy*> {
+  public:
+    VALUE convert(QueryExpressionContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<QueryExpressionContextProxy>(x, false, rb_cQueryExpressionContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::RealTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::RealTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::RealTypeContext>(x, false, rb_cRealTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<RealTypeContextProxy*> {
+  public:
+    VALUE convert(RealTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<RealTypeContextProxy>(x, false, rb_cRealTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ReferencedAttributeContext*> {
+  public:
+    VALUE convert(ExpressParser::ReferencedAttributeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ReferencedAttributeContext>(x, false, rb_cReferencedAttributeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ReferencedAttributeContextProxy*> {
+  public:
+    VALUE convert(ReferencedAttributeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ReferencedAttributeContextProxy>(x, false, rb_cReferencedAttributeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ResourceOrRenameContext*> {
+  public:
+    VALUE convert(ExpressParser::ResourceOrRenameContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ResourceOrRenameContext>(x, false, rb_cResourceOrRenameContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ResourceOrRenameContextProxy*> {
+  public:
+    VALUE convert(ResourceOrRenameContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ResourceOrRenameContextProxy>(x, false, rb_cResourceOrRenameContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::RelOpContext*> {
+  public:
+    VALUE convert(ExpressParser::RelOpContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::RelOpContext>(x, false, rb_cRelOpContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<RelOpContextProxy*> {
+  public:
+    VALUE convert(RelOpContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<RelOpContextProxy>(x, false, rb_cRelOpContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::RenameIdContext*> {
+  public:
+    VALUE convert(ExpressParser::RenameIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::RenameIdContext>(x, false, rb_cRenameIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<RenameIdContextProxy*> {
+  public:
+    VALUE convert(RenameIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<RenameIdContextProxy>(x, false, rb_cRenameIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::RepeatControlContext*> {
+  public:
+    VALUE convert(ExpressParser::RepeatControlContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::RepeatControlContext>(x, false, rb_cRepeatControlContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<RepeatControlContextProxy*> {
+  public:
+    VALUE convert(RepeatControlContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<RepeatControlContextProxy>(x, false, rb_cRepeatControlContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::WhileControlContext*> {
+  public:
+    VALUE convert(ExpressParser::WhileControlContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::WhileControlContext>(x, false, rb_cWhileControlContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<WhileControlContextProxy*> {
+  public:
+    VALUE convert(WhileControlContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<WhileControlContextProxy>(x, false, rb_cWhileControlContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::UntilControlContext*> {
+  public:
+    VALUE convert(ExpressParser::UntilControlContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::UntilControlContext>(x, false, rb_cUntilControlContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<UntilControlContextProxy*> {
+  public:
+    VALUE convert(UntilControlContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<UntilControlContextProxy>(x, false, rb_cUntilControlContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::RepeatStmtContext*> {
+  public:
+    VALUE convert(ExpressParser::RepeatStmtContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::RepeatStmtContext>(x, false, rb_cRepeatStmtContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<RepeatStmtContextProxy*> {
+  public:
+    VALUE convert(RepeatStmtContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<RepeatStmtContextProxy>(x, false, rb_cRepeatStmtContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ResourceRefContext*> {
+  public:
+    VALUE convert(ExpressParser::ResourceRefContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ResourceRefContext>(x, false, rb_cResourceRefContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ResourceRefContextProxy*> {
+  public:
+    VALUE convert(ResourceRefContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ResourceRefContextProxy>(x, false, rb_cResourceRefContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::ReturnStmtContext*> {
+  public:
+    VALUE convert(ExpressParser::ReturnStmtContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::ReturnStmtContext>(x, false, rb_cReturnStmtContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<ReturnStmtContextProxy*> {
+  public:
+    VALUE convert(ReturnStmtContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ReturnStmtContextProxy>(x, false, rb_cReturnStmtContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::RuleDeclContext*> {
+  public:
+    VALUE convert(ExpressParser::RuleDeclContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::RuleDeclContext>(x, false, rb_cRuleDeclContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<RuleDeclContextProxy*> {
+  public:
+    VALUE convert(RuleDeclContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<RuleDeclContextProxy>(x, false, rb_cRuleDeclContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::RuleHeadContext*> {
+  public:
+    VALUE convert(ExpressParser::RuleHeadContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::RuleHeadContext>(x, false, rb_cRuleHeadContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<RuleHeadContextProxy*> {
+  public:
+    VALUE convert(RuleHeadContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<RuleHeadContextProxy>(x, false, rb_cRuleHeadContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SchemaBodyContext*> {
+  public:
+    VALUE convert(ExpressParser::SchemaBodyContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SchemaBodyContext>(x, false, rb_cSchemaBodyContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SchemaBodyContextProxy*> {
+  public:
+    VALUE convert(SchemaBodyContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SchemaBodyContextProxy>(x, false, rb_cSchemaBodyContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SchemaBodyDeclarationContext*> {
+  public:
+    VALUE convert(ExpressParser::SchemaBodyDeclarationContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SchemaBodyDeclarationContext>(x, false, rb_cSchemaBodyDeclarationContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SchemaBodyDeclarationContextProxy*> {
+  public:
+    VALUE convert(SchemaBodyDeclarationContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SchemaBodyDeclarationContextProxy>(x, false, rb_cSchemaBodyDeclarationContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SchemaDeclContext*> {
+  public:
+    VALUE convert(ExpressParser::SchemaDeclContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SchemaDeclContext>(x, false, rb_cSchemaDeclContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SchemaDeclContextProxy*> {
+  public:
+    VALUE convert(SchemaDeclContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SchemaDeclContextProxy>(x, false, rb_cSchemaDeclContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SchemaVersionIdContext*> {
+  public:
+    VALUE convert(ExpressParser::SchemaVersionIdContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SchemaVersionIdContext>(x, false, rb_cSchemaVersionIdContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SchemaVersionIdContextProxy*> {
+  public:
+    VALUE convert(SchemaVersionIdContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SchemaVersionIdContextProxy>(x, false, rb_cSchemaVersionIdContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SelectExtensionContext*> {
+  public:
+    VALUE convert(ExpressParser::SelectExtensionContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SelectExtensionContext>(x, false, rb_cSelectExtensionContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SelectExtensionContextProxy*> {
+  public:
+    VALUE convert(SelectExtensionContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SelectExtensionContextProxy>(x, false, rb_cSelectExtensionContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SelectListContext*> {
+  public:
+    VALUE convert(ExpressParser::SelectListContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SelectListContext>(x, false, rb_cSelectListContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SelectListContextProxy*> {
+  public:
+    VALUE convert(SelectListContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SelectListContextProxy>(x, false, rb_cSelectListContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::TermContext*> {
+  public:
+    VALUE convert(ExpressParser::TermContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::TermContext>(x, false, rb_cTermContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<TermContextProxy*> {
+  public:
+    VALUE convert(TermContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<TermContextProxy>(x, false, rb_cTermContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SimpleFactorExpressionContext*> {
+  public:
+    VALUE convert(ExpressParser::SimpleFactorExpressionContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SimpleFactorExpressionContext>(x, false, rb_cSimpleFactorExpressionContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SimpleFactorExpressionContextProxy*> {
+  public:
+    VALUE convert(SimpleFactorExpressionContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SimpleFactorExpressionContextProxy>(x, false, rb_cSimpleFactorExpressionContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SimpleFactorUnaryExpressionContext*> {
+  public:
+    VALUE convert(ExpressParser::SimpleFactorUnaryExpressionContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SimpleFactorUnaryExpressionContext>(x, false, rb_cSimpleFactorUnaryExpressionContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SimpleFactorUnaryExpressionContextProxy*> {
+  public:
+    VALUE convert(SimpleFactorUnaryExpressionContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SimpleFactorUnaryExpressionContextProxy>(x, false, rb_cSimpleFactorUnaryExpressionContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::UnaryOpContext*> {
+  public:
+    VALUE convert(ExpressParser::UnaryOpContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::UnaryOpContext>(x, false, rb_cUnaryOpContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<UnaryOpContextProxy*> {
+  public:
+    VALUE convert(UnaryOpContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<UnaryOpContextProxy>(x, false, rb_cUnaryOpContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::StringTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::StringTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::StringTypeContext>(x, false, rb_cStringTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<StringTypeContextProxy*> {
+  public:
+    VALUE convert(StringTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<StringTypeContextProxy>(x, false, rb_cStringTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SkipStmtContext*> {
+  public:
+    VALUE convert(ExpressParser::SkipStmtContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SkipStmtContext>(x, false, rb_cSkipStmtContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SkipStmtContextProxy*> {
+  public:
+    VALUE convert(SkipStmtContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SkipStmtContextProxy>(x, false, rb_cSkipStmtContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SupertypeConstraintContext*> {
+  public:
+    VALUE convert(ExpressParser::SupertypeConstraintContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SupertypeConstraintContext>(x, false, rb_cSupertypeConstraintContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SupertypeConstraintContextProxy*> {
+  public:
+    VALUE convert(SupertypeConstraintContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SupertypeConstraintContextProxy>(x, false, rb_cSupertypeConstraintContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SubtypeDeclarationContext*> {
+  public:
+    VALUE convert(ExpressParser::SubtypeDeclarationContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SubtypeDeclarationContext>(x, false, rb_cSubtypeDeclarationContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SubtypeDeclarationContextProxy*> {
+  public:
+    VALUE convert(SubtypeDeclarationContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SubtypeDeclarationContextProxy>(x, false, rb_cSubtypeDeclarationContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SubtypeConstraintBodyContext*> {
+  public:
+    VALUE convert(ExpressParser::SubtypeConstraintBodyContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SubtypeConstraintBodyContext>(x, false, rb_cSubtypeConstraintBodyContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SubtypeConstraintBodyContextProxy*> {
+  public:
+    VALUE convert(SubtypeConstraintBodyContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SubtypeConstraintBodyContextProxy>(x, false, rb_cSubtypeConstraintBodyContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::TotalOverContext*> {
+  public:
+    VALUE convert(ExpressParser::TotalOverContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::TotalOverContext>(x, false, rb_cTotalOverContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<TotalOverContextProxy*> {
+  public:
+    VALUE convert(TotalOverContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<TotalOverContextProxy>(x, false, rb_cTotalOverContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SubtypeConstraintHeadContext*> {
+  public:
+    VALUE convert(ExpressParser::SubtypeConstraintHeadContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SubtypeConstraintHeadContext>(x, false, rb_cSubtypeConstraintHeadContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SubtypeConstraintHeadContextProxy*> {
+  public:
+    VALUE convert(SubtypeConstraintHeadContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SubtypeConstraintHeadContextProxy>(x, false, rb_cSubtypeConstraintHeadContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SupertypeRuleContext*> {
+  public:
+    VALUE convert(ExpressParser::SupertypeRuleContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SupertypeRuleContext>(x, false, rb_cSupertypeRuleContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SupertypeRuleContextProxy*> {
+  public:
+    VALUE convert(SupertypeRuleContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SupertypeRuleContextProxy>(x, false, rb_cSupertypeRuleContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SupertypeFactorContext*> {
+  public:
+    VALUE convert(ExpressParser::SupertypeFactorContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SupertypeFactorContext>(x, false, rb_cSupertypeFactorContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SupertypeFactorContextProxy*> {
+  public:
+    VALUE convert(SupertypeFactorContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SupertypeFactorContextProxy>(x, false, rb_cSupertypeFactorContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SupertypeTermContext*> {
+  public:
+    VALUE convert(ExpressParser::SupertypeTermContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SupertypeTermContext>(x, false, rb_cSupertypeTermContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SupertypeTermContextProxy*> {
+  public:
+    VALUE convert(SupertypeTermContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SupertypeTermContextProxy>(x, false, rb_cSupertypeTermContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::SyntaxContext*> {
+  public:
+    VALUE convert(ExpressParser::SyntaxContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::SyntaxContext>(x, false, rb_cSyntaxContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<SyntaxContextProxy*> {
+  public:
+    VALUE convert(SyntaxContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<SyntaxContextProxy>(x, false, rb_cSyntaxContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::UnderlyingTypeContext*> {
+  public:
+    VALUE convert(ExpressParser::UnderlyingTypeContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::UnderlyingTypeContext>(x, false, rb_cUnderlyingTypeContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<UnderlyingTypeContextProxy*> {
+  public:
+    VALUE convert(UnderlyingTypeContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<UnderlyingTypeContextProxy>(x, false, rb_cUnderlyingTypeContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::UniqueRuleContext*> {
+  public:
+    VALUE convert(ExpressParser::UniqueRuleContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::UniqueRuleContext>(x, false, rb_cUniqueRuleContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<UniqueRuleContextProxy*> {
+  public:
+    VALUE convert(UniqueRuleContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<UniqueRuleContextProxy>(x, false, rb_cUniqueRuleContext);
+    }
+  };
+}
+
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ExpressParser::WidthContext*> {
+  public:
+    VALUE convert(ExpressParser::WidthContext* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ExpressParser::WidthContext>(x, false, rb_cWidthContext);
+    }
+  };
+
+  template <>
+  class To_Ruby<WidthContextProxy*> {
+  public:
+    VALUE convert(WidthContextProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<WidthContextProxy>(x, false, rb_cWidthContext);
+    }
+  };
 }
 
 
@@ -4435,7 +6039,7 @@ Object AttributeRefContextProxy::attributeId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -4455,7 +6059,7 @@ Object AttributeIdContextProxy::SimpleId() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ConstantRefContextProxy::constantId() {
@@ -4470,7 +6074,7 @@ Object ConstantRefContextProxy::constantId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -4490,7 +6094,7 @@ Object ConstantIdContextProxy::SimpleId() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object EntityRefContextProxy::entityId() {
@@ -4505,7 +6109,7 @@ Object EntityRefContextProxy::entityId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -4525,7 +6129,7 @@ Object EntityIdContextProxy::SimpleId() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object EnumerationRefContextProxy::enumerationId() {
@@ -4540,7 +6144,7 @@ Object EnumerationRefContextProxy::enumerationId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -4560,7 +6164,7 @@ Object EnumerationIdContextProxy::SimpleId() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object FunctionRefContextProxy::functionId() {
@@ -4575,7 +6179,7 @@ Object FunctionRefContextProxy::functionId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -4595,7 +6199,7 @@ Object FunctionIdContextProxy::SimpleId() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ParameterRefContextProxy::parameterId() {
@@ -4610,7 +6214,7 @@ Object ParameterRefContextProxy::parameterId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -4630,7 +6234,7 @@ Object ParameterIdContextProxy::SimpleId() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ProcedureRefContextProxy::procedureId() {
@@ -4645,7 +6249,7 @@ Object ProcedureRefContextProxy::procedureId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -4665,7 +6269,7 @@ Object ProcedureIdContextProxy::SimpleId() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object RuleLabelRefContextProxy::ruleLabelId() {
@@ -4680,7 +6284,7 @@ Object RuleLabelRefContextProxy::ruleLabelId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -4700,7 +6304,7 @@ Object RuleLabelIdContextProxy::SimpleId() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object RuleRefContextProxy::ruleId() {
@@ -4715,7 +6319,7 @@ Object RuleRefContextProxy::ruleId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -4735,7 +6339,7 @@ Object RuleIdContextProxy::SimpleId() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SchemaRefContextProxy::schemaId() {
@@ -4750,7 +6354,7 @@ Object SchemaRefContextProxy::schemaId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -4770,7 +6374,7 @@ Object SchemaIdContextProxy::SimpleId() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SubtypeConstraintRefContextProxy::subtypeConstraintId() {
@@ -4785,7 +6389,7 @@ Object SubtypeConstraintRefContextProxy::subtypeConstraintId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -4805,7 +6409,7 @@ Object SubtypeConstraintIdContextProxy::SimpleId() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object TypeLabelRefContextProxy::typeLabelId() {
@@ -4820,7 +6424,7 @@ Object TypeLabelRefContextProxy::typeLabelId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -4840,7 +6444,7 @@ Object TypeLabelIdContextProxy::SimpleId() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object TypeRefContextProxy::typeId() {
@@ -4855,7 +6459,7 @@ Object TypeRefContextProxy::typeId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -4875,7 +6479,7 @@ Object TypeIdContextProxy::SimpleId() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object VariableRefContextProxy::variableId() {
@@ -4890,7 +6494,7 @@ Object VariableRefContextProxy::variableId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -4910,7 +6514,7 @@ Object VariableIdContextProxy::SimpleId() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object AbstractEntityDeclarationContextProxy::ABSTRACT() {
@@ -4925,7 +6529,7 @@ Object AbstractEntityDeclarationContextProxy::ABSTRACT() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object AbstractSupertypeContextProxy::ABSTRACT() {
@@ -4940,7 +6544,7 @@ Object AbstractSupertypeContextProxy::ABSTRACT() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object AbstractSupertypeContextProxy::SUPERTYPE() {
@@ -4955,7 +6559,7 @@ Object AbstractSupertypeContextProxy::SUPERTYPE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object AbstractSupertypeDeclarationContextProxy::subtypeConstraint() {
@@ -4970,7 +6574,7 @@ Object AbstractSupertypeDeclarationContextProxy::subtypeConstraint() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -4990,7 +6594,7 @@ Object AbstractSupertypeDeclarationContextProxy::ABSTRACT() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object AbstractSupertypeDeclarationContextProxy::SUPERTYPE() {
@@ -5005,7 +6609,7 @@ Object AbstractSupertypeDeclarationContextProxy::SUPERTYPE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SubtypeConstraintContextProxy::supertypeExpression() {
@@ -5020,7 +6624,7 @@ Object SubtypeConstraintContextProxy::supertypeExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5040,7 +6644,7 @@ Object SubtypeConstraintContextProxy::OF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ActualParameterListContextProxy::parameter() {
@@ -5069,7 +6673,7 @@ Object ActualParameterListContextProxy::parameterAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5089,7 +6693,7 @@ Object ParameterContextProxy::expression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5109,7 +6713,7 @@ Object AddLikeOpContextProxy::OR() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object AddLikeOpContextProxy::XOR() {
@@ -5124,7 +6728,7 @@ Object AddLikeOpContextProxy::XOR() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object AggregateInitializerContextProxy::element() {
@@ -5153,7 +6757,7 @@ Object AggregateInitializerContextProxy::elementAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5173,7 +6777,7 @@ Object ElementContextProxy::expression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5193,7 +6797,7 @@ Object ElementContextProxy::repetition() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5213,7 +6817,7 @@ Object AggregateSourceContextProxy::simpleExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5247,7 +6851,7 @@ Object SimpleExpressionContextProxy::termAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5281,7 +6885,7 @@ Object SimpleExpressionContextProxy::addLikeOpAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5301,7 +6905,7 @@ Object AggregateTypeContextProxy::parameterType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5321,7 +6925,7 @@ Object AggregateTypeContextProxy::typeLabel() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5341,7 +6945,7 @@ Object AggregateTypeContextProxy::AGGREGATE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object AggregateTypeContextProxy::OF() {
@@ -5356,7 +6960,7 @@ Object AggregateTypeContextProxy::OF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ParameterTypeContextProxy::generalizedTypes() {
@@ -5371,7 +6975,7 @@ Object ParameterTypeContextProxy::generalizedTypes() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5391,7 +6995,7 @@ Object ParameterTypeContextProxy::namedTypes() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5411,7 +7015,7 @@ Object ParameterTypeContextProxy::simpleTypes() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5431,7 +7035,7 @@ Object TypeLabelContextProxy::typeLabelId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5451,7 +7055,7 @@ Object TypeLabelContextProxy::typeLabelRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5471,7 +7075,7 @@ Object AggregationTypesContextProxy::arrayType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5491,7 +7095,7 @@ Object AggregationTypesContextProxy::bagType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5511,7 +7115,7 @@ Object AggregationTypesContextProxy::listType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5531,7 +7135,7 @@ Object AggregationTypesContextProxy::setType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5551,7 +7155,7 @@ Object ArrayTypeContextProxy::boundSpec() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5571,7 +7175,7 @@ Object ArrayTypeContextProxy::instantiableType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5591,7 +7195,7 @@ Object ArrayTypeContextProxy::ARRAY() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ArrayTypeContextProxy::OF() {
@@ -5606,7 +7210,7 @@ Object ArrayTypeContextProxy::OF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ArrayTypeContextProxy::OPTIONAL() {
@@ -5621,7 +7225,7 @@ Object ArrayTypeContextProxy::OPTIONAL() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ArrayTypeContextProxy::UNIQUE() {
@@ -5636,7 +7240,7 @@ Object ArrayTypeContextProxy::UNIQUE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BagTypeContextProxy::instantiableType() {
@@ -5651,7 +7255,7 @@ Object BagTypeContextProxy::instantiableType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5671,7 +7275,7 @@ Object BagTypeContextProxy::boundSpec() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5691,7 +7295,7 @@ Object BagTypeContextProxy::BAG() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BagTypeContextProxy::OF() {
@@ -5706,7 +7310,7 @@ Object BagTypeContextProxy::OF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ListTypeContextProxy::instantiableType() {
@@ -5721,7 +7325,7 @@ Object ListTypeContextProxy::instantiableType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5741,7 +7345,7 @@ Object ListTypeContextProxy::boundSpec() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5761,7 +7365,7 @@ Object ListTypeContextProxy::LIST() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ListTypeContextProxy::OF() {
@@ -5776,7 +7380,7 @@ Object ListTypeContextProxy::OF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ListTypeContextProxy::UNIQUE() {
@@ -5791,7 +7395,7 @@ Object ListTypeContextProxy::UNIQUE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SetTypeContextProxy::instantiableType() {
@@ -5806,7 +7410,7 @@ Object SetTypeContextProxy::instantiableType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5826,7 +7430,7 @@ Object SetTypeContextProxy::boundSpec() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5846,7 +7450,7 @@ Object SetTypeContextProxy::SET() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SetTypeContextProxy::OF() {
@@ -5861,7 +7465,7 @@ Object SetTypeContextProxy::OF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object AlgorithmHeadContextProxy::declaration() {
@@ -5890,7 +7494,7 @@ Object AlgorithmHeadContextProxy::declarationAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5910,7 +7514,7 @@ Object AlgorithmHeadContextProxy::constantDecl() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5930,7 +7534,7 @@ Object AlgorithmHeadContextProxy::localDecl() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5950,7 +7554,7 @@ Object DeclarationContextProxy::entityDecl() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5970,7 +7574,7 @@ Object DeclarationContextProxy::functionDecl() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -5990,7 +7594,7 @@ Object DeclarationContextProxy::procedureDecl() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6010,7 +7614,7 @@ Object DeclarationContextProxy::subtypeConstraintDecl() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6030,7 +7634,7 @@ Object DeclarationContextProxy::typeDecl() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6064,7 +7668,7 @@ Object ConstantDeclContextProxy::constantBodyAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6084,7 +7688,7 @@ Object ConstantDeclContextProxy::CONSTANT() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ConstantDeclContextProxy::END_CONSTANT() {
@@ -6099,7 +7703,7 @@ Object ConstantDeclContextProxy::END_CONSTANT() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object LocalDeclContextProxy::localVariable() {
@@ -6128,7 +7732,7 @@ Object LocalDeclContextProxy::localVariableAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6148,7 +7752,7 @@ Object LocalDeclContextProxy::LOCAL() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object LocalDeclContextProxy::END_LOCAL() {
@@ -6163,7 +7767,7 @@ Object LocalDeclContextProxy::END_LOCAL() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object AliasStmtContextProxy::variableId() {
@@ -6178,7 +7782,7 @@ Object AliasStmtContextProxy::variableId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6198,7 +7802,7 @@ Object AliasStmtContextProxy::generalRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6232,7 +7836,7 @@ Object AliasStmtContextProxy::stmtAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6266,7 +7870,7 @@ Object AliasStmtContextProxy::qualifierAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6286,7 +7890,7 @@ Object AliasStmtContextProxy::ALIAS() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object AliasStmtContextProxy::FOR() {
@@ -6301,7 +7905,7 @@ Object AliasStmtContextProxy::FOR() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object AliasStmtContextProxy::END_ALIAS() {
@@ -6316,7 +7920,7 @@ Object AliasStmtContextProxy::END_ALIAS() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object GeneralRefContextProxy::parameterRef() {
@@ -6331,7 +7935,7 @@ Object GeneralRefContextProxy::parameterRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6351,7 +7955,7 @@ Object GeneralRefContextProxy::variableId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6371,7 +7975,7 @@ Object StmtContextProxy::aliasStmt() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6391,7 +7995,7 @@ Object StmtContextProxy::assignmentStmt() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6411,7 +8015,7 @@ Object StmtContextProxy::caseStmt() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6431,7 +8035,7 @@ Object StmtContextProxy::compoundStmt() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6451,7 +8055,7 @@ Object StmtContextProxy::escapeStmt() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6471,7 +8075,7 @@ Object StmtContextProxy::ifStmt() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6491,7 +8095,7 @@ Object StmtContextProxy::nullStmt() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6511,7 +8115,7 @@ Object StmtContextProxy::procedureCallStmt() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6531,7 +8135,7 @@ Object StmtContextProxy::repeatStmt() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6551,7 +8155,7 @@ Object StmtContextProxy::returnStmt() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6571,7 +8175,7 @@ Object StmtContextProxy::skipStmt() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6591,7 +8195,7 @@ Object QualifierContextProxy::attributeQualifier() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6611,7 +8215,7 @@ Object QualifierContextProxy::groupQualifier() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6631,7 +8235,7 @@ Object QualifierContextProxy::indexQualifier() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6651,7 +8255,7 @@ Object BoundSpecContextProxy::bound1() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6671,7 +8275,7 @@ Object BoundSpecContextProxy::bound2() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6691,7 +8295,7 @@ Object InstantiableTypeContextProxy::concreteTypes() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6711,7 +8315,7 @@ Object InstantiableTypeContextProxy::entityRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6731,7 +8335,7 @@ Object AssignmentStmtContextProxy::generalRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6751,7 +8355,7 @@ Object AssignmentStmtContextProxy::expression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6785,7 +8389,7 @@ Object AssignmentStmtContextProxy::qualifierAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6819,7 +8423,7 @@ Object ExpressionContextProxy::simpleExpressionAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6839,7 +8443,7 @@ Object ExpressionContextProxy::relOpExtended() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6859,7 +8463,7 @@ Object AttributeDeclContextProxy::attributeId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6879,7 +8483,7 @@ Object AttributeDeclContextProxy::redeclaredAttribute() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6899,7 +8503,7 @@ Object RedeclaredAttributeContextProxy::qualifiedAttribute() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6919,7 +8523,7 @@ Object RedeclaredAttributeContextProxy::attributeId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6939,7 +8543,7 @@ Object RedeclaredAttributeContextProxy::RENAMED() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object AttributeQualifierContextProxy::attributeRef() {
@@ -6954,7 +8558,7 @@ Object AttributeQualifierContextProxy::attributeRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6974,7 +8578,7 @@ Object BinaryTypeContextProxy::widthSpec() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -6994,7 +8598,7 @@ Object BinaryTypeContextProxy::BINARY() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object WidthSpecContextProxy::width() {
@@ -7009,7 +8613,7 @@ Object WidthSpecContextProxy::width() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -7029,7 +8633,7 @@ Object WidthSpecContextProxy::FIXED() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BooleanTypeContextProxy::BOOLEAN() {
@@ -7044,7 +8648,7 @@ Object BooleanTypeContextProxy::BOOLEAN() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object Bound1ContextProxy::numericExpression() {
@@ -7059,7 +8663,7 @@ Object Bound1ContextProxy::numericExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -7079,7 +8683,7 @@ Object NumericExpressionContextProxy::simpleExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -7099,7 +8703,7 @@ Object Bound2ContextProxy::numericExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -7119,7 +8723,7 @@ Object BuiltInConstantContextProxy::CONST_E() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInConstantContextProxy::PI() {
@@ -7134,7 +8738,7 @@ Object BuiltInConstantContextProxy::PI() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInConstantContextProxy::SELF() {
@@ -7149,7 +8753,7 @@ Object BuiltInConstantContextProxy::SELF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::ABS() {
@@ -7164,7 +8768,7 @@ Object BuiltInFunctionContextProxy::ABS() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::ACOS() {
@@ -7179,7 +8783,7 @@ Object BuiltInFunctionContextProxy::ACOS() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::ASIN() {
@@ -7194,7 +8798,7 @@ Object BuiltInFunctionContextProxy::ASIN() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::ATAN() {
@@ -7209,7 +8813,7 @@ Object BuiltInFunctionContextProxy::ATAN() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::BLENGTH() {
@@ -7224,7 +8828,7 @@ Object BuiltInFunctionContextProxy::BLENGTH() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::COS() {
@@ -7239,7 +8843,7 @@ Object BuiltInFunctionContextProxy::COS() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::EXISTS() {
@@ -7254,7 +8858,7 @@ Object BuiltInFunctionContextProxy::EXISTS() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::EXP() {
@@ -7269,7 +8873,7 @@ Object BuiltInFunctionContextProxy::EXP() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::FORMAT() {
@@ -7284,7 +8888,7 @@ Object BuiltInFunctionContextProxy::FORMAT() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::HIBOUND() {
@@ -7299,7 +8903,7 @@ Object BuiltInFunctionContextProxy::HIBOUND() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::HIINDEX() {
@@ -7314,7 +8918,7 @@ Object BuiltInFunctionContextProxy::HIINDEX() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::LENGTH() {
@@ -7329,7 +8933,7 @@ Object BuiltInFunctionContextProxy::LENGTH() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::LOBOUND() {
@@ -7344,7 +8948,7 @@ Object BuiltInFunctionContextProxy::LOBOUND() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::LOINDEX() {
@@ -7359,7 +8963,7 @@ Object BuiltInFunctionContextProxy::LOINDEX() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::LOG() {
@@ -7374,7 +8978,7 @@ Object BuiltInFunctionContextProxy::LOG() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::LOG2() {
@@ -7389,7 +8993,7 @@ Object BuiltInFunctionContextProxy::LOG2() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::LOG10() {
@@ -7404,7 +9008,7 @@ Object BuiltInFunctionContextProxy::LOG10() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::NVL() {
@@ -7419,7 +9023,7 @@ Object BuiltInFunctionContextProxy::NVL() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::ODD() {
@@ -7434,7 +9038,7 @@ Object BuiltInFunctionContextProxy::ODD() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::ROLESOF() {
@@ -7449,7 +9053,7 @@ Object BuiltInFunctionContextProxy::ROLESOF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::SIN() {
@@ -7464,7 +9068,7 @@ Object BuiltInFunctionContextProxy::SIN() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::SIZEOF() {
@@ -7479,7 +9083,7 @@ Object BuiltInFunctionContextProxy::SIZEOF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::SQRT() {
@@ -7494,7 +9098,7 @@ Object BuiltInFunctionContextProxy::SQRT() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::TAN() {
@@ -7509,7 +9113,7 @@ Object BuiltInFunctionContextProxy::TAN() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::TYPEOF() {
@@ -7524,7 +9128,7 @@ Object BuiltInFunctionContextProxy::TYPEOF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::USEDIN() {
@@ -7539,7 +9143,7 @@ Object BuiltInFunctionContextProxy::USEDIN() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::VALUE_() {
@@ -7554,7 +9158,7 @@ Object BuiltInFunctionContextProxy::VALUE_() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::VALUE_IN() {
@@ -7569,7 +9173,7 @@ Object BuiltInFunctionContextProxy::VALUE_IN() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInFunctionContextProxy::VALUE_UNIQUE() {
@@ -7584,7 +9188,7 @@ Object BuiltInFunctionContextProxy::VALUE_UNIQUE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInProcedureContextProxy::INSERT() {
@@ -7599,7 +9203,7 @@ Object BuiltInProcedureContextProxy::INSERT() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object BuiltInProcedureContextProxy::REMOVE() {
@@ -7614,7 +9218,7 @@ Object BuiltInProcedureContextProxy::REMOVE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object CaseActionContextProxy::caseLabel() {
@@ -7643,7 +9247,7 @@ Object CaseActionContextProxy::caseLabelAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -7663,7 +9267,7 @@ Object CaseActionContextProxy::stmt() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -7683,7 +9287,7 @@ Object CaseLabelContextProxy::expression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -7703,7 +9307,7 @@ Object CaseStmtContextProxy::selector() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -7737,7 +9341,7 @@ Object CaseStmtContextProxy::caseActionAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -7757,7 +9361,7 @@ Object CaseStmtContextProxy::stmt() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -7777,7 +9381,7 @@ Object CaseStmtContextProxy::CASE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object CaseStmtContextProxy::OF() {
@@ -7792,7 +9396,7 @@ Object CaseStmtContextProxy::OF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object CaseStmtContextProxy::END_CASE() {
@@ -7807,7 +9411,7 @@ Object CaseStmtContextProxy::END_CASE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object CaseStmtContextProxy::OTHERWISE() {
@@ -7822,7 +9426,7 @@ Object CaseStmtContextProxy::OTHERWISE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SelectorContextProxy::expression() {
@@ -7837,7 +9441,7 @@ Object SelectorContextProxy::expression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -7871,7 +9475,7 @@ Object CompoundStmtContextProxy::stmtAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -7891,7 +9495,7 @@ Object CompoundStmtContextProxy::BEGIN_() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object CompoundStmtContextProxy::END_() {
@@ -7906,7 +9510,7 @@ Object CompoundStmtContextProxy::END_() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ConcreteTypesContextProxy::aggregationTypes() {
@@ -7921,7 +9525,7 @@ Object ConcreteTypesContextProxy::aggregationTypes() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -7941,7 +9545,7 @@ Object ConcreteTypesContextProxy::simpleTypes() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -7961,7 +9565,7 @@ Object ConcreteTypesContextProxy::typeRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -7981,7 +9585,7 @@ Object SimpleTypesContextProxy::binaryType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8001,7 +9605,7 @@ Object SimpleTypesContextProxy::booleanType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8021,7 +9625,7 @@ Object SimpleTypesContextProxy::integerType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8041,7 +9645,7 @@ Object SimpleTypesContextProxy::logicalType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8061,7 +9665,7 @@ Object SimpleTypesContextProxy::numberType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8081,7 +9685,7 @@ Object SimpleTypesContextProxy::realType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8101,7 +9705,7 @@ Object SimpleTypesContextProxy::stringType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8121,7 +9725,7 @@ Object ConstantBodyContextProxy::constantId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8141,7 +9745,7 @@ Object ConstantBodyContextProxy::instantiableType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8161,7 +9765,7 @@ Object ConstantBodyContextProxy::expression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8181,7 +9785,7 @@ Object ConstantFactorContextProxy::builtInConstant() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8201,7 +9805,7 @@ Object ConstantFactorContextProxy::constantRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8221,7 +9825,7 @@ Object ConstructedTypesContextProxy::enumerationType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8241,7 +9845,7 @@ Object ConstructedTypesContextProxy::selectType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8261,7 +9865,7 @@ Object EnumerationTypeContextProxy::enumerationItems() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8281,7 +9885,7 @@ Object EnumerationTypeContextProxy::enumerationExtension() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8301,7 +9905,7 @@ Object EnumerationTypeContextProxy::ENUMERATION() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object EnumerationTypeContextProxy::EXTENSIBLE() {
@@ -8316,7 +9920,7 @@ Object EnumerationTypeContextProxy::EXTENSIBLE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object EnumerationTypeContextProxy::OF() {
@@ -8331,7 +9935,7 @@ Object EnumerationTypeContextProxy::OF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SelectTypeContextProxy::selectList() {
@@ -8346,7 +9950,7 @@ Object SelectTypeContextProxy::selectList() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8366,7 +9970,7 @@ Object SelectTypeContextProxy::selectExtension() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8386,7 +9990,7 @@ Object SelectTypeContextProxy::SELECT() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SelectTypeContextProxy::EXTENSIBLE() {
@@ -8401,7 +10005,7 @@ Object SelectTypeContextProxy::EXTENSIBLE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SelectTypeContextProxy::GENERIC_ENTITY() {
@@ -8416,7 +10020,7 @@ Object SelectTypeContextProxy::GENERIC_ENTITY() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object EntityDeclContextProxy::entityHead() {
@@ -8431,7 +10035,7 @@ Object EntityDeclContextProxy::entityHead() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8451,7 +10055,7 @@ Object EntityDeclContextProxy::entityBody() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8471,7 +10075,7 @@ Object EntityDeclContextProxy::END_ENTITY() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object FunctionDeclContextProxy::functionHead() {
@@ -8486,7 +10090,7 @@ Object FunctionDeclContextProxy::functionHead() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8506,7 +10110,7 @@ Object FunctionDeclContextProxy::algorithmHead() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8540,7 +10144,7 @@ Object FunctionDeclContextProxy::stmtAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8560,7 +10164,7 @@ Object FunctionDeclContextProxy::END_FUNCTION() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ProcedureDeclContextProxy::procedureHead() {
@@ -8575,7 +10179,7 @@ Object ProcedureDeclContextProxy::procedureHead() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8595,7 +10199,7 @@ Object ProcedureDeclContextProxy::algorithmHead() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8629,7 +10233,7 @@ Object ProcedureDeclContextProxy::stmtAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8649,7 +10253,7 @@ Object ProcedureDeclContextProxy::END_PROCEDURE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SubtypeConstraintDeclContextProxy::subtypeConstraintHead() {
@@ -8664,7 +10268,7 @@ Object SubtypeConstraintDeclContextProxy::subtypeConstraintHead() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8684,7 +10288,7 @@ Object SubtypeConstraintDeclContextProxy::subtypeConstraintBody() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8704,7 +10308,7 @@ Object SubtypeConstraintDeclContextProxy::END_SUBTYPE_CONSTRAINT() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object TypeDeclContextProxy::typeId() {
@@ -8719,7 +10323,7 @@ Object TypeDeclContextProxy::typeId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8739,7 +10343,7 @@ Object TypeDeclContextProxy::underlyingType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8759,7 +10363,7 @@ Object TypeDeclContextProxy::whereClause() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8779,7 +10383,7 @@ Object TypeDeclContextProxy::TYPE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object TypeDeclContextProxy::END_TYPE() {
@@ -8794,7 +10398,7 @@ Object TypeDeclContextProxy::END_TYPE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object DerivedAttrContextProxy::attributeDecl() {
@@ -8809,7 +10413,7 @@ Object DerivedAttrContextProxy::attributeDecl() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8829,7 +10433,7 @@ Object DerivedAttrContextProxy::parameterType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8849,7 +10453,7 @@ Object DerivedAttrContextProxy::expression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8883,7 +10487,7 @@ Object DeriveClauseContextProxy::derivedAttrAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8903,7 +10507,7 @@ Object DeriveClauseContextProxy::DERIVE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object DomainRuleContextProxy::expression() {
@@ -8918,7 +10522,7 @@ Object DomainRuleContextProxy::expression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8938,7 +10542,7 @@ Object DomainRuleContextProxy::ruleLabelId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8958,7 +10562,7 @@ Object RepetitionContextProxy::numericExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -8992,7 +10596,7 @@ Object EntityBodyContextProxy::explicitAttrAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9012,7 +10616,7 @@ Object EntityBodyContextProxy::deriveClause() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9032,7 +10636,7 @@ Object EntityBodyContextProxy::inverseClause() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9052,7 +10656,7 @@ Object EntityBodyContextProxy::uniqueClause() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9072,7 +10676,7 @@ Object EntityBodyContextProxy::whereClause() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9106,7 +10710,7 @@ Object ExplicitAttrContextProxy::attributeDeclAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9126,7 +10730,7 @@ Object ExplicitAttrContextProxy::parameterType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9146,7 +10750,7 @@ Object ExplicitAttrContextProxy::OPTIONAL() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object InverseClauseContextProxy::inverseAttr() {
@@ -9175,7 +10779,7 @@ Object InverseClauseContextProxy::inverseAttrAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9195,7 +10799,7 @@ Object InverseClauseContextProxy::INVERSE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object UniqueClauseContextProxy::uniqueRule() {
@@ -9224,7 +10828,7 @@ Object UniqueClauseContextProxy::uniqueRuleAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9244,7 +10848,7 @@ Object UniqueClauseContextProxy::UNIQUE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object WhereClauseContextProxy::domainRule() {
@@ -9273,7 +10877,7 @@ Object WhereClauseContextProxy::domainRuleAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9293,7 +10897,7 @@ Object WhereClauseContextProxy::WHERE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object EntityConstructorContextProxy::entityRef() {
@@ -9308,7 +10912,7 @@ Object EntityConstructorContextProxy::entityRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9342,7 +10946,7 @@ Object EntityConstructorContextProxy::expressionAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9362,7 +10966,7 @@ Object EntityHeadContextProxy::entityId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9382,7 +10986,7 @@ Object EntityHeadContextProxy::subsuper() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9402,7 +11006,7 @@ Object EntityHeadContextProxy::ENTITY() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SubsuperContextProxy::supertypeConstraint() {
@@ -9417,7 +11021,7 @@ Object SubsuperContextProxy::supertypeConstraint() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9437,7 +11041,7 @@ Object SubsuperContextProxy::subtypeDeclaration() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9457,7 +11061,7 @@ Object EnumerationExtensionContextProxy::typeRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9477,7 +11081,7 @@ Object EnumerationExtensionContextProxy::enumerationItems() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9497,7 +11101,7 @@ Object EnumerationExtensionContextProxy::BASED_ON() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object EnumerationExtensionContextProxy::WITH() {
@@ -9512,7 +11116,7 @@ Object EnumerationExtensionContextProxy::WITH() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object EnumerationItemsContextProxy::enumerationItem() {
@@ -9541,7 +11145,7 @@ Object EnumerationItemsContextProxy::enumerationItemAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9561,7 +11165,7 @@ Object EnumerationItemContextProxy::enumerationId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9581,7 +11185,7 @@ Object EnumerationReferenceContextProxy::enumerationRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9601,7 +11205,7 @@ Object EnumerationReferenceContextProxy::typeRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9621,7 +11225,7 @@ Object EscapeStmtContextProxy::ESCAPE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object RelOpExtendedContextProxy::relOp() {
@@ -9636,7 +11240,7 @@ Object RelOpExtendedContextProxy::relOp() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9656,7 +11260,7 @@ Object RelOpExtendedContextProxy::IN() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object RelOpExtendedContextProxy::LIKE() {
@@ -9671,7 +11275,7 @@ Object RelOpExtendedContextProxy::LIKE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object FactorContextProxy::simpleFactor() {
@@ -9700,7 +11304,7 @@ Object FactorContextProxy::simpleFactorAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9720,7 +11324,7 @@ Object SimpleFactorContextProxy::aggregateInitializer() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9740,7 +11344,7 @@ Object SimpleFactorContextProxy::entityConstructor() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9760,7 +11364,7 @@ Object SimpleFactorContextProxy::enumerationReference() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9780,7 +11384,7 @@ Object SimpleFactorContextProxy::interval() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9800,7 +11404,7 @@ Object SimpleFactorContextProxy::queryExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9820,7 +11424,7 @@ Object SimpleFactorContextProxy::simpleFactorExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9840,7 +11444,7 @@ Object SimpleFactorContextProxy::simpleFactorUnaryExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9874,7 +11478,7 @@ Object FormalParameterContextProxy::parameterIdAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9894,7 +11498,7 @@ Object FormalParameterContextProxy::parameterType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9914,7 +11518,7 @@ Object FunctionCallContextProxy::builtInFunction() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9934,7 +11538,7 @@ Object FunctionCallContextProxy::functionRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9954,7 +11558,7 @@ Object FunctionCallContextProxy::actualParameterList() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9974,7 +11578,7 @@ Object FunctionHeadContextProxy::functionId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -9994,7 +11598,7 @@ Object FunctionHeadContextProxy::parameterType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10028,7 +11632,7 @@ Object FunctionHeadContextProxy::formalParameterAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10048,7 +11652,7 @@ Object FunctionHeadContextProxy::FUNCTION() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object GeneralizedTypesContextProxy::aggregateType() {
@@ -10063,7 +11667,7 @@ Object GeneralizedTypesContextProxy::aggregateType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10083,7 +11687,7 @@ Object GeneralizedTypesContextProxy::generalAggregationTypes() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10103,7 +11707,7 @@ Object GeneralizedTypesContextProxy::genericEntityType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10123,7 +11727,7 @@ Object GeneralizedTypesContextProxy::genericType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10143,7 +11747,7 @@ Object GeneralAggregationTypesContextProxy::generalArrayType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10163,7 +11767,7 @@ Object GeneralAggregationTypesContextProxy::generalBagType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10183,7 +11787,7 @@ Object GeneralAggregationTypesContextProxy::generalListType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10203,7 +11807,7 @@ Object GeneralAggregationTypesContextProxy::generalSetType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10223,7 +11827,7 @@ Object GenericEntityTypeContextProxy::typeLabel() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10243,7 +11847,7 @@ Object GenericEntityTypeContextProxy::GENERIC_ENTITY() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object GenericTypeContextProxy::typeLabel() {
@@ -10258,7 +11862,7 @@ Object GenericTypeContextProxy::typeLabel() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10278,7 +11882,7 @@ Object GenericTypeContextProxy::GENERIC() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object GeneralArrayTypeContextProxy::parameterType() {
@@ -10293,7 +11897,7 @@ Object GeneralArrayTypeContextProxy::parameterType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10313,7 +11917,7 @@ Object GeneralArrayTypeContextProxy::boundSpec() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10333,7 +11937,7 @@ Object GeneralArrayTypeContextProxy::ARRAY() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object GeneralArrayTypeContextProxy::OF() {
@@ -10348,7 +11952,7 @@ Object GeneralArrayTypeContextProxy::OF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object GeneralArrayTypeContextProxy::OPTIONAL() {
@@ -10363,7 +11967,7 @@ Object GeneralArrayTypeContextProxy::OPTIONAL() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object GeneralArrayTypeContextProxy::UNIQUE() {
@@ -10378,7 +11982,7 @@ Object GeneralArrayTypeContextProxy::UNIQUE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object GeneralBagTypeContextProxy::parameterType() {
@@ -10393,7 +11997,7 @@ Object GeneralBagTypeContextProxy::parameterType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10413,7 +12017,7 @@ Object GeneralBagTypeContextProxy::boundSpec() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10433,7 +12037,7 @@ Object GeneralBagTypeContextProxy::BAG() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object GeneralBagTypeContextProxy::OF() {
@@ -10448,7 +12052,7 @@ Object GeneralBagTypeContextProxy::OF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object GeneralListTypeContextProxy::parameterType() {
@@ -10463,7 +12067,7 @@ Object GeneralListTypeContextProxy::parameterType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10483,7 +12087,7 @@ Object GeneralListTypeContextProxy::boundSpec() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10503,7 +12107,7 @@ Object GeneralListTypeContextProxy::LIST() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object GeneralListTypeContextProxy::OF() {
@@ -10518,7 +12122,7 @@ Object GeneralListTypeContextProxy::OF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object GeneralListTypeContextProxy::UNIQUE() {
@@ -10533,7 +12137,7 @@ Object GeneralListTypeContextProxy::UNIQUE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object GeneralSetTypeContextProxy::parameterType() {
@@ -10548,7 +12152,7 @@ Object GeneralSetTypeContextProxy::parameterType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10568,7 +12172,7 @@ Object GeneralSetTypeContextProxy::boundSpec() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10588,7 +12192,7 @@ Object GeneralSetTypeContextProxy::SET() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object GeneralSetTypeContextProxy::OF() {
@@ -10603,7 +12207,7 @@ Object GeneralSetTypeContextProxy::OF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object GroupQualifierContextProxy::entityRef() {
@@ -10618,7 +12222,7 @@ Object GroupQualifierContextProxy::entityRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10638,7 +12242,7 @@ Object IfStmtContextProxy::logicalExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10658,7 +12262,7 @@ Object IfStmtContextProxy::ifStmtStatements() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10678,7 +12282,7 @@ Object IfStmtContextProxy::ifStmtElseStatements() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10698,7 +12302,7 @@ Object IfStmtContextProxy::IF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object IfStmtContextProxy::THEN() {
@@ -10713,7 +12317,7 @@ Object IfStmtContextProxy::THEN() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object IfStmtContextProxy::END_IF() {
@@ -10728,7 +12332,7 @@ Object IfStmtContextProxy::END_IF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object IfStmtContextProxy::ELSE() {
@@ -10743,7 +12347,7 @@ Object IfStmtContextProxy::ELSE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object LogicalExpressionContextProxy::expression() {
@@ -10758,7 +12362,7 @@ Object LogicalExpressionContextProxy::expression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10792,7 +12396,7 @@ Object IfStmtStatementsContextProxy::stmtAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10826,7 +12430,7 @@ Object IfStmtElseStatementsContextProxy::stmtAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10846,7 +12450,7 @@ Object IncrementContextProxy::numericExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10866,7 +12470,7 @@ Object IncrementControlContextProxy::variableId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10886,7 +12490,7 @@ Object IncrementControlContextProxy::bound1() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10906,7 +12510,7 @@ Object IncrementControlContextProxy::bound2() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10926,7 +12530,7 @@ Object IncrementControlContextProxy::increment() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10946,7 +12550,7 @@ Object IncrementControlContextProxy::TO() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object IncrementControlContextProxy::BY() {
@@ -10961,7 +12565,7 @@ Object IncrementControlContextProxy::BY() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object IndexContextProxy::numericExpression() {
@@ -10976,7 +12580,7 @@ Object IndexContextProxy::numericExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -10996,7 +12600,7 @@ Object Index1ContextProxy::index() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11016,7 +12620,7 @@ Object Index2ContextProxy::index() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11036,7 +12640,7 @@ Object IndexQualifierContextProxy::index1() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11056,7 +12660,7 @@ Object IndexQualifierContextProxy::index2() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11076,7 +12680,7 @@ Object IntegerTypeContextProxy::INTEGER() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object InterfaceSpecificationContextProxy::referenceClause() {
@@ -11091,7 +12695,7 @@ Object InterfaceSpecificationContextProxy::referenceClause() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11111,7 +12715,7 @@ Object InterfaceSpecificationContextProxy::useClause() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11131,7 +12735,7 @@ Object ReferenceClauseContextProxy::schemaRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11165,7 +12769,7 @@ Object ReferenceClauseContextProxy::resourceOrRenameAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11185,7 +12789,7 @@ Object ReferenceClauseContextProxy::REFERENCE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ReferenceClauseContextProxy::FROM() {
@@ -11200,7 +12804,7 @@ Object ReferenceClauseContextProxy::FROM() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object UseClauseContextProxy::schemaRef() {
@@ -11215,7 +12819,7 @@ Object UseClauseContextProxy::schemaRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11249,7 +12853,7 @@ Object UseClauseContextProxy::namedTypeOrRenameAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11269,7 +12873,7 @@ Object UseClauseContextProxy::USE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object UseClauseContextProxy::FROM() {
@@ -11284,7 +12888,7 @@ Object UseClauseContextProxy::FROM() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object IntervalContextProxy::intervalLow() {
@@ -11299,7 +12903,7 @@ Object IntervalContextProxy::intervalLow() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11333,7 +12937,7 @@ Object IntervalContextProxy::intervalOpAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11353,7 +12957,7 @@ Object IntervalContextProxy::intervalItem() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11373,7 +12977,7 @@ Object IntervalContextProxy::intervalHigh() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11393,7 +12997,7 @@ Object IntervalLowContextProxy::simpleExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11413,7 +13017,7 @@ Object IntervalItemContextProxy::simpleExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11433,7 +13037,7 @@ Object IntervalHighContextProxy::simpleExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11453,7 +13057,7 @@ Object InverseAttrContextProxy::attributeDecl() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11473,7 +13077,7 @@ Object InverseAttrContextProxy::inverseAttrType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11493,7 +13097,7 @@ Object InverseAttrContextProxy::attributeRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11513,7 +13117,7 @@ Object InverseAttrContextProxy::entityRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11533,7 +13137,7 @@ Object InverseAttrContextProxy::FOR() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object InverseAttrTypeContextProxy::entityRef() {
@@ -11548,7 +13152,7 @@ Object InverseAttrTypeContextProxy::entityRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11568,7 +13172,7 @@ Object InverseAttrTypeContextProxy::boundSpec() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11588,7 +13192,7 @@ Object InverseAttrTypeContextProxy::OF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object InverseAttrTypeContextProxy::SET() {
@@ -11603,7 +13207,7 @@ Object InverseAttrTypeContextProxy::SET() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object InverseAttrTypeContextProxy::BAG() {
@@ -11618,7 +13222,7 @@ Object InverseAttrTypeContextProxy::BAG() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object LiteralContextProxy::logicalLiteral() {
@@ -11633,7 +13237,7 @@ Object LiteralContextProxy::logicalLiteral() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11653,7 +13257,7 @@ Object LiteralContextProxy::stringLiteral() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11673,7 +13277,7 @@ Object LiteralContextProxy::BinaryLiteral() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object LiteralContextProxy::IntegerLiteral() {
@@ -11688,7 +13292,7 @@ Object LiteralContextProxy::IntegerLiteral() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object LiteralContextProxy::RealLiteral() {
@@ -11703,7 +13307,7 @@ Object LiteralContextProxy::RealLiteral() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object LogicalLiteralContextProxy::FALSE() {
@@ -11718,7 +13322,7 @@ Object LogicalLiteralContextProxy::FALSE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object LogicalLiteralContextProxy::TRUE() {
@@ -11733,7 +13337,7 @@ Object LogicalLiteralContextProxy::TRUE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object LogicalLiteralContextProxy::UNKNOWN() {
@@ -11748,7 +13352,7 @@ Object LogicalLiteralContextProxy::UNKNOWN() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object StringLiteralContextProxy::SimpleStringLiteral() {
@@ -11763,7 +13367,7 @@ Object StringLiteralContextProxy::SimpleStringLiteral() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object StringLiteralContextProxy::EncodedStringLiteral() {
@@ -11778,7 +13382,7 @@ Object StringLiteralContextProxy::EncodedStringLiteral() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object LocalVariableContextProxy::variableId() {
@@ -11807,7 +13411,7 @@ Object LocalVariableContextProxy::variableIdAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11827,7 +13431,7 @@ Object LocalVariableContextProxy::parameterType() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11847,7 +13451,7 @@ Object LocalVariableContextProxy::expression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11867,7 +13471,7 @@ Object LogicalTypeContextProxy::LOGICAL() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object MultiplicationLikeOpContextProxy::DIV() {
@@ -11882,7 +13486,7 @@ Object MultiplicationLikeOpContextProxy::DIV() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object MultiplicationLikeOpContextProxy::MOD() {
@@ -11897,7 +13501,7 @@ Object MultiplicationLikeOpContextProxy::MOD() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object MultiplicationLikeOpContextProxy::AND() {
@@ -11912,7 +13516,7 @@ Object MultiplicationLikeOpContextProxy::AND() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object NamedTypesContextProxy::entityRef() {
@@ -11927,7 +13531,7 @@ Object NamedTypesContextProxy::entityRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11947,7 +13551,7 @@ Object NamedTypesContextProxy::typeRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11967,7 +13571,7 @@ Object NamedTypeOrRenameContextProxy::namedTypes() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -11987,7 +13591,7 @@ Object NamedTypeOrRenameContextProxy::entityId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12007,7 +13611,7 @@ Object NamedTypeOrRenameContextProxy::typeId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12027,7 +13631,7 @@ Object NamedTypeOrRenameContextProxy::AS() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object NumberTypeContextProxy::NUMBER() {
@@ -12042,7 +13646,7 @@ Object NumberTypeContextProxy::NUMBER() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object OneOfContextProxy::supertypeExpression() {
@@ -12071,7 +13675,7 @@ Object OneOfContextProxy::supertypeExpressionAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12091,7 +13695,7 @@ Object OneOfContextProxy::ONEOF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SupertypeExpressionContextProxy::supertypeFactor() {
@@ -12120,7 +13724,7 @@ Object SupertypeExpressionContextProxy::supertypeFactorAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12139,7 +13743,7 @@ Object SupertypeExpressionContextProxy::ANDOR() {
 
   for (auto it = vec.begin(); it != vec.end(); it ++) {
     TerminalNodeProxy proxy(*it);
-    a.push(proxy);
+    a.push(detail::To_Ruby<TerminalNodeProxy>().convert(proxy));
   }
 
   return a;
@@ -12157,7 +13761,7 @@ Object SupertypeExpressionContextProxy::ANDORAt(size_t i) {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object PopulationContextProxy::entityRef() {
@@ -12172,7 +13776,7 @@ Object PopulationContextProxy::entityRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12192,7 +13796,7 @@ Object PrecisionSpecContextProxy::numericExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12212,7 +13816,7 @@ Object PrimaryContextProxy::literal() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12232,7 +13836,7 @@ Object PrimaryContextProxy::qualifiableFactor() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12266,7 +13870,7 @@ Object PrimaryContextProxy::qualifierAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12286,7 +13890,7 @@ Object QualifiableFactorContextProxy::attributeRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12306,7 +13910,7 @@ Object QualifiableFactorContextProxy::constantFactor() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12326,7 +13930,7 @@ Object QualifiableFactorContextProxy::functionCall() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12346,7 +13950,7 @@ Object QualifiableFactorContextProxy::generalRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12366,7 +13970,7 @@ Object QualifiableFactorContextProxy::population() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12386,7 +13990,7 @@ Object ProcedureCallStmtContextProxy::builtInProcedure() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12406,7 +14010,7 @@ Object ProcedureCallStmtContextProxy::procedureRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12426,7 +14030,7 @@ Object ProcedureCallStmtContextProxy::actualParameterList() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12446,7 +14050,7 @@ Object ProcedureHeadContextProxy::procedureId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12480,7 +14084,7 @@ Object ProcedureHeadContextProxy::procedureHeadParameterAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12500,7 +14104,7 @@ Object ProcedureHeadContextProxy::PROCEDURE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ProcedureHeadParameterContextProxy::formalParameter() {
@@ -12515,7 +14119,7 @@ Object ProcedureHeadParameterContextProxy::formalParameter() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12535,7 +14139,7 @@ Object ProcedureHeadParameterContextProxy::VAR() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object QualifiedAttributeContextProxy::groupQualifier() {
@@ -12550,7 +14154,7 @@ Object QualifiedAttributeContextProxy::groupQualifier() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12570,7 +14174,7 @@ Object QualifiedAttributeContextProxy::attributeQualifier() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12590,7 +14194,7 @@ Object QualifiedAttributeContextProxy::SELF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object QueryExpressionContextProxy::variableId() {
@@ -12605,7 +14209,7 @@ Object QueryExpressionContextProxy::variableId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12625,7 +14229,7 @@ Object QueryExpressionContextProxy::aggregateSource() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12645,7 +14249,7 @@ Object QueryExpressionContextProxy::logicalExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12665,7 +14269,7 @@ Object QueryExpressionContextProxy::QUERY() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object RealTypeContextProxy::precisionSpec() {
@@ -12680,7 +14284,7 @@ Object RealTypeContextProxy::precisionSpec() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12700,7 +14304,7 @@ Object RealTypeContextProxy::REAL() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ReferencedAttributeContextProxy::attributeRef() {
@@ -12715,7 +14319,7 @@ Object ReferencedAttributeContextProxy::attributeRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12735,7 +14339,7 @@ Object ReferencedAttributeContextProxy::qualifiedAttribute() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12755,7 +14359,7 @@ Object ResourceOrRenameContextProxy::resourceRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12775,7 +14379,7 @@ Object ResourceOrRenameContextProxy::renameId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12795,7 +14399,7 @@ Object ResourceOrRenameContextProxy::AS() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object RenameIdContextProxy::constantId() {
@@ -12810,7 +14414,7 @@ Object RenameIdContextProxy::constantId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12830,7 +14434,7 @@ Object RenameIdContextProxy::entityId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12850,7 +14454,7 @@ Object RenameIdContextProxy::functionId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12870,7 +14474,7 @@ Object RenameIdContextProxy::procedureId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12890,7 +14494,7 @@ Object RenameIdContextProxy::typeId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12910,7 +14514,7 @@ Object RepeatControlContextProxy::incrementControl() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12930,7 +14534,7 @@ Object RepeatControlContextProxy::whileControl() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12950,7 +14554,7 @@ Object RepeatControlContextProxy::untilControl() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12970,7 +14574,7 @@ Object WhileControlContextProxy::logicalExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -12990,7 +14594,7 @@ Object WhileControlContextProxy::WHILE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object UntilControlContextProxy::logicalExpression() {
@@ -13005,7 +14609,7 @@ Object UntilControlContextProxy::logicalExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13025,7 +14629,7 @@ Object UntilControlContextProxy::UNTIL() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object RepeatStmtContextProxy::repeatControl() {
@@ -13040,7 +14644,7 @@ Object RepeatStmtContextProxy::repeatControl() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13074,7 +14678,7 @@ Object RepeatStmtContextProxy::stmtAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13094,7 +14698,7 @@ Object RepeatStmtContextProxy::REPEAT() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object RepeatStmtContextProxy::END_REPEAT() {
@@ -13109,7 +14713,7 @@ Object RepeatStmtContextProxy::END_REPEAT() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object ResourceRefContextProxy::constantRef() {
@@ -13124,7 +14728,7 @@ Object ResourceRefContextProxy::constantRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13144,7 +14748,7 @@ Object ResourceRefContextProxy::entityRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13164,7 +14768,7 @@ Object ResourceRefContextProxy::functionRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13184,7 +14788,7 @@ Object ResourceRefContextProxy::procedureRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13204,7 +14808,7 @@ Object ResourceRefContextProxy::typeRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13224,7 +14828,7 @@ Object ReturnStmtContextProxy::expression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13244,7 +14848,7 @@ Object ReturnStmtContextProxy::RETURN() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object RuleDeclContextProxy::ruleHead() {
@@ -13259,7 +14863,7 @@ Object RuleDeclContextProxy::ruleHead() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13279,7 +14883,7 @@ Object RuleDeclContextProxy::algorithmHead() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13299,7 +14903,7 @@ Object RuleDeclContextProxy::whereClause() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13333,7 +14937,7 @@ Object RuleDeclContextProxy::stmtAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13353,7 +14957,7 @@ Object RuleDeclContextProxy::END_RULE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object RuleHeadContextProxy::ruleId() {
@@ -13368,7 +14972,7 @@ Object RuleHeadContextProxy::ruleId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13402,7 +15006,7 @@ Object RuleHeadContextProxy::entityRefAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13422,7 +15026,7 @@ Object RuleHeadContextProxy::RULE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object RuleHeadContextProxy::FOR() {
@@ -13437,7 +15041,7 @@ Object RuleHeadContextProxy::FOR() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SchemaBodyContextProxy::interfaceSpecification() {
@@ -13466,7 +15070,7 @@ Object SchemaBodyContextProxy::interfaceSpecificationAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13486,7 +15090,7 @@ Object SchemaBodyContextProxy::constantDecl() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13520,7 +15124,7 @@ Object SchemaBodyContextProxy::schemaBodyDeclarationAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13540,7 +15144,7 @@ Object SchemaBodyDeclarationContextProxy::declaration() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13560,7 +15164,7 @@ Object SchemaBodyDeclarationContextProxy::ruleDecl() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13580,7 +15184,7 @@ Object SchemaDeclContextProxy::schemaId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13600,7 +15204,7 @@ Object SchemaDeclContextProxy::schemaBody() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13620,7 +15224,7 @@ Object SchemaDeclContextProxy::schemaVersionId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13640,7 +15244,7 @@ Object SchemaDeclContextProxy::SCHEMA() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SchemaDeclContextProxy::END_SCHEMA() {
@@ -13655,7 +15259,7 @@ Object SchemaDeclContextProxy::END_SCHEMA() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SchemaVersionIdContextProxy::stringLiteral() {
@@ -13670,7 +15274,7 @@ Object SchemaVersionIdContextProxy::stringLiteral() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13690,7 +15294,7 @@ Object SelectExtensionContextProxy::typeRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13710,7 +15314,7 @@ Object SelectExtensionContextProxy::selectList() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13730,7 +15334,7 @@ Object SelectExtensionContextProxy::BASED_ON() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SelectExtensionContextProxy::WITH() {
@@ -13745,7 +15349,7 @@ Object SelectExtensionContextProxy::WITH() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SelectListContextProxy::namedTypes() {
@@ -13774,7 +15378,7 @@ Object SelectListContextProxy::namedTypesAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13808,7 +15412,7 @@ Object TermContextProxy::factorAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13842,7 +15446,7 @@ Object TermContextProxy::multiplicationLikeOpAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13862,7 +15466,7 @@ Object SimpleFactorExpressionContextProxy::expression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13882,7 +15486,7 @@ Object SimpleFactorExpressionContextProxy::primary() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13902,7 +15506,7 @@ Object SimpleFactorUnaryExpressionContextProxy::unaryOp() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13922,7 +15526,7 @@ Object SimpleFactorUnaryExpressionContextProxy::simpleFactorExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13942,7 +15546,7 @@ Object UnaryOpContextProxy::NOT() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object StringTypeContextProxy::widthSpec() {
@@ -13957,7 +15561,7 @@ Object StringTypeContextProxy::widthSpec() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -13977,7 +15581,7 @@ Object StringTypeContextProxy::STRING() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SkipStmtContextProxy::SKIP_() {
@@ -13992,7 +15596,7 @@ Object SkipStmtContextProxy::SKIP_() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SupertypeConstraintContextProxy::abstractEntityDeclaration() {
@@ -14007,7 +15611,7 @@ Object SupertypeConstraintContextProxy::abstractEntityDeclaration() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14027,7 +15631,7 @@ Object SupertypeConstraintContextProxy::abstractSupertypeDeclaration() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14047,7 +15651,7 @@ Object SupertypeConstraintContextProxy::supertypeRule() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14081,7 +15685,7 @@ Object SubtypeDeclarationContextProxy::entityRefAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14101,7 +15705,7 @@ Object SubtypeDeclarationContextProxy::SUBTYPE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SubtypeDeclarationContextProxy::OF() {
@@ -14116,7 +15720,7 @@ Object SubtypeDeclarationContextProxy::OF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SubtypeConstraintBodyContextProxy::abstractSupertype() {
@@ -14131,7 +15735,7 @@ Object SubtypeConstraintBodyContextProxy::abstractSupertype() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14151,7 +15755,7 @@ Object SubtypeConstraintBodyContextProxy::totalOver() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14171,7 +15775,7 @@ Object SubtypeConstraintBodyContextProxy::supertypeExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14205,7 +15809,7 @@ Object TotalOverContextProxy::entityRefAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14225,7 +15829,7 @@ Object TotalOverContextProxy::TOTAL_OVER() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SubtypeConstraintHeadContextProxy::subtypeConstraintId() {
@@ -14240,7 +15844,7 @@ Object SubtypeConstraintHeadContextProxy::subtypeConstraintId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14260,7 +15864,7 @@ Object SubtypeConstraintHeadContextProxy::entityRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14280,7 +15884,7 @@ Object SubtypeConstraintHeadContextProxy::SUBTYPE_CONSTRAINT() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SubtypeConstraintHeadContextProxy::FOR() {
@@ -14295,7 +15899,7 @@ Object SubtypeConstraintHeadContextProxy::FOR() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SupertypeRuleContextProxy::subtypeConstraint() {
@@ -14310,7 +15914,7 @@ Object SupertypeRuleContextProxy::subtypeConstraint() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14330,7 +15934,7 @@ Object SupertypeRuleContextProxy::SUPERTYPE() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SupertypeFactorContextProxy::supertypeTerm() {
@@ -14359,7 +15963,7 @@ Object SupertypeFactorContextProxy::supertypeTermAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14378,7 +15982,7 @@ Object SupertypeFactorContextProxy::AND() {
 
   for (auto it = vec.begin(); it != vec.end(); it ++) {
     TerminalNodeProxy proxy(*it);
-    a.push(proxy);
+    a.push(detail::To_Ruby<TerminalNodeProxy>().convert(proxy));
   }
 
   return a;
@@ -14396,7 +16000,7 @@ Object SupertypeFactorContextProxy::ANDAt(size_t i) {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object SupertypeTermContextProxy::entityRef() {
@@ -14411,7 +16015,7 @@ Object SupertypeTermContextProxy::entityRef() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14431,7 +16035,7 @@ Object SupertypeTermContextProxy::oneOf() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14451,7 +16055,7 @@ Object SupertypeTermContextProxy::supertypeExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14485,7 +16089,7 @@ Object SyntaxContextProxy::schemaDeclAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14505,7 +16109,7 @@ Object SyntaxContextProxy::EOF() {
   }
 
   TerminalNodeProxy proxy(token);
-  return to_ruby(proxy);
+  return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
 }
 
 Object UnderlyingTypeContextProxy::concreteTypes() {
@@ -14520,7 +16124,7 @@ Object UnderlyingTypeContextProxy::concreteTypes() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14540,7 +16144,7 @@ Object UnderlyingTypeContextProxy::constructedTypes() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14574,7 +16178,7 @@ Object UniqueRuleContextProxy::referencedAttributeAt(size_t i) {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14594,7 +16198,7 @@ Object UniqueRuleContextProxy::ruleLabelId() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -14614,7 +16218,7 @@ Object WidthContextProxy::numericExpression() {
   }
 
   for (auto child : getChildren()) {
-    if (ctx == from_ruby<ContextProxy>(child).getOriginal()) {
+    if (ctx == detail::From_Ruby<ContextProxy>().convert(child.value()).getOriginal()) {
       return child;
     }
   }
@@ -15658,7 +17262,7 @@ public:
     auto ctx = this -> parser -> syntax();
 
     SyntaxContextProxy proxy((ExpressParser::SyntaxContext*) ctx);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SyntaxContextProxy>().convert(proxy);
   }
 
   Array getTokens() {
@@ -15710,813 +17314,818 @@ private:
   ExpressParser* parser;
 };
 
-template <>
-Object to_ruby<ParserProxy*>(ParserProxy* const &x) {
-  if (!x) return Nil;
-  return Data_Object<ParserProxy>(x, rb_cParser, nullptr, nullptr);
+namespace Rice::detail {
+  template <>
+  class To_Ruby<ParserProxy*> {
+  public:
+    VALUE convert(ParserProxy* const &x) {
+      if (!x) return Nil;
+      return Data_Object<ParserProxy>(x, false, rb_cParser);
+    }
+  };
 }
 
 
 Object ContextProxy::wrapParseTree(tree::ParseTree* node) {
   if (antlrcpp::is<ExpressParser::AttributeRefContext*>(node)) {
     AttributeRefContextProxy proxy((ExpressParser::AttributeRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<AttributeRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::AttributeIdContext*>(node)) {
     AttributeIdContextProxy proxy((ExpressParser::AttributeIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<AttributeIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ConstantRefContext*>(node)) {
     ConstantRefContextProxy proxy((ExpressParser::ConstantRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ConstantRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ConstantIdContext*>(node)) {
     ConstantIdContextProxy proxy((ExpressParser::ConstantIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ConstantIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::EntityRefContext*>(node)) {
     EntityRefContextProxy proxy((ExpressParser::EntityRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<EntityRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::EntityIdContext*>(node)) {
     EntityIdContextProxy proxy((ExpressParser::EntityIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<EntityIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::EnumerationRefContext*>(node)) {
     EnumerationRefContextProxy proxy((ExpressParser::EnumerationRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<EnumerationRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::EnumerationIdContext*>(node)) {
     EnumerationIdContextProxy proxy((ExpressParser::EnumerationIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<EnumerationIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::FunctionRefContext*>(node)) {
     FunctionRefContextProxy proxy((ExpressParser::FunctionRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<FunctionRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::FunctionIdContext*>(node)) {
     FunctionIdContextProxy proxy((ExpressParser::FunctionIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<FunctionIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ParameterRefContext*>(node)) {
     ParameterRefContextProxy proxy((ExpressParser::ParameterRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ParameterRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ParameterIdContext*>(node)) {
     ParameterIdContextProxy proxy((ExpressParser::ParameterIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ParameterIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ProcedureRefContext*>(node)) {
     ProcedureRefContextProxy proxy((ExpressParser::ProcedureRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ProcedureRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ProcedureIdContext*>(node)) {
     ProcedureIdContextProxy proxy((ExpressParser::ProcedureIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ProcedureIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::RuleLabelRefContext*>(node)) {
     RuleLabelRefContextProxy proxy((ExpressParser::RuleLabelRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<RuleLabelRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::RuleLabelIdContext*>(node)) {
     RuleLabelIdContextProxy proxy((ExpressParser::RuleLabelIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<RuleLabelIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::RuleRefContext*>(node)) {
     RuleRefContextProxy proxy((ExpressParser::RuleRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<RuleRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::RuleIdContext*>(node)) {
     RuleIdContextProxy proxy((ExpressParser::RuleIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<RuleIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SchemaRefContext*>(node)) {
     SchemaRefContextProxy proxy((ExpressParser::SchemaRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SchemaRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SchemaIdContext*>(node)) {
     SchemaIdContextProxy proxy((ExpressParser::SchemaIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SchemaIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SubtypeConstraintRefContext*>(node)) {
     SubtypeConstraintRefContextProxy proxy((ExpressParser::SubtypeConstraintRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SubtypeConstraintRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SubtypeConstraintIdContext*>(node)) {
     SubtypeConstraintIdContextProxy proxy((ExpressParser::SubtypeConstraintIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SubtypeConstraintIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::TypeLabelRefContext*>(node)) {
     TypeLabelRefContextProxy proxy((ExpressParser::TypeLabelRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<TypeLabelRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::TypeLabelIdContext*>(node)) {
     TypeLabelIdContextProxy proxy((ExpressParser::TypeLabelIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<TypeLabelIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::TypeRefContext*>(node)) {
     TypeRefContextProxy proxy((ExpressParser::TypeRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<TypeRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::TypeIdContext*>(node)) {
     TypeIdContextProxy proxy((ExpressParser::TypeIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<TypeIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::VariableRefContext*>(node)) {
     VariableRefContextProxy proxy((ExpressParser::VariableRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<VariableRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::VariableIdContext*>(node)) {
     VariableIdContextProxy proxy((ExpressParser::VariableIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<VariableIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::AbstractEntityDeclarationContext*>(node)) {
     AbstractEntityDeclarationContextProxy proxy((ExpressParser::AbstractEntityDeclarationContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<AbstractEntityDeclarationContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::AbstractSupertypeContext*>(node)) {
     AbstractSupertypeContextProxy proxy((ExpressParser::AbstractSupertypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<AbstractSupertypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::AbstractSupertypeDeclarationContext*>(node)) {
     AbstractSupertypeDeclarationContextProxy proxy((ExpressParser::AbstractSupertypeDeclarationContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<AbstractSupertypeDeclarationContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SubtypeConstraintContext*>(node)) {
     SubtypeConstraintContextProxy proxy((ExpressParser::SubtypeConstraintContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SubtypeConstraintContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ActualParameterListContext*>(node)) {
     ActualParameterListContextProxy proxy((ExpressParser::ActualParameterListContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ActualParameterListContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ParameterContext*>(node)) {
     ParameterContextProxy proxy((ExpressParser::ParameterContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ParameterContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::AddLikeOpContext*>(node)) {
     AddLikeOpContextProxy proxy((ExpressParser::AddLikeOpContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<AddLikeOpContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::AggregateInitializerContext*>(node)) {
     AggregateInitializerContextProxy proxy((ExpressParser::AggregateInitializerContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<AggregateInitializerContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ElementContext*>(node)) {
     ElementContextProxy proxy((ExpressParser::ElementContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ElementContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::AggregateSourceContext*>(node)) {
     AggregateSourceContextProxy proxy((ExpressParser::AggregateSourceContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<AggregateSourceContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SimpleExpressionContext*>(node)) {
     SimpleExpressionContextProxy proxy((ExpressParser::SimpleExpressionContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SimpleExpressionContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::AggregateTypeContext*>(node)) {
     AggregateTypeContextProxy proxy((ExpressParser::AggregateTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<AggregateTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ParameterTypeContext*>(node)) {
     ParameterTypeContextProxy proxy((ExpressParser::ParameterTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ParameterTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::TypeLabelContext*>(node)) {
     TypeLabelContextProxy proxy((ExpressParser::TypeLabelContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<TypeLabelContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::AggregationTypesContext*>(node)) {
     AggregationTypesContextProxy proxy((ExpressParser::AggregationTypesContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<AggregationTypesContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ArrayTypeContext*>(node)) {
     ArrayTypeContextProxy proxy((ExpressParser::ArrayTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ArrayTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::BagTypeContext*>(node)) {
     BagTypeContextProxy proxy((ExpressParser::BagTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<BagTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ListTypeContext*>(node)) {
     ListTypeContextProxy proxy((ExpressParser::ListTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ListTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SetTypeContext*>(node)) {
     SetTypeContextProxy proxy((ExpressParser::SetTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SetTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::AlgorithmHeadContext*>(node)) {
     AlgorithmHeadContextProxy proxy((ExpressParser::AlgorithmHeadContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<AlgorithmHeadContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::DeclarationContext*>(node)) {
     DeclarationContextProxy proxy((ExpressParser::DeclarationContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<DeclarationContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ConstantDeclContext*>(node)) {
     ConstantDeclContextProxy proxy((ExpressParser::ConstantDeclContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ConstantDeclContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::LocalDeclContext*>(node)) {
     LocalDeclContextProxy proxy((ExpressParser::LocalDeclContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<LocalDeclContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::AliasStmtContext*>(node)) {
     AliasStmtContextProxy proxy((ExpressParser::AliasStmtContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<AliasStmtContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::GeneralRefContext*>(node)) {
     GeneralRefContextProxy proxy((ExpressParser::GeneralRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<GeneralRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::StmtContext*>(node)) {
     StmtContextProxy proxy((ExpressParser::StmtContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<StmtContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::QualifierContext*>(node)) {
     QualifierContextProxy proxy((ExpressParser::QualifierContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<QualifierContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::BoundSpecContext*>(node)) {
     BoundSpecContextProxy proxy((ExpressParser::BoundSpecContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<BoundSpecContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::InstantiableTypeContext*>(node)) {
     InstantiableTypeContextProxy proxy((ExpressParser::InstantiableTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<InstantiableTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::AssignmentStmtContext*>(node)) {
     AssignmentStmtContextProxy proxy((ExpressParser::AssignmentStmtContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<AssignmentStmtContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ExpressionContext*>(node)) {
     ExpressionContextProxy proxy((ExpressParser::ExpressionContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ExpressionContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::AttributeDeclContext*>(node)) {
     AttributeDeclContextProxy proxy((ExpressParser::AttributeDeclContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<AttributeDeclContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::RedeclaredAttributeContext*>(node)) {
     RedeclaredAttributeContextProxy proxy((ExpressParser::RedeclaredAttributeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<RedeclaredAttributeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::AttributeQualifierContext*>(node)) {
     AttributeQualifierContextProxy proxy((ExpressParser::AttributeQualifierContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<AttributeQualifierContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::BinaryTypeContext*>(node)) {
     BinaryTypeContextProxy proxy((ExpressParser::BinaryTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<BinaryTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::WidthSpecContext*>(node)) {
     WidthSpecContextProxy proxy((ExpressParser::WidthSpecContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<WidthSpecContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::BooleanTypeContext*>(node)) {
     BooleanTypeContextProxy proxy((ExpressParser::BooleanTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<BooleanTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::Bound1Context*>(node)) {
     Bound1ContextProxy proxy((ExpressParser::Bound1Context*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<Bound1ContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::NumericExpressionContext*>(node)) {
     NumericExpressionContextProxy proxy((ExpressParser::NumericExpressionContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<NumericExpressionContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::Bound2Context*>(node)) {
     Bound2ContextProxy proxy((ExpressParser::Bound2Context*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<Bound2ContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::BuiltInConstantContext*>(node)) {
     BuiltInConstantContextProxy proxy((ExpressParser::BuiltInConstantContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<BuiltInConstantContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::BuiltInFunctionContext*>(node)) {
     BuiltInFunctionContextProxy proxy((ExpressParser::BuiltInFunctionContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<BuiltInFunctionContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::BuiltInProcedureContext*>(node)) {
     BuiltInProcedureContextProxy proxy((ExpressParser::BuiltInProcedureContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<BuiltInProcedureContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::CaseActionContext*>(node)) {
     CaseActionContextProxy proxy((ExpressParser::CaseActionContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<CaseActionContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::CaseLabelContext*>(node)) {
     CaseLabelContextProxy proxy((ExpressParser::CaseLabelContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<CaseLabelContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::CaseStmtContext*>(node)) {
     CaseStmtContextProxy proxy((ExpressParser::CaseStmtContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<CaseStmtContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SelectorContext*>(node)) {
     SelectorContextProxy proxy((ExpressParser::SelectorContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SelectorContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::CompoundStmtContext*>(node)) {
     CompoundStmtContextProxy proxy((ExpressParser::CompoundStmtContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<CompoundStmtContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ConcreteTypesContext*>(node)) {
     ConcreteTypesContextProxy proxy((ExpressParser::ConcreteTypesContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ConcreteTypesContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SimpleTypesContext*>(node)) {
     SimpleTypesContextProxy proxy((ExpressParser::SimpleTypesContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SimpleTypesContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ConstantBodyContext*>(node)) {
     ConstantBodyContextProxy proxy((ExpressParser::ConstantBodyContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ConstantBodyContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ConstantFactorContext*>(node)) {
     ConstantFactorContextProxy proxy((ExpressParser::ConstantFactorContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ConstantFactorContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ConstructedTypesContext*>(node)) {
     ConstructedTypesContextProxy proxy((ExpressParser::ConstructedTypesContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ConstructedTypesContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::EnumerationTypeContext*>(node)) {
     EnumerationTypeContextProxy proxy((ExpressParser::EnumerationTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<EnumerationTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SelectTypeContext*>(node)) {
     SelectTypeContextProxy proxy((ExpressParser::SelectTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SelectTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::EntityDeclContext*>(node)) {
     EntityDeclContextProxy proxy((ExpressParser::EntityDeclContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<EntityDeclContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::FunctionDeclContext*>(node)) {
     FunctionDeclContextProxy proxy((ExpressParser::FunctionDeclContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<FunctionDeclContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ProcedureDeclContext*>(node)) {
     ProcedureDeclContextProxy proxy((ExpressParser::ProcedureDeclContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ProcedureDeclContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SubtypeConstraintDeclContext*>(node)) {
     SubtypeConstraintDeclContextProxy proxy((ExpressParser::SubtypeConstraintDeclContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SubtypeConstraintDeclContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::TypeDeclContext*>(node)) {
     TypeDeclContextProxy proxy((ExpressParser::TypeDeclContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<TypeDeclContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::DerivedAttrContext*>(node)) {
     DerivedAttrContextProxy proxy((ExpressParser::DerivedAttrContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<DerivedAttrContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::DeriveClauseContext*>(node)) {
     DeriveClauseContextProxy proxy((ExpressParser::DeriveClauseContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<DeriveClauseContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::DomainRuleContext*>(node)) {
     DomainRuleContextProxy proxy((ExpressParser::DomainRuleContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<DomainRuleContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::RepetitionContext*>(node)) {
     RepetitionContextProxy proxy((ExpressParser::RepetitionContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<RepetitionContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::EntityBodyContext*>(node)) {
     EntityBodyContextProxy proxy((ExpressParser::EntityBodyContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<EntityBodyContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ExplicitAttrContext*>(node)) {
     ExplicitAttrContextProxy proxy((ExpressParser::ExplicitAttrContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ExplicitAttrContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::InverseClauseContext*>(node)) {
     InverseClauseContextProxy proxy((ExpressParser::InverseClauseContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<InverseClauseContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::UniqueClauseContext*>(node)) {
     UniqueClauseContextProxy proxy((ExpressParser::UniqueClauseContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<UniqueClauseContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::WhereClauseContext*>(node)) {
     WhereClauseContextProxy proxy((ExpressParser::WhereClauseContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<WhereClauseContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::EntityConstructorContext*>(node)) {
     EntityConstructorContextProxy proxy((ExpressParser::EntityConstructorContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<EntityConstructorContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::EntityHeadContext*>(node)) {
     EntityHeadContextProxy proxy((ExpressParser::EntityHeadContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<EntityHeadContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SubsuperContext*>(node)) {
     SubsuperContextProxy proxy((ExpressParser::SubsuperContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SubsuperContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::EnumerationExtensionContext*>(node)) {
     EnumerationExtensionContextProxy proxy((ExpressParser::EnumerationExtensionContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<EnumerationExtensionContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::EnumerationItemsContext*>(node)) {
     EnumerationItemsContextProxy proxy((ExpressParser::EnumerationItemsContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<EnumerationItemsContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::EnumerationItemContext*>(node)) {
     EnumerationItemContextProxy proxy((ExpressParser::EnumerationItemContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<EnumerationItemContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::EnumerationReferenceContext*>(node)) {
     EnumerationReferenceContextProxy proxy((ExpressParser::EnumerationReferenceContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<EnumerationReferenceContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::EscapeStmtContext*>(node)) {
     EscapeStmtContextProxy proxy((ExpressParser::EscapeStmtContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<EscapeStmtContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::RelOpExtendedContext*>(node)) {
     RelOpExtendedContextProxy proxy((ExpressParser::RelOpExtendedContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<RelOpExtendedContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::FactorContext*>(node)) {
     FactorContextProxy proxy((ExpressParser::FactorContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<FactorContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SimpleFactorContext*>(node)) {
     SimpleFactorContextProxy proxy((ExpressParser::SimpleFactorContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SimpleFactorContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::FormalParameterContext*>(node)) {
     FormalParameterContextProxy proxy((ExpressParser::FormalParameterContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<FormalParameterContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::FunctionCallContext*>(node)) {
     FunctionCallContextProxy proxy((ExpressParser::FunctionCallContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<FunctionCallContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::FunctionHeadContext*>(node)) {
     FunctionHeadContextProxy proxy((ExpressParser::FunctionHeadContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<FunctionHeadContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::GeneralizedTypesContext*>(node)) {
     GeneralizedTypesContextProxy proxy((ExpressParser::GeneralizedTypesContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<GeneralizedTypesContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::GeneralAggregationTypesContext*>(node)) {
     GeneralAggregationTypesContextProxy proxy((ExpressParser::GeneralAggregationTypesContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<GeneralAggregationTypesContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::GenericEntityTypeContext*>(node)) {
     GenericEntityTypeContextProxy proxy((ExpressParser::GenericEntityTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<GenericEntityTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::GenericTypeContext*>(node)) {
     GenericTypeContextProxy proxy((ExpressParser::GenericTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<GenericTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::GeneralArrayTypeContext*>(node)) {
     GeneralArrayTypeContextProxy proxy((ExpressParser::GeneralArrayTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<GeneralArrayTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::GeneralBagTypeContext*>(node)) {
     GeneralBagTypeContextProxy proxy((ExpressParser::GeneralBagTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<GeneralBagTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::GeneralListTypeContext*>(node)) {
     GeneralListTypeContextProxy proxy((ExpressParser::GeneralListTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<GeneralListTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::GeneralSetTypeContext*>(node)) {
     GeneralSetTypeContextProxy proxy((ExpressParser::GeneralSetTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<GeneralSetTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::GroupQualifierContext*>(node)) {
     GroupQualifierContextProxy proxy((ExpressParser::GroupQualifierContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<GroupQualifierContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::IfStmtContext*>(node)) {
     IfStmtContextProxy proxy((ExpressParser::IfStmtContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<IfStmtContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::LogicalExpressionContext*>(node)) {
     LogicalExpressionContextProxy proxy((ExpressParser::LogicalExpressionContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<LogicalExpressionContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::IfStmtStatementsContext*>(node)) {
     IfStmtStatementsContextProxy proxy((ExpressParser::IfStmtStatementsContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<IfStmtStatementsContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::IfStmtElseStatementsContext*>(node)) {
     IfStmtElseStatementsContextProxy proxy((ExpressParser::IfStmtElseStatementsContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<IfStmtElseStatementsContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::IncrementContext*>(node)) {
     IncrementContextProxy proxy((ExpressParser::IncrementContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<IncrementContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::IncrementControlContext*>(node)) {
     IncrementControlContextProxy proxy((ExpressParser::IncrementControlContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<IncrementControlContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::IndexContext*>(node)) {
     IndexContextProxy proxy((ExpressParser::IndexContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<IndexContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::Index1Context*>(node)) {
     Index1ContextProxy proxy((ExpressParser::Index1Context*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<Index1ContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::Index2Context*>(node)) {
     Index2ContextProxy proxy((ExpressParser::Index2Context*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<Index2ContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::IndexQualifierContext*>(node)) {
     IndexQualifierContextProxy proxy((ExpressParser::IndexQualifierContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<IndexQualifierContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::IntegerTypeContext*>(node)) {
     IntegerTypeContextProxy proxy((ExpressParser::IntegerTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<IntegerTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::InterfaceSpecificationContext*>(node)) {
     InterfaceSpecificationContextProxy proxy((ExpressParser::InterfaceSpecificationContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<InterfaceSpecificationContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ReferenceClauseContext*>(node)) {
     ReferenceClauseContextProxy proxy((ExpressParser::ReferenceClauseContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ReferenceClauseContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::UseClauseContext*>(node)) {
     UseClauseContextProxy proxy((ExpressParser::UseClauseContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<UseClauseContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::IntervalContext*>(node)) {
     IntervalContextProxy proxy((ExpressParser::IntervalContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<IntervalContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::IntervalLowContext*>(node)) {
     IntervalLowContextProxy proxy((ExpressParser::IntervalLowContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<IntervalLowContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::IntervalOpContext*>(node)) {
     IntervalOpContextProxy proxy((ExpressParser::IntervalOpContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<IntervalOpContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::IntervalItemContext*>(node)) {
     IntervalItemContextProxy proxy((ExpressParser::IntervalItemContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<IntervalItemContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::IntervalHighContext*>(node)) {
     IntervalHighContextProxy proxy((ExpressParser::IntervalHighContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<IntervalHighContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::InverseAttrContext*>(node)) {
     InverseAttrContextProxy proxy((ExpressParser::InverseAttrContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<InverseAttrContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::InverseAttrTypeContext*>(node)) {
     InverseAttrTypeContextProxy proxy((ExpressParser::InverseAttrTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<InverseAttrTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::LiteralContext*>(node)) {
     LiteralContextProxy proxy((ExpressParser::LiteralContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<LiteralContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::LogicalLiteralContext*>(node)) {
     LogicalLiteralContextProxy proxy((ExpressParser::LogicalLiteralContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<LogicalLiteralContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::StringLiteralContext*>(node)) {
     StringLiteralContextProxy proxy((ExpressParser::StringLiteralContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<StringLiteralContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::LocalVariableContext*>(node)) {
     LocalVariableContextProxy proxy((ExpressParser::LocalVariableContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<LocalVariableContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::LogicalTypeContext*>(node)) {
     LogicalTypeContextProxy proxy((ExpressParser::LogicalTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<LogicalTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::MultiplicationLikeOpContext*>(node)) {
     MultiplicationLikeOpContextProxy proxy((ExpressParser::MultiplicationLikeOpContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<MultiplicationLikeOpContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::NamedTypesContext*>(node)) {
     NamedTypesContextProxy proxy((ExpressParser::NamedTypesContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<NamedTypesContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::NamedTypeOrRenameContext*>(node)) {
     NamedTypeOrRenameContextProxy proxy((ExpressParser::NamedTypeOrRenameContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<NamedTypeOrRenameContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::NullStmtContext*>(node)) {
     NullStmtContextProxy proxy((ExpressParser::NullStmtContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<NullStmtContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::NumberTypeContext*>(node)) {
     NumberTypeContextProxy proxy((ExpressParser::NumberTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<NumberTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::OneOfContext*>(node)) {
     OneOfContextProxy proxy((ExpressParser::OneOfContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<OneOfContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SupertypeExpressionContext*>(node)) {
     SupertypeExpressionContextProxy proxy((ExpressParser::SupertypeExpressionContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SupertypeExpressionContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::PopulationContext*>(node)) {
     PopulationContextProxy proxy((ExpressParser::PopulationContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<PopulationContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::PrecisionSpecContext*>(node)) {
     PrecisionSpecContextProxy proxy((ExpressParser::PrecisionSpecContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<PrecisionSpecContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::PrimaryContext*>(node)) {
     PrimaryContextProxy proxy((ExpressParser::PrimaryContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<PrimaryContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::QualifiableFactorContext*>(node)) {
     QualifiableFactorContextProxy proxy((ExpressParser::QualifiableFactorContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<QualifiableFactorContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ProcedureCallStmtContext*>(node)) {
     ProcedureCallStmtContextProxy proxy((ExpressParser::ProcedureCallStmtContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ProcedureCallStmtContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ProcedureHeadContext*>(node)) {
     ProcedureHeadContextProxy proxy((ExpressParser::ProcedureHeadContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ProcedureHeadContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ProcedureHeadParameterContext*>(node)) {
     ProcedureHeadParameterContextProxy proxy((ExpressParser::ProcedureHeadParameterContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ProcedureHeadParameterContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::QualifiedAttributeContext*>(node)) {
     QualifiedAttributeContextProxy proxy((ExpressParser::QualifiedAttributeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<QualifiedAttributeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::QueryExpressionContext*>(node)) {
     QueryExpressionContextProxy proxy((ExpressParser::QueryExpressionContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<QueryExpressionContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::RealTypeContext*>(node)) {
     RealTypeContextProxy proxy((ExpressParser::RealTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<RealTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ReferencedAttributeContext*>(node)) {
     ReferencedAttributeContextProxy proxy((ExpressParser::ReferencedAttributeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ReferencedAttributeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ResourceOrRenameContext*>(node)) {
     ResourceOrRenameContextProxy proxy((ExpressParser::ResourceOrRenameContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ResourceOrRenameContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::RelOpContext*>(node)) {
     RelOpContextProxy proxy((ExpressParser::RelOpContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<RelOpContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::RenameIdContext*>(node)) {
     RenameIdContextProxy proxy((ExpressParser::RenameIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<RenameIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::RepeatControlContext*>(node)) {
     RepeatControlContextProxy proxy((ExpressParser::RepeatControlContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<RepeatControlContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::WhileControlContext*>(node)) {
     WhileControlContextProxy proxy((ExpressParser::WhileControlContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<WhileControlContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::UntilControlContext*>(node)) {
     UntilControlContextProxy proxy((ExpressParser::UntilControlContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<UntilControlContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::RepeatStmtContext*>(node)) {
     RepeatStmtContextProxy proxy((ExpressParser::RepeatStmtContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<RepeatStmtContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ResourceRefContext*>(node)) {
     ResourceRefContextProxy proxy((ExpressParser::ResourceRefContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ResourceRefContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::ReturnStmtContext*>(node)) {
     ReturnStmtContextProxy proxy((ExpressParser::ReturnStmtContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<ReturnStmtContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::RuleDeclContext*>(node)) {
     RuleDeclContextProxy proxy((ExpressParser::RuleDeclContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<RuleDeclContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::RuleHeadContext*>(node)) {
     RuleHeadContextProxy proxy((ExpressParser::RuleHeadContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<RuleHeadContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SchemaBodyContext*>(node)) {
     SchemaBodyContextProxy proxy((ExpressParser::SchemaBodyContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SchemaBodyContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SchemaBodyDeclarationContext*>(node)) {
     SchemaBodyDeclarationContextProxy proxy((ExpressParser::SchemaBodyDeclarationContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SchemaBodyDeclarationContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SchemaDeclContext*>(node)) {
     SchemaDeclContextProxy proxy((ExpressParser::SchemaDeclContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SchemaDeclContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SchemaVersionIdContext*>(node)) {
     SchemaVersionIdContextProxy proxy((ExpressParser::SchemaVersionIdContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SchemaVersionIdContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SelectExtensionContext*>(node)) {
     SelectExtensionContextProxy proxy((ExpressParser::SelectExtensionContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SelectExtensionContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SelectListContext*>(node)) {
     SelectListContextProxy proxy((ExpressParser::SelectListContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SelectListContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::TermContext*>(node)) {
     TermContextProxy proxy((ExpressParser::TermContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<TermContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SimpleFactorExpressionContext*>(node)) {
     SimpleFactorExpressionContextProxy proxy((ExpressParser::SimpleFactorExpressionContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SimpleFactorExpressionContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SimpleFactorUnaryExpressionContext*>(node)) {
     SimpleFactorUnaryExpressionContextProxy proxy((ExpressParser::SimpleFactorUnaryExpressionContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SimpleFactorUnaryExpressionContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::UnaryOpContext*>(node)) {
     UnaryOpContextProxy proxy((ExpressParser::UnaryOpContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<UnaryOpContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::StringTypeContext*>(node)) {
     StringTypeContextProxy proxy((ExpressParser::StringTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<StringTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SkipStmtContext*>(node)) {
     SkipStmtContextProxy proxy((ExpressParser::SkipStmtContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SkipStmtContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SupertypeConstraintContext*>(node)) {
     SupertypeConstraintContextProxy proxy((ExpressParser::SupertypeConstraintContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SupertypeConstraintContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SubtypeDeclarationContext*>(node)) {
     SubtypeDeclarationContextProxy proxy((ExpressParser::SubtypeDeclarationContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SubtypeDeclarationContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SubtypeConstraintBodyContext*>(node)) {
     SubtypeConstraintBodyContextProxy proxy((ExpressParser::SubtypeConstraintBodyContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SubtypeConstraintBodyContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::TotalOverContext*>(node)) {
     TotalOverContextProxy proxy((ExpressParser::TotalOverContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<TotalOverContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SubtypeConstraintHeadContext*>(node)) {
     SubtypeConstraintHeadContextProxy proxy((ExpressParser::SubtypeConstraintHeadContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SubtypeConstraintHeadContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SupertypeRuleContext*>(node)) {
     SupertypeRuleContextProxy proxy((ExpressParser::SupertypeRuleContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SupertypeRuleContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SupertypeFactorContext*>(node)) {
     SupertypeFactorContextProxy proxy((ExpressParser::SupertypeFactorContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SupertypeFactorContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SupertypeTermContext*>(node)) {
     SupertypeTermContextProxy proxy((ExpressParser::SupertypeTermContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SupertypeTermContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::SyntaxContext*>(node)) {
     SyntaxContextProxy proxy((ExpressParser::SyntaxContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<SyntaxContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::UnderlyingTypeContext*>(node)) {
     UnderlyingTypeContextProxy proxy((ExpressParser::UnderlyingTypeContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<UnderlyingTypeContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::UniqueRuleContext*>(node)) {
     UniqueRuleContextProxy proxy((ExpressParser::UniqueRuleContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<UniqueRuleContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<ExpressParser::WidthContext*>(node)) {
     WidthContextProxy proxy((ExpressParser::WidthContext*)node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<WidthContextProxy>().convert(proxy);
   }
   else if (antlrcpp::is<tree::TerminalNodeImpl*>(node)) {
     TerminalNodeProxy proxy(node);
-    return to_ruby(proxy);
+    return detail::To_Ruby<TerminalNodeProxy>().convert(proxy);
   } else {
     return Nil;
   }
@@ -16527,25 +18136,14 @@ extern "C"
 void Init_express_parser() {
   Module rb_mExpressParser = define_module("ExpressParser");
 
-  rb_cToken = rb_mExpressParser
-    .define_class<Token>("Token")
+  rb_cToken = define_class_under<Token>(rb_mExpressParser, "Token")
     .define_method("text", &Token::getText)
     .define_method("channel", &Token::getChannel)
     .define_method("token_index", &Token::getTokenIndex);
 
-  rb_cParser = rb_mExpressParser
-    .define_class<ParserProxy>("Parser")
-    .define_singleton_method("parse", &ParserProxy::parse)
-    .define_singleton_method("parse_file", &ParserProxy::parseFile)
-    .define_method("syntax", &ParserProxy::syntax)
-    .define_method("tokens", &ParserProxy::getTokens)
-    .define_method("visit", &ParserProxy::visit);
+  rb_cParseTree = define_class_under<tree::ParseTree>(rb_mExpressParser, "ParseTree");
 
-  rb_cParseTree = rb_mExpressParser
-    .define_class<tree::ParseTree>("ParseTree");
-
-  rb_cContextProxy = rb_mExpressParser
-    .define_class<ContextProxy>("Context")
+  rb_cContextProxy = define_class_under<ContextProxy>(rb_mExpressParser, "Context")
     .define_method("children", &ContextProxy::getChildren)
     .define_method("child_count", &ContextProxy::childCount)
     .define_method("text", &ContextProxy::getText)
@@ -16554,11 +18152,9 @@ void Init_express_parser() {
     .define_method("parent", &ContextProxy::getParent)
     .define_method("==", &ContextProxy::doubleEquals);
 
-  rb_cTerminalNode = rb_mExpressParser
-    .define_class<TerminalNodeProxy, ContextProxy>("TerminalNodeImpl");
+  rb_cTerminalNode = define_class_under<TerminalNodeProxy, ContextProxy>(rb_mExpressParser, "TerminalNodeImpl");
 
-  rb_mExpressParser
-    .define_class<VisitorProxy>("Visitor")
+  define_class_under<ExpressBaseVisitor>(rb_mExpressParser, "Visitor")
     .define_director<VisitorProxy>()
     .define_constructor(Constructor<VisitorProxy, Object>())
     .define_method("visit", &VisitorProxy::ruby_visit)
@@ -16763,200 +18359,163 @@ void Init_express_parser() {
     .define_method("visit_width", &VisitorProxy::ruby_visitChildren)
     .define_method("visit_width_spec", &VisitorProxy::ruby_visitChildren);
 
-  rb_cAttributeRefContext = rb_mExpressParser
-    .define_class<AttributeRefContextProxy, ContextProxy>("AttributeRefContext")
+  rb_cParser = define_class_under<ParserProxy>(rb_mExpressParser, "Parser")
+    .define_singleton_function("parse", &ParserProxy::parse)
+    .define_singleton_function("parse_file", &ParserProxy::parseFile)
+    .define_method("syntax", &ParserProxy::syntax)
+    .define_method("tokens", &ParserProxy::getTokens)
+    .define_method("visit", &ParserProxy::visit);
+
+  rb_cAttributeRefContext = define_class_under<AttributeRefContextProxy, ContextProxy>(rb_mExpressParser, "AttributeRefContext")
     .define_method("attribute_id", &AttributeRefContextProxy::attributeId);
 
-  rb_cAttributeIdContext = rb_mExpressParser
-    .define_class<AttributeIdContextProxy, ContextProxy>("AttributeIdContext")
+  rb_cAttributeIdContext = define_class_under<AttributeIdContextProxy, ContextProxy>(rb_mExpressParser, "AttributeIdContext")
     .define_method("SimpleId", &AttributeIdContextProxy::SimpleId);
 
-  rb_cConstantRefContext = rb_mExpressParser
-    .define_class<ConstantRefContextProxy, ContextProxy>("ConstantRefContext")
+  rb_cConstantRefContext = define_class_under<ConstantRefContextProxy, ContextProxy>(rb_mExpressParser, "ConstantRefContext")
     .define_method("constant_id", &ConstantRefContextProxy::constantId);
 
-  rb_cConstantIdContext = rb_mExpressParser
-    .define_class<ConstantIdContextProxy, ContextProxy>("ConstantIdContext")
+  rb_cConstantIdContext = define_class_under<ConstantIdContextProxy, ContextProxy>(rb_mExpressParser, "ConstantIdContext")
     .define_method("SimpleId", &ConstantIdContextProxy::SimpleId);
 
-  rb_cEntityRefContext = rb_mExpressParser
-    .define_class<EntityRefContextProxy, ContextProxy>("EntityRefContext")
+  rb_cEntityRefContext = define_class_under<EntityRefContextProxy, ContextProxy>(rb_mExpressParser, "EntityRefContext")
     .define_method("entity_id", &EntityRefContextProxy::entityId);
 
-  rb_cEntityIdContext = rb_mExpressParser
-    .define_class<EntityIdContextProxy, ContextProxy>("EntityIdContext")
+  rb_cEntityIdContext = define_class_under<EntityIdContextProxy, ContextProxy>(rb_mExpressParser, "EntityIdContext")
     .define_method("SimpleId", &EntityIdContextProxy::SimpleId);
 
-  rb_cEnumerationRefContext = rb_mExpressParser
-    .define_class<EnumerationRefContextProxy, ContextProxy>("EnumerationRefContext")
+  rb_cEnumerationRefContext = define_class_under<EnumerationRefContextProxy, ContextProxy>(rb_mExpressParser, "EnumerationRefContext")
     .define_method("enumeration_id", &EnumerationRefContextProxy::enumerationId);
 
-  rb_cEnumerationIdContext = rb_mExpressParser
-    .define_class<EnumerationIdContextProxy, ContextProxy>("EnumerationIdContext")
+  rb_cEnumerationIdContext = define_class_under<EnumerationIdContextProxy, ContextProxy>(rb_mExpressParser, "EnumerationIdContext")
     .define_method("SimpleId", &EnumerationIdContextProxy::SimpleId);
 
-  rb_cFunctionRefContext = rb_mExpressParser
-    .define_class<FunctionRefContextProxy, ContextProxy>("FunctionRefContext")
+  rb_cFunctionRefContext = define_class_under<FunctionRefContextProxy, ContextProxy>(rb_mExpressParser, "FunctionRefContext")
     .define_method("function_id", &FunctionRefContextProxy::functionId);
 
-  rb_cFunctionIdContext = rb_mExpressParser
-    .define_class<FunctionIdContextProxy, ContextProxy>("FunctionIdContext")
+  rb_cFunctionIdContext = define_class_under<FunctionIdContextProxy, ContextProxy>(rb_mExpressParser, "FunctionIdContext")
     .define_method("SimpleId", &FunctionIdContextProxy::SimpleId);
 
-  rb_cParameterRefContext = rb_mExpressParser
-    .define_class<ParameterRefContextProxy, ContextProxy>("ParameterRefContext")
+  rb_cParameterRefContext = define_class_under<ParameterRefContextProxy, ContextProxy>(rb_mExpressParser, "ParameterRefContext")
     .define_method("parameter_id", &ParameterRefContextProxy::parameterId);
 
-  rb_cParameterIdContext = rb_mExpressParser
-    .define_class<ParameterIdContextProxy, ContextProxy>("ParameterIdContext")
+  rb_cParameterIdContext = define_class_under<ParameterIdContextProxy, ContextProxy>(rb_mExpressParser, "ParameterIdContext")
     .define_method("SimpleId", &ParameterIdContextProxy::SimpleId);
 
-  rb_cProcedureRefContext = rb_mExpressParser
-    .define_class<ProcedureRefContextProxy, ContextProxy>("ProcedureRefContext")
+  rb_cProcedureRefContext = define_class_under<ProcedureRefContextProxy, ContextProxy>(rb_mExpressParser, "ProcedureRefContext")
     .define_method("procedure_id", &ProcedureRefContextProxy::procedureId);
 
-  rb_cProcedureIdContext = rb_mExpressParser
-    .define_class<ProcedureIdContextProxy, ContextProxy>("ProcedureIdContext")
+  rb_cProcedureIdContext = define_class_under<ProcedureIdContextProxy, ContextProxy>(rb_mExpressParser, "ProcedureIdContext")
     .define_method("SimpleId", &ProcedureIdContextProxy::SimpleId);
 
-  rb_cRuleLabelRefContext = rb_mExpressParser
-    .define_class<RuleLabelRefContextProxy, ContextProxy>("RuleLabelRefContext")
+  rb_cRuleLabelRefContext = define_class_under<RuleLabelRefContextProxy, ContextProxy>(rb_mExpressParser, "RuleLabelRefContext")
     .define_method("rule_label_id", &RuleLabelRefContextProxy::ruleLabelId);
 
-  rb_cRuleLabelIdContext = rb_mExpressParser
-    .define_class<RuleLabelIdContextProxy, ContextProxy>("RuleLabelIdContext")
+  rb_cRuleLabelIdContext = define_class_under<RuleLabelIdContextProxy, ContextProxy>(rb_mExpressParser, "RuleLabelIdContext")
     .define_method("SimpleId", &RuleLabelIdContextProxy::SimpleId);
 
-  rb_cRuleRefContext = rb_mExpressParser
-    .define_class<RuleRefContextProxy, ContextProxy>("RuleRefContext")
+  rb_cRuleRefContext = define_class_under<RuleRefContextProxy, ContextProxy>(rb_mExpressParser, "RuleRefContext")
     .define_method("rule_id", &RuleRefContextProxy::ruleId);
 
-  rb_cRuleIdContext = rb_mExpressParser
-    .define_class<RuleIdContextProxy, ContextProxy>("RuleIdContext")
+  rb_cRuleIdContext = define_class_under<RuleIdContextProxy, ContextProxy>(rb_mExpressParser, "RuleIdContext")
     .define_method("SimpleId", &RuleIdContextProxy::SimpleId);
 
-  rb_cSchemaRefContext = rb_mExpressParser
-    .define_class<SchemaRefContextProxy, ContextProxy>("SchemaRefContext")
+  rb_cSchemaRefContext = define_class_under<SchemaRefContextProxy, ContextProxy>(rb_mExpressParser, "SchemaRefContext")
     .define_method("schema_id", &SchemaRefContextProxy::schemaId);
 
-  rb_cSchemaIdContext = rb_mExpressParser
-    .define_class<SchemaIdContextProxy, ContextProxy>("SchemaIdContext")
+  rb_cSchemaIdContext = define_class_under<SchemaIdContextProxy, ContextProxy>(rb_mExpressParser, "SchemaIdContext")
     .define_method("SimpleId", &SchemaIdContextProxy::SimpleId);
 
-  rb_cSubtypeConstraintRefContext = rb_mExpressParser
-    .define_class<SubtypeConstraintRefContextProxy, ContextProxy>("SubtypeConstraintRefContext")
+  rb_cSubtypeConstraintRefContext = define_class_under<SubtypeConstraintRefContextProxy, ContextProxy>(rb_mExpressParser, "SubtypeConstraintRefContext")
     .define_method("subtype_constraint_id", &SubtypeConstraintRefContextProxy::subtypeConstraintId);
 
-  rb_cSubtypeConstraintIdContext = rb_mExpressParser
-    .define_class<SubtypeConstraintIdContextProxy, ContextProxy>("SubtypeConstraintIdContext")
+  rb_cSubtypeConstraintIdContext = define_class_under<SubtypeConstraintIdContextProxy, ContextProxy>(rb_mExpressParser, "SubtypeConstraintIdContext")
     .define_method("SimpleId", &SubtypeConstraintIdContextProxy::SimpleId);
 
-  rb_cTypeLabelRefContext = rb_mExpressParser
-    .define_class<TypeLabelRefContextProxy, ContextProxy>("TypeLabelRefContext")
+  rb_cTypeLabelRefContext = define_class_under<TypeLabelRefContextProxy, ContextProxy>(rb_mExpressParser, "TypeLabelRefContext")
     .define_method("type_label_id", &TypeLabelRefContextProxy::typeLabelId);
 
-  rb_cTypeLabelIdContext = rb_mExpressParser
-    .define_class<TypeLabelIdContextProxy, ContextProxy>("TypeLabelIdContext")
+  rb_cTypeLabelIdContext = define_class_under<TypeLabelIdContextProxy, ContextProxy>(rb_mExpressParser, "TypeLabelIdContext")
     .define_method("SimpleId", &TypeLabelIdContextProxy::SimpleId);
 
-  rb_cTypeRefContext = rb_mExpressParser
-    .define_class<TypeRefContextProxy, ContextProxy>("TypeRefContext")
+  rb_cTypeRefContext = define_class_under<TypeRefContextProxy, ContextProxy>(rb_mExpressParser, "TypeRefContext")
     .define_method("type_id", &TypeRefContextProxy::typeId);
 
-  rb_cTypeIdContext = rb_mExpressParser
-    .define_class<TypeIdContextProxy, ContextProxy>("TypeIdContext")
+  rb_cTypeIdContext = define_class_under<TypeIdContextProxy, ContextProxy>(rb_mExpressParser, "TypeIdContext")
     .define_method("SimpleId", &TypeIdContextProxy::SimpleId);
 
-  rb_cVariableRefContext = rb_mExpressParser
-    .define_class<VariableRefContextProxy, ContextProxy>("VariableRefContext")
+  rb_cVariableRefContext = define_class_under<VariableRefContextProxy, ContextProxy>(rb_mExpressParser, "VariableRefContext")
     .define_method("variable_id", &VariableRefContextProxy::variableId);
 
-  rb_cVariableIdContext = rb_mExpressParser
-    .define_class<VariableIdContextProxy, ContextProxy>("VariableIdContext")
+  rb_cVariableIdContext = define_class_under<VariableIdContextProxy, ContextProxy>(rb_mExpressParser, "VariableIdContext")
     .define_method("SimpleId", &VariableIdContextProxy::SimpleId);
 
-  rb_cAbstractEntityDeclarationContext = rb_mExpressParser
-    .define_class<AbstractEntityDeclarationContextProxy, ContextProxy>("AbstractEntityDeclarationContext")
+  rb_cAbstractEntityDeclarationContext = define_class_under<AbstractEntityDeclarationContextProxy, ContextProxy>(rb_mExpressParser, "AbstractEntityDeclarationContext")
     .define_method("ABSTRACT", &AbstractEntityDeclarationContextProxy::ABSTRACT);
 
-  rb_cAbstractSupertypeContext = rb_mExpressParser
-    .define_class<AbstractSupertypeContextProxy, ContextProxy>("AbstractSupertypeContext")
+  rb_cAbstractSupertypeContext = define_class_under<AbstractSupertypeContextProxy, ContextProxy>(rb_mExpressParser, "AbstractSupertypeContext")
     .define_method("ABSTRACT", &AbstractSupertypeContextProxy::ABSTRACT)
     .define_method("SUPERTYPE", &AbstractSupertypeContextProxy::SUPERTYPE);
 
-  rb_cAbstractSupertypeDeclarationContext = rb_mExpressParser
-    .define_class<AbstractSupertypeDeclarationContextProxy, ContextProxy>("AbstractSupertypeDeclarationContext")
+  rb_cAbstractSupertypeDeclarationContext = define_class_under<AbstractSupertypeDeclarationContextProxy, ContextProxy>(rb_mExpressParser, "AbstractSupertypeDeclarationContext")
     .define_method("subtype_constraint", &AbstractSupertypeDeclarationContextProxy::subtypeConstraint)
     .define_method("ABSTRACT", &AbstractSupertypeDeclarationContextProxy::ABSTRACT)
     .define_method("SUPERTYPE", &AbstractSupertypeDeclarationContextProxy::SUPERTYPE);
 
-  rb_cSubtypeConstraintContext = rb_mExpressParser
-    .define_class<SubtypeConstraintContextProxy, ContextProxy>("SubtypeConstraintContext")
+  rb_cSubtypeConstraintContext = define_class_under<SubtypeConstraintContextProxy, ContextProxy>(rb_mExpressParser, "SubtypeConstraintContext")
     .define_method("supertype_expression", &SubtypeConstraintContextProxy::supertypeExpression)
     .define_method("OF", &SubtypeConstraintContextProxy::OF);
 
-  rb_cActualParameterListContext = rb_mExpressParser
-    .define_class<ActualParameterListContextProxy, ContextProxy>("ActualParameterListContext")
+  rb_cActualParameterListContext = define_class_under<ActualParameterListContextProxy, ContextProxy>(rb_mExpressParser, "ActualParameterListContext")
     .define_method("parameter", &ActualParameterListContextProxy::parameter)
     .define_method("parameter_at", &ActualParameterListContextProxy::parameterAt);
 
-  rb_cParameterContext = rb_mExpressParser
-    .define_class<ParameterContextProxy, ContextProxy>("ParameterContext")
+  rb_cParameterContext = define_class_under<ParameterContextProxy, ContextProxy>(rb_mExpressParser, "ParameterContext")
     .define_method("expression", &ParameterContextProxy::expression);
 
-  rb_cAddLikeOpContext = rb_mExpressParser
-    .define_class<AddLikeOpContextProxy, ContextProxy>("AddLikeOpContext")
+  rb_cAddLikeOpContext = define_class_under<AddLikeOpContextProxy, ContextProxy>(rb_mExpressParser, "AddLikeOpContext")
     .define_method("OR", &AddLikeOpContextProxy::OR)
     .define_method("XOR", &AddLikeOpContextProxy::XOR);
 
-  rb_cAggregateInitializerContext = rb_mExpressParser
-    .define_class<AggregateInitializerContextProxy, ContextProxy>("AggregateInitializerContext")
+  rb_cAggregateInitializerContext = define_class_under<AggregateInitializerContextProxy, ContextProxy>(rb_mExpressParser, "AggregateInitializerContext")
     .define_method("element", &AggregateInitializerContextProxy::element)
     .define_method("element_at", &AggregateInitializerContextProxy::elementAt);
 
-  rb_cElementContext = rb_mExpressParser
-    .define_class<ElementContextProxy, ContextProxy>("ElementContext")
+  rb_cElementContext = define_class_under<ElementContextProxy, ContextProxy>(rb_mExpressParser, "ElementContext")
     .define_method("expression", &ElementContextProxy::expression)
     .define_method("repetition", &ElementContextProxy::repetition);
 
-  rb_cAggregateSourceContext = rb_mExpressParser
-    .define_class<AggregateSourceContextProxy, ContextProxy>("AggregateSourceContext")
+  rb_cAggregateSourceContext = define_class_under<AggregateSourceContextProxy, ContextProxy>(rb_mExpressParser, "AggregateSourceContext")
     .define_method("simple_expression", &AggregateSourceContextProxy::simpleExpression);
 
-  rb_cSimpleExpressionContext = rb_mExpressParser
-    .define_class<SimpleExpressionContextProxy, ContextProxy>("SimpleExpressionContext")
+  rb_cSimpleExpressionContext = define_class_under<SimpleExpressionContextProxy, ContextProxy>(rb_mExpressParser, "SimpleExpressionContext")
     .define_method("term", &SimpleExpressionContextProxy::term)
     .define_method("term_at", &SimpleExpressionContextProxy::termAt)
     .define_method("add_like_op", &SimpleExpressionContextProxy::addLikeOp)
     .define_method("add_like_op_at", &SimpleExpressionContextProxy::addLikeOpAt);
 
-  rb_cAggregateTypeContext = rb_mExpressParser
-    .define_class<AggregateTypeContextProxy, ContextProxy>("AggregateTypeContext")
+  rb_cAggregateTypeContext = define_class_under<AggregateTypeContextProxy, ContextProxy>(rb_mExpressParser, "AggregateTypeContext")
     .define_method("parameter_type", &AggregateTypeContextProxy::parameterType)
     .define_method("type_label", &AggregateTypeContextProxy::typeLabel)
     .define_method("AGGREGATE", &AggregateTypeContextProxy::AGGREGATE)
     .define_method("OF", &AggregateTypeContextProxy::OF);
 
-  rb_cParameterTypeContext = rb_mExpressParser
-    .define_class<ParameterTypeContextProxy, ContextProxy>("ParameterTypeContext")
+  rb_cParameterTypeContext = define_class_under<ParameterTypeContextProxy, ContextProxy>(rb_mExpressParser, "ParameterTypeContext")
     .define_method("generalized_types", &ParameterTypeContextProxy::generalizedTypes)
     .define_method("named_types", &ParameterTypeContextProxy::namedTypes)
     .define_method("simple_types", &ParameterTypeContextProxy::simpleTypes);
 
-  rb_cTypeLabelContext = rb_mExpressParser
-    .define_class<TypeLabelContextProxy, ContextProxy>("TypeLabelContext")
+  rb_cTypeLabelContext = define_class_under<TypeLabelContextProxy, ContextProxy>(rb_mExpressParser, "TypeLabelContext")
     .define_method("type_label_id", &TypeLabelContextProxy::typeLabelId)
     .define_method("type_label_ref", &TypeLabelContextProxy::typeLabelRef);
 
-  rb_cAggregationTypesContext = rb_mExpressParser
-    .define_class<AggregationTypesContextProxy, ContextProxy>("AggregationTypesContext")
+  rb_cAggregationTypesContext = define_class_under<AggregationTypesContextProxy, ContextProxy>(rb_mExpressParser, "AggregationTypesContext")
     .define_method("array_type", &AggregationTypesContextProxy::arrayType)
     .define_method("bag_type", &AggregationTypesContextProxy::bagType)
     .define_method("list_type", &AggregationTypesContextProxy::listType)
     .define_method("set_type", &AggregationTypesContextProxy::setType);
 
-  rb_cArrayTypeContext = rb_mExpressParser
-    .define_class<ArrayTypeContextProxy, ContextProxy>("ArrayTypeContext")
+  rb_cArrayTypeContext = define_class_under<ArrayTypeContextProxy, ContextProxy>(rb_mExpressParser, "ArrayTypeContext")
     .define_method("bound_spec", &ArrayTypeContextProxy::boundSpec)
     .define_method("instantiable_type", &ArrayTypeContextProxy::instantiableType)
     .define_method("ARRAY", &ArrayTypeContextProxy::ARRAY)
@@ -16964,59 +18523,51 @@ void Init_express_parser() {
     .define_method("OPTIONAL", &ArrayTypeContextProxy::OPTIONAL)
     .define_method("UNIQUE", &ArrayTypeContextProxy::UNIQUE);
 
-  rb_cBagTypeContext = rb_mExpressParser
-    .define_class<BagTypeContextProxy, ContextProxy>("BagTypeContext")
+  rb_cBagTypeContext = define_class_under<BagTypeContextProxy, ContextProxy>(rb_mExpressParser, "BagTypeContext")
     .define_method("instantiable_type", &BagTypeContextProxy::instantiableType)
     .define_method("bound_spec", &BagTypeContextProxy::boundSpec)
     .define_method("BAG", &BagTypeContextProxy::BAG)
     .define_method("OF", &BagTypeContextProxy::OF);
 
-  rb_cListTypeContext = rb_mExpressParser
-    .define_class<ListTypeContextProxy, ContextProxy>("ListTypeContext")
+  rb_cListTypeContext = define_class_under<ListTypeContextProxy, ContextProxy>(rb_mExpressParser, "ListTypeContext")
     .define_method("instantiable_type", &ListTypeContextProxy::instantiableType)
     .define_method("bound_spec", &ListTypeContextProxy::boundSpec)
     .define_method("LIST", &ListTypeContextProxy::LIST)
     .define_method("OF", &ListTypeContextProxy::OF)
     .define_method("UNIQUE", &ListTypeContextProxy::UNIQUE);
 
-  rb_cSetTypeContext = rb_mExpressParser
-    .define_class<SetTypeContextProxy, ContextProxy>("SetTypeContext")
+  rb_cSetTypeContext = define_class_under<SetTypeContextProxy, ContextProxy>(rb_mExpressParser, "SetTypeContext")
     .define_method("instantiable_type", &SetTypeContextProxy::instantiableType)
     .define_method("bound_spec", &SetTypeContextProxy::boundSpec)
     .define_method("SET", &SetTypeContextProxy::SET)
     .define_method("OF", &SetTypeContextProxy::OF);
 
-  rb_cAlgorithmHeadContext = rb_mExpressParser
-    .define_class<AlgorithmHeadContextProxy, ContextProxy>("AlgorithmHeadContext")
+  rb_cAlgorithmHeadContext = define_class_under<AlgorithmHeadContextProxy, ContextProxy>(rb_mExpressParser, "AlgorithmHeadContext")
     .define_method("declaration", &AlgorithmHeadContextProxy::declaration)
     .define_method("declaration_at", &AlgorithmHeadContextProxy::declarationAt)
     .define_method("constant_decl", &AlgorithmHeadContextProxy::constantDecl)
     .define_method("local_decl", &AlgorithmHeadContextProxy::localDecl);
 
-  rb_cDeclarationContext = rb_mExpressParser
-    .define_class<DeclarationContextProxy, ContextProxy>("DeclarationContext")
+  rb_cDeclarationContext = define_class_under<DeclarationContextProxy, ContextProxy>(rb_mExpressParser, "DeclarationContext")
     .define_method("entity_decl", &DeclarationContextProxy::entityDecl)
     .define_method("function_decl", &DeclarationContextProxy::functionDecl)
     .define_method("procedure_decl", &DeclarationContextProxy::procedureDecl)
     .define_method("subtype_constraint_decl", &DeclarationContextProxy::subtypeConstraintDecl)
     .define_method("type_decl", &DeclarationContextProxy::typeDecl);
 
-  rb_cConstantDeclContext = rb_mExpressParser
-    .define_class<ConstantDeclContextProxy, ContextProxy>("ConstantDeclContext")
+  rb_cConstantDeclContext = define_class_under<ConstantDeclContextProxy, ContextProxy>(rb_mExpressParser, "ConstantDeclContext")
     .define_method("constant_body", &ConstantDeclContextProxy::constantBody)
     .define_method("constant_body_at", &ConstantDeclContextProxy::constantBodyAt)
     .define_method("CONSTANT", &ConstantDeclContextProxy::CONSTANT)
     .define_method("END_CONSTANT", &ConstantDeclContextProxy::END_CONSTANT);
 
-  rb_cLocalDeclContext = rb_mExpressParser
-    .define_class<LocalDeclContextProxy, ContextProxy>("LocalDeclContext")
+  rb_cLocalDeclContext = define_class_under<LocalDeclContextProxy, ContextProxy>(rb_mExpressParser, "LocalDeclContext")
     .define_method("local_variable", &LocalDeclContextProxy::localVariable)
     .define_method("local_variable_at", &LocalDeclContextProxy::localVariableAt)
     .define_method("LOCAL", &LocalDeclContextProxy::LOCAL)
     .define_method("END_LOCAL", &LocalDeclContextProxy::END_LOCAL);
 
-  rb_cAliasStmtContext = rb_mExpressParser
-    .define_class<AliasStmtContextProxy, ContextProxy>("AliasStmtContext")
+  rb_cAliasStmtContext = define_class_under<AliasStmtContextProxy, ContextProxy>(rb_mExpressParser, "AliasStmtContext")
     .define_method("variable_id", &AliasStmtContextProxy::variableId)
     .define_method("general_ref", &AliasStmtContextProxy::generalRef)
     .define_method("stmt", &AliasStmtContextProxy::stmt)
@@ -17027,13 +18578,11 @@ void Init_express_parser() {
     .define_method("FOR", &AliasStmtContextProxy::FOR)
     .define_method("END_ALIAS", &AliasStmtContextProxy::END_ALIAS);
 
-  rb_cGeneralRefContext = rb_mExpressParser
-    .define_class<GeneralRefContextProxy, ContextProxy>("GeneralRefContext")
+  rb_cGeneralRefContext = define_class_under<GeneralRefContextProxy, ContextProxy>(rb_mExpressParser, "GeneralRefContext")
     .define_method("parameter_ref", &GeneralRefContextProxy::parameterRef)
     .define_method("variable_id", &GeneralRefContextProxy::variableId);
 
-  rb_cStmtContext = rb_mExpressParser
-    .define_class<StmtContextProxy, ContextProxy>("StmtContext")
+  rb_cStmtContext = define_class_under<StmtContextProxy, ContextProxy>(rb_mExpressParser, "StmtContext")
     .define_method("alias_stmt", &StmtContextProxy::aliasStmt)
     .define_method("assignment_stmt", &StmtContextProxy::assignmentStmt)
     .define_method("case_stmt", &StmtContextProxy::caseStmt)
@@ -17046,84 +18595,68 @@ void Init_express_parser() {
     .define_method("return_stmt", &StmtContextProxy::returnStmt)
     .define_method("skip_stmt", &StmtContextProxy::skipStmt);
 
-  rb_cQualifierContext = rb_mExpressParser
-    .define_class<QualifierContextProxy, ContextProxy>("QualifierContext")
+  rb_cQualifierContext = define_class_under<QualifierContextProxy, ContextProxy>(rb_mExpressParser, "QualifierContext")
     .define_method("attribute_qualifier", &QualifierContextProxy::attributeQualifier)
     .define_method("group_qualifier", &QualifierContextProxy::groupQualifier)
     .define_method("index_qualifier", &QualifierContextProxy::indexQualifier);
 
-  rb_cBoundSpecContext = rb_mExpressParser
-    .define_class<BoundSpecContextProxy, ContextProxy>("BoundSpecContext")
+  rb_cBoundSpecContext = define_class_under<BoundSpecContextProxy, ContextProxy>(rb_mExpressParser, "BoundSpecContext")
     .define_method("bound1", &BoundSpecContextProxy::bound1)
     .define_method("bound2", &BoundSpecContextProxy::bound2);
 
-  rb_cInstantiableTypeContext = rb_mExpressParser
-    .define_class<InstantiableTypeContextProxy, ContextProxy>("InstantiableTypeContext")
+  rb_cInstantiableTypeContext = define_class_under<InstantiableTypeContextProxy, ContextProxy>(rb_mExpressParser, "InstantiableTypeContext")
     .define_method("concrete_types", &InstantiableTypeContextProxy::concreteTypes)
     .define_method("entity_ref", &InstantiableTypeContextProxy::entityRef);
 
-  rb_cAssignmentStmtContext = rb_mExpressParser
-    .define_class<AssignmentStmtContextProxy, ContextProxy>("AssignmentStmtContext")
+  rb_cAssignmentStmtContext = define_class_under<AssignmentStmtContextProxy, ContextProxy>(rb_mExpressParser, "AssignmentStmtContext")
     .define_method("general_ref", &AssignmentStmtContextProxy::generalRef)
     .define_method("expression", &AssignmentStmtContextProxy::expression)
     .define_method("qualifier", &AssignmentStmtContextProxy::qualifier)
     .define_method("qualifier_at", &AssignmentStmtContextProxy::qualifierAt);
 
-  rb_cExpressionContext = rb_mExpressParser
-    .define_class<ExpressionContextProxy, ContextProxy>("ExpressionContext")
+  rb_cExpressionContext = define_class_under<ExpressionContextProxy, ContextProxy>(rb_mExpressParser, "ExpressionContext")
     .define_method("simple_expression", &ExpressionContextProxy::simpleExpression)
     .define_method("simple_expression_at", &ExpressionContextProxy::simpleExpressionAt)
     .define_method("rel_op_extended", &ExpressionContextProxy::relOpExtended);
 
-  rb_cAttributeDeclContext = rb_mExpressParser
-    .define_class<AttributeDeclContextProxy, ContextProxy>("AttributeDeclContext")
+  rb_cAttributeDeclContext = define_class_under<AttributeDeclContextProxy, ContextProxy>(rb_mExpressParser, "AttributeDeclContext")
     .define_method("attribute_id", &AttributeDeclContextProxy::attributeId)
     .define_method("redeclared_attribute", &AttributeDeclContextProxy::redeclaredAttribute);
 
-  rb_cRedeclaredAttributeContext = rb_mExpressParser
-    .define_class<RedeclaredAttributeContextProxy, ContextProxy>("RedeclaredAttributeContext")
+  rb_cRedeclaredAttributeContext = define_class_under<RedeclaredAttributeContextProxy, ContextProxy>(rb_mExpressParser, "RedeclaredAttributeContext")
     .define_method("qualified_attribute", &RedeclaredAttributeContextProxy::qualifiedAttribute)
     .define_method("attribute_id", &RedeclaredAttributeContextProxy::attributeId)
     .define_method("RENAMED", &RedeclaredAttributeContextProxy::RENAMED);
 
-  rb_cAttributeQualifierContext = rb_mExpressParser
-    .define_class<AttributeQualifierContextProxy, ContextProxy>("AttributeQualifierContext")
+  rb_cAttributeQualifierContext = define_class_under<AttributeQualifierContextProxy, ContextProxy>(rb_mExpressParser, "AttributeQualifierContext")
     .define_method("attribute_ref", &AttributeQualifierContextProxy::attributeRef);
 
-  rb_cBinaryTypeContext = rb_mExpressParser
-    .define_class<BinaryTypeContextProxy, ContextProxy>("BinaryTypeContext")
+  rb_cBinaryTypeContext = define_class_under<BinaryTypeContextProxy, ContextProxy>(rb_mExpressParser, "BinaryTypeContext")
     .define_method("width_spec", &BinaryTypeContextProxy::widthSpec)
     .define_method("BINARY", &BinaryTypeContextProxy::BINARY);
 
-  rb_cWidthSpecContext = rb_mExpressParser
-    .define_class<WidthSpecContextProxy, ContextProxy>("WidthSpecContext")
+  rb_cWidthSpecContext = define_class_under<WidthSpecContextProxy, ContextProxy>(rb_mExpressParser, "WidthSpecContext")
     .define_method("width", &WidthSpecContextProxy::width)
     .define_method("FIXED", &WidthSpecContextProxy::FIXED);
 
-  rb_cBooleanTypeContext = rb_mExpressParser
-    .define_class<BooleanTypeContextProxy, ContextProxy>("BooleanTypeContext")
+  rb_cBooleanTypeContext = define_class_under<BooleanTypeContextProxy, ContextProxy>(rb_mExpressParser, "BooleanTypeContext")
     .define_method("BOOLEAN", &BooleanTypeContextProxy::BOOLEAN);
 
-  rb_cBound1Context = rb_mExpressParser
-    .define_class<Bound1ContextProxy, ContextProxy>("Bound1Context")
+  rb_cBound1Context = define_class_under<Bound1ContextProxy, ContextProxy>(rb_mExpressParser, "Bound1Context")
     .define_method("numeric_expression", &Bound1ContextProxy::numericExpression);
 
-  rb_cNumericExpressionContext = rb_mExpressParser
-    .define_class<NumericExpressionContextProxy, ContextProxy>("NumericExpressionContext")
+  rb_cNumericExpressionContext = define_class_under<NumericExpressionContextProxy, ContextProxy>(rb_mExpressParser, "NumericExpressionContext")
     .define_method("simple_expression", &NumericExpressionContextProxy::simpleExpression);
 
-  rb_cBound2Context = rb_mExpressParser
-    .define_class<Bound2ContextProxy, ContextProxy>("Bound2Context")
+  rb_cBound2Context = define_class_under<Bound2ContextProxy, ContextProxy>(rb_mExpressParser, "Bound2Context")
     .define_method("numeric_expression", &Bound2ContextProxy::numericExpression);
 
-  rb_cBuiltInConstantContext = rb_mExpressParser
-    .define_class<BuiltInConstantContextProxy, ContextProxy>("BuiltInConstantContext")
+  rb_cBuiltInConstantContext = define_class_under<BuiltInConstantContextProxy, ContextProxy>(rb_mExpressParser, "BuiltInConstantContext")
     .define_method("CONST_E", &BuiltInConstantContextProxy::CONST_E)
     .define_method("PI", &BuiltInConstantContextProxy::PI)
     .define_method("SELF", &BuiltInConstantContextProxy::SELF);
 
-  rb_cBuiltInFunctionContext = rb_mExpressParser
-    .define_class<BuiltInFunctionContextProxy, ContextProxy>("BuiltInFunctionContext")
+  rb_cBuiltInFunctionContext = define_class_under<BuiltInFunctionContextProxy, ContextProxy>(rb_mExpressParser, "BuiltInFunctionContext")
     .define_method("ABS", &BuiltInFunctionContextProxy::ABS)
     .define_method("ACOS", &BuiltInFunctionContextProxy::ACOS)
     .define_method("ASIN", &BuiltInFunctionContextProxy::ASIN)
@@ -17154,23 +18687,19 @@ void Init_express_parser() {
     .define_method("VALUE_IN", &BuiltInFunctionContextProxy::VALUE_IN)
     .define_method("VALUE_UNIQUE", &BuiltInFunctionContextProxy::VALUE_UNIQUE);
 
-  rb_cBuiltInProcedureContext = rb_mExpressParser
-    .define_class<BuiltInProcedureContextProxy, ContextProxy>("BuiltInProcedureContext")
+  rb_cBuiltInProcedureContext = define_class_under<BuiltInProcedureContextProxy, ContextProxy>(rb_mExpressParser, "BuiltInProcedureContext")
     .define_method("INSERT", &BuiltInProcedureContextProxy::INSERT)
     .define_method("REMOVE", &BuiltInProcedureContextProxy::REMOVE);
 
-  rb_cCaseActionContext = rb_mExpressParser
-    .define_class<CaseActionContextProxy, ContextProxy>("CaseActionContext")
+  rb_cCaseActionContext = define_class_under<CaseActionContextProxy, ContextProxy>(rb_mExpressParser, "CaseActionContext")
     .define_method("case_label", &CaseActionContextProxy::caseLabel)
     .define_method("case_label_at", &CaseActionContextProxy::caseLabelAt)
     .define_method("stmt", &CaseActionContextProxy::stmt);
 
-  rb_cCaseLabelContext = rb_mExpressParser
-    .define_class<CaseLabelContextProxy, ContextProxy>("CaseLabelContext")
+  rb_cCaseLabelContext = define_class_under<CaseLabelContextProxy, ContextProxy>(rb_mExpressParser, "CaseLabelContext")
     .define_method("expression", &CaseLabelContextProxy::expression);
 
-  rb_cCaseStmtContext = rb_mExpressParser
-    .define_class<CaseStmtContextProxy, ContextProxy>("CaseStmtContext")
+  rb_cCaseStmtContext = define_class_under<CaseStmtContextProxy, ContextProxy>(rb_mExpressParser, "CaseStmtContext")
     .define_method("selector", &CaseStmtContextProxy::selector)
     .define_method("case_action", &CaseStmtContextProxy::caseAction)
     .define_method("case_action_at", &CaseStmtContextProxy::caseActionAt)
@@ -17180,25 +18709,21 @@ void Init_express_parser() {
     .define_method("END_CASE", &CaseStmtContextProxy::END_CASE)
     .define_method("OTHERWISE", &CaseStmtContextProxy::OTHERWISE);
 
-  rb_cSelectorContext = rb_mExpressParser
-    .define_class<SelectorContextProxy, ContextProxy>("SelectorContext")
+  rb_cSelectorContext = define_class_under<SelectorContextProxy, ContextProxy>(rb_mExpressParser, "SelectorContext")
     .define_method("expression", &SelectorContextProxy::expression);
 
-  rb_cCompoundStmtContext = rb_mExpressParser
-    .define_class<CompoundStmtContextProxy, ContextProxy>("CompoundStmtContext")
+  rb_cCompoundStmtContext = define_class_under<CompoundStmtContextProxy, ContextProxy>(rb_mExpressParser, "CompoundStmtContext")
     .define_method("stmt", &CompoundStmtContextProxy::stmt)
     .define_method("stmt_at", &CompoundStmtContextProxy::stmtAt)
     .define_method("BEGIN_", &CompoundStmtContextProxy::BEGIN_)
     .define_method("END_", &CompoundStmtContextProxy::END_);
 
-  rb_cConcreteTypesContext = rb_mExpressParser
-    .define_class<ConcreteTypesContextProxy, ContextProxy>("ConcreteTypesContext")
+  rb_cConcreteTypesContext = define_class_under<ConcreteTypesContextProxy, ContextProxy>(rb_mExpressParser, "ConcreteTypesContext")
     .define_method("aggregation_types", &ConcreteTypesContextProxy::aggregationTypes)
     .define_method("simple_types", &ConcreteTypesContextProxy::simpleTypes)
     .define_method("type_ref", &ConcreteTypesContextProxy::typeRef);
 
-  rb_cSimpleTypesContext = rb_mExpressParser
-    .define_class<SimpleTypesContextProxy, ContextProxy>("SimpleTypesContext")
+  rb_cSimpleTypesContext = define_class_under<SimpleTypesContextProxy, ContextProxy>(rb_mExpressParser, "SimpleTypesContext")
     .define_method("binary_type", &SimpleTypesContextProxy::binaryType)
     .define_method("boolean_type", &SimpleTypesContextProxy::booleanType)
     .define_method("integer_type", &SimpleTypesContextProxy::integerType)
@@ -17207,97 +18732,82 @@ void Init_express_parser() {
     .define_method("real_type", &SimpleTypesContextProxy::realType)
     .define_method("string_type", &SimpleTypesContextProxy::stringType);
 
-  rb_cConstantBodyContext = rb_mExpressParser
-    .define_class<ConstantBodyContextProxy, ContextProxy>("ConstantBodyContext")
+  rb_cConstantBodyContext = define_class_under<ConstantBodyContextProxy, ContextProxy>(rb_mExpressParser, "ConstantBodyContext")
     .define_method("constant_id", &ConstantBodyContextProxy::constantId)
     .define_method("instantiable_type", &ConstantBodyContextProxy::instantiableType)
     .define_method("expression", &ConstantBodyContextProxy::expression);
 
-  rb_cConstantFactorContext = rb_mExpressParser
-    .define_class<ConstantFactorContextProxy, ContextProxy>("ConstantFactorContext")
+  rb_cConstantFactorContext = define_class_under<ConstantFactorContextProxy, ContextProxy>(rb_mExpressParser, "ConstantFactorContext")
     .define_method("built_in_constant", &ConstantFactorContextProxy::builtInConstant)
     .define_method("constant_ref", &ConstantFactorContextProxy::constantRef);
 
-  rb_cConstructedTypesContext = rb_mExpressParser
-    .define_class<ConstructedTypesContextProxy, ContextProxy>("ConstructedTypesContext")
+  rb_cConstructedTypesContext = define_class_under<ConstructedTypesContextProxy, ContextProxy>(rb_mExpressParser, "ConstructedTypesContext")
     .define_method("enumeration_type", &ConstructedTypesContextProxy::enumerationType)
     .define_method("select_type", &ConstructedTypesContextProxy::selectType);
 
-  rb_cEnumerationTypeContext = rb_mExpressParser
-    .define_class<EnumerationTypeContextProxy, ContextProxy>("EnumerationTypeContext")
+  rb_cEnumerationTypeContext = define_class_under<EnumerationTypeContextProxy, ContextProxy>(rb_mExpressParser, "EnumerationTypeContext")
     .define_method("enumeration_items", &EnumerationTypeContextProxy::enumerationItems)
     .define_method("enumeration_extension", &EnumerationTypeContextProxy::enumerationExtension)
     .define_method("ENUMERATION", &EnumerationTypeContextProxy::ENUMERATION)
     .define_method("EXTENSIBLE", &EnumerationTypeContextProxy::EXTENSIBLE)
     .define_method("OF", &EnumerationTypeContextProxy::OF);
 
-  rb_cSelectTypeContext = rb_mExpressParser
-    .define_class<SelectTypeContextProxy, ContextProxy>("SelectTypeContext")
+  rb_cSelectTypeContext = define_class_under<SelectTypeContextProxy, ContextProxy>(rb_mExpressParser, "SelectTypeContext")
     .define_method("select_list", &SelectTypeContextProxy::selectList)
     .define_method("select_extension", &SelectTypeContextProxy::selectExtension)
     .define_method("SELECT", &SelectTypeContextProxy::SELECT)
     .define_method("EXTENSIBLE", &SelectTypeContextProxy::EXTENSIBLE)
     .define_method("GENERIC_ENTITY", &SelectTypeContextProxy::GENERIC_ENTITY);
 
-  rb_cEntityDeclContext = rb_mExpressParser
-    .define_class<EntityDeclContextProxy, ContextProxy>("EntityDeclContext")
+  rb_cEntityDeclContext = define_class_under<EntityDeclContextProxy, ContextProxy>(rb_mExpressParser, "EntityDeclContext")
     .define_method("entity_head", &EntityDeclContextProxy::entityHead)
     .define_method("entity_body", &EntityDeclContextProxy::entityBody)
     .define_method("END_ENTITY", &EntityDeclContextProxy::END_ENTITY);
 
-  rb_cFunctionDeclContext = rb_mExpressParser
-    .define_class<FunctionDeclContextProxy, ContextProxy>("FunctionDeclContext")
+  rb_cFunctionDeclContext = define_class_under<FunctionDeclContextProxy, ContextProxy>(rb_mExpressParser, "FunctionDeclContext")
     .define_method("function_head", &FunctionDeclContextProxy::functionHead)
     .define_method("algorithm_head", &FunctionDeclContextProxy::algorithmHead)
     .define_method("stmt", &FunctionDeclContextProxy::stmt)
     .define_method("stmt_at", &FunctionDeclContextProxy::stmtAt)
     .define_method("END_FUNCTION", &FunctionDeclContextProxy::END_FUNCTION);
 
-  rb_cProcedureDeclContext = rb_mExpressParser
-    .define_class<ProcedureDeclContextProxy, ContextProxy>("ProcedureDeclContext")
+  rb_cProcedureDeclContext = define_class_under<ProcedureDeclContextProxy, ContextProxy>(rb_mExpressParser, "ProcedureDeclContext")
     .define_method("procedure_head", &ProcedureDeclContextProxy::procedureHead)
     .define_method("algorithm_head", &ProcedureDeclContextProxy::algorithmHead)
     .define_method("stmt", &ProcedureDeclContextProxy::stmt)
     .define_method("stmt_at", &ProcedureDeclContextProxy::stmtAt)
     .define_method("END_PROCEDURE", &ProcedureDeclContextProxy::END_PROCEDURE);
 
-  rb_cSubtypeConstraintDeclContext = rb_mExpressParser
-    .define_class<SubtypeConstraintDeclContextProxy, ContextProxy>("SubtypeConstraintDeclContext")
+  rb_cSubtypeConstraintDeclContext = define_class_under<SubtypeConstraintDeclContextProxy, ContextProxy>(rb_mExpressParser, "SubtypeConstraintDeclContext")
     .define_method("subtype_constraint_head", &SubtypeConstraintDeclContextProxy::subtypeConstraintHead)
     .define_method("subtype_constraint_body", &SubtypeConstraintDeclContextProxy::subtypeConstraintBody)
     .define_method("END_SUBTYPE_CONSTRAINT", &SubtypeConstraintDeclContextProxy::END_SUBTYPE_CONSTRAINT);
 
-  rb_cTypeDeclContext = rb_mExpressParser
-    .define_class<TypeDeclContextProxy, ContextProxy>("TypeDeclContext")
+  rb_cTypeDeclContext = define_class_under<TypeDeclContextProxy, ContextProxy>(rb_mExpressParser, "TypeDeclContext")
     .define_method("type_id", &TypeDeclContextProxy::typeId)
     .define_method("underlying_type", &TypeDeclContextProxy::underlyingType)
     .define_method("where_clause", &TypeDeclContextProxy::whereClause)
     .define_method("TYPE", &TypeDeclContextProxy::TYPE)
     .define_method("END_TYPE", &TypeDeclContextProxy::END_TYPE);
 
-  rb_cDerivedAttrContext = rb_mExpressParser
-    .define_class<DerivedAttrContextProxy, ContextProxy>("DerivedAttrContext")
+  rb_cDerivedAttrContext = define_class_under<DerivedAttrContextProxy, ContextProxy>(rb_mExpressParser, "DerivedAttrContext")
     .define_method("attribute_decl", &DerivedAttrContextProxy::attributeDecl)
     .define_method("parameter_type", &DerivedAttrContextProxy::parameterType)
     .define_method("expression", &DerivedAttrContextProxy::expression);
 
-  rb_cDeriveClauseContext = rb_mExpressParser
-    .define_class<DeriveClauseContextProxy, ContextProxy>("DeriveClauseContext")
+  rb_cDeriveClauseContext = define_class_under<DeriveClauseContextProxy, ContextProxy>(rb_mExpressParser, "DeriveClauseContext")
     .define_method("derived_attr", &DeriveClauseContextProxy::derivedAttr)
     .define_method("derived_attr_at", &DeriveClauseContextProxy::derivedAttrAt)
     .define_method("DERIVE", &DeriveClauseContextProxy::DERIVE);
 
-  rb_cDomainRuleContext = rb_mExpressParser
-    .define_class<DomainRuleContextProxy, ContextProxy>("DomainRuleContext")
+  rb_cDomainRuleContext = define_class_under<DomainRuleContextProxy, ContextProxy>(rb_mExpressParser, "DomainRuleContext")
     .define_method("expression", &DomainRuleContextProxy::expression)
     .define_method("rule_label_id", &DomainRuleContextProxy::ruleLabelId);
 
-  rb_cRepetitionContext = rb_mExpressParser
-    .define_class<RepetitionContextProxy, ContextProxy>("RepetitionContext")
+  rb_cRepetitionContext = define_class_under<RepetitionContextProxy, ContextProxy>(rb_mExpressParser, "RepetitionContext")
     .define_method("numeric_expression", &RepetitionContextProxy::numericExpression);
 
-  rb_cEntityBodyContext = rb_mExpressParser
-    .define_class<EntityBodyContextProxy, ContextProxy>("EntityBodyContext")
+  rb_cEntityBodyContext = define_class_under<EntityBodyContextProxy, ContextProxy>(rb_mExpressParser, "EntityBodyContext")
     .define_method("explicit_attr", &EntityBodyContextProxy::explicitAttr)
     .define_method("explicit_attr_at", &EntityBodyContextProxy::explicitAttrAt)
     .define_method("derive_clause", &EntityBodyContextProxy::deriveClause)
@@ -17305,86 +18815,71 @@ void Init_express_parser() {
     .define_method("unique_clause", &EntityBodyContextProxy::uniqueClause)
     .define_method("where_clause", &EntityBodyContextProxy::whereClause);
 
-  rb_cExplicitAttrContext = rb_mExpressParser
-    .define_class<ExplicitAttrContextProxy, ContextProxy>("ExplicitAttrContext")
+  rb_cExplicitAttrContext = define_class_under<ExplicitAttrContextProxy, ContextProxy>(rb_mExpressParser, "ExplicitAttrContext")
     .define_method("attribute_decl", &ExplicitAttrContextProxy::attributeDecl)
     .define_method("attribute_decl_at", &ExplicitAttrContextProxy::attributeDeclAt)
     .define_method("parameter_type", &ExplicitAttrContextProxy::parameterType)
     .define_method("OPTIONAL", &ExplicitAttrContextProxy::OPTIONAL);
 
-  rb_cInverseClauseContext = rb_mExpressParser
-    .define_class<InverseClauseContextProxy, ContextProxy>("InverseClauseContext")
+  rb_cInverseClauseContext = define_class_under<InverseClauseContextProxy, ContextProxy>(rb_mExpressParser, "InverseClauseContext")
     .define_method("inverse_attr", &InverseClauseContextProxy::inverseAttr)
     .define_method("inverse_attr_at", &InverseClauseContextProxy::inverseAttrAt)
     .define_method("INVERSE", &InverseClauseContextProxy::INVERSE);
 
-  rb_cUniqueClauseContext = rb_mExpressParser
-    .define_class<UniqueClauseContextProxy, ContextProxy>("UniqueClauseContext")
+  rb_cUniqueClauseContext = define_class_under<UniqueClauseContextProxy, ContextProxy>(rb_mExpressParser, "UniqueClauseContext")
     .define_method("unique_rule", &UniqueClauseContextProxy::uniqueRule)
     .define_method("unique_rule_at", &UniqueClauseContextProxy::uniqueRuleAt)
     .define_method("UNIQUE", &UniqueClauseContextProxy::UNIQUE);
 
-  rb_cWhereClauseContext = rb_mExpressParser
-    .define_class<WhereClauseContextProxy, ContextProxy>("WhereClauseContext")
+  rb_cWhereClauseContext = define_class_under<WhereClauseContextProxy, ContextProxy>(rb_mExpressParser, "WhereClauseContext")
     .define_method("domain_rule", &WhereClauseContextProxy::domainRule)
     .define_method("domain_rule_at", &WhereClauseContextProxy::domainRuleAt)
     .define_method("WHERE", &WhereClauseContextProxy::WHERE);
 
-  rb_cEntityConstructorContext = rb_mExpressParser
-    .define_class<EntityConstructorContextProxy, ContextProxy>("EntityConstructorContext")
+  rb_cEntityConstructorContext = define_class_under<EntityConstructorContextProxy, ContextProxy>(rb_mExpressParser, "EntityConstructorContext")
     .define_method("entity_ref", &EntityConstructorContextProxy::entityRef)
     .define_method("expression", &EntityConstructorContextProxy::expression)
     .define_method("expression_at", &EntityConstructorContextProxy::expressionAt);
 
-  rb_cEntityHeadContext = rb_mExpressParser
-    .define_class<EntityHeadContextProxy, ContextProxy>("EntityHeadContext")
+  rb_cEntityHeadContext = define_class_under<EntityHeadContextProxy, ContextProxy>(rb_mExpressParser, "EntityHeadContext")
     .define_method("entity_id", &EntityHeadContextProxy::entityId)
     .define_method("subsuper", &EntityHeadContextProxy::subsuper)
     .define_method("ENTITY", &EntityHeadContextProxy::ENTITY);
 
-  rb_cSubsuperContext = rb_mExpressParser
-    .define_class<SubsuperContextProxy, ContextProxy>("SubsuperContext")
+  rb_cSubsuperContext = define_class_under<SubsuperContextProxy, ContextProxy>(rb_mExpressParser, "SubsuperContext")
     .define_method("supertype_constraint", &SubsuperContextProxy::supertypeConstraint)
     .define_method("subtype_declaration", &SubsuperContextProxy::subtypeDeclaration);
 
-  rb_cEnumerationExtensionContext = rb_mExpressParser
-    .define_class<EnumerationExtensionContextProxy, ContextProxy>("EnumerationExtensionContext")
+  rb_cEnumerationExtensionContext = define_class_under<EnumerationExtensionContextProxy, ContextProxy>(rb_mExpressParser, "EnumerationExtensionContext")
     .define_method("type_ref", &EnumerationExtensionContextProxy::typeRef)
     .define_method("enumeration_items", &EnumerationExtensionContextProxy::enumerationItems)
     .define_method("BASED_ON", &EnumerationExtensionContextProxy::BASED_ON)
     .define_method("WITH", &EnumerationExtensionContextProxy::WITH);
 
-  rb_cEnumerationItemsContext = rb_mExpressParser
-    .define_class<EnumerationItemsContextProxy, ContextProxy>("EnumerationItemsContext")
+  rb_cEnumerationItemsContext = define_class_under<EnumerationItemsContextProxy, ContextProxy>(rb_mExpressParser, "EnumerationItemsContext")
     .define_method("enumeration_item", &EnumerationItemsContextProxy::enumerationItem)
     .define_method("enumeration_item_at", &EnumerationItemsContextProxy::enumerationItemAt);
 
-  rb_cEnumerationItemContext = rb_mExpressParser
-    .define_class<EnumerationItemContextProxy, ContextProxy>("EnumerationItemContext")
+  rb_cEnumerationItemContext = define_class_under<EnumerationItemContextProxy, ContextProxy>(rb_mExpressParser, "EnumerationItemContext")
     .define_method("enumeration_id", &EnumerationItemContextProxy::enumerationId);
 
-  rb_cEnumerationReferenceContext = rb_mExpressParser
-    .define_class<EnumerationReferenceContextProxy, ContextProxy>("EnumerationReferenceContext")
+  rb_cEnumerationReferenceContext = define_class_under<EnumerationReferenceContextProxy, ContextProxy>(rb_mExpressParser, "EnumerationReferenceContext")
     .define_method("enumeration_ref", &EnumerationReferenceContextProxy::enumerationRef)
     .define_method("type_ref", &EnumerationReferenceContextProxy::typeRef);
 
-  rb_cEscapeStmtContext = rb_mExpressParser
-    .define_class<EscapeStmtContextProxy, ContextProxy>("EscapeStmtContext")
+  rb_cEscapeStmtContext = define_class_under<EscapeStmtContextProxy, ContextProxy>(rb_mExpressParser, "EscapeStmtContext")
     .define_method("ESCAPE", &EscapeStmtContextProxy::ESCAPE);
 
-  rb_cRelOpExtendedContext = rb_mExpressParser
-    .define_class<RelOpExtendedContextProxy, ContextProxy>("RelOpExtendedContext")
+  rb_cRelOpExtendedContext = define_class_under<RelOpExtendedContextProxy, ContextProxy>(rb_mExpressParser, "RelOpExtendedContext")
     .define_method("rel_op", &RelOpExtendedContextProxy::relOp)
     .define_method("IN", &RelOpExtendedContextProxy::IN)
     .define_method("LIKE", &RelOpExtendedContextProxy::LIKE);
 
-  rb_cFactorContext = rb_mExpressParser
-    .define_class<FactorContextProxy, ContextProxy>("FactorContext")
+  rb_cFactorContext = define_class_under<FactorContextProxy, ContextProxy>(rb_mExpressParser, "FactorContext")
     .define_method("simple_factor", &FactorContextProxy::simpleFactor)
     .define_method("simple_factor_at", &FactorContextProxy::simpleFactorAt);
 
-  rb_cSimpleFactorContext = rb_mExpressParser
-    .define_class<SimpleFactorContextProxy, ContextProxy>("SimpleFactorContext")
+  rb_cSimpleFactorContext = define_class_under<SimpleFactorContextProxy, ContextProxy>(rb_mExpressParser, "SimpleFactorContext")
     .define_method("aggregate_initializer", &SimpleFactorContextProxy::aggregateInitializer)
     .define_method("entity_constructor", &SimpleFactorContextProxy::entityConstructor)
     .define_method("enumeration_reference", &SimpleFactorContextProxy::enumerationReference)
@@ -17393,52 +18888,44 @@ void Init_express_parser() {
     .define_method("simple_factor_expression", &SimpleFactorContextProxy::simpleFactorExpression)
     .define_method("simple_factor_unary_expression", &SimpleFactorContextProxy::simpleFactorUnaryExpression);
 
-  rb_cFormalParameterContext = rb_mExpressParser
-    .define_class<FormalParameterContextProxy, ContextProxy>("FormalParameterContext")
+  rb_cFormalParameterContext = define_class_under<FormalParameterContextProxy, ContextProxy>(rb_mExpressParser, "FormalParameterContext")
     .define_method("parameter_id", &FormalParameterContextProxy::parameterId)
     .define_method("parameter_id_at", &FormalParameterContextProxy::parameterIdAt)
     .define_method("parameter_type", &FormalParameterContextProxy::parameterType);
 
-  rb_cFunctionCallContext = rb_mExpressParser
-    .define_class<FunctionCallContextProxy, ContextProxy>("FunctionCallContext")
+  rb_cFunctionCallContext = define_class_under<FunctionCallContextProxy, ContextProxy>(rb_mExpressParser, "FunctionCallContext")
     .define_method("built_in_function", &FunctionCallContextProxy::builtInFunction)
     .define_method("function_ref", &FunctionCallContextProxy::functionRef)
     .define_method("actual_parameter_list", &FunctionCallContextProxy::actualParameterList);
 
-  rb_cFunctionHeadContext = rb_mExpressParser
-    .define_class<FunctionHeadContextProxy, ContextProxy>("FunctionHeadContext")
+  rb_cFunctionHeadContext = define_class_under<FunctionHeadContextProxy, ContextProxy>(rb_mExpressParser, "FunctionHeadContext")
     .define_method("function_id", &FunctionHeadContextProxy::functionId)
     .define_method("parameter_type", &FunctionHeadContextProxy::parameterType)
     .define_method("formal_parameter", &FunctionHeadContextProxy::formalParameter)
     .define_method("formal_parameter_at", &FunctionHeadContextProxy::formalParameterAt)
     .define_method("FUNCTION", &FunctionHeadContextProxy::FUNCTION);
 
-  rb_cGeneralizedTypesContext = rb_mExpressParser
-    .define_class<GeneralizedTypesContextProxy, ContextProxy>("GeneralizedTypesContext")
+  rb_cGeneralizedTypesContext = define_class_under<GeneralizedTypesContextProxy, ContextProxy>(rb_mExpressParser, "GeneralizedTypesContext")
     .define_method("aggregate_type", &GeneralizedTypesContextProxy::aggregateType)
     .define_method("general_aggregation_types", &GeneralizedTypesContextProxy::generalAggregationTypes)
     .define_method("generic_entity_type", &GeneralizedTypesContextProxy::genericEntityType)
     .define_method("generic_type", &GeneralizedTypesContextProxy::genericType);
 
-  rb_cGeneralAggregationTypesContext = rb_mExpressParser
-    .define_class<GeneralAggregationTypesContextProxy, ContextProxy>("GeneralAggregationTypesContext")
+  rb_cGeneralAggregationTypesContext = define_class_under<GeneralAggregationTypesContextProxy, ContextProxy>(rb_mExpressParser, "GeneralAggregationTypesContext")
     .define_method("general_array_type", &GeneralAggregationTypesContextProxy::generalArrayType)
     .define_method("general_bag_type", &GeneralAggregationTypesContextProxy::generalBagType)
     .define_method("general_list_type", &GeneralAggregationTypesContextProxy::generalListType)
     .define_method("general_set_type", &GeneralAggregationTypesContextProxy::generalSetType);
 
-  rb_cGenericEntityTypeContext = rb_mExpressParser
-    .define_class<GenericEntityTypeContextProxy, ContextProxy>("GenericEntityTypeContext")
+  rb_cGenericEntityTypeContext = define_class_under<GenericEntityTypeContextProxy, ContextProxy>(rb_mExpressParser, "GenericEntityTypeContext")
     .define_method("type_label", &GenericEntityTypeContextProxy::typeLabel)
     .define_method("GENERIC_ENTITY", &GenericEntityTypeContextProxy::GENERIC_ENTITY);
 
-  rb_cGenericTypeContext = rb_mExpressParser
-    .define_class<GenericTypeContextProxy, ContextProxy>("GenericTypeContext")
+  rb_cGenericTypeContext = define_class_under<GenericTypeContextProxy, ContextProxy>(rb_mExpressParser, "GenericTypeContext")
     .define_method("type_label", &GenericTypeContextProxy::typeLabel)
     .define_method("GENERIC", &GenericTypeContextProxy::GENERIC);
 
-  rb_cGeneralArrayTypeContext = rb_mExpressParser
-    .define_class<GeneralArrayTypeContextProxy, ContextProxy>("GeneralArrayTypeContext")
+  rb_cGeneralArrayTypeContext = define_class_under<GeneralArrayTypeContextProxy, ContextProxy>(rb_mExpressParser, "GeneralArrayTypeContext")
     .define_method("parameter_type", &GeneralArrayTypeContextProxy::parameterType)
     .define_method("bound_spec", &GeneralArrayTypeContextProxy::boundSpec)
     .define_method("ARRAY", &GeneralArrayTypeContextProxy::ARRAY)
@@ -17446,34 +18933,29 @@ void Init_express_parser() {
     .define_method("OPTIONAL", &GeneralArrayTypeContextProxy::OPTIONAL)
     .define_method("UNIQUE", &GeneralArrayTypeContextProxy::UNIQUE);
 
-  rb_cGeneralBagTypeContext = rb_mExpressParser
-    .define_class<GeneralBagTypeContextProxy, ContextProxy>("GeneralBagTypeContext")
+  rb_cGeneralBagTypeContext = define_class_under<GeneralBagTypeContextProxy, ContextProxy>(rb_mExpressParser, "GeneralBagTypeContext")
     .define_method("parameter_type", &GeneralBagTypeContextProxy::parameterType)
     .define_method("bound_spec", &GeneralBagTypeContextProxy::boundSpec)
     .define_method("BAG", &GeneralBagTypeContextProxy::BAG)
     .define_method("OF", &GeneralBagTypeContextProxy::OF);
 
-  rb_cGeneralListTypeContext = rb_mExpressParser
-    .define_class<GeneralListTypeContextProxy, ContextProxy>("GeneralListTypeContext")
+  rb_cGeneralListTypeContext = define_class_under<GeneralListTypeContextProxy, ContextProxy>(rb_mExpressParser, "GeneralListTypeContext")
     .define_method("parameter_type", &GeneralListTypeContextProxy::parameterType)
     .define_method("bound_spec", &GeneralListTypeContextProxy::boundSpec)
     .define_method("LIST", &GeneralListTypeContextProxy::LIST)
     .define_method("OF", &GeneralListTypeContextProxy::OF)
     .define_method("UNIQUE", &GeneralListTypeContextProxy::UNIQUE);
 
-  rb_cGeneralSetTypeContext = rb_mExpressParser
-    .define_class<GeneralSetTypeContextProxy, ContextProxy>("GeneralSetTypeContext")
+  rb_cGeneralSetTypeContext = define_class_under<GeneralSetTypeContextProxy, ContextProxy>(rb_mExpressParser, "GeneralSetTypeContext")
     .define_method("parameter_type", &GeneralSetTypeContextProxy::parameterType)
     .define_method("bound_spec", &GeneralSetTypeContextProxy::boundSpec)
     .define_method("SET", &GeneralSetTypeContextProxy::SET)
     .define_method("OF", &GeneralSetTypeContextProxy::OF);
 
-  rb_cGroupQualifierContext = rb_mExpressParser
-    .define_class<GroupQualifierContextProxy, ContextProxy>("GroupQualifierContext")
+  rb_cGroupQualifierContext = define_class_under<GroupQualifierContextProxy, ContextProxy>(rb_mExpressParser, "GroupQualifierContext")
     .define_method("entity_ref", &GroupQualifierContextProxy::entityRef);
 
-  rb_cIfStmtContext = rb_mExpressParser
-    .define_class<IfStmtContextProxy, ContextProxy>("IfStmtContext")
+  rb_cIfStmtContext = define_class_under<IfStmtContextProxy, ContextProxy>(rb_mExpressParser, "IfStmtContext")
     .define_method("logical_expression", &IfStmtContextProxy::logicalExpression)
     .define_method("if_stmt_statements", &IfStmtContextProxy::ifStmtStatements)
     .define_method("if_stmt_else_statements", &IfStmtContextProxy::ifStmtElseStatements)
@@ -17482,26 +18964,21 @@ void Init_express_parser() {
     .define_method("END_IF", &IfStmtContextProxy::END_IF)
     .define_method("ELSE", &IfStmtContextProxy::ELSE);
 
-  rb_cLogicalExpressionContext = rb_mExpressParser
-    .define_class<LogicalExpressionContextProxy, ContextProxy>("LogicalExpressionContext")
+  rb_cLogicalExpressionContext = define_class_under<LogicalExpressionContextProxy, ContextProxy>(rb_mExpressParser, "LogicalExpressionContext")
     .define_method("expression", &LogicalExpressionContextProxy::expression);
 
-  rb_cIfStmtStatementsContext = rb_mExpressParser
-    .define_class<IfStmtStatementsContextProxy, ContextProxy>("IfStmtStatementsContext")
+  rb_cIfStmtStatementsContext = define_class_under<IfStmtStatementsContextProxy, ContextProxy>(rb_mExpressParser, "IfStmtStatementsContext")
     .define_method("stmt", &IfStmtStatementsContextProxy::stmt)
     .define_method("stmt_at", &IfStmtStatementsContextProxy::stmtAt);
 
-  rb_cIfStmtElseStatementsContext = rb_mExpressParser
-    .define_class<IfStmtElseStatementsContextProxy, ContextProxy>("IfStmtElseStatementsContext")
+  rb_cIfStmtElseStatementsContext = define_class_under<IfStmtElseStatementsContextProxy, ContextProxy>(rb_mExpressParser, "IfStmtElseStatementsContext")
     .define_method("stmt", &IfStmtElseStatementsContextProxy::stmt)
     .define_method("stmt_at", &IfStmtElseStatementsContextProxy::stmtAt);
 
-  rb_cIncrementContext = rb_mExpressParser
-    .define_class<IncrementContextProxy, ContextProxy>("IncrementContext")
+  rb_cIncrementContext = define_class_under<IncrementContextProxy, ContextProxy>(rb_mExpressParser, "IncrementContext")
     .define_method("numeric_expression", &IncrementContextProxy::numericExpression);
 
-  rb_cIncrementControlContext = rb_mExpressParser
-    .define_class<IncrementControlContextProxy, ContextProxy>("IncrementControlContext")
+  rb_cIncrementControlContext = define_class_under<IncrementControlContextProxy, ContextProxy>(rb_mExpressParser, "IncrementControlContext")
     .define_method("variable_id", &IncrementControlContextProxy::variableId)
     .define_method("bound1", &IncrementControlContextProxy::bound1)
     .define_method("bound2", &IncrementControlContextProxy::bound2)
@@ -17509,275 +18986,227 @@ void Init_express_parser() {
     .define_method("TO", &IncrementControlContextProxy::TO)
     .define_method("BY", &IncrementControlContextProxy::BY);
 
-  rb_cIndexContext = rb_mExpressParser
-    .define_class<IndexContextProxy, ContextProxy>("IndexContext")
+  rb_cIndexContext = define_class_under<IndexContextProxy, ContextProxy>(rb_mExpressParser, "IndexContext")
     .define_method("numeric_expression", &IndexContextProxy::numericExpression);
 
-  rb_cIndex1Context = rb_mExpressParser
-    .define_class<Index1ContextProxy, ContextProxy>("Index1Context")
+  rb_cIndex1Context = define_class_under<Index1ContextProxy, ContextProxy>(rb_mExpressParser, "Index1Context")
     .define_method("index", &Index1ContextProxy::index);
 
-  rb_cIndex2Context = rb_mExpressParser
-    .define_class<Index2ContextProxy, ContextProxy>("Index2Context")
+  rb_cIndex2Context = define_class_under<Index2ContextProxy, ContextProxy>(rb_mExpressParser, "Index2Context")
     .define_method("index", &Index2ContextProxy::index);
 
-  rb_cIndexQualifierContext = rb_mExpressParser
-    .define_class<IndexQualifierContextProxy, ContextProxy>("IndexQualifierContext")
+  rb_cIndexQualifierContext = define_class_under<IndexQualifierContextProxy, ContextProxy>(rb_mExpressParser, "IndexQualifierContext")
     .define_method("index1", &IndexQualifierContextProxy::index1)
     .define_method("index2", &IndexQualifierContextProxy::index2);
 
-  rb_cIntegerTypeContext = rb_mExpressParser
-    .define_class<IntegerTypeContextProxy, ContextProxy>("IntegerTypeContext")
+  rb_cIntegerTypeContext = define_class_under<IntegerTypeContextProxy, ContextProxy>(rb_mExpressParser, "IntegerTypeContext")
     .define_method("INTEGER", &IntegerTypeContextProxy::INTEGER);
 
-  rb_cInterfaceSpecificationContext = rb_mExpressParser
-    .define_class<InterfaceSpecificationContextProxy, ContextProxy>("InterfaceSpecificationContext")
+  rb_cInterfaceSpecificationContext = define_class_under<InterfaceSpecificationContextProxy, ContextProxy>(rb_mExpressParser, "InterfaceSpecificationContext")
     .define_method("reference_clause", &InterfaceSpecificationContextProxy::referenceClause)
     .define_method("use_clause", &InterfaceSpecificationContextProxy::useClause);
 
-  rb_cReferenceClauseContext = rb_mExpressParser
-    .define_class<ReferenceClauseContextProxy, ContextProxy>("ReferenceClauseContext")
+  rb_cReferenceClauseContext = define_class_under<ReferenceClauseContextProxy, ContextProxy>(rb_mExpressParser, "ReferenceClauseContext")
     .define_method("schema_ref", &ReferenceClauseContextProxy::schemaRef)
     .define_method("resource_or_rename", &ReferenceClauseContextProxy::resourceOrRename)
     .define_method("resource_or_rename_at", &ReferenceClauseContextProxy::resourceOrRenameAt)
     .define_method("REFERENCE", &ReferenceClauseContextProxy::REFERENCE)
     .define_method("FROM", &ReferenceClauseContextProxy::FROM);
 
-  rb_cUseClauseContext = rb_mExpressParser
-    .define_class<UseClauseContextProxy, ContextProxy>("UseClauseContext")
+  rb_cUseClauseContext = define_class_under<UseClauseContextProxy, ContextProxy>(rb_mExpressParser, "UseClauseContext")
     .define_method("schema_ref", &UseClauseContextProxy::schemaRef)
     .define_method("named_type_or_rename", &UseClauseContextProxy::namedTypeOrRename)
     .define_method("named_type_or_rename_at", &UseClauseContextProxy::namedTypeOrRenameAt)
     .define_method("USE", &UseClauseContextProxy::USE)
     .define_method("FROM", &UseClauseContextProxy::FROM);
 
-  rb_cIntervalContext = rb_mExpressParser
-    .define_class<IntervalContextProxy, ContextProxy>("IntervalContext")
+  rb_cIntervalContext = define_class_under<IntervalContextProxy, ContextProxy>(rb_mExpressParser, "IntervalContext")
     .define_method("interval_low", &IntervalContextProxy::intervalLow)
     .define_method("interval_op", &IntervalContextProxy::intervalOp)
     .define_method("interval_op_at", &IntervalContextProxy::intervalOpAt)
     .define_method("interval_item", &IntervalContextProxy::intervalItem)
     .define_method("interval_high", &IntervalContextProxy::intervalHigh);
 
-  rb_cIntervalLowContext = rb_mExpressParser
-    .define_class<IntervalLowContextProxy, ContextProxy>("IntervalLowContext")
+  rb_cIntervalLowContext = define_class_under<IntervalLowContextProxy, ContextProxy>(rb_mExpressParser, "IntervalLowContext")
     .define_method("simple_expression", &IntervalLowContextProxy::simpleExpression);
 
-  rb_cIntervalOpContext = rb_mExpressParser
-    .define_class<IntervalOpContextProxy, ContextProxy>("IntervalOpContext");
+  rb_cIntervalOpContext = define_class_under<IntervalOpContextProxy, ContextProxy>(rb_mExpressParser, "IntervalOpContext");
 
-  rb_cIntervalItemContext = rb_mExpressParser
-    .define_class<IntervalItemContextProxy, ContextProxy>("IntervalItemContext")
+  rb_cIntervalItemContext = define_class_under<IntervalItemContextProxy, ContextProxy>(rb_mExpressParser, "IntervalItemContext")
     .define_method("simple_expression", &IntervalItemContextProxy::simpleExpression);
 
-  rb_cIntervalHighContext = rb_mExpressParser
-    .define_class<IntervalHighContextProxy, ContextProxy>("IntervalHighContext")
+  rb_cIntervalHighContext = define_class_under<IntervalHighContextProxy, ContextProxy>(rb_mExpressParser, "IntervalHighContext")
     .define_method("simple_expression", &IntervalHighContextProxy::simpleExpression);
 
-  rb_cInverseAttrContext = rb_mExpressParser
-    .define_class<InverseAttrContextProxy, ContextProxy>("InverseAttrContext")
+  rb_cInverseAttrContext = define_class_under<InverseAttrContextProxy, ContextProxy>(rb_mExpressParser, "InverseAttrContext")
     .define_method("attribute_decl", &InverseAttrContextProxy::attributeDecl)
     .define_method("inverse_attr_type", &InverseAttrContextProxy::inverseAttrType)
     .define_method("attribute_ref", &InverseAttrContextProxy::attributeRef)
     .define_method("entity_ref", &InverseAttrContextProxy::entityRef)
     .define_method("FOR", &InverseAttrContextProxy::FOR);
 
-  rb_cInverseAttrTypeContext = rb_mExpressParser
-    .define_class<InverseAttrTypeContextProxy, ContextProxy>("InverseAttrTypeContext")
+  rb_cInverseAttrTypeContext = define_class_under<InverseAttrTypeContextProxy, ContextProxy>(rb_mExpressParser, "InverseAttrTypeContext")
     .define_method("entity_ref", &InverseAttrTypeContextProxy::entityRef)
     .define_method("bound_spec", &InverseAttrTypeContextProxy::boundSpec)
     .define_method("OF", &InverseAttrTypeContextProxy::OF)
     .define_method("SET", &InverseAttrTypeContextProxy::SET)
     .define_method("BAG", &InverseAttrTypeContextProxy::BAG);
 
-  rb_cLiteralContext = rb_mExpressParser
-    .define_class<LiteralContextProxy, ContextProxy>("LiteralContext")
+  rb_cLiteralContext = define_class_under<LiteralContextProxy, ContextProxy>(rb_mExpressParser, "LiteralContext")
     .define_method("logical_literal", &LiteralContextProxy::logicalLiteral)
     .define_method("string_literal", &LiteralContextProxy::stringLiteral)
     .define_method("BinaryLiteral", &LiteralContextProxy::BinaryLiteral)
     .define_method("IntegerLiteral", &LiteralContextProxy::IntegerLiteral)
     .define_method("RealLiteral", &LiteralContextProxy::RealLiteral);
 
-  rb_cLogicalLiteralContext = rb_mExpressParser
-    .define_class<LogicalLiteralContextProxy, ContextProxy>("LogicalLiteralContext")
+  rb_cLogicalLiteralContext = define_class_under<LogicalLiteralContextProxy, ContextProxy>(rb_mExpressParser, "LogicalLiteralContext")
     .define_method("FALSE", &LogicalLiteralContextProxy::FALSE)
     .define_method("TRUE", &LogicalLiteralContextProxy::TRUE)
     .define_method("UNKNOWN", &LogicalLiteralContextProxy::UNKNOWN);
 
-  rb_cStringLiteralContext = rb_mExpressParser
-    .define_class<StringLiteralContextProxy, ContextProxy>("StringLiteralContext")
+  rb_cStringLiteralContext = define_class_under<StringLiteralContextProxy, ContextProxy>(rb_mExpressParser, "StringLiteralContext")
     .define_method("SimpleStringLiteral", &StringLiteralContextProxy::SimpleStringLiteral)
     .define_method("EncodedStringLiteral", &StringLiteralContextProxy::EncodedStringLiteral);
 
-  rb_cLocalVariableContext = rb_mExpressParser
-    .define_class<LocalVariableContextProxy, ContextProxy>("LocalVariableContext")
+  rb_cLocalVariableContext = define_class_under<LocalVariableContextProxy, ContextProxy>(rb_mExpressParser, "LocalVariableContext")
     .define_method("variable_id", &LocalVariableContextProxy::variableId)
     .define_method("variable_id_at", &LocalVariableContextProxy::variableIdAt)
     .define_method("parameter_type", &LocalVariableContextProxy::parameterType)
     .define_method("expression", &LocalVariableContextProxy::expression);
 
-  rb_cLogicalTypeContext = rb_mExpressParser
-    .define_class<LogicalTypeContextProxy, ContextProxy>("LogicalTypeContext")
+  rb_cLogicalTypeContext = define_class_under<LogicalTypeContextProxy, ContextProxy>(rb_mExpressParser, "LogicalTypeContext")
     .define_method("LOGICAL", &LogicalTypeContextProxy::LOGICAL);
 
-  rb_cMultiplicationLikeOpContext = rb_mExpressParser
-    .define_class<MultiplicationLikeOpContextProxy, ContextProxy>("MultiplicationLikeOpContext")
+  rb_cMultiplicationLikeOpContext = define_class_under<MultiplicationLikeOpContextProxy, ContextProxy>(rb_mExpressParser, "MultiplicationLikeOpContext")
     .define_method("DIV", &MultiplicationLikeOpContextProxy::DIV)
     .define_method("MOD", &MultiplicationLikeOpContextProxy::MOD)
     .define_method("AND", &MultiplicationLikeOpContextProxy::AND);
 
-  rb_cNamedTypesContext = rb_mExpressParser
-    .define_class<NamedTypesContextProxy, ContextProxy>("NamedTypesContext")
+  rb_cNamedTypesContext = define_class_under<NamedTypesContextProxy, ContextProxy>(rb_mExpressParser, "NamedTypesContext")
     .define_method("entity_ref", &NamedTypesContextProxy::entityRef)
     .define_method("type_ref", &NamedTypesContextProxy::typeRef);
 
-  rb_cNamedTypeOrRenameContext = rb_mExpressParser
-    .define_class<NamedTypeOrRenameContextProxy, ContextProxy>("NamedTypeOrRenameContext")
+  rb_cNamedTypeOrRenameContext = define_class_under<NamedTypeOrRenameContextProxy, ContextProxy>(rb_mExpressParser, "NamedTypeOrRenameContext")
     .define_method("named_types", &NamedTypeOrRenameContextProxy::namedTypes)
     .define_method("entity_id", &NamedTypeOrRenameContextProxy::entityId)
     .define_method("type_id", &NamedTypeOrRenameContextProxy::typeId)
     .define_method("AS", &NamedTypeOrRenameContextProxy::AS);
 
-  rb_cNullStmtContext = rb_mExpressParser
-    .define_class<NullStmtContextProxy, ContextProxy>("NullStmtContext");
+  rb_cNullStmtContext = define_class_under<NullStmtContextProxy, ContextProxy>(rb_mExpressParser, "NullStmtContext");
 
-  rb_cNumberTypeContext = rb_mExpressParser
-    .define_class<NumberTypeContextProxy, ContextProxy>("NumberTypeContext")
+  rb_cNumberTypeContext = define_class_under<NumberTypeContextProxy, ContextProxy>(rb_mExpressParser, "NumberTypeContext")
     .define_method("NUMBER", &NumberTypeContextProxy::NUMBER);
 
-  rb_cOneOfContext = rb_mExpressParser
-    .define_class<OneOfContextProxy, ContextProxy>("OneOfContext")
+  rb_cOneOfContext = define_class_under<OneOfContextProxy, ContextProxy>(rb_mExpressParser, "OneOfContext")
     .define_method("supertype_expression", &OneOfContextProxy::supertypeExpression)
     .define_method("supertype_expression_at", &OneOfContextProxy::supertypeExpressionAt)
     .define_method("ONEOF", &OneOfContextProxy::ONEOF);
 
-  rb_cSupertypeExpressionContext = rb_mExpressParser
-    .define_class<SupertypeExpressionContextProxy, ContextProxy>("SupertypeExpressionContext")
+  rb_cSupertypeExpressionContext = define_class_under<SupertypeExpressionContextProxy, ContextProxy>(rb_mExpressParser, "SupertypeExpressionContext")
     .define_method("supertype_factor", &SupertypeExpressionContextProxy::supertypeFactor)
     .define_method("supertype_factor_at", &SupertypeExpressionContextProxy::supertypeFactorAt)
     .define_method("ANDOR", &SupertypeExpressionContextProxy::ANDOR)
     .define_method("ANDORAt", &SupertypeExpressionContextProxy::ANDOR);
 
-  rb_cPopulationContext = rb_mExpressParser
-    .define_class<PopulationContextProxy, ContextProxy>("PopulationContext")
+  rb_cPopulationContext = define_class_under<PopulationContextProxy, ContextProxy>(rb_mExpressParser, "PopulationContext")
     .define_method("entity_ref", &PopulationContextProxy::entityRef);
 
-  rb_cPrecisionSpecContext = rb_mExpressParser
-    .define_class<PrecisionSpecContextProxy, ContextProxy>("PrecisionSpecContext")
+  rb_cPrecisionSpecContext = define_class_under<PrecisionSpecContextProxy, ContextProxy>(rb_mExpressParser, "PrecisionSpecContext")
     .define_method("numeric_expression", &PrecisionSpecContextProxy::numericExpression);
 
-  rb_cPrimaryContext = rb_mExpressParser
-    .define_class<PrimaryContextProxy, ContextProxy>("PrimaryContext")
+  rb_cPrimaryContext = define_class_under<PrimaryContextProxy, ContextProxy>(rb_mExpressParser, "PrimaryContext")
     .define_method("literal", &PrimaryContextProxy::literal)
     .define_method("qualifiable_factor", &PrimaryContextProxy::qualifiableFactor)
     .define_method("qualifier", &PrimaryContextProxy::qualifier)
     .define_method("qualifier_at", &PrimaryContextProxy::qualifierAt);
 
-  rb_cQualifiableFactorContext = rb_mExpressParser
-    .define_class<QualifiableFactorContextProxy, ContextProxy>("QualifiableFactorContext")
+  rb_cQualifiableFactorContext = define_class_under<QualifiableFactorContextProxy, ContextProxy>(rb_mExpressParser, "QualifiableFactorContext")
     .define_method("attribute_ref", &QualifiableFactorContextProxy::attributeRef)
     .define_method("constant_factor", &QualifiableFactorContextProxy::constantFactor)
     .define_method("function_call", &QualifiableFactorContextProxy::functionCall)
     .define_method("general_ref", &QualifiableFactorContextProxy::generalRef)
     .define_method("population", &QualifiableFactorContextProxy::population);
 
-  rb_cProcedureCallStmtContext = rb_mExpressParser
-    .define_class<ProcedureCallStmtContextProxy, ContextProxy>("ProcedureCallStmtContext")
+  rb_cProcedureCallStmtContext = define_class_under<ProcedureCallStmtContextProxy, ContextProxy>(rb_mExpressParser, "ProcedureCallStmtContext")
     .define_method("built_in_procedure", &ProcedureCallStmtContextProxy::builtInProcedure)
     .define_method("procedure_ref", &ProcedureCallStmtContextProxy::procedureRef)
     .define_method("actual_parameter_list", &ProcedureCallStmtContextProxy::actualParameterList);
 
-  rb_cProcedureHeadContext = rb_mExpressParser
-    .define_class<ProcedureHeadContextProxy, ContextProxy>("ProcedureHeadContext")
+  rb_cProcedureHeadContext = define_class_under<ProcedureHeadContextProxy, ContextProxy>(rb_mExpressParser, "ProcedureHeadContext")
     .define_method("procedure_id", &ProcedureHeadContextProxy::procedureId)
     .define_method("procedure_head_parameter", &ProcedureHeadContextProxy::procedureHeadParameter)
     .define_method("procedure_head_parameter_at", &ProcedureHeadContextProxy::procedureHeadParameterAt)
     .define_method("PROCEDURE", &ProcedureHeadContextProxy::PROCEDURE);
 
-  rb_cProcedureHeadParameterContext = rb_mExpressParser
-    .define_class<ProcedureHeadParameterContextProxy, ContextProxy>("ProcedureHeadParameterContext")
+  rb_cProcedureHeadParameterContext = define_class_under<ProcedureHeadParameterContextProxy, ContextProxy>(rb_mExpressParser, "ProcedureHeadParameterContext")
     .define_method("formal_parameter", &ProcedureHeadParameterContextProxy::formalParameter)
     .define_method("VAR", &ProcedureHeadParameterContextProxy::VAR);
 
-  rb_cQualifiedAttributeContext = rb_mExpressParser
-    .define_class<QualifiedAttributeContextProxy, ContextProxy>("QualifiedAttributeContext")
+  rb_cQualifiedAttributeContext = define_class_under<QualifiedAttributeContextProxy, ContextProxy>(rb_mExpressParser, "QualifiedAttributeContext")
     .define_method("group_qualifier", &QualifiedAttributeContextProxy::groupQualifier)
     .define_method("attribute_qualifier", &QualifiedAttributeContextProxy::attributeQualifier)
     .define_method("SELF", &QualifiedAttributeContextProxy::SELF);
 
-  rb_cQueryExpressionContext = rb_mExpressParser
-    .define_class<QueryExpressionContextProxy, ContextProxy>("QueryExpressionContext")
+  rb_cQueryExpressionContext = define_class_under<QueryExpressionContextProxy, ContextProxy>(rb_mExpressParser, "QueryExpressionContext")
     .define_method("variable_id", &QueryExpressionContextProxy::variableId)
     .define_method("aggregate_source", &QueryExpressionContextProxy::aggregateSource)
     .define_method("logical_expression", &QueryExpressionContextProxy::logicalExpression)
     .define_method("QUERY", &QueryExpressionContextProxy::QUERY);
 
-  rb_cRealTypeContext = rb_mExpressParser
-    .define_class<RealTypeContextProxy, ContextProxy>("RealTypeContext")
+  rb_cRealTypeContext = define_class_under<RealTypeContextProxy, ContextProxy>(rb_mExpressParser, "RealTypeContext")
     .define_method("precision_spec", &RealTypeContextProxy::precisionSpec)
     .define_method("REAL", &RealTypeContextProxy::REAL);
 
-  rb_cReferencedAttributeContext = rb_mExpressParser
-    .define_class<ReferencedAttributeContextProxy, ContextProxy>("ReferencedAttributeContext")
+  rb_cReferencedAttributeContext = define_class_under<ReferencedAttributeContextProxy, ContextProxy>(rb_mExpressParser, "ReferencedAttributeContext")
     .define_method("attribute_ref", &ReferencedAttributeContextProxy::attributeRef)
     .define_method("qualified_attribute", &ReferencedAttributeContextProxy::qualifiedAttribute);
 
-  rb_cResourceOrRenameContext = rb_mExpressParser
-    .define_class<ResourceOrRenameContextProxy, ContextProxy>("ResourceOrRenameContext")
+  rb_cResourceOrRenameContext = define_class_under<ResourceOrRenameContextProxy, ContextProxy>(rb_mExpressParser, "ResourceOrRenameContext")
     .define_method("resource_ref", &ResourceOrRenameContextProxy::resourceRef)
     .define_method("rename_id", &ResourceOrRenameContextProxy::renameId)
     .define_method("AS", &ResourceOrRenameContextProxy::AS);
 
-  rb_cRelOpContext = rb_mExpressParser
-    .define_class<RelOpContextProxy, ContextProxy>("RelOpContext");
+  rb_cRelOpContext = define_class_under<RelOpContextProxy, ContextProxy>(rb_mExpressParser, "RelOpContext");
 
-  rb_cRenameIdContext = rb_mExpressParser
-    .define_class<RenameIdContextProxy, ContextProxy>("RenameIdContext")
+  rb_cRenameIdContext = define_class_under<RenameIdContextProxy, ContextProxy>(rb_mExpressParser, "RenameIdContext")
     .define_method("constant_id", &RenameIdContextProxy::constantId)
     .define_method("entity_id", &RenameIdContextProxy::entityId)
     .define_method("function_id", &RenameIdContextProxy::functionId)
     .define_method("procedure_id", &RenameIdContextProxy::procedureId)
     .define_method("type_id", &RenameIdContextProxy::typeId);
 
-  rb_cRepeatControlContext = rb_mExpressParser
-    .define_class<RepeatControlContextProxy, ContextProxy>("RepeatControlContext")
+  rb_cRepeatControlContext = define_class_under<RepeatControlContextProxy, ContextProxy>(rb_mExpressParser, "RepeatControlContext")
     .define_method("increment_control", &RepeatControlContextProxy::incrementControl)
     .define_method("while_control", &RepeatControlContextProxy::whileControl)
     .define_method("until_control", &RepeatControlContextProxy::untilControl);
 
-  rb_cWhileControlContext = rb_mExpressParser
-    .define_class<WhileControlContextProxy, ContextProxy>("WhileControlContext")
+  rb_cWhileControlContext = define_class_under<WhileControlContextProxy, ContextProxy>(rb_mExpressParser, "WhileControlContext")
     .define_method("logical_expression", &WhileControlContextProxy::logicalExpression)
     .define_method("WHILE", &WhileControlContextProxy::WHILE);
 
-  rb_cUntilControlContext = rb_mExpressParser
-    .define_class<UntilControlContextProxy, ContextProxy>("UntilControlContext")
+  rb_cUntilControlContext = define_class_under<UntilControlContextProxy, ContextProxy>(rb_mExpressParser, "UntilControlContext")
     .define_method("logical_expression", &UntilControlContextProxy::logicalExpression)
     .define_method("UNTIL", &UntilControlContextProxy::UNTIL);
 
-  rb_cRepeatStmtContext = rb_mExpressParser
-    .define_class<RepeatStmtContextProxy, ContextProxy>("RepeatStmtContext")
+  rb_cRepeatStmtContext = define_class_under<RepeatStmtContextProxy, ContextProxy>(rb_mExpressParser, "RepeatStmtContext")
     .define_method("repeat_control", &RepeatStmtContextProxy::repeatControl)
     .define_method("stmt", &RepeatStmtContextProxy::stmt)
     .define_method("stmt_at", &RepeatStmtContextProxy::stmtAt)
     .define_method("REPEAT", &RepeatStmtContextProxy::REPEAT)
     .define_method("END_REPEAT", &RepeatStmtContextProxy::END_REPEAT);
 
-  rb_cResourceRefContext = rb_mExpressParser
-    .define_class<ResourceRefContextProxy, ContextProxy>("ResourceRefContext")
+  rb_cResourceRefContext = define_class_under<ResourceRefContextProxy, ContextProxy>(rb_mExpressParser, "ResourceRefContext")
     .define_method("constant_ref", &ResourceRefContextProxy::constantRef)
     .define_method("entity_ref", &ResourceRefContextProxy::entityRef)
     .define_method("function_ref", &ResourceRefContextProxy::functionRef)
     .define_method("procedure_ref", &ResourceRefContextProxy::procedureRef)
     .define_method("type_ref", &ResourceRefContextProxy::typeRef);
 
-  rb_cReturnStmtContext = rb_mExpressParser
-    .define_class<ReturnStmtContextProxy, ContextProxy>("ReturnStmtContext")
+  rb_cReturnStmtContext = define_class_under<ReturnStmtContextProxy, ContextProxy>(rb_mExpressParser, "ReturnStmtContext")
     .define_method("expression", &ReturnStmtContextProxy::expression)
     .define_method("RETURN", &ReturnStmtContextProxy::RETURN);
 
-  rb_cRuleDeclContext = rb_mExpressParser
-    .define_class<RuleDeclContextProxy, ContextProxy>("RuleDeclContext")
+  rb_cRuleDeclContext = define_class_under<RuleDeclContextProxy, ContextProxy>(rb_mExpressParser, "RuleDeclContext")
     .define_method("rule_head", &RuleDeclContextProxy::ruleHead)
     .define_method("algorithm_head", &RuleDeclContextProxy::algorithmHead)
     .define_method("where_clause", &RuleDeclContextProxy::whereClause)
@@ -17785,149 +19214,124 @@ void Init_express_parser() {
     .define_method("stmt_at", &RuleDeclContextProxy::stmtAt)
     .define_method("END_RULE", &RuleDeclContextProxy::END_RULE);
 
-  rb_cRuleHeadContext = rb_mExpressParser
-    .define_class<RuleHeadContextProxy, ContextProxy>("RuleHeadContext")
+  rb_cRuleHeadContext = define_class_under<RuleHeadContextProxy, ContextProxy>(rb_mExpressParser, "RuleHeadContext")
     .define_method("rule_id", &RuleHeadContextProxy::ruleId)
     .define_method("entity_ref", &RuleHeadContextProxy::entityRef)
     .define_method("entity_ref_at", &RuleHeadContextProxy::entityRefAt)
     .define_method("RULE", &RuleHeadContextProxy::RULE)
     .define_method("FOR", &RuleHeadContextProxy::FOR);
 
-  rb_cSchemaBodyContext = rb_mExpressParser
-    .define_class<SchemaBodyContextProxy, ContextProxy>("SchemaBodyContext")
+  rb_cSchemaBodyContext = define_class_under<SchemaBodyContextProxy, ContextProxy>(rb_mExpressParser, "SchemaBodyContext")
     .define_method("interface_specification", &SchemaBodyContextProxy::interfaceSpecification)
     .define_method("interface_specification_at", &SchemaBodyContextProxy::interfaceSpecificationAt)
     .define_method("constant_decl", &SchemaBodyContextProxy::constantDecl)
     .define_method("schema_body_declaration", &SchemaBodyContextProxy::schemaBodyDeclaration)
     .define_method("schema_body_declaration_at", &SchemaBodyContextProxy::schemaBodyDeclarationAt);
 
-  rb_cSchemaBodyDeclarationContext = rb_mExpressParser
-    .define_class<SchemaBodyDeclarationContextProxy, ContextProxy>("SchemaBodyDeclarationContext")
+  rb_cSchemaBodyDeclarationContext = define_class_under<SchemaBodyDeclarationContextProxy, ContextProxy>(rb_mExpressParser, "SchemaBodyDeclarationContext")
     .define_method("declaration", &SchemaBodyDeclarationContextProxy::declaration)
     .define_method("rule_decl", &SchemaBodyDeclarationContextProxy::ruleDecl);
 
-  rb_cSchemaDeclContext = rb_mExpressParser
-    .define_class<SchemaDeclContextProxy, ContextProxy>("SchemaDeclContext")
+  rb_cSchemaDeclContext = define_class_under<SchemaDeclContextProxy, ContextProxy>(rb_mExpressParser, "SchemaDeclContext")
     .define_method("schema_id", &SchemaDeclContextProxy::schemaId)
     .define_method("schema_body", &SchemaDeclContextProxy::schemaBody)
     .define_method("schema_version_id", &SchemaDeclContextProxy::schemaVersionId)
     .define_method("SCHEMA", &SchemaDeclContextProxy::SCHEMA)
     .define_method("END_SCHEMA", &SchemaDeclContextProxy::END_SCHEMA);
 
-  rb_cSchemaVersionIdContext = rb_mExpressParser
-    .define_class<SchemaVersionIdContextProxy, ContextProxy>("SchemaVersionIdContext")
+  rb_cSchemaVersionIdContext = define_class_under<SchemaVersionIdContextProxy, ContextProxy>(rb_mExpressParser, "SchemaVersionIdContext")
     .define_method("string_literal", &SchemaVersionIdContextProxy::stringLiteral);
 
-  rb_cSelectExtensionContext = rb_mExpressParser
-    .define_class<SelectExtensionContextProxy, ContextProxy>("SelectExtensionContext")
+  rb_cSelectExtensionContext = define_class_under<SelectExtensionContextProxy, ContextProxy>(rb_mExpressParser, "SelectExtensionContext")
     .define_method("type_ref", &SelectExtensionContextProxy::typeRef)
     .define_method("select_list", &SelectExtensionContextProxy::selectList)
     .define_method("BASED_ON", &SelectExtensionContextProxy::BASED_ON)
     .define_method("WITH", &SelectExtensionContextProxy::WITH);
 
-  rb_cSelectListContext = rb_mExpressParser
-    .define_class<SelectListContextProxy, ContextProxy>("SelectListContext")
+  rb_cSelectListContext = define_class_under<SelectListContextProxy, ContextProxy>(rb_mExpressParser, "SelectListContext")
     .define_method("named_types", &SelectListContextProxy::namedTypes)
     .define_method("named_types_at", &SelectListContextProxy::namedTypesAt);
 
-  rb_cTermContext = rb_mExpressParser
-    .define_class<TermContextProxy, ContextProxy>("TermContext")
+  rb_cTermContext = define_class_under<TermContextProxy, ContextProxy>(rb_mExpressParser, "TermContext")
     .define_method("factor", &TermContextProxy::factor)
     .define_method("factor_at", &TermContextProxy::factorAt)
     .define_method("multiplication_like_op", &TermContextProxy::multiplicationLikeOp)
     .define_method("multiplication_like_op_at", &TermContextProxy::multiplicationLikeOpAt);
 
-  rb_cSimpleFactorExpressionContext = rb_mExpressParser
-    .define_class<SimpleFactorExpressionContextProxy, ContextProxy>("SimpleFactorExpressionContext")
+  rb_cSimpleFactorExpressionContext = define_class_under<SimpleFactorExpressionContextProxy, ContextProxy>(rb_mExpressParser, "SimpleFactorExpressionContext")
     .define_method("expression", &SimpleFactorExpressionContextProxy::expression)
     .define_method("primary", &SimpleFactorExpressionContextProxy::primary);
 
-  rb_cSimpleFactorUnaryExpressionContext = rb_mExpressParser
-    .define_class<SimpleFactorUnaryExpressionContextProxy, ContextProxy>("SimpleFactorUnaryExpressionContext")
+  rb_cSimpleFactorUnaryExpressionContext = define_class_under<SimpleFactorUnaryExpressionContextProxy, ContextProxy>(rb_mExpressParser, "SimpleFactorUnaryExpressionContext")
     .define_method("unary_op", &SimpleFactorUnaryExpressionContextProxy::unaryOp)
     .define_method("simple_factor_expression", &SimpleFactorUnaryExpressionContextProxy::simpleFactorExpression);
 
-  rb_cUnaryOpContext = rb_mExpressParser
-    .define_class<UnaryOpContextProxy, ContextProxy>("UnaryOpContext")
+  rb_cUnaryOpContext = define_class_under<UnaryOpContextProxy, ContextProxy>(rb_mExpressParser, "UnaryOpContext")
     .define_method("NOT", &UnaryOpContextProxy::NOT);
 
-  rb_cStringTypeContext = rb_mExpressParser
-    .define_class<StringTypeContextProxy, ContextProxy>("StringTypeContext")
+  rb_cStringTypeContext = define_class_under<StringTypeContextProxy, ContextProxy>(rb_mExpressParser, "StringTypeContext")
     .define_method("width_spec", &StringTypeContextProxy::widthSpec)
     .define_method("STRING", &StringTypeContextProxy::STRING);
 
-  rb_cSkipStmtContext = rb_mExpressParser
-    .define_class<SkipStmtContextProxy, ContextProxy>("SkipStmtContext")
+  rb_cSkipStmtContext = define_class_under<SkipStmtContextProxy, ContextProxy>(rb_mExpressParser, "SkipStmtContext")
     .define_method("SKIP_", &SkipStmtContextProxy::SKIP_);
 
-  rb_cSupertypeConstraintContext = rb_mExpressParser
-    .define_class<SupertypeConstraintContextProxy, ContextProxy>("SupertypeConstraintContext")
+  rb_cSupertypeConstraintContext = define_class_under<SupertypeConstraintContextProxy, ContextProxy>(rb_mExpressParser, "SupertypeConstraintContext")
     .define_method("abstract_entity_declaration", &SupertypeConstraintContextProxy::abstractEntityDeclaration)
     .define_method("abstract_supertype_declaration", &SupertypeConstraintContextProxy::abstractSupertypeDeclaration)
     .define_method("supertype_rule", &SupertypeConstraintContextProxy::supertypeRule);
 
-  rb_cSubtypeDeclarationContext = rb_mExpressParser
-    .define_class<SubtypeDeclarationContextProxy, ContextProxy>("SubtypeDeclarationContext")
+  rb_cSubtypeDeclarationContext = define_class_under<SubtypeDeclarationContextProxy, ContextProxy>(rb_mExpressParser, "SubtypeDeclarationContext")
     .define_method("entity_ref", &SubtypeDeclarationContextProxy::entityRef)
     .define_method("entity_ref_at", &SubtypeDeclarationContextProxy::entityRefAt)
     .define_method("SUBTYPE", &SubtypeDeclarationContextProxy::SUBTYPE)
     .define_method("OF", &SubtypeDeclarationContextProxy::OF);
 
-  rb_cSubtypeConstraintBodyContext = rb_mExpressParser
-    .define_class<SubtypeConstraintBodyContextProxy, ContextProxy>("SubtypeConstraintBodyContext")
+  rb_cSubtypeConstraintBodyContext = define_class_under<SubtypeConstraintBodyContextProxy, ContextProxy>(rb_mExpressParser, "SubtypeConstraintBodyContext")
     .define_method("abstract_supertype", &SubtypeConstraintBodyContextProxy::abstractSupertype)
     .define_method("total_over", &SubtypeConstraintBodyContextProxy::totalOver)
     .define_method("supertype_expression", &SubtypeConstraintBodyContextProxy::supertypeExpression);
 
-  rb_cTotalOverContext = rb_mExpressParser
-    .define_class<TotalOverContextProxy, ContextProxy>("TotalOverContext")
+  rb_cTotalOverContext = define_class_under<TotalOverContextProxy, ContextProxy>(rb_mExpressParser, "TotalOverContext")
     .define_method("entity_ref", &TotalOverContextProxy::entityRef)
     .define_method("entity_ref_at", &TotalOverContextProxy::entityRefAt)
     .define_method("TOTAL_OVER", &TotalOverContextProxy::TOTAL_OVER);
 
-  rb_cSubtypeConstraintHeadContext = rb_mExpressParser
-    .define_class<SubtypeConstraintHeadContextProxy, ContextProxy>("SubtypeConstraintHeadContext")
+  rb_cSubtypeConstraintHeadContext = define_class_under<SubtypeConstraintHeadContextProxy, ContextProxy>(rb_mExpressParser, "SubtypeConstraintHeadContext")
     .define_method("subtype_constraint_id", &SubtypeConstraintHeadContextProxy::subtypeConstraintId)
     .define_method("entity_ref", &SubtypeConstraintHeadContextProxy::entityRef)
     .define_method("SUBTYPE_CONSTRAINT", &SubtypeConstraintHeadContextProxy::SUBTYPE_CONSTRAINT)
     .define_method("FOR", &SubtypeConstraintHeadContextProxy::FOR);
 
-  rb_cSupertypeRuleContext = rb_mExpressParser
-    .define_class<SupertypeRuleContextProxy, ContextProxy>("SupertypeRuleContext")
+  rb_cSupertypeRuleContext = define_class_under<SupertypeRuleContextProxy, ContextProxy>(rb_mExpressParser, "SupertypeRuleContext")
     .define_method("subtype_constraint", &SupertypeRuleContextProxy::subtypeConstraint)
     .define_method("SUPERTYPE", &SupertypeRuleContextProxy::SUPERTYPE);
 
-  rb_cSupertypeFactorContext = rb_mExpressParser
-    .define_class<SupertypeFactorContextProxy, ContextProxy>("SupertypeFactorContext")
+  rb_cSupertypeFactorContext = define_class_under<SupertypeFactorContextProxy, ContextProxy>(rb_mExpressParser, "SupertypeFactorContext")
     .define_method("supertype_term", &SupertypeFactorContextProxy::supertypeTerm)
     .define_method("supertype_term_at", &SupertypeFactorContextProxy::supertypeTermAt)
     .define_method("AND", &SupertypeFactorContextProxy::AND)
     .define_method("ANDAt", &SupertypeFactorContextProxy::AND);
 
-  rb_cSupertypeTermContext = rb_mExpressParser
-    .define_class<SupertypeTermContextProxy, ContextProxy>("SupertypeTermContext")
+  rb_cSupertypeTermContext = define_class_under<SupertypeTermContextProxy, ContextProxy>(rb_mExpressParser, "SupertypeTermContext")
     .define_method("entity_ref", &SupertypeTermContextProxy::entityRef)
     .define_method("one_of", &SupertypeTermContextProxy::oneOf)
     .define_method("supertype_expression", &SupertypeTermContextProxy::supertypeExpression);
 
-  rb_cSyntaxContext = rb_mExpressParser
-    .define_class<SyntaxContextProxy, ContextProxy>("SyntaxContext")
+  rb_cSyntaxContext = define_class_under<SyntaxContextProxy, ContextProxy>(rb_mExpressParser, "SyntaxContext")
     .define_method("schema_decl", &SyntaxContextProxy::schemaDecl)
     .define_method("schema_decl_at", &SyntaxContextProxy::schemaDeclAt)
     .define_method("EOF", &SyntaxContextProxy::EOF);
 
-  rb_cUnderlyingTypeContext = rb_mExpressParser
-    .define_class<UnderlyingTypeContextProxy, ContextProxy>("UnderlyingTypeContext")
+  rb_cUnderlyingTypeContext = define_class_under<UnderlyingTypeContextProxy, ContextProxy>(rb_mExpressParser, "UnderlyingTypeContext")
     .define_method("concrete_types", &UnderlyingTypeContextProxy::concreteTypes)
     .define_method("constructed_types", &UnderlyingTypeContextProxy::constructedTypes);
 
-  rb_cUniqueRuleContext = rb_mExpressParser
-    .define_class<UniqueRuleContextProxy, ContextProxy>("UniqueRuleContext")
+  rb_cUniqueRuleContext = define_class_under<UniqueRuleContextProxy, ContextProxy>(rb_mExpressParser, "UniqueRuleContext")
     .define_method("referenced_attribute", &UniqueRuleContextProxy::referencedAttribute)
     .define_method("referenced_attribute_at", &UniqueRuleContextProxy::referencedAttributeAt)
     .define_method("rule_label_id", &UniqueRuleContextProxy::ruleLabelId);
 
-  rb_cWidthContext = rb_mExpressParser
-    .define_class<WidthContextProxy, ContextProxy>("WidthContext")
+  rb_cWidthContext = define_class_under<WidthContextProxy, ContextProxy>(rb_mExpressParser, "WidthContext")
     .define_method("numeric_expression", &WidthContextProxy::numericExpression);
 }

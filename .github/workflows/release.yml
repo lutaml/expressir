@@ -59,6 +59,14 @@ jobs:
           name: pkg-ruby
           path: expressir-*.gem
 
+      - name: Enable swap
+        run: |
+          sudo fallocate -l 15g /compile.swap
+          sudo chmod 600 /compile.swap
+          sudo mkswap /compile.swap
+          sudo swapon /compile.swap
+          sudo swapon --all --verbose
+
       # build gem WITH pre-built native extension
       - run: bundle exec rake gem:${{ matrix.host }}
 

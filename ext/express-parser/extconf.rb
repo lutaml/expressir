@@ -21,7 +21,7 @@ src_paths = [
 if cross_build
   rice_subdir = "rice-embed"
   rice_root = Gem.loaded_specs["rice"].full_gem_path
-  rice_src = File.join(rice_root, "rice")
+  rice_src = File.join(rice_root, "include", "rice")
   rice_embed = File.join(__dir__, rice_subdir)
   unless File.exists?(rice_embed)
     FileUtils.mkdir_p(rice_embed)
@@ -30,7 +30,7 @@ if cross_build
     File.delete(*Dir.glob("#{rice_embed}/**/Makefile"))
   end
 
-  src_paths.push("#{rice_subdir}/rice", "#{rice_subdir}/rice/detail")
+  src_paths.push("#{rice_subdir}/include")
 
   $INCFLAGS << " -I#{__dir__}/#{rice_subdir}"
 
@@ -39,6 +39,8 @@ if cross_build
     $CXXFLAGS << " -O3 -Wa,-mbig-obj"
     # workaround for LoadError: 127: The specified procedure could not be found.
     $DLDFLAGS << " -static -static-libgcc -static-libstdc++"
+  elsif RbConfig::CONFIG['target_os'] =~ /darwin/
+    $CXXFLAGS << " -mmacosx-version-min=10.14 -Wno-register"
   end
 else
   require 'mkmf-rice'
@@ -46,7 +48,7 @@ else
   dir_config(extension_name)
 end
 
-$CPPFLAGS << " -std=c++14 -DANTLR4CPP_STATIC -DHAVE_CXX11"
+$CPPFLAGS << " -std=c++17 -DANTLR4CPP_STATIC -DHAVE_CXX11"
 $INCFLAGS << " -I#{__dir__}/#{antlr4_src}"
 $srcs = []
 

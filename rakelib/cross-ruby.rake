@@ -44,6 +44,8 @@ CrossRuby = Struct.new(:version, :host) do
         "x86-mingw32"
       when /\Ax86_64.*linux/
         "x86_64-linux"
+      when /\A(arm64|aarch64).*linux/
+        "aarch64-linux"
       when /\Ai[3-6]86.*linux/
         "x86-linux"
       when /\Ax86_64-darwin/
@@ -63,6 +65,8 @@ CrossRuby = Struct.new(:version, :host) do
         "i686-w64-mingw32-"
       when "x86_64-linux"
         "x86_64-redhat-linux-"
+      when "aarch64-linux"
+        "aarch64-redhat-linux-"
       when "x86-linux"
         "i686-redhat-linux-"
       when /x86_64.*darwin/
@@ -82,6 +86,8 @@ CrossRuby = Struct.new(:version, :host) do
       "pei-i386"
     when "x86_64-linux"
       "elf64-x86-64"
+    when "aarch64-linux"
+      "elf64-arm64"
     when "x86-linux"
       "elf32-i386"
     when "x86_64-darwin"
@@ -245,12 +251,14 @@ def gem_builder(plat)
 end
 
 namespace "gem" do
+  REDHAT_PREREQ = "sudo yum install -y git"
+  UBUNTU_PREREQ = "sudo apt-get update -y && sudo apt-get install -y automake autoconf libtool build-essential"
   CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux? || cr.darwin? }.map(&:platform).uniq.each do |plat|
     pre_req = case plat
               when /\linux/
-                "sudo yum install -y git"
+                "if [[ $(awk -F= '/^NAME/{print $2}' /etc/os-release) == '\"Ubuntu\"' ]]; then #{UBUNTU_PREREQ}; else #{REDHAT_PREREQ}; fi"
               else
-                "sudo apt-get update -y && sudo apt-get install -y automake autoconf libtool build-essential"
+                "#{UBUNTU_PREREQ}"
               end
     desc "build native gem for #{plat} platform"
     task plat do

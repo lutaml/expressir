@@ -40,7 +40,8 @@ if cross_build
     # workaround for LoadError: 127: The specified procedure could not be found.
     $DLDFLAGS << " -static -static-libgcc -static-libstdc++"
   elsif RbConfig::CONFIG['target_os'] =~ /darwin/
-    $CXXFLAGS << " -mmacosx-version-min=10.14 -Wno-register"
+    $CXXFLAGS << " -mmacosx-version-min=10.14 -Wno-register -fno-c++-static-destructors"
+    $DLDFLAGS << " -mmacosx-version-min=10.14"
   end
 else
   require 'mkmf-rice'

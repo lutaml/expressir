@@ -237,7 +237,7 @@ namespace Rice::detail {
   class To_Ruby<Token*> {
   public:
     VALUE convert(Token* const &x) {
-      if (!x) return Nil;
+      if (!x) return Qnil;
       return Data_Object<Token>(x, false, rb_cToken);
     }
   };
@@ -246,7 +246,7 @@ namespace Rice::detail {
   class To_Ruby<tree::ParseTree*> {
   public:
     VALUE convert(tree::ParseTree* const &x) {
-      if (!x) return Nil;
+      if (!x) return Qnil;
       return Data_Object<tree::ParseTree>(x, false, rb_cParseTree);
     }
   };
@@ -255,7 +255,7 @@ namespace Rice::detail {
   class To_Ruby<tree::TerminalNode*> {
   public:
     VALUE convert(tree::TerminalNode* const &x) {
-      if (!x) return Nil;
+      if (!x) return Qnil;
       return Data_Object<tree::TerminalNode>(x, false, rb_cTerminalNode);
     }
   };
@@ -265,6 +265,14 @@ class ContextProxy {
 public:
   ContextProxy(tree::ParseTree* orig) {
     this -> orig = orig;
+//    if (orig != nullptr) {
+//      for (auto it = orig -> children.begin(); it != orig -> children.end(); it ++) {
+//        Object parseTree = ContextProxy::wrapParseTree(*it);
+//        if (parseTree != Nil) {
+//          children.push(parseTree);
+//        }
+//     }
+//    }
   }
 
   tree::ParseTree* getOriginal() {
@@ -277,48 +285,37 @@ public:
 
   Object getStart() {
     auto token = ((ParserRuleContext*) orig) -> getStart();
-
     return detail::To_Ruby<Token*>().convert(token);
   }
 
   Object getStop() {
     auto token = ((ParserRuleContext*) orig) -> getStop();
-
     return detail::To_Ruby<Token*>().convert(token);
   }
 
   Array getChildren() {
-    if (children == nullptr) {
-      children = new Array();
-
-      if (orig != nullptr) {
-        for (auto it = orig -> children.begin(); it != orig -> children.end(); it ++) {
-          Object parseTree = ContextProxy::wrapParseTree(*it);
-
-          if (parseTree != Nil) {
-            children -> push(parseTree);
-          }
+    Array children;
+    if (orig != nullptr) {
+      for (auto it = orig -> children.begin(); it != orig -> children.end(); it ++) {
+        Object parseTree = ContextProxy::wrapParseTree(*it);
+        if (parseTree != Nil) {
+          children.push(parseTree);
         }
       }
     }
-
-    return *children;
+    return children;
   }
 
   Object getParent() {
-    if (parent == Nil) {
-      if (orig != nullptr) {
-        parent = ContextProxy::wrapParseTree(orig -> parent);
-      }
-    }
-
-    return parent;
+//    if (parent == Nil) {
+//      if (orig != nullptr) {
+//        parent = ContextProxy::wrapParseTree(orig -> parent);
+//      }
+//    }
+    return orig == nullptr ? Nil: wrapParseTree(orig -> parent) ;
   }
 
   size_t childCount() {
-    if (orig == nullptr) {
-      return 0;
-    }
 
     return getChildren().size();
   }
@@ -337,8 +334,8 @@ private:
 
 protected:
   tree::ParseTree* orig = nullptr;
-  Array* children = nullptr;
-  Object parent = Nil;
+//  Array children;
+//  Object parent = Nil;
 };
 
 class TerminalNodeProxy : public ContextProxy {
@@ -351,13 +348,11 @@ class AttributeRefContextProxy : public ContextProxy {
 public:
   AttributeRefContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object attributeId();
-
 };
 
 class AttributeIdContextProxy : public ContextProxy {
 public:
   AttributeIdContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SimpleId();
 };
 
@@ -365,13 +360,11 @@ class ConstantRefContextProxy : public ContextProxy {
 public:
   ConstantRefContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object constantId();
-
 };
 
 class ConstantIdContextProxy : public ContextProxy {
 public:
   ConstantIdContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SimpleId();
 };
 
@@ -379,13 +372,11 @@ class EntityRefContextProxy : public ContextProxy {
 public:
   EntityRefContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object entityId();
-
 };
 
 class EntityIdContextProxy : public ContextProxy {
 public:
   EntityIdContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SimpleId();
 };
 
@@ -393,13 +384,11 @@ class EnumerationRefContextProxy : public ContextProxy {
 public:
   EnumerationRefContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object enumerationId();
-
 };
 
 class EnumerationIdContextProxy : public ContextProxy {
 public:
   EnumerationIdContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SimpleId();
 };
 
@@ -407,13 +396,11 @@ class FunctionRefContextProxy : public ContextProxy {
 public:
   FunctionRefContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object functionId();
-
 };
 
 class FunctionIdContextProxy : public ContextProxy {
 public:
   FunctionIdContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SimpleId();
 };
 
@@ -421,13 +408,11 @@ class ParameterRefContextProxy : public ContextProxy {
 public:
   ParameterRefContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object parameterId();
-
 };
 
 class ParameterIdContextProxy : public ContextProxy {
 public:
   ParameterIdContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SimpleId();
 };
 
@@ -435,13 +420,11 @@ class ProcedureRefContextProxy : public ContextProxy {
 public:
   ProcedureRefContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object procedureId();
-
 };
 
 class ProcedureIdContextProxy : public ContextProxy {
 public:
   ProcedureIdContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SimpleId();
 };
 
@@ -449,13 +432,11 @@ class RuleLabelRefContextProxy : public ContextProxy {
 public:
   RuleLabelRefContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object ruleLabelId();
-
 };
 
 class RuleLabelIdContextProxy : public ContextProxy {
 public:
   RuleLabelIdContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SimpleId();
 };
 
@@ -463,13 +444,11 @@ class RuleRefContextProxy : public ContextProxy {
 public:
   RuleRefContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object ruleId();
-
 };
 
 class RuleIdContextProxy : public ContextProxy {
 public:
   RuleIdContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SimpleId();
 };
 
@@ -477,13 +456,11 @@ class SchemaRefContextProxy : public ContextProxy {
 public:
   SchemaRefContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object schemaId();
-
 };
 
 class SchemaIdContextProxy : public ContextProxy {
 public:
   SchemaIdContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SimpleId();
 };
 
@@ -491,13 +468,11 @@ class SubtypeConstraintRefContextProxy : public ContextProxy {
 public:
   SubtypeConstraintRefContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object subtypeConstraintId();
-
 };
 
 class SubtypeConstraintIdContextProxy : public ContextProxy {
 public:
   SubtypeConstraintIdContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SimpleId();
 };
 
@@ -505,13 +480,11 @@ class TypeLabelRefContextProxy : public ContextProxy {
 public:
   TypeLabelRefContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object typeLabelId();
-
 };
 
 class TypeLabelIdContextProxy : public ContextProxy {
 public:
   TypeLabelIdContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SimpleId();
 };
 
@@ -519,13 +492,11 @@ class TypeRefContextProxy : public ContextProxy {
 public:
   TypeRefContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object typeId();
-
 };
 
 class TypeIdContextProxy : public ContextProxy {
 public:
   TypeIdContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SimpleId();
 };
 
@@ -533,27 +504,23 @@ class VariableRefContextProxy : public ContextProxy {
 public:
   VariableRefContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object variableId();
-
 };
 
 class VariableIdContextProxy : public ContextProxy {
 public:
   VariableIdContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SimpleId();
 };
 
 class AbstractEntityDeclarationContextProxy : public ContextProxy {
 public:
   AbstractEntityDeclarationContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object ABSTRACT();
 };
 
 class AbstractSupertypeContextProxy : public ContextProxy {
 public:
   AbstractSupertypeContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object ABSTRACT();
   Object SUPERTYPE();
 };
@@ -578,20 +545,17 @@ public:
   ActualParameterListContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object parameter();
   Object parameterAt(size_t i);
-
 };
 
 class ParameterContextProxy : public ContextProxy {
 public:
   ParameterContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object expression();
-
 };
 
 class AddLikeOpContextProxy : public ContextProxy {
 public:
   AddLikeOpContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object OR();
   Object XOR();
 };
@@ -601,7 +565,6 @@ public:
   AggregateInitializerContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object element();
   Object elementAt(size_t i);
-
 };
 
 class ElementContextProxy : public ContextProxy {
@@ -609,14 +572,12 @@ public:
   ElementContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object expression();
   Object repetition();
-
 };
 
 class AggregateSourceContextProxy : public ContextProxy {
 public:
   AggregateSourceContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object simpleExpression();
-
 };
 
 class SimpleExpressionContextProxy : public ContextProxy {
@@ -626,7 +587,6 @@ public:
   Object termAt(size_t i);
   Object addLikeOp();
   Object addLikeOpAt(size_t i);
-
 };
 
 class AggregateTypeContextProxy : public ContextProxy {
@@ -644,7 +604,6 @@ public:
   Object generalizedTypes();
   Object namedTypes();
   Object simpleTypes();
-
 };
 
 class TypeLabelContextProxy : public ContextProxy {
@@ -652,7 +611,6 @@ public:
   TypeLabelContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object typeLabelId();
   Object typeLabelRef();
-
 };
 
 class AggregationTypesContextProxy : public ContextProxy {
@@ -662,7 +620,6 @@ public:
   Object bagType();
   Object listType();
   Object setType();
-
 };
 
 class ArrayTypeContextProxy : public ContextProxy {
@@ -711,7 +668,6 @@ public:
   Object declarationAt(size_t i);
   Object constantDecl();
   Object localDecl();
-
 };
 
 class DeclarationContextProxy : public ContextProxy {
@@ -722,7 +678,6 @@ public:
   Object procedureDecl();
   Object subtypeConstraintDecl();
   Object typeDecl();
-
 };
 
 class ConstantDeclContextProxy : public ContextProxy {
@@ -762,7 +717,6 @@ public:
   GeneralRefContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object parameterRef();
   Object variableId();
-
 };
 
 class StmtContextProxy : public ContextProxy {
@@ -779,7 +733,6 @@ public:
   Object repeatStmt();
   Object returnStmt();
   Object skipStmt();
-
 };
 
 class QualifierContextProxy : public ContextProxy {
@@ -788,7 +741,6 @@ public:
   Object attributeQualifier();
   Object groupQualifier();
   Object indexQualifier();
-
 };
 
 class BoundSpecContextProxy : public ContextProxy {
@@ -796,7 +748,6 @@ public:
   BoundSpecContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object bound1();
   Object bound2();
-
 };
 
 class InstantiableTypeContextProxy : public ContextProxy {
@@ -804,7 +755,6 @@ public:
   InstantiableTypeContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object concreteTypes();
   Object entityRef();
-
 };
 
 class AssignmentStmtContextProxy : public ContextProxy {
@@ -814,7 +764,6 @@ public:
   Object expression();
   Object qualifier();
   Object qualifierAt(size_t i);
-
 };
 
 class ExpressionContextProxy : public ContextProxy {
@@ -823,7 +772,6 @@ public:
   Object simpleExpression();
   Object simpleExpressionAt(size_t i);
   Object relOpExtended();
-
 };
 
 class AttributeDeclContextProxy : public ContextProxy {
@@ -831,7 +779,6 @@ public:
   AttributeDeclContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object attributeId();
   Object redeclaredAttribute();
-
 };
 
 class RedeclaredAttributeContextProxy : public ContextProxy {
@@ -846,7 +793,6 @@ class AttributeQualifierContextProxy : public ContextProxy {
 public:
   AttributeQualifierContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object attributeRef();
-
 };
 
 class BinaryTypeContextProxy : public ContextProxy {
@@ -866,7 +812,6 @@ public:
 class BooleanTypeContextProxy : public ContextProxy {
 public:
   BooleanTypeContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object BOOLEAN();
 };
 
@@ -874,27 +819,23 @@ class Bound1ContextProxy : public ContextProxy {
 public:
   Bound1ContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object numericExpression();
-
 };
 
 class NumericExpressionContextProxy : public ContextProxy {
 public:
   NumericExpressionContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object simpleExpression();
-
 };
 
 class Bound2ContextProxy : public ContextProxy {
 public:
   Bound2ContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object numericExpression();
-
 };
 
 class BuiltInConstantContextProxy : public ContextProxy {
 public:
   BuiltInConstantContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object CONST_E();
   Object PI();
   Object SELF();
@@ -903,7 +844,6 @@ public:
 class BuiltInFunctionContextProxy : public ContextProxy {
 public:
   BuiltInFunctionContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object ABS();
   Object ACOS();
   Object ASIN();
@@ -938,7 +878,6 @@ public:
 class BuiltInProcedureContextProxy : public ContextProxy {
 public:
   BuiltInProcedureContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object INSERT();
   Object REMOVE();
 };
@@ -949,14 +888,12 @@ public:
   Object caseLabel();
   Object caseLabelAt(size_t i);
   Object stmt();
-
 };
 
 class CaseLabelContextProxy : public ContextProxy {
 public:
   CaseLabelContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object expression();
-
 };
 
 class CaseStmtContextProxy : public ContextProxy {
@@ -976,7 +913,6 @@ class SelectorContextProxy : public ContextProxy {
 public:
   SelectorContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object expression();
-
 };
 
 class CompoundStmtContextProxy : public ContextProxy {
@@ -994,7 +930,6 @@ public:
   Object aggregationTypes();
   Object simpleTypes();
   Object typeRef();
-
 };
 
 class SimpleTypesContextProxy : public ContextProxy {
@@ -1016,7 +951,6 @@ public:
   Object constantId();
   Object instantiableType();
   Object expression();
-
 };
 
 class ConstantFactorContextProxy : public ContextProxy {
@@ -1024,7 +958,6 @@ public:
   ConstantFactorContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object builtInConstant();
   Object constantRef();
-
 };
 
 class ConstructedTypesContextProxy : public ContextProxy {
@@ -1032,7 +965,6 @@ public:
   ConstructedTypesContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object enumerationType();
   Object selectType();
-
 };
 
 class EnumerationTypeContextProxy : public ContextProxy {
@@ -1107,7 +1039,6 @@ public:
   Object attributeDecl();
   Object parameterType();
   Object expression();
-
 };
 
 class DeriveClauseContextProxy : public ContextProxy {
@@ -1130,7 +1061,6 @@ class RepetitionContextProxy : public ContextProxy {
 public:
   RepetitionContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object numericExpression();
-
 };
 
 class EntityBodyContextProxy : public ContextProxy {
@@ -1142,7 +1072,6 @@ public:
   Object inverseClause();
   Object uniqueClause();
   Object whereClause();
-
 };
 
 class ExplicitAttrContextProxy : public ContextProxy {
@@ -1184,7 +1113,6 @@ public:
   Object entityRef();
   Object expression();
   Object expressionAt(size_t i);
-
 };
 
 class EntityHeadContextProxy : public ContextProxy {
@@ -1200,7 +1128,6 @@ public:
   SubsuperContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object supertypeConstraint();
   Object subtypeDeclaration();
-
 };
 
 class EnumerationExtensionContextProxy : public ContextProxy {
@@ -1217,14 +1144,12 @@ public:
   EnumerationItemsContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object enumerationItem();
   Object enumerationItemAt(size_t i);
-
 };
 
 class EnumerationItemContextProxy : public ContextProxy {
 public:
   EnumerationItemContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object enumerationId();
-
 };
 
 class EnumerationReferenceContextProxy : public ContextProxy {
@@ -1232,13 +1157,11 @@ public:
   EnumerationReferenceContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object enumerationRef();
   Object typeRef();
-
 };
 
 class EscapeStmtContextProxy : public ContextProxy {
 public:
   EscapeStmtContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object ESCAPE();
 };
 
@@ -1255,7 +1178,6 @@ public:
   FactorContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object simpleFactor();
   Object simpleFactorAt(size_t i);
-
 };
 
 class SimpleFactorContextProxy : public ContextProxy {
@@ -1268,7 +1190,6 @@ public:
   Object queryExpression();
   Object simpleFactorExpression();
   Object simpleFactorUnaryExpression();
-
 };
 
 class FormalParameterContextProxy : public ContextProxy {
@@ -1277,7 +1198,6 @@ public:
   Object parameterId();
   Object parameterIdAt(size_t i);
   Object parameterType();
-
 };
 
 class FunctionCallContextProxy : public ContextProxy {
@@ -1286,7 +1206,6 @@ public:
   Object builtInFunction();
   Object functionRef();
   Object actualParameterList();
-
 };
 
 class FunctionHeadContextProxy : public ContextProxy {
@@ -1306,7 +1225,6 @@ public:
   Object generalAggregationTypes();
   Object genericEntityType();
   Object genericType();
-
 };
 
 class GeneralAggregationTypesContextProxy : public ContextProxy {
@@ -1316,7 +1234,6 @@ public:
   Object generalBagType();
   Object generalListType();
   Object generalSetType();
-
 };
 
 class GenericEntityTypeContextProxy : public ContextProxy {
@@ -1376,7 +1293,6 @@ class GroupQualifierContextProxy : public ContextProxy {
 public:
   GroupQualifierContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object entityRef();
-
 };
 
 class IfStmtContextProxy : public ContextProxy {
@@ -1403,7 +1319,6 @@ public:
   IfStmtStatementsContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object stmt();
   Object stmtAt(size_t i);
-
 };
 
 class IfStmtElseStatementsContextProxy : public ContextProxy {
@@ -1411,14 +1326,12 @@ public:
   IfStmtElseStatementsContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object stmt();
   Object stmtAt(size_t i);
-
 };
 
 class IncrementContextProxy : public ContextProxy {
 public:
   IncrementContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object numericExpression();
-
 };
 
 class IncrementControlContextProxy : public ContextProxy {
@@ -1436,21 +1349,18 @@ class IndexContextProxy : public ContextProxy {
 public:
   IndexContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object numericExpression();
-
 };
 
 class Index1ContextProxy : public ContextProxy {
 public:
   Index1ContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object index();
-
 };
 
 class Index2ContextProxy : public ContextProxy {
 public:
   Index2ContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object index();
-
 };
 
 class IndexQualifierContextProxy : public ContextProxy {
@@ -1458,13 +1368,11 @@ public:
   IndexQualifierContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object index1();
   Object index2();
-
 };
 
 class IntegerTypeContextProxy : public ContextProxy {
 public:
   IntegerTypeContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object INTEGER();
 };
 
@@ -1473,7 +1381,6 @@ public:
   InterfaceSpecificationContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object referenceClause();
   Object useClause();
-
 };
 
 class ReferenceClauseContextProxy : public ContextProxy {
@@ -1504,35 +1411,29 @@ public:
   Object intervalOpAt(size_t i);
   Object intervalItem();
   Object intervalHigh();
-
 };
 
 class IntervalLowContextProxy : public ContextProxy {
 public:
   IntervalLowContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object simpleExpression();
-
 };
 
 class IntervalOpContextProxy : public ContextProxy {
 public:
   IntervalOpContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
-
 };
 
 class IntervalItemContextProxy : public ContextProxy {
 public:
   IntervalItemContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object simpleExpression();
-
 };
 
 class IntervalHighContextProxy : public ContextProxy {
 public:
   IntervalHighContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object simpleExpression();
-
 };
 
 class InverseAttrContextProxy : public ContextProxy {
@@ -1568,7 +1469,6 @@ public:
 class LogicalLiteralContextProxy : public ContextProxy {
 public:
   LogicalLiteralContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object FALSE();
   Object TRUE();
   Object UNKNOWN();
@@ -1577,7 +1477,6 @@ public:
 class StringLiteralContextProxy : public ContextProxy {
 public:
   StringLiteralContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SimpleStringLiteral();
   Object EncodedStringLiteral();
 };
@@ -1589,20 +1488,17 @@ public:
   Object variableIdAt(size_t i);
   Object parameterType();
   Object expression();
-
 };
 
 class LogicalTypeContextProxy : public ContextProxy {
 public:
   LogicalTypeContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object LOGICAL();
 };
 
 class MultiplicationLikeOpContextProxy : public ContextProxy {
 public:
   MultiplicationLikeOpContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object DIV();
   Object MOD();
   Object AND();
@@ -1628,14 +1524,11 @@ public:
 class NullStmtContextProxy : public ContextProxy {
 public:
   NullStmtContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
-
 };
 
 class NumberTypeContextProxy : public ContextProxy {
 public:
   NumberTypeContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object NUMBER();
 };
 
@@ -1660,14 +1553,12 @@ class PopulationContextProxy : public ContextProxy {
 public:
   PopulationContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object entityRef();
-
 };
 
 class PrecisionSpecContextProxy : public ContextProxy {
 public:
   PrecisionSpecContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object numericExpression();
-
 };
 
 class PrimaryContextProxy : public ContextProxy {
@@ -1677,7 +1568,6 @@ public:
   Object qualifiableFactor();
   Object qualifier();
   Object qualifierAt(size_t i);
-
 };
 
 class QualifiableFactorContextProxy : public ContextProxy {
@@ -1688,7 +1578,6 @@ public:
   Object functionCall();
   Object generalRef();
   Object population();
-
 };
 
 class ProcedureCallStmtContextProxy : public ContextProxy {
@@ -1697,7 +1586,6 @@ public:
   Object builtInProcedure();
   Object procedureRef();
   Object actualParameterList();
-
 };
 
 class ProcedureHeadContextProxy : public ContextProxy {
@@ -1745,7 +1633,6 @@ public:
   ReferencedAttributeContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object attributeRef();
   Object qualifiedAttribute();
-
 };
 
 class ResourceOrRenameContextProxy : public ContextProxy {
@@ -1759,8 +1646,6 @@ public:
 class RelOpContextProxy : public ContextProxy {
 public:
   RelOpContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
-
 };
 
 class RenameIdContextProxy : public ContextProxy {
@@ -1771,7 +1656,6 @@ public:
   Object functionId();
   Object procedureId();
   Object typeId();
-
 };
 
 class RepeatControlContextProxy : public ContextProxy {
@@ -1780,7 +1664,6 @@ public:
   Object incrementControl();
   Object whileControl();
   Object untilControl();
-
 };
 
 class WhileControlContextProxy : public ContextProxy {
@@ -1815,7 +1698,6 @@ public:
   Object functionRef();
   Object procedureRef();
   Object typeRef();
-
 };
 
 class ReturnStmtContextProxy : public ContextProxy {
@@ -1854,7 +1736,6 @@ public:
   Object constantDecl();
   Object schemaBodyDeclaration();
   Object schemaBodyDeclarationAt(size_t i);
-
 };
 
 class SchemaBodyDeclarationContextProxy : public ContextProxy {
@@ -1862,7 +1743,6 @@ public:
   SchemaBodyDeclarationContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object declaration();
   Object ruleDecl();
-
 };
 
 class SchemaDeclContextProxy : public ContextProxy {
@@ -1879,7 +1759,6 @@ class SchemaVersionIdContextProxy : public ContextProxy {
 public:
   SchemaVersionIdContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object stringLiteral();
-
 };
 
 class SelectExtensionContextProxy : public ContextProxy {
@@ -1896,7 +1775,6 @@ public:
   SelectListContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object namedTypes();
   Object namedTypesAt(size_t i);
-
 };
 
 class TermContextProxy : public ContextProxy {
@@ -1906,7 +1784,6 @@ public:
   Object factorAt(size_t i);
   Object multiplicationLikeOp();
   Object multiplicationLikeOpAt(size_t i);
-
 };
 
 class SimpleFactorExpressionContextProxy : public ContextProxy {
@@ -1914,7 +1791,6 @@ public:
   SimpleFactorExpressionContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object expression();
   Object primary();
-
 };
 
 class SimpleFactorUnaryExpressionContextProxy : public ContextProxy {
@@ -1922,13 +1798,11 @@ public:
   SimpleFactorUnaryExpressionContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object unaryOp();
   Object simpleFactorExpression();
-
 };
 
 class UnaryOpContextProxy : public ContextProxy {
 public:
   UnaryOpContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object NOT();
 };
 
@@ -1942,7 +1816,6 @@ public:
 class SkipStmtContextProxy : public ContextProxy {
 public:
   SkipStmtContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
-
   Object SKIP_();
 };
 
@@ -1952,7 +1825,6 @@ public:
   Object abstractEntityDeclaration();
   Object abstractSupertypeDeclaration();
   Object supertypeRule();
-
 };
 
 class SubtypeDeclarationContextProxy : public ContextProxy {
@@ -1970,7 +1842,6 @@ public:
   Object abstractSupertype();
   Object totalOver();
   Object supertypeExpression();
-
 };
 
 class TotalOverContextProxy : public ContextProxy {
@@ -2012,7 +1883,6 @@ public:
   Object entityRef();
   Object oneOf();
   Object supertypeExpression();
-
 };
 
 class SyntaxContextProxy : public ContextProxy {
@@ -2028,7 +1898,6 @@ public:
   UnderlyingTypeContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object concreteTypes();
   Object constructedTypes();
-
 };
 
 class UniqueRuleContextProxy : public ContextProxy {
@@ -2037,14 +1906,12 @@ public:
   Object referencedAttribute();
   Object referencedAttributeAt(size_t i);
   Object ruleLabelId();
-
 };
 
 class WidthContextProxy : public ContextProxy {
 public:
   WidthContextProxy(tree::ParseTree* ctx) : ContextProxy(ctx) {};
   Object numericExpression();
-
 };
 
 
@@ -10185,7 +10052,7 @@ Object ProcedureDeclContextProxy::procedureHead() {
       return child;
     }
   }
-
+  
   return Nil;
 }
 
@@ -17304,7 +17171,6 @@ private:
     parser -> lexer = new ExpressLexer(parser -> input);
     parser -> tokens = new CommonTokenStream(parser -> lexer);
     parser -> parser = new ExpressParser(parser -> tokens);
-
     return parser;
   }
 
@@ -18364,9 +18230,9 @@ void Init_express_parser() {
   rb_cParser = define_class_under<ParserProxy>(rb_mExpressParser, "Parser")
     .define_singleton_function("parse", &ParserProxy::parse)
     .define_singleton_function("parse_file", &ParserProxy::parseFile)
-    .define_method("syntax", &ParserProxy::syntax)
-    .define_method("tokens", &ParserProxy::getTokens)
-    .define_method("visit", &ParserProxy::visit);
+    .define_method("syntax", &ParserProxy::syntax, Return().keepAlive())
+    .define_method("tokens", &ParserProxy::getTokens, Return().takeOwnership())
+    .define_method("visit", &ParserProxy::visit, Return().keepAlive());
 
   rb_cAttributeRefContext = define_class_under<AttributeRefContextProxy, ContextProxy>(rb_mExpressParser, "AttributeRefContext")
     .define_method("attribute_id", &AttributeRefContextProxy::attributeId);

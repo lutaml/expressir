@@ -33,23 +33,23 @@ module Expressir
       def self.from_file(file, skip_references: nil, include_source: nil)
         input = File.read(file)
 
-        parser = ::ExpressParser::Parser.parse(input)
+        @parser = ::ExpressParser::Parser.parse(input)
 
-        parse_tree = parser.syntax()
+        @parse_tree = @parser.syntax()
 
-        visitor = Visitor.new(parser.tokens, include_source: include_source)
-        repository = visitor.visit(parse_tree)
+        @visitor = Visitor.new(@parser.tokens, include_source: include_source)
+        @repository = @visitor.visit(@parse_tree)
 
-        repository.schemas.each do |schema|
+        @repository.schemas.each do |schema|
           schema.file = file.to_s
         end
 
         unless skip_references
-          resolve_references_model_visitor = ResolveReferencesModelVisitor.new
-          resolve_references_model_visitor.visit(repository)
+          @resolve_references_model_visitor = ResolveReferencesModelVisitor.new
+          @resolve_references_model_visitor.visit(@repository)
         end
 
-        repository
+        @repository
       end
 
       # Parses Express files into an Express model
@@ -65,16 +65,16 @@ module Expressir
           repository.schemas
         end.flatten
 
-        repository = Model::Repository.new(
+        @repository = Model::Repository.new(
           schemas: schemas
         )
 
-        unless skip_references
-          resolve_references_model_visitor = ResolveReferencesModelVisitor.new
-          resolve_references_model_visitor.visit(repository)
+        unless @skip_references
+          @resolve_references_model_visitor = ResolveReferencesModelVisitor.new
+          @resolve_references_model_visitor.visit(@repository)
         end
 
-        repository
+        @repository
       end
     end
   end

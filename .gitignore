@@ -15,3 +15,4 @@
 .rspec_status
 
 /ext/express-parser/rice-embed
+/lib/expressir/express/express_parser.so

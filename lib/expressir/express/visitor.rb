@@ -138,7 +138,9 @@ module Expressir
       end
 
       def attach_remarks(ctx, node)
-        remark_tokens = get_tokens(ctx).select{|x| x.channel == REMARK_CHANNEL}
+        remark_tokens = get_tokens(ctx)
+        remark_tokens = remark_tokens.select{ |x| x.channel == REMARK_CHANNEL
+      }
 
         # skip already attached remarks
         remark_tokens = remark_tokens.select{|x| !@attached_remark_tokens.include?(x)}

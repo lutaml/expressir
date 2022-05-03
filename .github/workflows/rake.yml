@@ -35,7 +35,7 @@ jobs:
           submodules: recursive
 
       - name: Setup packages
-        if: matrix.os.startsWith('macos')
+        if: startsWith(matrix.os, 'macos')
         run: brew install autoconf automake libtool
 
       - name: Install Ruby
@@ -59,52 +59,52 @@ jobs:
         run: bundle exec rake
 
   # test release workflow
-#  pack:
-#    runs-on: ubuntu-latest
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        host: [ linux, windows, darwin ]
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#        with:
-#          submodules: recursive
+  pack:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        host: [ linux, windows, darwin ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
 
-#      - name: Setup Ruby
-#        uses: ruby/setup-ruby@v1
-#        with:
-#          ruby-version: '3.0'
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
           # bundler-cache: true important to not use cache because it leads to "cannot find -lrice"
           # more info https://github.com/lutaml/expressir/runs/2097658383?check_suite_focus=true#step:7:2126
 
-#      - name: Bundle
-#        run: bundle install --jobs 4 --retry 3
+      - name: Bundle
+        run: bundle install --jobs 4 --retry 3
 
-#      - name: Build gem without native extension
-#        if: matrix.host == 'linux'
-#        run: gem build expressir.gemspec
+      - name: Build gem without native extension
+        if: matrix.host == 'linux'
+        run: gem build expressir.gemspec
 
-#      - name: Package gem without native extension
-#        if: matrix.host == 'linux'
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: pkg-ruby
-#          path: expressir-*.gem
+      - name: Package gem without native extension
+        if: matrix.host == 'linux'
+        uses: actions/upload-artifact@v2
+        with:
+          name: pkg-ruby
+          path: expressir-*.gem
 
-#      - name: Enable swap
-#        run: |
-#          sudo fallocate -l 15g /compile.swap
-#          sudo chmod 600 /compile.swap
-#          sudo mkswap /compile.swap
-#          sudo swapon /compile.swap
-#          sudo swapon --all --verbose
+      - name: Enable swap
+        run: |
+          sudo fallocate -l 15g /compile.swap
+          sudo chmod 600 /compile.swap
+          sudo mkswap /compile.swap
+          sudo swapon /compile.swap
+          sudo swapon --all --verbose
 
-#      - name: Build gem with native extension
-#        run: bundle exec rake gem:${{ matrix.host }}
+      - name: Build gem with native extension
+        run: bundle exec rake gem:${{ matrix.host }}
 
-#      - name: Package gem with native extension
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: pkg-${{ matrix.host }}
-#          path: pkg/*.gem
+      - name: Package gem with native extension
+        uses: actions/upload-artifact@v2
+        with:
+          name: pkg-${{ matrix.host }}
+          path: pkg/*.gem

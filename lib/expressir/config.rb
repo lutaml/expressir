@@ -15,7 +15,7 @@ module Expressir
     attr_accessor :logs
 
     def initialize
-      @logs ||= %i(error)
+      @logs = %i(error)
     end
   end
 

@@ -1,8 +1,21 @@
 inherit_from:
   - https://raw.githubusercontent.com/riboseinc/oss-guides/master/ci/rubocop.yml
 
-# local repo-specific modifications
-# ...
-
 AllCops:
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.6
+  Exclude:
+    - 'expressir.gemspec'
+    - 'original/**/*'
+    - 'tmp/**/*'
+    - 'pkg/**/*'
+    - 'exe/format-test'
+#    - 'lib/expressir/cli/**/*'
+    - 'lib/expressir/express/**/*'
+    - 'lib/expressir/model/**/*'
+
+Style/RedundantParentheses:
+  Exclude:
+    - 'rakelib/cross-ruby.rake'
+
+Layout/LineLength:
+  Max: 160

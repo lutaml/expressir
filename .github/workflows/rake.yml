@@ -55,9 +55,40 @@ jobs:
         run: bundle exec rake compile
 
       - name: Run tests
-        run: bundle exec rake
+        run: |
+          bundle exec rake
+          cat .rspec_status
 
   # test release workflow
+  pack-native:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+          # bundler-cache: true important to not use cache because it leads to "cannot find -lrice"
+          # more info https://github.com/lutaml/expressir/runs/2097658383?check_suite_focus=true#step:7:2126
+
+      - name: Bundle
+        run: bundle install --jobs 4 --retry 3
+
+      - name: Build gem without native extension
+        run: gem build expressir.gemspec
+
+      - name: Package gem without native extension
+        uses: actions/upload-artifact@v2
+        with:
+          name: pkg-ruby
+          path: expressir-*.gem
+
   pack:
     runs-on: ubuntu-latest
     strategy:
@@ -79,17 +110,6 @@ jobs:
 
       - name: Bundle
         run: bundle install --jobs 4 --retry 3
-
-      - name: Build gem without native extension
-        if: matrix.host == 'linux'
-        run: gem build expressir.gemspec
-
-      - name: Package gem without native extension
-        if: matrix.host == 'linux'
-        uses: actions/upload-artifact@v2
-        with:
-          name: pkg-ruby
-          path: expressir-*.gem
 
       - name: Enable swap
         run: |

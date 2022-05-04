@@ -15,7 +15,6 @@
 #undef OUT
 #endif
 
-// ruby-3.0
 #undef FALSE
 #undef TRUE
 
@@ -18221,7 +18220,7 @@ void Init_express_parser() {
     .define_singleton_function("parse", &ParserProxy::parse)
     .define_singleton_function("parse_file", &ParserProxy::parseFile)
     .define_method("syntax", &ParserProxy::syntax, Return().keepAlive())
-    .define_method("tokens", &ParserProxy::getTokens, Return().takeOwnership())
+    .define_method("tokens", &ParserProxy::getTokens)
     .define_method("visit", &ParserProxy::visit, Return().keepAlive());
 
   rb_cAttributeRefContext = define_class_under<AttributeRefContextProxy, ContextProxy>(rb_mExpressParser, "AttributeRefContext")

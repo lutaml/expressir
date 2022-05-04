@@ -265,14 +265,6 @@ class ContextProxy {
 public:
   ContextProxy(tree::ParseTree* orig) {
     this -> orig = orig;
-//    if (orig != nullptr) {
-//      for (auto it = orig -> children.begin(); it != orig -> children.end(); it ++) {
-//        Object parseTree = ContextProxy::wrapParseTree(*it);
-//        if (parseTree != Nil) {
-//          children.push(parseTree);
-//        }
-//     }
-//    }
   }
 
   tree::ParseTree* getOriginal() {
@@ -294,6 +286,11 @@ public:
   }
 
   Array getChildren() {
+// Note re memory management
+// It looks like it is critical to 'fill' children array each time when this method is called
+// When Ruby GC collects the array it also unmarks all its elements so it is not possible to reuse them
+// (without custom mark function ????)
+// This comment also applies to all methods returning Ruby Arrays below
     Array children;
     if (orig != nullptr) {
       for (auto it = orig -> children.begin(); it != orig -> children.end(); it ++) {
@@ -307,11 +304,6 @@ public:
   }
 
   Object getParent() {
-//    if (parent == Nil) {
-//      if (orig != nullptr) {
-//        parent = ContextProxy::wrapParseTree(orig -> parent);
-//      }
-//    }
     return orig == nullptr ? Nil: wrapParseTree(orig -> parent) ;
   }
 
@@ -334,8 +326,6 @@ private:
 
 protected:
   tree::ParseTree* orig = nullptr;
-//  Array children;
-//  Object parent = Nil;
 };
 
 class TerminalNodeProxy : public ContextProxy {

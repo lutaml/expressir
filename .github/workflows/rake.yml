@@ -8,8 +8,7 @@ on:
 jobs:
   rake:
     name: test on ruby-${{ matrix.ruby }} ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    
+    runs-on: ${{ matrix.os }}   
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false

@@ -45,12 +45,10 @@ if cross_build
   end
 else
   require 'mkmf-rice'
-
   dir_config(extension_name)
 end
 
-$CPPFLAGS << " -std=c++17 -DANTLR4CPP_STATIC -DHAVE_CXX11 -g -fno-common -fno-omit-frame-pointer"
-#-fsanitize=address -fsanitize-address-use-after-scope $DLDFLAGS << "  -fsanitize=address"
+$CPPFLAGS << " -std=c++17 -DANTLR4CPP_STATIC -DHAVE_CXX11 -fno-omit-frame-pointer"
 $INCFLAGS << " -I#{__dir__}/#{antlr4_src}"
 $srcs = []
 

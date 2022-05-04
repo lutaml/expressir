@@ -33,8 +33,11 @@ module Expressir
       def self.from_file(file, skip_references: nil, include_source: nil)
         input = File.read(file)
 
+      # An important note re memory management
+      # parse, syntax, visitor methods return complex tree structures created in netive (C++) extension
+      # visit method references nodes and leaves of this structures but it is totally untransparent for Ruby GarbageCllector
+      # so in this class we keep those C++ structure marked for GC so theu are not freed 
         @parser = ::ExpressParser::Parser.parse(input)
-
         @parse_tree = @parser.syntax()
 
         @visitor = Visitor.new(@parser.tokens, include_source: include_source)

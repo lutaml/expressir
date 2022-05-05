@@ -9,13 +9,8 @@ AllCops:
     - 'tmp/**/*'
     - 'pkg/**/*'
     - 'exe/format-test'
-#    - 'lib/expressir/cli/**/*'
     - 'lib/expressir/express/**/*'
     - 'lib/expressir/model/**/*'
-
-Style/RedundantParentheses:
-  Exclude:
-    - 'rakelib/cross-ruby.rake'
 
 Layout/LineLength:
   Max: 160

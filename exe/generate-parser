@@ -38,7 +38,7 @@ parser_source_lines[i + 6] += <<~CPP.split("\n").map { |x| x == "" ? x : "  #{x}
   }
 
 CPP
-i = parser_source_lines.index { |x| x == '    .define_method("syntax", &ParserProxy::syntax)' }
+i = parser_source_lines.index { |x| x == '    .define_method("syntax", &ParserProxy::syntax, Return().keepAlive())' }
 parser_source_lines[i] += <<~CPP.split("\n").map { |x| x == "" ? x : "    #{x}" }.join("\n")
 
   .define_method("tokens", &ParserProxy::getTokens)

@@ -100,6 +100,7 @@ CrossRuby = Struct.new(:version, :host) do
 
   def dll_staging_path
     "tmp/#{platform}/stage/lib/#{GEMSPEC.name}/#{minor_ver}/#{GEMSPEC.name}.#{dll_ext}"
+#    "tmp/#{platform}/express_parser/#{RUBY_VERSION}/express_parser.#{dll_ext}"
   end
 
   def allowed_dlls_mingw
@@ -241,11 +242,12 @@ def verify_dll(dll, cross_ruby)
   puts "verify_dll: #{dll}: passed shared library sanity checks"
 end
 
-# CROSS_RUBIES.each do |cross_ruby|
-#  task cross_ruby.dll_staging_path do |t|
-#    verify_dll t.name, cross_ruby
-#  end
-# end
+ CROSS_RUBIES.each do |cross_ruby|
+  task cross_ruby.dll_staging_path do |t|
+    JJJJ
+    verify_dll t.name, cross_ruby
+  end
+ end
 
 def gem_builder(plat)
   # use Task#invoke because the pkg/*gem task is defined at runtime
@@ -261,7 +263,7 @@ def pre_req(plat)
   when /\linux/
     "if [[ $(awk -F= '/^NAME/{print $2}' /etc/os-release) == '\"Ubuntu\"' ]]; then #{UBUNTU_PREREQ}; else #{REDHAT_PREREQ}; fi"
   else
-    (UBUNTU_PREREQ).to_s
+    UBUNTU_PREREQ.to_s
   end
 end
 

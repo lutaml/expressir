@@ -43,8 +43,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "rubocop", "1.5.2"
   spec.add_development_dependency "rubocop-performance", "~> 1.0"
-  spec.add_development_dependency "rubocop-rake", "~> 0.6"
-  spec.add_development_dependency "rubocop-rspec", "~> 2.4"
   spec.add_development_dependency "webrick", "~> 1.7.0"
   spec.add_development_dependency "yard", "~> 0.9.26"
   spec.metadata["rubygems_mfa_required"] = "true"

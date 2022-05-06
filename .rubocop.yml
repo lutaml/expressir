@@ -3,6 +3,7 @@ inherit_from:
 
 AllCops:
   TargetRubyVersion: 2.6
+  SuggestExtensions: false
   Exclude:
     - 'expressir.gemspec'
     - 'original/**/*'

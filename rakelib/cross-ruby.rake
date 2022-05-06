@@ -4,8 +4,13 @@ require "shellwords"
 WINDOWS_PLATFORM_REGEX = /mingw|mswin/.freeze
 LINUX_PLATFORM_REGEX = /linux/.freeze
 DARWIN_PLATFORM_REGEX = /darwin/.freeze
+GLIBC_MIN_VERSION = "2.17".freeze
 
 CrossRuby = Struct.new(:version, :host) do
+  def dll_staging_path
+    "tmp/#{platform}/stage/lib/expressir/express/#{minor_ver}/express_parser.#{dll_ext}"
+  end
+
   def windows?
     !!(platform =~ WINDOWS_PLATFORM_REGEX)
   end
@@ -46,8 +51,6 @@ CrossRuby = Struct.new(:version, :host) do
         "x86_64-linux"
       when /\A(arm64|aarch64).*linux/
         "aarch64-linux"
-      when /\Ai[3-6]86.*linux/
-        "x86-linux"
       when /\Ax86_64-darwin/
         "x86_64-darwin"
       when /\Aarm64-darwin/
@@ -62,10 +65,9 @@ CrossRuby = Struct.new(:version, :host) do
        case platform
        when "x64-mingw32"
          "x86_64-w64-mingw32-"
-       when "x86_64-linux"
-         "x86_64-redhat-linux-"
-       when "aarch64-linux"
-         "aarch64-redhat-linux-"
+       when /(x86_64|aarch64)-linux/
+         # We do believe that we are on Linux and can use native tools
+         ""
        when /x86_64.*darwin/
          "x86_64-apple-darwin-"
        when /a.*64.*darwin/
@@ -82,9 +84,9 @@ CrossRuby = Struct.new(:version, :host) do
     when "x86_64-linux"
       "elf64-x86-64"
     when "aarch64-linux"
-      "elf64-arm64"
+      "elf64-little"
     when "x86_64-darwin"
-      "Mach-O 64-bit x86-64" # hmm
+      "Mach-O 64-bit x86-64"
     when "arm64-darwin"
       "Mach-O arm64"
     else
@@ -98,38 +100,68 @@ CrossRuby = Struct.new(:version, :host) do
     darwin? ? "bundle" : "so"
   end
 
-  def dll_staging_path
-    "tmp/#{platform}/stage/lib/#{GEMSPEC.name}/#{minor_ver}/#{GEMSPEC.name}.#{dll_ext}"
-#    "tmp/#{platform}/express_parser/#{RUBY_VERSION}/express_parser.#{dll_ext}"
+  def verify_format(dump, dll)
+    format_match = (/file format #{Regexp.quote(target_file_format)}\s/ === dump)
+    format_error = "Unexpected file format for '#{dll}', '#{target_file_format}' required"
+    raise format_error unless format_match
+  end
+
+  def verify_entry_windows(dump, dll)
+    unless /Table.*\sInit_express_parser\s/mi === dump
+      raise "Export function Init_express_parser not in dll #{dll}"
+    end
+  end
+
+  def verify_entry_linux(dll)
+    nm = `#{["env", "LANG=C", tool("nm"), "-D", dll].shelljoin}`
+    unless / T Init_express_parser/.match?(nm)
+      raise "Export function Init_express_parser not in dll #{dll}"
+    end
+  end
+
+  def verify_entry_darwin(dll)
+    nm = `#{["env", "LANG=C", tool("nm"), "-g", dll].shelljoin}`
+    unless / T _?Init_express_parser/.match?(nm)
+      raise "Export function Init_express_parser not in dll #{dll}"
+    end
+  end
+
+  def verify_entry(dump, dll)
+    case platform
+    when WINDOWS_PLATFORM_REGEX
+      verify_entry_windows(dump, dll)
+    when LINUX_PLATFORM_REGEX
+      verify_entry_linux(dll)
+    when DARWIN_PLATFORM_REGEX
+      verify_entry_darwin(dll)
+    else
+      raise "CrossRuby.verify_entry: unmatched platform: #{platform}"
+    end
   end
 
   def allowed_dlls_mingw
     [
       "kernel32.dll",
       "msvcrt.dll",
-      "ws2_32.dll",
-      "user32.dll",
-      "advapi32.dll",
       "x64-msvcrt-ruby#{api_ver_suffix}.dll",
     ]
   end
 
   def allowed_dlls_linux
+    suffix = (platform == "x86_64-linux" ? "x86-64" : "aarch64")
     [
-      "libm.so.6",
-      *(if ver < "2.6.0"
-          "libpthread.so.0"
-        end),
-      "libc.so.6",
-      "libdl.so.2", # on old dists only - now in libc
+      "ld-linux-#{suffix}.so",
+      "libc.so",
+      "libm.so",
+      "libstdc++.so",
+      "libgcc_s.so",
     ]
   end
 
   def allowed_dlls_darwin
     [
       "/usr/lib/libSystem.B.dylib",
-      "/usr/lib/liblzma.5.dylib",
-      "/usr/lib/libobjc.A.dylib",
+      "/usr/lib/libc++.1.dylib",
     ]
   end
 
@@ -146,24 +178,56 @@ CrossRuby = Struct.new(:version, :host) do
     end
   end
 
-  def actual_dlls_mingw(dump)
-    dump.scan(/DLL Name: (.*)$/).map(&:first).map(&:downcase).uniq
-  end
-
   def actual_dlls_linux(dump)
     dump.scan(/NEEDED\s+(.*)/).map(&:first).uniq
   end
 
-  def actual_dlls_darwin(ldd)
+  def actual_dlls_windows(dump)
+    dump.scan(/DLL Name: (.*)$/).map(&:first).map(&:downcase).uniq
+  end
+
+  def actual_dlls_darwin(dll)
+    ldd = `#{[tool("otool"), "-L", dll].shelljoin}`
     ldd.scan(/^\t([^ ]+) /).map(&:first).uniq
   end
 
-  def dll_ref_versions
+  def actual_dlls(dump, dll)
     case platform
+    when DARWIN_PLATFORM_REGEX
+      actual_dlls_darwin(dll)
     when LINUX_PLATFORM_REGEX
-      { "GLIBC" => "2.17" }
+      actual_dlls_linux(dump)
+    when WINDOWS_PLATFORM_REGEX
+      actual_dlls_windows(dump)
     else
-      raise "CrossRuby.dll_ref_versions: unmatched platform: #{platform}"
+      raise "CrossRuby.actual_dlls: unmatched platform: #{platform}"
+    end
+  end
+
+  def verify_imports(dump, dll)
+    l = actual_dlls(dump, dll)
+    libs = allowed_dlls
+    l.delete_if { |ln| libs.any? { |lib| ln.include?(lib) } }
+    unless l.empty?
+      raise "Unexpected references in '#{dll}' : #{l}"
+    end
+  end
+
+  def lib_ref_versions(data)
+    # Build a hash of library versions like {"LIBUDEV"=>"183", "GLIBC"=>"2.17"}
+    data.each.with_object({}) do |(lib, ver), h|
+      if !h[lib] || ver.split(".").map(&:to_i).pack("C*") > h[lib].split(".").map(&:to_i).pack("C*")
+        h[lib] = ver
+      end
+    end
+  end
+
+  def verify_glibc_version(dump, dll)
+    ref_versions_data = dump.scan(/0x[\da-f]+ 0x[\da-f]+ \d+ (\w+)_([\d.]+)$/i)
+    ref_ver = lib_ref_versions(ref_versions_data)
+
+    unless ref_ver["GLIBC"].delete(".").to_i <= GLIBC_MIN_VERSION.delete(".").to_i
+      raise "Unexpected GLIBC version #{ref_ver['GLIBC']} for #{dll},  #{GLIBC_MIN_VERSION} or lower is expected"
     end
   end
 end
@@ -179,75 +243,25 @@ ENV["RUBY_CC_VERSION"] = CROSS_RUBIES.map(&:ver).uniq.join(":")
 
 require "rake_compiler_dock"
 
-def actual_ref_versions(data)
-  # Build a hash of library versions like {"LIBUDEV"=>"183", "GLIBC"=>"2.17"}
-  data.each.with_object({}) do |(lib, ver), h|
-    if !h[lib] || ver.split(".").map(&:to_i).pack("C*") > h[lib].split(".").map(&:to_i).pack("C*")
-      h[lib] = ver
+def verify_dll(dll, cross_ruby)
+  dump = `#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin}`
+  cross_ruby.verify_format(dump, dll)
+  cross_ruby.verify_entry(dump, dll)
+  cross_ruby.verify_imports(dump, dll)
+  #  Not sure if it is required, probably not
+  #  I am keeping related code as a reference for future advances
+  #  cross_ruby.verify_glibc_version(dump, dll) if cross_ruby.linux?
+
+  puts "#{dll}: passed shared library sanity checks"
+end
+
+CROSS_RUBIES.each do |cross_ruby|
+  unless Rake::Task.task_defined?(cross_ruby.dll_staging_path)
+    task cross_ruby.dll_staging_path do |t|
+      verify_dll t.name, cross_ruby
     end
   end
-  h
 end
-
-def verify_ref_version(dump)
-  ref_versions_data = dump.scan(/0x[\da-f]+ 0x[\da-f]+ \d+ (\w+)_([\d.]+)$/i)
-  actual_ref_versions(ref_versions_data) == cross_ruby.dll_ref_versions
-end
-
-def process_dll_windows(dump)
-  raise "export function Init_expressir not in dll #{dll}" unless /Table.*\sInit_expressir\s/mi === dump
-
-  actual_dlls_mingw(dump)
-end
-
-def process_dll_linux(dump)
-  nm = `#{["env", "LANG=C", cross_ruby.tool("nm"), "-D", dll].shelljoin}`
-  raise "export function Init_expressir not in dll #{dll}" unless / T Init_expressir/.match?(nm)
-  # Verify that the expected so version requirements match the actual dependencies.
-  raise "unexpected so version requirements #{actual_ref_versions.inspect} in #{dll}" unless verify_ref_versions(dump)
-
-  actual_dlls_linux(dump)
-end
-
-def process_dll_darwin
-  nm = `#{["env", "LANG=C", cross_ruby.tool("nm"), "-g", dll].shelljoin}`
-  raise "export function Init_expressir not in dll #{dll}" unless / T _?Init_expressir/.match?(nm)
-
-  ldd = `#{["env", "LANG=C", cross_ruby.tool("otool"), "-L", dll].shelljoin}`
-  actual_dlls_darwin(ldd)
-end
-
-def process_dll(dump)
-  case platform
-  when WINDOWS_PLATFORM_REGEX
-    process_dll_windows(dump)
-  when LINUX_PLATFORM_REGEX
-    process_dll_linux(dump)
-  when DARWIN_PLATFORM_REGEX
-    process_dll_darwin
-  else
-    raise "CrossRuby.allowed_dlls: unmatched platform: #{platform}"
-  end
-end
-
-def verify_dll(dll, cross_ruby)
-  allowed_imports = cross_ruby.allowed_dlls
-  dump = `#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin}`
-  raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/ === dump
-
-  actual_imports = process_dll(dump)
-  # Verify that the DLL dependencies are all allowed.
-  raise "unallowed so imports #{actual_imports.inspect} in #{dll} (allowed #{allowed_imports.inspect})" unless (actual_imports - allowed_imports).empty?
-
-  puts "verify_dll: #{dll}: passed shared library sanity checks"
-end
-
- CROSS_RUBIES.each do |cross_ruby|
-  task cross_ruby.dll_staging_path do |t|
-    JJJJ
-    verify_dll t.name, cross_ruby
-  end
- end
 
 def gem_builder(plat)
   # use Task#invoke because the pkg/*gem task is defined at runtime

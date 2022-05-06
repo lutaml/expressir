@@ -18,7 +18,7 @@ generator = Antlr4Native::Generator.new(
 generator.generate
 
 # fix issues with generated parser
-parser_source_file = File.join(*%w(ext express-parser express_parser.cpp))
+parser_source_file = File.join("ext", "express-parser", "express_parser.cpp")
 parser_source_lines = File.read(parser_source_file).split("\n")
 
 # - add ParserProxy tokens method, simple compensation for missing exposed BufferedTokenStream

@@ -186,7 +186,7 @@ jobs:
       - name: Download package gem
         uses: actions/download-artifact@v2
         with:
-         name: pkg
+         name: pkg-*
          path: pkg
 
       - name: Install binary gem

@@ -28,7 +28,6 @@ jobs:
 
   rake:
     name: test on ruby-${{ matrix.ruby }} ${{ matrix.os }}
-    needs: rubocop
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.experimental }}
     strategy:
@@ -83,7 +82,6 @@ jobs:
   # test release workflow
   pack-ruby:
     runs-on: ubuntu-latest
-    needs: rubocop
     strategy:
       fail-fast: false
     steps:
@@ -113,7 +111,6 @@ jobs:
 
   pack:
     runs-on: ubuntu-latest
-    needs: rubocop
     strategy:
       fail-fast: false
       matrix:
@@ -263,13 +260,14 @@ jobs:
   verify-windows:
     name: verify Windows binary gem on ruby-${{ matrix.ruby }}
     needs: pack
+    continue-on-error: true
     runs-on: windows-latest
     strategy:
       fail-fast: false
 # Ruby 3.1 fails 
 # https://github.com/lutaml/expressir/issues/103      
       matrix:
-        ruby: [ '3.0', '2.7' ]
+        ruby: [ '3.1', '3.0', '2.7' ]
     steps:
       - name: Install Ruby
         uses: ruby/setup-ruby@v1

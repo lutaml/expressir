@@ -183,18 +183,17 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
-    - name: Download package gem
-      uses: actions/download-artifact@v2
-      with:
-        name: pkg
-        path: pkg
+      - name: Download package gem
+        uses: actions/download-artifact@v2
+        with:
+         name: pkg
+         path: pkg
 
-    - name: Install binary gem
-      run: gem install -l pkg/expressir-*-$(ruby -e "puts RUBY_PLATFORM.sub(/darwin\d{2}$/, 'darwin')").gem
+      - name: Install binary gem
+        run: gem install -l pkg/expressir-*-$(ruby -e "puts RUBY_PLATFORM.sub(/darwin\d{2}$/, 'darwin')").gem
 # MacOS with have something like x86_64-darwin19, others just x86_64-linux
 
-    - name: Wow ow
-      run: |
-        cd $(ruby -e 'puts RbConfig::TOPDIR + "/lib/ruby/gems/" + RbConfig::CONFIG["ruby_version"] + "/gems/expressir*"')
-        rake
-        
+      - name: Verify
+        run: |
+          cd $(ruby -e 'puts RbConfig::TOPDIR + "/lib/ruby/gems/" + RbConfig::CONFIG["ruby_version"] + "/gems/expressir*"')
+          rake

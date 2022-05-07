@@ -85,7 +85,7 @@ jobs:
           cat .rspec_status
 
   # test release workflow
-  pack-native:
+  pack-ruby:
     runs-on: ubuntu-latest
     needs: rake
     strategy:
@@ -155,27 +155,15 @@ jobs:
           name: pkg-${{ matrix.host }}
           path: pkg/*.gem
 
-  verify:
+  verify-ruby:
     name: verify packaged version on ruby-${{ matrix.ruby }} ${{ matrix.os }}
-    needs: pack
+    needs: pack-ruby
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
       matrix:
         ruby: [ '3.1', '3.0', '2.7' ]
         os: [ ubuntu-latest, windows-latest, macos-latest ]
-        experimental: [ false ]
-        include:
-          - ruby: 'head'
-            os: 'ubuntu-latest'
-            experimental: true
-          - ruby: 'head'
-            os: 'windows-latest'
-            experimental: true
-          - ruby: 'head'
-            os: 'macos-latest'
-            experimental: true
     steps:
       - name: Install Ruby
         uses: ruby/setup-ruby@v1
@@ -186,7 +174,99 @@ jobs:
       - name: Download packaged gem
         uses: actions/download-artifact@v2
         with:
-         name: pkg-*
+         name: pkg-ruby
+         path: pkg
+
+      - name: Install binary gem
+        run: gem install -l pkg/expressir-*.gem
+
+      - name: Verify
+        run: |
+          cd $(ruby -e 'puts RbConfig::TOPDIR + "/lib/ruby/gems/" + RbConfig::CONFIG["ruby_version"] + "/gems/expressir*"')
+          rake
+
+  verify-darwin:
+    name: verify packaged version on ruby-${{ matrix.ruby }} ${{ matrix.os }}
+    needs: pack
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [ '3.1', '3.0', '2.7' ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    steps:
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+
+      - name: Download packaged gem
+        uses: actions/download-artifact@v2
+        with:
+         name: pkg-darwin
+         path: pkg
+
+      - name: Install binary gem
+        run: gem install -l pkg/expressir-*-$(ruby -e "puts RUBY_PLATFORM.sub(/darwin\d{2}$/, 'darwin')").gem
+# MacOS with have something like x86_64-darwin19, others just x86_64-linux
+
+      - name: Verify
+        run: |
+          cd $(ruby -e 'puts RbConfig::TOPDIR + "/lib/ruby/gems/" + RbConfig::CONFIG["ruby_version"] + "/gems/expressir*"')
+          rake
+
+  verify-linux:
+    name: verify packaged version on ruby-${{ matrix.ruby }} ${{ matrix.os }}
+    needs: pack
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [ '3.1', '3.0', '2.7' ]
+        os: [ ubuntu-latest ]
+    steps:
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+
+      - name: Download packaged gem
+        uses: actions/download-artifact@v2
+        with:
+         name: pkg-linux
+         path: pkg
+
+      - name: Install binary gem
+        run: gem install -l pkg/expressir-*-$(ruby -e "puts RUBY_PLATFORM.sub(/darwin\d{2}$/, 'darwin')").gem
+# MacOS with have something like x86_64-darwin19, others just x86_64-linux
+
+      - name: Verify
+        run: |
+          cd $(ruby -e 'puts RbConfig::TOPDIR + "/lib/ruby/gems/" + RbConfig::CONFIG["ruby_version"] + "/gems/expressir*"')
+          rake
+
+  verify-windows:
+    name: verify packaged version on ruby-${{ matrix.ruby }} ${{ matrix.os }}
+    needs: pack
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [ '3.1', '3.0', '2.7' ]
+        os: [ windows-latest ]
+    steps:
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+
+      - name: Download packaged gem
+        uses: actions/download-artifact@v2
+        with:
+         name: pkg-windows
          path: pkg
 
       - name: Install binary gem

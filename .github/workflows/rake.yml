@@ -183,7 +183,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
-      - name: Download package gem
+      - name: Download packaged gem
         uses: actions/download-artifact@v2
         with:
          name: pkg-*

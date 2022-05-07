@@ -4,7 +4,7 @@ RSpec.describe "Expressir" do
   describe "version" do
     it "has a version number" do
       expect(Expressir::VERSION).not_to be nil
-    end  
+    end
 
     it "displays the current verison" do
       command = %w(version)

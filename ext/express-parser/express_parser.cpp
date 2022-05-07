@@ -303,7 +303,7 @@ public:
   }
 
   size_t childCount() {
-    return getChildren().size();
+    return orig == nullptr ? 0 : orig -> children.size();
   }
 
   bool doubleEquals(Object other) {

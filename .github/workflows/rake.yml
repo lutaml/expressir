@@ -292,5 +292,5 @@ jobs:
 
       - name: Verify
         run: |
-          cd $(ruby -e "puts RbConfig::TOPDIR + '/lib/ruby/gems/' + RbConfig::CONFIG['ruby_version'] + '/gems/expressir*'")
+          cd $(ruby -e "puts RbConfig::TOPDIR + '\/lib\/ruby\/gems\/' + RbConfig::CONFIG['ruby_version'] + '\/gems\/expressir*'")
           rake

@@ -5,6 +5,7 @@ AllCops:
   TargetRubyVersion: 2.6
   SuggestExtensions: false
   Exclude:
+    - 'vendor/**/*'
     - 'expressir.gemspec'
     - 'original/**/*'
     - 'tmp/**/*'

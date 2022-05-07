@@ -7,7 +7,6 @@ AllCops:
   Exclude:
     - 'vendor/**/*'
     - 'expressir.gemspec'
-    - 'original/**/*'
     - 'tmp/**/*'
     - 'pkg/**/*'
     - 'exe/format-test'

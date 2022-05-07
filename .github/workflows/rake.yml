@@ -171,6 +171,9 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
+      - name: Bundle
+        run: bundle install --jobs 4 --retry 3
+        
       - name: Download packaged gem
         uses: actions/download-artifact@v2
         with:
@@ -201,6 +204,9 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
+      - name: Bundle
+        run: bundle install --jobs 4 --retry 3
+        
       - name: Download packaged gem
         uses: actions/download-artifact@v2
         with:
@@ -232,6 +238,9 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
+      - name: Bundle
+        run: bundle install --jobs 4 --retry 3
+        
       - name: Download packaged gem
         uses: actions/download-artifact@v2
         with:
@@ -263,6 +272,9 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
+      - name: Bundle
+        run: bundle install --jobs 4 --retry 3
+        
       - name: Download packaged gem
         uses: actions/download-artifact@v2
         with:

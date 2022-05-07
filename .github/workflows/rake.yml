@@ -14,7 +14,7 @@ jobs:
         ruby: [ '3.0' ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
@@ -54,7 +54,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
@@ -92,7 +92,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
@@ -124,7 +124,7 @@ jobs:
         host: [ linux, windows, darwin ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
@@ -171,6 +171,9 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Bundle
         run: bundle install --jobs 4 --retry 3
         
@@ -203,6 +206,9 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
+
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Bundle
         run: bundle install --jobs 4 --retry 3
@@ -238,6 +244,9 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Bundle
         run: bundle install --jobs 4 --retry 3
         
@@ -271,6 +280,9 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
+
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Bundle
         run: bundle install --jobs 4 --retry 3

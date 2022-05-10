@@ -39,7 +39,7 @@ if cross_build
     # workaround for 'w64-mingw32-as: express_parser.o: too many sections'
     $CXXFLAGS << " -O3 -Wa,-mbig-obj"
     # workaround for LoadError: 127: The specified procedure could not be found.
-    $DLDFLAGS << " -static -static-libgcc -static-libstdc++"
+    $DLDFLAGS << " -static-libgcc -static-libstdc++"
   when /darwin/
     $CXXFLAGS << " -mmacosx-version-min=10.14 -Wno-register -fno-c++-static-destructors"
     $DLDFLAGS << " -mmacosx-version-min=10.14"

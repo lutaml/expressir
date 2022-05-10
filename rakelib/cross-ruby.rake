@@ -31,6 +31,14 @@ CrossRuby = Struct.new(:version, :host) do
     @minor_ver ||= ver[/\A\d\.\d(?=\.)/]
   end
 
+  def minor_ver_digi
+    @minor_ver_digi = minor_ver.delete(".").to_i
+  end
+
+  def ucrt?
+    minor_ver_digi >= 31
+  end
+
   def api_ver_suffix
     case minor_ver
     when nil
@@ -46,7 +54,11 @@ CrossRuby = Struct.new(:version, :host) do
     @platform ||=
       case host
       when /\Ax86_64.*mingw32/
-        "x64-mingw32"
+        if ucrt?
+          "x64-mingw-ucrt"
+        else
+          "x64-mingw32"
+        end
       when /\Ax86_64.*linux/
         "x86_64-linux"
       when /\A(arm64|aarch64).*linux/
@@ -63,7 +75,7 @@ CrossRuby = Struct.new(:version, :host) do
   def tool(name)
     (@binutils_prefix ||=
        case platform
-       when "x64-mingw32"
+       when /x64-mingw(32|-ucrt)/
          "x86_64-w64-mingw32-"
        when /(x86_64|aarch64)-linux/
          # We do believe that we are on Linux and can use native tools
@@ -79,7 +91,7 @@ CrossRuby = Struct.new(:version, :host) do
 
   def target_file_format
     case platform
-    when "x64-mingw32"
+    when /64-mingw(32|-ucrt)/
       "pei-x86-64"
     when "x86_64-linux"
       "elf64-x86-64"
@@ -139,12 +151,40 @@ CrossRuby = Struct.new(:version, :host) do
     end
   end
 
+  # rubocop:disable Metrics/MethodLength
+  def allowed_dlls_ucrt
+    ["kernel32.dll",
+     "api-ms-win-crt-convert-l1-1-0.dll",
+     "api-ms-win-crt-environment-l1-1-0.dll",
+     "api-ms-win-crt-heap-l1-1-0.dll",
+     "api-ms-win-crt-locale-l1-1-0.dll",
+     "api-ms-win-crt-private-l1-1-0.dll",
+     "api-ms-win-crt-runtime-l1-1-0.dll",
+     "api-ms-win-crt-stdio-l1-1-0.dll",
+     "api-ms-win-crt-string-l1-1-0.dll",
+     "api-ms-win-crt-time-l1-1-0.dll",
+     "api-ms-win-crt-filesystem-l1-1-0.dll",
+     "api-ms-win-crt-math-l1-1-0.dll",
+     "libwinpthread-1.dll",
+     "x64-ucrt-ruby310.dll"]
+  end
+  # rubocop:enable Metrics/MethodLength
+
   def allowed_dlls_mingw
     [
       "kernel32.dll",
       "msvcrt.dll",
+      "libwinpthread-1.dll",
       "x64-msvcrt-ruby#{api_ver_suffix}.dll",
     ]
+  end
+
+  def allowed_dlls_windows
+    if ucrt?
+      allowed_dlls_ucrt
+    else
+      allowed_dlls_mingw
+    end
   end
 
   def allowed_dlls_linux
@@ -168,7 +208,7 @@ CrossRuby = Struct.new(:version, :host) do
   def allowed_dlls
     case platform
     when WINDOWS_PLATFORM_REGEX
-      allowed_dlls_mingw
+      allowed_dlls_windows
     when LINUX_PLATFORM_REGEX
       allowed_dlls_linux
     when DARWIN_PLATFORM_REGEX

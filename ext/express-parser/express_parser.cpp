@@ -17274,7 +17274,7 @@ public:
     this -> lexer -> reset();
     this -> parser -> reset();
 
-    return result;
+    return result.as<Object>();
   }
 
   ~ParserProxy() {

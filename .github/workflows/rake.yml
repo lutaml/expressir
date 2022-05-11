@@ -82,7 +82,6 @@ jobs:
   # test release workflow
   pack-ruby:
     runs-on: ubuntu-latest
-    needs: rake
     strategy:
       fail-fast: false
     steps:
@@ -112,7 +111,6 @@ jobs:
 
   pack:
     runs-on: ubuntu-latest
-    needs: rake
     strategy:
       fail-fast: false
       matrix:

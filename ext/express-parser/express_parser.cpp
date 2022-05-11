@@ -1,4 +1,3 @@
-#include <any>
 #include <iostream>
 
 #include <antlr4-runtime.h>
@@ -16218,7 +16217,7 @@ public:
   Object ruby_visit(ContextProxy* proxy) {
     auto result = visit(proxy -> getOriginal());
     try {
-      return result.as<Object>();
+      return std::any_cast<Object>(result);
     } catch(std::bad_cast) {
       return Qnil;
     }
@@ -16227,7 +16226,7 @@ public:
   Object ruby_visitChildren(ContextProxy* proxy) {
     auto result = visitChildren(proxy -> getOriginal());
     try {
-      return result.as<Object>();
+      return std::any_cast<Object>(result);
     } catch(std::bad_cast) {
       return Qnil;
     }
@@ -17275,7 +17274,7 @@ public:
     this -> lexer -> reset();
     this -> parser -> reset();
 
-    return result;
+    return std::any_cast<Object>(result);
   }
 
   ~ParserProxy() {

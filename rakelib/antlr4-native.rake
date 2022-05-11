@@ -2,6 +2,8 @@ require "fileutils"
 require "antlr4-native"
 require "rake"
 
+ANTLR_VERSION = "4.10.1".freeze
+
 def create_tokens_api(parser_source_lines)
   # - add ParserProxy tokens method, simple compensation for missing exposed BufferedTokenStream
   i = parser_source_lines.index { |x| x == "  Object syntax() {" }
@@ -30,10 +32,12 @@ def create_tokens_method(parser_source_lines)
   CPP
 end
 
-desc "Generate parser  (Usage: 'rake generate <grammar_file>')"
+desc "Generate parser  ('rake generate <grammar_file>', grammar_file defaults to 'ext/express-grammar/Express.g4')"
 task "generate" do
   grammar_file = ARGV[1]
-
+  if grammar_file.nil?
+    grammar_file = File.expand_path(File.join("..", "ext", "express-grammar", "Express.g4"), __dir__)
+  end
   puts "Generating parser from '#{grammar_file}'"
 
   # ANTLR does weird things if the grammar file isn't in the current working directory
@@ -45,6 +49,7 @@ task "generate" do
     grammar_files: [File.basename(temp_grammar_file)],
     output_dir: "ext",
     parser_root_method: "syntax",
+    antlr_ver: ANTLR_VERSION,
   )
   generator.generate
 

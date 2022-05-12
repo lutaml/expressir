@@ -4,9 +4,9 @@ require "spec_helper"
 require "expressir/express/parser"
 require "expressir/express/cache"
 
-RSpec.describe Expressir::Express::Cache do
-  TEST_VERSION = "0.0.0"
+TEST_VERSION = "0.0.0".freeze
 
+RSpec.describe Expressir::Express::Cache do
   describe ".to_file" do
     it "exports an object" do
       temp_file = Tempfile.new

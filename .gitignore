@@ -8,11 +8,16 @@
 /tmp/
 /Gemfile.lock
 /.idea
+/.vscode
 /lib/expressir/express/express_parser.bundle
+/lib/expressir/express/express_parser.so
+/lib/expressir/express/*/express_parser.bundle
+/lib/expressir/express/*/express_parser.so
 /spec/syntax/*-pretty.exp
+/ext/express-parser/rice-embed
 
 # rspec failure tracking
 .rspec_status
 
-/ext/express-parser/rice-embed
-/lib/expressir/express/express_parser.so
+# rubocop guide
+.rubocop-https---*

@@ -12,7 +12,7 @@ RSpec.describe Expressir::Express::Parser do
       result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
-      
+
       expect(result).to eq(expected_result)
     end
 
@@ -24,7 +24,7 @@ RSpec.describe Expressir::Express::Parser do
       result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
-      
+
       expect(result).to eq(expected_result)
     end
 
@@ -36,7 +36,7 @@ RSpec.describe Expressir::Express::Parser do
       result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
-      
+
       expect(result).to eq(expected_result)
     end
 
@@ -48,7 +48,7 @@ RSpec.describe Expressir::Express::Parser do
       result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
-      
+
       expect(result).to eq(expected_result)
     end
 
@@ -76,7 +76,7 @@ RSpec.describe Expressir::Express::Parser do
     it "parses multiple files (single.exp, multiple.exp)" do
       exp_files = [
         Expressir.root_path.join("spec", "syntax", "single.exp"),
-        Expressir.root_path.join("spec", "syntax", "multiple.exp")
+        Expressir.root_path.join("spec", "syntax", "multiple.exp"),
       ]
 
       repo = Expressir::Express::Parser.from_files(exp_files)

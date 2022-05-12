@@ -1,29 +1,30 @@
 #!/usr/bin/env ruby
 
-require 'fileutils'
-require 'antlr4-native'
+require "fileutils"
+require "antlr4-native"
 
 grammar_file = ARGV.shift
 
 # ANTLR does weird things if the grammar file isn't in the current working directory
-temp_grammar_file = File.join(FileUtils.pwd(), File.basename(grammar_file))
+temp_grammar_file = File.join(FileUtils.pwd, File.basename(grammar_file))
 FileUtils.cp(grammar_file, temp_grammar_file)
 
 # generate parser
 generator = Antlr4Native::Generator.new(
   grammar_files: [File.basename(temp_grammar_file)],
-  output_dir: 'ext',
-  parser_root_method: 'syntax'
+  output_dir: "ext",
+  parser_root_method: "syntax",
 )
 generator.generate
 
 # fix issues with generated parser
-parser_source_file = File.join(*%w(ext express-parser express_parser.cpp))
-parser_source_lines = File.read(parser_source_file).split(/\n/)
+parser_source_file = File.join("ext", "express-parser", "express_parser.cpp")
+parser_source_lines = File.read(parser_source_file).split("\n")
 
 # - add ParserProxy tokens method, simple compensation for missing exposed BufferedTokenStream
-i = parser_source_lines.index{|x| x == '  Object syntax() {'}
-parser_source_lines[i + 6] += "\n" + <<~CPP.split(/\n/).map{|x| x != "" ? "  " + x : x}.join("\n") + "\n"
+i = parser_source_lines.index { |x| x == "  Object syntax() {" }
+parser_source_lines[i + 6] += <<~CPP.split("\n").map { |x| x == "" ? x : "  #{x}" }.join("\n")
+
   Array getTokens() {
     Array a;
 
@@ -35,14 +36,16 @@ parser_source_lines[i + 6] += "\n" + <<~CPP.split(/\n/).map{|x| x != "" ? "  " +
 
     return a;
   }
+
 CPP
-i = parser_source_lines.index{|x| x == '    .define_method("syntax", &ParserProxy::syntax)'}
-parser_source_lines[i] += "\n" + <<~CPP.split(/\n/).map{|x| x != "" ? "    " + x : x}.join("\n")
+i = parser_source_lines.index { |x| x == '    .define_method("syntax", &ParserProxy::syntax, Return().keepAlive())' }
+parser_source_lines[i] += <<~CPP.split("\n").map { |x| x == "" ? x : "    #{x}" }.join("\n")
+
   .define_method("tokens", &ParserProxy::getTokens)
 CPP
 
 # write fixed parser file
-File.write(parser_source_file, parser_source_lines.join("\n") + "\n")
+File.write(parser_source_file, "#{parser_source_lines.join("\n")}\n")
 
 # cleanup
 FileUtils.rm(temp_grammar_file)

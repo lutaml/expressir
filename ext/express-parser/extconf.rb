@@ -1,14 +1,14 @@
-require 'rubygems'
-require 'mkmf'
+require "rubygems"
+require "mkmf"
 
-extension_name = 'express_parser'
+extension_name = "express_parser"
 cross_build =  enable_config("cross-build")
 
-antlr4_src = 'antlr4-upstream/runtime/Cpp/runtime/src'
+antlr4_src = "antlr4-upstream/runtime/Cpp/runtime/src"
 src_paths = [
   ".",
   "antlrgen",
-  "#{antlr4_src}",
+  antlr4_src.to_s,
   "#{antlr4_src}/atn",
   "#{antlr4_src}/dfa",
   "#{antlr4_src}/misc",
@@ -34,17 +34,18 @@ if cross_build
 
   $INCFLAGS << " -I#{__dir__}/#{rice_subdir}"
 
-  if RbConfig::CONFIG['target_os'] =~ /mingw32|mswin/
+  case RbConfig::CONFIG["target_os"]
+  when /mingw32|mswin/
     # workaround for 'w64-mingw32-as: express_parser.o: too many sections'
     $CXXFLAGS << " -O3 -Wa,-mbig-obj"
     # workaround for LoadError: 127: The specified procedure could not be found.
-    $DLDFLAGS << " -static -static-libgcc -static-libstdc++"
-  elsif RbConfig::CONFIG['target_os'] =~ /darwin/
+    $DLDFLAGS << " -static-libgcc -static-libstdc++"
+  when /darwin/
     $CXXFLAGS << " -mmacosx-version-min=10.14 -Wno-register -fno-c++-static-destructors"
     $DLDFLAGS << " -mmacosx-version-min=10.14"
   end
 else
-  require 'mkmf-rice'
+  require "mkmf-rice"
   dir_config(extension_name)
 end
 

@@ -8,7 +8,8 @@ TEST_VERSION = "0.0.0".freeze
 
 RSpec.describe Expressir::Express::Cache do
   describe ".to_file" do
-    it "exports an object" do
+    it "exports an object" do |example|
+      print "\n[#{example.description}] "
       temp_file = Tempfile.new
 
       repository = Expressir::Model::Repository.new
@@ -27,7 +28,8 @@ RSpec.describe Expressir::Express::Cache do
   end
 
   describe ".from_file" do
-    it "parses a file" do
+    it "parses a file" do |example|
+      print "\n[#{example.description}] "
       temp_file = Tempfile.new
 
       repository = Expressir::Model::Repository.new
@@ -44,7 +46,8 @@ RSpec.describe Expressir::Express::Cache do
       end
     end
 
-    it "fails parsing a file from a different Expressir version" do
+    it "fails parsing a file from a different Expressir version" do |example|
+      print "\n[#{example.description}] "
       temp_file = Tempfile.new
 
       repository = Expressir::Model::Repository.new

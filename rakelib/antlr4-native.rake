@@ -33,6 +33,9 @@ end
 desc "Generate parser  (Usage: 'rake generate <grammar_file>')"
 task "generate" do
   grammar_file = ARGV[1]
+  if grammar_file.nil?
+    grammar_file = File.expand_path(File.join("..", "ext", "express-grammar", "Express.g4"), __dir__)
+  end
 
   puts "Generating parser from '#{grammar_file}'"
 

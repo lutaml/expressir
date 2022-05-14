@@ -165,6 +165,7 @@ CrossRuby = Struct.new(:version, :host) do
      "api-ms-win-crt-time-l1-1-0.dll",
      "api-ms-win-crt-filesystem-l1-1-0.dll",
      "api-ms-win-crt-math-l1-1-0.dll",
+     "advapi32.dll",
      "libwinpthread-1.dll",
      "x64-ucrt-ruby310.dll"]
   end
@@ -174,6 +175,7 @@ CrossRuby = Struct.new(:version, :host) do
     [
       "kernel32.dll",
       "msvcrt.dll",
+      "advapi32.dll",
       "libwinpthread-1.dll",
       "x64-msvcrt-ruby#{api_ver_suffix}.dll",
     ]

@@ -18350,8 +18350,8 @@ void Init_express_parser() {
     .define_method("visit_width_spec", &VisitorProxy::ruby_visitChildren, Arg("proxy").keepAlive());
 
   rb_cParser = define_class_under<ParserProxy>(rb_mExpressParser, "Parser")
-    .define_singleton_function("parse", &ParserProxy::parse, Return().takeOwnership())
-    .define_singleton_function("parse_file", &ParserProxy::parseFile, Return().takeOwnership())
+    .define_singleton_function("parse", &ParserProxy::parse)
+    .define_singleton_function("parse_file", &ParserProxy::parseFile)
     .define_method("syntax", &ParserProxy::syntax, Return().keepAlive())
     .define_method("tokens", &ParserProxy::getTokens)
     .define_method("visit", &ParserProxy::visit, Return().keepAlive());

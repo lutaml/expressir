@@ -308,7 +308,7 @@ public:
 
   bool doubleEquals(Object other) {
     if (other.is_a(rb_cContextProxy)) {
-      return detail::From_Ruby<ContextProxy*>().convert(other) -> getOriginal() == getOriginal();
+      return detail::&VisitorProxy::ruby_visitChildren, Arg("proxy").keepAlive())<ContextProxy*>().convert(other) -> getOriginal() == getOriginal();
     } else {
       return false;
     }

@@ -7,7 +7,7 @@ RSpec.describe "Expressir" do
       expect(Expressir::VERSION).not_to be nil
 
       GC.start
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
 
     it "displays the current verison" do |example|
@@ -17,7 +17,7 @@ RSpec.describe "Expressir" do
       expect(output).to include("Version #{Expressir::VERSION}")
 
       GC.start
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
   end
 end

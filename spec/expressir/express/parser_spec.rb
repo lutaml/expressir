@@ -17,7 +17,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
 
       GC.start
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
 
     it "parses a file (multiple.exp)" do |example|
@@ -33,7 +33,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
 
       GC.start
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
 
     it "parses a file (syntax.exp)" do |example|
@@ -49,7 +49,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
 
       GC.start
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
 
     it "parses a file (remark.exp)" do |example|
@@ -65,7 +65,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
 
       GC.start
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
 
     it "parses a file including original source (multiple.exp)" do |example|
@@ -88,7 +88,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(entity.source).to eq(expected_result)
 
       GC.start
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
   end
 
@@ -116,7 +116,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(schemas[4].id).to eq("multiple_schema4")
 
       GC.start
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
   end
 end

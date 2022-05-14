@@ -18,7 +18,7 @@ RSpec.describe Expressir::Model::ModelElement do
 
       expect(result).to eq(expected_result)
 
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
   end
 
@@ -35,7 +35,7 @@ RSpec.describe Expressir::Model::ModelElement do
 
       expect(result).to eq(expected_result)
 
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
 
     it "parses an object (multiple.yaml)" do |example|
@@ -50,7 +50,7 @@ RSpec.describe Expressir::Model::ModelElement do
 
       expect(result).to eq(expected_result)
 
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
 
     it "parses an object (syntax.yaml)" do |example|
@@ -65,7 +65,7 @@ RSpec.describe Expressir::Model::ModelElement do
 
       expect(result).to eq(expected_result)
 
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
 
     it "parses an object (remark.yaml)" do |example|
@@ -80,7 +80,7 @@ RSpec.describe Expressir::Model::ModelElement do
 
       expect(result).to eq(expected_result)
 
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
   end
 
@@ -99,7 +99,7 @@ RSpec.describe Expressir::Model::ModelElement do
       schema = repo.schemas.first
       expect(schema.find("empty_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
 
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
 
     it "finds an object (multiple.exp)" do |example|
@@ -124,7 +124,7 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(schema.find("attribute_entity3")).to be_instance_of(Expressir::Model::Declarations::Entity)
       expect(schema.find("attribute_entity4")).to be_instance_of(Expressir::Model::Declarations::Entity)
 
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
 
     it "finds an object (syntax.exp)" do |example|
@@ -141,7 +141,7 @@ RSpec.describe Expressir::Model::ModelElement do
       schema = repo.schemas.first
       expect(schema.find("empty_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
 
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
 
     it "finds an object (remark.exp)" do |example|
@@ -286,7 +286,7 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(entity.find("remark_type.IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
       expect(entity.find("remark_type.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
 
-      GC.verify_compaction_references  
+      GC.verify_compaction_references
     end
   end
 end

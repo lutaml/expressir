@@ -106,8 +106,8 @@ module Expressir
 
       def attach_source(ctx, node)
         if node.class.method_defined? :source
-          tokens = get_tokens(ctx)
-          node.source = get_tokens_source(tokens)
+          @source_tokens = get_tokens(ctx)
+          node.source = get_tokens_source(@source_tokens)
         end
       end
 

@@ -24,6 +24,8 @@ using namespace std;
 using namespace Rice;
 using namespace antlr4;
 
+Module rb_mExpressParser;
+
 Class rb_cAttributeRefContext;
 Class rb_cAttributeIdContext;
 Class rb_cConstantRefContext;
@@ -18124,7 +18126,7 @@ Object ContextProxy::wrapParseTree(tree::ParseTree* node) {
 
 extern "C"
 void Init_express_parser() {
-  Module rb_mExpressParser = define_module("ExpressParser");
+  rb_mExpressParser = define_module("ExpressParser");
 
   rb_cToken = define_class_under<Token>(rb_mExpressParser, "Token")
     .define_method("text", &Token::getText)

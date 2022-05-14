@@ -10,6 +10,7 @@ RSpec.describe Expressir::Express::Cache do
   describe ".to_file" do
     it "exports an object" do |example|
       print "\n[#{example.description}] "
+      GC.verify_compaction_references  
       temp_file = Tempfile.new
 
       repository = Expressir::Model::Repository.new
@@ -25,6 +26,8 @@ RSpec.describe Expressir::Express::Cache do
         temp_file.unlink
       end
     end
+
+    GC.verify_compaction_references  
   end
 
   describe ".from_file" do
@@ -44,6 +47,8 @@ RSpec.describe Expressir::Express::Cache do
         temp_file.close
         temp_file.unlink
       end
+      
+      GC.verify_compaction_references  
     end
 
     it "fails parsing a file from a different Expressir version" do |example|
@@ -62,6 +67,8 @@ RSpec.describe Expressir::Express::Cache do
         temp_file.close
         temp_file.unlink
       end
+      
+      GC.verify_compaction_references  
     end
   end
 end

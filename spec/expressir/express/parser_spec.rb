@@ -16,6 +16,7 @@ RSpec.describe Expressir::Express::Parser do
 
       expect(result).to eq(expected_result)
 
+      GC.start
       GC.verify_compaction_references  
     end
 
@@ -31,6 +32,7 @@ RSpec.describe Expressir::Express::Parser do
 
       expect(result).to eq(expected_result)
 
+      GC.start
       GC.verify_compaction_references  
     end
 
@@ -46,6 +48,7 @@ RSpec.describe Expressir::Express::Parser do
 
       expect(result).to eq(expected_result)
 
+      GC.start
       GC.verify_compaction_references  
     end
 
@@ -61,6 +64,7 @@ RSpec.describe Expressir::Express::Parser do
 
       expect(result).to eq(expected_result)
 
+      GC.start
       GC.verify_compaction_references  
     end
 
@@ -83,6 +87,7 @@ RSpec.describe Expressir::Express::Parser do
       expected_result = input[start_index..stop_index]
       expect(entity.source).to eq(expected_result)
 
+      GC.start
       GC.verify_compaction_references  
     end
   end
@@ -110,6 +115,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(schemas[4].file).to eq(exp_files[1].to_s)
       expect(schemas[4].id).to eq("multiple_schema4")
 
+      GC.start
       GC.verify_compaction_references  
     end
   end

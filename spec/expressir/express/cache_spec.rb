@@ -27,6 +27,7 @@ RSpec.describe Expressir::Express::Cache do
       end
     end
 
+    GC.start
     GC.verify_compaction_references  
   end
 
@@ -48,6 +49,7 @@ RSpec.describe Expressir::Express::Cache do
         temp_file.unlink
       end
       
+      GC.start
       GC.verify_compaction_references  
     end
 
@@ -68,6 +70,7 @@ RSpec.describe Expressir::Express::Cache do
         temp_file.unlink
       end
       
+      GC.start
       GC.verify_compaction_references  
     end
   end

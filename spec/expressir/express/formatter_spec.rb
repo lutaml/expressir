@@ -20,6 +20,7 @@ RSpec.describe Expressir::Express::Formatter do
 
       expect(result).to eq(expected_result)
 
+      GC.start
       GC.verify_compaction_references  
     end
 
@@ -36,6 +37,7 @@ RSpec.describe Expressir::Express::Formatter do
 
       expect(result).to eq(expected_result)
       
+      GC.start
       GC.verify_compaction_references  
     end
 
@@ -52,6 +54,7 @@ RSpec.describe Expressir::Express::Formatter do
 
       expect(result).to eq(expected_result)
       
+      GC.start
       GC.verify_compaction_references  
     end
 
@@ -68,6 +71,7 @@ RSpec.describe Expressir::Express::Formatter do
 
       expect(result).to eq(expected_result)
       
+      GC.start
       GC.verify_compaction_references  
     end
 
@@ -87,6 +91,7 @@ RSpec.describe Expressir::Express::Formatter do
 
       expect(result).to eq(expected_result)
       
+      GC.start
       GC.verify_compaction_references  
     end
 
@@ -106,6 +111,7 @@ RSpec.describe Expressir::Express::Formatter do
 
       expect(result).to eq(expected_result)
       
+      GC.start
       GC.verify_compaction_references  
     end
 
@@ -125,6 +131,7 @@ RSpec.describe Expressir::Express::Formatter do
 
       expect(result).to eq(expected_result)
       
+      GC.start
       GC.verify_compaction_references  
     end
 
@@ -145,6 +152,7 @@ RSpec.describe Expressir::Express::Formatter do
 
       expect(result).to eq(expected_result)
       
+      GC.start
       GC.verify_compaction_references  
     end
   end

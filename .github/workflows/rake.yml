@@ -185,6 +185,7 @@ jobs:
         run: |
           cd $(ruby -e "puts RbConfig::TOPDIR + '\/lib\/ruby\/gems\/' + RbConfig::CONFIG['ruby_version'] + '\/gems\/expressir*'")
           ruby bin/rspec
+          cat .rspec_status || echo ".rspec_status was not found"
 
   verify-darwin:
     name: verify MacOS binary gem on ruby-${{ matrix.ruby }}
@@ -221,6 +222,7 @@ jobs:
         run: |
           cd $(ruby -e "puts RbConfig::TOPDIR + '\/lib\/ruby\/gems\/' + RbConfig::CONFIG['ruby_version'] + '\/gems\/expressir*'")
           ruby bin/rspec
+          cat .rspec_status || echo ".rspec_status was not found"
 
   verify-linux:
     name: verify Linux binary gem on ruby-${{ matrix.ruby }}
@@ -256,6 +258,7 @@ jobs:
         run: |
           cd $(ruby -e "puts RbConfig::TOPDIR + '\/lib\/ruby\/gems\/' + RbConfig::CONFIG['ruby_version'] + '\/gems\/expressir*'")
           ruby bin/rspec
+          cat .rspec_status || echo ".rspec_status was not found"
 
   verify-windows:
     name: verify Windows binary gem on ruby-${{ matrix.ruby }}
@@ -294,3 +297,4 @@ jobs:
         run: |
           cd $(ruby -e "puts RbConfig::TOPDIR + '\/lib\/ruby\/gems\/' + RbConfig::CONFIG['ruby_version'] + '\/gems\/expressir*'")
           ruby bin/rspec
+          cat .rspec_status || echo ".rspec_status was not found"

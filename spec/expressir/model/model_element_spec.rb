@@ -5,7 +5,8 @@ require "expressir/express/formatter"
 
 RSpec.describe Expressir::Model::ModelElement do
   describe ".to_hash" do
-    it "exports an object with a formatter (single.exp)" do
+    it "exports an object with a formatter (single.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "single.exp")
       yaml_file = Expressir.root_path.join("spec", "syntax", "single_formatted.yaml")
 
@@ -20,7 +21,8 @@ RSpec.describe Expressir::Model::ModelElement do
   end
 
   describe ".from_hash" do
-    it "parses an object (single.yaml)" do
+    it "parses an object (single.yaml)" do |example|
+      print "\n[#{example.description}] "
       yaml_file = Expressir.root_path.join("spec", "syntax", "single.yaml")
 
       input = YAML.safe_load(File.read(yaml_file))
@@ -32,10 +34,11 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(result).to eq(expected_result)
     end
 
-    it "parses an object (multiple.yaml)" do
+    it "parses an object (multiple.yaml)" do |example|
+      print "\n[#{example.description}] "
       yaml_file = Expressir.root_path.join("spec", "syntax", "multiple.yaml")
 
-      input = YAML.safe_load(File.read(yaml_file), permitted_classes: [Symbol])  # For UTF8 symbols
+      input = YAML.safe_load(File.read(yaml_file), permitted_classes: [Symbol]) # For UTF8 symbols
       repo = Expressir::Model::ModelElement.from_hash(input, root_path: Expressir.root_path)
 
       result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
@@ -44,10 +47,11 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(result).to eq(expected_result)
     end
 
-    it "parses an object (syntax.yaml)" do
+    it "parses an object (syntax.yaml)" do |example|
+      print "\n[#{example.description}] "
       yaml_file = Expressir.root_path.join("spec", "syntax", "syntax.yaml")
 
-      input = YAML.safe_load(File.read(yaml_file), permitted_classes: [Symbol])  # For UTF8 symbols
+      input = YAML.safe_load(File.read(yaml_file), permitted_classes: [Symbol]) # For UTF8 symbols
       repo = Expressir::Model::ModelElement.from_hash(input, root_path: Expressir.root_path)
 
       result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
@@ -56,10 +60,11 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(result).to eq(expected_result)
     end
 
-    it "parses an object (remark.yaml)" do
+    it "parses an object (remark.yaml)" do |example|
+      print "\n[#{example.description}] "
       yaml_file = Expressir.root_path.join("spec", "syntax", "remark.yaml")
 
-      input = YAML.safe_load(File.read(yaml_file), permitted_classes: [Symbol])  # For UTF8 symbols
+      input = YAML.safe_load(File.read(yaml_file), permitted_classes: [Symbol]) # For UTF8 symbols
       repo = Expressir::Model::ModelElement.from_hash(input, root_path: Expressir.root_path)
 
       result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
@@ -70,7 +75,8 @@ RSpec.describe Expressir::Model::ModelElement do
   end
 
   describe ".find" do
-    it "finds an object (single.exp)" do
+    it "finds an object (single.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "single.exp")
 
       repo = Expressir::Express::Parser.from_file(exp_file)
@@ -84,7 +90,8 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(schema.find("empty_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
     end
 
-    it "finds an object (multiple.exp)" do
+    it "finds an object (multiple.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
 
       repo = Expressir::Express::Parser.from_file(exp_file)
@@ -106,7 +113,8 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(schema.find("attribute_entity4")).to be_instance_of(Expressir::Model::Declarations::Entity)
     end
 
-    it "finds an object (syntax.exp)" do
+    it "finds an object (syntax.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "syntax.exp")
 
       repo = Expressir::Express::Parser.from_file(exp_file)
@@ -120,7 +128,8 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(schema.find("empty_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
     end
 
-    it "finds an object (remark.exp)" do
+    it "finds an object (remark.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "remark.exp")
 
       repo = Expressir::Express::Parser.from_file(exp_file)

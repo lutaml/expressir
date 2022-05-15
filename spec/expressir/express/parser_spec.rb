@@ -4,7 +4,8 @@ require "expressir/express/parser"
 
 RSpec.describe Expressir::Express::Parser do
   describe ".from_file" do
-    it "parses a file (single.exp)" do
+    it "parses a file (single.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "single.exp")
       yaml_file = Expressir.root_path.join("spec", "syntax", "single.yaml")
 
@@ -16,7 +17,8 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
     end
 
-    it "parses a file (multiple.exp)" do
+    it "parses a file (multiple.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
       yaml_file = Expressir.root_path.join("spec", "syntax", "multiple.yaml")
 
@@ -28,7 +30,8 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
     end
 
-    it "parses a file (syntax.exp)" do
+    it "parses a file (syntax.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "syntax.exp")
       yaml_file = Expressir.root_path.join("spec", "syntax", "syntax.yaml")
 
@@ -40,7 +43,8 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
     end
 
-    it "parses a file (remark.exp)" do
+    it "parses a file (remark.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "remark.exp")
       yaml_file = Expressir.root_path.join("spec", "syntax", "remark.yaml")
 
@@ -52,7 +56,8 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
     end
 
-    it "parses a file including original source (multiple.exp)" do
+    it "parses a file including original source (multiple.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
 
       input = File.read(exp_file)
@@ -73,7 +78,8 @@ RSpec.describe Expressir::Express::Parser do
   end
 
   describe ".from_files" do
-    it "parses multiple files (single.exp, multiple.exp)" do
+    it "parses multiple files (single.exp, multiple.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_files = [
         Expressir.root_path.join("spec", "syntax", "single.exp"),
         Expressir.root_path.join("spec", "syntax", "multiple.exp"),

@@ -7,7 +7,8 @@ require "expressir/express/hyperlink_formatter"
 
 RSpec.describe Expressir::Express::Formatter do
   describe ".format" do
-    it "exports an object (single.exp)" do
+    it "exports an object (single.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "single.exp")
       formatted_exp_file = Expressir.root_path.join("spec", "syntax", "single_formatted.exp")
 
@@ -20,7 +21,8 @@ RSpec.describe Expressir::Express::Formatter do
       expect(result).to eq(expected_result)
     end
 
-    it "exports an object (multiple.exp)" do
+    it "exports an object (multiple.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
       formatted_exp_file = Expressir.root_path.join("spec", "syntax", "multiple_formatted.exp")
 
@@ -33,7 +35,8 @@ RSpec.describe Expressir::Express::Formatter do
       expect(result).to eq(expected_result)
     end
 
-    it "exports an object (remark.exp)" do
+    it "exports an object (remark.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "remark.exp")
       formatted_exp_file = Expressir.root_path.join("spec", "syntax", "remark_formatted.exp")
 
@@ -46,7 +49,8 @@ RSpec.describe Expressir::Express::Formatter do
       expect(result).to eq(expected_result)
     end
 
-    it "exports an object (syntax.exp)" do
+    it "exports an object (syntax.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "syntax.exp")
       formatted_exp_file = Expressir.root_path.join("spec", "syntax", "syntax_formatted.exp")
 
@@ -59,7 +63,8 @@ RSpec.describe Expressir::Express::Formatter do
       expect(result).to eq(expected_result)
     end
 
-    it "exports an object with schema head formatter (syntax.exp)" do
+    it "exports an object with schema head formatter (syntax.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "syntax.exp")
       formatted_exp_file = Expressir.root_path.join("spec", "syntax", "syntax_schema_head_formatted.exp")
 
@@ -75,7 +80,8 @@ RSpec.describe Expressir::Express::Formatter do
       expect(result).to eq(expected_result)
     end
 
-    it "exports an object with hyperlink formatter (syntax.exp)" do
+    it "exports an object with hyperlink formatter (syntax.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "syntax.exp")
       formatted_exp_file = Expressir.root_path.join("spec", "syntax", "syntax_hyperlink_formatted.exp")
 
@@ -91,7 +97,8 @@ RSpec.describe Expressir::Express::Formatter do
       expect(result).to eq(expected_result)
     end
 
-    it "exports an object with hyperlink formatter (multiple.exp)" do
+    it "exports an object with hyperlink formatter (multiple.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
       formatted_exp_file = Expressir.root_path.join("spec", "syntax", "multiple_hyperlink_formatted.exp")
 
@@ -107,7 +114,8 @@ RSpec.describe Expressir::Express::Formatter do
       expect(result).to eq(expected_result)
     end
 
-    it "exports an object with schema head and hyperlink formatter (multiple.exp)" do
+    it "exports an object with schema head and hyperlink formatter (multiple.exp)" do |example|
+      print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
       formatted_exp_file = Expressir.root_path.join("spec", "syntax", "multiple_schema_head_hyperlink_formatted.exp")
 

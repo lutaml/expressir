@@ -31,6 +31,8 @@ require "set"
 # - prevents segfault in ANTLR4 C++ runtime, not sure why they are caused
 # - e.g. see visit_schema_decl
 
+require 'objspace'
+
 module Expressir
   module Express
     class Visitor < ::ExpressParser::Visitor
@@ -138,15 +140,15 @@ module Expressir
       end
 
       def attach_remarks(ctx, node)
-        remark_tokens = get_tokens(ctx)
-        remark_tokens = remark_tokens.select{ |x| x.channel == REMARK_CHANNEL
-      }
+        @remark_tokens = get_tokens(ctx)
+        @remark_tokens = @remark_tokens.select{ |x| x.channel == REMARK_CHANNEL
+        }
 
         # skip already attached remarks
-        remark_tokens = remark_tokens.select{|x| !@attached_remark_tokens.include?(x)}
+        @remark_tokens = @remark_tokens.select{|x| !@attached_remark_tokens.include?(x)}
 
         # parse remarks, find remark targets
-        tagged_remark_tokens = remark_tokens.map do |remark_token|
+        tagged_remark_tokens = @remark_tokens.map do |remark_token|
           _, remark_tag, remark_text = if remark_token.text.start_with?('--')
             remark_token.text.match(/^--"([^"]*)"(.*)$/).to_a
           else

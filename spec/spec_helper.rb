@@ -14,4 +14,10 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  config.around(:example) do |ex|
+    ex.run
+  rescue SystemExit => e
+    puts "********* Got SystemExit: #{e.inspect}. Ignoring *********"
+  end
 end

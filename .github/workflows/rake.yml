@@ -2,7 +2,7 @@ name: rake
 
 on:
   push:
-    branches: [ master, main ]
+#    branches: [ master, main ]
   pull_request:
 
 jobs:
@@ -63,15 +63,15 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
-      - name: Process cache
-        uses: actions/cache@v2
-        id: cache
-        with:
-          path: lib/expressir/express/express_parser.*
-          key: v4-${{ runner.os }}-${{ matrix.ruby }}-${{ hashFiles('ext/express-parser/extconf.rb', 'ext/express-parser/antlrgen/**', 'ext/express-parser/express_parser.cpp', '.git/modules/ext/express-parser/antlr4-upstream/HEAD') }}
+#      - name: Process cache
+#        uses: actions/cache@v2
+#        id: cache
+#        with:
+#          path: lib/expressir/express/express_parser.*
+#          key: v4-${{ runner.os }}-${{ matrix.ruby }}-${{ hashFiles('ext/express-parser/extconf.rb', 'ext/express-parser/antlrgen/**', 'ext/express-parser/express_parser.cpp', '.git/modules/ext/express-parser/antlr4-upstream/HEAD') }}
 
       - name: Build native extension
-        if: steps.cache.outputs.cache-hit != 'true'
+#        if: steps.cache.outputs.cache-hit != 'true'
         run: bundle exec rake compile
 
       - name: Run tests

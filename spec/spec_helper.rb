@@ -18,6 +18,7 @@ RSpec.configure do |config|
   config.around(:example) do |ex|
     ex.run
   rescue SystemExit => e
-    puts "********* Got SystemExit: #{e.inspect}. Ignoring *********"
+    puts "Got SystemExit: #{e.inspect}."
+    raise
   end
 end

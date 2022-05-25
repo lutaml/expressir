@@ -24,6 +24,8 @@ RSpec.describe Expressir::Express::Cache do
         temp_file.close
         temp_file.unlink
       end
+
+      # Validate Object Space
       GC.start
       GC.verify_compaction_references
       GC.verify_internal_consistency
@@ -47,6 +49,8 @@ RSpec.describe Expressir::Express::Cache do
         temp_file.close
         temp_file.unlink
       end
+
+      # Validate Object Space
       GC.start
       GC.verify_compaction_references
       GC.verify_internal_consistency
@@ -68,6 +72,8 @@ RSpec.describe Expressir::Express::Cache do
         temp_file.close
         temp_file.unlink
       end
+
+      # Validate Object Space
       GC.start
       GC.verify_compaction_references
       GC.verify_internal_consistency

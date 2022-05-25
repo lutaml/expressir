@@ -8,8 +8,6 @@ require "expressir/express/hyperlink_formatter"
 RSpec.describe Expressir::Express::Formatter do
   describe ".format" do
     it "exports an object (single.exp)" do |example|
-      GC.verify_compaction_references
-
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "single.exp")
       formatted_exp_file = Expressir.root_path.join("spec", "syntax", "single_formatted.exp")
@@ -21,10 +19,13 @@ RSpec.describe Expressir::Express::Formatter do
       expected_result = File.read(formatted_exp_file)
 
       expect(result).to eq(expected_result)
+
+      # Validate Object Space
       GC.start
       GC.verify_compaction_references
       GC.verify_internal_consistency
     end
+
     it "exports an object (multiple.exp)" do |example|
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
@@ -54,6 +55,8 @@ RSpec.describe Expressir::Express::Formatter do
       expected_result = File.read(formatted_exp_file)
 
       expect(result).to eq(expected_result)
+
+      # Validate Object Space
       GC.start
       GC.verify_compaction_references
       GC.verify_internal_consistency
@@ -71,6 +74,8 @@ RSpec.describe Expressir::Express::Formatter do
       expected_result = File.read(formatted_exp_file)
 
       expect(result).to eq(expected_result)
+
+      # Validate Object Space
       GC.start
       GC.verify_compaction_references
       GC.verify_internal_consistency
@@ -91,6 +96,8 @@ RSpec.describe Expressir::Express::Formatter do
       expected_result = File.read(formatted_exp_file)
 
       expect(result).to eq(expected_result)
+
+      # Validate Object Space
       GC.start
       GC.verify_compaction_references
       GC.verify_internal_consistency
@@ -111,6 +118,8 @@ RSpec.describe Expressir::Express::Formatter do
       expected_result = File.read(formatted_exp_file)
 
       expect(result).to eq(expected_result)
+
+      # Validate Object Space
       GC.start
       GC.verify_compaction_references
       GC.verify_internal_consistency
@@ -131,6 +140,8 @@ RSpec.describe Expressir::Express::Formatter do
       expected_result = File.read(formatted_exp_file)
 
       expect(result).to eq(expected_result)
+
+      # Validate Object Space
       GC.start
       GC.verify_compaction_references
       GC.verify_internal_consistency
@@ -152,6 +163,8 @@ RSpec.describe Expressir::Express::Formatter do
       expected_result = File.read(formatted_exp_file)
 
       expect(result).to eq(expected_result)
+
+      # Validate Object Space
       GC.start
       GC.verify_compaction_references
       GC.verify_internal_consistency

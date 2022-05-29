@@ -2,7 +2,7 @@ require "rbconfig"
 require "shellwords"
 
 WINDOWS_PLATFORM_REGEX = /mingw|mswin/.freeze
-LINUX_PLATFORM_REGEX = /linux/.freeze
+LINUX_GNU_PLATFORM_REGEX = /linux-gnu/.freeze
 DARWIN_PLATFORM_REGEX = /darwin/.freeze
 GLIBC_MIN_VERSION = "2.17".freeze
 
@@ -15,8 +15,8 @@ CrossRuby = Struct.new(:version, :host) do
     !!(platform =~ WINDOWS_PLATFORM_REGEX)
   end
 
-  def linux?
-    !!(platform =~ LINUX_PLATFORM_REGEX)
+  def linux_gnu?
+    !!(platform =~ LINUX_GNU_PLATFORM_REGEX)
   end
 
   def darwin?
@@ -59,10 +59,10 @@ CrossRuby = Struct.new(:version, :host) do
         else
           "x64-mingw32"
         end
-      when /\Ax86_64.*linux/
-        "x86_64-linux"
-      when /\A(arm64|aarch64).*linux/
-        "aarch64-linux"
+      when "x86_64-linux-gnu"
+        "x86_64-linux-gnu"
+      when "aarch64-linux-gnu"
+        "aarch64-linux-gnu"
       when /\Ax86_64-darwin/
         "x86_64-darwin"
       when /\Aarm64-darwin/
@@ -72,12 +72,24 @@ CrossRuby = Struct.new(:version, :host) do
       end
   end
 
+  def tag
+    @tag ||=
+      case platform
+      when "x86_64-linux-gnu"
+        "x86_64-linux"
+      when "aarch64-linux-gnu"
+        "aarch64-linux"
+      else
+        platform
+      end
+  end
+
   def tool(name)
     (@binutils_prefix ||=
        case platform
        when /x64-mingw(32|-ucrt)/
          "x86_64-w64-mingw32-"
-       when /(x86_64|aarch64)-linux/
+       when /(x86_64|aarch64)-linux-gnu/
          # We do believe that we are on Linux and can use native tools
          ""
        when /x86_64.*darwin/
@@ -93,9 +105,9 @@ CrossRuby = Struct.new(:version, :host) do
     case platform
     when /64-mingw(32|-ucrt)/
       "pei-x86-64"
-    when "x86_64-linux"
+    when "x86_64-linux-gnu"
       "elf64-x86-64"
-    when "aarch64-linux"
+    when "aarch64-linux-gnu"
       "elf64-little"
     when "x86_64-darwin"
       "Mach-O 64-bit x86-64"
@@ -142,7 +154,7 @@ CrossRuby = Struct.new(:version, :host) do
     case platform
     when WINDOWS_PLATFORM_REGEX
       verify_entry_windows(dump, dll)
-    when LINUX_PLATFORM_REGEX
+    when LINUX_GNU_PLATFORM_REGEX
       verify_entry_linux(dll)
     when DARWIN_PLATFORM_REGEX
       verify_entry_darwin(dll)
@@ -188,7 +200,7 @@ CrossRuby = Struct.new(:version, :host) do
   end
 
   def allowed_dlls_linux
-    suffix = (platform == "x86_64-linux" ? "x86-64" : "aarch64")
+    suffix = (platform == "x86_64-linux-gnu" ? "x86-64" : "aarch64")
     [
       "ld-linux-#{suffix}.so",
       "libc.so",
@@ -210,7 +222,7 @@ CrossRuby = Struct.new(:version, :host) do
     case platform
     when WINDOWS_PLATFORM_REGEX
       allowed_dlls_windows
-    when LINUX_PLATFORM_REGEX
+    when LINUX_GNU_PLATFORM_REGEX
       allowed_dlls_linux
     when DARWIN_PLATFORM_REGEX
       allowed_dlls_darwin
@@ -236,7 +248,7 @@ CrossRuby = Struct.new(:version, :host) do
     case platform
     when DARWIN_PLATFORM_REGEX
       actual_dlls_darwin(dll)
-    when LINUX_PLATFORM_REGEX
+    when LINUX_GNU_PLATFORM_REGEX
       actual_dlls_linux(dump)
     when WINDOWS_PLATFORM_REGEX
       actual_dlls_windows(dump)
@@ -291,7 +303,7 @@ def verify_dll(dll, cross_ruby)
   cross_ruby.verify_imports(dump, dll)
   #  Not sure if it is required, probably not
   #  I am keeping related code as a reference for future advances
-  #  cross_ruby.verify_glibc_version(dump, dll) if cross_ruby.linux?
+  #  cross_ruby.verify_glibc_version(dump, dll) if cross_ruby.linux_gnu?
 
   puts "#{dll}: passed shared library sanity checks"
 end
@@ -315,7 +327,7 @@ UBUNTU_PREREQ = "sudo apt-get update -y && sudo apt-get install -y automake auto
 
 def pre_req(plat)
   case plat
-  when /\linux/
+  when /linux/
     "if [[ $(awk -F= '/^NAME/{print $2}' /etc/os-release) == '\"Ubuntu\"' ]]; then #{UBUNTU_PREREQ}; else #{REDHAT_PREREQ}; fi"
   else
     UBUNTU_PREREQ.to_s
@@ -323,14 +335,17 @@ def pre_req(plat)
 end
 
 namespace "gem" do
-  CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux? || cr.darwin? }.map(&:platform).uniq.each do |plat|
+  CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux_gnu? || cr.darwin? }
+    .map { |cr| { platform: cr.platform, tag: cr.tag } }
+    .uniq { |hash| hash[:platform] }.each do |hash|
+    plat = hash[:platform]
+    tag = hash[:tag]
+
     desc "build native gem for #{plat} platform"
     task plat do
-      RakeCompilerDock.sh <<~RCD, platform: plat
-        #{pre_req(plat)} &&
-        gem install bundler --no-document &&
-        bundle &&
-        bundle exec rake gem:#{plat}:builder MAKE="nice make -j`nproc`"
+      RakeCompilerDock.sh <<~RCD, platform: tag
+        #{pre_req(plat)} && gem install bundler --no-document &&
+        bundle && bundle exec rake gem:#{plat}:builder MAKE="nice make -j`nproc`"
       RCD
     end
 
@@ -346,7 +361,7 @@ namespace "gem" do
   multitask "windows" => CROSS_RUBIES.find_all(&:windows?).map(&:platform).uniq
 
   desc "build native gems for linux"
-  multitask "linux" => CROSS_RUBIES.find_all(&:linux?).map(&:platform).uniq
+  multitask "linux-gnu" => CROSS_RUBIES.find_all(&:linux_gnu?).map(&:platform).uniq
 
   desc "build native gems for darwin"
   multitask "darwin" => CROSS_RUBIES.find_all(&:darwin?).map(&:platform).uniq
@@ -361,6 +376,7 @@ Rake::ExtensionTask.new("express_parser", GEMSPEC) do |ext|
   ext.cross_compile  = true
   ext.cross_platform = CROSS_RUBIES.map(&:platform).uniq
   ext.cross_config_options << "--enable-cross-build"
+
   ext.cross_compiling do |spec|
     spec.files.reject! { |path| File.fnmatch?("ext/*", path) }
     spec.dependencies.reject! { |dep| dep.name == "rice" }

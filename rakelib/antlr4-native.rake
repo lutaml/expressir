@@ -2,32 +2,136 @@ require "fileutils"
 require "antlr4-native"
 require "rake"
 
-def create_tokens_api(parser_source_lines)
-  # - add ParserProxy tokens method, simple compensation for missing exposed BufferedTokenStream
-  i = parser_source_lines.index { |x| x == "  Object syntax() {" }
-  parser_source_lines[i + 6] += <<~CPP.split("\n").map { |x| x == "" ? x : "  #{x}" }.join("\n")
+def create_class_declarations(parser_source_lines)
+  i = parser_source_lines.index { |x| x == "Class rb_cContextProxy;" }
+  parser_source_lines[i] += <<~CPP.split("\n").map { |x| x == "" ? x : x.to_s }.join("\n")
 
-    Array getTokens() {
-      Array a;
-
-      std::vector<Token*> tokens = this -> tokens -> getTokens();
-
-      for (auto &token : tokens) {
-        a.push(token);
-      }
-
-      return a;
-    }
+    Class rb_cParserExt;
+    Class rb_cTokenExt;
 
   CPP
 end
 
-def create_tokens_method(parser_source_lines)
-  i = parser_source_lines.index { |x| x == '    .define_method("syntax", &ParserProxy::syntax, Return().keepAlive())' }
-  parser_source_lines[i] += <<~CPP.split("\n").map { |x| x == "" ? x : "    #{x}" }.join("\n")
+def create_tp_class_definition(parser_source_lines)
+  i = parser_source_lines.index { |x| x == "class ContextProxy {" }
+  parser_source_lines[i - 2] += <<~CPP.split("\n").map { |x| x == "" ? x : x.to_s }.join("\n")
 
-    .define_method("tokens", &ParserProxy::getTokens)
+
+    class TokenProxy : public Object {
+      public:
+        TokenProxy(Token* orig) {
+          this -> orig = orig;
+        }
+
+        std::string getText() {
+          return orig->getText();
+        }
+
+        size_t getChannel() {
+          return orig->getChannel();
+        }
+
+        size_t getTokenIndex() {
+          return orig->getTokenIndex();
+        }
+
+      private:
+        Token * orig = nullptr;
+    };
+
   CPP
+end
+
+def create_pp_class_definition(parser_source_lines)
+  i = parser_source_lines.index { |x| x == "extern \"C\"" }
+  parser_source_lines[i - 2] += <<~CPP.split("\n").map { |x| x == "" ? x : x.to_s }.join("\n")
+
+    class ParserProxyExt : public Object {
+      public:
+        ParserProxyExt(Object self, string file) {
+          ifstream stream;
+          stream.open(file);
+          input = new ANTLRInputStream(stream);
+          lexer = new ExpressLexer(input);
+          tokens = new CommonTokenStream(lexer);
+          parser = new ExpressParser(tokens);
+          stream.close();
+        };
+
+        ~ParserProxyExt() {
+          delete parser;
+          delete tokens;
+          delete lexer;
+          delete input;
+        }
+
+        Object syntax() {
+          auto ctx = parser -> syntax();
+
+          SyntaxContextProxy proxy((ExpressParser::SyntaxContext*) ctx);
+          return detail::To_Ruby<SyntaxContextProxy>().convert(proxy);
+        }
+
+        Array getTokens() {
+          Array a;
+          for (auto token : tokens -> getTokens()) {
+            a.push(new TokenProxy(token));
+          }
+          return a;
+        }
+
+        Object visit(VisitorProxy* visitor) {
+          auto result = visitor -> visit(parser -> syntax());
+
+          lexer -> reset();
+          parser -> reset();
+
+          try {
+            return std::any_cast<Object>(result);
+          } catch(std::bad_cast) {
+           return Qnil;
+          }
+        }
+
+      private:
+        ANTLRInputStream* input;
+        ExpressLexer* lexer;
+        CommonTokenStream* tokens;
+        ExpressParser* parser;
+    };
+
+
+  CPP
+end
+
+def create_class_api(parser_source_lines)
+  i = parser_source_lines.index { |x| x == "    .define_method(\"visit\", &ParserProxy::visit, Return().keepAlive());" }
+  parser_source_lines[i] += <<~CPP.split("\n").map { |x| x == "" ? x : "  #{x}" }.join("\n")
+
+
+    rb_cTokenExt = define_class_under<TokenProxy>(rb_mExpressParser, "TokenExt")
+      .define_method("text", &TokenProxy::getText)
+      .define_method("channel", &TokenProxy::getChannel)
+      .define_method("token_index", &TokenProxy::getTokenIndex);
+
+    rb_cParserExt = define_class_under<ParserProxyExt>(rb_mExpressParser, "ParserExt")
+      .define_constructor(Constructor<ParserProxyExt, Object, string>())
+      .define_method("syntax", &ParserProxyExt::syntax, Return().keepAlive())
+      .define_method("tokens", &ParserProxyExt::getTokens)
+      .define_method("visit", &ParserProxyExt::visit, Return().keepAlive());
+
+  CPP
+end
+
+def generate_extended_parser
+  # Generate extended parser that provide Ruby access to token stream
+  parser_source_file = File.join("ext", "express-parser", "express_parser.cpp")
+  parser_source_lines = File.read(parser_source_file).split("\n")
+  create_class_declarations(parser_source_lines)
+  create_tp_class_definition(parser_source_lines)
+  create_pp_class_definition(parser_source_lines)
+  create_class_api(parser_source_lines)
+  File.write(parser_source_file, "#{parser_source_lines.join("\n")}\n")
 end
 
 desc "Generate parser  (Usage: 'rake generate <grammar_file>')"
@@ -38,7 +142,6 @@ task "generate" do
   end
 
   puts "Generating parser from '#{grammar_file}'"
-
   # ANTLR does weird things if the grammar file isn't in the current working directory
   temp_grammar_file = File.join(FileUtils.pwd, File.basename(grammar_file))
   FileUtils.cp(grammar_file, temp_grammar_file)
@@ -51,13 +154,8 @@ task "generate" do
   )
   generator.generate
 
-  # fix issues with generated parser
-  parser_source_file = File.join("ext", "express-parser", "express_parser.cpp")
-  parser_source_lines = File.read(parser_source_file).split("\n")
-  create_tokens_api(parser_source_lines)
-  create_tokens_method(parser_source_lines)
-  File.write(parser_source_file, "#{parser_source_lines.join("\n")}\n")
-
+  puts "Generating extended parser"
+  generate_extended_parser
   # cleanup
   FileUtils.rm(temp_grammar_file)
 end

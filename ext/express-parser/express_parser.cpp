@@ -228,6 +228,8 @@ Class rb_cParser;
 Class rb_cParseTree;
 Class rb_cTerminalNode;
 Class rb_cContextProxy;
+Class rb_cParserExt;
+Class rb_cTokenExt;
 
 namespace Rice::detail {
   template <>
@@ -257,6 +259,28 @@ namespace Rice::detail {
     }
   };
 }
+
+class TokenProxy : public Object {
+  public:
+    TokenProxy(Token* orig) {
+      this -> orig = orig;
+    }
+
+    std::string getText() {
+      return orig->getText();
+    }
+
+    size_t getChannel() {
+      return orig->getChannel();
+    }
+
+    size_t getTokenIndex() {
+      return orig->getTokenIndex();
+    }
+
+  private:
+    Token * orig = nullptr;
+};
 
 class ContextProxy {
 public:
@@ -17256,17 +17280,6 @@ public:
     return detail::To_Ruby<SyntaxContextProxy>().convert(proxy);
   }
 
-  Array getTokens() {
-    Array a;
-
-    std::vector<Token*> tokens = this -> tokens -> getTokens();
-
-    for (auto &token : tokens) {
-      a.push(token);
-    }
-
-    return a;
-  }
   Object visit(VisitorProxy* visitor) {
     auto result = visitor -> visit(this -> parser -> syntax());
 
@@ -18121,6 +18134,59 @@ Object ContextProxy::wrapParseTree(tree::ParseTree* node) {
   }
 }
 
+class ParserProxyExt : public Object {
+  public:
+    ParserProxyExt(Object self, string file) {
+      ifstream stream;
+      stream.open(file);
+      input = new ANTLRInputStream(stream);
+      lexer = new ExpressLexer(input);
+      tokens = new CommonTokenStream(lexer);
+      parser = new ExpressParser(tokens);
+      stream.close();
+    };
+
+    ~ParserProxyExt() {
+      delete parser;
+      delete tokens;
+      delete lexer;
+      delete input;
+    }
+
+    Object syntax() {
+      auto ctx = parser -> syntax();
+
+      SyntaxContextProxy proxy((ExpressParser::SyntaxContext*) ctx);
+      return detail::To_Ruby<SyntaxContextProxy>().convert(proxy);
+    }
+
+    Array getTokens() {
+      Array a;
+      for (auto token : tokens -> getTokens()) {
+        a.push(new TokenProxy(token));
+      }
+      return a;
+    }
+
+    Object visit(VisitorProxy* visitor) {
+      auto result = visitor -> visit(parser -> syntax());
+
+      lexer -> reset();
+      parser -> reset();
+
+      try {
+        return std::any_cast<Object>(result);
+      } catch(std::bad_cast) {
+       return Qnil;
+      }
+    }
+
+  private:
+    ANTLRInputStream* input;
+    ExpressLexer* lexer;
+    CommonTokenStream* tokens;
+    ExpressParser* parser;
+};
 
 extern "C"
 void Init_express_parser() {
@@ -18353,8 +18419,18 @@ void Init_express_parser() {
     .define_singleton_function("parse", &ParserProxy::parse)
     .define_singleton_function("parse_file", &ParserProxy::parseFile)
     .define_method("syntax", &ParserProxy::syntax, Return().keepAlive())
-    .define_method("tokens", &ParserProxy::getTokens)
     .define_method("visit", &ParserProxy::visit, Return().keepAlive());
+
+  rb_cTokenExt = define_class_under<TokenProxy>(rb_mExpressParser, "TokenExt")
+    .define_method("text", &TokenProxy::getText)
+    .define_method("channel", &TokenProxy::getChannel)
+    .define_method("token_index", &TokenProxy::getTokenIndex);
+
+  rb_cParserExt = define_class_under<ParserProxyExt>(rb_mExpressParser, "ParserExt")
+    .define_constructor(Constructor<ParserProxyExt, Object, string>())
+    .define_method("syntax", &ParserProxyExt::syntax, Return().keepAlive())
+    .define_method("tokens", &ParserProxyExt::getTokens)
+    .define_method("visit", &ParserProxyExt::visit, Return().keepAlive());
 
   rb_cAttributeRefContext = define_class_under<AttributeRefContextProxy, ContextProxy>(rb_mExpressParser, "AttributeRefContext")
     .define_method("attribute_id", &AttributeRefContextProxy::attributeId);

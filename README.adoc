@@ -75,6 +75,14 @@ Run the test suite
 bin/rspec
 ----
 
+=== Grammar updates
+EXPRESS grammar is lined as git submodule to ext/express-grammar
+Shoudl you update it, run ```rake generate```. This command will generate source code for updated native extension using antlr4-native gem.
+Please note that we create several classes on top of antlr4-native output so using embedded rake task is a real requirement.
+
+When new extension is gnerated and tested plase check in updated C++ files to git (```rake generate``` is NOT a CI step, 
+extension source files are pulled from the repo).
+
 == Installation
 
 Add this line to your application's `Gemfile`:

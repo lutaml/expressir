@@ -24,6 +24,11 @@ RSpec.describe Expressir::Express::Cache do
         temp_file.close
         temp_file.unlink
       end
+
+      # Validate Object Space
+      GC.start
+      GC.verify_compaction_references
+      GC.verify_internal_consistency
     end
   end
 
@@ -44,6 +49,11 @@ RSpec.describe Expressir::Express::Cache do
         temp_file.close
         temp_file.unlink
       end
+
+      # Validate Object Space
+      GC.start
+      GC.verify_compaction_references
+      GC.verify_internal_consistency
     end
 
     it "fails parsing a file from a different Expressir version" do |example|
@@ -62,6 +72,11 @@ RSpec.describe Expressir::Express::Cache do
         temp_file.close
         temp_file.unlink
       end
+
+      # Validate Object Space
+      GC.start
+      GC.verify_compaction_references
+      GC.verify_internal_consistency
     end
   end
 end

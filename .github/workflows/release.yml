@@ -30,8 +30,8 @@ jobs:
 
       - if: ${{ github.event_name == 'workflow_dispatch' }} # unfortunatelly cannot keep this condition on job level
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config --global user.name github-actions
+          git config --global user.email github-actions@github.com
           gem install gem-release
           gem bump --version ${{ github.event.inputs.next_version }} --tag --push
 
@@ -41,12 +41,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host: [ linux, windows, darwin ]
+        platform: [ linux-gnu, windows, darwin ]
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-          ref: main # https://github.com/actions/checkout/issues/439#issuecomment-830862188
 
       - uses: ruby/setup-ruby@master
         with:
@@ -56,14 +55,22 @@ jobs:
 
       - run: bundle install --jobs 4 --retry 3
 
-      # build gem WITHOUT pre-built native extension
-      - run: gem build expressir.gemspec
+      - name: Build gem and save version
+        if: matrix.platform == 'linux-gnu'
+        run: |
+          gem build expressir.gemspec | grep -o 'Version: .*' | awk '{print $2}' > version
 
-      - if: matrix.host == 'linux'
+      - if: matrix.platform == 'linux-gnu'
         uses: actions/upload-artifact@v3
         with:
           name: pkg-ruby
           path: expressir-*.gem
+
+      - if: matrix.platform == 'linux-gnu'
+        uses: actions/upload-artifact@v3
+        with:
+          name: version
+          path: version
 
       - name: Enable swap
         run: |
@@ -74,11 +81,11 @@ jobs:
           sudo swapon --all --verbose
 
       # build gem WITH pre-built native extension
-      - run: bundle exec rake gem:${{ matrix.host }}
+      - run: bundle exec rake gem:${{ matrix.platform }}
 
       - uses: actions/upload-artifact@v3
         with:
-          name: pkg-${{ matrix.host }}
+          name: pkg-${{ matrix.platform }}
           path: pkg/*.gem
 
   publish:
@@ -92,7 +99,7 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: pkg-linux
+          name: pkg-linux-gnu
           path: pkg
 
       - uses: actions/download-artifact@v3
@@ -109,12 +116,11 @@ jobs:
         with:
           ruby-version: '3.1'
 
-      - run: ls -l pkg/
-
       - name: Publish to rubygems.org
         env:
           RUBYGEMS_API_KEY: ${{ secrets.LUTAML_CI_RUBYGEMS_API_KEY }}
         run: |
+          ls -l pkg/
           mkdir -p ~/.gem
           cat > ~/.gem/credentials << EOF
           ---
@@ -123,3 +129,51 @@ jobs:
           chmod 0600 ~/.gem/credentials
           gem signin
           for gem in pkg/*.gem; do gem push $gem -V; done
+
+  verify:
+    name: Verify published gem on ${{ matrix.os }}
+    needs: publish
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    steps:
+      - name: Install Ruby
+        uses: ruby/setup-ruby@master
+        with:
+          ruby-version: 3.1
+          bundler-cache: true
+          bundler: ${{ env.BUNDLER_VER }}
+
+      - name: Download version
+        uses: actions/download-artifact@v3
+        with:
+         name: version
+
+      - name: Install gem
+        run: gem install expressir -v $(cat version)
+
+      - name: Verify
+        run: expressir version
+
+  verify-alpine:
+    name: Verify published gem on alpine
+    needs: publish
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:3.17
+    steps:
+      - name: Install packages
+        run: apk --no-cache add bash build-base git ruby-dev gcc g++ automake
+
+      - name: Download version
+        uses: actions/download-artifact@v3
+        with:
+         name: version
+
+      - name: Install gem
+        run: gem install expressir -v $(cat version)
+
+      - name: Verify
+        run: expressir version

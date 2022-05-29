@@ -625,6 +625,7 @@ void expresslexerLexerInitialize() {
   	390,1,0,0,0,15,0,1383,1393,1407,1415,1425,1429,1433,1439,1441,1448,1458,
   	1460,1474,1482,2,0,2,0,0,1,0
   };
+
   staticData->serializedATN = antlr4::atn::SerializedATNView(serializedATNSegment, sizeof(serializedATNSegment) / sizeof(serializedATNSegment[0]));
 
   antlr4::atn::ATNDeserializer deserializer;

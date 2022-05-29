@@ -3,7 +3,14 @@ name: rake
 on:
   push:
     branches: [ master, main ]
+    paths-ignore:
+      - 'docs/**'
+      - '**.adoc'
+      - '**.md'
+      - .github/workflows/alpine.yml
+      - .github/workflows/release.yml
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: '${{ github.workflow }}-${{ github.job }}-${{ github.head_ref || github.ref_name }}'

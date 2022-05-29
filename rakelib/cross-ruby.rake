@@ -361,6 +361,7 @@ Rake::ExtensionTask.new("express_parser", GEMSPEC) do |ext|
   ext.cross_compile  = true
   ext.cross_platform = CROSS_RUBIES.map(&:platform).uniq
   ext.cross_config_options << "--enable-cross-build"
+
   ext.cross_compiling do |spec|
     spec.files.reject! { |path| File.fnmatch?("ext/*", path) }
     spec.dependencies.reject! { |dep| dep.name == "rice" }

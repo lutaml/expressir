@@ -43,6 +43,8 @@ if cross_build
   when /darwin/
     $CXXFLAGS << " -mmacosx-version-min=10.15 -fno-c++-static-destructors"
     $DLDFLAGS << " -mmacosx-version-min=10.15"
+  when /linux/
+    $DLDFLAGS << " -static-libgcc -static-libstdc++"
   end
 else
   require "mkmf-rice"

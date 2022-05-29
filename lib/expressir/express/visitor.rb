@@ -1,9 +1,4 @@
-begin
-  RUBY_VERSION =~ /(\d+\.\d+)/
-  require_relative "#{$1}/express_parser"
-rescue LoadError
-  require_relative "express_parser"
-end
+require_relative 'extension'
 require "expressir/model"
 require "set"
 
@@ -30,8 +25,6 @@ require "set"
 # all access to ctx members must happen before calling other visitor code
 # - prevents segfault in ANTLR4 C++ runtime, not sure why they are caused
 # - e.g. see visit_schema_decl
-
-require 'objspace'
 
 module Expressir
   module Express

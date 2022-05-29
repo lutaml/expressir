@@ -6,7 +6,7 @@ require "yard"
 
 RSpec::Core::RakeTask.new(:spec)
 
-task default: :spec
+task default: %i[compile spec]
 
 GEMSPEC = Gem::Specification.load("expressir.gemspec")
 

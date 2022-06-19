@@ -37,7 +37,7 @@ if cross_build
   case RbConfig::CONFIG["target_os"]
   when /mingw32|mswin/
     # workaround for 'w64-mingw32-as: express_parser.o: too many sections'
-    $CXXFLAGS << " -O3 -Wa,-mbig-obj"
+    $CXXFLAGS << " -Wa,-mbig-obj"
     # workaround for LoadError: 127: The specified procedure could not be found.
     $DLDFLAGS << " -static-libgcc -static-libstdc++"
   when /darwin/
@@ -49,7 +49,7 @@ else
   dir_config(extension_name)
 end
 
-$CPPFLAGS << " -std=c++17 -DANTLR4CPP_STATIC -DHAVE_CXX11 -fno-omit-frame-pointer"
+$CPPFLAGS << " -std=c++17 -DANTLR4CPP_STATIC -DHAVE_CXX11 -O3"
 $INCFLAGS << " -I#{__dir__}/#{antlr4_src}"
 $srcs = []
 

@@ -22,7 +22,7 @@ jobs:
           submodules: recursive
 
       - name: Install Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@master
         with:
           ruby-version: 3.0
           bundler: ${{ env.BUNDLER_VER }}
@@ -54,14 +54,14 @@ jobs:
         run: brew install autoconf automake libtool
 
       - name: Install Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@master
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler: ${{ env.BUNDLER_VER }}
           bundler-cache: true
 
       - name: Process cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: cache
         with:
           path: lib/expressir/express/express_parser.*
@@ -88,7 +88,7 @@ jobs:
           submodules: recursive
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@master
         with:
           ruby-version: '3.0'
           # bundler-cache: true important to not use cache because it leads to "cannot find -lrice"
@@ -102,7 +102,7 @@ jobs:
         run: gem build expressir.gemspec
 
       - name: Package gem without native extension
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pkg-ruby
           path: expressir-*.gem
@@ -120,7 +120,7 @@ jobs:
           submodules: recursive
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@master
         with:
           ruby-version: '3.0'
           # bundler-cache: true important to not use cache because it leads to "cannot find -lrice"
@@ -142,7 +142,7 @@ jobs:
         run: bundle exec rake gem:${{ matrix.host }}
 
       - name: Package gem with native extension
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pkg-${{ matrix.host }}
           path: pkg/*.gem
@@ -158,7 +158,7 @@ jobs:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
     steps:
       - name: Install Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@master
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
@@ -173,7 +173,7 @@ jobs:
         run: bundle install --jobs 4 --retry 3
 
       - name: Download packaged gem
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
          name: pkg-ruby
          path: pkg
@@ -197,7 +197,7 @@ jobs:
         ruby: [ '3.1', '3.0', '2.7' ]
     steps:
       - name: Install Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@master
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
@@ -210,7 +210,7 @@ jobs:
         run: bundle install --jobs 4 --retry 3
 
       - name: Download packaged gem
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
          name: pkg-darwin
          path: pkg
@@ -235,7 +235,7 @@ jobs:
         ruby: [ '3.1', '3.0', '2.7' ]
     steps:
       - name: Install Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@master
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
@@ -248,7 +248,7 @@ jobs:
         run: bundle install --jobs 4 --retry 3
 
       - name: Download packaged gem
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
          name: pkg-linux
          path: pkg
@@ -275,7 +275,7 @@ jobs:
         ruby: [ '3.1', '3.0', '2.7' ]
     steps:
       - name: Install Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@master
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
@@ -288,7 +288,7 @@ jobs:
         run: bundle install --jobs 4 --retry 3
 
       - name: Download packaged gem
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
          name: pkg-windows
          path: pkg

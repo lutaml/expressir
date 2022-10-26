@@ -5,6 +5,10 @@ on:
     branches: [ master, main ]
   pull_request:
 
+concurrency:
+  group: '${{ github.workflow }}-${{ github.job }}-${{ github.head_ref || github.ref_name }}'
+  cancel-in-progress: true
+
 env:
   BUNDLER_VER: 2.3.24
 # Forcing bundler version to ensure that it is consistent everywhere and

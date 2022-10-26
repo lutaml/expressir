@@ -11,6 +11,17 @@ on:
   push:
     tags: [ v* ]
 
+concurrency:
+  group: '${{ github.workflow }}-${{ github.job }}-${{ github.head_ref || github.ref_name }}'
+  cancel-in-progress: true
+
+env:
+  BUNDLER_VER: 2.3.24
+# Forcing bundler version to ensure that it is consistent everywhere and
+# does not cause bundler gem reinstalls
+# bundler/rubygems 2.3.22 is a minimal requirement to support gnu/musl differentiation
+# https://github.com/rubygems/rubygems/pull/4488
+
 jobs:
   bump:
     runs-on: ubuntu-18.04
@@ -22,6 +33,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.0'
+          bundler: ${{ env.BUNDLER_VER }}
 
       - if: ${{ github.event_name == 'workflow_dispatch' }} # unfortunatelly cannot keep this condition on job level
         run: |
@@ -48,6 +60,7 @@ jobs:
           ruby-version: '3.0'
           # bundler-cache: true important to not use cache because it leads to "cannot find -lrice"
           # more info https://github.com/lutaml/expressir/runs/2097658383?check_suite_focus=true#step:7:2126
+          bundler: ${{ env.BUNDLER_VER }}
 
       - run: bundle install --jobs 4 --retry 3
 
@@ -103,6 +116,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.0'
+          bundler: ${{ env.BUNDLER_VER }}
 
       - run: ls -l pkg/
 

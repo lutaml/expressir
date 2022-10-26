@@ -5,6 +5,13 @@ on:
     branches: [ master, main ]
   pull_request:
 
+env:
+  BUNDLER_VER: 2.3.24
+# Forcing bundler version to ensure that it is consistent everywhere and
+# does not cause bundler gem reinstalls
+# bundler/rubygems 2.3.22 is a minimal requirement to support gnu/musl differentiation
+# https://github.com/rubygems/rubygems/pull/4488
+
 jobs:
   rubocop:
     runs-on: ubuntu-latest
@@ -18,6 +25,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.0
+          bundler: ${{ env.BUNDLER_VER }}
           bundler-cache: true
 
       - name: Bundle
@@ -49,6 +57,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
+          bundler: ${{ env.BUNDLER_VER }}
           bundler-cache: true
 
       - name: Process cache
@@ -84,6 +93,7 @@ jobs:
           ruby-version: '3.0'
           # bundler-cache: true important to not use cache because it leads to "cannot find -lrice"
           # more info https://github.com/lutaml/expressir/runs/2097658383?check_suite_focus=true#step:7:2126
+          bundler: ${{ env.BUNDLER_VER }}
 
       - name: Bundle
         run: bundle install --jobs 4 --retry 3
@@ -115,6 +125,7 @@ jobs:
           ruby-version: '3.0'
           # bundler-cache: true important to not use cache because it leads to "cannot find -lrice"
           # more info https://github.com/lutaml/expressir/runs/2097658383?check_suite_focus=true#step:7:2126
+          bundler: ${{ env.BUNDLER_VER }}
 
       - name: Bundle
         run: bundle install --jobs 4 --retry 3
@@ -151,6 +162,7 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
+          bundler: ${{ env.BUNDLER_VER }}
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -159,7 +171,7 @@ jobs:
 
       - name: Bundle
         run: bundle install --jobs 4 --retry 3
-        
+
       - name: Download packaged gem
         uses: actions/download-artifact@v2
         with:
@@ -189,13 +201,14 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
+          bundler: ${{ env.BUNDLER_VER }}
 
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Bundle
         run: bundle install --jobs 4 --retry 3
-        
+
       - name: Download packaged gem
         uses: actions/download-artifact@v2
         with:
@@ -226,13 +239,14 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
+          bundler: ${{ env.BUNDLER_VER }}
 
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Bundle
         run: bundle install --jobs 4 --retry 3
-        
+
       - name: Download packaged gem
         uses: actions/download-artifact@v2
         with:
@@ -255,8 +269,8 @@ jobs:
     runs-on: windows-latest
     strategy:
       fail-fast: false
-# Ruby 3.1 fails 
-# https://github.com/lutaml/expressir/issues/103      
+# Ruby 3.1 fails
+# https://github.com/lutaml/expressir/issues/103
       matrix:
         ruby: [ '3.1', '3.0', '2.7' ]
     steps:
@@ -265,13 +279,14 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
+          bundler: ${{ env.BUNDLER_VER }}
 
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Bundle
         run: bundle install --jobs 4 --retry 3
-        
+
       - name: Download packaged gem
         uses: actions/download-artifact@v2
         with:

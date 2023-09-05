@@ -2,7 +2,7 @@ name: rake
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [ master, main, maxirmx-issue-106 ]
   pull_request:
 
 concurrency:

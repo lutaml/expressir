@@ -49,7 +49,7 @@ else
   dir_config(extension_name)
 end
 
-$CPPFLAGS << " -std=c++17 -DANTLR4CPP_STATIC -DHAVE_CXX11 -O2 -fno-omit-frame-pointer"
+$CPPFLAGS << " -DANTLR4CPP_STATIC -DHAVE_CXX11 -O2 -fno-omit-frame-pointer"
 $INCFLAGS << " -I#{__dir__}/#{antlr4_src}"
 $srcs = []
 

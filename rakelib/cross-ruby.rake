@@ -51,6 +51,8 @@ CrossRuby = Struct.new(:version, :host) do
   # rubocop:disable Metrics/MethodLength
   # rubocop:disable Metrics/CyclomaticComplexity
   def platform
+    puts "======> #{host}"
+
     @platform ||=
       case host
       when /\Ax86_64.*mingw32/

@@ -126,7 +126,7 @@ CrossRuby = Struct.new(:version, :host) do
 
   def verify_entry_linux(dll)
     nm = `#{["env", "LANG=C", tool("nm"), "-D", dll].shelljoin}`
-    unless / T Init_express_parser/.match?(nm)
+    unless nm.include?(" T Init_express_parser")
       raise "Export function Init_express_parser not in dll #{dll}"
     end
   end
@@ -223,7 +223,7 @@ CrossRuby = Struct.new(:version, :host) do
   end
 
   def actual_dlls_windows(dump)
-    dump.scan(/DLL Name: (.*)$/).map(&:first).map(&:downcase).uniq
+    dump.scan(/DLL Name: (.*)$/).map { |x| x.first.downcase }.uniq
   end
 
   def actual_dlls_darwin(dll)
@@ -272,12 +272,12 @@ CrossRuby = Struct.new(:version, :host) do
   end
 end
 
-CROSS_RUBIES = File.read(".cross_rubies").split("\n").map do |line|
+CROSS_RUBIES = File.read(".cross_rubies").split("\n").filter_map do |line|
   case line
   when /\A([^#]+):([^#]+)/
     CrossRuby.new($1, $2)
   end
-end.compact
+end
 
 ENV["RUBY_CC_VERSION"] = CROSS_RUBIES.map(&:ver).uniq.join(":")
 
@@ -329,7 +329,7 @@ namespace "gem" do
         #{pre_req(plat)} &&
         gem install bundler --no-document &&
         bundle &&
-        bundle exec rake gem:#{plat}:builder MAKE='nice make -j`nproc`'
+        bundle exec rake gem:#{plat}:builder MAKE="nice make -j`nproc`"
       RCD
     end
 

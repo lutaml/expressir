@@ -146,6 +146,7 @@ several physical lines.
 --"remark_schema.remark_entity.WR1" schema scope - entity where, with prefix
 --"remark_schema.remark_entity.WR1" universal scope - entity where
 --"remark_schema.remark_entity.WR1" universal scope - entity where, with prefix
+--"remark_schema.remark_entity.WR1.unusual_placement" placed inside WHERE clauses (or other enumerable context)
 --"remark_schema.remark_entity.IP1" entity scope - entity informal proposition
 --"remark_schema.remark_entity.IP1" entity scope - entity informal proposition, with prefix
 --"remark_schema.remark_entity.IP1" schema scope - entity informal proposition

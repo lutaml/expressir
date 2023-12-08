@@ -23,7 +23,9 @@ ENTITY remark_entity;
   DERIVE remark_derived_attribute : STRING := 'xxx';
   INVERSE remark_inverse_attribute : remark_entity FOR remark_attribute;
   UNIQUE UR1: remark_attribute;
-  WHERE WR1: TRUE;
+  WHERE WR1:
+  --"unusual_placement" placed inside WHERE clauses (or other enumerable context)
+  TRUE;
   --"remark_attribute" entity scope - entity attribute
   --"remark_derived_attribute" entity scope - entity derived attribute
   --"remark_inverse_attribute" entity scope - entity inverse attribute

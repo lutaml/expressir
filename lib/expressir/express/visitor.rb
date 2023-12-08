@@ -17,7 +17,7 @@ require "set"
 # - such multi-pass parsing is not implemented yet
 # - xxxRef - merged to SimpleReference
 # - entityConstructor, functionCall - merged to FunctionCall
-# 
+#
 # difference between generalized and instantiable types is not recognized
 # see note in 8.6.2 Parameter data types
 # > A syntactic construct such as ARRAY[1:3] OF REAL satisfies two syntactic productions —
@@ -69,7 +69,7 @@ module Expressir
           default
         end
       end
-    
+
       def visit_if_map(ctx)
         if ctx
           ctx.map{|ctx2| visit(ctx2)}
@@ -77,7 +77,7 @@ module Expressir
           []
         end
       end
-    
+
       def visit_if_map_flatten(ctx)
         if ctx
           ctx.map{|ctx2| visit(ctx2)}.flatten
@@ -111,15 +111,25 @@ module Expressir
         end
       end
 
+      def node_find(node, path)
+        if node.is_a?(Enumerable)
+          target_node = node.find { |item| item.find(path) }
+        else
+          target_node = node.find(path)
+        end
+        target_node
+      end
+
       def find_remark_target(node, path)
-        target_node = node.find(path)
+        target_node = node_find(node, path)
+
         return target_node if target_node
 
         # check if path can create implicit remark item
         # see https://github.com/lutaml/expressir/issues/78
         rest, _, current_path = path.rpartition(".") # get last path part
         _, _, current_path = current_path.rpartition(":") # ignore prefix
-        parent_node = node.find(rest)
+        parent_node = node_find(node, rest)
         if parent_node and parent_node.class.method_defined? :remark_items
           remark_item = Model::Declarations::RemarkItem.new(
             id: current_path
@@ -134,7 +144,7 @@ module Expressir
             parent_node.remark_items << remark_item
           end
           parent_node.reset_children_by_id
-          
+
           remark_item
         end
       end
@@ -427,7 +437,7 @@ module Expressir
         optional = ctx__OPTIONAL && true
         unique = ctx__UNIQUE && true
         base_type = visit_if(ctx__instantiable_type)
-        
+
         Model::DataTypes::Array.new(
           bound1: bound1,
           bound2: bound2,
@@ -495,7 +505,7 @@ module Expressir
         bound1 = visit_if(ctx__bound_spec__bound1)
         bound2 = visit_if(ctx__bound_spec__bound2)
         base_type = visit_if(ctx__instantiable_type)
-        
+
         Model::DataTypes::Bag.new(
           bound1: bound1,
           bound2: bound2,
@@ -830,7 +840,7 @@ module Expressir
         if ctx__type_ref
           ref = visit_if(ctx__type_ref)
           attribute = visit_if(ctx__enumeration_ref)
-  
+
           Model::References::AttributeReference.new(
             ref: ref,
             attribute: attribute
@@ -1030,7 +1040,7 @@ module Expressir
         optional = ctx__OPTIONAL && true
         unique = ctx__UNIQUE && true
         base_type = visit_if(ctx__parameter_type)
-        
+
         Model::DataTypes::Array.new(
           bound1: bound1,
           bound2: bound2,
@@ -1049,7 +1059,7 @@ module Expressir
         bound1 = visit_if(ctx__bound_spec__bound1)
         bound2 = visit_if(ctx__bound_spec__bound2)
         base_type = visit_if(ctx__parameter_type)
-        
+
         Model::DataTypes::Bag.new(
           bound1: bound1,
           bound2: bound2,
@@ -1068,7 +1078,7 @@ module Expressir
         bound2 = visit_if(ctx__bound_spec__bound2)
         unique = ctx__UNIQUE && true
         base_type = visit_if(ctx__parameter_type)
-        
+
         Model::DataTypes::List.new(
           bound1: bound1,
           bound2: bound2,
@@ -1093,7 +1103,7 @@ module Expressir
         bound1 = visit_if(ctx__bound_spec__bound1)
         bound2 = visit_if(ctx__bound_spec__bound2)
         base_type = visit_if(ctx__parameter_type)
-        
+
         Model::DataTypes::Set.new(
           bound1: bound1,
           bound2: bound2,
@@ -1358,7 +1368,7 @@ module Expressir
         bound2 = visit_if(ctx__bound_spec__bound2)
         unique = ctx__UNIQUE && true
         base_type = visit_if(ctx__instantiable_type)
-        
+
         Model::DataTypes::List.new(
           bound1: bound1,
           bound2: bound2,
@@ -1989,7 +1999,7 @@ module Expressir
             end
           end
         end
-        
+
         Model::Declarations::SchemaVersion.new(
           value: value,
           items: items
@@ -2042,7 +2052,7 @@ module Expressir
         bound1 = visit_if(ctx__bound_spec__bound1)
         bound2 = visit_if(ctx__bound_spec__bound2)
         base_type = visit_if(ctx__instantiable_type)
-        
+
         Model::DataTypes::Set.new(
           bound1: bound1,
           bound2: bound2,
@@ -2087,7 +2097,7 @@ module Expressir
       def visit_simple_factor_expression(ctx)
         ctx__expression = ctx.expression
         ctx__primary = ctx.primary
-        
+
         visit_if(ctx__expression || ctx__primary)
       end
 

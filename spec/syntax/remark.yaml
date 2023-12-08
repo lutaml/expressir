@@ -133,6 +133,11 @@ schemas:
       - schema scope - entity where, with prefix
       - universal scope - entity where
       - universal scope - entity where, with prefix
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: unusual_placement
+        remarks:
+        - placed inside WHERE clauses (or other enumerable context)
       expression:
         _class: Expressir::Model::Literals::Logical
         value: :TRUE

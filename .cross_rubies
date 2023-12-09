@@ -1,3 +1,8 @@
+3.2.0:x86_64-w64-mingw32
+3.2.0:x86_64-linux-gnu
+3.2.0:aarch64-linux-gnu
+3.2.0:x86_64-darwin
+3.2.0:arm64-darwin
 3.1.0:x86_64-w64-mingw32
 3.1.0:x86_64-linux-gnu
 3.1.0:aarch64-linux-gnu

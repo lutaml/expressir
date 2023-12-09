@@ -166,7 +166,7 @@ CrossRuby = Struct.new(:version, :host) do
      "api-ms-win-crt-filesystem-l1-1-0.dll",
      "api-ms-win-crt-math-l1-1-0.dll",
      "libwinpthread-1.dll",
-     "x64-ucrt-ruby310.dll"]
+     "x64-ucrt-ruby#{api_ver_suffix}.dll"]
   end
   # rubocop:enable Metrics/MethodLength
 
@@ -195,6 +195,7 @@ CrossRuby = Struct.new(:version, :host) do
       "libm.so",
       "libstdc++.so",
       "libgcc_s.so",
+      "libpthread.so",
     ]
   end
 

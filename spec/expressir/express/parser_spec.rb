@@ -4,6 +4,13 @@ require "expressir/express/parser"
 
 RSpec.describe Expressir::Express::Parser do
   describe ".from_file" do
+    it "throws an exception if the file to parse does not exist" do |example|
+      print "\n[#{example.description}] "
+      expect do
+        Expressir::Express::Parser.from_file("non-existing-file")
+      end.to raise_error(Errno::ENOENT)
+    end
+
     it "parses a file (single.exp)" do |example|
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "single.exp")

@@ -33,6 +33,13 @@ RSpec.describe Expressir::Express::Cache do
   end
 
   describe ".from_file" do
+    it "throws an exception if the cache file does not exist" do |example|
+      print "\n[#{example.description}] "
+      expect do
+        Expressir::Express::Cache.from_file("non-existing-file", test_overwrite_version: TEST_VERSION)
+      end.to raise_error(Errno::ENOENT)
+    end
+
     it "parses a file" do |example|
       print "\n[#{example.description}] "
       temp_file = Tempfile.new

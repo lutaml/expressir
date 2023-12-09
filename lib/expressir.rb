@@ -3,6 +3,10 @@ require "expressir/version"
 require "expressir/cli"
 require "expressir/config"
 
+Dir[File.join(__dir__, "expressir", "express", "*.rb")].sort.each do |fea|
+  require fea
+end
+
 module Expressir
   class Error < StandardError; end
 

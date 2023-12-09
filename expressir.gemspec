@@ -39,7 +39,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pry", "~> 0.12.2"
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rake-compiler", "~> 1.2"
-  spec.add_development_dependency "rake-compiler-dock", "~> 1.2.1"
+  spec.add_development_dependency "rake-compiler-dock", "~> 1.3"
   spec.add_development_dependency "rspec", "~> 3.11"
   spec.add_development_dependency "rubocop", "1.58"
   spec.add_development_dependency "rubocop-performance", "~> 1.19"

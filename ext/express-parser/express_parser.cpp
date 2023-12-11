@@ -18136,7 +18136,7 @@ Object ContextProxy::wrapParseTree(tree::ParseTree* node) {
 
 class ParserProxyExt : public Object {
   public:
-    ParserProxyExt(Object self, string file) {
+    ParserProxyExt(string file) {
       ifstream stream;
       stream.open(file);
       input = new ANTLRInputStream(stream);
@@ -18427,7 +18427,7 @@ void Init_express_parser() {
     .define_method("token_index", &TokenProxy::getTokenIndex);
 
   rb_cParserExt = define_class_under<ParserProxyExt>(rb_mExpressParser, "ParserExt")
-    .define_constructor(Constructor<ParserProxyExt, Object, string>())
+    .define_constructor(Constructor<ParserProxyExt, string>())
     .define_method("syntax", &ParserProxyExt::syntax, Return().keepAlive())
     .define_method("tokens", &ParserProxyExt::getTokens)
     .define_method("visit", &ParserProxyExt::visit, Return().keepAlive());

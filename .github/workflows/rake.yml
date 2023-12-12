@@ -235,7 +235,7 @@ jobs:
           cat .rspec_status || echo ".rspec_status was not found"
 
   verify-linux-gnu:
-    name: verify Linux (GNU) binary gem on ruby-${{ matrix.ruby }}
+    name: verify Linux (gnu) binary gem on ruby-${{ matrix.ruby }}
     needs: pack
     runs-on: ubuntu-latest
     strategy:
@@ -263,7 +263,7 @@ jobs:
          path: pkg
 
       - name: Install binary gem
-        run: gem install -l pkg/expressir-*-$(ruby -e "puts RUBY_PLATFORM").gem
+        run: gem install -l pkg/expressir-*-$(ruby -e "puts RUBY_PLATFORM")-gnu.gem
 
       - name: Verify
         run: |

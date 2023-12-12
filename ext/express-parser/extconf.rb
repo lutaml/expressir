@@ -41,8 +41,8 @@ if cross_build
     # workaround for LoadError: 127: The specified procedure could not be found.
     $DLDFLAGS << " -static-libgcc -static-libstdc++"
   when /darwin/
-    $CXXFLAGS << " -mmacosx-version-min=10.14 -fno-c++-static-destructors"
-    $DLDFLAGS << " -mmacosx-version-min=10.14"
+    $CXXFLAGS << " -mmacosx-version-min=10.15 -fno-c++-static-destructors"
+    $DLDFLAGS << " -mmacosx-version-min=10.15"
   end
 else
   require "mkmf-rice"

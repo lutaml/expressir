@@ -69,7 +69,7 @@ jobs:
         id: cache
         with:
           path: lib/expressir/express/express_parser.*
-          key: v4-${{ runner.os }}-${{ matrix.ruby }}-${{ hashFiles('ext/express-parser/extconf.rb', 'ext/express-parser/antlrgen/**', 'ext/express-parser/express_parser.cpp', '.git/modules/ext/express-parser/antlr4-upstream/HEAD') }}
+          key: v4-${{ matrix.os }}-${{ matrix.ruby }}-${{ hashFiles('ext/express-parser/extconf.rb', 'ext/express-parser/antlrgen/**', 'ext/express-parser/express_parser.cpp', '.git/modules/ext/express-parser/antlr4-upstream/HEAD') }}
 
       - name: Build native extension
         if: steps.cache.outputs.cache-hit != 'true'

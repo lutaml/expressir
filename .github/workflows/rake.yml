@@ -121,7 +121,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host: [ linux, windows, darwin ]
+        platform: [ linux-gnu, windows, darwin ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -148,12 +148,12 @@ jobs:
           sudo swapon --all --verbose
 
       - name: Build gem with native extension
-        run: bundle exec rake gem:${{ matrix.host }}
+        run: bundle exec rake gem:${{ matrix.platform }}
 
       - name: Package gem with native extension
         uses: actions/upload-artifact@v3
         with:
-          name: pkg-${{ matrix.host }}
+          name: pkg-${{ matrix.platform }}
           path: pkg/*.gem
 
   verify-ruby:
@@ -234,8 +234,8 @@ jobs:
           ruby bin/rspec
           cat .rspec_status || echo ".rspec_status was not found"
 
-  verify-linux:
-    name: verify Linux binary gem on ruby-${{ matrix.ruby }}
+  verify-linux-gnu:
+    name: verify Linux (GNU) binary gem on ruby-${{ matrix.ruby }}
     needs: pack
     runs-on: ubuntu-latest
     strategy:
@@ -259,7 +259,7 @@ jobs:
       - name: Download packaged gem
         uses: actions/download-artifact@v3
         with:
-         name: pkg-linux
+         name: pkg-linux-gnu
          path: pkg
 
       - name: Install binary gem

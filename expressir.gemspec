@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.name          = "expressir"
   spec.version       = Expressir::VERSION
   spec.authors       = ["Ribose Inc."]
-  spec.email         = ["open.source@ribose.com'"]
+  spec.email         = ["open.source@ribose.com"]
 
   spec.summary       = "ISO EXPRESS parser and tools in Ruby."
   spec.description   = "Expressir (“EXPRESS in Ruby”) is a Ruby parser for EXPRESS and a set of Ruby tools for accessing ISO EXPRESS data models."

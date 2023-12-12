@@ -30,8 +30,8 @@ jobs:
 
       - if: ${{ github.event_name == 'workflow_dispatch' }} # unfortunatelly cannot keep this condition on job level
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config --global user.name github-actions
+          git config --global user.email github-actions@github.com
           gem install gem-release
           gem bump --version ${{ github.event.inputs.next_version }} --tag --push
 
@@ -41,12 +41,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host: [ linux, windows, darwin ]
+        platform: [ linux-gnu, windows, darwin ]
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-          ref: main # https://github.com/actions/checkout/issues/439#issuecomment-830862188
 
       - uses: ruby/setup-ruby@master
         with:
@@ -59,7 +58,7 @@ jobs:
       # build gem WITHOUT pre-built native extension
       - run: gem build expressir.gemspec
 
-      - if: matrix.host == 'linux'
+      - if: matrix.platform == 'linux-gnu'
         uses: actions/upload-artifact@v3
         with:
           name: pkg-ruby
@@ -74,11 +73,11 @@ jobs:
           sudo swapon --all --verbose
 
       # build gem WITH pre-built native extension
-      - run: bundle exec rake gem:${{ matrix.host }}
+      - run: bundle exec rake gem:${{ matrix.platform }}
 
       - uses: actions/upload-artifact@v3
         with:
-          name: pkg-${{ matrix.host }}
+          name: pkg-${{ matrix.platform }}
           path: pkg/*.gem
 
   publish:
@@ -92,7 +91,7 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: pkg-linux
+          name: pkg-linux-gnu
           path: pkg
 
       - uses: actions/download-artifact@v3

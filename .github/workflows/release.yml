@@ -58,7 +58,7 @@ jobs:
       # build gem WITHOUT pre-built native extension
       - run: gem build expressir.gemspec
 
-      - if: matrix.host == 'linux-gnu'
+      - if: matrix.platform == 'linux-gnu'
         uses: actions/upload-artifact@v3
         with:
           name: pkg-ruby

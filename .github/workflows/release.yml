@@ -46,7 +46,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-          ref: main # https://github.com/actions/checkout/issues/439#issuecomment-830862188
 
       - uses: ruby/setup-ruby@master
         with:

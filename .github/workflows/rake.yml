@@ -68,7 +68,13 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler: ${{ env.BUNDLER_VER }}
-          bundler-cache: true
+          # Rice gem has issues with bundler cache
+          # more info https://github.com/lutaml/expressir/runs/2097658383?check_suite_focus=true#step:7:2126
+          # but it is not the only issue
+          bundler-cache: false
+
+      - name: Bundle
+        run: bundle install --jobs 4 --retry 3
 
       - name: Process cache
         uses: actions/cache@v3
@@ -98,10 +104,9 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@master
         with:
-          ruby-version: '3.0'
-          # bundler-cache: true important to not use cache because it leads to "cannot find -lrice"
-          # more info https://github.com/lutaml/expressir/runs/2097658383?check_suite_focus=true#step:7:2126
+          ruby-version: '3.1'
           bundler: ${{ env.BUNDLER_VER }}
+          bundler-cache: false
 
       - name: Bundle
         run: bundle install --jobs 4 --retry 3
@@ -130,9 +135,8 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@master
         with:
-          ruby-version: '3.0'
-          # bundler-cache: true important to not use cache because it leads to "cannot find -lrice"
-          # more info https://github.com/lutaml/expressir/runs/2097658383?check_suite_focus=true#step:7:2126
+          ruby-version: '3.1'
+          bundler-cache: false
           bundler: ${{ env.BUNDLER_VER }}
 
       - name: Bundle
@@ -169,7 +173,7 @@ jobs:
         uses: ruby/setup-ruby@master
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
+          bundler-cache: false
           bundler: ${{ env.BUNDLER_VER }}
 
       - name: Checkout
@@ -208,7 +212,7 @@ jobs:
         uses: ruby/setup-ruby@master
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
+          bundler-cache: false
           bundler: ${{ env.BUNDLER_VER }}
 
       - name: Checkout
@@ -246,7 +250,7 @@ jobs:
         uses: ruby/setup-ruby@master
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
+          bundler-cache: false
           bundler: ${{ env.BUNDLER_VER }}
 
       - name: Checkout
@@ -284,7 +288,7 @@ jobs:
         uses: ruby/setup-ruby@master
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
+          bundler-cache: false
           bundler: ${{ env.BUNDLER_VER }}
 
       - name: Checkout

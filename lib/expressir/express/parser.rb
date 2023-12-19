@@ -39,7 +39,6 @@ module Expressir
       # so in this class we keep those C++ structure marked for GC so they are not freed
         @parser = ::ExpressParser::ParserExt.new(file.to_s)
         @parse_tree = @parser.syntax()
-
         @visitor = Visitor.new(@parser.tokens, include_source: include_source)
         @repository = @visitor.visit(@parse_tree)
 

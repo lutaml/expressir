@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
 
   spec.extensions = File.join(*%w(ext express-parser extconf.rb))
 
-  spec.add_runtime_dependency "rice", "~> 4.1"
+  spec.add_runtime_dependency "rice", "~> 4.2"
   spec.add_runtime_dependency "thor", "~> 1.0"
   spec.add_development_dependency "antlr4-native", "~> 2.1.0"
   spec.add_development_dependency "asciidoctor", "~> 2.0.13"

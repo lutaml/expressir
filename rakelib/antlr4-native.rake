@@ -72,12 +72,12 @@ def create_pp_class_definition(parser_source_lines)
           return detail::To_Ruby<SyntaxContextProxy>().convert(proxy);
         }
 
-        Array getTokens() {
-          Array a;
+        Object getTokens() {
+          std::vector<TokenProxy> tk;
           for (auto token : tokens -> getTokens()) {
-            a.push(new TokenProxy(token));
+            tk.push_back(TokenProxy(token));
           }
-          return a;
+          return detail::To_Ruby<std::vector<TokenProxy>>().convert(tk);
         }
 
         Object visit(VisitorProxy* visitor) {
@@ -116,9 +116,18 @@ def create_class_api(parser_source_lines)
 
     rb_cParserExt = define_class_under<ParserProxyExt>(rb_mExpressParser, "ParserExt")
       .define_constructor(Constructor<ParserProxyExt, string>())
-      .define_method("syntax", &ParserProxyExt::syntax, Return().keepAlive())
+      .define_method("syntax", &ParserProxyExt::syntax)
       .define_method("tokens", &ParserProxyExt::getTokens)
-      .define_method("visit", &ParserProxyExt::visit, Return().keepAlive());
+      .define_method("visit", &ParserProxyExt::visit);
+
+    define_vector<std::vector<TokenProxy>>("TokenVector");
+
+  CPP
+end
+
+def create_vector_definition(parser_source_lines)
+  i = parser_source_lines.index { |x| x == "    .define_method(\"visit\", &ParserProxy::visit, Return().keepAlive());" }
+  parser_source_lines[i] += <<~CPP.split("\n").map { |x| x == "" ? x : "  #{x}" }.join("\n")
 
   CPP
 end

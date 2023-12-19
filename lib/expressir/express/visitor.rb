@@ -40,7 +40,7 @@ module Expressir
 
       private_constant :REMARK_CHANNEL
 
-      # @param [Array<::ExpressParser::Token>] tokens
+      # @param [::ExpressParser::TokenVector] Rice-wrapped std::vector<TokenProxy>
       # @param [Boolean] include_source attach original source code to model elements
       def initialize(tokens, include_source: nil)
         @tokens = tokens
@@ -101,7 +101,11 @@ module Expressir
           [ctx.start.token_index, ctx.stop.token_index]
         end
 
-        @tokens[start_index..stop_index]
+        selected_tokens = []
+        (start_index..stop_index).each do |i|
+          selected_tokens << @tokens[i]
+        end
+        selected_tokens
       end
 
       def attach_source(ctx, node)
@@ -150,15 +154,14 @@ module Expressir
       end
 
       def attach_remarks(ctx, node)
-        @remark_tokens = get_tokens(ctx)
-        @remark_tokens = @remark_tokens.select{ |x| x.channel == REMARK_CHANNEL
-        }
+        remark_tokens = get_tokens(ctx)
+        remark_tokens = remark_tokens.select{ |x| x.channel == REMARK_CHANNEL }
 
         # skip already attached remarks
-        @remark_tokens = @remark_tokens.select{|x| !@attached_remark_tokens.include?(x)}
+        remark_tokens = remark_tokens.select{|x| !@attached_remark_tokens.include?(x.token_index)}
 
         # parse remarks, find remark targets
-        tagged_remark_tokens = @remark_tokens.map do |remark_token|
+        tagged_remark_tokens = remark_tokens.map do |remark_token|
           _, remark_tag, remark_text = if remark_token.text.start_with?('--')
             remark_token.text.match(/^--"([^"]*)"(.*)$/).to_a
           else
@@ -181,7 +184,7 @@ module Expressir
           remark_target.remarks << remark_text
 
           # mark remark as attached, so that it is not attached again at higher nesting level
-          @attached_remark_tokens << remark_token
+          @attached_remark_tokens << remark_token.token_index
         end
       end
 

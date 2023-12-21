@@ -15,10 +15,6 @@ concurrency:
   group: '${{ github.workflow }}-${{ github.job }}-${{ github.head_ref || github.ref_name }}'
   cancel-in-progress: true
 
-env:
-  BUNDLER_VER: 2.4.22
-# Forcing bundler version to ensure that it is consistent everywhere and
-# does not cause bundler gem reinstalls
 # bundler/rubygems 2.3.22 is a minimal requirement to support gnu/musl differentiation
 # https://github.com/rubygems/rubygems/pull/4488
 
@@ -35,7 +31,6 @@ jobs:
         uses: ruby/setup-ruby@master
         with:
           ruby-version: 3.1
-          bundler: ${{ env.BUNDLER_VER }}
           bundler-cache: true
 
       - name: Bundle
@@ -67,7 +62,6 @@ jobs:
         uses: ruby/setup-ruby@master
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler: ${{ env.BUNDLER_VER }}
           # Rice gem has issues with bundler cache
           # more info https://github.com/lutaml/expressir/runs/2097658383?check_suite_focus=true#step:7:2126
           # but it is not the only issue
@@ -75,6 +69,7 @@ jobs:
 
       - name: Bundle
         run: bundle install --jobs 4 --retry 3
+          bundler-cache: true
 
       - name: Process cache
         uses: actions/cache@v3
@@ -213,7 +208,6 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: false
-          bundler: ${{ env.BUNDLER_VER }}
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -251,7 +245,6 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: false
-          bundler: ${{ env.BUNDLER_VER }}
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -289,7 +282,6 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: false
-          bundler: ${{ env.BUNDLER_VER }}
 
       - name: Checkout
         uses: actions/checkout@v4

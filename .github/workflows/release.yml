@@ -15,6 +15,10 @@ concurrency:
   group: '${{ github.workflow }}-${{ github.job }}-${{ github.head_ref || github.ref_name }}'
   cancel-in-progress: true
 
+env:
+  BUNDLER_VER: 2.4.22
+  RUBYGEM_VER: 3.4.22
+
 jobs:
   bump:
     runs-on: ubuntu-latest
@@ -26,7 +30,6 @@ jobs:
       - uses: ruby/setup-ruby@master
         with:
           ruby-version: '3.1'
-          bundler: ${{ env.BUNDLER_VER }}
 
       - if: ${{ github.event_name == 'workflow_dispatch' }} # unfortunatelly cannot keep this condition on job level
         run: |

@@ -69,7 +69,6 @@ jobs:
 
       - name: Bundle
         run: bundle install --jobs 4 --retry 3
-          bundler-cache: true
 
       - name: Process cache
         uses: actions/cache@v3

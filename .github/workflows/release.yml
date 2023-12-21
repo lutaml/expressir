@@ -49,11 +49,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-          ref: main # https://github.com/actions/checkout/issues/439#issuecomment-830862188
+          #ref: main # https://github.com/actions/checkout/issues/439#issuecomment-830862188
 
       - uses: ruby/setup-ruby@master
         with:
           ruby-version: '3.1'
+          bundler-cache: false
           # bundler-cache: true important to not use cache because it leads to "cannot find -lrice"
           # more info https://github.com/lutaml/expressir/runs/2097658383?check_suite_focus=true#step:7:2126
 
@@ -149,7 +150,6 @@ jobs:
         with:
           ruby-version: 3.1
           bundler-cache: true
-          bundler: ${{ env.BUNDLER_VER }}
 
       - name: Download version
         uses: actions/download-artifact@v3

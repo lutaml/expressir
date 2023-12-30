@@ -105,7 +105,7 @@ def create_pp_class_definition(parser_source_lines)
 end
 
 def create_class_api(parser_source_lines)
-  i = parser_source_lines.index { |x| x == "    .define_method(\"visit\", &ParserProxy::visit, Return().keepAlive());" }
+  i = parser_source_lines.index { |x| x == "    .define_method(\"visit\", &ParserProxy::visit);" }
   parser_source_lines[i] += <<~CPP.split("\n").map { |x| x == "" ? x : "  #{x}" }.join("\n")
 
 
@@ -117,7 +117,7 @@ def create_class_api(parser_source_lines)
     rb_cParserExt = define_class_under<ParserProxyExt>(rb_mExpressParser, "ParserExt")
       .define_constructor(Constructor<ParserProxyExt, string>())
       .define_method("syntax", &ParserProxyExt::syntax)
-      .define_method("tokens", &ParserProxyExt::getTokens)
+      .define_method("tokens", &ParserProxyExt::getTokens, Return().keepAlive())
       .define_method("visit", &ParserProxyExt::visit);
 
     define_vector<std::vector<TokenProxy>>("TokenVector");
@@ -126,7 +126,7 @@ def create_class_api(parser_source_lines)
 end
 
 def create_vector_definition(parser_source_lines)
-  i = parser_source_lines.index { |x| x == "    .define_method(\"visit\", &ParserProxy::visit, Return().keepAlive());" }
+  i = parser_source_lines.index { |x| x == "    .define_method(\"visit\", &ParserProxy::visit);" }
   parser_source_lines[i] += <<~CPP.split("\n").map { |x| x == "" ? x : "  #{x}" }.join("\n")
 
   CPP
@@ -134,8 +134,11 @@ end
 
 def generate_extended_parser
   # Generate extended parser that provide Ruby access to token stream
-  parser_source_file = File.join("ext", "express-parser", "express_parser.cpp")
-  parser_source_lines = File.read(parser_source_file).split("\n")
+  parser_source_file = File.join("ext", "express_parser", "express_parser.cpp")
+  parser_source_lines = File.read(parser_source_file)
+    .gsub!("bad_cast", "bad_any_cast")
+    .gsub!("return detail::To_Ruby<Token*>().convert(token)", "return detail::To_Ruby<TokenProxy>().convert(TokenProxy(token))")
+    .split("\n")
   create_class_declarations(parser_source_lines)
   create_tp_class_definition(parser_source_lines)
   create_pp_class_definition(parser_source_lines)

@@ -370,7 +370,7 @@ end
 require "rake/extensiontask"
 
 Rake::ExtensionTask.new("express_parser", GEMSPEC) do |ext|
-  ext.ext_dir = "ext/express-parser"
+  ext.ext_dir = "ext/express_parser"
   ext.lib_dir = File.join(*["lib", "expressir", "express", ENV.fetch("FAT_DIR", nil)].compact)
   ext.config_options << ENV.fetch("EXTOPTS", nil)
   ext.cross_compile  = true

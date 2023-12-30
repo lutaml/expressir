@@ -11,6 +11,7 @@ src_paths = [
   antlr4_src.to_s,
   "#{antlr4_src}/atn",
   "#{antlr4_src}/dfa",
+  "#{antlr4_src}/internal",
   "#{antlr4_src}/misc",
   "#{antlr4_src}/support",
   "#{antlr4_src}/tree",

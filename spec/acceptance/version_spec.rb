@@ -3,7 +3,7 @@ require "spec_helper"
 RSpec.describe "Expressir" do
   describe "version" do
     it "has a version number" do |example|
-      # GC.stress = true
+      GC.stress = ENV["GC_STRESS"] == "true"
       print "\n[#{example.description}] "
       expect(Expressir::VERSION).not_to be nil
 

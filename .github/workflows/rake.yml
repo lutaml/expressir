@@ -8,6 +8,7 @@ on:
       - '**.adoc'
       - '**.md'
       - .github/workflows/release.yml
+      - .github/workflows/codeql.yml
   pull_request:
   workflow_dispatch:
 

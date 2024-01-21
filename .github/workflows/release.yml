@@ -15,6 +15,9 @@ concurrency:
   group: '${{ github.workflow }}-${{ github.job }}-${{ github.head_ref || github.ref_name }}'
   cancel-in-progress: true
 
+env:
+  BUNDLER_VER: 2.4.22
+
 jobs:
   bump:
     runs-on: ubuntu-latest
@@ -129,7 +132,7 @@ jobs:
           EOF
           chmod 0600 ~/.gem/credentials
           gem signin
-          for gem in pkg/*.gem; do echo "gem push $gem -V"; done
+          for gem in pkg/*.gem; do gem push $gem -V; done
           sleep 5
 
   verify:

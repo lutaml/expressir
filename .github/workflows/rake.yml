@@ -8,6 +8,7 @@ on:
       - '**.adoc'
       - '**.md'
       - .github/workflows/release.yml
+      - .github/workflows/codeql.yml
   pull_request:
   workflow_dispatch:
 
@@ -81,7 +82,7 @@ jobs:
         id: cache
         with:
           path: lib/expressir/express/express_parser.*
-          key: v4-${{ matrix.os }}-${{ matrix.ruby }}-${{ hashFiles('ext/express-parser/extconf.rb', 'ext/express-parser/antlrgen/**', 'ext/express-parser/express_parser.cpp', '.git/modules/ext/express-parser/antlr4-upstream/HEAD') }}
+          key: v4-${{ matrix.os }}-${{ matrix.ruby }}-${{ hashFiles('ext/express_parser/extconf.rb', 'ext/express_parser/antlrgen/**', 'ext/express_parser/express_parser.cpp', '.git/modules/ext/express_parser/antlr4-upstream/HEAD') }}
 
       - name: Build native extension
         if: steps.cache.outputs.cache-hit != 'true'

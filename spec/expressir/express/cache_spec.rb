@@ -63,7 +63,7 @@ RSpec.describe Expressir::Express::Cache do
       GC.verify_internal_consistency
     end
 
-    it "fails parsing a file from a different Expressir version" do |example|
+    it "fails parsing a cache from a different Expressir version" do |example|
       print "\n[#{example.description}] "
       temp_file = Tempfile.new
 

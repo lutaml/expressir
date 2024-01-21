@@ -1,5 +1,5 @@
-[submodule "ext/express-parser/antlr4-upstream"]
-	path = ext/express-parser/antlr4-upstream
+[submodule "ext/express_parser/antlr4-upstream"]
+	path = ext/express_parser/antlr4-upstream
 	url = https://github.com/antlr/antlr4
 [submodule "ext/express-grammar"]
 	path = ext/express-grammar

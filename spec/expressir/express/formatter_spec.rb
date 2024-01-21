@@ -11,9 +11,7 @@ RSpec.describe Expressir::Express::Formatter do
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "single.exp")
       formatted_exp_file = Expressir.root_path.join("spec", "syntax", "single_formatted.exp")
-
       repo = Expressir::Express::Parser.from_file(exp_file)
-
       result = Expressir::Express::Formatter.format(repo)
       # File.write(formatted_exp_file, result)
       expected_result = File.read(formatted_exp_file)

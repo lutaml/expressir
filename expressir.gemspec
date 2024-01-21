@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = Gem::Requirement.new(">= 2.7.0")
 
   spec.files         = `git ls-files`.split("\n")\
-    + Dir.glob("ext/express-parser/antlr4-upstream/runtime/Cpp/runtime/**/*")
+    + Dir.glob("ext/express_parser/antlr4-upstream/runtime/Cpp/runtime/**/*")
 
   spec.test_files    = `git ls-files -- {spec}/*`.split("\n")
 
@@ -28,11 +28,11 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.executables   = %w[expressir]
 
-  spec.extensions = File.join(*%w(ext express-parser extconf.rb))
+  spec.extensions = File.join(*%w(ext express_parser extconf.rb))
 
-  spec.add_runtime_dependency "rice", "~> 4.1"
+  spec.add_runtime_dependency "rice", "~> 4.2"
   spec.add_runtime_dependency "thor", "~> 1.0"
-  spec.add_development_dependency "antlr4-native", "~> 2.1.0"
+  spec.add_development_dependency "antlr4-native", "~> 2.2"
   spec.add_development_dependency "asciidoctor", "~> 2.0.13"
   spec.add_development_dependency "bundler", "~> 2.3"
   spec.add_development_dependency "byebug", "~> 11.1"

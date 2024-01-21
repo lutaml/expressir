@@ -299,13 +299,13 @@ public:
   Object getStart() {
     auto token = ((ParserRuleContext*) orig) -> getStart();
 
-    return detail::To_Ruby<Token*>().convert(token);
+    return detail::To_Ruby<TokenProxy>().convert(TokenProxy(token));
   }
 
   Object getStop() {
     auto token = ((ParserRuleContext*) orig) -> getStop();
 
-    return detail::To_Ruby<Token*>().convert(token);
+    return detail::To_Ruby<TokenProxy>().convert(TokenProxy(token));
   }
 
   Array getChildren() {
@@ -16242,7 +16242,7 @@ public:
     auto result = visit(proxy -> getOriginal());
     try {
       return std::any_cast<Object>(result);
-    } catch(std::bad_cast) {
+    } catch(std::bad_any_cast) {
       return Qnil;
     }
   }
@@ -16251,7 +16251,7 @@ public:
     auto result = visitChildren(proxy -> getOriginal());
     try {
       return std::any_cast<Object>(result);
-    } catch(std::bad_cast) {
+    } catch(std::bad_any_cast) {
       return Qnil;
     }
   }
@@ -18160,12 +18160,12 @@ class ParserProxyExt : public Object {
       return detail::To_Ruby<SyntaxContextProxy>().convert(proxy);
     }
 
-    Array getTokens() {
-      Array a;
+    Object getTokens() {
+      std::vector<TokenProxy> tk;
       for (auto token : tokens -> getTokens()) {
-        a.push(new TokenProxy(token));
+        tk.push_back(TokenProxy(token));
       }
-      return a;
+      return detail::To_Ruby<std::vector<TokenProxy>>().convert(tk);
     }
 
     Object visit(VisitorProxy* visitor) {
@@ -18176,7 +18176,7 @@ class ParserProxyExt : public Object {
 
       try {
         return std::any_cast<Object>(result);
-      } catch(std::bad_cast) {
+      } catch(std::bad_any_cast) {
        return Qnil;
       }
     }
@@ -18418,8 +18418,8 @@ void Init_express_parser() {
   rb_cParser = define_class_under<ParserProxy>(rb_mExpressParser, "Parser")
     .define_singleton_function("parse", &ParserProxy::parse)
     .define_singleton_function("parse_file", &ParserProxy::parseFile)
-    .define_method("syntax", &ParserProxy::syntax, Return().keepAlive())
-    .define_method("visit", &ParserProxy::visit, Return().keepAlive());
+    .define_method("syntax", &ParserProxy::syntax)
+    .define_method("visit", &ParserProxy::visit);
 
   rb_cTokenExt = define_class_under<TokenProxy>(rb_mExpressParser, "TokenExt")
     .define_method("text", &TokenProxy::getText)
@@ -18428,9 +18428,11 @@ void Init_express_parser() {
 
   rb_cParserExt = define_class_under<ParserProxyExt>(rb_mExpressParser, "ParserExt")
     .define_constructor(Constructor<ParserProxyExt, string>())
-    .define_method("syntax", &ParserProxyExt::syntax, Return().keepAlive())
-    .define_method("tokens", &ParserProxyExt::getTokens)
-    .define_method("visit", &ParserProxyExt::visit, Return().keepAlive());
+    .define_method("syntax", &ParserProxyExt::syntax)
+    .define_method("tokens", &ParserProxyExt::getTokens, Return().keepAlive())
+    .define_method("visit", &ParserProxyExt::visit);
+
+  define_vector<std::vector<TokenProxy>>("TokenVector");
 
   rb_cAttributeRefContext = define_class_under<AttributeRefContextProxy, ContextProxy>(rb_mExpressParser, "AttributeRefContext")
     .define_method("attribute_id", &AttributeRefContextProxy::attributeId);

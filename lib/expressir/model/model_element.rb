@@ -46,7 +46,7 @@ module Expressir
       def find(path)
         return self if path.empty?
 
-        path_parts = path.downcase.split(/\./).map do |current_path|
+        path_parts = path.safe_downcase.split(/\./).map do |current_path|
           _, _, current_path = current_path.rpartition(":") # ignore prefix
           current_path
         end
@@ -82,7 +82,7 @@ module Expressir
 
       # @return [Hash<String, Declaration>]
       def children_by_id
-        @children_by_id ||= children.select{|x| x.id}.map{|x| [x.id.downcase, x]}.to_h
+        @children_by_id ||= children.select{|x| x.id}.map{|x| [x.id.safe_downcase, x]}.to_h
       end
 
       # @return [nil]
@@ -90,7 +90,7 @@ module Expressir
         @children_by_id = nil
         nil
       end
-      
+
       # @param [String] root_path
       # @param [Express::Formatter] formatter
       # @param [Boolean] include_empty
@@ -131,7 +131,7 @@ module Expressir
 
         hash
       end
-      
+
       # @param [Hash] hash
       # @param [String] root_path
       # @return [ModelElement]

@@ -116,7 +116,7 @@ jobs:
         run: gem build expressir.gemspec
 
       - name: Package gem without native extension
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pkg-ruby
           path: expressir-*.gem
@@ -155,7 +155,7 @@ jobs:
         run: bundle exec rake gem:${{ matrix.platform }}
 
       - name: Package gem with native extension
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pkg-${{ matrix.platform }}
           path: pkg/*.gem
@@ -186,7 +186,7 @@ jobs:
         run: bundle install --jobs 4 --retry 3
 
       - name: Download packaged gem
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
          name: pkg-ruby
          path: pkg
@@ -223,7 +223,7 @@ jobs:
         run: bundle install --jobs 4 --retry 3
 
       - name: Download packaged gem
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
          name: pkg-darwin
          path: pkg
@@ -261,7 +261,7 @@ jobs:
         run: bundle install --jobs 4 --retry 3
 
       - name: Download packaged gem
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
          name: pkg-linux-gnu
          path: pkg
@@ -299,7 +299,7 @@ jobs:
         run: bundle install --jobs 4 --retry 3
 
       - name: Download packaged gem
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
          name: pkg-windows
          path: pkg

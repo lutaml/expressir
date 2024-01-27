@@ -40,7 +40,7 @@ RSpec.describe Expressir::Express::Cache do
       end.to raise_error(Errno::ENOENT)
     end
 
-    it "parses a file" do |example|
+    it "loads a cache file" do |example|
       print "\n[#{example.description}] "
       temp_file = Tempfile.new
 

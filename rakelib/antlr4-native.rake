@@ -88,8 +88,8 @@ def create_pp_class_definition(parser_source_lines)
 
           try {
             return std::any_cast<Object>(result);
-          } catch(std::bad_cast) {
-           return Qnil;
+          } catch(std::bad_any_cast) {
+            return Qnil;
           }
         }
 

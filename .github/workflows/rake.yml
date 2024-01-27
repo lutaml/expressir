@@ -45,6 +45,39 @@ jobs:
       - name: Rubocop
         run: bundle exec rake rubocop
 
+  rake-alpine:
+    name: test on ${{ image }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [ '3.2', '3.1', '3.0', '2.7' ]
+    container: ruby:${{ matrix.ruby }}-alpine
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Bundle
+        run: bundle install --jobs 4 --retry 3
+
+      - name: Process cache
+        uses: actions/cache@v4
+        id: cache
+        with:
+          path: lib/expressir/express/express_parser.*
+          key: v4-${{ matrix.os }}-${{ matrix.ruby }}-${{ hashFiles('ext/express_parser/extconf.rb', 'ext/express_parser/antlrgen/**', 'ext/express_parser/express_parser.cpp', '.git/modules/ext/express_parser/antlr4-upstream/HEAD') }}
+
+      - name: Build native extension
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: bundle exec rake compile
+
+      - name: Run tests
+        run: |
+          bundle exec rake
+          cat .rspec_status
+
   rake:
     name: test on ruby-${{ matrix.ruby }} ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -126,7 +159,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ linux-gnu, windows, darwin ]
+        platform: [ linux-gnu, linux-musl, windows, darwin ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -306,6 +339,39 @@ jobs:
 
       - name: Install binary gem
         run: gem install -l pkg/expressir-*-$(ruby -e "puts RUBY_PLATFORM").gem
+
+      - name: Verify
+        run: |
+          cd $(ruby -e "puts RbConfig::TOPDIR + '\/lib\/ruby\/gems\/' + RbConfig::CONFIG['ruby_version'] + '\/gems\/expressir*'")
+          ruby bin/rspec
+          cat .rspec_status || echo ".rspec_status was not found"
+
+  verify-linux-musl:
+    name: verify Linux (musl) binary gem on ruby-${{ matrix.ruby }}
+    needs: pack
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [ '3.2', '3.1', '3.0', '2.7' ]
+    container: ruby:${{ matrix.ruby }}-alpine
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Bundle
+        run: bundle install --jobs 4 --retry 3
+
+      - name: Download packaged gem
+        uses: actions/download-artifact@v4
+        with:
+         name: pkg-linux-musl
+         path: pkg
+
+      - name: Install binary gem
+        run: gem install -l pkg/expressir-*-$(ruby -e "puts RUBY_PLATFORM")-gnu.gem
 
       - name: Verify
         run: |

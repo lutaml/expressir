@@ -3,6 +3,7 @@ require "shellwords"
 
 WINDOWS_PLATFORM_REGEX = /mingw|mswin/.freeze
 LINUX_GNU_PLATFORM_REGEX = /linux-gnu/.freeze
+LINUX_MUSL_PLATFORM_REGEX = /linux-musl/.freeze
 DARWIN_PLATFORM_REGEX = /darwin/.freeze
 GLIBC_MIN_VERSION = "2.17".freeze
 
@@ -11,16 +12,20 @@ CrossRuby = Struct.new(:version, :host) do
     "tmp/#{platform}/stage/lib/expressir/express/#{minor_ver}/express_parser.#{dll_ext}"
   end
 
-  def windows?
-    !!(platform =~ WINDOWS_PLATFORM_REGEX)
+  def darwin?
+    !!(platform =~ DARWIN_PLATFORM_REGEX)
   end
 
   def linux_gnu?
     !!(platform =~ LINUX_GNU_PLATFORM_REGEX)
   end
 
-  def darwin?
-    !!(platform =~ DARWIN_PLATFORM_REGEX)
+  def linux_musl?
+    !!(platform =~ LINUX_MUSL_PLATFORM_REGEX)
+  end
+
+  def windows?
+    !!(platform =~ WINDOWS_PLATFORM_REGEX)
   end
 
   def ver
@@ -63,6 +68,10 @@ CrossRuby = Struct.new(:version, :host) do
         "x86_64-linux-gnu"
       when "aarch64-linux-gnu"
         "aarch64-linux-gnu"
+      when "x86_64-linux-musl"
+        "x86_64-linux-musl"
+      when "aarch64-linux-musl"
+        "aarch64-linux-musl"
       when /\Ax86_64-darwin/
         "x86_64-darwin"
       when /\Aarm64-darwin/
@@ -89,7 +98,7 @@ CrossRuby = Struct.new(:version, :host) do
        case platform
        when /x64-mingw(32|-ucrt)/
          "x86_64-w64-mingw32-"
-       when /(x86_64|aarch64)-linux-gnu/
+       when /(x86_64|aarch64)-linux-(gnu|musl)/
          # We do believe that we are on Linux and can use native tools
          ""
        when /x86_64.*darwin/
@@ -105,9 +114,9 @@ CrossRuby = Struct.new(:version, :host) do
     case platform
     when /64-mingw(32|-ucrt)/
       "pei-x86-64"
-    when "x86_64-linux-gnu"
+    when /x86_64-linux-(gnu|musl)/
       "elf64-x86-64"
-    when "aarch64-linux-gnu"
+    when /aarch64-linux-(gnu|musl)/
       "elf64-little"
     when "x86_64-darwin"
       "Mach-O 64-bit x86-64"
@@ -154,7 +163,7 @@ CrossRuby = Struct.new(:version, :host) do
     case platform
     when WINDOWS_PLATFORM_REGEX
       verify_entry_windows(dump, dll)
-    when LINUX_GNU_PLATFORM_REGEX
+    when LINUX_GNU_PLATFORM_REGEX, LINUX_MUSL_PLATFORM_REGEX
       verify_entry_linux(dll)
     when DARWIN_PLATFORM_REGEX
       verify_entry_darwin(dll)
@@ -199,7 +208,7 @@ CrossRuby = Struct.new(:version, :host) do
     end
   end
 
-  def allowed_dlls_linux
+  def allowed_dlls_linux_gnu
     suffix = (platform == "x86_64-linux-gnu" ? "x86-64" : "aarch64")
     [
       "ld-linux-#{suffix}.so",
@@ -211,6 +220,16 @@ CrossRuby = Struct.new(:version, :host) do
     ]
   end
 
+  def allowed_dlls_linux_musl
+    suffix = (platform == "x86_64-linux-gnu" ? "x86-64" : "aarch64")
+    [
+      "ld-linux-#{suffix}.so",
+      "libstdc++.so",
+      "libc.so",
+      "libgcc_s.so",
+    ]
+  end
+
   def allowed_dlls_darwin
     [
       "/usr/lib/libSystem.B.dylib",
@@ -218,12 +237,14 @@ CrossRuby = Struct.new(:version, :host) do
     ]
   end
 
-  def allowed_dlls
+  def allowed_dlls # rubocop:disable Metrics/MethodLength
     case platform
     when WINDOWS_PLATFORM_REGEX
       allowed_dlls_windows
     when LINUX_GNU_PLATFORM_REGEX
-      allowed_dlls_linux
+      allowed_dlls_linux_gnu
+    when LINUX_MUSL_PLATFORM_REGEX
+      allowed_dlls_linux_musl
     when DARWIN_PLATFORM_REGEX
       allowed_dlls_darwin
     else
@@ -248,7 +269,7 @@ CrossRuby = Struct.new(:version, :host) do
     case platform
     when DARWIN_PLATFORM_REGEX
       actual_dlls_darwin(dll)
-    when LINUX_GNU_PLATFORM_REGEX
+    when LINUX_GNU_PLATFORM_REGEX, LINUX_MUSL_PLATFORM_REGEX
       actual_dlls_linux(dump)
     when WINDOWS_PLATFORM_REGEX
       actual_dlls_windows(dump)
@@ -335,15 +356,10 @@ def pre_req(plat)
 end
 
 namespace "gem" do
-  CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux_gnu? || cr.darwin? }
-    .map { |cr| { platform: cr.platform, tag: cr.tag } }
-    .uniq { |hash| hash[:platform] }.each do |hash|
-    plat = hash[:platform]
-    tag = hash[:tag]
-
+  CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux_gnu? || cr.linux_musl? || cr.darwin? }.map(&:platform).uniq.each do |plat|
     desc "build native gem for #{plat} platform"
     task plat do
-      RakeCompilerDock.sh <<~RCD, platform: tag
+      RakeCompilerDock.sh <<~RCD, platform: plat
         #{pre_req(plat)} && gem install bundler --no-document &&
         bundle && bundle exec rake gem:#{plat}:builder MAKE="nice make -j`nproc`"
       RCD
@@ -360,8 +376,11 @@ namespace "gem" do
   desc "build native gems for windows"
   multitask "windows" => CROSS_RUBIES.find_all(&:windows?).map(&:platform).uniq
 
-  desc "build native gems for linux"
+  desc "build native gems for linux-gnu"
   multitask "linux-gnu" => CROSS_RUBIES.find_all(&:linux_gnu?).map(&:platform).uniq
+
+  desc "build native gems for linux-musl"
+  multitask "linux-musl" => CROSS_RUBIES.find_all(&:linux_musl?).map(&:platform).uniq
 
   desc "build native gems for darwin"
   multitask "darwin" => CROSS_RUBIES.find_all(&:darwin?).map(&:platform).uniq

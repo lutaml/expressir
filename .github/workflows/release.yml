@@ -133,7 +133,7 @@ jobs:
           chmod 0600 ~/.gem/credentials
           gem signin
           for gem in pkg/*.gem; do gem push $gem -V; done
-          sleep 5
+          sleep 15
 
   verify:
     name: Verify published gem on ${{ matrix.os }}

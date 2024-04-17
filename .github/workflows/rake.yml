@@ -341,6 +341,10 @@ jobs:
           bundler-cache: false
           bundler: ${{ env.BUNDLER_VER }}
 
+      - name: Upgrade RubyGems
+        if: matrix.ruby == '3.0' || matrix.ruby == '2.7'
+        run: gem update --system ${{ env.RUBYGEM_VER }} --no-document
+
       - name: Checkout
         uses: actions/checkout@v4
 

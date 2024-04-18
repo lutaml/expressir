@@ -44,7 +44,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ linux-gnu, windows, darwin ]
+        platform: [ linux-gnu, linux-musl, windows, darwin ]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -104,6 +104,11 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: pkg-linux-gnu
+          path: pkg
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: pkg-linux-musl
           path: pkg
 
       - uses: actions/download-artifact@v4

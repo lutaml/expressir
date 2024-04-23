@@ -90,13 +90,13 @@ module Expressir
           return [] unless parent
 
           interfaces.flat_map do |interface|
-            schema = parent.children_by_id[interface.schema.id.safe_downcase]
+            schema = parent.children_by_id[interface.schema.id.downcase]
             if schema
               schema_safe_children = schema.safe_children
-              schema_safe_children_by_id = schema_safe_children.select{|x| x.id}.map{|x| [x.id.safe_downcase, x]}.to_h
+              schema_safe_children_by_id = schema_safe_children.select{|x| x.id}.map{|x| [x.id.downcase, x]}.to_h
               if interface.items.length > 0
                 interface.items.map do |interface_item|
-                  base_item = schema_safe_children_by_id[interface_item.ref.id.safe_downcase]
+                  base_item = schema_safe_children_by_id[interface_item.ref.id.downcase]
                   if base_item
                     id = interface_item.id || base_item.id
                     create_interfaced_item(id, base_item)

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require "yaml"
-require "expressir/express/parser"
+require "expressir"
 require "expressir/express/formatter"
 require "expressir/express/schema_head_formatter"
 require "expressir/express/hyperlink_formatter"
@@ -9,10 +9,6 @@ require "expressir/express/hyperlink_formatter"
 exp_files = ARGV
 
 repository = Expressir::Express::Parser.from_files(exp_files)
-formatter = Class.new(Expressir::Express::Formatter) do
-  include Expressir::Express::SchemaHeadFormatter
-  include Expressir::Express::HyperlinkFormatter
+repository.schemas.each do |schema|
+  puts schema.to_s(no_remarks: true)
 end
-result = repository.to_hash(formatter: formatter, skip_empty: true)
-
-puts YAML.dump(result)

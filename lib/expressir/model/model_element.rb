@@ -132,6 +132,19 @@ module Expressir
         hash
       end
 
+      def to_s
+        to_s(no_remarks: false, formatter: nil)
+      end
+
+      def to_s(no_remarks: false, formatter: nil)
+        formatter ||= Class.new(Expressir::Express::Formatter) do
+          if no_remarks
+            def format_remarks(node); []; end
+          end
+        end
+        formatter.format(self)
+      end
+
       # @param [Hash] hash
       # @param [String] root_path
       # @return [ModelElement]

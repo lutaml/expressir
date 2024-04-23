@@ -3,6 +3,26 @@ require "expressir/version"
 require "expressir/cli"
 require "expressir/config"
 
+# ..........................................................
+# https://bugs.ruby-lang.org/issues/19319
+# The issue is that this bug is fixed for 3.1 and above,
+# but not for 3.0 or 2.7, so we need a "safe" function
+# ..........................................................
+
+if RUBY_VERSION < "3.1"
+  class String
+    def safe_downcase
+      each_char.map(&:downcase).join
+    end
+  end
+else
+  class String
+    def safe_downcase
+      downcase
+    end
+  end
+end
+
 module Expressir
   class Error < StandardError; end
 
@@ -12,20 +32,6 @@ module Expressir
 
   def self.root_path
     @root_path ||= Pathname.new(Expressir.root)
-  end
-end
-
-# ..........................................................
-# https://bugs.ruby-lang.org/issues/19319
-# The issue is that this bug is fixed for 3.1 and above,
-# but not for 3.0 or 2.7, so we need a "safe" function
-# ..........................................................
-
-if RUBY_VERSION < "3.1"
-  class String
-    def downcase
-      each_char.map(&:downcase).join
-    end
   end
 end
 

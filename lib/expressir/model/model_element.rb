@@ -104,20 +104,21 @@ module Expressir
           empty = value.nil? || (value.is_a?(Array) && value.count == 0)
 
           # skip empty values
-          if !empty or include_empty
-            hash[variable.to_s] = if value.is_a? Array
-              value.map do |value|
-                if value.is_a? ModelElement
-                  value.to_hash(root_path: root_path, formatter: formatter, include_empty: include_empty)
-                else
-                  value
-                end
+          next unless !empty or include_empty
+
+          hash[variable.to_s] = case value
+          when Array
+            value.map do |value|
+              if value.is_a? ModelElement
+                value.to_hash(root_path: root_path, formatter: formatter, include_empty: include_empty)
+              else
+                value
               end
-            elsif value.is_a? ModelElement
-              value.to_hash(root_path: root_path, formatter: formatter, include_empty: include_empty)
-            else
-              value
             end
+          when ModelElement
+            value.to_hash(root_path: root_path, formatter: formatter, include_empty: include_empty)
+          else
+            value
           end
         end
 
@@ -155,7 +156,8 @@ module Expressir
         node_class.model_attrs.each do |variable|
           value = hash[variable.to_s]
 
-          node_options[variable] = if value.is_a? Array
+          node_options[variable] = case value
+          when Array
             value.map do |value|
               if value.is_a? Hash
                 self.from_hash(value, root_path: root_path)
@@ -163,7 +165,7 @@ module Expressir
                 value
               end
             end
-          elsif value.is_a? Hash
+          when Hash
             self.from_hash(value, root_path: root_path)
           else
             value
@@ -204,13 +206,14 @@ module Expressir
         self.class.model_attrs.each do |variable|
           value = self.send(variable)
 
-          if value.is_a? Array
+          case value
+          when Array
             value.each do |value|
               if value.is_a? ModelElement
                 value.parent = self
               end
             end
-          elsif value.is_a? ModelElement
+          when ModelElement
             value.parent = self
           end
         end

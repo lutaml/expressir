@@ -32,4 +32,3 @@ end
 Dir[File.join(__dir__, "expressir", "express", "*.rb")].sort.each do |fea|
   require fea
 end
-

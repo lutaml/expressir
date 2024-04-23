@@ -75,7 +75,7 @@ formatter = Class.new(Expressir::Express::Formatter) do
   include Expressir::Express::SchemaHeadFormatter
   include Expressir::Express::HyperlinkFormatter
 end
-result = repository.to_hash(formatter: formatter, skip_empty: true)
+result = repository.to_hash(formatter: formatter)
 puts "Repository.to_hash time: #{(Time.now - start).round(2)}s"
 
 # puts YAML.dump(result)

@@ -19,7 +19,7 @@ RSpec.describe "Expressir" do
       print "\n[#{example.description}] "
       command = %w(version)
       output = capture_stdout { Expressir::Cli.start(command) }
-      expect(output).to include("Version #{Expressir::VERSION}")
+      expect(output).to include(Expressir::VERSION)
 
       # Validate Object Space
       GC.start

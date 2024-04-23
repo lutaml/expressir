@@ -38,12 +38,21 @@ instructions.
 
 [source, sh]
 ----
-./exe/expressir
+$ expressir
 
 Commands:
+  expressir format PATH     # pretty print EXPRESS schema located at PATH
   expressir help [COMMAND]  # Describe available commands or one specific command
   expressir version         # The Expressir Version
 ----
+
+=== Pretty print
+
+[source, sh]
+----
+expressir format schemas/resources/action_schema/action_schema.exp
+----
+
 
 == Development
 
@@ -66,22 +75,31 @@ Setup your environment.
 [source, sh]
 ----
 bin/setup
+git submodule update --init
+bundle exec rake generate
+bundle exec rake compile
 ----
 
 Run the test suite
 
 [source, sh]
 ----
-bin/rspec
+bundle exec rake
 ----
 
 === Grammar updates
-EXPRESS grammar is lined as git submodule to ext/express-grammar
-Shoudl you update it, run ```rake generate```. This command will generate source code for updated native extension using antlr4-native gem.
-Please note that we create several classes on top of antlr4-native output so using embedded rake task is a real requirement.
 
-When new extension is gnerated and tested plase check in updated C++ files to git (```rake generate``` is NOT a CI step, 
-extension source files are pulled from the repo).
+THe EXPRESS grammar is lined as Git submodule at `ext/express-grammar`.
+
+Should you update it, please run `rake generate`. This command will generate
+source code for updated native extension using the `antlr4-native` gem. Please
+note that we create several classes on top of `antlr4-native` output so using
+embedded rake task is a real requirement.
+
+When a new extension is generated and tested, please check in updated C++ files
+to git (`rake generate` is NOT a CI step, extension source files are pulled from
+the repo).
+
 
 == Installation
 

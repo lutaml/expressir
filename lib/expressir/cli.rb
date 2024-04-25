@@ -18,16 +18,23 @@ module Expressir
           acc << schema.id unless schema.version&.value
           acc
         end
-      rescue StandardError => e
-        # pp e
+      rescue StandardError
         nil
+      end
+
+      def _print_validation_errors(type, array)
+        return if array.empty?
+
+        puts "#{'*' * 20} RESULTS: #{type.to_s.upcase.gsub('_', ' ')} #{'*' * 20}"
+        array.each do |msg|
+          puts msg
+        end
       end
     end
 
     desc "validate *PATH", "validate EXPRESS schema located at PATH"
-    def validate(*paths)
-      no_version = []
-      no_valid = []
+    def validate(*paths) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+      no_version = no_valid = []
 
       paths.each do |path|
         x = Pathname.new(path).realpath.relative_path_from(Dir.pwd)
@@ -39,30 +46,17 @@ module Expressir
           next
         end
 
-        if ret.size
-          ret.each do |schema_id|
-            no_version << "Missing version string: schema `#{schema_id}` | #{x}"
-          end
+        ret.each do |schema_id|
+          no_version << "Missing version string: schema `#{schema_id}` | #{x}"
         end
       end
 
-      if !no_valid.empty?
-        puts "#{"*" * 20} RESULTS: FAILED TO PARSE #{"*" * 20}"
-        no_valid.each do |msg|
-          puts msg
-        end
-      end
+      _print_validation_errors(:failed_to_parse, no_valid)
+      _print_validation_errors(:missing_version_string, no_version)
 
-      if !no_version.empty?
-        puts "#{"*" * 20} RESULTS: MISSING VERSION STRING #{"*" * 20}"
-        no_version.each do |msg|
-          puts msg
-        end
-      end
+      exit 1 unless [no_valid, no_version].all?(&:empty?)
 
-      unless no_valid.empty? && no_version.empty?
-        exit 1
-      end
+      puts "Validation passed for all EXPRESS schemas."
     end
 
     desc "version", "Expressir Version"

@@ -60,7 +60,7 @@ module Expressir
         end
       end
 
-      if no_valid.size || no_version.size
+      unless no_valid.empty? && no_version.empty?
         exit 1
       end
     end

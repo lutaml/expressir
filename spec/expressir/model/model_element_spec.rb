@@ -23,6 +23,32 @@ RSpec.describe Expressir::Model::ModelElement do
       GC.verify_compaction_references
       GC.verify_internal_consistency
     end
+
+    it "exports objects filtered by select_proc (multiple.exp)" do |example|
+      print "\n[#{example.description}] "
+      exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
+
+      repo = Expressir::Express::Parser.from_file(exp_file)
+
+      filtered_schemas = ["multiple_schema2", "multiple_schema3"]
+      select_proc = Proc.new do |value|
+        if value.is_a?(Expressir::Model::Declarations::Schema)
+          filtered_schemas.include?(value.id)
+        else
+          true
+        end
+      end
+
+      result = repo.to_hash(select_proc: select_proc)
+
+      expect(result['schemas'].map {|s| s["id"]}.sort).to eq(filtered_schemas)
+
+      # Validate Object Space
+      GC.start
+      GC.verify_compaction_references
+      GC.verify_internal_consistency
+    end
+
   end
 
   describe ".from_hash" do

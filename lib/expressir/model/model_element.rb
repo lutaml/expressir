@@ -94,8 +94,13 @@ module Expressir
       # @param [String] root_path
       # @param [Express::Formatter] formatter
       # @param [Boolean] include_empty
+      # @param [Proc] select_proc
       # @return [Hash]
-      def to_hash(root_path: nil, formatter: nil, include_empty: nil)
+      def to_hash(root_path: nil, formatter: nil, include_empty: nil, select_proc: nil)
+        # Filter out entries
+        has_filter = !select_proc.nil? && select_proc.is_a?(Proc)
+        return nil if has_filter && !select_proc.call(self)
+
         hash = {}
         hash[CLASS_KEY] = self.class.name
 
@@ -106,20 +111,32 @@ module Expressir
           # skip empty values
           next unless !empty or include_empty
 
-          hash[variable.to_s] = case value
-          when Array
-            value.map do |value|
-              if value.is_a? ModelElement
-                value.to_hash(root_path: root_path, formatter: formatter, include_empty: include_empty)
-              else
-                value
-              end
-            end
-          when ModelElement
-            value.to_hash(root_path: root_path, formatter: formatter, include_empty: include_empty)
-          else
-            value
-          end
+          value_hash = case value
+                       when Array
+                         value.map do |v|
+                           if v.is_a? ModelElement
+                             v.to_hash(
+                               root_path: root_path,
+                               formatter: formatter,
+                               include_empty: include_empty,
+                               select_proc: select_proc
+                             )
+                           else
+                             v
+                           end
+                         end.compact
+                       when ModelElement
+                         value.to_hash(
+                           root_path: root_path,
+                           formatter: formatter,
+                           include_empty: include_empty,
+                           select_proc: select_proc
+                         )
+                       else
+                         value
+                       end
+
+          hash[variable.to_s] = value_hash unless value_hash.nil?
         end
 
         if self.is_a? Declarations::Schema and file

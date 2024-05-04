@@ -148,7 +148,8 @@ Here are a few technical guidelines to follow:
 
 Expressir is distributed under the BSD 2-clause license.
 
-Expressir is built on code originally from the NIST Reeper project.
+Expressir originally contained some code from the NIST Reeper project but
+has been completely rewritten.
 
 The https://www.nist.gov/services-resources/software/reeper[NIST Reeper license]
 is reproduced below:
@@ -169,5 +170,4 @@ ____
 
 == Credits
 
-Expressir is created using the structure and examples provided by
-the NIST Reeper software on https://sourceforge.net/p/reeper/[Sourceforge].
+Copyright Ribose Inc.

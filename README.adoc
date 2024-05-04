@@ -125,6 +125,36 @@ $ gem install expressir
 ----
 
 
+== Usage
+
+=== Filtering out schemas
+
+Use the `select_proc` argument of `to_hash`.
+
+Example:
+
+[source,ruby]
+----
+
+schema_yaml = YAML.load_file('documents/iso-10303-41/schemas.yaml')
+schema_paths = schema_yaml['schemas'].map {|x,y| y['path'].gsub("../../", "")}
+
+repo = Expressir::Express::Parser.from_files(schema_paths)
+
+filtered_schemas = ["action_schema", "date_time_schema"]
+select_proc = Proc.new do |value|
+  if value.is_a?(Expressir::Model::Declarations::Schema)
+    filtered_schemas.include?(value.id)
+  else
+    true
+  end
+end
+
+repo_hash = repo.to_hash(select_proc: select_proc)
+schemas = repo_hash['schemas']
+schemas.map {|s| s["id"] }
+----
+
 == Contributing
 
 First, thank you for contributing! We love pull requests from everyone. By

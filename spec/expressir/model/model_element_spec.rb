@@ -41,14 +41,13 @@ RSpec.describe Expressir::Model::ModelElement do
 
       result = repo.to_hash(select_proc: select_proc)
 
-      expect(result['schemas'].map {|s| s["id"]}.sort).to eq(filtered_schemas)
+      expect(result["schemas"].map { |s| s["id"] }.sort).to eq(filtered_schemas)
 
       # Validate Object Space
       GC.start
       GC.verify_compaction_references
       GC.verify_internal_consistency
     end
-
   end
 
   describe ".from_hash" do

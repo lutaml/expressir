@@ -34,7 +34,8 @@ module Expressir
 
     desc "validate *PATH", "validate EXPRESS schema located at PATH"
     def validate(*paths) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-      no_version = no_valid = []
+      no_version = []
+      no_valid = []
 
       paths.each do |path|
         x = Pathname.new(path).realpath.relative_path_from(Dir.pwd)

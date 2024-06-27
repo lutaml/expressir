@@ -158,7 +158,8 @@ module Expressir
       end
 
       def to_s(no_remarks: false, formatter: nil)
-        formatter ||= Class.new(Expressir::Express::Formatter) do
+        formatter ||= Class.new(Expressir::Express::Formatter)
+        formatter.class_eval do
           if no_remarks
             def format_remarks(_node); []; end
           end

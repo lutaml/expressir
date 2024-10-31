@@ -1,9 +1,3 @@
-begin
-  RUBY_VERSION =~ /(\d+\.\d+)/
-  require_relative "#{$1}/express_parser"
-rescue LoadError
-  require_relative "express_parser"
-end
 require "expressir/model"
 require "set"
 
@@ -35,32 +29,154 @@ require 'objspace'
 
 module Expressir
   module Express
-    class Visitor < ::ExpressParser::Visitor
+    class Visitor
+      class Ctx
+        attr_reader :name
+        attr_reader :data
+        attr_accessor :source_pos
+        def initialize(data,name)
+          @data = data
+          @name = name
+        end
+
+        def text
+          str.data.to_s
+        end
+
+        def method_missing(name,*args)
+          rulename = name.to_s.sub(/^visit_/,"").gsub(/_([a-z])/) { |m| m[1].upcase }.to_sym
+          self.class.define_method(name) { @data[rulename] }
+          self.send name, *args
+        end
+
+        def keys
+          @data.keys
+        end
+
+        def values
+          @data.values
+        end
+
+        def each(&block)
+          @data.values.each(&block)
+        end
+      end
+
+      class SimpleCtx
+        attr_reader :name
+        attr_reader :data
+        def initialize(data,name)
+          @data = data
+          @name = name
+        end
+
+        def text
+          @data.to_s
+        end
+      end
+
       REMARK_CHANNEL = 2
 
       private_constant :REMARK_CHANNEL
 
       # @param [::ExpressParser::TokenVector] Rice-wrapped std::vector<TokenProxy>
       # @param [Boolean] include_source attach original source code to model elements
-      def initialize(tokens, include_source: nil)
-        @tokens = tokens
+      def initialize(source, include_source: nil)
+        @source = source
         @include_source = include_source
 
-        @attached_remark_tokens = ::Set.new
+        @attached_remark_tokens = Set.new
 
-        super()
+        @visit_methods = Hash[
+          private_methods.grep(/^visit_/).map { |name|
+            rulename = name.to_s.sub(/^visit_/,"").gsub(/_([a-z])/) { $1.upcase }
+            [rulename.to_sym,name.to_sym]
+          }
+        ]
+      end
+
+      def to_ctx(ast,name=:unnamed)
+        case ast
+        when Hash
+          nodes = Hash[
+            ast.map { |k,v|
+              if k.match(/^listOf_(.*)$/)
+                itemkey = $1.to_sym
+                ary = (Array === v) ? v : [v]
+                [ itemkey, to_ctx(ary.select { |v| v[itemkey] }.map { |v| v.slice(itemkey) }) ]
+              else
+                [ k, to_ctx(v,k) ]
+              end
+            }
+          ]
+          Ctx.new nodes,name
+        when Array
+          ast.map { |v|
+            v.length == 1 or raise "element of array invalid (#{v.keys})"
+            to_ctx(v.values[0],v.keys[0])
+          }
+        when nil
+          nil
+        else
+          SimpleCtx.new ast,name
+        end
+      end
+
+      def get_source_pos(ctx)
+        ranges = nil
+        ranges = case ctx
+        when Ctx
+          ctx.source_pos and return ctx.source_pos # cache
+          ctx.values.map { |item| get_source_pos(item) }
+        when SimpleCtx
+          return nil unless ctx.data.respond_to? :offset
+          [ [ctx.data.offset, ctx.data.offset + ctx.data.length] ]
+        when Array
+          ctx.map { |item| get_source_pos(item) }
+        else
+          raise "unknown type in Ctx tree: #{ctx}"
+        end
+        source_pos = ranges.compact.reduce { |item,acc|
+          [ [item[0],acc[0]].min, [item[1],acc[1]].max ]
+        }
+        Ctx === ctx and ctx.source_pos = source_pos
+        source_pos
+      end
+
+      def get_source(ctx)
+        a,b = get_source_pos ctx
+        @source[a..b-1].strip
+      end
+
+      def visit_ast(ast,name)
+        ctx = to_ctx(ast,name)
+
+        visit ctx
       end
 
       def visit(ctx)
-        node = super(ctx)
-        if @include_source
-          attach_source(ctx, node)
+        if Array === ctx
+          return ctx.map { |el| visit el }
         end
+
+        node = ctx
+        if @visit_methods[ctx.name]
+          node = send(@visit_methods[ctx.name],ctx)
+          if @include_source && node.respond_to?(:source)
+            node.source = get_source ctx
+          end
+        end
+
         attach_remarks(ctx, node)
         node
       end
 
+      ############################################3
       private
+
+      def visit_top(ctx)
+        visit ctx.syntax
+      end
 
       def visit_if(ctx, default = nil)
         if ctx
@@ -83,35 +199,6 @@ module Expressir
           ctx.map{|ctx2| visit(ctx2)}.flatten
         else
           []
-        end
-      end
-
-      def get_tokens_source(tokens)
-        if tokens.last.text == '<EOF>'
-          tokens.pop
-        end
-
-        tokens.map{|x| x.text}.join('').force_encoding('UTF-8')
-      end
-
-      def get_tokens(ctx)
-        start_index, stop_index = if ctx.is_a? ::ExpressParser::SyntaxContext
-          [0, @tokens.size - 1]
-        else
-          [ctx.start.token_index, ctx.stop.token_index]
-        end
-
-        selected_tokens = []
-        (start_index..stop_index).each do |i|
-          selected_tokens << @tokens[i]
-        end
-        selected_tokens
-      end
-
-      def attach_source(ctx, node)
-        if node.class.method_defined? :source
-          tokens = get_tokens(ctx)
-          node.source = get_tokens_source(tokens)
         end
       end
 
@@ -153,19 +240,36 @@ module Expressir
         end
       end
 
+      def get_remarks(ctx,indent="")
+        case ctx
+        when Ctx
+          ctx.values.map { |item| get_remarks(item,indent+"  ") }.inject([],:+)
+        when Array
+          x = ctx.map { |item| get_remarks(item,indent+"  ") }.inject([],:+)
+          x
+        else
+          if [:tailRemark, :embeddedRemark].include?(ctx.name)
+            [ get_source_pos(ctx) ]
+          else
+            []
+          end
+        end
+      end
+
       def attach_remarks(ctx, node)
-        remark_tokens = get_tokens(ctx)
-        remark_tokens = remark_tokens.select{ |x| x.channel == REMARK_CHANNEL }
+
+        remark_tokens = get_remarks ctx
 
         # skip already attached remarks
-        remark_tokens = remark_tokens.select{|x| !@attached_remark_tokens.include?(x.token_index)}
+        remark_tokens = remark_tokens.select{|x| !@attached_remark_tokens.include?(x)}
 
         # parse remarks, find remark targets
-        tagged_remark_tokens = remark_tokens.map do |remark_token|
-          _, remark_tag, remark_text = if remark_token.text.start_with?('--')
-            remark_token.text.match(/^--"([^"]*)"(.*)$/).to_a
+        tagged_remark_tokens = remark_tokens.map do |span|
+          text = @source[span[0]..span[1]-1]
+          _, remark_tag, remark_text = if text.start_with?('--')
+            text.match(/^--"([^"]*)"(.*)$/).to_a
           else
-            remark_token.text.match(/^\(\*"([^"]*)"(.*)\*\)$/m).to_a
+            text.match(/^\(\*"([^"]*)"(.*)\*\)$/m).to_a
           end
 
           if remark_tag
@@ -175,16 +279,16 @@ module Expressir
             remark_text = remark_text.strip.force_encoding('UTF-8')
           end
 
-          [remark_token, remark_target, remark_text]
+          [span, remark_target, remark_text]
         end.select{|x| x[1]}
 
-        tagged_remark_tokens.each do |remark_token, remark_target, remark_text|
+        tagged_remark_tokens.each do |span, remark_target, remark_text|
           # attach remark
           remark_target.remarks ||= []
           remark_target.remarks << remark_text
 
           # mark remark as attached, so that it is not attached again at higher nesting level
-          @attached_remark_tokens << remark_token.token_index
+          @attached_remark_tokens << span
         end
       end
 
@@ -349,11 +453,11 @@ module Expressir
       end
 
       def visit_add_like_op(ctx)
-        ctx__text = ctx.text
+        ctx__text = ctx.values[0].text
         ctx__ADDITION = ctx__text == '+'
         ctx__SUBTRACTION = ctx__text == '-'
-        ctx__OR = ctx.OR
-        ctx__XOR = ctx.XOR
+        ctx__OR = ctx.tOR
+        ctx__XOR = ctx.tXOR
 
         if ctx__ADDITION
           Model::Expressions::BinaryExpression::ADDITION
@@ -429,8 +533,8 @@ module Expressir
 
       def visit_array_type(ctx)
         ctx__bound_spec = ctx.bound_spec
-        ctx__OPTIONAL = ctx.OPTIONAL
-        ctx__UNIQUE = ctx.UNIQUE
+        ctx__OPTIONAL = ctx.tOPTIONAL
+        ctx__UNIQUE = ctx.tUNIQUE
         ctx__instantiable_type = ctx.instantiable_type
         ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
         ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
@@ -480,7 +584,7 @@ module Expressir
       end
 
       def visit_attribute_id(ctx)
-        ctx__SimpleId = ctx.SimpleId
+        ctx__SimpleId = ctx.simpleId
 
         handle_simple_id(ctx__SimpleId)
       end
@@ -519,7 +623,7 @@ module Expressir
       def visit_binary_type(ctx)
         ctx__width_spec = ctx.width_spec
         ctx__width_spec__width = ctx__width_spec&.width
-        ctx__width_spec__FIXED = ctx__width_spec&.FIXED
+        ctx__width_spec__FIXED = ctx__width_spec&.tFIXED
 
         width = visit_if(ctx__width_spec__width)
         fixed = ctx__width_spec__FIXED && true
@@ -551,7 +655,7 @@ module Expressir
       end
 
       def visit_built_in_constant(ctx)
-        ctx__text = ctx.text
+        ctx__text = ctx.values[0].text
 
         id = ctx__text
 
@@ -561,7 +665,7 @@ module Expressir
       end
 
       def visit_built_in_function(ctx)
-        ctx__text = ctx.text
+        ctx__text = ctx.values[0].text
 
         id = ctx__text
 
@@ -571,7 +675,7 @@ module Expressir
       end
 
       def visit_built_in_procedure(ctx)
-        ctx__text = ctx.text
+        ctx__text = ctx.values[0].text
 
         id = ctx__text
 
@@ -664,7 +768,7 @@ module Expressir
       end
 
       def visit_constant_id(ctx)
-        ctx__SimpleId = ctx.SimpleId
+        ctx__SimpleId = ctx.simpleId
 
         handle_simple_id(ctx__SimpleId)
       end
@@ -765,7 +869,7 @@ module Expressir
         ctx__entity_head = ctx.entity_head
         ctx__entity_body = ctx.entity_body
         ctx__entity_head__entity_id = ctx__entity_head&.entity_id
-        ctx__entity_head__subsuper = ctx__entity_head&.subsuper
+        ctx__entity_head__subsuper = visit_if ctx__entity_head&.subsuper
         ctx__entity_head__subsuper__supertype_constraint = ctx__entity_head__subsuper&.supertype_constraint
         ctx__entity_head__subsuper__supertype_constraint__abstract_entity_declaration = ctx__entity_head__subsuper__supertype_constraint&.abstract_entity_declaration
         ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration = ctx__entity_head__subsuper__supertype_constraint&.abstract_supertype_declaration
@@ -805,7 +909,7 @@ module Expressir
       end
 
       def visit_entity_id(ctx)
-        ctx__SimpleId = ctx.SimpleId
+        ctx__SimpleId = ctx.simpleId
 
         handle_simple_id(ctx__SimpleId)
       end
@@ -815,7 +919,7 @@ module Expressir
       end
 
       def visit_enumeration_id(ctx)
-        ctx__SimpleId = ctx.SimpleId
+        ctx__SimpleId = ctx.simpleId
 
         handle_simple_id(ctx__SimpleId)
       end
@@ -854,7 +958,7 @@ module Expressir
       end
 
       def visit_enumeration_type(ctx)
-        ctx__EXTENSIBLE = ctx.EXTENSIBLE
+        ctx__EXTENSIBLE = ctx.tEXTENSIBLE
         ctx__enumeration_items = ctx.enumeration_items
         ctx__enumeration_extension = ctx.enumeration_extension
         ctx__enumeration_extension__type_ref = ctx__enumeration_extension&.type_ref
@@ -877,7 +981,7 @@ module Expressir
 
       def visit_explicit_attr(ctx)
         ctx__attribute_decl = ctx.attribute_decl
-        ctx__OPTIONAL = ctx.OPTIONAL
+        ctx__OPTIONAL = ctx.tOPTIONAL
         ctx__parameter_type = ctx.parameter_type
 
         attributes = visit_if_map(ctx__attribute_decl)
@@ -898,11 +1002,12 @@ module Expressir
       def visit_expression(ctx)
         ctx__simple_expression = ctx.simple_expression
         ctx__rel_op_extended = ctx.rel_op_extended
+        ctx__rhs = ctx.rhs
 
-        if ctx__simple_expression.length == 2
+        if ctx__rhs
           operator = visit_if(ctx__rel_op_extended)
-          operand1 = visit_if(ctx__simple_expression[0])
-          operand2 = visit_if(ctx__simple_expression[1])
+          operand1 = visit_if(ctx__simple_expression)
+          operand2 = visit_if(ctx__rhs.values[0])
 
           Model::Expressions::BinaryExpression.new(
             operator: operator,
@@ -910,27 +1015,26 @@ module Expressir
             operand2: operand2
           )
         else
-          visit_if(ctx__simple_expression[0])
+          visit_if(ctx__simple_expression)
         end
       end
 
       def visit_factor(ctx)
         ctx__simple_factor = ctx.simple_factor
+        ctx__rhs = ctx.rhs
 
-        if ctx__simple_factor.length == 2
+        if ctx__rhs
           operator = Model::Expressions::BinaryExpression::EXPONENTIATION
-          operand1 = visit(ctx__simple_factor[0])
-          operand2 = visit(ctx__simple_factor[1])
+          operand1 = visit(ctx__simple_factor)
+          operand2 = visit(ctx__rhs.simple_factor)
 
           Model::Expressions::BinaryExpression.new(
             operator: operator,
             operand1: operand1,
             operand2: operand2
           )
-        elsif ctx__simple_factor.length == 1
-          visit_if(ctx__simple_factor[0])
         else
-          raise 'Invalid state'
+          visit_if(ctx__simple_factor)
         end
       end
 
@@ -1007,7 +1111,7 @@ module Expressir
       end
 
       def visit_function_id(ctx)
-        ctx__SimpleId = ctx.SimpleId
+        ctx__SimpleId = ctx.simpleId
 
         handle_simple_id(ctx__SimpleId)
       end
@@ -1032,8 +1136,8 @@ module Expressir
 
       def visit_general_array_type(ctx)
         ctx__bound_spec = ctx.bound_spec
-        ctx__OPTIONAL = ctx.OPTIONAL
-        ctx__UNIQUE = ctx.UNIQUE
+        ctx__OPTIONAL = ctx.tOPTIONAL
+        ctx__UNIQUE = ctx.tUNIQUE
         ctx__parameter_type = ctx.parameter_type
         ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
         ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
@@ -1072,7 +1176,7 @@ module Expressir
 
       def visit_general_list_type(ctx)
         ctx__bound_spec = ctx.bound_spec
-        ctx__UNIQUE = ctx.UNIQUE
+        ctx__UNIQUE = ctx.tUNIQUE
         ctx__parameter_type = ctx.parameter_type
         ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
         ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
@@ -1242,13 +1346,14 @@ module Expressir
       def visit_interval(ctx)
         ctx__interval_low = ctx.interval_low
         ctx__interval_op = ctx.interval_op
+        ctx__interval_op2 = ctx.interval_op2.interval_op
         ctx__interval_item = ctx.interval_item
         ctx__interval_high = ctx.interval_high
 
         low = visit_if(ctx__interval_low)
-        operator1 = visit_if(ctx__interval_op[0])
+        operator1 = visit_if(ctx__interval_op)
         item = visit_if(ctx__interval_item)
-        operator2 = visit_if(ctx__interval_op[1])
+        operator2 = visit_if(ctx__interval_op2)
         high = visit_if(ctx__interval_high)
 
         Model::Expressions::Interval.new(
@@ -1279,7 +1384,7 @@ module Expressir
       end
 
       def visit_interval_op(ctx)
-        ctx__text = ctx.text
+        ctx__text = ctx.values[0].text
         ctx__LESS_THAN = ctx__text == '<'
         ctx__LESS_THAN_OR_EQUAL = ctx__text == '<='
 
@@ -1322,8 +1427,8 @@ module Expressir
       end
 
       def visit_inverse_attr_type(ctx)
-        ctx__SET = ctx.SET
-        ctx__BAG = ctx.BAG
+        ctx__SET = ctx.tSET
+        ctx__BAG = ctx.tBAG
         ctx__bound_spec = ctx.bound_spec
         ctx__entity_ref = ctx.entity_ref
         ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
@@ -1362,7 +1467,7 @@ module Expressir
 
       def visit_list_type(ctx)
         ctx__bound_spec = ctx.bound_spec
-        ctx__UNIQUE = ctx.UNIQUE
+        ctx__UNIQUE = ctx.tUNIQUE
         ctx__instantiable_type = ctx.instantiable_type
         ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
         ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
@@ -1381,10 +1486,10 @@ module Expressir
       end
 
       def visit_literal(ctx)
-        ctx__BinaryLiteral = ctx.BinaryLiteral
-        ctx__IntegerLiteral = ctx.IntegerLiteral
+        ctx__BinaryLiteral = ctx.binary_literal
+        ctx__IntegerLiteral = ctx.integerLiteral
         ctx__logical_literal = ctx.logical_literal
-        ctx__RealLiteral = ctx.RealLiteral
+        ctx__RealLiteral = ctx.real_literal
         ctx__string_literal = ctx.string_literal
 
         if ctx__BinaryLiteral
@@ -1433,9 +1538,9 @@ module Expressir
       end
 
       def visit_logical_literal(ctx)
-        ctx__TRUE = ctx.TRUE
-        ctx__FALSE = ctx.FALSE
-        ctx__UNKNOWN = ctx.UNKNOWN
+        ctx__TRUE = ctx.tTRUE
+        ctx__FALSE = ctx.tFALSE
+        ctx__UNKNOWN = ctx.tUNKNOWN
 
         value = if ctx__TRUE
           Model::Literals::Logical::TRUE
@@ -1457,12 +1562,12 @@ module Expressir
       end
 
       def visit_multiplication_like_op(ctx)
-        ctx__text = ctx.text
+        ctx__text = ctx.values[0].text
         ctx__MULTIPLICATION = ctx__text == '*'
         ctx__REAL_DIVISION = ctx__text == '/'
-        ctx__INTEGER_DIVISION = ctx.DIV
-        ctx__MODULO = ctx.MOD
-        ctx__AND = ctx.AND
+        ctx__INTEGER_DIVISION = ctx.tDIV
+        ctx__MODULO = ctx.tMOD
+        ctx__AND = ctx.tAND
         ctx__COMBINE = ctx__text == '||'
 
         if ctx__MULTIPLICATION
@@ -1534,7 +1639,7 @@ module Expressir
       end
 
       def visit_parameter_id(ctx)
-        ctx__SimpleId = ctx.SimpleId
+        ctx__SimpleId = ctx.simpleId
 
         handle_simple_id(ctx__SimpleId)
       end
@@ -1629,11 +1734,11 @@ module Expressir
 
       def visit_procedure_head_parameter(ctx)
         ctx__formal_parameter = ctx.formal_parameter
-        ctx__VAR = ctx.VAR
+        ctx__VAR = ctx.tVAR
 
         parameters = visit(ctx__formal_parameter)
 
-        if ctx.VAR
+        if ctx.tVAR
           parameters.map do |parameter|
             Model::Declarations::Parameter.new(
               id: parameter.id,
@@ -1647,7 +1752,7 @@ module Expressir
       end
 
       def visit_procedure_id(ctx)
-        ctx__SimpleId = ctx.SimpleId
+        ctx__SimpleId = ctx.simpleId
 
         handle_simple_id(ctx__SimpleId)
       end
@@ -1741,7 +1846,7 @@ module Expressir
       end
 
       def visit_rel_op(ctx)
-        ctx__text = ctx.text
+        ctx__text = ctx.values[0].text
         ctx__LESS_THAN = ctx__text == '<'
         ctx__GREATER_THAN = ctx__text == '>'
         ctx__LESS_THAN_OR_EQUAL = ctx__text == '<='
@@ -1774,8 +1879,8 @@ module Expressir
 
       def visit_rel_op_extended(ctx)
         ctx__rel_op = ctx.rel_op
-        ctx__IN = ctx.IN
-        ctx__LIKE = ctx.LIKE
+        ctx__IN = ctx.tIN
+        ctx__LIKE = ctx.tLIKE
 
         if ctx__rel_op
           visit(ctx__rel_op)
@@ -1799,11 +1904,11 @@ module Expressir
       end
 
       def visit_repeat_control(ctx)
-        raise 'Invalid state'
+        (SimpleCtx === ctx) ? to_ctx({},:repeatControl) : ctx
       end
 
       def visit_repeat_stmt(ctx)
-        ctx__repeat_control = ctx.repeat_control
+        ctx__repeat_control = visit ctx.repeat_control
         ctx__stmt = ctx.stmt
         ctx__repeat_control__increment_control = ctx__repeat_control&.increment_control
         ctx__repeat_control__increment_control__variable_id = ctx__repeat_control__increment_control&.variable_id
@@ -1915,13 +2020,13 @@ module Expressir
       end
 
       def visit_rule_id(ctx)
-        ctx__SimpleId = ctx.SimpleId
+        ctx__SimpleId = ctx.simpleId
 
         handle_simple_id(ctx__SimpleId)
       end
 
       def visit_rule_label_id(ctx)
-        ctx__SimpleId = ctx.SimpleId
+        ctx__SimpleId = ctx.simpleId
 
         handle_simple_id(ctx__SimpleId)
       end
@@ -1972,7 +2077,7 @@ module Expressir
       end
 
       def visit_schema_id(ctx)
-        ctx__SimpleId = ctx.SimpleId
+        ctx__SimpleId = ctx.simpleId
 
         handle_simple_id(ctx__SimpleId)
       end
@@ -2026,8 +2131,8 @@ module Expressir
       end
 
       def visit_select_type(ctx)
-        ctx__EXTENSIBLE = ctx.EXTENSIBLE
-        ctx__GENERIC_ENTITY = ctx.GENERIC_ENTITY
+        ctx__EXTENSIBLE = ctx.tEXTENSIBLE
+        ctx__GENERIC_ENTITY = ctx.tGENERIC_ENTITY
         ctx__select_list = ctx.select_list
         ctx__select_extension = ctx.select_extension
         ctx__select_extension__type_ref = ctx.select_extension&.type_ref
@@ -2064,8 +2169,8 @@ module Expressir
       end
 
       def visit_simple_expression(ctx)
-        ctx__term = ctx.term
-        ctx__add_like_op = ctx.add_like_op
+        ctx__term = [ctx.term] + ctx.rhs.map { |item| item.term }
+        ctx__add_like_op = ctx.rhs.map { |item| item.operator.values[0] }
 
         if ctx__term
           if ctx__term.length >= 2
@@ -2150,8 +2255,8 @@ module Expressir
       end
 
       def visit_string_literal(ctx)
-        ctx__SimpleStringLiteral = ctx.SimpleStringLiteral
-        ctx__EncodedStringLiteral = ctx.EncodedStringLiteral
+        ctx__SimpleStringLiteral = ctx.simpleStringLiteral
+        ctx__EncodedStringLiteral = ctx.encodedStringLiteral
 
         if ctx__SimpleStringLiteral
           handle_simple_string_literal(ctx__SimpleStringLiteral)
@@ -2165,7 +2270,7 @@ module Expressir
       def visit_string_type(ctx)
         ctx__width_spec = ctx.width_spec
         ctx__width_spec__width = ctx__width_spec&.width
-        ctx__width_spec__FIXED = ctx__width_spec&.FIXED
+        ctx__width_spec__FIXED = ctx__width_spec&.tFIXED
 
         width = visit_if(ctx__width_spec__width)
         fixed = ctx__width_spec__FIXED && true
@@ -2177,7 +2282,7 @@ module Expressir
       end
 
       def visit_subsuper(ctx)
-        raise 'Invalid state'
+        (SimpleCtx === ctx) ? to_ctx({},:subsuper) : ctx
       end
 
       def visit_subtype_constraint(ctx)
@@ -2187,12 +2292,12 @@ module Expressir
       end
 
       def visit_subtype_constraint_body(ctx)
-        raise 'Invalid state'
+        (SimpleCtx === ctx) ? to_ctx({},:subtypeConstraintBody) : ctx
       end
 
       def visit_subtype_constraint_decl(ctx)
         ctx__subtype_constraint_head = ctx.subtype_constraint_head
-        ctx__subtype_constraint_body = ctx.subtype_constraint_body
+        ctx__subtype_constraint_body = visit ctx.subtype_constraint_body
         ctx__subtype_constraint_head__subtype_constraint_id = ctx__subtype_constraint_head&.subtype_constraint_id
         ctx__subtype_constraint_head__entity_ref = ctx__subtype_constraint_head&.entity_ref
         ctx__subtype_constraint_body__abstract_supertype = ctx__subtype_constraint_body&.abstract_supertype
@@ -2219,7 +2324,7 @@ module Expressir
       end
 
       def visit_subtype_constraint_id(ctx)
-        ctx__SimpleId = ctx.SimpleId
+        ctx__SimpleId = ctx.simpleId
 
         handle_simple_id(ctx__SimpleId)
       end
@@ -2235,8 +2340,8 @@ module Expressir
       end
 
       def visit_supertype_expression(ctx)
-        ctx__supertype_factor = ctx.supertype_factor
-        ctx__ANDOR = ctx.ANDOR
+        ctx__supertype_factor = [ctx.supertype_factor]+ctx.rhs.map { |item| item.supertype_factor }
+        ctx__ANDOR = ctx.rhs.map { |item| item.operator.values[0] }
 
         if ctx__supertype_factor
           if ctx__supertype_factor.length >= 2
@@ -2257,8 +2362,8 @@ module Expressir
       end
 
       def visit_supertype_factor(ctx)
-        ctx__supertype_term = ctx.supertype_term
-        ctx__AND = ctx.AND
+        ctx__supertype_term = [ctx.supertype_term] + ctx.rhs.map { |item| item.supertype_term }
+        ctx__AND = ctx.rhs.map { |item| item.operator.values[0] }
 
         if ctx__supertype_term
           if ctx__supertype_term.length >= 2
@@ -2303,8 +2408,8 @@ module Expressir
       end
 
       def visit_term(ctx)
-        ctx__factor = ctx.factor
-        ctx__multiplication_like_op = ctx.multiplication_like_op
+        ctx__factor = [ctx.factor] + ctx.rhs.map { |item| item.factor }
+        ctx__multiplication_like_op = ctx.rhs.map { |item| item.multiplication_like_op }
 
         if ctx__factor
           if ctx__factor.length >= 2
@@ -2347,7 +2452,7 @@ module Expressir
       end
 
       def visit_type_id(ctx)
-        ctx__SimpleId = ctx.SimpleId
+        ctx__SimpleId = ctx.simpleId
 
         handle_simple_id(ctx__SimpleId)
       end
@@ -2360,16 +2465,16 @@ module Expressir
       end
 
       def visit_type_label_id(ctx)
-        ctx__SimpleId = ctx.SimpleId
+        ctx__SimpleId = ctx.simpleId
 
         handle_simple_id(ctx__SimpleId)
       end
 
       def visit_unary_op(ctx)
-        ctx__text = ctx.text
+        ctx__text = ctx.values[0].text
         ctx__PLUS = ctx__text == '+'
         ctx__MINUS = ctx__text == '-'
-        ctx__NOT = ctx.NOT
+        ctx__NOT = ctx.tNOT
 
         if ctx__PLUS
           Model::Expressions::UnaryExpression::PLUS
@@ -2429,7 +2534,7 @@ module Expressir
       end
 
       def visit_variable_id(ctx)
-        ctx__SimpleId = ctx.SimpleId
+        ctx__SimpleId = ctx.simpleId
 
         handle_simple_id(ctx__SimpleId)
       end

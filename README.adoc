@@ -91,11 +91,6 @@ bundle exec rake
 
 THe EXPRESS grammar is lined as Git submodule at `ext/express-grammar`.
 
-Should you update it, please run `rake generate`. This command will generate
-source code for updated native extension using the `antlr4-native` gem. Please
-note that we create several classes on top of `antlr4-native` output so using
-embedded rake task is a real requirement.
-
 When a new extension is generated and tested, please check in updated C++ files
 to git (`rake generate` is NOT a CI step, extension source files are pulled from
 the repo).

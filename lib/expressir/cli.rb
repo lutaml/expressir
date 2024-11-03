@@ -25,7 +25,7 @@ module Expressir
       def _print_validation_errors(type, array)
         return if array.empty?
 
-        puts "#{'*' * 20} RESULTS: #{type.to_s.upcase.gsub('_', ' ')} #{'*' * 20}"
+        puts "#{'*' * 20} RESULTS: #{type.to_s.upcase.tr('_', ' ')} #{'*' * 20}"
         array.each do |msg|
           puts msg
         end

@@ -3,15 +3,15 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "expressir/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "expressir"
-  spec.version       = Expressir::VERSION
-  spec.authors       = ["Ribose Inc."]
-  spec.email         = ["open.source@ribose.com"]
+  spec.name = "expressir"
+  spec.version = Expressir::VERSION
+  spec.authors = ["Ribose Inc."]
+  spec.email = ["open.source@ribose.com"]
 
-  spec.summary       = "ISO EXPRESS parser and tools in Ruby."
-  spec.description   = "Expressir (“EXPRESS in Ruby”) is a Ruby parser for EXPRESS and a set of Ruby tools for accessing ISO EXPRESS data models."
-  spec.homepage      = "https://github.com/lutaml/expressir"
-  spec.license       = "MIT"
+  spec.summary = "ISO EXPRESS parser and tools in Ruby."
+  spec.description = "Expressir (“EXPRESS in Ruby”) is a Ruby parser for EXPRESS and a set of Ruby tools for accessing ISO EXPRESS data models."
+  spec.homepage = "https://github.com/lutaml/expressir"
+  spec.license = "MIT"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage
@@ -19,27 +19,14 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = Gem::Requirement.new(">= 2.7.0")
 
-  spec.files         = `git ls-files`.split("\n")
+  spec.files = `git ls-files`.split("\n")
 
-  spec.test_files    = `git ls-files -- {spec}/*`.split("\n")
+  spec.test_files = `git ls-files -- {spec}/*`.split("\n")
 
-  spec.bindir        = "exe"
+  spec.bindir = "exe"
   spec.require_paths = ["lib"]
-  spec.executables   = %w[expressir]
+  spec.executables = %w[expressir]
 
-  spec.add_runtime_dependency "rice", "~> 4.2"
-  spec.add_runtime_dependency "thor", "~> 1.0"
-  spec.add_runtime_dependency "parslet", "~> 2.0"
-  spec.add_development_dependency "asciidoctor", "~> 2.0.13"
-  spec.add_development_dependency "bundler", "~> 2.3"
-  spec.add_development_dependency "byebug", "~> 11.1"
-  spec.add_development_dependency "pry", "~> 0.12.2"
-  spec.add_development_dependency "rake", "~> 13.0"
-  spec.add_development_dependency "rake-compiler", "~> 1.2"
-  spec.add_development_dependency "rake-compiler-dock", "~> 1.5"
-  spec.add_development_dependency "rspec", "~> 3.11"
-  spec.add_development_dependency "rubocop", "1.58"
-  spec.add_development_dependency "rubocop-performance", "~> 1.19"
-  spec.add_development_dependency "webrick", "~> 1.7.0"
-  spec.add_development_dependency "yard", "~> 0.9.26"
+  spec.add_dependency "thor", "~> 1.0"
+  spec.add_dependency "parslet", "~> 2.0"
 end

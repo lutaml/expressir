@@ -11,9 +11,6 @@ concurrency:
   group: '${{ github.workflow }}-${{ github.job }}-${{ github.head_ref || github.ref_name }}'
   cancel-in-progress: true
 
-env:
-  BUNDLER_VER: 2.4.22
-
 jobs:
   analyze:
     name: Analyze
@@ -22,26 +19,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Install Ruby
         uses: ruby/setup-ruby@master
         with:
-          ruby-version: 3.1
-          bundler: ${{ env.BUNDLER_VER }}
-          bundler-cache: false
-
-      - name: Bundle
-        run: bundle install --jobs 4 --retry 3
+          ruby-version: 3.2
+          bundler-cache: true
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
           languages: "ruby, cpp"
-
-      - name: Build native extension
-        run: bundle exec rake compile
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2

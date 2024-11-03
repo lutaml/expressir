@@ -16,6 +16,9 @@ concurrency:
   group: '${{ github.workflow }}-${{ github.job }}-${{ github.head_ref || github.ref_name }}'
   cancel-in-progress: true
 
+env:
+  RUBYGEM_VER: 3.4.22
+
 jobs:
   rubocop:
     runs-on: ubuntu-latest
@@ -72,11 +75,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
+      - name: Upgrade RubyGems
+        if: matrix.ruby == '3.0' || matrix.ruby == '2.7'
+        run: gem update --system ${{ env.RUBYGEM_VER }} --no-document
+
+      - name: Bundle
+        run: |
+          git config --global --add safe.directory $PWD
+          bundle install --jobs 4 --retry 3
 
       - name: Run tests
         run: |

@@ -1,4 +1,5 @@
 inherit_from:
+  - .rubocop_todo.yml
   - https://raw.githubusercontent.com/riboseinc/oss-guides/master/ci/rubocop.yml
 
 AllCops:

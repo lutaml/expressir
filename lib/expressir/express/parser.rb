@@ -1,5 +1,5 @@
-require 'expressir/express/resolve_references_model_visitor'
-require 'parslet'
+require "expressir/express/resolve_references_model_visitor"
+require "parslet"
 require "expressir/model"
 
 module Expressir
@@ -31,13 +31,13 @@ module Expressir
           UNKNOWN UNTIL USE USEDIN VALUE VALUE_IN VALUE_UNIQUE VAR WITH WHERE WHILE
           XOR
         ]
-        
+
         def keyword_rule(str)
           key_chars = str.to_s.split(//)
           key_chars.
             collect! { |char| match("[#{char}#{char.downcase}]") }.
-            reduce(:>>) >> match['a-zA-Z0-9_'].absent?
-        end        
+            reduce(:>>) >> match["a-zA-Z0-9_"].absent?
+        end
 
         KEYWORDS.each do |keyword|
           sym = "t#{keyword}".to_sym
@@ -63,9 +63,9 @@ module Expressir
         rule(:attributeQualifier) { (op_period >> attributeRef).as(:attributeQualifier) }
         rule(:attributeRef) { (attributeId).as(:attributeRef) }
         rule(:bagType) { (tBAG >> boundSpec.maybe >> tOF >> instantiableType).as(:bagType) }
-        rule(:binaryLiteral) { cts((str('%') >> bit.repeat(1)).as(:str)).as(:binaryLiteral) }
+        rule(:binaryLiteral) { cts((str("%") >> bit.repeat(1)).as(:str)).as(:binaryLiteral) }
         rule(:binaryType) { (tBINARY >> widthSpec.maybe).as(:binaryType) }
-        rule(:bit) { (match['0-1']) }
+        rule(:bit) { (match["0-1"]) }
         rule(:booleanType) { (tBOOLEAN).as(:booleanType) }
         rule(:bound1) { (numericExpression).as(:bound1) }
         rule(:bound2) { (numericExpression).as(:bound2) }
@@ -85,14 +85,14 @@ module Expressir
         rule(:constantRef) { (constantId).as(:constantRef) }
         rule(:constructedTypes) { (enumerationType | selectType).as(:constructedTypes) }
         rule(:declaration) { (entityDecl | functionDecl | procedureDecl | subtypeConstraintDecl | typeDecl).as(:declaration) }
-        rule(:delim) { cts(str(';').as(:delim)) }
+        rule(:delim) { cts(str(";").as(:delim)) }
         rule(:deriveClause) { (tDERIVE >> derivedAttr.repeat(1).as(:derivedAttr)).as(:deriveClause) }
         rule(:derivedAttr) { (attributeDecl >> op_colon >> parameterType >> op_decl >> expression >> op_delim).as(:derivedAttr) }
-        rule(:digit) { (match['0-9']) }
+        rule(:digit) { (match["0-9"]) }
         rule(:digits) { (digit >> digit.repeat) }
         rule(:domainRule) { ((ruleLabelId >> op_colon).maybe >> expression).as(:domainRule) }
         rule(:element) { (expression >> (op_colon >> repetition).maybe).as(:element) }
-        rule(:embeddedRemark) { (str('(*') >> (str("*)").absent? >> (embeddedRemark|any)).repeat >> str('*)')).as(:embeddedRemark) }
+        rule(:embeddedRemark) { (str("(*") >> (str("*)").absent? >> (embeddedRemark | any)).repeat >> str("*)")).as(:embeddedRemark) }
         rule(:encodedCharacter) { (octet >> octet >> octet >> octet) }
         rule(:encodedStringLiteral) { cts((str('"') >> (encodedCharacter.repeat(1)) >> str('"')).as(:str)).as(:encodedStringLiteral) }
         rule(:entityBody) { (explicitAttr.repeat.as(:explicitAttr) >> deriveClause.maybe >> inverseClause.maybe >> uniqueClause.maybe >> whereClause.maybe).as(:entityBody) }
@@ -128,7 +128,7 @@ module Expressir
         rule(:genericEntityType) { (tGENERIC_ENTITY >> (op_colon >> typeLabel).maybe).as(:genericEntityType) }
         rule(:genericType) { (tGENERIC >> (op_colon >> typeLabel).maybe).as(:genericType) }
         rule(:groupQualifier) { (op_double_backslash >> entityRef).as(:groupQualifier) }
-        rule(:hexDigit) { match['0-9a-fA-F'] }
+        rule(:hexDigit) { match["0-9a-fA-F"] }
         rule(:ifStmtElseStatements) { (stmt.repeat(1).as(:stmt)).as(:ifStmtElseStatements) }
         rule(:ifStmtStatements) { (stmt.repeat(1).as(:stmt)).as(:ifStmtStatements) }
         rule(:ifStmt) { (tIF >> logicalExpression >> tTHEN >> ifStmtStatements >> (tELSE >> ifStmtElseStatements).maybe >> tEND_IF >> op_delim).as(:ifStmt) }
@@ -150,7 +150,7 @@ module Expressir
         rule(:inverseAttr) { (attributeDecl >> op_colon >> inverseAttrType >> tFOR >> (entityRef >> op_period).maybe >> attributeRef >> op_delim).as(:inverseAttr) }
         rule(:inverseAttrType) { (((tSET | tBAG) >> boundSpec.maybe >> tOF).maybe >> entityRef).as(:inverseAttrType) }
         rule(:inverseClause) { (tINVERSE >> inverseAttr.repeat(1).as(:inverseAttr)).as(:inverseClause) }
-        rule(:letter) { match['a-zA-Z'] }
+        rule(:letter) { match["a-zA-Z"] }
         rule(:listType) { (tLIST >> boundSpec.maybe >> tOF >> tUNIQUE.maybe >> instantiableType).as(:listType) }
         rule(:literal) { (binaryLiteral | logicalLiteral | realLiteral | integerLiteral | stringLiteral).as(:literal) }
         rule(:localDecl) { (tLOCAL >> localVariable.repeat(1).as(:localVariable) >> tEND_LOCAL >> op_delim).as(:localDecl) }
@@ -166,36 +166,36 @@ module Expressir
         rule(:numericExpression) { (simpleExpression).as(:numericExpression) }
         rule(:octet) { hexDigit >> hexDigit }
         rule(:oneOf) { (tONEOF >> op_leftparen >> (supertypeExpression >> (op_comma >> supertypeExpression).repeat).as(:listOf_supertypeExpression) >> op_rightparen).as(:oneOf) }
-        rule(:op_asterisk) { cstr('*').as(:op_asterisk) }
-        rule(:op_colon) { cstr(':').as(:op_colon) }
-        rule(:op_colon_equals_colon) { cstr(':=:').as(:op_colon_equals_colon) }
-        rule(:op_colon_less_greater_colon) { cstr(':<>:').as(:op_colon_less_greater_colon) }
-        rule(:op_comma) { cstr(',').as(:op_comma) }
-        rule(:op_decl) { cstr(':=').as(:op_decl) }
-        rule(:op_delim) { cstr(';').as(:op_delim) }
-        rule(:op_double_asterisk) { cstr('**').as(:op_double_asterisk) }
+        rule(:op_asterisk) { cstr("*").as(:op_asterisk) }
+        rule(:op_colon) { cstr(":").as(:op_colon) }
+        rule(:op_colon_equals_colon) { cstr(":=:").as(:op_colon_equals_colon) }
+        rule(:op_colon_less_greater_colon) { cstr(":<>:").as(:op_colon_less_greater_colon) }
+        rule(:op_comma) { cstr(",").as(:op_comma) }
+        rule(:op_decl) { cstr(":=").as(:op_decl) }
+        rule(:op_delim) { cstr(";").as(:op_delim) }
+        rule(:op_double_asterisk) { cstr("**").as(:op_double_asterisk) }
         rule(:op_double_backslash) { cstr('\\').as(:op_double_backslash) }
-        rule(:op_double_pipe) { cstr('||').as(:op_double_pipe) }
-        rule(:op_equals) { cstr('=').as(:op_equals) }
-        rule(:op_greater_equal) { cstr('>=').as(:op_greater_equal) }
-        rule(:op_greater_than) { cstr('>').as(:op_greater_than) }
-        rule(:op_leftbracket) { cstr('[').as(:op_leftbracket) }
-        rule(:op_left_curly_brace) { cstr('{').as(:op_left_curly_brace) }
-        rule(:op_leftparen) { cstr('(').as(:op_leftparen) }
-        rule(:op_less_equal) { cstr('<=').as(:op_less_equal) }
-        rule(:op_less_greater) { cstr('<>').as(:op_less_greater) }
-        rule(:op_less_than) { cstr('<').as(:op_less_than) }
-        rule(:op_minus) { cstr('-').as(:op_minus) }
-        rule(:op_period) { cstr('.').as(:op_period) }
-        rule(:op_pipe) { cstr('|').as(:op_pipe) }
-        rule(:op_plus) { cstr('+').as(:op_plus) }
-        rule(:op_query_begin) { cstr('<*').as(:op_query_begin) }
-        rule(:op_query_end) { cstr('*>').as(:op_query_end) }
-        rule(:op_question_mark) { cstr('?').as(:op_question_mark) }
-        rule(:op_rightbracket) { cstr(']').as(:op_rightbracket) }
-        rule(:op_right_curly_brace) { cstr('}').as(:op_right_curly_brace) }
-        rule(:op_rightparen) { cstr(')').as(:op_rightparen) }
-        rule(:op_slash) { cstr('/').as(:op_slash) }
+        rule(:op_double_pipe) { cstr("||").as(:op_double_pipe) }
+        rule(:op_equals) { cstr("=").as(:op_equals) }
+        rule(:op_greater_equal) { cstr(">=").as(:op_greater_equal) }
+        rule(:op_greater_than) { cstr(">").as(:op_greater_than) }
+        rule(:op_leftbracket) { cstr("[").as(:op_leftbracket) }
+        rule(:op_left_curly_brace) { cstr("{").as(:op_left_curly_brace) }
+        rule(:op_leftparen) { cstr("(").as(:op_leftparen) }
+        rule(:op_less_equal) { cstr("<=").as(:op_less_equal) }
+        rule(:op_less_greater) { cstr("<>").as(:op_less_greater) }
+        rule(:op_less_than) { cstr("<").as(:op_less_than) }
+        rule(:op_minus) { cstr("-").as(:op_minus) }
+        rule(:op_period) { cstr(".").as(:op_period) }
+        rule(:op_pipe) { cstr("|").as(:op_pipe) }
+        rule(:op_plus) { cstr("+").as(:op_plus) }
+        rule(:op_query_begin) { cstr("<*").as(:op_query_begin) }
+        rule(:op_query_end) { cstr("*>").as(:op_query_end) }
+        rule(:op_question_mark) { cstr("?").as(:op_question_mark) }
+        rule(:op_rightbracket) { cstr("]").as(:op_rightbracket) }
+        rule(:op_right_curly_brace) { cstr("}").as(:op_right_curly_brace) }
+        rule(:op_rightparen) { cstr(")").as(:op_rightparen) }
+        rule(:op_slash) { cstr("/").as(:op_slash) }
         rule(:parameter) { (expression).as(:parameter) }
         rule(:parameterId) { (simpleId).as(:parameterId) }
         rule(:parameterRef) { (parameterId).as(:parameterRef) }
@@ -213,7 +213,7 @@ module Expressir
         rule(:qualifiedAttribute) { (tSELF >> groupQualifier >> attributeQualifier).as(:qualifiedAttribute) }
         rule(:qualifier) { (attributeQualifier | groupQualifier | indexQualifier).as(:qualifier) }
         rule(:queryExpression) { (tQUERY >> op_leftparen >> variableId >> op_query_begin >> aggregateSource >> op_pipe >> logicalExpression >> op_rightparen).as(:queryExpression) }
-        rule(:realLiteral) { cts((digits >> str('.') >> digits.maybe >> (match['eE'] >> sign.maybe >> digits).maybe).as(:str)).as(:realLiteral) }
+        rule(:realLiteral) { cts((digits >> str(".") >> digits.maybe >> (match["eE"] >> sign.maybe >> digits).maybe).as(:str)).as(:realLiteral) }
         rule(:realType) { (tREAL >> (op_leftparen >> precisionSpec >> op_rightparen).maybe).as(:realType) }
         rule(:redeclaredAttribute) { (qualifiedAttribute >> (tRENAMED >> attributeId).maybe).as(:redeclaredAttribute) }
         rule(:referenceClause) { (tREFERENCE >> tFROM >> schemaRef >> (op_leftparen >> (resourceOrRename >> (op_comma >> resourceOrRename).repeat).as(:listOf_resourceOrRename) >> op_rightparen).maybe >> op_delim).as(:referenceClause) }
@@ -244,7 +244,7 @@ module Expressir
         rule(:selector) { (expression).as(:selector) }
         rule(:selectType) { ((tEXTENSIBLE >> tGENERIC_ENTITY.maybe).maybe >> tSELECT >> (selectList | selectExtension).maybe).as(:selectType) }
         rule(:setType) { (tSET >> boundSpec.maybe >> tOF >> instantiableType).as(:setType) }
-        rule(:sign) { match['+-'] }
+        rule(:sign) { match["+-"] }
         rule(:simpleExpression) { (term >> (addLikeOp.as(:operator) >> term).as(:item).repeat.as(:rhs)).as(:simpleExpression) }
         rule(:simpleFactor) { (aggregateInitializer | entityConstructor | interval | queryExpression | simpleFactorExpression | simpleFactorUnaryExpression | enumerationReference).as(:simpleFactor) }
         rule(:simpleFactorExpression) { (op_leftparen >> expression >> op_rightparen | primary).as(:simpleFactorExpression) }
@@ -272,7 +272,7 @@ module Expressir
         rule(:supertypeRule) { (tSUPERTYPE >> subtypeConstraint).as(:supertypeRule) }
         rule(:supertypeTerm) { (entityRef | oneOf | op_leftparen >> supertypeExpression >> op_rightparen).as(:supertypeTerm) }
         rule(:syntax) { (spaces.as(:spaces) >> schemaDecl.repeat(1).as(:schemaDecl) >> spaces.as(:trailer)).as(:syntax) }
-        rule(:tailRemark) { (str('--') >> (str("\n").absent? >> any).repeat >> str("\n")).as(:tailRemark) }
+        rule(:tailRemark) { (str("--") >> (str("\n").absent? >> any).repeat >> str("\n")).as(:tailRemark) }
         rule(:term) { (factor >> (multiplicationLikeOp >> factor).as(:item).repeat.as(:rhs)).as(:term) }
         rule(:totalOver) { (tTOTAL_OVER >> op_leftparen >> (entityRef >> (op_comma >> entityRef).repeat).as(:listOf_entityRef) >> op_rightparen >> op_delim).as(:totalOver) }
         rule(:typeDecl) { (tTYPE >> typeId >> op_equals >> underlyingType >> op_delim >> whereClause.maybe >> tEND_TYPE >> (op_delim.as(:op_delim2))).as(:typeDecl) }
@@ -305,7 +305,7 @@ module Expressir
         ast = Parser.new.parse source
 
         visitor = Expressir::Express::Visitor.new(source, include_source: include_source)
-        transformed = visitor.visit_ast ast,:top
+        transformed = visitor.visit_ast ast, :top
         @repository = transformed
 
         @repository.schemas.each do |schema|
@@ -334,7 +334,7 @@ module Expressir
         end.flatten
 
         @repository = Model::Repository.new(
-          schemas: schemas
+          schemas: schemas,
         )
 
         unless @skip_references

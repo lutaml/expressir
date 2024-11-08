@@ -86,13 +86,6 @@ Run the test suite
 bundle exec rake
 ----
 
-=== Grammar updates
-
-THe EXPRESS grammar is lined as Git submodule at `ext/express-grammar`.
-
-When a new extension is generated and tested, please check in updated C++ files
-to git (`rake generate` is NOT a CI step, extension source files are pulled from
-the repo).
 
 
 == Installation

@@ -340,4 +340,22 @@ RSpec.describe Expressir::Model::ModelElement do
       GC.verify_internal_consistency
     end
   end
+
+  describe ".to_liquid" do
+    exp_file = Expressir.root_path.join("spec", "syntax", "test-generic.exp")
+    repo = Expressir::Express::Parser.from_file(exp_file)
+    repo_drop = repo.to_liquid
+    result = []
+
+    it "compares Expressir::Liquid with Expressir::Model" do
+      loop_model_attrs(repo, repo_drop, result)
+
+      result.each do |r|
+        expect(r[:value]).to eq(r[:drop_value]),
+          "Expecting #{r[:model]} model_attr: #{r[:attr]} " \
+          "value: #{r[:value]} equals to #{r[:drop_model]} " \
+          "model_attr: #{r[:attr]} value: #{r[:drop_value]}"
+      end
+    end
+  end
 end

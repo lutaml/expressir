@@ -12,7 +12,7 @@ module Expressir
         # @option options [Reference] :ref
         # @option options [String] :id
         def initialize(options = {})
-          @ref = options[:ref] 
+          @ref = options[:ref]
           @id = options[:id]
 
           super

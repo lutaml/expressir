@@ -18,23 +18,22 @@ Expressir consists of 3 parts:
 ** EXPRESS data modelling language (ISO 10303-11:2007)
 ** EXPRESS data modelling language in XML (STEPmod)
 ** EXPRESS XML (ISO 10303-28:2007)
-"`Industrial automation systems and integration — Product data representation and exchange — Part 28: Implementation methods: XML representations of EXPRESS schemas and data, using XML schemas`")
+"`Industrial automation systems and integration — Product data representation and exchange — Part 28: Implementation methods: XML representations of EXPRESS schemas and data, using XML schemas`"
 
 . Data model. The data model (`lib/expressir/express`) is the Ruby data model that fully represents an EXPRESS data model.
 
 . Converters. A converter transforms the EXPRESS Ruby data model into an interoperable export format, including:
 ** EXPRESS data modelling language (ISO 10303-11:2007)
-** W3C OWL
-** OMG SysML (XMI 2.1, XMI 2.5)
-** OMG UML 2 (XMI 2.1)
-** OMG UML 2 for Eclipse (XMI 2.1)
+// ** W3C OWL
+// ** OMG SysML (XMI 2.1, XMI 2.5)
+// ** OMG UML 2 (XMI 2.1)
+// ** OMG UML 2 for Eclipse (XMI 2.1)
 
 
 == Usage
 
 This gem ships with a CLI tool. To check what's available you can simply run
-the script directly from `exe/expressir`, by default it will display some usage
-instructions.
+`expressir`, by default it will display some usage instructions.
 
 [source, sh]
 ----
@@ -87,18 +86,6 @@ Run the test suite
 bundle exec rake
 ----
 
-=== Grammar updates
-
-THe EXPRESS grammar is lined as Git submodule at `ext/express-grammar`.
-
-Should you update it, please run `rake generate`. This command will generate
-source code for updated native extension using the `antlr4-native` gem. Please
-note that we create several classes on top of `antlr4-native` output so using
-embedded rake task is a real requirement.
-
-When a new extension is generated and tested, please check in updated C++ files
-to git (`rake generate` is NOT a CI step, extension source files are pulled from
-the repo).
 
 
 == Installation

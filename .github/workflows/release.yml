@@ -15,21 +15,15 @@ concurrency:
   group: '${{ github.workflow }}-${{ github.job }}-${{ github.head_ref || github.ref_name }}'
   cancel-in-progress: true
 
-env:
-  BUNDLER_VER: 2.4.22
-
 jobs:
   bump:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - uses: ruby/setup-ruby@master
         with:
-          ruby-version: '3.1'
-          bundler: ${{ env.BUNDLER_VER }}
+          ruby-version: '3.2'
 
       - if: ${{ github.event_name == 'workflow_dispatch' }} # unfortunatelly cannot keep this condition on job level
         run: |
@@ -47,17 +41,11 @@ jobs:
         platform: [ linux-gnu, linux-musl, windows, darwin ]
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          ref: main # https://github.com/actions/checkout/issues/439#issuecomment-830862188
 
       - uses: ruby/setup-ruby@master
         with:
-          ruby-version: '3.1'
-          # bundler-cache: true important to not use cache because it leads to "cannot find -lrice"
-          # more info https://github.com/lutaml/expressir/runs/2097658383?check_suite_focus=true#step:7:2126
-
-      - run: bundle install --jobs 4 --retry 3
+          ruby-version: '3.2'
+          bundler-cache: true
 
       - name: Build gem and save version
         if: matrix.platform == 'linux-gnu'
@@ -75,14 +63,6 @@ jobs:
         with:
           name: version
           path: version
-
-      - name: Enable swap
-        run: |
-          sudo fallocate -l 15g /compile.swap
-          sudo chmod 600 /compile.swap
-          sudo mkswap /compile.swap
-          sudo swapon /compile.swap
-          sudo swapon --all --verbose
 
       # build gem WITH pre-built native extension
       - run: bundle exec rake gem:${{ matrix.platform }}
@@ -152,9 +132,8 @@ jobs:
       - name: Install Ruby
         uses: ruby/setup-ruby@master
         with:
-          ruby-version: 3.1
+          ruby-version: 3.2
           bundler-cache: true
-          bundler: ${{ env.BUNDLER_VER }}
 
       - name: Download version
         uses: actions/download-artifact@v4

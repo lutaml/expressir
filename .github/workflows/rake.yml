@@ -150,7 +150,9 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
+          bundler-cache: false
+
+      - run: bundle install --jobs 4 --retry 3
 
       - name: Download packaged gem
         uses: actions/download-artifact@v4
@@ -159,7 +161,7 @@ jobs:
          path: pkg
 
       - name: Install gem
-        run: gem install -l pkg/expressir-*.gem
+        run: gem install pkg/expressir-*.gem
 
       - name: Verify
         run: |

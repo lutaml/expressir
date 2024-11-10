@@ -5,164 +5,22 @@ on:
     inputs:
       next_version:
         description: |
-          Next release version. Possible values: x.y.z, major, minor, patch or pre|rc|etc
+          Next release version. Possible values: x.y.z, major, minor, patch (or pre|rc|etc).
+          Also, you can pass 'skip' to skip 'git tag' and do 'gem push' for the current version
         required: true
-        default: 'patch'
-  push:
-    tags: [ v* ]
-
-concurrency:
-  group: '${{ github.workflow }}-${{ github.job }}-${{ github.head_ref || github.ref_name }}'
-  cancel-in-progress: true
+        default: 'skip'
+  repository_dispatch:
+    types: [ do-release ]
 
 jobs:
-  bump:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  release:
+    uses: metanorma/ci/.github/workflows/rubygems-release.yml@main
+    with:
+      next_version: ${{ github.event.inputs.next_version }}
+      release_command: rake release
+      bundler_cache: false
+      post_install: gem install bundler rake rspec
+    secrets:
+      rubygems-api-key: ${{ secrets.LUTAML_CI_RUBYGEMS_API_KEY }}
+      pat_token: ${{ secrets.LUTAML_CI_PAT_TOKEN }}
 
-      - uses: ruby/setup-ruby@master
-        with:
-          ruby-version: '3.2'
-
-      - if: ${{ github.event_name == 'workflow_dispatch' }} # unfortunatelly cannot keep this condition on job level
-        run: |
-          git config --global user.name github-actions
-          git config --global user.email github-actions@github.com
-          gem install gem-release
-          gem bump --version ${{ github.event.inputs.next_version }} --tag --push
-
-  pack:
-    runs-on: ubuntu-latest
-    needs: bump
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [ linux-gnu, linux-musl, windows, darwin ]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ruby/setup-ruby@master
-        with:
-          ruby-version: '3.2'
-          bundler-cache: true
-
-      - name: Build gem and save version
-        if: matrix.platform == 'linux-gnu'
-        run: |
-          gem build expressir.gemspec | grep -o 'Version: .*' | awk '{print $2}' > version
-
-      - if: matrix.platform == 'linux-gnu'
-        uses: actions/upload-artifact@v4
-        with:
-          name: pkg-ruby
-          path: expressir-*.gem
-
-      - if: matrix.platform == 'linux-gnu'
-        uses: actions/upload-artifact@v4
-        with:
-          name: version
-          path: version
-
-      # build gem WITH pre-built native extension
-      - run: bundle exec rake gem:${{ matrix.platform }}
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: pkg-${{ matrix.platform }}
-          path: pkg/*.gem
-
-  publish:
-    runs-on: ubuntu-latest
-    needs: pack
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: pkg-ruby
-          path: pkg
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: pkg-linux-gnu
-          path: pkg
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: pkg-linux-musl
-          path: pkg
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: pkg-windows
-          path: pkg
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: pkg-darwin
-          path: pkg
-
-      - uses: ruby/setup-ruby@master
-        with:
-          ruby-version: '3.1'
-
-      - name: Publish to rubygems.org
-        env:
-          RUBYGEMS_API_KEY: ${{ secrets.LUTAML_CI_RUBYGEMS_API_KEY }}
-        run: |
-          ls -l pkg/
-          mkdir -p ~/.gem
-          cat > ~/.gem/credentials << EOF
-          ---
-          :rubygems_api_key: ${RUBYGEMS_API_KEY}
-          EOF
-          chmod 0600 ~/.gem/credentials
-          gem signin
-          for gem in pkg/*.gem; do gem push $gem -V; done
-          sleep 15
-
-  verify:
-    name: Verify published gem on ${{ matrix.os }}
-    needs: publish
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
-    steps:
-      - name: Install Ruby
-        uses: ruby/setup-ruby@master
-        with:
-          ruby-version: 3.2
-          bundler-cache: true
-
-      - name: Download version
-        uses: actions/download-artifact@v4
-        with:
-         name: version
-
-      - name: Install gem
-        run: gem install expressir -v $(cat version)
-
-      - name: Verify
-        run: expressir version
-
-  verify-alpine:
-    name: Verify published gem on alpine
-    needs: publish
-    runs-on: ubuntu-latest
-    container:
-      image: alpine:3.17
-    steps:
-      - name: Install packages
-        run: apk --no-cache add bash build-base git ruby-dev gcc g++ automake
-
-      - name: Download version
-        uses: actions/download-artifact@v4
-        with:
-         name: version
-
-      - name: Install gem
-        run: gem install expressir -v $(cat version)
-
-      - name: Verify
-        run: expressir version

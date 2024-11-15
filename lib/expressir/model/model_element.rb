@@ -150,6 +150,13 @@ module Expressir
         hash
       end
 
+      # @return [Liquid::Drop]
+      def to_liquid
+        klass_name = self.class.name.gsub("::Model::", "::Liquid::") + "Drop"
+        klass = Object.const_get(klass_name)
+        klass.new(self)
+      end
+
       def to_s
         to_s(no_remarks: false, formatter: nil)
       end

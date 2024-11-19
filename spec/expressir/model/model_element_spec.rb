@@ -352,9 +352,10 @@ RSpec.describe Expressir::Model::ModelElement do
 
       result.each do |r|
         expect(r[:value]).to eq(r[:drop_value]),
-          "Expecting #{r[:model]} model_attr: #{r[:attr]} " \
-          "value: #{r[:value]} equals to #{r[:drop_model]} " \
-          "model_attr: #{r[:attr]} value: #{r[:drop_value]}"
+                             "Expecting #{r[:model]} model_attr: #{r[:attr]} " \
+                             "value: #{r[:value]} equals to " \
+                             "#{r[:drop_model]} model_attr: #{r[:attr]} " \
+                             "value: #{r[:drop_value]}"
       end
     end
   end

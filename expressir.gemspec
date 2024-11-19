@@ -16,12 +16,12 @@ Gem::Specification.new do |spec|
 
   spec.bindir = "exe"
   spec.require_paths = ["lib"]
-  spec.executables   = %w[expressir]
   spec.required_ruby_version = Gem::Requirement.new(">= 3.0.0")
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage
   spec.metadata["changelog_uri"] = "https://github.com/lutaml/expressir/releases"
+  spec.metadata["rubygems_mfa_required"] = "true"
 
   spec.required_ruby_version = Gem::Requirement.new(">= 2.7.0")
 
@@ -33,24 +33,7 @@ Gem::Specification.new do |spec|
 
   spec.test_files = `git ls-files -- {spec}/*`.split("\n")
 
-  spec.metadata["rubygems_mfa_required"] = "true"
-  spec.extensions = File.join(*%w(ext express_parser extconf.rb))
-
   spec.add_dependency "thor", "~> 1.0"
   spec.add_dependency "parslet", "~> 2.0"
-  spec.add_runtime_dependency "rice", "~> 4.2"
-  spec.add_runtime_dependency "liquid"
-  spec.add_development_dependency "antlr4-native", "~> 2.2"
-  spec.add_development_dependency "asciidoctor", "~> 2.0.13"
-  spec.add_development_dependency "bundler", "~> 2.2"
-  spec.add_development_dependency "byebug", "~> 11.1"
-  spec.add_development_dependency "pry", "~> 0.12.2"
-  spec.add_development_dependency "rake", "~> 13.0"
-  spec.add_development_dependency "rake-compiler", "~> 1.2"
-  spec.add_development_dependency "rake-compiler-dock", "~> 1.5"
-  spec.add_development_dependency "rspec", "~> 3.11"
-  spec.add_development_dependency "rubocop", "1.58"
-  spec.add_development_dependency "rubocop-performance", "~> 1.19"
-  spec.add_development_dependency "webrick", "~> 1.7.0"
-  spec.add_development_dependency "yard", "~> 0.9.26"
+  spec.add_dependency "liquid"
 end

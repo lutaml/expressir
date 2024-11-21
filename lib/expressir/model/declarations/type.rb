@@ -6,9 +6,9 @@ module Expressir
       class Type < Declaration
         include Identifier
 
-        model_attr_accessor :underlying_type, 'DataType'
-        model_attr_accessor :where_rules, 'Array<WhereRule>'
-        model_attr_accessor :informal_propositions, 'Array<RemarkItem>'
+        model_attr_accessor :underlying_type, "DataType"
+        model_attr_accessor :where_rules, "Array<WhereRule>"
+        model_attr_accessor :informal_propositions, "Array<RemarkItem>"
 
         # @param [Hash] options
         # @option (see Identifier#initialize_identifier)
@@ -36,7 +36,7 @@ module Expressir
             *enumeration_items,
             *where_rules,
             *informal_propositions,
-            *remark_items
+            *remark_items,
           ]
         end
       end

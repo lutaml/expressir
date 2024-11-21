@@ -7,11 +7,11 @@ module Expressir
         LESS_THAN = :LESS_THAN
         LESS_THAN_OR_EQUAL = :LESS_THAN_OR_EQUAL
 
-        model_attr_accessor :low, 'Expression'
-        model_attr_accessor :operator1, ':LESS_THAN, :LESS_THAN_OR_EQUAL'
-        model_attr_accessor :item, 'Reference'
-        model_attr_accessor :operator2, ':LESS_THAN, :LESS_THAN_OR_EQUAL'
-        model_attr_accessor :high, 'Expression'
+        model_attr_accessor :low, "Expression"
+        model_attr_accessor :operator1, ":LESS_THAN, :LESS_THAN_OR_EQUAL"
+        model_attr_accessor :item, "Reference"
+        model_attr_accessor :operator2, ":LESS_THAN, :LESS_THAN_OR_EQUAL"
+        model_attr_accessor :high, "Expression"
 
         # @param [Hash] options
         # @option options [Expression] :low

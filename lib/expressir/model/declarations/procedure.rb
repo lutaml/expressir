@@ -6,15 +6,15 @@ module Expressir
       class Procedure < Declaration
         include Identifier
 
-        model_attr_accessor :parameters, 'Array<Parameter>'
-        model_attr_accessor :types, 'Array<Type>'
-        model_attr_accessor :entities, 'Array<Entity>'
-        model_attr_accessor :subtype_constraints, 'Array<SubtypeConstraint>'
-        model_attr_accessor :functions, 'Array<Function>'
-        model_attr_accessor :procedures, 'Array<Procedure>'
-        model_attr_accessor :constants, 'Array<Constant>'
-        model_attr_accessor :variables, 'Array<Variable>'
-        model_attr_accessor :statements, 'Array<Statement>'
+        model_attr_accessor :parameters, "Array<Parameter>"
+        model_attr_accessor :types, "Array<Type>"
+        model_attr_accessor :entities, "Array<Entity>"
+        model_attr_accessor :subtype_constraints, "Array<SubtypeConstraint>"
+        model_attr_accessor :functions, "Array<Function>"
+        model_attr_accessor :procedures, "Array<Procedure>"
+        model_attr_accessor :constants, "Array<Constant>"
+        model_attr_accessor :variables, "Array<Variable>"
+        model_attr_accessor :statements, "Array<Statement>"
 
         # @param [Hash] options
         # @option (see Identifier#initialize_identifier)
@@ -48,14 +48,14 @@ module Expressir
           [
             *parameters,
             *types,
-            *types.flat_map{|x| x.enumeration_items},
+            *types.flat_map(&:enumeration_items),
             *entities,
             *subtype_constraints,
             *functions,
             *procedures,
             *constants,
             *variables,
-            *remark_items
+            *remark_items,
           ]
         end
       end

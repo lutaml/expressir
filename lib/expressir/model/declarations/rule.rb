@@ -6,17 +6,17 @@ module Expressir
       class Rule < Declaration
         include Identifier
 
-        model_attr_accessor :applies_to, 'Array<Reference>'
-        model_attr_accessor :types, 'Array<Type>'
-        model_attr_accessor :entities, 'Array<Entity>'
-        model_attr_accessor :subtype_constraints, 'Array<SubtypeConstraint>'
-        model_attr_accessor :functions, 'Array<Function>'
-        model_attr_accessor :procedures, 'Array<Procedure>'
-        model_attr_accessor :constants, 'Array<Constant>'
-        model_attr_accessor :variables, 'Array<Variable>'
-        model_attr_accessor :statements, 'Array<Statement>'
-        model_attr_accessor :where_rules, 'Array<WhereRule>'
-        model_attr_accessor :informal_propositions, 'Array<RemarkItem>'
+        model_attr_accessor :applies_to, "Array<Reference>"
+        model_attr_accessor :types, "Array<Type>"
+        model_attr_accessor :entities, "Array<Entity>"
+        model_attr_accessor :subtype_constraints, "Array<SubtypeConstraint>"
+        model_attr_accessor :functions, "Array<Function>"
+        model_attr_accessor :procedures, "Array<Procedure>"
+        model_attr_accessor :constants, "Array<Constant>"
+        model_attr_accessor :variables, "Array<Variable>"
+        model_attr_accessor :statements, "Array<Statement>"
+        model_attr_accessor :where_rules, "Array<WhereRule>"
+        model_attr_accessor :informal_propositions, "Array<RemarkItem>"
 
         # @param [Hash] options
         # @option (see Identifier#initialize_identifier)
@@ -53,7 +53,7 @@ module Expressir
         def children
           [
             *types,
-            *types.flat_map{|x| x.enumeration_items},
+            *types.flat_map(&:enumeration_items),
             *entities,
             *subtype_constraints,
             *functions,
@@ -62,7 +62,7 @@ module Expressir
             *variables,
             *where_rules,
             *informal_propositions,
-            *remark_items
+            *remark_items,
           ]
         end
       end

@@ -4,9 +4,9 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 13.4 Case statement
       class Case < Statement
-        model_attr_accessor :expression, 'Expression'
-        model_attr_accessor :actions, 'Array<CaseAction>'
-        model_attr_accessor :otherwise_statement, 'Statement'
+        model_attr_accessor :expression, "Expression"
+        model_attr_accessor :actions, "Array<CaseAction>"
+        model_attr_accessor :otherwise_statement, "Statement"
 
         # @param [Hash] options
         # @option options [Expression] :expression

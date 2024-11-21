@@ -8,9 +8,9 @@ module Expressir
         AND = :AND
         ANDOR = :ANDOR
 
-        model_attr_accessor :operator, ':AND, :ANDOR'
-        model_attr_accessor :operand1, 'SupertypeExpression'
-        model_attr_accessor :operand2, 'SupertypeExpression'
+        model_attr_accessor :operator, ":AND, :ANDOR"
+        model_attr_accessor :operand1, "SupertypeExpression"
+        model_attr_accessor :operand2, "SupertypeExpression"
 
         # @param [Hash] options
         # @option options [:AND, :ANDOR] :operator

@@ -4,19 +4,19 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 9.3 Schema
       class Schema < Declaration
-        model_attr_accessor :file, 'String'
+        model_attr_accessor :file, "String"
 
         include Identifier
 
-        model_attr_accessor :version, 'SchemaVersion'
-        model_attr_accessor :interfaces, 'Array<Interface>'
-        model_attr_accessor :constants, 'Array<Constant>'
-        model_attr_accessor :types, 'Array<Type>'
-        model_attr_accessor :entities, 'Array<Entity>'
-        model_attr_accessor :subtype_constraints, 'Array<SubtypeConstraint>'
-        model_attr_accessor :functions, 'Array<Function>'
-        model_attr_accessor :rules, 'Array<Rule>'
-        model_attr_accessor :procedures, 'Array<Procedure>'
+        model_attr_accessor :version, "SchemaVersion"
+        model_attr_accessor :interfaces, "Array<Interface>"
+        model_attr_accessor :constants, "Array<Constant>"
+        model_attr_accessor :types, "Array<Type>"
+        model_attr_accessor :entities, "Array<Entity>"
+        model_attr_accessor :subtype_constraints, "Array<SubtypeConstraint>"
+        model_attr_accessor :functions, "Array<Function>"
+        model_attr_accessor :rules, "Array<Rule>"
+        model_attr_accessor :procedures, "Array<Procedure>"
 
         # @param [Hash] options
         # @option options [String] :file
@@ -53,13 +53,13 @@ module Expressir
           [
             *constants,
             *types,
-            *types.flat_map{|x| x.enumeration_items},
+            *types.flat_map(&:enumeration_items),
             *entities,
             *subtype_constraints,
             *functions,
             *rules,
             *procedures,
-            *remark_items
+            *remark_items,
           ]
         end
 
@@ -67,7 +67,7 @@ module Expressir
         def children
           [
             *interfaced_items,
-            *safe_children
+            *safe_children,
           ]
         end
 
@@ -78,7 +78,7 @@ module Expressir
         # @return [InterfacedItem]
         def create_interfaced_item(id, base_item)
           interfaced_item = InterfacedItem.new(
-            id: id
+            id: id,
           )
           interfaced_item.base_item = base_item # skip overriding parent
           interfaced_item.parent = self
@@ -93,8 +93,8 @@ module Expressir
             schema = parent.children_by_id[interface.schema.id.safe_downcase]
             if schema
               schema_safe_children = schema.safe_children
-              schema_safe_children_by_id = schema_safe_children.select{|x| x.id}.map{|x| [x.id.safe_downcase, x]}.to_h
-              if interface.items.length > 0
+              schema_safe_children_by_id = schema_safe_children.select(&:id).map { |x| [x.id.safe_downcase, x] }.to_h
+              if interface.items.length.positive?
                 interface.items.map do |interface_item|
                   base_item = schema_safe_children_by_id[interface_item.ref.id.safe_downcase]
                   if base_item
@@ -109,7 +109,7 @@ module Expressir
                 end
               end
             end
-          end.select{|x| x}
+          end.select { |x| x }
         end
       end
     end

@@ -8,7 +8,7 @@ module Expressir
         FALSE = :FALSE
         UNKNOWN = :UNKNOWN
 
-        model_attr_accessor :value, ':TRUE, :FALSE, :UNKNOWN'
+        model_attr_accessor :value, ":TRUE, :FALSE, :UNKNOWN"
 
         # @param [Hash] options
         # @option options [:TRUE, :FALSE, :UNKNOWN] :value

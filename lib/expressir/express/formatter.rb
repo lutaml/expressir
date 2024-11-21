@@ -3,7 +3,7 @@ require "expressir/model"
 module Expressir
   module Express
     class Formatter
-      INDENT_CHAR = " "
+      INDENT_CHAR = " ".freeze
       INDENT_WIDTH = 2
       INDENT = INDENT_CHAR * INDENT_WIDTH
       OPERATOR_PRECEDENCE = {
@@ -28,11 +28,11 @@ module Expressir
         Model::Expressions::BinaryExpression::INSTANCE_NOT_EQUAL => 4,
         Model::Expressions::BinaryExpression::IN => 4,
         Model::Expressions::BinaryExpression::LIKE => 4,
-      }
+      }.freeze
       SUPERTYPE_OPERATOR_PRECEDENCE = {
         Model::SupertypeExpressions::BinarySupertypeExpression::AND => 1,
         Model::SupertypeExpressions::BinarySupertypeExpression::ANDOR => 2,
-      }
+      }.freeze
 
       private_constant :INDENT_CHAR
       private_constant :INDENT_WIDTH
@@ -44,7 +44,7 @@ module Expressir
       # @param [Model::ModelElement] node
       # @return [String]
       def self.format(node)
-        formatter = self.new
+        formatter = new
         formatter.format(node)
       end
 
@@ -52,138 +52,139 @@ module Expressir
       # @param [Model::ModelElement] node
       # @return [String]
       def format(node)
-        if node.is_a? Model::Repository
+        case node
+        when Model::Repository
           format_repository(node)
-        elsif node.is_a? Model::Declarations::Attribute
+        when Model::Declarations::Attribute
           format_declarations_attribute(node)
-        elsif node.is_a? Model::Declarations::Constant
+        when Model::Declarations::Constant
           format_declarations_constant(node)
-        elsif node.is_a? Model::Declarations::Entity
+        when Model::Declarations::Entity
           format_declarations_entity(node)
-        elsif node.is_a? Model::Declarations::Function
+        when Model::Declarations::Function
           format_declarations_function(node)
-        elsif node.is_a? Model::Declarations::Interface
+        when Model::Declarations::Interface
           format_declarations_interface(node)
-        elsif node.is_a? Model::Declarations::InterfaceItem
+        when Model::Declarations::InterfaceItem
           format_declarations_interface_item(node)
-        elsif node.is_a? Model::Declarations::Parameter
+        when Model::Declarations::Parameter
           format_declarations_parameter(node)
-        elsif node.is_a? Model::Declarations::Procedure
+        when Model::Declarations::Procedure
           format_declarations_procedure(node)
-        elsif node.is_a? Model::Declarations::Rule
+        when Model::Declarations::Rule
           format_declarations_rule(node)
-        elsif node.is_a? Model::Declarations::Schema
+        when Model::Declarations::Schema
           format_declarations_schema(node)
-        elsif node.is_a? Model::Declarations::SchemaVersion
+        when Model::Declarations::SchemaVersion
           format_declarations_schema_version(node)
-        elsif node.is_a? Model::Declarations::SubtypeConstraint
+        when Model::Declarations::SubtypeConstraint
           format_declarations_subtype_constraint(node)
-        elsif node.is_a? Model::Declarations::Type
+        when Model::Declarations::Type
           format_declarations_type(node)
-        elsif node.is_a? Model::Declarations::UniqueRule
+        when Model::Declarations::UniqueRule
           format_declarations_unique_rule(node)
-        elsif node.is_a? Model::Declarations::Variable
+        when Model::Declarations::Variable
           format_declarations_variable(node)
-        elsif node.is_a? Model::Declarations::WhereRule
+        when Model::Declarations::WhereRule
           format_declarations_where_rule(node)
-        elsif node.is_a? Model::DataTypes::Aggregate
+        when Model::DataTypes::Aggregate
           format_data_types_aggregate(node)
-        elsif node.is_a? Model::DataTypes::Array
+        when Model::DataTypes::Array
           format_data_types_array(node)
-        elsif node.is_a? Model::DataTypes::Bag
+        when Model::DataTypes::Bag
           format_data_types_bag(node)
-        elsif node.is_a? Model::DataTypes::Binary
+        when Model::DataTypes::Binary
           format_data_types_binary(node)
-        elsif node.is_a? Model::DataTypes::Boolean
+        when Model::DataTypes::Boolean
           format_data_types_boolean(node)
-        elsif node.is_a? Model::DataTypes::Enumeration
+        when Model::DataTypes::Enumeration
           format_data_types_enumeration(node)
-        elsif node.is_a? Model::DataTypes::EnumerationItem
+        when Model::DataTypes::EnumerationItem
           format_data_types_enumeration_item(node)
-        elsif node.is_a? Model::DataTypes::GenericEntity
+        when Model::DataTypes::GenericEntity
           format_data_types_generic_entity(node)
-        elsif node.is_a? Model::DataTypes::Generic
+        when Model::DataTypes::Generic
           format_data_types_generic(node)
-        elsif node.is_a? Model::DataTypes::Integer
+        when Model::DataTypes::Integer
           format_data_types_integer(node)
-        elsif node.is_a? Model::DataTypes::List
+        when Model::DataTypes::List
           format_data_types_list(node)
-        elsif node.is_a? Model::DataTypes::Logical
+        when Model::DataTypes::Logical
           format_data_types_logical(node)
-        elsif node.is_a? Model::DataTypes::Number
+        when Model::DataTypes::Number
           format_data_types_number(node)
-        elsif node.is_a? Model::DataTypes::Real
+        when Model::DataTypes::Real
           format_data_types_real(node)
-        elsif node.is_a? Model::DataTypes::Select
+        when Model::DataTypes::Select
           format_data_types_select(node)
-        elsif node.is_a? Model::DataTypes::Set
+        when Model::DataTypes::Set
           format_data_types_set(node)
-        elsif node.is_a? Model::DataTypes::String
+        when Model::DataTypes::String
           format_data_types_string(node)
-        elsif node.is_a? Model::Expressions::AggregateInitializer
+        when Model::Expressions::AggregateInitializer
           format_expressions_aggregate_initializer(node)
-        elsif node.is_a? Model::Expressions::AggregateInitializerItem
+        when Model::Expressions::AggregateInitializerItem
           format_expressions_aggregate_initializer_item(node)
-        elsif node.is_a? Model::Expressions::BinaryExpression
+        when Model::Expressions::BinaryExpression
           format_expressions_binary_expression(node)
-        elsif node.is_a? Model::Expressions::EntityConstructor
+        when Model::Expressions::EntityConstructor
           format_expressions_entity_constructor(node)
-        elsif node.is_a? Model::Expressions::FunctionCall
+        when Model::Expressions::FunctionCall
           format_expressions_function_call(node)
-        elsif node.is_a? Model::Expressions::Interval
+        when Model::Expressions::Interval
           format_expressions_interval(node)
-        elsif node.is_a? Model::Expressions::QueryExpression
+        when Model::Expressions::QueryExpression
           format_expressions_query_expression(node)
-        elsif node.is_a? Model::Expressions::UnaryExpression
+        when Model::Expressions::UnaryExpression
           format_expressions_unary_expression(node)
-        elsif node.is_a? Model::Literals::Binary
+        when Model::Literals::Binary
           format_literals_binary(node)
-        elsif node.is_a? Model::Literals::Integer
+        when Model::Literals::Integer
           format_literals_integer(node)
-        elsif node.is_a? Model::Literals::Logical
+        when Model::Literals::Logical
           format_literals_logical(node)
-        elsif node.is_a? Model::Literals::Real
+        when Model::Literals::Real
           format_literals_real(node)
-        elsif node.is_a? Model::Literals::String
+        when Model::Literals::String
           format_literals_string(node)
-        elsif node.is_a? Model::References::AttributeReference
+        when Model::References::AttributeReference
           format_references_attribute_reference(node)
-        elsif node.is_a? Model::References::GroupReference
+        when Model::References::GroupReference
           format_references_group_reference(node)
-        elsif node.is_a? Model::References::IndexReference
+        when Model::References::IndexReference
           format_references_index_reference(node)
-        elsif node.is_a? Model::References::SimpleReference
+        when Model::References::SimpleReference
           format_references_simple_reference(node)
-        elsif node.is_a? Model::Statements::Alias
+        when Model::Statements::Alias
           format_statements_alias(node)
-        elsif node.is_a? Model::Statements::Assignment
+        when Model::Statements::Assignment
           format_statements_assignment(node)
-        elsif node.is_a? Model::Statements::Case
+        when Model::Statements::Case
           format_statements_case(node)
-        elsif node.is_a? Model::Statements::CaseAction
+        when Model::Statements::CaseAction
           format_statements_case_action(node)
-        elsif node.is_a? Model::Statements::Compound
+        when Model::Statements::Compound
           format_statements_compound(node)
-        elsif node.is_a? Model::Statements::Escape
+        when Model::Statements::Escape
           format_statements_escape(node)
-        elsif node.is_a? Model::Statements::If
+        when Model::Statements::If
           format_statements_if(node)
-        elsif node.is_a? Model::Statements::Null
+        when Model::Statements::Null
           format_statements_null(node)
-        elsif node.is_a? Model::Statements::ProcedureCall
+        when Model::Statements::ProcedureCall
           format_statements_procedure_call(node)
-        elsif node.is_a? Model::Statements::Repeat
+        when Model::Statements::Repeat
           format_statements_repeat(node)
-        elsif node.is_a? Model::Statements::Return
+        when Model::Statements::Return
           format_statements_return(node)
-        elsif node.is_a? Model::Statements::Skip
+        when Model::Statements::Skip
           format_statements_skip(node)
-        elsif node.is_a? Model::SupertypeExpressions::BinarySupertypeExpression
+        when Model::SupertypeExpressions::BinarySupertypeExpression
           format_supertype_expressions_binary_supertype_expression(node)
-        elsif node.is_a? Model::SupertypeExpressions::OneofSupertypeExpression
+        when Model::SupertypeExpressions::OneofSupertypeExpression
           format_supertype_expressions_oneof_supertype_expression(node)
         else
-          STDERR.puts "#{node.class.name} format not implemented"
+          warn "#{node.class.name} format not implemented"
           ""
         end
       end
@@ -197,47 +198,47 @@ module Expressir
       def format_declarations_attribute(node)
         [
           *if node.supertype_attribute
-            [
-              format(node.supertype_attribute),
-              " ",
-            ].join("")
-          end,
-          *if node.supertype_attribute and node.id
-            [
-              "RENAMED",
-              " ",
-            ].join("")
-          end,
+             [
+               format(node.supertype_attribute),
+               " ",
+             ].join("")
+           end,
+          *if node.supertype_attribute && node.id
+             [
+               "RENAMED",
+               " ",
+             ].join("")
+           end,
           *if node.id
-            [
-              node.id,
-              " ",
-            ].join("")
-          end,
+             [
+               node.id,
+               " ",
+             ].join("")
+           end,
           ":",
           *if node.optional
-            [
-              " ",
-              "OPTIONAL",
-            ].join("")
-          end,
+             [
+               " ",
+               "OPTIONAL",
+             ].join("")
+           end,
           " ",
           format(node.type),
           *if node.kind == Model::Declarations::Attribute::DERIVED
-            [
-              " ",
-              ":=",
-              " ",
-              format(node.expression),
-            ].join("")
-          elsif node.kind == Model::Declarations::Attribute::INVERSE
-            [
-              " ",
-              "FOR",
-              " ",
-              format(node.expression),
-            ].join("")
-          end,
+             [
+               " ",
+               ":=",
+               " ",
+               format(node.expression),
+             ].join("")
+           elsif node.kind == Model::Declarations::Attribute::INVERSE
+             [
+               " ",
+               "FOR",
+               " ",
+               format(node.expression),
+             ].join("")
+           end,
           ";",
         ].join("")
       end
@@ -267,89 +268,89 @@ module Expressir
             "ENTITY",
             " ",
             node.id,
-            *if node.abstract and !node.supertype_expression
-              [
-                "\n",
-                indent([
-                  "ABSTRACT",
-                  " ",
-                  "SUPERTYPE",
-                ].join("")),
-              ].join("")
-            end,
-            *if node.abstract and node.supertype_expression
-              [
-                "\n",
-                indent([
-                  "ABSTRACT",
-                  " ",
-                  "SUPERTYPE",
-                  " ",
-                  "OF",
-                  " ",
-                  "(",
-                  format(node.supertype_expression),
-                  ")",
-                ].join("")),
-              ].join("")
-            end,
-            *if !node.abstract and node.supertype_expression
-              [
-                "\n",
-                indent([
-                  "SUPERTYPE",
-                  " ",
-                  "OF",
-                  " ",
-                  "(",
-                  format(node.supertype_expression),
-                  ")",
-                ].join("")),
-              ].join("")
-            end,
-            *if node.subtype_of.length > 0
-              [
-                "\n",
-                indent([
-                  "SUBTYPE",
-                  " ",
-                  "OF",
-                  " ",
-                  "(",
-                  node.subtype_of.map { |x| format(x) }.join(", "),
-                  ")",
-                ].join("")),
-              ].join("")
-            end,
+            *if node.abstract && !node.supertype_expression
+               [
+                 "\n",
+                 indent([
+                   "ABSTRACT",
+                   " ",
+                   "SUPERTYPE",
+                 ].join("")),
+               ].join("")
+             end,
+            *if node.abstract && node.supertype_expression
+               [
+                 "\n",
+                 indent([
+                   "ABSTRACT",
+                   " ",
+                   "SUPERTYPE",
+                   " ",
+                   "OF",
+                   " ",
+                   "(",
+                   format(node.supertype_expression),
+                   ")",
+                 ].join("")),
+               ].join("")
+             end,
+            *if !node.abstract && node.supertype_expression
+               [
+                 "\n",
+                 indent([
+                   "SUPERTYPE",
+                   " ",
+                   "OF",
+                   " ",
+                   "(",
+                   format(node.supertype_expression),
+                   ")",
+                 ].join("")),
+               ].join("")
+             end,
+            *if node.subtype_of.length.positive?
+               [
+                 "\n",
+                 indent([
+                   "SUBTYPE",
+                   " ",
+                   "OF",
+                   " ",
+                   "(",
+                   node.subtype_of.map { |x| format(x) }.join(", "),
+                   ")",
+                 ].join("")),
+               ].join("")
+             end,
             ";",
           ].join(""),
-          *if explicit_attributes and explicit_attributes.length > 0
-            indent(explicit_attributes.map { |x| format(x) }.join("\n"))
-          end,
-          *if derived_attributes and derived_attributes.length > 0
-            [
-              "DERIVE",
-              indent(derived_attributes.map { |x| format(x) }.join("\n")),
-            ]
-          end,
-          *if inverse_attributes and inverse_attributes.length > 0
-            [
-              "INVERSE",
-              indent(inverse_attributes.map { |x| format(x) }.join("\n")),
-            ]
-          end,
-          *if node.unique_rules.length > 0
-            [
-              "UNIQUE",
-              indent(node.unique_rules.map { |x| format(x) }.join("\n")),
-            ]
-          end,
-          *if node.where_rules.length > 0
-            [
-              "WHERE",
-              indent(node.where_rules.map { |x| format(x) }.join("\n")),
-            ]
-          end,
+          *if explicit_attributes&.length&.positive?
+             indent(explicit_attributes.map { |x| format(x) }.join("\n"))
+           end,
+          *if derived_attributes&.length&.positive?
+             [
+               "DERIVE",
+               indent(derived_attributes.map { |x| format(x) }.join("\n")),
+             ]
+           end,
+          *if inverse_attributes&.length&.positive?
+             [
+               "INVERSE",
+               indent(inverse_attributes.map { |x| format(x) }.join("\n")),
+             ]
+           end,
+          *if node.unique_rules.length.positive?
+             [
+               "UNIQUE",
+               indent(node.unique_rules.map { |x| format(x) }.join("\n")),
+             ]
+           end,
+          *if node.where_rules.length.positive?
+             [
+               "WHERE",
+               indent(node.where_rules.map { |x| format(x) }.join("\n")),
+             ]
+           end,
           [
             "END_ENTITY",
             ";",
@@ -363,58 +364,58 @@ module Expressir
             "FUNCTION",
             " ",
             node.id,
-            *if node.parameters.length > 0
-              parameter_indent = INDENT_CHAR * "FUNCTION #{node.id}(".length
-              [
-                "(",
-                node.parameters.map { |x| format(x) }.join(";\n#{parameter_indent}"),
-                ")",
-              ].join("")
-            end,
+            *if node.parameters.length.positive?
+               parameter_indent = INDENT_CHAR * "FUNCTION #{node.id}(".length
+               [
+                 "(",
+                 node.parameters.map { |x| format(x) }.join(";\n#{parameter_indent}"),
+                 ")",
+               ].join("")
+             end,
             " ",
             ":",
             " ",
             format(node.return_type),
             ";",
           ].join(""),
-          *if node.types.length > 0
-            indent(node.types.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.entities.length > 0
-            indent(node.entities.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.subtype_constraints.length > 0
-            indent(node.subtype_constraints.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.functions.length > 0
-            indent(node.functions.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.procedures.length > 0
-            indent(node.procedures.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.constants.length > 0
-            indent([
-              "CONSTANT",
-              indent(node.constants.map { |x| format(x) }.join("\n")),
-              [
-                "END_CONSTANT",
-                ";",
-              ].join(""),
-            ].join("\n"))
-          end,
-          *if node.variables.length > 0
-            indent([
-              "LOCAL",
-              indent(node.variables.map { |x| format(x) }.join("\n")),
-              [
-                "END_LOCAL",
-                ";",
-              ].join(""),
-            ].join("\n"))
-          end,
-          *if node.statements.length > 0
-            indent(node.statements.map { |x| format(x) }.join("\n"))
-          end,
+          *if node.types.length.positive?
+             indent(node.types.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.entities.length.positive?
+             indent(node.entities.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.subtype_constraints.length.positive?
+             indent(node.subtype_constraints.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.functions.length.positive?
+             indent(node.functions.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.procedures.length.positive?
+             indent(node.procedures.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.constants.length.positive?
+             indent([
+               "CONSTANT",
+               indent(node.constants.map { |x| format(x) }.join("\n")),
+               [
+                 "END_CONSTANT",
+                 ";",
+               ].join(""),
+             ].join("\n"))
+           end,
+          *if node.variables.length.positive?
+             indent([
+               "LOCAL",
+               indent(node.variables.map { |x| format(x) }.join("\n")),
+               [
+                 "END_LOCAL",
+                 ";",
+               ].join(""),
+             ].join("\n"))
+           end,
+          *if node.statements.length.positive?
+             indent(node.statements.map { |x| format(x) }.join("\n"))
+           end,
           [
             "END_FUNCTION",
             ";",
@@ -432,17 +433,17 @@ module Expressir
           "FROM",
           " ",
           format(node.schema),
-          *if node.items.length > 0
-            item_indent = INDENT_CHAR * "(".length
-            [
-              "\n",
-              indent([
-                "(",
-                node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
-                ")",
-              ].join("")),
-            ].join("")
-          end,
+          *if node.items.length.positive?
+             item_indent = INDENT_CHAR * "(".length
+             [
+               "\n",
+               indent([
+                 "(",
+                 node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
+                 ")",
+               ].join("")),
+             ].join("")
+           end,
           ";",
         ].join("")
       end
@@ -451,24 +452,24 @@ module Expressir
         [
           format(node.ref),
           *if node.id
-            [
-              " ",
-              "AS",
-              " ",
-              node.id,
-            ]
-          end,
+             [
+               " ",
+               "AS",
+               " ",
+               node.id,
+             ]
+           end,
         ].join("")
       end
 
       def format_declarations_parameter(node)
         [
           *if node.var
-            [
-              "VAR",
-              " ",
-            ].join("")
-          end,
+             [
+               "VAR",
+               " ",
+             ].join("")
+           end,
           node.id,
           " ",
           ":",
@@ -483,54 +484,54 @@ module Expressir
             "PROCEDURE",
             " ",
             node.id,
-            *if node.parameters.length > 0
-              parameter_indent = INDENT_CHAR * "PROCEDURE #{node.id}(".length
-              [
-                "(",
-                node.parameters.map { |x| format(x) }.join(";\n#{parameter_indent}"),
-                ")",
-              ].join("")
-            end,
+            *if node.parameters.length.positive?
+               parameter_indent = INDENT_CHAR * "PROCEDURE #{node.id}(".length
+               [
+                 "(",
+                 node.parameters.map { |x| format(x) }.join(";\n#{parameter_indent}"),
+                 ")",
+               ].join("")
+             end,
             ";",
           ].join(""),
-          *if node.types.length > 0
-            indent(node.types.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.entities.length > 0
-            indent(node.entities.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.subtype_constraints.length > 0
-            indent(node.subtype_constraints.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.functions.length > 0
-            indent(node.functions.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.procedures.length > 0
-            indent(node.procedures.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.constants.length > 0
-            indent([
-              "CONSTANT",
-              indent(node.constants.map { |x| format(x) }.join("\n")),
-              [
-                "END_CONSTANT",
-                ";",
-              ].join(""),
-            ].join("\n"))
-          end,
-          *if node.variables.length > 0
-            indent([
-              "LOCAL",
-              indent(node.variables.map { |x| format(x) }.join("\n")),
-              [
-                "END_LOCAL",
-                ";",
-              ].join(""),
-            ].join("\n"))
-          end,
-          *if node.statements.length > 0
-            indent(node.statements.map { |x| format(x) }.join("\n"))
-          end,
+          *if node.types.length.positive?
+             indent(node.types.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.entities.length.positive?
+             indent(node.entities.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.subtype_constraints.length.positive?
+             indent(node.subtype_constraints.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.functions.length.positive?
+             indent(node.functions.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.procedures.length.positive?
+             indent(node.procedures.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.constants.length.positive?
+             indent([
+               "CONSTANT",
+               indent(node.constants.map { |x| format(x) }.join("\n")),
+               [
+                 "END_CONSTANT",
+                 ";",
+               ].join(""),
+             ].join("\n"))
+           end,
+          *if node.variables.length.positive?
+             indent([
+               "LOCAL",
+               indent(node.variables.map { |x| format(x) }.join("\n")),
+               [
+                 "END_LOCAL",
+                 ";",
+               ].join(""),
+             ].join("\n"))
+           end,
+          *if node.statements.length.positive?
+             indent(node.statements.map { |x| format(x) }.join("\n"))
+           end,
           [
             "END_PROCEDURE",
             ";",
@@ -552,50 +553,50 @@ module Expressir
             ")",
             ";",
           ].join(""),
-          *if node.types.length > 0
-            indent(node.types.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.entities.length > 0
-            indent(node.entities.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.subtype_constraints.length > 0
-            indent(node.subtype_constraints.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.functions.length > 0
-            indent(node.functions.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.procedures.length > 0
-            indent(node.procedures.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.constants.length > 0
-            indent([
-              "CONSTANT",
-              indent(node.constants.map { |x| format(x) }.join("\n")),
-              [
-                "END_CONSTANT",
-                ";",
-              ].join(""),
-            ].join("\n"))
-          end,
-          *if node.variables.length > 0
-            indent([
-              "LOCAL",
-              indent(node.variables.map { |x| format(x) }.join("\n")),
-              [
-                "END_LOCAL",
-                ";",
-              ].join(""),
-            ].join("\n"))
-          end,
-          *if node.statements.length > 0
-            indent(node.statements.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.where_rules.length > 0
-            [
-              "WHERE",
-              indent(node.where_rules.map { |x| format(x) }.join("\n")),
-            ]
-          end,
+          *if node.types.length.positive?
+             indent(node.types.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.entities.length.positive?
+             indent(node.entities.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.subtype_constraints.length.positive?
+             indent(node.subtype_constraints.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.functions.length.positive?
+             indent(node.functions.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.procedures.length.positive?
+             indent(node.procedures.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.constants.length.positive?
+             indent([
+               "CONSTANT",
+               indent(node.constants.map { |x| format(x) }.join("\n")),
+               [
+                 "END_CONSTANT",
+                 ";",
+               ].join(""),
+             ].join("\n"))
+           end,
+          *if node.variables.length.positive?
+             indent([
+               "LOCAL",
+               indent(node.variables.map { |x| format(x) }.join("\n")),
+               [
+                 "END_LOCAL",
+                 ";",
+               ].join(""),
+             ].join("\n"))
+           end,
+          *if node.statements.length.positive?
+             indent(node.statements.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.where_rules.length.positive?
+             [
+               "WHERE",
+               indent(node.where_rules.map { |x| format(x) }.join("\n")),
+             ]
+           end,
           [
             "END_RULE",
             ";",
@@ -610,63 +611,63 @@ module Expressir
             " ",
             node.id,
             *if node.version
-              [
-                " ",
-                format(node.version),
-              ].join("")
-            end,
+               [
+                 " ",
+                 format(node.version),
+               ].join("")
+             end,
             ";",
           ].join(""),
-          *if node.interfaces.length > 0
-            [
-              "",
-              node.interfaces.map { |x| format(x) }.join("\n"),
-            ]
-          end,
+          *if node.interfaces.length.positive?
+             [
+               "",
+               node.interfaces.map { |x| format(x) }.join("\n"),
+             ]
+           end,
         ].join("\n")
       end
 
       def format_declarations_schema(node)
         schema_declarations = [
-          *if node.constants.length > 0
-            [
-              "CONSTANT",
-              indent(node.constants.map { |x| format(x) }.join("\n")),
-              [
-                "END_CONSTANT",
-                ";",
-              ].join(""),
-            ].join("\n")
-          end,
-          *if node.types.length > 0
-            node.types.map { |x| format(x) }
-          end,
-          *if node.entities.length > 0
-            node.entities.map { |x| format(x) }
-          end,
-          *if node.subtype_constraints.length > 0
-            node.subtype_constraints.map { |x| format(x) }
-          end,
-          *if node.functions.length > 0
-            node.functions.map { |x| format(x) }
-          end,
-          *if node.rules.length > 0
-            node.rules.map { |x| format(x) }
-          end,
-          *if node.procedures and node.procedures.length > 0
-            node.procedures.map { |x| format(x) }
-          end,
+          *if node.constants.length.positive?
+             [
+               "CONSTANT",
+               indent(node.constants.map { |x| format(x) }.join("\n")),
+               [
+                 "END_CONSTANT",
+                 ";",
+               ].join(""),
+             ].join("\n")
+           end,
+          *if node.types.length.positive?
+             node.types.map { |x| format(x) }
+           end,
+          *if node.entities.length.positive?
+             node.entities.map { |x| format(x) }
+           end,
+          *if node.subtype_constraints.length.positive?
+             node.subtype_constraints.map { |x| format(x) }
+           end,
+          *if node.functions.length.positive?
+             node.functions.map { |x| format(x) }
+           end,
+          *if node.rules.length.positive?
+             node.rules.map { |x| format(x) }
+           end,
+          *if node.procedures&.length&.positive?
+             node.procedures.map { |x| format(x) }
+           end,
         ]
 
         [
           format_declarations_schema_head(node),
-          *if schema_declarations.length > 0
-            [
-              "",
-              schema_declarations.join("\n\n"),
-              "",
-            ]
-          end,
+          *if schema_declarations.length.positive?
+             [
+               "",
+               schema_declarations.join("\n\n"),
+               "",
+             ]
+           end,
           [
             "END_SCHEMA",
             ";",
@@ -696,28 +697,28 @@ module Expressir
             ";",
           ].join(""),
           *if node.abstract
-            indent([
-              "ABSTRACT",
-              " ",
-              "SUPERTYPE",
-              ";",
-            ].join(""))
-          end,
-          *if node.total_over.length > 0
-            indent([
-              "TOTAL_OVER",
-              "(",
-              node.total_over.map { |x| format(x) }.join(", "),
-              ")",
-              ";",
-            ].join(""))
-          end,
+             indent([
+               "ABSTRACT",
+               " ",
+               "SUPERTYPE",
+               ";",
+             ].join(""))
+           end,
+          *if node.total_over.length.positive?
+             indent([
+               "TOTAL_OVER",
+               "(",
+               node.total_over.map { |x| format(x) }.join(", "),
+               ")",
+               ";",
+             ].join(""))
+           end,
           *if node.supertype_expression
-            indent([
-              format(node.supertype_expression),
-              ";",
-            ].join(""))
-          end,
+             indent([
+               format(node.supertype_expression),
+               ";",
+             ].join(""))
+           end,
           [
             "END_SUBTYPE_CONSTRAINT",
             ";",
@@ -737,12 +738,12 @@ module Expressir
             format(node.underlying_type),
             ";",
           ].join(""),
-          *if node.where_rules.length > 0
-            [
-              "WHERE",
-              indent(node.where_rules.map { |x| format(x) }.join("\n")),
-            ]
-          end,
+          *if node.where_rules.length.positive?
+             [
+               "WHERE",
+               indent(node.where_rules.map { |x| format(x) }.join("\n")),
+             ]
+           end,
           [
             "END_TYPE",
             ";",
@@ -753,12 +754,12 @@ module Expressir
       def format_declarations_unique_rule(node)
         [
           *if node.id
-            [
-              node.id,
-              ":",
-              " ",
-            ].join("")
-          end,
+             [
+               node.id,
+               ":",
+               " ",
+             ].join("")
+           end,
           node.attributes.map { |x| format(x) }.join(", "),
           ";",
         ].join("")
@@ -772,13 +773,13 @@ module Expressir
           " ",
           format(node.type),
           *if node.expression
-            [
-              " ",
-              ":=",
-              " ",
-              format(node.expression),
-            ].join("")
-          end,
+             [
+               " ",
+               ":=",
+               " ",
+               format(node.expression),
+             ].join("")
+           end,
           ";",
         ].join("")
       end
@@ -786,12 +787,12 @@ module Expressir
       def format_declarations_where_rule(node)
         [
           *if node.id
-            [
-              node.id,
-              ":",
-              " ",
-            ].join("")
-          end,
+             [
+               node.id,
+               ":",
+               " ",
+             ].join("")
+           end,
           format(node.expression),
           ";",
         ].join("")
@@ -815,13 +816,13 @@ module Expressir
 
       def format_expressions_binary_expression(node)
         [
-          *if node.operand1.is_a? Model::Expressions::BinaryExpression and OPERATOR_PRECEDENCE[node.operand1.operator] > OPERATOR_PRECEDENCE[node.operator]
-            "("
-          end,
+          *if node.operand1.is_a?(Model::Expressions::BinaryExpression) && (OPERATOR_PRECEDENCE[node.operand1.operator] > OPERATOR_PRECEDENCE[node.operator])
+             "("
+           end,
           format(node.operand1),
-          *if node.operand1.is_a? Model::Expressions::BinaryExpression and OPERATOR_PRECEDENCE[node.operand1.operator] > OPERATOR_PRECEDENCE[node.operator]
-            ")"
-          end,
+          *if node.operand1.is_a?(Model::Expressions::BinaryExpression) && (OPERATOR_PRECEDENCE[node.operand1.operator] > OPERATOR_PRECEDENCE[node.operator])
+             ")"
+           end,
           " ",
           case node.operator
           when Model::Expressions::BinaryExpression::ADDITION then "+"
@@ -847,13 +848,13 @@ module Expressir
           when Model::Expressions::BinaryExpression::XOR then "XOR"
           end,
           " ",
-          *if node.operand2.is_a? Model::Expressions::BinaryExpression and OPERATOR_PRECEDENCE[node.operand2.operator] > OPERATOR_PRECEDENCE[node.operator]
-            "("
-          end,
+          *if node.operand2.is_a?(Model::Expressions::BinaryExpression) && (OPERATOR_PRECEDENCE[node.operand2.operator] > OPERATOR_PRECEDENCE[node.operator])
+             "("
+           end,
           format(node.operand2),
-          *if node.operand2.is_a? Model::Expressions::BinaryExpression and OPERATOR_PRECEDENCE[node.operand2.operator] > OPERATOR_PRECEDENCE[node.operator]
-            ")"
-          end,
+          *if node.operand2.is_a?(Model::Expressions::BinaryExpression) && (OPERATOR_PRECEDENCE[node.operand2.operator] > OPERATOR_PRECEDENCE[node.operator])
+             ")"
+           end,
         ].join("")
       end
 
@@ -910,7 +911,7 @@ module Expressir
           "|",
           " ",
           format(node.expression),
-          *format_remarks(node).instance_eval { |x| x.length > 0 ? ["\n", *x, "\n"] : x },
+          *format_remarks(node).instance_eval { |x| x.length.positive? ? ["\n", *x, "\n"] : x },
           ")",
         ].join("")
       end
@@ -926,12 +927,12 @@ module Expressir
             " "
           end,
           *if node.operand.is_a? Model::Expressions::BinaryExpression
-            "("
-          end,
+             "("
+           end,
           format(node.operand),
           *if node.operand.is_a? Model::Expressions::BinaryExpression
-            ")"
-          end,
+             ")"
+           end,
         ].join("")
       end
 
@@ -985,7 +986,7 @@ module Expressir
       def format_references_group_reference(node)
         [
           format(node.ref),
-          '\\',
+          "\\",
           format(node.entity),
         ].join("")
       end
@@ -996,11 +997,11 @@ module Expressir
           "[",
           format(node.index1),
           *if node.index2
-            [
-              ":",
-              format(node.index2),
-            ].join("")
-          end,
+             [
+               ":",
+               format(node.index2),
+             ].join("")
+           end,
           "]",
         ].join("")
       end
@@ -1021,9 +1022,9 @@ module Expressir
             format(node.expression),
             ";",
           ].join(""),
-          *if node.statements.length > 0
-            indent(node.statements.map { |x| format(x) }.join("\n"))
-          end,
+          *if node.statements.length.positive?
+             indent(node.statements.map { |x| format(x) }.join("\n"))
+           end,
           *format_remarks(node),
           [
             "END_ALIAS",
@@ -1046,13 +1047,13 @@ module Expressir
       def format_statements_procedure_call(node)
         [
           format(node.procedure),
-          *if node.parameters.length > 0
-            [
-              "(",
-              node.parameters.map { |x| format(x) }.join(", "),
-              ")",
-            ].join("")
-          end,
+          *if node.parameters.length.positive?
+             [
+               "(",
+               node.parameters.map { |x| format(x) }.join(", "),
+               ")",
+             ].join("")
+           end,
           ";",
         ].join("")
       end
@@ -1066,19 +1067,19 @@ module Expressir
             " ",
             "OF",
           ].join(""),
-          *if node.actions.length > 0
-            node.actions.map { |x| format(x) }
-          end,
+          *if node.actions.length.positive?
+             node.actions.map { |x| format(x) }
+           end,
           *if node.otherwise_statement
-            [
-              [
-                "OTHERWISE",
-                " ",
-                ":",
-              ].join(""),
-              indent(format(node.otherwise_statement)),
-            ]
-          end,
+             [
+               [
+                 "OTHERWISE",
+                 " ",
+                 ":",
+               ].join(""),
+               indent(format(node.otherwise_statement)),
+             ]
+           end,
           [
             "END_CASE",
             ";",
@@ -1100,9 +1101,9 @@ module Expressir
       def format_statements_compound(node)
         [
           "BEGIN",
-          *if node.statements.length > 0
-            indent(node.statements.map { |x| format(x) }.join("\n"))
-          end,
+          *if node.statements.length.positive?
+             indent(node.statements.map { |x| format(x) }.join("\n"))
+           end,
           [
             "END",
             ";",
@@ -1110,7 +1111,7 @@ module Expressir
         ].join("\n")
       end
 
-      def format_statements_escape(node)
+      def format_statements_escape(_node)
         [
           "ESCAPE",
           ";",
@@ -1126,15 +1127,15 @@ module Expressir
             " ",
             "THEN",
           ].join(""),
-          *if node.statements.length > 0
-            indent(node.statements.map { |x| format(x) }.join("\n"))
-          end,
-          *if node.else_statements.length > 0
-            [
-              "ELSE",
-              indent(node.else_statements.map { |x| format(x) }.join("\n")),
-            ].join("\n")
-          end,
+          *if node.statements.length.positive?
+             indent(node.statements.map { |x| format(x) }.join("\n"))
+           end,
+          *if node.else_statements.length.positive?
+             [
+               "ELSE",
+               indent(node.else_statements.map { |x| format(x) }.join("\n")),
+             ].join("\n")
+           end,
           [
             "END_IF",
             ";",
@@ -1142,7 +1143,7 @@ module Expressir
         ].join("\n")
       end
 
-      def format_statements_null(node)
+      def format_statements_null(_node)
         ";"
       end
 
@@ -1151,48 +1152,48 @@ module Expressir
           [
             "REPEAT",
             *if node.id
-              [
-                " ",
-                node.id,
-                " ",
-                ":=",
-                " ",
-                format(node.bound1),
-                " ",
-                "TO",
-                " ",
-                format(node.bound2),
-                *if node.increment
-                  [
-                    " ",
-                    "BY",
-                    " ",
-                    format(node.increment),
-                  ].join("")
-                end,
-              ].join("")
-            end,
+               [
+                 " ",
+                 node.id,
+                 " ",
+                 ":=",
+                 " ",
+                 format(node.bound1),
+                 " ",
+                 "TO",
+                 " ",
+                 format(node.bound2),
+                 *if node.increment
+                    [
+                      " ",
+                      "BY",
+                      " ",
+                      format(node.increment),
+                    ].join("")
+                  end,
+               ].join("")
+             end,
             *if node.while_expression
-              [
-                " ",
-                "WHILE",
-                " ",
-                format(node.while_expression),
-              ].join("")
-            end,
+               [
+                 " ",
+                 "WHILE",
+                 " ",
+                 format(node.while_expression),
+               ].join("")
+             end,
             *if node.until_expression
-              [
-                " ",
-                "UNTIL",
-                " ",
-                format(node.until_expression),
-              ].join("")
-            end,
+               [
+                 " ",
+                 "UNTIL",
+                 " ",
+                 format(node.until_expression),
+               ].join("")
+             end,
             ";",
           ].join(""),
-          *if node.statements.length > 0
-            indent(node.statements.map { |x| format(x) }.join("\n"))
-          end,
+          *if node.statements.length.positive?
+             indent(node.statements.map { |x| format(x) }.join("\n"))
+           end,
           *format_remarks(node),
           [
             "END_REPEAT",
@@ -1205,18 +1206,18 @@ module Expressir
         [
           "RETURN",
           *if node.expression
-            [
-              " ",
-              "(",
-              format(node.expression),
-              ")",
-            ].join("")
-          end,
+             [
+               " ",
+               "(",
+               format(node.expression),
+               ")",
+             ].join("")
+           end,
           ";",
         ].join("")
       end
 
-      def format_statements_skip(node)
+      def format_statements_skip(_node)
         [
           "SKIP",
           ";",
@@ -1225,26 +1226,26 @@ module Expressir
 
       def format_supertype_expressions_binary_supertype_expression(node)
         [
-          *if node.operand1.is_a? Model::SupertypeExpressions::BinarySupertypeExpression and SUPERTYPE_OPERATOR_PRECEDENCE[node.operand1.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator]
-            "("
-          end,
+          *if node.operand1.is_a?(Model::SupertypeExpressions::BinarySupertypeExpression) && (SUPERTYPE_OPERATOR_PRECEDENCE[node.operand1.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator])
+             "("
+           end,
           format(node.operand1),
-          *if node.operand1.is_a? Model::SupertypeExpressions::BinarySupertypeExpression and SUPERTYPE_OPERATOR_PRECEDENCE[node.operand1.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator]
-            ")"
-          end,
+          *if node.operand1.is_a?(Model::SupertypeExpressions::BinarySupertypeExpression) && (SUPERTYPE_OPERATOR_PRECEDENCE[node.operand1.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator])
+             ")"
+           end,
           " ",
           case node.operator
           when Model::SupertypeExpressions::BinarySupertypeExpression::AND then "AND"
           when Model::SupertypeExpressions::BinarySupertypeExpression::ANDOR then "ANDOR"
           end,
           " ",
-          *if node.operand2.is_a? Model::SupertypeExpressions::BinarySupertypeExpression and SUPERTYPE_OPERATOR_PRECEDENCE[node.operand2.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator]
-            "("
-          end,
+          *if node.operand2.is_a?(Model::SupertypeExpressions::BinarySupertypeExpression) && (SUPERTYPE_OPERATOR_PRECEDENCE[node.operand2.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator])
+             "("
+           end,
           format(node.operand2),
-          *if node.operand2.is_a? Model::SupertypeExpressions::BinarySupertypeExpression and SUPERTYPE_OPERATOR_PRECEDENCE[node.operand2.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator]
-            ")"
-          end,
+          *if node.operand2.is_a?(Model::SupertypeExpressions::BinarySupertypeExpression) && (SUPERTYPE_OPERATOR_PRECEDENCE[node.operand2.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator])
+             ")"
+           end,
         ].join("")
       end
 
@@ -1257,37 +1258,37 @@ module Expressir
         ].join("")
       end
 
-      def format_data_types_aggregate(node)
+      def format_data_types_aggregate(_node)
         "AGGREGATE"
       end
 
       def format_data_types_array(node)
         [
           "ARRAY",
-          *if node.bound1 and node.bound2
-            [
-              " ",
-              "[",
-              format(node.bound1),
-              ":",
-              format(node.bound2),
-              "]",
-            ].join("")
-          end,
+          *if node.bound1 && node.bound2
+             [
+               " ",
+               "[",
+               format(node.bound1),
+               ":",
+               format(node.bound2),
+               "]",
+             ].join("")
+           end,
           " ",
           "OF",
           *if node.optional
-            [
-              " ",
-              "OPTIONAL",
-            ].join("")
-          end,
+             [
+               " ",
+               "OPTIONAL",
+             ].join("")
+           end,
           *if node.unique
-            [
-              " ",
-              "UNIQUE",
-            ].join("")
-          end,
+             [
+               " ",
+               "UNIQUE",
+             ].join("")
+           end,
           " ",
           format(node.base_type),
         ].join("")
@@ -1296,16 +1297,16 @@ module Expressir
       def format_data_types_bag(node)
         [
           "BAG",
-          *if node.bound1 and node.bound2
-            [
-              " ",
-              "[",
-              format(node.bound1),
-              ":",
-              format(node.bound2),
-              "]",
-            ].join("")
-          end,
+          *if node.bound1 && node.bound2
+             [
+               " ",
+               "[",
+               format(node.bound1),
+               ":",
+               format(node.bound2),
+               "]",
+             ].join("")
+           end,
           " ",
           "OF",
           " ",
@@ -1317,72 +1318,72 @@ module Expressir
         [
           "BINARY",
           *if node.width
-            [
-              " ",
-              "(",
-              format(node.width),
-              ")",
-            ].join("")
-          end,
+             [
+               " ",
+               "(",
+               format(node.width),
+               ")",
+             ].join("")
+           end,
           *if node.fixed
-            [
-              " ",
-              "FIXED",
-            ].join("")
-          end,
+             [
+               " ",
+               "FIXED",
+             ].join("")
+           end,
         ].join("")
       end
 
-      def format_data_types_boolean(node)
+      def format_data_types_boolean(_node)
         "BOOLEAN"
       end
 
       def format_data_types_enumeration(node)
         [
           *if node.extensible
-            [
-              "EXTENSIBLE",
-              " ",
-            ].join("")
-          end,
+             [
+               "EXTENSIBLE",
+               " ",
+             ].join("")
+           end,
           "ENUMERATION",
           *if node.based_on
-            [
-              " ",
-              "BASED_ON",
-              " ",
-              format(node.based_on),
-              *if node.items.length > 0
-                item_indent = INDENT_CHAR * "(".length
-                [
-                  " ",
-                  "WITH",
-                  "\n",
-                  indent([
-                    "(",
-                    node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
-                    ")",
-                  ].join("")),
-                ].join("")
-              end,
-            ].join("")
-          else
-            [
-              *if node.items.length > 0
-                item_indent = INDENT_CHAR * "(".length
-                [
-                  " ",
-                  "OF",
-                  "\n",
-                  indent([
-                    "(",
-                    node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
-                    ")",
-                  ].join("")),
-                ].join("")
-              end,
-            ].join("")
-          end,
+             [
+               " ",
+               "BASED_ON",
+               " ",
+               format(node.based_on),
+               *if node.items.length.positive?
+                  item_indent = INDENT_CHAR * "(".length
+                  [
+                    " ",
+                    "WITH",
+                    "\n",
+                    indent([
+                      "(",
+                      node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
+                      ")",
+                    ].join("")),
+                  ].join("")
+                end,
+             ].join("")
+           else
+             [
+               *if node.items.length.positive?
+                  item_indent = INDENT_CHAR * "(".length
+                  [
+                    " ",
+                    "OF",
+                    "\n",
+                    indent([
+                      "(",
+                      node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
+                      ")",
+                    ].join("")),
+                  ].join("")
+                end,
+             ].join("")
+           end,
         ].join("")
       end
 
@@ -1394,11 +1395,11 @@ module Expressir
         [
           "GENERIC_ENTITY",
           *if node.id
-            [
-              ":",
-              node.id,
-            ]
-          end,
+             [
+               ":",
+               node.id,
+             ]
+           end,
         ].join("")
       end
 
@@ -1406,49 +1407,49 @@ module Expressir
         [
           "GENERIC",
           *if node.id
-            [
-              ":",
-              node.id,
-            ]
-          end,
+             [
+               ":",
+               node.id,
+             ]
+           end,
         ].join("")
       end
 
-      def format_data_types_integer(node)
+      def format_data_types_integer(_node)
         "INTEGER"
       end
 
       def format_data_types_list(node)
         [
           "LIST",
-          *if node.bound1 and node.bound2
-            [
-              " ",
-              "[",
-              format(node.bound1),
-              ":",
-              format(node.bound2),
-              "]",
-            ].join("")
-          end,
+          *if node.bound1 && node.bound2
+             [
+               " ",
+               "[",
+               format(node.bound1),
+               ":",
+               format(node.bound2),
+               "]",
+             ].join("")
+           end,
           " ",
           "OF",
           *if node.unique
-            [
-              " ",
-              "UNIQUE",
-            ].join("")
-          end,
+             [
+               " ",
+               "UNIQUE",
+             ].join("")
+           end,
           " ",
           format(node.base_type),
         ].join("")
       end
 
-      def format_data_types_logical(node)
+      def format_data_types_logical(_node)
         "LOGICAL"
       end
 
-      def format_data_types_number(node)
+      def format_data_types_number(_node)
         "NUMBER"
       end
 
@@ -1456,82 +1457,82 @@ module Expressir
         [
           "REAL",
           *if node.precision
-            [
-              " ",
-              "(",
-              format(node.precision),
-              ")",
-            ].join("")
-          end,
+             [
+               " ",
+               "(",
+               format(node.precision),
+               ")",
+             ].join("")
+           end,
         ].join("")
       end
 
       def format_data_types_select(node)
         [
           *if node.extensible
-            [
-              "EXTENSIBLE",
-              " ",
-            ].join("")
-          end,
+             [
+               "EXTENSIBLE",
+               " ",
+             ].join("")
+           end,
           *if node.generic_entity
-            [
-              "GENERIC_ENTITY",
-              " ",
-            ].join("")
-          end,
+             [
+               "GENERIC_ENTITY",
+               " ",
+             ].join("")
+           end,
           "SELECT",
           *if node.based_on
-            [
-              " ",
-              "BASED_ON",
-              " ",
-              format(node.based_on),
-              *if node.items.length > 0
-                item_indent = INDENT_CHAR * "(".length
-                [
-                  " ",
-                  "WITH",
-                  "\n",
-                  indent([
-                    "(",
-                    node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
-                    ")",
-                  ].join("")),
-                ].join("")
-              end,
-            ].join("")
-          else
-            [
-              *if node.items.length > 0
-                item_indent = INDENT_CHAR * "(".length
-                [
-                  "\n",
-                  indent([
-                    "(",
-                    node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
-                    ")",
-                  ].join("")),
-                ].join("")
-              end,
-            ].join("")
-          end,
+             [
+               " ",
+               "BASED_ON",
+               " ",
+               format(node.based_on),
+               *if node.items.length.positive?
+                  item_indent = INDENT_CHAR * "(".length
+                  [
+                    " ",
+                    "WITH",
+                    "\n",
+                    indent([
+                      "(",
+                      node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
+                      ")",
+                    ].join("")),
+                  ].join("")
+                end,
+             ].join("")
+           else
+             [
+               *if node.items.length.positive?
+                  item_indent = INDENT_CHAR * "(".length
+                  [
+                    "\n",
+                    indent([
+                      "(",
+                      node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
+                      ")",
+                    ].join("")),
+                  ].join("")
+                end,
+             ].join("")
+           end,
         ].join("")
       end
 
       def format_data_types_set(node)
         [
           "SET",
-          *if node.bound1 and node.bound2
-            [
-              " ",
-              "[",
-              format(node.bound1),
-              ":",
-              format(node.bound2),
-              "]",
-            ].join("")
-          end,
+          *if node.bound1 && node.bound2
+             [
+               " ",
+               "[",
+               format(node.bound1),
+               ":",
+               format(node.bound2),
+               "]",
+             ].join("")
+           end,
           " ",
           "OF",
           " ",
@@ -1543,19 +1544,19 @@ module Expressir
         [
           "STRING",
           *if node.width
-            [
-              " ",
-              "(",
-              format(node.width),
-              ")",
-            ].join("")
-          end,
+             [
+               " ",
+               "(",
+               format(node.width),
+               ")",
+             ].join("")
+           end,
           *if node.fixed
-            [
-              " ",
-              "FIXED",
-            ].join("")
-          end,
+             [
+               " ",
+               "FIXED",
+             ].join("")
+           end,
         ].join("")
       end
 
@@ -1600,7 +1601,9 @@ module Expressir
       def format_scope_remarks(node)
         [
           *format_remarks(node),
-          *node.children.select { |x| !x.is_a? Model::DataTypes::EnumerationItem or node.is_a? Model::Declarations::Type }.flat_map { |x| format_scope_remarks(x) },
+          *node.children.select do |x|
+            !x.is_a? Model::DataTypes::EnumerationItem or node.is_a? Model::Declarations::Type
+          end.flat_map { |x| format_scope_remarks(x) },
         ]
       end
     end

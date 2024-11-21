@@ -4,7 +4,7 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 9.2.5.2 ONEOF
       class OneofSupertypeExpression < SupertypeExpression
-        model_attr_accessor :operands, 'Array<SupertypeExpression>'
+        model_attr_accessor :operands, "Array<SupertypeExpression>"
 
         # @param [Hash] options
         # @option options [Array<SupertypeExpression>] :operands

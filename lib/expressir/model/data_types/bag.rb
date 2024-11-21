@@ -4,9 +4,9 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 8.2.3 Bag data type
       class Bag < DataType
-        model_attr_accessor :bound1, 'Expression'
-        model_attr_accessor :bound2, 'Expression'
-        model_attr_accessor :base_type, 'DataType'
+        model_attr_accessor :bound1, "Expression"
+        model_attr_accessor :bound2, "Expression"
+        model_attr_accessor :base_type, "DataType"
 
         # @param [Hash] options
         # @option options [Expression] :bound1

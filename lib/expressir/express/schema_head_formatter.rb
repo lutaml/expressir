@@ -8,8 +8,8 @@ module Expressir
     module SchemaHeadFormatter
       # @!visibility private
       def self.included(mod)
-        if !mod.superclass.private_method_defined? :format_declarations_schema or !mod.superclass.private_method_defined? :format_declarations_schema_head
-          raise 'Missing method'
+        if !mod.superclass.private_method_defined?(:format_declarations_schema) || !mod.superclass.private_method_defined?(:format_declarations_schema_head)
+          raise "Missing method"
         end
       end
 

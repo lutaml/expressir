@@ -6,8 +6,8 @@ module Expressir
       class QueryExpression < Expression
         include Identifier
 
-        model_attr_accessor :aggregate_source, 'Reference'
-        model_attr_accessor :expression, 'Expression'
+        model_attr_accessor :aggregate_source, "Reference"
+        model_attr_accessor :expression, "Expression"
 
         # @param [Hash] options
         # @option (see Identifier#initialize_identifier)
@@ -26,7 +26,7 @@ module Expressir
         def children
           [
             self,
-            *remark_items
+            *remark_items,
           ]
         end
       end

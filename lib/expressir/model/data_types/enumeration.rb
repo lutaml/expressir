@@ -4,9 +4,9 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 8.4.1 Enumeration data type
       class Enumeration < DataType
-        model_attr_accessor :extensible, '::Boolean'
-        model_attr_accessor :based_on, 'Reference'
-        model_attr_accessor :items, '::Array<EnumerationItem>'
+        model_attr_accessor :extensible, "::Boolean"
+        model_attr_accessor :based_on, "Reference"
+        model_attr_accessor :items, "::Array<EnumerationItem>"
 
         # @param [Hash] options
         # @option options [::Boolean] :extensible

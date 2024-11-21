@@ -6,13 +6,13 @@ module Expressir
       class Entity < Declaration
         include Identifier
 
-        model_attr_accessor :abstract, 'Boolean'
-        model_attr_accessor :supertype_expression, 'SupertypeExpression'
-        model_attr_accessor :subtype_of, 'Array<Reference>'
-        model_attr_accessor :attributes, 'Array<Attribute>'
-        model_attr_accessor :unique_rules, 'Array<UniqueRule>'
-        model_attr_accessor :where_rules, 'Array<WhereRule>'
-        model_attr_accessor :informal_propositions, 'Array<RemarkItem>'
+        model_attr_accessor :abstract, "Boolean"
+        model_attr_accessor :supertype_expression, "SupertypeExpression"
+        model_attr_accessor :subtype_of, "Array<Reference>"
+        model_attr_accessor :attributes, "Array<Attribute>"
+        model_attr_accessor :unique_rules, "Array<UniqueRule>"
+        model_attr_accessor :where_rules, "Array<WhereRule>"
+        model_attr_accessor :informal_propositions, "Array<RemarkItem>"
 
         # @param [Hash] options
         # @option (see Identifier#initialize_identifier)
@@ -44,7 +44,7 @@ module Expressir
             *unique_rules,
             *where_rules,
             *informal_propositions,
-            *remark_items
+            *remark_items,
           ]
         end
       end

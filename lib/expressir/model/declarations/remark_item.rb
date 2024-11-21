@@ -3,8 +3,8 @@ module Expressir
     module Declarations
       # Implicit item with remarks
       class RemarkItem < Declaration
-        model_attr_accessor :id, 'String'
-        model_attr_accessor :remarks, 'Array<String>'
+        model_attr_accessor :id, "String"
+        model_attr_accessor :remarks, "Array<String>"
 
         # @param [Hash] options
         # @option options [String] :id

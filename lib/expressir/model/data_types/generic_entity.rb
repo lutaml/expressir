@@ -18,7 +18,7 @@ module Expressir
       # @return [Array<Declaration>]
       def children
         [
-          *remark_items
+          *remark_items,
         ]
       end
     end

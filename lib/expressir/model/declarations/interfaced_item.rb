@@ -4,11 +4,11 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 11 Interface specification
       class InterfacedItem < ModelElement
-        model_attr_accessor :id, 'String'
-        model_attr_accessor :remarks, 'Array<String>'
-        model_attr_accessor :remark_items, 'Array<RemarkItem>'
+        model_attr_accessor :id, "String"
+        model_attr_accessor :remarks, "Array<String>"
+        model_attr_accessor :remark_items, "Array<RemarkItem>"
 
-        model_attr_accessor :base_item, 'ModelElement'
+        model_attr_accessor :base_item, "ModelElement"
 
         # @param [Hash] options
         # @option options [String] :id
@@ -28,7 +28,7 @@ module Expressir
         # @return [Array<Declaration>]
         def children
           [
-            *remark_items
+            *remark_items,
           ]
         end
       end

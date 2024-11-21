@@ -7,9 +7,9 @@ module Expressir
         USE = :USE
         REFERENCE = :REFERENCE
 
-        model_attr_accessor :kind, ':USE, :REFERENCE'
-        model_attr_accessor :schema, 'Reference'
-        model_attr_accessor :items, 'Array<InterfaceItem>'
+        model_attr_accessor :kind, ":USE, :REFERENCE"
+        model_attr_accessor :schema, "Reference"
+        model_attr_accessor :items, "Array<InterfaceItem>"
 
         # @param [Hash] options
         # @option options [:USE, :REFERENCE] :kind

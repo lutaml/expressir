@@ -11,10 +11,10 @@ module Expressir
       #   @return [::String]
       # @!visibility private
       def self.included(mod)
-        mod.model_attr_accessor :id, '::String'
-        mod.model_attr_accessor :remarks, '::Array<::String>'
-        mod.model_attr_accessor :remark_items, '::Array<RemarkItem>'
-        mod.model_attr_accessor :source, '::String'
+        mod.model_attr_accessor :id, "::String"
+        mod.model_attr_accessor :remarks, "::Array<::String>"
+        mod.model_attr_accessor :remark_items, "::Array<RemarkItem>"
+        mod.model_attr_accessor :source, "::String"
       end
 
       # @param [Hash] options

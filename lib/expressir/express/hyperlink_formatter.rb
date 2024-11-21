@@ -9,7 +9,7 @@ module Expressir
       # @!visibility private
       def self.included(mod)
         if !mod.superclass.private_method_defined? :format_references_simple_reference
-          raise 'Missing method'
+          raise "Missing method"
         end
       end
 

@@ -33,7 +33,7 @@ Gem::Specification.new do |spec|
 
   spec.test_files = `git ls-files -- {spec}/*`.split("\n")
 
-  spec.add_dependency "thor", "~> 1.0"
-  spec.add_dependency "parslet", "~> 2.0"
   spec.add_dependency "liquid"
+  spec.add_dependency "parslet", "~> 2.0"
+  spec.add_dependency "thor", "~> 1.0"
 end

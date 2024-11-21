@@ -1,6 +1,6 @@
-require 'yaml'
-require 'zlib'
-require 'expressir/model'
+require "yaml"
+require "zlib"
+require "expressir/model"
 
 module Expressir
   module Express
@@ -16,7 +16,7 @@ module Expressir
 
         cache = Model::Cache.new(
           version: version,
-          content: content
+          content: content,
         )
 
         hash = cache.to_hash(root_path: root_path)
@@ -37,7 +37,7 @@ module Expressir
 
         yaml_compressed = File.binread(file)
         yaml = Zlib::Inflate.inflate(yaml_compressed)
-        hash = YAML.load(yaml)
+        hash = YAML.safe_load(yaml)
         cache = Model::ModelElement.from_hash(hash, root_path: root_path)
 
         if cache.version != version

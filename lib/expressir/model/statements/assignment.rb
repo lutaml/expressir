@@ -4,8 +4,8 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 13.3 Assignment
       class Assignment < Statement
-        model_attr_accessor :ref, 'Reference'
-        model_attr_accessor :expression, 'Expression'
+        model_attr_accessor :ref, "Reference"
+        model_attr_accessor :expression, "Expression"
 
         # @param [Hash] options
         # @option options [Reference] :ref

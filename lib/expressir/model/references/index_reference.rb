@@ -6,9 +6,9 @@ module Expressir
       # - section 12.5.1 String indexing
       # - section 12.6.1 Aggregate indexing
       class IndexReference < Reference
-        model_attr_accessor :ref, 'Reference'
-        model_attr_accessor :index1, 'Expression'
-        model_attr_accessor :index2, 'Expression'
+        model_attr_accessor :ref, "Reference"
+        model_attr_accessor :index1, "Expression"
+        model_attr_accessor :index2, "Expression"
 
         # @param [Hash] options
         # @option options [Reference] :ref

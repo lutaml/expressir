@@ -6,7 +6,7 @@ module Expressir
       class UniqueRule < Declaration
         include Identifier
 
-        model_attr_accessor :attributes, 'Reference'
+        model_attr_accessor :attributes, "Reference"
 
         # @param [Hash] options
         # @option (see Identifier#initialize_identifier)
@@ -22,7 +22,7 @@ module Expressir
         # @return [Array<Declaration>]
         def children
           [
-            *remark_items
+            *remark_items,
           ]
         end
       end

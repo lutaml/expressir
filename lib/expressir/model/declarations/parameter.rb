@@ -6,8 +6,8 @@ module Expressir
       class Parameter < Declaration
         include Identifier
 
-        model_attr_accessor :var, 'Boolean'
-        model_attr_accessor :type, 'DataType'
+        model_attr_accessor :var, "Boolean"
+        model_attr_accessor :type, "DataType"
 
         # @param [Hash] options
         # @option (see Identifier#initialize_identifier)
@@ -25,7 +25,7 @@ module Expressir
         # @return [Array<Declaration>]
         def children
           [
-            *remark_items
+            *remark_items,
           ]
         end
       end

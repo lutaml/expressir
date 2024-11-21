@@ -6,10 +6,10 @@ module Expressir
       class SubtypeConstraint < Declaration
         include Identifier
 
-        model_attr_accessor :applies_to, 'Reference'
-        model_attr_accessor :abstract, 'Boolean'
-        model_attr_accessor :total_over, 'Array<Reference>'
-        model_attr_accessor :supertype_expression, 'SupertypeExpression'
+        model_attr_accessor :applies_to, "Reference"
+        model_attr_accessor :abstract, "Boolean"
+        model_attr_accessor :total_over, "Array<Reference>"
+        model_attr_accessor :supertype_expression, "SupertypeExpression"
 
         # @param [Hash] options
         # @option (see Identifier#initialize_identifier)
@@ -31,7 +31,7 @@ module Expressir
         # @return [Array<Declaration>]
         def children
           [
-            *remark_items
+            *remark_items,
           ]
         end
       end

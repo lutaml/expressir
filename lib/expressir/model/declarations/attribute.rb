@@ -10,11 +10,11 @@ module Expressir
         DERIVED = :DERIVED
         INVERSE = :INVERSE
 
-        model_attr_accessor :kind, ':EXPLICIT, :DERIVED, :INVERSE'
-        model_attr_accessor :supertype_attribute, 'Reference'
-        model_attr_accessor :optional, 'Boolean'
-        model_attr_accessor :type, 'DataType'
-        model_attr_accessor :expression, 'Expression'
+        model_attr_accessor :kind, ":EXPLICIT, :DERIVED, :INVERSE"
+        model_attr_accessor :supertype_attribute, "Reference"
+        model_attr_accessor :optional, "Boolean"
+        model_attr_accessor :type, "DataType"
+        model_attr_accessor :expression, "Expression"
 
         # @param [Hash] options
         # @option (see Identifier#initialize_identifier)
@@ -38,7 +38,7 @@ module Expressir
         # @return [Array<Declaration>]
         def children
           [
-            *remark_items
+            *remark_items,
           ]
         end
       end

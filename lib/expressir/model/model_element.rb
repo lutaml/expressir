@@ -1,12 +1,12 @@
-require 'pathname'
+require "pathname"
 
 module Expressir
   module Model
     # Base model element
     class ModelElement
-      CLASS_KEY = '_class'
-      FILE_KEY = 'file'
-      SOURCE_KEY = 'source'
+      CLASS_KEY = "_class".freeze
+      FILE_KEY = "file".freeze
+      SOURCE_KEY = "source".freeze
 
       private_constant :CLASS_KEY
       private_constant :FILE_KEY
@@ -16,19 +16,19 @@ module Expressir
       attr_accessor :parent
 
       # @param [Hash] options
-      def initialize(options = {})
+      def initialize(_options = {})
         attach_parent_to_children
       end
 
       # @return [String]
       def path
         # this creates an implicit scope
-        return if is_a? Statements::Alias or is_a? Statements::Repeat or is_a? Expressions::QueryExpression
+        return if is_a?(Statements::Alias) || is_a?(Statements::Repeat) || is_a?(Expressions::QueryExpression)
 
         current_node = self
         path_parts = []
         loop do
-          if current_node.class.method_defined? :id and !(current_node.is_a? References::SimpleReference)
+          if current_node.class.method_defined?(:id) && !(current_node.is_a? References::SimpleReference)
             path_parts << current_node.id
           end
 
@@ -82,7 +82,7 @@ module Expressir
 
       # @return [Hash<String, Declaration>]
       def children_by_id
-        @children_by_id ||= children.select{|x| x.id}.map{|x| [x.id.safe_downcase, x]}.to_h
+        @children_by_id ||= children.select(&:id).map { |x| [x.id.safe_downcase, x] }.to_h
       end
 
       # @return [nil]
@@ -105,11 +105,11 @@ module Expressir
         hash[CLASS_KEY] = self.class.name
 
         self.class.model_attrs.each do |variable|
-          value = self.send(variable)
-          empty = value.nil? || (value.is_a?(Array) && value.count == 0)
+          value = send(variable)
+          empty = value.nil? || (value.is_a?(Array) && value.count.zero?)
 
           # skip empty values
-          next unless !empty or include_empty
+          next unless !empty || include_empty
 
           value_hash = case value
                        when Array
@@ -119,7 +119,7 @@ module Expressir
                                root_path: root_path,
                                formatter: formatter,
                                include_empty: include_empty,
-                               select_proc: select_proc
+                               select_proc: select_proc,
                              )
                            else
                              v
@@ -130,7 +130,7 @@ module Expressir
                            root_path: root_path,
                            formatter: formatter,
                            include_empty: include_empty,
-                           select_proc: select_proc
+                           select_proc: select_proc,
                          )
                        else
                          value
@@ -139,11 +139,11 @@ module Expressir
           hash[variable.to_s] = value_hash unless value_hash.nil?
         end
 
-        if self.is_a? Declarations::Schema and file
+        if is_a?(Declarations::Schema) && file
           hash[FILE_KEY] = root_path ? Pathname.new(file).relative_path_from(root_path).to_s : file
         end
 
-        if self.class.method_defined? :source and formatter
+        if self.class.method_defined?(:source) && formatter
           hash[SOURCE_KEY] = formatter.format(self)
         end
 
@@ -152,7 +152,7 @@ module Expressir
 
       # @return [Liquid::Drop]
       def to_liquid
-        klass_name = self.class.name.gsub("::Model::", "::Liquid::") + "Drop"
+        klass_name = "#{self.class.name.gsub('::Model::', '::Liquid::')}Drop"
         klass = Object.const_get(klass_name)
         klass.new(self)
       end
@@ -164,7 +164,7 @@ module Expressir
       def to_s(no_remarks: false, formatter: nil)
         formatter ||= Class.new(Expressir::Express::Formatter) do
           if no_remarks
-            def format_remarks(node); []; end
+            def format_remarks(_node); []; end
           end
         end
         formatter.format(self)
@@ -181,28 +181,26 @@ module Expressir
           value = hash[variable.to_s]
 
           node_options[variable] = case value
-          when Array
-            value.map do |value|
-              if value.is_a? Hash
-                self.from_hash(value, root_path: root_path)
-              else
-                value
-              end
-            end
-          when Hash
-            self.from_hash(value, root_path: root_path)
-          else
-            value
-          end
+                                   when Array
+                                     value.map do |value|
+                                       if value.is_a? Hash
+                                         from_hash(value, root_path: root_path)
+                                       else
+                                         value
+                                       end
+                                     end
+                                   when Hash
+                                     from_hash(value, root_path: root_path)
+                                   else
+                                     value
+                                   end
         end
 
-        if node_class == Declarations::Schema and hash[FILE_KEY]
+        if (node_class == Declarations::Schema) && hash[FILE_KEY]
           node_options[FILE_KEY.to_sym] = root_path ? File.expand_path("#{root_path}/#{hash[FILE_KEY]}") : hash[FILE_KEY]
         end
 
-        node = node_class.new(node_options)
-
-        node
+        node_class.new(node_options)
       end
 
       # @return [Array<Symbol>]
@@ -216,7 +214,7 @@ module Expressir
       # @!macro [attach] model_attr_accessor
       #   @!attribute $1
       #     @return [$2]
-      def self.model_attr_accessor(attr_name, attr_type = nil)
+      def self.model_attr_accessor(attr_name, _attr_type = nil)
         @model_attrs ||= []
         @model_attrs << attr_name
 
@@ -228,7 +226,7 @@ module Expressir
       # @return [nil]
       def attach_parent_to_children
         self.class.model_attrs.each do |variable|
-          value = self.send(variable)
+          value = send(variable)
 
           case value
           when Array

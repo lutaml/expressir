@@ -9,8 +9,8 @@ module Expressir
         NOT = :NOT
         PLUS = :PLUS
 
-        model_attr_accessor :operator, ':MINUS, :NOT, :PLUS'
-        model_attr_accessor :operand, 'Expression'
+        model_attr_accessor :operator, ":MINUS, :NOT, :PLUS"
+        model_attr_accessor :operand, "Expression"
 
         # @param [Hash] options
         # @option options [:MINUS, :NOT, :PLUS] :operator

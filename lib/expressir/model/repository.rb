@@ -2,7 +2,7 @@ module Expressir
   module Model
     # Multi-schema global scope
     class Repository < ModelElement
-      model_attr_accessor :schemas, 'Array<Declarations::Schema>'
+      model_attr_accessor :schemas, "Array<Declarations::Schema>"
 
       # @param [Hash] options
       # @option options [Array<Declarations::Schema>] :schemas
@@ -15,10 +15,9 @@ module Expressir
       # @return [Array<Declaration>]
       def children
         [
-          *schemas
+          *schemas,
         ]
       end
-
     end
   end
 end

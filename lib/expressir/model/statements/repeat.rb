@@ -6,12 +6,12 @@ module Expressir
       class Repeat < Statement
         include Identifier
 
-        model_attr_accessor :bound1, 'Expression'
-        model_attr_accessor :bound2, 'Expression'
-        model_attr_accessor :increment, 'Expression'
-        model_attr_accessor :while_expression, 'Expression'
-        model_attr_accessor :until_expression, 'Expression'
-        model_attr_accessor :statements, 'Array<Statement>'
+        model_attr_accessor :bound1, "Expression"
+        model_attr_accessor :bound2, "Expression"
+        model_attr_accessor :increment, "Expression"
+        model_attr_accessor :while_expression, "Expression"
+        model_attr_accessor :until_expression, "Expression"
+        model_attr_accessor :statements, "Array<Statement>"
 
         # @param [Hash] options
         # @option (see Identifier#initialize_identifier)
@@ -38,7 +38,7 @@ module Expressir
         def children
           [
             self,
-            *remark_items
+            *remark_items,
           ]
         end
       end

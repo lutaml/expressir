@@ -815,12 +815,17 @@ module Expressir
       end
 
       def format_expressions_binary_expression(node)
+        op1_bin_exp = node.operand1.is_a?(Model::Expressions::BinaryExpression) &&
+          (OPERATOR_PRECEDENCE[node.operand1.operator] > OPERATOR_PRECEDENCE[node.operator])
+        op2_bin_exp = node.operand2.is_a?(Model::Expressions::BinaryExpression) &&
+          (OPERATOR_PRECEDENCE[node.operand2.operator] > OPERATOR_PRECEDENCE[node.operator])
+
         [
-          *if node.operand1.is_a?(Model::Expressions::BinaryExpression) && (OPERATOR_PRECEDENCE[node.operand1.operator] > OPERATOR_PRECEDENCE[node.operator])
+          *if op1_bin_exp
              "("
            end,
           format(node.operand1),
-          *if node.operand1.is_a?(Model::Expressions::BinaryExpression) && (OPERATOR_PRECEDENCE[node.operand1.operator] > OPERATOR_PRECEDENCE[node.operator])
+          *if op1_bin_exp
              ")"
            end,
           " ",
@@ -848,11 +853,11 @@ module Expressir
           when Model::Expressions::BinaryExpression::XOR then "XOR"
           end,
           " ",
-          *if node.operand2.is_a?(Model::Expressions::BinaryExpression) && (OPERATOR_PRECEDENCE[node.operand2.operator] > OPERATOR_PRECEDENCE[node.operator])
+          *if op2_bin_exp
              "("
            end,
           format(node.operand2),
-          *if node.operand2.is_a?(Model::Expressions::BinaryExpression) && (OPERATOR_PRECEDENCE[node.operand2.operator] > OPERATOR_PRECEDENCE[node.operator])
+          *if op2_bin_exp
              ")"
            end,
         ].join("")
@@ -1225,12 +1230,17 @@ module Expressir
       end
 
       def format_supertype_expressions_binary_supertype_expression(node)
+        op1_higher_precedence = node.operand1.is_a?(Model::SupertypeExpressions::BinarySupertypeExpression) &&
+          (SUPERTYPE_OPERATOR_PRECEDENCE[node.operand1.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator])
+        op2_higher_precedence = node.operand2.is_a?(Model::SupertypeExpressions::BinarySupertypeExpression) &&
+          (SUPERTYPE_OPERATOR_PRECEDENCE[node.operand2.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator])
+
         [
-          *if node.operand1.is_a?(Model::SupertypeExpressions::BinarySupertypeExpression) && (SUPERTYPE_OPERATOR_PRECEDENCE[node.operand1.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator])
+          *if op1_higher_precedence
              "("
            end,
           format(node.operand1),
-          *if node.operand1.is_a?(Model::SupertypeExpressions::BinarySupertypeExpression) && (SUPERTYPE_OPERATOR_PRECEDENCE[node.operand1.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator])
+          *if op1_higher_precedence
              ")"
            end,
           " ",
@@ -1239,11 +1249,11 @@ module Expressir
           when Model::SupertypeExpressions::BinarySupertypeExpression::ANDOR then "ANDOR"
           end,
           " ",
-          *if node.operand2.is_a?(Model::SupertypeExpressions::BinarySupertypeExpression) && (SUPERTYPE_OPERATOR_PRECEDENCE[node.operand2.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator])
+          *if op2_higher_precedence
              "("
            end,
           format(node.operand2),
-          *if node.operand2.is_a?(Model::SupertypeExpressions::BinarySupertypeExpression) && (SUPERTYPE_OPERATOR_PRECEDENCE[node.operand2.operator] > SUPERTYPE_OPERATOR_PRECEDENCE[node.operator])
+          *if op2_higher_precedence
              ")"
            end,
         ].join("")

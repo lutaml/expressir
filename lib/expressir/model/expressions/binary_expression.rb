@@ -33,12 +33,18 @@ module Expressir
         XOR = :XOR
 
         model_attr_accessor :operator,
-                            ":ADDITION, :AND, :COMBINE, :EQUAL, :EXPONENTIATION, :GREATER_THAN, :GREATER_THAN_OR_EQUAL, :IN, :INSTANCE_EQUAL, :INSTANCE_NOT_EQUAL, :INTEGER_DIVISION, :LESS_THAN, :LESS_THAN_OR_EQUAL, :LIKE, :MODULO, :MULTIPLICATION, :NOT_EQUAL, :OR, :REAL_DIVISION, :SUBTRACTION, :XOR"
+                            ":ADDITION, :AND, :COMBINE, :EQUAL, :EXPONENTIATION, :GREATER_THAN, \
+                             :GREATER_THAN_OR_EQUAL, :IN, :INSTANCE_EQUAL, :INSTANCE_NOT_EQUAL, \
+                             :INTEGER_DIVISION, :LESS_THAN, :LESS_THAN_OR_EQUAL, :LIKE, :MODULO,\
+                             :MULTIPLICATION, :NOT_EQUAL, :OR, :REAL_DIVISION, :SUBTRACTION, :XOR"
         model_attr_accessor :operand1, "Expression"
         model_attr_accessor :operand2, "Expression"
 
         # @param [Hash] options
-        # @option options [:ADDITION, :AND, :COMBINE, :EQUAL, :EXPONENTIATION, :GREATER_THAN, :GREATER_THAN_OR_EQUAL, :IN, :INSTANCE_EQUAL, :INSTANCE_NOT_EQUAL, :INTEGER_DIVISION, :LESS_THAN, :LESS_THAN_OR_EQUAL, :LIKE, :MODULO, :MULTIPLICATION, :NOT_EQUAL, :OR, :REAL_DIVISION, :SUBTRACTION, :XOR] :operator
+        # @option options [:ADDITION, :AND, :COMBINE, :EQUAL, :EXPONENTIATION, :GREATER_THAN,
+        #                  :GREATER_THAN_OR_EQUAL, :IN, :INSTANCE_EQUAL, :INSTANCE_NOT_EQUAL,
+        #                  :INTEGER_DIVISION, :LESS_THAN, :LESS_THAN_OR_EQUAL, :LIKE, :MODULO,
+        #                  :MULTIPLICATION, :NOT_EQUAL, :OR, :REAL_DIVISION, :SUBTRACTION, :XOR] :operator
         # @option options [Expression] :operand1
         # @option options [Expression] :operand2
         def initialize(options = {})

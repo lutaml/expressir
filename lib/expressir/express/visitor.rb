@@ -870,8 +870,10 @@ module Expressir
         ctx__entity_head__entity_id = ctx__entity_head&.entity_id
         ctx__entity_head__subsuper = visit_if ctx__entity_head&.subsuper
         ctx__entity_head__subsuper__supertype_constraint = ctx__entity_head__subsuper&.supertype_constraint
-        ctx__entity_head__subsuper__supertype_constraint__abstract_entity_declaration = ctx__entity_head__subsuper__supertype_constraint&.abstract_entity_declaration
-        ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration = ctx__entity_head__subsuper__supertype_constraint&.abstract_supertype_declaration
+        ctx__entity_head__subsuper__supertype_constraint__abstract_entity_declaration =
+          ctx__entity_head__subsuper__supertype_constraint&.abstract_entity_declaration
+        ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration =
+          ctx__entity_head__subsuper__supertype_constraint&.abstract_supertype_declaration
         ctx__entity_head__subsuper__supertype_constraint__supertype_rule = ctx__entity_head__subsuper__supertype_constraint&.supertype_rule
         ctx__entity_head__subsuper__subtype_declaration = ctx__entity_head__subsuper&.subtype_declaration
         ctx__entity_body__explicit_attr = ctx__entity_body&.explicit_attr
@@ -881,8 +883,10 @@ module Expressir
         ctx__entity_body__where_clause = ctx__entity_body&.where_clause
 
         id = visit_if(ctx__entity_head__entity_id)
-        abstract = (ctx__entity_head__subsuper__supertype_constraint__abstract_entity_declaration || ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration) && true
-        supertype_expression = visit_if(ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration || ctx__entity_head__subsuper__supertype_constraint__supertype_rule)
+        abstract = (ctx__entity_head__subsuper__supertype_constraint__abstract_entity_declaration ||
+          ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration) && true
+        supertype_expression = visit_if(ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration ||
+          ctx__entity_head__subsuper__supertype_constraint__supertype_rule)
         subtype_of = visit_if(ctx__entity_head__subsuper__subtype_declaration, [])
         attributes = [
           *visit_if_map_flatten(ctx__entity_body__explicit_attr),
@@ -2198,7 +2202,10 @@ module Expressir
         ctx__simple_factor_expression = ctx.simple_factor_expression
         ctx__simple_factor_unary_expression = ctx.simple_factor_unary_expression
 
-        visit_if(ctx__aggregate_initializer || ctx__entity_constructor || ctx__enumeration_reference || ctx__interval || ctx__query_expression || ctx__simple_factor_expression || ctx__simple_factor_unary_expression)
+        visit_if(ctx__aggregate_initializer || ctx__entity_constructor ||
+                 ctx__enumeration_reference || ctx__interval ||
+                 ctx__query_expression || ctx__simple_factor_expression ||
+                 ctx__simple_factor_unary_expression)
       end
 
       def visit_simple_factor_expression(ctx)
@@ -2230,7 +2237,9 @@ module Expressir
         ctx__real_type = ctx.real_type
         ctx__string_type = ctx.string_type
 
-        visit_if(ctx__binary_type || ctx__boolean_type || ctx__integer_type || ctx__logical_type || ctx__number_type || ctx__real_type || ctx__string_type)
+        visit_if(ctx__binary_type || ctx__boolean_type || ctx__integer_type ||
+                 ctx__logical_type || ctx__number_type || ctx__real_type ||
+                 ctx__string_type)
       end
 
       def visit_skip_stmt(_ctx)
@@ -2250,7 +2259,10 @@ module Expressir
         ctx__return_stmt = ctx.return_stmt
         ctx__skip_stmt = ctx.skip_stmt
 
-        visit_if(ctx__alias_stmt || ctx__assignment_stmt || ctx__case_stmt || ctx__compound_stmt || ctx__escape_stmt || ctx__if_stmt || ctx__null_stmt || ctx__procedure_call_stmt || ctx__repeat_stmt || ctx__return_stmt || ctx__skip_stmt)
+        visit_if(ctx__alias_stmt || ctx__assignment_stmt || ctx__case_stmt ||
+                 ctx__compound_stmt || ctx__escape_stmt || ctx__if_stmt ||
+                 ctx__null_stmt || ctx__procedure_call_stmt ||
+                 ctx__repeat_stmt || ctx__return_stmt || ctx__skip_stmt)
       end
 
       def visit_string_literal(ctx)

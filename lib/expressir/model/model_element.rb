@@ -157,10 +157,6 @@ module Expressir
         klass.new(self)
       end
 
-      def to_s
-        to_s(no_remarks: false, formatter: nil)
-      end
-
       def to_s(no_remarks: false, formatter: nil)
         formatter ||= Class.new(Expressir::Express::Formatter) do
           if no_remarks

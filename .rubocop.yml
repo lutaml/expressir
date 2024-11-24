@@ -3,7 +3,9 @@
 inherit_from:
   - https://raw.githubusercontent.com/riboseinc/oss-guides/master/ci/rubocop.yml
 
-
+Naming/VariableName:
+  Exclude:
+  - lib/expressir/express/visitor.rb
 Layout/LineLength:
   Max: 160
 AllCops:

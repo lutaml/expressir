@@ -49,7 +49,8 @@ exp_files = [
   "../iso-10303-stepmod/data/resources/security_classification_schema/security_classification_schema_annotated.exp",
   "../iso-10303-stepmod/data/resources/support_resource_schema/support_resource_schema_annotated.exp",
   # full test (6m18s + 8s = 6m26s)
-  # *`bundle exec ../stepmod-utils/exe/stepmod-find-express-files ../iso-10303-stepmod`.strip.split("\n").map{|file| File.exists?(file.sub(/\.exp$/, '_annotated.exp')) ? file.sub(/\.exp$/, '_annotated.exp') : file}
+  # *`bundle exec ../stepmod-utils/exe/stepmod-find-express-files ../iso-10303-stepmod`.strip
+  #   .split("\n").map{|file| File.exists?(file.sub(/\.exp$/, '_annotated.exp')) ? file.sub(/\.exp$/, '_annotated.exp') : file}
 ]
 
 start = Time.now

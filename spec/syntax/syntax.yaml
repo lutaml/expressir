@@ -1633,8 +1633,10 @@ schemas:
       statements:
       - _class: Expressir::Model::Statements::Case
         expression:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
         actions:
         - _class: Expressir::Model::Statements::CaseAction
           labels:
@@ -1647,8 +1649,10 @@ schemas:
       statements:
       - _class: Expressir::Model::Statements::Case
         expression:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
         actions:
         - _class: Expressir::Model::Statements::CaseAction
           labels:
@@ -1667,8 +1671,10 @@ schemas:
       statements:
       - _class: Expressir::Model::Statements::Case
         expression:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
         actions:
         - _class: Expressir::Model::Statements::CaseAction
           labels:
@@ -1683,8 +1689,10 @@ schemas:
       statements:
       - _class: Expressir::Model::Statements::Case
         expression:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
         actions:
         - _class: Expressir::Model::Statements::CaseAction
           labels:
@@ -3258,11 +3266,15 @@ schemas:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: :COMBINE
         operand1:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: test2
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: test2
     - _class: Expressir::Model::Declarations::Variable
       id: in_expression
       type:
@@ -3373,8 +3385,10 @@ schemas:
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
-        _class: Expressir::Model::References::SimpleReference
-        id: test
+        _class: Expressir::Model::Expressions::FunctionCall
+        function:
+          _class: Expressir::Model::References::SimpleReference
+          id: test
     - _class: Expressir::Model::Declarations::Variable
       id: group_reference_expression
       type:
@@ -3382,8 +3396,10 @@ schemas:
       expression:
         _class: Expressir::Model::References::GroupReference
         ref:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
         entity:
           _class: Expressir::Model::References::SimpleReference
           id: test2
@@ -3394,8 +3410,10 @@ schemas:
       expression:
         _class: Expressir::Model::References::IndexReference
         ref:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
         index1:
           _class: Expressir::Model::Literals::Integer
           value: '1'
@@ -3406,8 +3424,10 @@ schemas:
       expression:
         _class: Expressir::Model::References::IndexReference
         ref:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
         index1:
           _class: Expressir::Model::Literals::Integer
           value: '1'
@@ -3421,8 +3441,10 @@ schemas:
       expression:
         _class: Expressir::Model::References::AttributeReference
         ref:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test2
@@ -3502,8 +3524,10 @@ schemas:
         _class: Expressir::Model::Expressions::QueryExpression
         id: test
         aggregate_source:
-          _class: Expressir::Model::References::SimpleReference
-          id: test2
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: test2
         expression:
           _class: Expressir::Model::Literals::Logical
           value: :TRUE

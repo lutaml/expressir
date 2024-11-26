@@ -43,7 +43,7 @@ FUNCTION remark_function(remark_parameter : STRING) : BOOLEAN;
     ;
   --"remark_repeat" function repeat scope - function repeat
   END_REPEAT;
-  remark_variable := QUERY(remark_query <* remark_variable | TRUE
+  remark_variable := QUERY(remark_query <* remark_variable() | TRUE
   --"remark_query" function query scope - function query
   );
 END_FUNCTION;
@@ -66,7 +66,7 @@ RULE remark_rule FOR (remark_entity);
     ;
   --"remark_repeat" rule repeat scope - rule repeat
   END_REPEAT;
-  remark_variable := QUERY(remark_query <* remark_variable | TRUE
+  remark_variable := QUERY(remark_query <* remark_variable() | TRUE
   --"remark_query" rule query scope - rule query
   );
 WHERE
@@ -91,7 +91,7 @@ PROCEDURE remark_procedure(remark_parameter : STRING);
     ;
   --"remark_repeat" procedure repeat scope - procedure repeat
   END_REPEAT;
-  remark_variable := QUERY(remark_query <* remark_variable | TRUE
+  remark_variable := QUERY(remark_query <* remark_variable() | TRUE
   --"remark_query" procedure query scope - procedure query
   );
 END_PROCEDURE;

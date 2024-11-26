@@ -275,7 +275,7 @@ module Expressir
         end
         rule(:procedureId) { simpleId.as(:procedureId) }
         rule(:procedureRef) { procedureId.as(:procedureRef) }
-        rule(:qualifiableFactor) { (attributeRef | constantFactor | functionCall | generalRef | population).as(:qualifiableFactor) }
+        rule(:qualifiableFactor) { (functionCall | attributeRef | constantFactor | generalRef | population).as(:qualifiableFactor) }
         rule(:qualifiedAttribute) { (tSELF >> groupQualifier >> attributeQualifier).as(:qualifiedAttribute) }
         rule(:qualifier) { (attributeQualifier | groupQualifier | indexQualifier).as(:qualifier) }
         rule(:queryExpression) do

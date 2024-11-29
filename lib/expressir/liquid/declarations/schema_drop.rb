@@ -85,6 +85,10 @@ module Expressir
             ::Expressir::Liquid::Declarations::ProcedureDrop.new(item)
           end
         end
+
+        def formatted
+          @model.to_s(no_remarks: true)
+        end
       end
     end
   end

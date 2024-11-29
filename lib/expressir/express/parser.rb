@@ -340,7 +340,7 @@ module Expressir
         rule(:simpleExpression) { (term >> (addLikeOp.as(:operator) >> term).as(:item).repeat.as(:rhs)).as(:simpleExpression) }
         rule(:simpleFactor) do
           (
-            aggregateInitializer | entityConstructor | interval | queryExpression | simpleFactorExpression |
+            simpleFactorExpression | aggregateInitializer | entityConstructor | interval | queryExpression |
             simpleFactorUnaryExpression | enumerationReference
           ).as(:simpleFactor)
         end

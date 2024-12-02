@@ -37,7 +37,7 @@ module Expressir
 
         yaml_compressed = File.binread(file)
         yaml = Zlib::Inflate.inflate(yaml_compressed)
-        hash = YAML.safe_load(yaml)
+        hash = YAML.safe_load(yaml, permitted_classes: [Symbol])
         cache = Model::ModelElement.from_hash(hash, root_path: root_path)
 
         if cache.version != version

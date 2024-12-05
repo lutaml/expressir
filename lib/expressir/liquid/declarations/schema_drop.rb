@@ -6,14 +6,50 @@ module Expressir
       class SchemaDrop < ::Expressir::Liquid::DeclarationDrop
         include ::Expressir::Liquid::IdentifierDrop
 
-        def initialize(model)
+        def initialize(model, selected_schemas: nil, options: {}) # rubocop:disable Lint/MissingSuper
           @model = model
-          initialize_identifier(@model)
+          @selected_schemas = selected_schemas
+          @options = options
+          initialize_identifier(@model, @options)
           super
         end
 
         def file
           @model.file
+        end
+
+        def file_basename
+          File.basename(@model.file, ".exp")
+        end
+
+        def selected
+          @selected_schemas&.include?(@model.id) ||
+            @selected_schemas&.include?(file_basename)
+        end
+
+        def relative_path_prefix
+          return nil if @options.nil? || @options["document"].nil?
+
+          document = @options["document"]
+          file_path = File.dirname(@model.file)
+          docfile_directory = File.dirname(
+            document.attributes["docfile"] || ".",
+          )
+          document
+            .path_resolver
+            .system_path(file_path, docfile_directory)
+        end
+
+        def remarks
+          return [] unless @model.remarks
+
+          options = @options || {}
+          options["relative_path_prefix"] = relative_path_prefix
+
+          @model.remarks.map do |remark|
+            ::Expressir::Express::ExpressRemarksDecorator
+              .call(remark, options)
+          end
         end
 
         def version

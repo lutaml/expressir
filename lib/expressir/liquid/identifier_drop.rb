@@ -5,9 +5,8 @@ require_relative "declarations/remark_item_drop"
 module Expressir
   module Liquid
     module IdentifierDrop
-      def initialize_identifier(model, options = {})
+      def initialize_identifier(model)
         @model = model
-        @options = options
       end
 
       def id

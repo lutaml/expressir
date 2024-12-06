@@ -9,7 +9,7 @@ module Expressir
         @model = model
         @selected_schemas = selected_schemas
         @options = options
-        super
+        super(model)
       end
 
       def schemas

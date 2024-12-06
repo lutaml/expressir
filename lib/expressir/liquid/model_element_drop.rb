@@ -3,10 +3,8 @@
 module Expressir
   module Liquid
     class ModelElementDrop < ::Liquid::Drop
-      def initialize(model, selected_schemas: nil, options: {}) # rubocop:disable Lint/MissingSuper
+      def initialize(model) # rubocop:disable Lint/MissingSuper
         @model = model
-        @selected_schemas = selected_schemas
-        @options = options
       end
 
       def _class

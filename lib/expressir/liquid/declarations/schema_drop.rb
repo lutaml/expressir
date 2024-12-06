@@ -10,8 +10,8 @@ module Expressir
           @model = model
           @selected_schemas = selected_schemas
           @options = options
-          initialize_identifier(@model, @options)
-          super
+          initialize_identifier(@model)
+          super(model)
         end
 
         def file

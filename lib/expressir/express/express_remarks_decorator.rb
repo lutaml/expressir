@@ -16,9 +16,6 @@ module Expressir
 
       def call
         result = remark
-        if options["leveloffset"]
-          result = process_remark_offsets(result, options["leveloffset"].to_i)
-        end
         if options["relative_path_prefix"]
           result = update_relative_paths(result,
                                          options["relative_path_prefix"])
@@ -51,25 +48,6 @@ module Expressir
           full_path = File.expand_path(prefixed_path)
           "#{$1}#{$2}#{full_path}#{$4}"
         end
-      end
-
-      def process_remark_offsets(string, offset)
-        string
-          .split("\n")
-          .map do |line|
-            if line.match?(/^=/)
-              set_string_offsets(line, offset)
-            else
-              line
-            end
-          end
-          .join("\n")
-      end
-
-      def set_string_offsets(string, offset)
-        return "#{'=' * offset}#{string}" if offset.positive?
-
-        string.gsub(/^={#{offset * -1}}/, "")
       end
     end
   end

@@ -426,7 +426,13 @@ module Expressir
       # @return [Model::Repository]
       def self.from_file(file, skip_references: nil, include_source: nil)
         source = File.read file
-        ast = Parser.new.parse source
+
+        begin
+          ast = Parser.new.parse source
+        rescue Parslet::ParseFailed => e
+          puts "Parslet::ParseFailed:"
+          puts e.parse_failure_cause.ascii_tree
+        end
 
         visitor = Expressir::Express::Visitor.new(source, include_source: include_source)
         transformed = visitor.visit_ast ast, :top

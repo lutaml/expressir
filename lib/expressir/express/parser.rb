@@ -424,7 +424,7 @@ module Expressir
       # @param [Boolean] skip_references skip resolving references
       # @param [Boolean] include_source attach original source code to model elements
       # @return [Model::Repository]
-      def self.from_file(file, skip_references: nil, include_source: nil)
+      def self.from_file(file, skip_references: nil, include_source: nil) # rubocop:disable Metrics/AbcSize
         source = File.read file
 
         begin

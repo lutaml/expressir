@@ -12,7 +12,7 @@ module Expressir
         # @option options [Array<Expression>] :parameters
         def initialize(options = {})
           @function = options[:function]
-          @parameters = options[:parameters] || []
+          @parameters = options[:parameters]
 
           super
         end

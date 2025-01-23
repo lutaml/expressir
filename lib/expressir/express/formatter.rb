@@ -873,12 +873,17 @@ module Expressir
       end
 
       def format_expressions_function_call(node)
-        [
-          format(node.function),
-          "(",
-          node.parameters.map { |x| format(x) }.join(", "),
-          ")",
-        ].join("")
+        params = if node.parameters.nil?
+                   []
+                 else
+                   [
+                     "(",
+                     node.parameters.map { |x| format(x) }.join(", "),
+                     ")",
+                   ]
+                 end
+
+        [format(node.function), params].flatten.join("")
       end
 
       def format_expressions_interval(node)

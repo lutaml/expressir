@@ -1062,7 +1062,7 @@ module Expressir
         ctx__actual_parameter_list = ctx.actual_parameter_list
 
         function = visit_if(ctx__built_in_function || ctx__function_ref)
-        parameters = visit_if(ctx__actual_parameter_list, [])
+        parameters = visit_if(ctx__actual_parameter_list, nil)
 
         Model::Expressions::FunctionCall.new(
           function: function,

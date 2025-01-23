@@ -204,6 +204,8 @@ module Expressir
       end
 
       def node_find(node, path)
+        return nil if node.is_a?(String)
+
         if node.is_a?(Enumerable)
           node.find { |item| item.find(path) }
         else

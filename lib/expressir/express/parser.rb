@@ -50,7 +50,7 @@ module Expressir
         end
         rule(:abstractSupertype) { (tABSTRACT >> tSUPERTYPE >> op_delim).as(:abstractSupertype) }
         rule(:actualParameterList) do
-          (op_leftparen >> (parameter >> (op_comma >> parameter).repeat).as(:listOf_parameter) >> op_rightparen)
+          (op_leftparen >> (parameter >> (op_comma >> parameter).repeat).as(:listOf_parameter).maybe >> op_rightparen)
             .as(:actualParameterList)
         end
         rule(:addLikeOp) { (op_plus | op_minus | tOR | tXOR).as(:addLikeOp) }
@@ -340,7 +340,7 @@ module Expressir
         rule(:simpleExpression) { (term >> (addLikeOp.as(:operator) >> term).as(:item).repeat.as(:rhs)).as(:simpleExpression) }
         rule(:simpleFactor) do
           (
-            simpleFactorExpression | aggregateInitializer | entityConstructor | interval | queryExpression |
+            simpleFactorExpression | aggregateInitializer | entityConstructor | interval | queryExpression | stringLiteral |
             simpleFactorUnaryExpression | enumerationReference
           ).as(:simpleFactor)
         end

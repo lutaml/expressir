@@ -14,7 +14,7 @@ module Expressir
         end
 
         def parameters
-          return [] unless @model.parameters
+          return nil unless @model.parameters
 
           @model.parameters.map do |item|
             drop_klass_by_model(item)

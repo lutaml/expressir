@@ -560,13 +560,13 @@ PROCEDURE statements;
     test.test2 := TRUE;
   END_PROCEDURE;
   PROCEDURE case_statement;
-    CASE test() OF
+    CASE test OF
     TRUE :
       ;
     END_CASE;
   END_PROCEDURE;
   PROCEDURE case_multiple_statement;
-    CASE test() OF
+    CASE test OF
     TRUE :
       ;
     TRUE :
@@ -574,13 +574,13 @@ PROCEDURE statements;
     END_CASE;
   END_PROCEDURE;
   PROCEDURE case_multiple_shorthand_statement;
-    CASE test() OF
+    CASE test OF
     TRUE, TRUE :
       ;
     END_CASE;
   END_PROCEDURE;
   PROCEDURE case_otherwise_statement;
-    CASE test() OF
+    CASE test OF
     TRUE :
       ;
     OTHERWISE :
@@ -878,7 +878,7 @@ PROCEDURE expressions;
     and_or_expression : BOOLEAN := TRUE AND FALSE OR TRUE;
     parenthesis_or_and_expression : BOOLEAN := (TRUE OR FALSE) AND TRUE;
     and_parenthesis_or_expression : BOOLEAN := TRUE AND (FALSE OR TRUE);
-    combine_expression : BOOLEAN := test() || test2();
+    combine_expression : BOOLEAN := test || test2;
     in_expression : BOOLEAN := TRUE IN [TRUE];
     like_expression : BOOLEAN := 'xxx' LIKE 'xxx';
     aggregate_initializer_expression : BOOLEAN := [4];
@@ -886,16 +886,16 @@ PROCEDURE expressions;
     complex_aggregate_initializer_expression : BOOLEAN := [4 + 2];
     complex_repeated_aggregate_initializer_expression : BOOLEAN := [4 + 2:4 + 2];
     call_expression : BOOLEAN := {{{<<express:syntax_schema.parameter_function,parameter_function>>}}}(TRUE);
-    simple_reference_expression : BOOLEAN := test();
-    group_reference_expression : BOOLEAN := test()\test2;
-    index_reference_expression : BOOLEAN := test()[1];
-    index2_reference_expression : BOOLEAN := test()[1:9];
-    attribute_reference_expression : BOOLEAN := test().test2;
+    simple_reference_expression : BOOLEAN := test;
+    group_reference_expression : BOOLEAN := test\test2;
+    index_reference_expression : BOOLEAN := test[1];
+    index2_reference_expression : BOOLEAN := test[1:9];
+    attribute_reference_expression : BOOLEAN := test.test2;
     lt_lt_interval_expression : BOOLEAN := {1 < 5 < 9};
     lte_lt_interval_expression : BOOLEAN := {1 <= 5 < 9};
     lt_lte_interval_expression : BOOLEAN := {1 < 5 <= 9};
     lte_lte_interval_expression : BOOLEAN := {1 <= 5 <= 9};
-    query_expression : BOOLEAN := QUERY(test <* test2() | TRUE);
+    query_expression : BOOLEAN := QUERY(test <* test2 | TRUE);
   END_LOCAL;
 END_PROCEDURE;
 

@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.license = "BSD-2-Clause"
 
   spec.bindir = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  spec.executables   = %w[expressir]
   spec.require_paths = ["lib"]
 
   spec.metadata["homepage_uri"] = spec.homepage

@@ -1,7 +1,6 @@
-require "yaml"
 require "spec_helper"
-require "expressir/express/parser"
-require "expressir/express/formatter"
+require_relative "../../../lib/expressir/express/parser"
+require_relative "../../../lib/expressir/express/formatter"
 
 RSpec.describe Expressir::Model::ModelElement do
   describe ".to_hash" do

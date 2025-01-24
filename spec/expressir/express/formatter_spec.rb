@@ -1,9 +1,8 @@
-require "yaml"
 require "spec_helper"
-require "expressir/express/parser"
-require "expressir/express/formatter"
-require "expressir/express/schema_head_formatter"
-require "expressir/express/hyperlink_formatter"
+require_relative "../../../lib/expressir/express/parser"
+require_relative "../../../lib/expressir/express/formatter"
+require_relative "../../../lib/expressir/express/schema_head_formatter"
+require_relative "../../../lib/expressir/express/hyperlink_formatter"
 
 RSpec.describe Expressir::Express::Formatter do
   describe ".format" do

@@ -1,7 +1,7 @@
-require "expressir/version"
+require_relative "expressir/version"
 
-require "expressir/cli"
-require "expressir/config"
+require_relative "expressir/cli"
+require_relative "expressir/config"
 
 # ..........................................................
 # https://bugs.ruby-lang.org/issues/19319
@@ -39,4 +39,4 @@ Dir[File.join(__dir__, "expressir", "express", "*.rb")].sort.each do |fea|
   require fea
 end
 
-require "expressir/liquid"
+require_relative "expressir/liquid"

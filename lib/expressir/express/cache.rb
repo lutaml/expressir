@@ -1,6 +1,5 @@
-require "yaml"
 require "zlib"
-require "expressir/model"
+require_relative "../model"
 
 module Expressir
   module Express

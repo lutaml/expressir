@@ -1,5 +1,6 @@
 require "bundler/setup"
 require "expressir"
+require "yaml"
 
 Dir["./spec/support/**/*.rb"].sort.each { |file| require file }
 

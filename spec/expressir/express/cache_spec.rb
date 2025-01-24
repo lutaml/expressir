@@ -1,8 +1,7 @@
-require "yaml"
 require "tempfile"
 require "spec_helper"
-require "expressir/express/parser"
-require "expressir/express/cache"
+require_relative "../../../lib/expressir/express/parser"
+require_relative "../../../lib/expressir/express/cache"
 
 TEST_VERSION = "0.0.0".freeze
 

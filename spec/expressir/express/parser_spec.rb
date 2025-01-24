@@ -1,6 +1,5 @@
-require "yaml"
 require "spec_helper"
-require "expressir/express/parser"
+require_relative "../../../lib/expressir/express/parser"
 
 RSpec.describe Expressir::Express::Parser do
   describe ".from_file" do

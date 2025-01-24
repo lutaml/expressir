@@ -1,6 +1,6 @@
-require "expressir/express/resolve_references_model_visitor"
 require "parslet"
-require "expressir/model"
+require_relative "resolve_references_model_visitor"
+require_relative "../model"
 
 module Expressir
   module Express
@@ -68,7 +68,7 @@ module Expressir
         end
         rule(:aliasStmt) do
           (tALIAS >> variableId >> tFOR >> generalRef >> qualifier.repeat.as(:qualifier) >>
-            op_delim >> stmt.repeat(1).as(:stmt) >> tEND_ALIAS >> (op_delim.as(:op_delim2))).as(:aliasStmt)
+           op_delim >> stmt.repeat(1).as(:stmt) >> tEND_ALIAS >> (op_delim.as(:op_delim2))).as(:aliasStmt)
         end
         rule(:anyKeyword) { KEYWORDS.map { |kw| send("t#{kw}") }.inject(:|) }
         rule(:arrayType) do
@@ -89,11 +89,9 @@ module Expressir
         rule(:boundSpec) { (op_leftbracket >> bound1 >> op_colon >> bound2 >> op_rightbracket).as(:boundSpec) }
         rule(:builtInConstant) { (tCONST_E | tPI | tSELF | op_question_mark).as(:builtInConstant) }
         rule(:builtInFunction) do
-          (
-            tABS | tACOS | tASIN | tATAN | tBLENGTH | tCOS | tEXISTS | tEXP | tFORMAT | tHIBOUND | tHIINDEX | tLENGTH |
-            tLOBOUND | tLOINDEX | tLOG2 | tLOG10 | tLOG | tNVL | tODD | tROLESOF | tSIN | tSIZEOF | tSQRT | tTAN |
-            tTYPEOF | tUSEDIN | tVALUE_IN | tVALUE_UNIQUE | tVALUE
-          ).as(:builtInFunction)
+          (tABS | tACOS | tASIN | tATAN | tBLENGTH | tCOS | tEXISTS | tEXP | tFORMAT | tHIBOUND | tHIINDEX | tLENGTH |
+           tLOBOUND | tLOINDEX | tLOG2 | tLOG10 | tLOG | tNVL | tODD | tROLESOF | tSIN | tSIZEOF | tSQRT | tTAN |
+           tTYPEOF | tUSEDIN | tVALUE_IN | tVALUE_UNIQUE | tVALUE).as(:builtInFunction)
         end
         rule(:builtInProcedure) { (tINSERT | tREMOVE).as(:builtInProcedure) }
         rule(:caseAction) { ((caseLabel >> (op_comma >> caseLabel).repeat).as(:listOf_caseLabel) >> op_colon >> stmt).as(:caseAction) }
@@ -141,10 +139,8 @@ module Expressir
         rule(:enumerationType) { (tEXTENSIBLE.maybe >> tENUMERATION >> (tOF >> enumerationItems | enumerationExtension).maybe).as(:enumerationType) }
         rule(:escapeStmt) { (tESCAPE >> op_delim).as(:escapeStmt) }
         rule(:explicitAttr) do
-          (
-            (attributeDecl >> (op_comma >> attributeDecl).repeat).as(:listOf_attributeDecl) >> op_colon >>
-              tOPTIONAL.maybe >> parameterType >> op_delim
-          ).as(:explicitAttr)
+          ((attributeDecl >> (op_comma >> attributeDecl).repeat).as(:listOf_attributeDecl) >> op_colon >>
+           tOPTIONAL.maybe >> parameterType >> op_delim).as(:explicitAttr)
         end
         rule(:expression) { (simpleExpression >> (relOpExtended >> simpleExpression.as(:rhs)).maybe).as(:expression) }
         rule(:factor) { (simpleFactor >> (op_double_asterisk >> simpleFactor.as(:rhs)).maybe).as(:factor) }
@@ -153,9 +149,8 @@ module Expressir
         rule(:functionDecl) { (functionHead >> algorithmHead >> stmt.repeat(1).as(:stmt) >> tEND_FUNCTION >> op_delim).as(:functionDecl) }
         rule(:functionHead) do
           (tFUNCTION >> functionId >>
-            (op_leftparen >> (formalParameter >> (op_delim >> formalParameter).repeat).as(:listOf_formalParameter) >> op_rightparen).maybe >>
-            op_colon >> parameterType >> (op_delim.as(:op_delim2))
-          ).as(:functionHead)
+           (op_leftparen >> (formalParameter >> (op_delim >> formalParameter).repeat).as(:listOf_formalParameter) >> op_rightparen).maybe >>
+           op_colon >> parameterType >> (op_delim.as(:op_delim2))).as(:functionHead)
         end
         rule(:functionId) { simpleId.as(:functionId) }
         rule(:functionRef) { functionId.as(:functionRef) }
@@ -188,8 +183,7 @@ module Expressir
         rule(:intervalLow) { simpleExpression.as(:intervalLow) }
         rule(:interval) do
           (op_left_curly_brace >> intervalLow >> intervalOp >> intervalItem >> (intervalOp.as(:intervalOp2)) >>
-            intervalHigh >> op_right_curly_brace
-          ).as(:interval)
+           intervalHigh >> op_right_curly_brace).as(:interval)
         end
         rule(:intervalOp) { (op_less_equal | op_less_than).as(:intervalOp) }
         rule(:inverseAttr) do
@@ -203,9 +197,8 @@ module Expressir
         rule(:localDecl) { (tLOCAL >> localVariable.repeat(1).as(:localVariable) >> tEND_LOCAL >> op_delim).as(:localDecl) }
         rule(:localVariable) do
           ((variableId >> (op_comma >> variableId).repeat).as(:listOf_variableId) >>
-            op_colon >> parameterType >>
-            (op_decl >> expression).maybe >> op_delim
-          ).as(:localVariable)
+           op_colon >> parameterType >>
+           (op_decl >> expression).maybe >> op_delim).as(:localVariable)
         end
         rule(:logicalExpression) { expression.as(:logicalExpression) }
         rule(:logicalLiteral) { (tFALSE | tTRUE | tUNKNOWN).as(:logicalLiteral) }
@@ -218,10 +211,8 @@ module Expressir
         rule(:numericExpression) { simpleExpression.as(:numericExpression) }
         rule(:octet) { hexDigit >> hexDigit }
         rule(:oneOf) do
-          (
-            tONEOF >> op_leftparen >> (supertypeExpression >>
-            (op_comma >> supertypeExpression).repeat).as(:listOf_supertypeExpression) >> op_rightparen
-          ).as(:oneOf)
+          (tONEOF >> op_leftparen >> (supertypeExpression >>
+                                      (op_comma >> supertypeExpression).repeat).as(:listOf_supertypeExpression) >> op_rightparen).as(:oneOf)
         end
         rule(:op_asterisk) { cstr("*").as(:op_asterisk) }
         rule(:op_colon) { cstr(":").as(:op_colon) }
@@ -264,14 +255,9 @@ module Expressir
         rule(:procedureDecl) { (procedureHead >> algorithmHead >> stmt.repeat.as(:stmt) >> tEND_PROCEDURE >> op_delim).as(:procedureDecl) }
         rule(:procedureHeadParameter) { (tVAR.maybe >> formalParameter).as(:procedureHeadParameter) }
         rule(:procedureHead) do
-          (
-            tPROCEDURE >> procedureId >>
-            (
-              op_leftparen >> (
-                procedureHeadParameter >>
-                (op_delim >> procedureHeadParameter).repeat
-              ).as(:listOf_procedureHeadParameter) >> op_rightparen
-            ).maybe >> (op_delim.as(:op_delim2))).as(:procedureHead)
+          (tPROCEDURE >> procedureId >>
+           (op_leftparen >> (procedureHeadParameter >>
+                             (op_delim >> procedureHeadParameter).repeat).as(:listOf_procedureHeadParameter) >> op_rightparen).maybe >> (op_delim.as(:op_delim2))).as(:procedureHead)
         end
         rule(:procedureId) { simpleId.as(:procedureId) }
         rule(:procedureRef) { procedureId.as(:procedureRef) }
@@ -285,20 +271,14 @@ module Expressir
         rule(:realType) { (tREAL >> (op_leftparen >> precisionSpec >> op_rightparen).maybe).as(:realType) }
         rule(:redeclaredAttribute) { (qualifiedAttribute >> (tRENAMED >> attributeId).maybe).as(:redeclaredAttribute) }
         rule(:referenceClause) do
-          (
-            tREFERENCE >> tFROM >> schemaRef >>
-            (op_leftparen >> (resourceOrRename >> (
-              op_comma >> resourceOrRename
-            ).repeat).as(:listOf_resourceOrRename) >> op_rightparen).maybe >> op_delim
-          ).as(:referenceClause)
+          (tREFERENCE >> tFROM >> schemaRef >>
+           (op_leftparen >> (resourceOrRename >> (op_comma >> resourceOrRename).repeat).as(:listOf_resourceOrRename) >> op_rightparen).maybe >> op_delim).as(:referenceClause)
         end
         rule(:referencedAttribute) { (attributeRef | qualifiedAttribute).as(:referencedAttribute) }
         rule(:relOpExtended) { (relOp | tIN | tLIKE).as(:relOpExtended) }
         rule(:relOp) do
-          (
-            op_less_equal | op_greater_equal | op_less_greater | op_less_than | op_greater_than | op_equals |
-            op_colon_less_greater_colon | op_colon_equals_colon
-          ).as(:relOp)
+          (op_less_equal | op_greater_equal | op_less_greater | op_less_than | op_greater_than | op_equals |
+           op_colon_less_greater_colon | op_colon_equals_colon).as(:relOp)
         end
         rule(:renameId) { (constantId | entityId | functionId | procedureId | typeId).as(:renameId) }
         rule(:repeatControl) { (incrementControl.maybe >> whileControl.maybe >> untilControl.maybe).as(:repeatControl) }
@@ -309,10 +289,8 @@ module Expressir
         rule(:returnStmt) { (tRETURN >> (op_leftparen >> expression >> op_rightparen).maybe >> op_delim).as(:returnStmt) }
         rule(:ruleDecl) { (ruleHead >> algorithmHead >> stmt.repeat.as(:stmt) >> whereClause >> tEND_RULE >> op_delim).as(:ruleDecl) }
         rule(:ruleHead) do
-          (
-            tRULE >> ruleId >> tFOR >> op_leftparen >>
-            (entityRef >> (op_comma >> entityRef).repeat).as(:listOf_entityRef) >> op_rightparen >> op_delim
-          ).as(:ruleHead)
+          (tRULE >> ruleId >> tFOR >> op_leftparen >>
+           (entityRef >> (op_comma >> entityRef).repeat).as(:listOf_entityRef) >> op_rightparen >> op_delim).as(:ruleHead)
         end
         rule(:ruleId) { simpleId.as(:ruleId) }
         rule(:ruleLabelId) { simpleId.as(:ruleLabelId) }
@@ -320,10 +298,8 @@ module Expressir
         rule(:ruleRef) { ruleId.as(:ruleRef) }
         rule(:schemaBodyDeclaration) { (declaration | ruleDecl).as(:schemaBodyDeclaration) }
         rule(:schemaBody) do
-          (
-            interfaceSpecification.repeat.as(:interfaceSpecification) >> constantDecl.maybe >>
-            schemaBodyDeclaration.repeat.as(:schemaBodyDeclaration)
-          ).as(:schemaBody)
+          (interfaceSpecification.repeat.as(:interfaceSpecification) >> constantDecl.maybe >>
+           schemaBodyDeclaration.repeat.as(:schemaBodyDeclaration)).as(:schemaBody)
         end
         rule(:schemaDecl) do
           (tSCHEMA >> schemaId >> schemaVersionId.maybe >> op_delim >> schemaBody >> tEND_SCHEMA >> (op_delim.as(:op_delim2))).as(:schemaDecl)
@@ -339,10 +315,8 @@ module Expressir
         rule(:sign) { match["+-"] }
         rule(:simpleExpression) { (term >> (addLikeOp.as(:operator) >> term).as(:item).repeat.as(:rhs)).as(:simpleExpression) }
         rule(:simpleFactor) do
-          (
-            simpleFactorExpression | aggregateInitializer | entityConstructor | interval | queryExpression | stringLiteral |
-            simpleFactorUnaryExpression | enumerationReference
-          ).as(:simpleFactor)
+          (simpleFactorExpression | aggregateInitializer | entityConstructor | interval | queryExpression | stringLiteral |
+           simpleFactorUnaryExpression | enumerationReference).as(:simpleFactor)
         end
         rule(:simpleFactorExpression) { (op_leftparen >> expression >> op_rightparen | primary).as(:simpleFactorExpression) }
         rule(:simpleFactorUnaryExpression) { (unaryOp >> simpleFactorExpression).as(:simpleFactorUnaryExpression) }
@@ -353,10 +327,8 @@ module Expressir
         rule(:space) { match[" \r\n\t\f"] | embeddedRemark | tailRemark }
         rule(:spaces) { space.repeat.as(:spaces) }
         rule(:stmt) do
-          (
-            aliasStmt | assignmentStmt | caseStmt | compoundStmt | escapeStmt | ifStmt |
-            nullStmt | procedureCallStmt | repeatStmt | returnStmt | skipStmt
-          ).as(:stmt)
+          (aliasStmt | assignmentStmt | caseStmt | compoundStmt | escapeStmt | ifStmt |
+           nullStmt | procedureCallStmt | repeatStmt | returnStmt | skipStmt).as(:stmt)
         end
         rule(:stringLiteral) { (simpleStringLiteral | encodedStringLiteral).as(:stringLiteral) }
         rule(:stringType) { (tSTRING >> widthSpec.maybe).as(:stringType) }
@@ -399,17 +371,9 @@ module Expressir
         end
         rule(:untilControl) { (tUNTIL >> logicalExpression).as(:untilControl) }
         rule(:useClause) do
-          (
-            tUSE >> tFROM >> schemaRef >>
-            (
-              op_leftparen >> (
-                namedTypeOrRename >> (
-                  op_comma >>
-                  namedTypeOrRename
-                ).repeat
-              ).as(:listOf_namedTypeOrRename) >> op_rightparen
-            ).maybe >> op_delim
-          ).as(:useClause)
+          (tUSE >> tFROM >> schemaRef >>
+           (op_leftparen >> (namedTypeOrRename >> (op_comma >>
+                                                   namedTypeOrRename).repeat).as(:listOf_namedTypeOrRename) >> op_rightparen).maybe >> op_delim).as(:useClause)
         end
         rule(:variableId) { simpleId.as(:variableId) }
         rule(:variableRef) { variableId.as(:variableRef) }

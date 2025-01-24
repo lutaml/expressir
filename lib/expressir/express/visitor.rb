@@ -125,18 +125,18 @@ module Expressir
       def get_source_pos(ctx)
         nil
         ranges = case ctx
-          when Ctx
-            ctx.source_pos and return ctx.source_pos # cache
-            ctx.values.map { |item| get_source_pos(item) }
-          when SimpleCtx
-            return nil unless ctx.data.respond_to? :offset
+                 when Ctx
+                   ctx.source_pos and return ctx.source_pos # cache
+                   ctx.values.map { |item| get_source_pos(item) }
+                 when SimpleCtx
+                   return nil unless ctx.data.respond_to? :offset
 
-            [[ctx.data.offset, ctx.data.offset + ctx.data.length]]
-          when Array
-            ctx.map { |item| get_source_pos(item) }
-          else
-            raise "unknown type in Ctx tree: #{ctx}"
-          end
+                   [[ctx.data.offset, ctx.data.offset + ctx.data.length]]
+                 when Array
+                   ctx.map { |item| get_source_pos(item) }
+                 else
+                   raise "unknown type in Ctx tree: #{ctx}"
+                 end
         source_pos = ranges.compact.reduce do |item, acc|
           [[item[0], acc[0]].min, [item[1], acc[1]].max]
         end
@@ -267,10 +267,10 @@ module Expressir
         tagged_remark_tokens = remark_tokens.map do |span|
           text = @source[span[0]..span[1] - 1]
           _, remark_tag, remark_text = if text.start_with?("--")
-              text.match(/^--"([^"]*)"(.*)$/).to_a
-            else
-              text.match(/^\(\*"([^"]*)"(.*)\*\)$/m).to_a
-            end
+                                         text.match(/^--"([^"]*)"(.*)$/).to_a
+                                       else
+                                         text.match(/^\(\*"([^"]*)"(.*)\*\)$/m).to_a
+                                       end
 
           if remark_tag
             remark_target = find_remark_target(node, remark_tag)
@@ -1410,16 +1410,16 @@ module Expressir
         attribute = visit_if(ctx__attribute_decl)
         type = visit_if(ctx__inverse_attr_type)
         expression = if ctx__entity_ref
-            ref = visit(ctx__entity_ref)
-            attribute_ref = visit(ctx__attribute_ref)
+                       ref = visit(ctx__entity_ref)
+                       attribute_ref = visit(ctx__attribute_ref)
 
-            Model::References::AttributeReference.new(
-              ref: ref,
-              attribute: attribute_ref,
-            )
-          else
-            visit(ctx__attribute_ref)
-          end
+                       Model::References::AttributeReference.new(
+                         ref: ref,
+                         attribute: attribute_ref,
+                       )
+                     else
+                       visit(ctx__attribute_ref)
+                     end
 
         Model::Declarations::Attribute.new(
           id: attribute.id, # reuse
@@ -1547,14 +1547,14 @@ module Expressir
         ctx__UNKNOWN = ctx.tUNKNOWN
 
         value = if ctx__TRUE
-            Model::Literals::Logical::TRUE
-          elsif ctx__FALSE
-            Model::Literals::Logical::FALSE
-          elsif ctx__UNKNOWN
-            Model::Literals::Logical::UNKNOWN
-          else
-            raise "Invalid state"
-          end
+                  Model::Literals::Logical::TRUE
+                elsif ctx__FALSE
+                  Model::Literals::Logical::FALSE
+                elsif ctx__UNKNOWN
+                  Model::Literals::Logical::UNKNOWN
+                else
+                  raise "Invalid state"
+                end
 
         Model::Literals::Logical.new(
           value: value,
@@ -2093,24 +2093,24 @@ module Expressir
         value = value.value
 
         items = if value.start_with?("{") && value.end_with?("}")
-            parts = value.sub(/^\{/, "").sub(/\}$/, "").split(" ")
-            parts.map do |part|
-              if match = part.match(/^(.+)\((\d+)\)$/)
-                Model::Declarations::SchemaVersionItem.new(
-                  name: match[1],
-                  value: match[2],
-                )
-              elsif /^\d+$/.match?(part)
-                Model::Declarations::SchemaVersionItem.new(
-                  value: part,
-                )
-              else
-                Model::Declarations::SchemaVersionItem.new(
-                  name: part,
-                )
-              end
-            end
-          end
+                  parts = value.sub(/^\{/, "").sub(/\}$/, "").split(" ")
+                  parts.map do |part|
+                    if match = part.match(/^(.+)\((\d+)\)$/)
+                      Model::Declarations::SchemaVersionItem.new(
+                        name: match[1],
+                        value: match[2],
+                      )
+                    elsif /^\d+$/.match?(part)
+                      Model::Declarations::SchemaVersionItem.new(
+                        value: part,
+                      )
+                    else
+                      Model::Declarations::SchemaVersionItem.new(
+                        name: part,
+                      )
+                    end
+                  end
+                end
 
         Model::Declarations::SchemaVersion.new(
           value: value,

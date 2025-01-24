@@ -18,10 +18,10 @@ module Expressir
         return if node.parent.is_a? Model::References::AttributeReference
 
         base_item = if node.parent.is_a? Model::Declarations::InterfaceItem
-            node.find("#{node.parent.parent.schema.id}.#{node.parent.ref.id}")
-          else
-            node.find(node.id)
-          end
+                      node.find("#{node.parent.parent.schema.id}.#{node.parent.ref.id}")
+                    else
+                      node.find(node.id)
+                    end
         return unless base_item
 
         node.base_path = base_item.path

@@ -158,13 +158,9 @@ module Expressir
       end
 
       def to_s(no_remarks: false, formatter: nil)
-        formatter ||= Class.new(Expressir::Express::Formatter)
-        formatter.class_eval do
-          if no_remarks
-            def format_remarks(_node); []; end
-          end
-        end
-        formatter.format(self)
+        f = formatter || Express::Formatter.new(no_remarks: no_remarks)
+        f.no_remarks = no_remarks
+        f.format(self)
       end
 
       # @param [Hash] hash

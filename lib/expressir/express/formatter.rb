@@ -40,6 +40,12 @@ module Expressir
       private_constant :OPERATOR_PRECEDENCE
       private_constant :SUPERTYPE_OPERATOR_PRECEDENCE
 
+      attr_accessor :no_remarks
+
+      def initialize(no_remarks: false)
+        @no_remarks = no_remarks
+      end
+
       # Formats Express model into an Express code
       # @param [Model::ModelElement] node
       # @return [String]
@@ -1604,7 +1610,7 @@ module Expressir
       end
 
       def format_remarks(node)
-        if node.class.method_defined? :remarks
+        if node.class.method_defined?(:remarks) && !@no_remarks
           node.remarks.map do |remark|
             format_remark(node, remark)
           end

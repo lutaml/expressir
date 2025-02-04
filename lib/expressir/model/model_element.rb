@@ -151,10 +151,10 @@ module Expressir
       end
 
       # @return [Liquid::Drop]
-      def to_liquid(selected_schemas: nil, options: nil)
+      def to_liquid(options: nil)
         klass_name = "#{self.class.name.gsub('::Model::', '::Liquid::')}Drop"
         klass = Object.const_get(klass_name)
-        klass.new(self, selected_schemas: selected_schemas, options: options)
+        klass.new(self, options: options)
       end
 
       def to_s(no_remarks: false, formatter: nil)

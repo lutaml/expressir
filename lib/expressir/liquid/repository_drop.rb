@@ -5,9 +5,8 @@ require_relative "declarations/schema_drop"
 module Expressir
   module Liquid
     class RepositoryDrop < ::Expressir::Liquid::ModelElementDrop
-      def initialize(model, selected_schemas: nil, options: {}) # rubocop:disable Lint/MissingSuper
+      def initialize(model, options: {}) # rubocop:disable Lint/MissingSuper
         @model = model
-        @selected_schemas = selected_schemas
         @options = options
         super(model)
       end
@@ -17,9 +16,7 @@ module Expressir
 
         @model.schemas.map do |item|
           ::Expressir::Liquid::Declarations::SchemaDrop.new(
-            item,
-            selected_schemas: @selected_schemas,
-            options: @options,
+            item, options: @options
           )
         end
       end

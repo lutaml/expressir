@@ -6,9 +6,9 @@ module Expressir
       class SchemaDrop < ::Expressir::Liquid::DeclarationDrop
         include ::Expressir::Liquid::IdentifierDrop
 
-        def initialize(model, selected_schemas: nil, options: {}) # rubocop:disable Lint/MissingSuper
+        def initialize(model, options: {}) # rubocop:disable Lint/MissingSuper
           @model = model
-          @selected_schemas = selected_schemas
+          @selected_schemas = options&.delete("selected_schemas")
           @options = options
           initialize_identifier(@model)
           super(model)

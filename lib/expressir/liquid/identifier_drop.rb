@@ -21,7 +21,7 @@ module Expressir
         return [] unless @model.remark_items
 
         @model.remark_items.map do |item|
-          ::Expressir::Liquid::RemarkItemDrop.new(item)
+          ::Expressir::Liquid::Declarations::RemarkItemDrop.new(item)
         end
       end
 

@@ -3,129 +3,148 @@
 
 == Introduction
 
-Expressir Liquid drops are Ruby objects that provide a bridge between EXPRESS schema definitions and Liquid templates. They make EXPRESS schema data accessible in templates by wrapping the underlying EXPRESS model elements in drop objects that expose their attributes in a template-friendly way.
+== Identifier functionality
 
-Each drop type corresponds to a specific EXPRESS language construct, such as schemas, entities, types, or expressions. This mapping allows template authors to access and traverse EXPRESS schemas naturally using Liquid's dot notation and control structures.
+Many EXPRESS model elements have an identifier and associated documentation. In Expressir, this is implemented through the `IdentifierDrop` module. When a drop class includes this module and calls `initialize_identifier`, it automatically gets the following attributes:
 
-For example, when working with an EXPRESS schema like:
+* `id`: The identifier name of the element
+* `remarks`: Array of remarks (comments) associated with the element
+* `remark_items`: Array of structured remarks as RemarkItemDrop objects
+* `source`: The original source code representation
 
-[source,express]
+The following drops include identifier functionality:
+
+* Schema drops
+* Type drops
+* Entity drops
+* Function drops
+* Procedure drops
+* Attribute drops
+* Constant drops
+* Variable drops
+* Parameter drops
+* Rule drops
+* Where rule drops
+* Unique rule drops  
+* Subtype constraint drops
+* Generic drops
+* Generic entity drops
+* Enumeration item drops
+* Aggregate drops
+* Query expression drops
+* Alias statement drops
+
+Each of these drops will have the above attributes in addition to their specific attributes.
+
+Example using identifier attributes:
+[source,liquid]
 ----
-SCHEMA example;
-  ENTITY person;
-    name : STRING;
-    age : INTEGER;
-  END_ENTITY;
-END_SCHEMA;
+{% macro show_documentation item %}
+Name: {{ item.id }}
+
+{% if item.remarks.size > 0 %}
+Documentation:
+{% for remark in item.remarks %}
+* {{ remark }}
+{% endfor %}
+{% endif %}
+
+{% if item.remark_items.size > 0 %}
+Structured Documentation:
+{% for ritem in item.remark_items %}
+* {{ ritem.id }}: {{ ritem.remarks | join: " " }}
+{% endfor %}
+{% endif %}
+
+Source:
+{{ item.source }}
+{% endmacro %}
 ----
 
-The corresponding Liquid template can access this structure through drops:
+=== Identifier implementation details
+
+The identifier functionality is implemented in the `IdentifierDrop` module located in `lib/expressir/liquid/identifier_drop.rb`. Classes include this module and call `initialize_identifier` in their initializer to get the standard identifier attributes.
+
+Example implementation pattern:
+[source,ruby]
+----
+class MyDrop < ModelElementDrop
+  include IdentifierDrop
+  
+  def initialize(model)
+    super
+    initialize_identifier
+  end
+end
+----
+
+=== Error handling with identifier attributes
+
+When working with identifier attributes, consider these error handling patterns:
 
 [source,liquid]
 ----
-Schema: {{ schema.id }}
-Entities:
-{% for entity in schema.entities %}
-  Entity: {{ entity.id }}
-  Attributes:
-  {% for attr in entity.attributes %}
-    - {{ attr.id }}: {{ attr.type._class }}
-  {% endfor %}
-{% endfor %}
+{% macro safe_get_id item %}
+  {% if item %}
+    {% if item.id %}{{ item.id }}{% else %}[Unnamed]{% endif %}
+  {% else %}
+    [Invalid Item]
+  {% endif %}
+{% endmacro %}
+
+{% macro safe_get_remarks item %}
+  {% if item and item.remarks %}
+    {% for remark in item.remarks %}
+      - {{ remark }}
+    {% endfor %}
+  {% endif %}
+{% endmacro %}
+
+{% macro safe_get_source item %}
+  {% if item and item.source %}{{ item.source }}{% else %}[No Source Available]{% endif %}
+{% endmacro %}
 ----
 
-This document describes all available Liquid drops in Expressir and their attributes, organized by their role in EXPRESS schema processing.
+== Drop categories and attributes
 
-== Base drops
+=== Base drops
 
-These are the foundational drop classes that other drops inherit from.
+==== ModelElementDrop
 
-=== Model element drop
-
-Base class representing any EXPRESS model element. All other drops inherit from this class. In EXPRESS, this corresponds to any named element in the schema.
+Base class for all drops.
 
 Attributes:
-
 * `_class`: Returns the class name of the model
 * `file`: Returns the file path if the model responds to it
 * `source`: Returns the source if the model responds to it
 
-Example:
-[source,liquid]
-----
-{{ model._class }} 
-{{ model.file }}
-{{ model.source }}
-----
+==== DeclarationDrop
 
-=== Declaration drop
+Inherits from ModelElementDrop.
 
-Represents EXPRESS declarations, which are named elements that can appear at the schema level, such as ENTITY, TYPE, FUNCTION, and RULE declarations.
+=== Repository and schema drops
 
-=== Data type drop
+==== RepositoryDrop
 
-Represents EXPRESS data types, including basic types (INTEGER, REAL, STRING), constructed types (arrays, lists), and user-defined types.
-
-=== Expression drop
-
-Represents EXPRESS expressions, which can be arithmetic operations, function calls, attribute references, or other computational expressions.
-
-=== Literal drop
-
-Represents literal values in EXPRESS, such as numbers, strings, and boolean values.
-
-=== Reference drop
-
-Represents references to other EXPRESS elements, such as attribute references (entity.attribute) or type references.
-
-=== Statement drop
-
-Represents EXPRESS statements found in functions, procedures, and rules, such as assignments, conditionals, and loops.
-
-=== Supertype expression drop
-
-Represents EXPRESS supertype expressions used in entity inheritance declarations and subtype constraints.
-
-== Schema-related drops
-
-These drops handle the organization and structure of EXPRESS schemas.
-
-=== Repository drop
-
-Represents a collection of EXPRESS schemas. While not a direct EXPRESS concept, this serves as the root container for accessing multiple schemas.
+Represents the root container for schemas.
 
 Attributes:
 * `schemas`: Array of SchemaDrop objects
 
-Example EXPRESS:
-[source,express]
-----
-SCHEMA schema_one;
-END_SCHEMA;
+==== SchemaDrop
 
-SCHEMA schema_two;
-END_SCHEMA;
-----
-
-Example usage:
-[source,liquid]
-----
-{% for schema in repository.schemas %}
-Schema: {{ schema.id }}
-{% endfor %}
-----
-
-=== Schema drop
-
-Represents an EXPRESS SCHEMA declaration, which is the top-level container for all EXPRESS definitions. A schema contains types, entities, rules, and other declarations.
+Represents an EXPRESS SCHEMA declaration. Includes identifier functionality.
 
 Attributes:
+* `id`: Schema name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
 * `file`: Schema file path
 * `file_basename`: Base name of schema file
 * `selected`: Boolean indicating if schema is selected
 * `relative_path_prefix`: Relative path prefix for document
-* `remarks`: Array of remarks
-* `version`: SchemaVersionDrop
+* `version`: SchemaVersionDrop object
 * `interfaces`: Array of InterfaceDrop objects
 * `constants`: Array of ConstantDrop objects
 * `types`: Array of TypeDrop objects
@@ -136,180 +155,89 @@ Attributes:
 * `procedures`: Array of ProcedureDrop objects
 * `formatted`: Formatted string representation
 
-Example EXPRESS:
-[source,express]
-----
-SCHEMA building_schema;
-  CONSTANT
-    PI : REAL := 3.14159;
-  END_CONSTANT;
-  
-  TYPE length = REAL;
-  END_TYPE;
-  
-  ENTITY wall;
-    height : length;
-    width : length;
-  END_ENTITY;
-END_SCHEMA;
-----
+==== SchemaVersionDrop
 
-Example usage:
-[source,liquid]
-----
-Schema: {{ schema.id }}
-File: {{ schema.file }}
-
-Constants:
-{% for const in schema.constants %}
-- {{ const.id }}: {{ const.expression.value }}
-{% endfor %}
-
-Types:
-{% for type in schema.types %}
-- {{ type.id }}
-{% endfor %}
-
-Entities:
-{% for entity in schema.entities %}
-- {{ entity.id }}
-{% endfor %}
-----
-
-== Type definition drops
-
-These drops represent the various ways types can be defined in EXPRESS.
-
-=== Enumeration drop
-
-Represents an EXPRESS ENUMERATION type definition, which declares a set of named values.
+Represents schema version information.
 
 Attributes:
-* `extensible`: Boolean indicating if enumeration is extensible
-* `based_on`: Reference to base enumeration
-* `items`: Array of EnumerationItemDrop objects
+* `value`: Version string value
+* `items`: Array of SchemaVersionItemDrop objects
 
-Example EXPRESS:
-[source,express]
-----
-TYPE color = ENUMERATION OF
-  (red,
-   green,
-   blue);
-END_TYPE;
+==== SchemaVersionItemDrop
 
-TYPE extended_color = EXTENSIBLE ENUMERATION OF
-  (yellow,
-   purple)
-  BASED_ON color;
-END_TYPE;
-----
-
-Example usage:
-[source,liquid]
-----
-Type: {{ type.id }}
-Values: 
-{% for item in type.underlying_type.items %}
-- {{ item.id }}
-{% endfor %}
-Extensible: {{ type.underlying_type.extensible }}
-{% if type.underlying_type.based_on %}
-Based on: {{ type.underlying_type.based_on.id }}
-{% endif %}
-----
-
-=== Select drop
-
-Represents an EXPRESS SELECT type, which defines a choice between multiple types or entities.
+Represents individual version items.
 
 Attributes:
-* `extensible`: Boolean indicating if select is extensible
-* `generic_entity`: Boolean indicating if select is generic entity
-* `based_on`: Reference to base select
-* `items`: Array of select items 
+* `name`: Item name
+* `value`: Item value
 
-Example EXPRESS:
-[source,express]
-----
-TYPE geometric_item = SELECT
-  (point,
-   line,
-   circle);
-END_TYPE;
-----
+=== Interface drops
 
-Example usage:
-[source,liquid]
-----
-Select Type: {{ type.id }}
-Options:
-{% for item in type.underlying_type.items %}
-- {{ item.id }}
-{% endfor %}
-----
+==== InterfaceDrop
 
-=== Aggregate type drops
+Represents schema interfaces (USE FROM and REFERENCE FROM).
 
-Represent EXPRESS aggregate types that can contain multiple values:
+Attributes:
+* `kind`: Interface kind ('use' or 'reference')
+* `schema`: Reference to schema being interfaced
+* `items`: Array of InterfaceItemDrop objects
 
-==== Array drop
+==== InterfaceItemDrop
 
-Represents an EXPRESS ARRAY type, which is a fixed-size collection of values with numeric indexing.
+Represents items in an interface.
 
-==== List drop
+Attributes:
+* `ref`: Reference to the interfaced item
+* `id`: Identifier name
 
-Represents an EXPRESS LIST type, which is an ordered collection of values.
+==== InterfacedItemDrop
 
-==== Set drop
-
-Represents an EXPRESS SET type, which is an unordered collection of unique values.
-
-==== Bag drop
-
-Represents an EXPRESS BAG type, which is an unordered collection that allows duplicate values.
-
-Common Attributes:
-* `bound1`: Lower bound expression  
-* `bound2`: Upper bound expression
-* `base_type`: DataTypeDrop
-
-ArrayDrop adds:
-* `optional`: Boolean indicating if array is optional
-* `unique`: Boolean indicating if elements must be unique
-
-Example EXPRESS:
-[source,express]
-----
-TYPE points = ARRAY[1:3] OF point;
-TYPE coordinates = LIST[0:?] OF REAL;
-TYPE colors = SET OF color;
-TYPE items = BAG[1:10] OF item;
-----
-
-Example usage:
-[source,liquid]
-----
-{% if type.underlying_type._class contains "Array" %}
-Array Type: {{ type.id }}
-Bounds: [{{ type.underlying_type.bound1.value }}:{{ type.underlying_type.bound2.value }}]
-Element Type: {{ type.underlying_type.base_type._class }}
-Optional: {{ type.underlying_type.optional }}
-Unique: {{ type.underlying_type.unique }}
-{% endif %}
-----
-
-== Entity-related drops
-
-These drops handle EXPRESS entity definitions and their components.
-
-=== Entity drop
-
-Represents an EXPRESS ENTITY declaration, which defines a data structure with attributes and constraints.
+Represents an item that has been interfaced.
 
 Attributes:
 * `id`: Identifier name
 * `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `base_item`: Reference to the original item
+
+=== Declaration drops
+
+==== AttributeDrop
+
+Represents an entity attribute. Includes identifier functionality.
+
+Attributes:
+* `id`: Attribute name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
+* `kind`: Kind of attribute (explicit, derived, inverse)
+* `supertype_attribute`: Reference to attribute in supertype if inherited
+* `optional`: Boolean indicating if attribute is optional
+* `type`: DataTypeDrop representing attribute type
+* `expression`: ExpressionDrop for derived attributes
+
+==== ConstantDrop
+
+Represents schema-level constants. Includes identifier functionality.
+
+Attributes:
+* `id`: Constant name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
+* `type`: DataTypeDrop representing constant type
+* `expression`: ExpressionDrop representing constant value
+
+==== EntityDrop
+
+Represents an EXPRESS entity. Includes identifier functionality.
+
+Attributes:
+* `id`: Entity name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
 * `abstract`: Boolean indicating if entity is abstract
 * `supertype_expression`: SupertypeExpressionDrop
 * `subtype_of`: Array of references to supertypes
@@ -318,105 +246,17 @@ Attributes:
 * `where_rules`: Array of WhereRuleDrop objects
 * `informal_propositions`: Array of RemarkItemDrop objects
 
-Example EXPRESS:
-[source,express]
-----
-ENTITY geometric_item ABSTRACT SUPERTYPE;
-  name : STRING;
-  color : OPTIONAL color;
-WHERE
-  valid_name : LENGTH(name) > 0;
-END_ENTITY;
+==== FunctionDrop
 
-ENTITY circle SUBTYPE OF (geometric_item);
-  radius : REAL;
-WHERE
-  valid_radius : radius > 0.0;
-UNIQUE
-  ur1 : radius;
-END_ENTITY;
-----
-
-Example usage:
-[source,liquid]
-----
-Entity: {{ entity.id }}
-Abstract: {{ entity.abstract }}
-{% if entity.subtype_of %}
-Inherits from: 
-{% for super in entity.subtype_of %}
-- {{ super.id }}
-{% endfor %}
-{% endif %}
+Represents an EXPRESS function. Includes identifier functionality.
 
 Attributes:
-{% for attr in entity.attributes %}
-- {{ attr.id }}: {{ attr.type._class }}
-  Optional: {{ attr.optional }}
-{% endfor %}
-
-Where Rules:
-{% for rule in entity.where_rules %}
-- {{ rule.id }}: {{ rule.expression }}
-{% endfor %}
-
-Unique Rules:
-{% for rule in entity.unique_rules %}
-- {{ rule.id }}: {{ rule.attributes }}
-{% endfor %}
-----
-
-=== Attribute drop
-
-Represents an attribute within an EXPRESS ENTITY, which can be explicit, derived, or inverse.
-
-Attributes:
-* `id`: Identifier name
+* `id`: Function name
 * `remarks`: Array of remarks
-* `kind`: Kind of attribute
-* `supertype_attribute`: Attribute's supertype if any
-* `optional`: Boolean indicating if attribute is optional
-* `type`: DataTypeDrop
-* `expression`: ExpressionDrop
-
-Example EXPRESS:
-[source,express]
-----
-ENTITY person;
-  name : STRING;
-  age : OPTIONAL INTEGER;
-  email : STRING := 'unknown';
-DERIVE
-  adult : BOOLEAN := age >= 18;
-END_ENTITY;
-----
-
-Example usage:
-[source,liquid]
-----
-{% for attr in entity.attributes %}
-Attribute: {{ attr.id }}
-Type: {{ attr.type._class }}
-Optional: {{ attr.optional }}
-{% if attr.expression %}Default: {{ attr.expression.value }}{% endif %}
-Kind: {{ attr.kind }}
-{% endfor %}
-----
-
-== Function and procedure drops
-
-These drops represent EXPRESS algorithmic constructs.
-
-=== Function drop
-
-Represents an EXPRESS FUNCTION declaration, which defines a named computation that returns a value.
-
-Attributes:
-
-* `id`: Identifier name
-* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
 * `parameters`: Array of ParameterDrop objects
-* `return_type`: DataTypeDrop
+* `return_type`: DataTypeDrop representing return type
 * `types`: Array of TypeDrop objects
 * `entities`: Array of EntityDrop objects
 * `subtype_constraints`: Array of SubtypeConstraintDrop objects
@@ -426,14 +266,27 @@ Attributes:
 * `variables`: Array of VariableDrop objects
 * `statements`: Array of StatementDrop objects
 
-=== Procedure drop
+==== ParameterDrop
 
-Represents an EXPRESS PROCEDURE declaration, which defines a named sequence of statements.
+Represents function/procedure parameters. Includes identifier functionality.
 
 Attributes:
-
-* `id`: Identifier name
+* `id`: Parameter name
 * `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
+* `var`: Boolean indicating if parameter is VAR (variable)
+* `type`: DataTypeDrop representing parameter type
+
+==== ProcedureDrop
+
+Represents an EXPRESS procedure. Includes identifier functionality.
+
+Attributes:
+* `id`: Procedure name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
 * `parameters`: Array of ParameterDrop objects
 * `types`: Array of TypeDrop objects
 * `entities`: Array of EntityDrop objects
@@ -444,406 +297,1164 @@ Attributes:
 * `variables`: Array of VariableDrop objects
 * `statements`: Array of StatementDrop objects
 
-== Rule and constraint drops
+==== RemarkItemDrop
 
-These drops represent the various constraint mechanisms in EXPRESS.
+Represents structured remarks.
 
-=== Rule drop
+Attributes:
+* `id`: Remark identifier
+* `remarks`: Array of remark content strings
 
-Represents an EXPRESS global RULE declaration, which defines constraints that apply to one or more entities.
+==== RuleDrop
 
-=== Where rule drop
+Represents EXPRESS global rules. Includes identifier functionality.
 
-Represents a WHERE rule within an entity or type, which defines local constraints that must be satisfied.
+Attributes:
+* `id`: Rule name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
+* `applies_to`: Array of references to entities rule applies to
+* `types`: Array of TypeDrop objects
+* `entities`: Array of EntityDrop objects
+* `subtype_constraints`: Array of SubtypeConstraintDrop objects
+* `functions`: Array of FunctionDrop objects
+* `procedures`: Array of ProcedureDrop objects
+* `constants`: Array of ConstantDrop objects
+* `variables`: Array of VariableDrop objects
+* `statements`: Array of StatementDrop objects
+* `where_rules`: Array of WhereRuleDrop objects
+* `informal_propositions`: Array of RemarkItemDrop objects
 
-=== Unique rule drop
+==== TypeDrop
 
-Represents a UNIQUE rule within an entity, which enforces uniqueness constraints on attributes.
+Represents EXPRESS type definitions. Includes identifier functionality.
 
-== Expression drops
+Attributes:
+* `id`: Type name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
+* `underlying_type`: DataTypeDrop representing base type
+* `where_rules`: Array of WhereRuleDrop objects
+* `informal_propositions`: Array of RemarkItemDrop objects
 
-These drops represent the different kinds of expressions that can appear in EXPRESS.
+==== UniqueRuleDrop
 
-=== Binary expression drop
+Represents UNIQUE rules in entities. Includes identifier functionality.
 
-Represents EXPRESS binary operations (e.g., +, -, *, /, AND, OR) that work with two operands.
+Attributes:
+* `id`: Rule name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
+* `attributes`: Array of references to attributes
 
-=== Unary expression drop
+==== VariableDrop
 
-Represents EXPRESS unary operations (e.g., NOT, -) that work with a single operand.
+Represents local variables. Includes identifier functionality.
 
-=== Function call drop
+Attributes:
+* `id`: Variable name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
+* `type`: DataTypeDrop representing variable type
+* `expression`: ExpressionDrop representing initial value
 
-Represents an EXPRESS function invocation with its arguments.
+==== WhereRuleDrop
 
-=== Query expression drop
+Represents WHERE rules. Includes identifier functionality.
 
-Represents an EXPRESS QUERY expression, which filters elements from an aggregate based on a condition.
+Attributes:
+* `id`: Rule name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
+* `expression`: ExpressionDrop representing rule condition
 
-== Literal drops
+=== Data type drops
 
-These drops represent EXPRESS literal values.
+==== AggregateDrop
 
-=== String drop
+Base class for aggregate types. Includes identifier functionality.
 
-Represents an EXPRESS string literal (e.g., 'text').
+Attributes:
+* `id`: Type name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
+* `base_type`: DataTypeDrop representing element type
 
-=== Number drop
+==== ArrayDrop
 
-Represents EXPRESS numeric literals:
-- IntegerDrop for INTEGER values
-- RealDrop for REAL values
+Represents EXPRESS ARRAY type.
 
-=== Logical drop
+Attributes:
+* `bound1`: Lower bound expression
+* `bound2`: Upper bound expression
+* `optional`: Boolean indicating if array is optional
+* `unique`: Boolean indicating if elements must be unique
+* `base_type`: DataTypeDrop representing element type
 
-Represents EXPRESS logical literals (TRUE, FALSE, UNKNOWN).
+==== BagDrop
 
-== Interface drops
+Represents EXPRESS BAG type.
 
-These drops represent EXPRESS schema interfacing mechanisms.
+Attributes:
+* `bound1`: Lower bound expression
+* `bound2`: Upper bound expression
+* `base_type`: DataTypeDrop representing element type
 
-=== Interface drop
+==== BinaryDrop
 
-Represents EXPRESS schema interface specifications (USE FROM and REFERENCE FROM).
+Represents EXPRESS BINARY type.
 
-== Support drops
+Attributes:
+* `width`: Width specification expression
+* `fixed`: Boolean indicating if width is fixed
 
-These drops represent additional EXPRESS constructs that support the main language features.
+==== BooleanDrop
 
-=== Parameter drop
+Represents EXPRESS BOOLEAN type.
 
-Represents parameters in EXPRESS functions and procedures.
+==== EnumerationDrop
+
+Represents EXPRESS ENUMERATION type.
+
+Attributes:
+* `extensible`: Boolean indicating if enumeration is extensible
+* `based_on`: Reference to base enumeration
+* `items`: Array of EnumerationItemDrop objects
+
+==== EnumerationItemDrop
+
+Represents items in an enumeration. Includes identifier functionality.
+
+Attributes:
+* `id`: Item name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
+
+==== GenericDrop
+
+Represents EXPRESS GENERIC type. Includes identifier functionality.
+
+Attributes:
+* `id`: Type name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
+
+==== GenericEntityDrop
+
+Represents EXPRESS GENERIC_ENTITY type. Includes identifier functionality.
+
+Attributes:
+* `id`: Type name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
+
+==== IntegerDrop
+
+Represents EXPRESS INTEGER type.
+
+==== ListDrop
+
+Represents EXPRESS LIST type.
+
+Attributes:
+* `bound1`: Lower bound expression
+* `bound2`: Upper bound expression
+* `unique`: Boolean indicating if elements must be unique
+* `base_type`: DataTypeDrop representing element type
+
+==== LogicalDrop
+
+Represents EXPRESS LOGICAL type.
+
+==== RealDrop
+
+Represents EXPRESS REAL type.
+
+Attributes:
+* `precision`: Precision specification expression
+
+==== SelectDrop
+
+Represents EXPRESS SELECT type.
+
+Attributes:
+* `extensible`: Boolean indicating if select is extensible
+* `generic_entity`: Boolean indicating if select is generic entity
+* `based_on`: Reference to base select
+* `items`: Array of references to select items
+
+==== SetDrop
+
+Represents EXPRESS SET type.
+
+Attributes:
+* `bound1`: Lower bound expression
+* `bound2`: Upper bound expression
+* `base_type`: DataTypeDrop representing element type
+
+==== StringDrop
+
+Represents EXPRESS STRING type.
+
+Attributes:
+* `width`: Width specification expression
+* `fixed`: Boolean indicating if width is fixed
+
+=== Expression drops
+
+==== AggregateInitializerDrop
+
+Represents aggregate initialization expressions.
+
+Attributes:
+* `items`: Array of AggregateInitializerItemDrop objects
+
+==== AggregateInitializerItemDrop
+
+Represents items in an aggregate initializer.
+
+Attributes:
+* `expression`: ExpressionDrop representing item value
+* `repetition`: ExpressionDrop representing repetition count
+
+==== BinaryExpressionDrop
+
+Represents binary operations.
+
+Attributes:
+* `operator`: Operator symbol
+* `operand1`: ExpressionDrop for first operand
+* `operand2`: ExpressionDrop for second operand
+
+==== EntityConstructorDrop
+
+Represents entity constructor expressions.
+
+Attributes:
+* `entity`: Reference to entity being constructed
+* `items`: Array of entity constructor items
+
+==== FunctionCallDrop
+
+Represents function call expressions.
+
+Attributes:
+* `function`: Reference to called function
+* `parameters`: Array of parameter expressions
+
+==== IntervalDrop
+
+Represents interval expressions.
+
+Attributes:
+* `operator`: Interval operator
+* `operand1`: Lower bound expression
+* `operand2`: Upper bound expression
+
+==== QueryExpressionDrop
+
+Represents QUERY expressions.
+
+Attributes:
+* `id`: Query variable name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
+* `aggregate_source`: Expression providing source collection
+* `expression`: Query filter expression
+
+==== UnaryExpressionDrop
+
+Represents unary operations.
+
+Attributes:
+* `operator`: Operator symbol
+* `operand`: ExpressionDrop for operand
+
+=== Literal drops
+
+==== BinaryDrop
+
+Represents binary literals.
+
+Attributes:
+* `value`: Binary value
+
+==== IntegerDrop
+
+Represents integer literals.
+
+Attributes:
+* `value`: Integer value
+
+==== LogicalDrop
+
+Represents logical literals.
+
+Attributes:
+* `value`: Logical value (TRUE, FALSE, UNKNOWN)
+
+==== RealDrop
+
+Represents real number literals.
+
+Attributes:
+* `value`: Real number value
+
+==== StringDrop
+
+Represents string literals.
+
+Attributes:
+* `value`: String value
+* `encoded`: Boolean indicating if string is encoded
+
+=== Reference drops
+
+==== AttributeReferenceDrop
+
+Represents references to attributes.
+
+Attributes:
+* `base`: Reference to base entity/type
+* `attribute`: Reference to attribute
+
+==== GroupReferenceDrop
+
+Represents references to groups.
+
+Attributes:
+* `base`: Reference to base entity/type
+* `group`: Reference to group
+
+==== IndexReferenceDrop
+
+Represents array/list index references.
+
+Attributes:
+* `base`: Reference to aggregate
+* `index1`: First index expression
+* `index2`: Second index expression (for ranges)
+
+==== SimpleReferenceDrop
+
+Represents simple named references.
+
+Attributes:
+* `id`: Referenced name
+
+=== Statement drops
+
+==== AliasDrop
+
+Represents ALIAS statements. Includes identifier functionality.
+
+Attributes:
+* `id`: Alias name
+* `remarks`: Array of remarks
+* `remark_items`: Array of RemarkItemDrop objects
+* `source`: Source code representation
+* `expression`: Referenced expression
+* `statements`: Array of statements in alias block
+
+==== AssignmentDrop
+
+Represents assignment statements.
+
+Attributes:
+* `expression1`: Target expression
+* `expression2`: Value expression
+
+==== CaseActionDrop
+
+Represents CASE action clauses.
+
+Attributes:
+* `labels`: Array of case label expressions
+* `statement`: Statement to execute
+
+==== CaseDrop
+
+Represents CASE statements.
+
+Attributes:
+* `expression`: Selector expression
+* `actions`: Array of CaseActionDrop objects
+* `otherwise`: Otherwise statement
+
+==== CompoundDrop
+
+Represents compound statements.
+
+Attributes:
+* `statements`: Array of statements
+
+==== EscapeDrop
+
+Represents ESCAPE statements.
+
+==== IfDrop
+
+Represents IF statements.
+
+Attributes:
+* `expression`: Condition expression
+* `statements`: Array of statements in then branch
+* `else_statements`: Array of statements in else branch
+
+==== NullDrop
+
+Represents NULL statements.
+
+==== ProcedureCallDrop
+
+Represents procedure call statements.
+
+Attributes:
+* `procedure`: Reference to called procedure
+* `parameters`: Array of parameter expressions
+
+==== RepeatDrop
+
+Represents REPEAT statements.
+
+Attributes:
+* `expression`: Loop condition expression
+* `statements`: Array of statements in loop body
+
+==== ReturnDrop
+
+Represents RETURN statements.
+
+Attributes:
+* `expression`: Return value expression
+
+==== SkipDrop
+
+Represents SKIP statements.
 
 === Constant drop
 
-Represents EXPRESS CONSTANT declarations at the schema level.
+Represents EXPRESS CONSTANT declarations at the schema level. Includes identifier functionality through `IdentifierDrop`.
 
-=== Subtype constraint drop
+Attributes:
+* [Added by IdentifierDrop]:
+** `id`: Identifier name (constant name)
+** `remarks`: Array of remarks associated with the constant
+** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
+** `source`: Source code representation
+* Constant-specific attributes:
+** `type`: DataTypeDrop representing the constant's type
+** `expression`: ExpressionDrop representing the constant's value
 
-Represents EXPRESS SUBTYPE_CONSTRAINT declarations, which define inheritance rules for entity hierarchies.
-
-=== Schema version drop
-
-Represents EXPRESS schema VERSION information, including version string and metadata.
-
-== Examples
-
-=== EXPRESS schema to Liquid drops
-
-Here's an example showing an EXPRESS schema and how it maps to Liquid drops:
-
-.Original EXPRESS schema
+Example EXPRESS:
 [source,express]
 ----
-SCHEMA example_schema;
-
-TYPE length_measure = REAL;
-END_TYPE;
-
-ENTITY point;
-  x : length_measure;
-  y : length_measure;
-  z : length_measure;
-WHERE
-  valid_coordinates : (x >= 0.0) AND (y >= 0.0) AND (z >= 0.0);
-END_ENTITY;
-
-ENTITY circle;
-  center : point;
-  radius : length_measure;
-WHERE
-  valid_radius : radius > 0.0;
-END_ENTITY;
-
-END_SCHEMA;
+CONSTANT
+  (* Mathematical constant *)
+  PI : REAL := 3.14159;
+  (* System limits *)
+  MAX_ITEMS : INTEGER := 1000;
+  (* Default text *)
+  DEFAULT_NAME : STRING := 'Untitled';
+END_CONSTANT;
 ----
 
-.Using Liquid drops in templates
+Example usage showing identifier functionality:
 [source,liquid]
 ----
-{%- comment %}Access schema{% endcomment %}
-Schema name: {{ schema.id }}
-
-{%- comment %}List all entities{% endcomment %}
-Entities:
-{% for entity in schema.entities %}
-* {{ entity.id }}
-  {% if entity.attributes %}Attributes:
-  {% for attr in entity.attributes %}
-    - {{ attr.id }}: {{ attr.type._class | remove: "Expressir::Model::DataTypes::" | remove: "Drop" }}
+Constants:
+{% for const in schema.constants %}
+{{ const.id }}:
+  Type: {{ const.type._class }}
+  Value: {{ const.expression.value }}
+  
+  Documentation:
+  {% for remark in const.remarks %}
+  - {{ remark }}
   {% endfor %}
-  {% endif %}
-  {% if entity.where_rules %}Where Rules:
-  {% for rule in entity.where_rules %}
-    - {{ rule.id }}: {{ rule.expression }}
+  
+  Source:
+  {{ const.source }}
+  
+  {% if const.remark_items %}
+  Structured Documentation:
+  {% for item in const.remark_items %}
+  - {{ item.id }}: {{ item.remarks | join: " " }}
   {% endfor %}
   {% endif %}
 {% endfor %}
-
-{%- comment %}List all types{% endcomment %}
-Types:
-{% for type in schema.types %}
-* {{ type.id }}: {{ type.underlying_type._class | remove: "Expressir::Model::DataTypes::" | remove: "Drop" }}
-{% endfor %}
 ----
 
-.Example output
-[source,text]
-----
-Schema name: example_schema
+=== Query expression drop
 
-Entities:
-* point
-  Attributes:
-    - x: Real
-    - y: Real
-    - z: Real
-  Where Rules:
-    - valid_coordinates: (x >= 0.0) AND (y >= 0.0) AND (z >= 0.0)
-* circle
-  Attributes:
-    - center: point
-    - radius: Real
-  Where Rules:
-    - valid_radius: radius > 0.0
+Represents an EXPRESS QUERY expression. Includes identifier functionality through `IdentifierDrop` since queries can have variable declarations.
 
-Types:
-* length_measure: Real
-----
+Attributes:
+* [Added by IdentifierDrop]:
+** `id`: Identifier name (query variable name)
+** `remarks`: Array of remarks associated with the query
+** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
+** `source`: Source code representation
+* Query-specific attributes:
+** `aggregate_source`: Expression providing the source collection
+** `expression`: Query filter expression
 
-=== More complex example
-
-Here's a more complex EXPRESS schema showing different features:
-
-.Complex EXPRESS schema
+Example EXPRESS:
 [source,express]
 ----
-SCHEMA complex_example;
+RULE find_expensive_items FOR (catalog);
+WHERE
+  (* Find items above price threshold *)
+  has_expensive : QUERY (
+    (* Iterator for catalog items *)
+    item <* catalog.items |
+    (* Check price threshold *)
+    item.price > 1000.0
+  ) > 0;
+END_RULE;
+----
 
+Example usage showing identifier functionality:
+[source,liquid]
+----
+Query Variable: {{ query.id }}
+
+Documentation:
+{% for remark in query.remarks %}
+- {{ remark }}
+{% endfor %}
+
+Source:
+{{ query.source }}
+
+{% if query.remark_items %}
+Structured Documentation:
+{% for item in query.remark_items %}
+- {{ item.id }}: {{ item.remarks | join: " " }}
+{% endfor %}
+{% endif %}
+
+Source Collection: {{ query.aggregate_source }}
+Filter: {{ query.expression }}
+----
+
+=== Generic drop
+
+Represents an EXPRESS GENERIC type. Includes identifier functionality through `IdentifierDrop`.
+
+Attributes:
+* [Added by IdentifierDrop]:
+** `id`: Identifier name (generic type name)
+** `remarks`: Array of remarks associated with the generic type
+** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
+** `source`: Source code representation
+
+Example EXPRESS:
+[source,express]
+----
+TYPE list_type = LIST OF GENERIC;
+  (* Generic list type *)
+  (* Author: Jane Smith *)
+END_TYPE;
+----
+
+Example usage showing identifier functionality:
+[source,liquid]
+----
+Generic Type: {{ type.id }}
+
+Documentation:
+{% for remark in type.remarks %}
+- {{ remark }}
+{% endfor %}
+
+Source:
+{{ type.source }}
+
+{% if type.remark_items %}
+Structured Documentation:
+{% for item in type.remark_items %}
+- {{ item.id }}: {{ item.remarks | join: " " }}
+{% endfor %}
+{% endif %}
+----
+
+=== Generic entity drop
+
+Represents an EXPRESS GENERIC_ENTITY type. Includes identifier functionality through `IdentifierDrop`.
+
+Attributes:
+* [Added by IdentifierDrop]:
+** `id`: Identifier name (generic entity name)
+** `remarks`: Array of remarks associated with the generic entity
+** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
+** `source`: Source code representation
+
+Example EXPRESS:
+[source,express]
+----
+TYPE container = SET OF GENERIC_ENTITY;
+  (* Generic entity container *)
+  (* Supports any entity type *)
+END_TYPE;
+----
+
+Example usage showing identifier functionality:
+[source,liquid]
+----
+Generic Entity: {{ type.id }}
+
+Documentation:
+{% for remark in type.remarks %}
+- {{ remark }}
+{% endfor %}
+
+Source:
+{{ type.source }}
+
+{% if type.remark_items %}
+Structured Documentation:
+{% for item in type.remark_items %}
+- {{ item.id }}: {{ item.remarks | join: " " }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+----
+
+=== Enumeration item drop
+
+Represents items in an EXPRESS ENUMERATION type. Includes identifier functionality through `IdentifierDrop`.
+
+Attributes:
+* [Added by IdentifierDrop]:
+** `id`: Identifier name (enumeration value name)
+** `remarks`: Array of remarks associated with the enumeration item
+** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
+** `source`: Source code representation
+
+Example EXPRESS:
+[source,express]
+----
 TYPE color = ENUMERATION OF
-  (red,
-   green,
-   blue);
+  (* Basic colors *)
+  red,    (* Primary color *)
+  green,  (* Primary color *)
+  blue,   (* Primary color *)
+  (* Extended colors *)
+  yellow, (* Secondary color *)
+  purple  (* Secondary color *)
+);
+END_TYPE;
+----
+
+Example usage showing identifier functionality:
+[source,liquid]
+----
+{% for item in type.underlying_type.items %}
+Value: {{ item.id }}
+
+Documentation:
+{% for remark in item.remarks %}
+- {{ remark }}
+{% endfor %}
+
+Source:
+{{ item.source }}
+
+{% if item.remark_items %}
+Structured Documentation:
+{% for ritem in item.remark_items %}
+- {{ ritem.id }}: {{ ritem.remarks | join: " " }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+----
+
+=== Aggregate drop
+
+Represents an EXPRESS aggregate type definition. Includes identifier functionality through `IdentifierDrop`.
+
+Attributes:
+* [Added by IdentifierDrop]:
+** `id`: Identifier name (aggregate type name)
+** `remarks`: Array of remarks associated with the aggregate type
+** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
+** `source`: Source code representation
+* Aggregate-specific attributes:
+** `base_type`: DataTypeDrop representing the element type
+
+Example EXPRESS:
+[source,express]
+----
+TYPE point_list = LIST OF point;
+  (* List of geometric points *)
+  (* Used for polylines *)
 END_TYPE;
 
-TYPE point_list = LIST [1:?] OF point;
+TYPE color_set = SET OF color;
+  (* Set of unique colors *)
+  (* For color palettes *)
 END_TYPE;
+----
 
-ENTITY geometric_representation;
-  name : STRING;
-  color : OPTIONAL color;
-END_ENTITY;
+Example usage showing identifier functionality:
+[source,liquid]
+----
+Aggregate Type: {{ type.id }}
+Base Type: {{ type.base_type._class }}
 
-ENTITY point SUBTYPE OF (geometric_representation);
-  x, y, z : REAL;
-END_ENTITY;
+Documentation:
+{% for remark in type.remarks %}
+- {{ remark }}
+{% endfor %}
 
-ENTITY line SUBTYPE OF (geometric_representation);
-  points : point_list;
-  style : STRING := 'solid';
-WHERE 
-  valid_points : SIZEOF(points) >= 2;
-END_ENTITY;
+Source:
+{{ type.source }}
 
+{% if type.remark_items %}
+Structured Documentation:
+{% for item in type.remark_items %}
+- {{ item.id }}: {{ item.remarks | join: " " }}
+{% endfor %}
+{% endif %}
+----
+
+=== Alias statement drop
+
+Represents an EXPRESS ALIAS statement. Includes identifier functionality through `IdentifierDrop`.
+
+Attributes:
+* [Added by IdentifierDrop]:
+** `id`: Identifier name (alias name)
+** `remarks`: Array of remarks associated with the alias
+** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
+** `source`: Source code representation
+* Alias-specific attributes:
+** `expression`: The referenced expression
+** `statements`: Array of statements in the ALIAS block
+
+Example EXPRESS:
+[source,express]
+----
+FUNCTION process_point(p : point) : REAL;
+  (* Create alias for readability *)
+  ALIAS coord := p.coordinates;
+    (* Compute using aliased value *)
+    result := coord.x * coord.y;
+  END_ALIAS;
+  RETURN result;
+END_FUNCTION;
+----
+
+Example usage showing identifier functionality:
+[source,liquid]
+----
+{% for statement in function.statements %}
+  {% if statement._class contains "Alias" %}
+  Alias: {{ statement.id }}
+  
+  Documentation:
+  {% for remark in statement.remarks %}
+  - {{ remark }}
+  {% endfor %}
+  
+  Source:
+  {{ statement.source }}
+  
+  {% if statement.remark_items %}
+  Structured Documentation:
+  {% for item in statement.remark_items %}
+  - {{ item.id }}: {{ item.remarks | join: " " }}
+  {% endfor %}
+  {% endif %}
+  
+  Expression: {{ statement.expression }}
+  {% endif %}
+{% endfor %}
+----
+
+=== Variable drop
+
+Represents EXPRESS variable declarations in functions and procedures. Includes identifier functionality through `IdentifierDrop`.
+
+Attributes:
+* [Added by IdentifierDrop]:
+** `id`: Identifier name (variable name)
+** `remarks`: Array of remarks associated with the variable
+** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
+** `source`: Source code representation
+* Variable-specific attributes:
+** `type`: DataTypeDrop representing the variable's type
+** `expression`: ExpressionDrop representing the optional initial value
+
+Example EXPRESS:
+[source,express]
+----
+FUNCTION calculate_area(width, height: REAL) : REAL;
+  LOCAL
+    (* Temporary result storage *)
+    result : REAL := 0.0;
+    (* Status flag *)
+    valid : BOOLEAN := TRUE;
+  END_LOCAL;
+  
+  result := width * height;
+  RETURN result;
+END_FUNCTION;
+----
+
+Example usage showing identifier functionality:
+[source,liquid]
+----
+Local Variables:
+{% for var in function.variables %}
+{{ var.id }}:
+  Type: {{ var.type._class }}
+  {% if var.expression %}
+  Initial Value: {{ var.expression }}
+  {% endif %}
+  
+  Documentation:
+  {% for remark in var.remarks %}
+  - {{ remark }}
+  {% endfor %}
+  
+  Source:
+  {{ var.source }}
+  
+  {% if var.remark_items %}
+  Structured Documentation:
+  {% for item in var.remark_items %}
+  - {{ item.id }}: {{ item.remarks | join: " " }}
+  {% endfor %}
+  {% endif %}
+{% endfor %}
+----
+
+=== Working with remark items
+
+Remark items provide a structured way to handle documentation in EXPRESS schemas. Unlike plain remarks, remark items have both an identifier and content, making them suitable for metadata and categorized documentation.
+
+Example EXPRESS with structured remarks:
+[source,express]
+----
+SCHEMA building_schema;
+  (* @Author: John Smith *)
+  (* @Version: 1.0 *)
+  (* @Date: 2024-01-15 *)
+  (* @Description: Building information model *)
+  
+  TYPE length_measure = REAL;
+    (* @Unit: meters *)
+    (* @Precision: 0.001 *)
+  END_TYPE;
+  
+  ENTITY wall;
+    (* @Property: structural *)
+    (* @Material: concrete *)
+    height : length_measure;
+    width : length_measure;
+  END_ENTITY;
 END_SCHEMA;
 ----
 
-.Using Liquid drops for complex schema
+Example template for handling remark items:
 [source,liquid]
 ----
-{%- comment %}Access schema{% endcomment %}
-Schema: {{ schema.id }}
+{% macro process_remark_items item %}
+{%- comment %}Group remarks by category{% endcomment %}
+{% assign metadata = [] %}
+{% assign technical = [] %}
+{% assign other = [] %}
 
-{%- comment %}Handle enumerations{% endcomment %}
-Enumerations:
-{% for type in schema.types %}
-  {% if type.underlying_type._class contains "Enumeration" %}
-* {{ type.id }}:
-    {% for item in type.underlying_type.items %}
-    - {{ item.id }}
-    {% endfor %}
-  {% endif %}
-{% endfor %}
-
-{%- comment %}Show inheritance{% endcomment %}
-Class Hierarchy:
-{% for entity in schema.entities %}
-  {% if entity.supertype_expression %}
-* {{ entity.id }} (inherits from: {% for super in entity.subtype_of %}{{ super.id }}{% unless forloop.last %}, {% endunless %}{% endfor %})
+{% for ritem in item.remark_items %}
+  {% case ritem.id %}
+  {% when 'Author', 'Version', 'Date' %}
+    {% assign metadata = metadata | push: ritem %}
+  {% when 'Unit', 'Precision', 'Property', 'Material' %}
+    {% assign technical = technical | push: ritem %}
   {% else %}
-* {{ entity.id }}
-  {% endif %}
-  {% if entity.attributes %}
-  Attributes:
-    {% for attr in entity.attributes %}
-    - {{ attr.id }}{% if attr.optional %} (optional){% endif %}: {{ attr.type._class | remove: "Expressir::Model::DataTypes::" | remove: "Drop" }}
-    {% endfor %}
-  {% endif %}
+    {% assign other = other | push: ritem %}
+  {% endcase %}
 {% endfor %}
 
-{%- comment %}Show aggregation types{% endcomment %}
-Aggregation Types:
+{% if metadata.size > 0 %}
+Metadata:
+{% for ritem in metadata %}
+- {{ ritem.id }}: {{ ritem.remarks | join: " " }}
+{% endfor %}
+{% endif %}
+
+{% if technical.size > 0 %}
+Technical Details:
+{% for ritem in technical %}
+- {{ ritem.id }}: {{ ritem.remarks | join: " " }}
+{% endfor %}
+{% endif %}
+
+{% if other.size > 0 %}
+Additional Information:
+{% for ritem in other %}
+- {{ ritem.id }}: {{ ritem.remarks | join: " " }}
+{% endfor %}
+{% endif %}
+{% endmacro %}
+----
+
+Using the template:
+[source,liquid]
+----
+Schema Documentation:
+{{ process_remark_items schema }}
+
+Types:
 {% for type in schema.types %}
-  {% if type.underlying_type._class contains "Array" or type.underlying_type._class contains "List" or type.underlying_type._class contains "Set" or type.underlying_type._class contains "Bag" %}
-* {{ type.id }}: {{ type.underlying_type._class | remove: "Expressir::Model::DataTypes::" | remove: "Drop" }} of {{ type.underlying_type.base_type._class | remove: "Expressir::Model::DataTypes::" | remove: "Drop" }}
-  {% endif %}
+{{ type.id }}:
+{{ process_remark_items type }}
+{% endfor %}
+
+Entities:
+{% for entity in schema.entities %}
+{{ entity.id }}:
+{{ process_remark_items entity }}
+
+Attributes:
+{% for attr in entity.attributes %}
+{{ attr.id }}:
+{{ process_remark_items attr }}
+{% endfor %}
 {% endfor %}
 ----
 
-.Example complex output
+Example output:
 [source,text]
 ----
-Schema: complex_example
+Schema Documentation:
+Metadata:
+- Author: John Smith
+- Version: 1.0
+- Date: 2024-01-15
 
-Enumerations:
-* color:
-    - red
-    - green
-    - blue
+Additional Information:
+- Description: Building information model
 
-Class Hierarchy:
-* geometric_representation
-  Attributes:
-    - name: String
-    - color (optional): color
-* point (inherits from: geometric_representation)
-  Attributes:
-    - x: Real
-    - y: Real
-    - z: Real
-* line (inherits from: geometric_representation)
-  Attributes:
-    - points: point_list
-    - style: String
+Types:
+length_measure:
+Technical Details:
+- Unit: meters
+- Precision: 0.001
 
-Aggregation Types:
-* point_list: List of point
+Entities:
+wall:
+Technical Details:
+- Property: structural
+- Material: concrete
 ----
 
-These examples demonstrate how to:
+This structured approach makes it easier to:
+- Generate consistent documentation
+- Filter and categorize documentation elements
+- Support multiple documentation formats
+- Maintain metadata separate from general documentation
+- Generate different views of the same documentation
 
-1. Access schema properties like name and elements
-2. Iterate through entities and their attributes
-3. Handle inheritance relationships
-4. Work with enumerations and their values
-5. Process aggregation types (LIST, ARRAY, SET, BAG)
-6. Access WHERE rules and constraints
-7. Handle optional attributes
-8. Access type information
+=== Common remark item patterns
 
-The Liquid drops provide a convenient way to traverse and template EXPRESS schemas while maintaining all the relationships and properties defined in the original schema.
+Here are some common patterns for working with remark items in templates:
 
-== Best practices and patterns
-
-=== Working with drops
-
-==== Error checking
-
-Always validate existence before accessing nested properties to avoid errors:
+==== Filtering by category
 
 [source,liquid]
 ----
-{% if entity.where_rules %}
-  {% for rule in entity.where_rules %}
-    {{ rule.id }}
-  {% endfor %}
-{% endif %}
-----
-
-==== Class name handling
-
-Use Liquid filters to clean up class names for display:
-
-[source,liquid]
-----
-{{ type._class | remove: "Expressir::Model::DataTypes::" | remove: "Drop" }}
-----
-
-==== Inheritance traversal
-
-When working with inherited properties, remember to traverse the inheritance chain:
-
-[source,liquid]
-----
-{% assign all_attributes = entity.attributes %}
-{% if entity.subtype_of %}
-  {% for super in entity.subtype_of %}
-    {% assign all_attributes = all_attributes | concat: super.attributes %}
-  {% endfor %}
-{% endif %}
-----
-
-=== Documentation generation
-
-When generating documentation from EXPRESS schemas, include:
-
-1. Schema overview and version information
-2. Type definitions and constraints
-3. Entity hierarchy and relationships
-4. Attribute definitions and types
-5. Rules and constraints
-6. Cross-references between related elements
-7. Usage examples
-
-=== Common navigation patterns
-
-==== Schema traversal
-
-[source,liquid]
-----
-{% for schema in repository.schemas %}
-  {% for entity in schema.entities %}
-    {% for attribute in entity.attributes %}
-      {{ schema.id }}.{{ entity.id }}.{{ attribute.id }}
-    {% endfor %}
-  {% endfor %}
-{% endfor %}
-----
-
-==== Type resolution
-
-[source,liquid]
-----
-{% assign type = attribute.type %}
-{% case type._class %}
-{% when 'Array' or 'List' or 'Set' or 'Bag' %}
-  Base type: {{ type.base_type._class }}
-  Bounds: [{{ type.bound1.value }}:{{ type.bound2.value }}]
-{% when 'Enumeration' %}
-  Values: {% for item in type.items %}{{ item.id }} {% endfor %}
-{% else %}
-  Type: {{ type._class }}
-{% endcase %}
-----
-
-==== Rule handling
-
-[source,liquid]
-----
-{%- comment %}Process global rules{% endcomment %}
-{% for rule in schema.rules %}
-  {{ rule.id }} applies to {{ rule.applies_to | map: 'id' | join: ', ' }}
-{% endfor %}
-
-{%- comment %}Process entity-specific rules{% endcomment %}
-{% for entity in schema.entities %}
-  {% if entity.where_rules %}
-    {{ entity.id }} rules:
-    {% for rule in entity.where_rules %}
-      {{ rule.id }}: {{ rule.expression }}
-    {% endfor %}
+{% macro get_remarks_by_category item category %}
+{% assign filtered = [] %}
+{% for ritem in item.remark_items %}
+  {% if ritem.id == category %}
+    {% assign filtered = filtered | push: ritem %}
   {% endif %}
 {% endfor %}
+{{ filtered | map: "remarks" | join: " " }}
+{% endmacro %}
+
+{%- comment %}Usage examples:{% endcomment %}
+Author: {{ get_remarks_by_category schema "Author" }}
+Version: {{ get_remarks_by_category schema "Version" }}
 ----
 
-=== Template organization
+==== Creating documentation tables
 
-Consider these practices when creating templates:
+[source,liquid]
+----
+{% macro create_documentation_table item %}
+|===
+|Category |Value
 
-1. Group related functionality into separate template files
-2. Use includes to maintain reusable template snippets
-3. Add comments to explain complex logic
-4. Handle edge cases and optional elements gracefully
-5. Use consistent naming and formatting conventions
+{% for ritem in item.remark_items %}
+|{{ ritem.id }}
+|{{ ritem.remarks | join: " " }}
+{% endfor %}
+|===
+{% endmacro %}
+----
 
-This concludes our comprehensive guide to working with Expressir Liquid drops.
+==== Inheritance-aware documentation
+
+[source,liquid]
+----
+{% macro collect_all_remarks entity %}
+{%- comment %}Get direct remarks{% endcomment %}
+{% assign all_remarks = entity.remark_items %}
+
+{%- comment %}Get inherited remarks{% endcomment %}
+{% for super in entity.subtype_of %}
+  {% for ritem in super.remark_items %}
+    {% assign all_remarks = all_remarks | push: ritem %}
+  {% endfor %}
+{% endfor %}
+
+{%- comment %}Remove duplicates by ID{% endcomment %}
+{% assign unique_remarks = [] %}
+{% for ritem in all_remarks %}
+  {% unless unique_remarks | map: "id" | contains: ritem.id %}
+    {% assign unique_remarks = unique_remarks | push: ritem %}
+  {% endunless %}
+{% endfor %}
+
+{% for ritem in unique_remarks %}
+- {{ ritem.id }}: {{ ritem.remarks | join: " " }}
+{% endfor %}
+{% endmacro %}
+----
+
+These patterns help maintain consistency and structure when working with documentation in EXPRESS schemas.
+
+== Drop inheritance hierarchy
+
+Here's how the drops are organized hierarchically:
+
+* ModelElementDrop
+** DeclarationDrop
+*** EntityDrop
+*** TypeDrop
+*** FunctionDrop
+*** ProcedureDrop
+*** RuleDrop
+*** WhereRuleDrop
+*** UniqueRuleDrop
+*** ConstantDrop
+*** VariableDrop
+*** ParameterDrop
+*** AttributeDrop
+** ExpressionDrop
+*** BinaryExpressionDrop
+*** UnaryExpressionDrop
+*** QueryExpressionDrop
+*** FunctionCallDrop
+*** EntityConstructorDrop
+*** AggregateInitializerDrop
+*** IntervalDrop
+** DataTypeDrop
+*** AggregateDrop
+**** ArrayDrop
+**** BagDrop
+**** ListDrop
+**** SetDrop
+*** BinaryDrop
+*** BooleanDrop
+*** EnumerationDrop
+*** GenericDrop
+*** GenericEntityDrop
+*** IntegerDrop
+*** LogicalDrop
+*** RealDrop
+*** SelectDrop
+*** StringDrop
+** ReferenceDrop
+*** SimpleReferenceDrop
+*** AttributeReferenceDrop
+*** GroupReferenceDrop
+*** IndexReferenceDrop
+** StatementDrop
+*** AliasDrop
+*** AssignmentDrop
+*** CaseDrop
+*** CompoundDrop
+*** EscapeDrop
+*** IfDrop
+*** NullDrop
+*** ProcedureCallDrop
+*** RepeatDrop
+*** ReturnDrop
+*** SkipDrop
+** LiteralDrop
+*** BinaryDrop
+*** IntegerDrop
+*** LogicalDrop
+*** RealDrop
+*** StringDrop
+
+=== Common inheritance patterns
+
+When working with drops that share a common base class, you can use patterns like:
+
+[source,liquid]
+----
+{% macro process_declarations items %}
+{% for item in items %}
+  {% case item._class %}
+  {% when 'EntityDrop' %}
+    // Process entity
+  {% when 'TypeDrop' %}
+    // Process type
+  {% when 'FunctionDrop' %}
+    // Process function
+  {% else %}
+    // Handle other declarations
+  {% endcase %}
+{% endfor %}
+{% endmacro %}
+
+{% macro process_expressions exprs %}
+{% for expr in exprs %}
+  {% case expr._class %}
+  {% when 'BinaryExpressionDrop' %}
+    {{ expr.operand1 }} {{ expr.operator }} {{ expr.operand2 }}
+  {% when 'UnaryExpressionDrop' %}
+    {{ expr.operator }}{{ expr.operand }}
+  {% when 'QueryExpressionDrop' %}
+    QUERY({{ expr.id }} <* {{ expr.aggregate_source }} | {{ expr.expression }})
+  {% else %}
+    {{ expr }}
+  {% endcase %}
+{% endfor %}
+{% endmacro %}
+----
+
+=== Common base class attributes
+
+When working with drops, remember these common attributes available through inheritance:
+
+1. From ModelElementDrop:
+* `_class`: Type of drop
+* `file`: Source file (if applicable)
+* `source`: Original source code
+
+2. From DeclarationDrop:
+* All ModelElementDrop attributes
+* Additional structure for named declarations
+
+3. When IdentifierDrop is included:
+* `id`: Identifier name
+* `remarks`: Documentation comments
+* `remark_items`: Structured documentation
+* `source`: Source representation

@@ -46,6 +46,24 @@ RSpec.describe Expressir::Express::Parser do
       GC.verify_internal_consistency
     end
 
+    it "parses a file (mathematical_functions_schema.exp) with remark_items" do |example|
+      print "\n[#{example.description}] "
+      exp_file = Expressir.root_path.join("spec", "syntax", "mathematical_functions_schema.exp")
+      yaml_file = Expressir.root_path.join("spec", "syntax", "mathematical_functions_schema.yaml")
+
+      repo = Expressir::Express::Parser.from_file(exp_file)
+      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
+      # File.write(yaml_file, result)
+      expected_result = File.read(yaml_file)
+
+      expect(result).to eq(expected_result)
+
+      # Validate Object Space
+      GC.start
+      GC.verify_compaction_references
+      GC.verify_internal_consistency
+    end
+
     it "parses a file (syntax.exp)" do |example|
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "syntax.exp")

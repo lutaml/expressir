@@ -7,10 +7,10 @@
 
 Many EXPRESS model elements have an identifier and associated documentation. In Expressir, this is implemented through the `IdentifierDrop` module. When a drop class includes this module and calls `initialize_identifier`, it automatically gets the following attributes:
 
-* `id`: The identifier name of the element
-* `remarks`: Array of remarks (comments) associated with the element
-* `remark_items`: Array of structured remarks as RemarkItemDrop objects
-* `source`: The original source code representation
+`id`:: The identifier name of the element
+`remarks`:: Array of remarks (comments) associated with the element
+`remark_items`:: Array of structured remarks as RemarkItemDrop objects
+`source`:: The original source code representation
 
 The following drops include identifier functionality:
 
@@ -25,7 +25,7 @@ The following drops include identifier functionality:
 * Parameter drops
 * Rule drops
 * Where rule drops
-* Unique rule drops  
+* Unique rule drops
 * Subtype constraint drops
 * Generic drops
 * Generic entity drops
@@ -37,6 +37,7 @@ The following drops include identifier functionality:
 Each of these drops will have the above attributes in addition to their specific attributes.
 
 Example using identifier attributes:
+
 [source,liquid]
 ----
 {% macro show_documentation item %}
@@ -66,6 +67,7 @@ Source:
 The identifier functionality is implemented in the `IdentifierDrop` module located in `lib/expressir/liquid/identifier_drop.rb`. Classes include this module and call `initialize_identifier` in their initializer to get the standard identifier attributes.
 
 Example implementation pattern:
+
 [source,ruby]
 ----
 class MyDrop < ModelElementDrop
@@ -114,9 +116,10 @@ When working with identifier attributes, consider these error handling patterns:
 Base class for all drops.
 
 Attributes:
-* `_class`: Returns the class name of the model
-* `file`: Returns the file path if the model responds to it
-* `source`: Returns the source if the model responds to it
+
+`_class`:: Returns the class name of the model
+`file`:: Returns the file path if the model responds to it
+`source`:: Returns the source if the model responds to it
 
 ==== DeclarationDrop
 
@@ -129,47 +132,51 @@ Inherits from ModelElementDrop.
 Represents the root container for schemas.
 
 Attributes:
-* `schemas`: Array of SchemaDrop objects
+
+`schemas`:: Array of SchemaDrop objects
 
 ==== SchemaDrop
 
 Represents an EXPRESS SCHEMA declaration. Includes identifier functionality.
 
 Attributes:
-* `id`: Schema name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
-* `file`: Schema file path
-* `file_basename`: Base name of schema file
-* `selected`: Boolean indicating if schema is selected
-* `relative_path_prefix`: Relative path prefix for document
-* `version`: SchemaVersionDrop object
-* `interfaces`: Array of InterfaceDrop objects
-* `constants`: Array of ConstantDrop objects
-* `types`: Array of TypeDrop objects
-* `entities`: Array of EntityDrop objects
-* `subtype_constraints`: Array of SubtypeConstraintDrop objects
-* `functions`: Array of FunctionDrop objects
-* `rules`: Array of RuleDrop objects
-* `procedures`: Array of ProcedureDrop objects
-* `formatted`: Formatted string representation
+
+`id`:: Schema name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
+`file`:: Schema file path
+`file_basename`:: Base name of schema file
+`selected`:: Boolean indicating if schema is selected
+`relative_path_prefix`:: Relative path prefix for document
+`version`:: SchemaVersionDrop object
+`interfaces`:: Array of InterfaceDrop objects
+`constants`:: Array of ConstantDrop objects
+`types`:: Array of TypeDrop objects
+`entities`:: Array of EntityDrop objects
+`subtype_constraints`:: Array of SubtypeConstraintDrop objects
+`functions`:: Array of FunctionDrop objects
+`rules`:: Array of RuleDrop objects
+`procedures`:: Array of ProcedureDrop objects
+`formatted`:: Formatted string representation
 
 ==== SchemaVersionDrop
 
 Represents schema version information.
 
 Attributes:
-* `value`: Version string value
-* `items`: Array of SchemaVersionItemDrop objects
+
+`value`:: Version string value
+`items`:: Array of SchemaVersionItemDrop objects
 
 ==== SchemaVersionItemDrop
 
 Represents individual version items.
 
 Attributes:
-* `name`: Item name
-* `value`: Item value
+
+`name`:: Item name
+`value`:: Item value
 
 === Interface drops
 
@@ -178,27 +185,30 @@ Attributes:
 Represents schema interfaces (USE FROM and REFERENCE FROM).
 
 Attributes:
-* `kind`: Interface kind ('use' or 'reference')
-* `schema`: Reference to schema being interfaced
-* `items`: Array of InterfaceItemDrop objects
+
+`kind`:: Interface kind ('use' or 'reference')
+`schema`:: Reference to schema being interfaced
+`items`:: Array of InterfaceItemDrop objects
 
 ==== InterfaceItemDrop
 
 Represents items in an interface.
 
 Attributes:
-* `ref`: Reference to the interfaced item
-* `id`: Identifier name
+
+`ref`:: Reference to the interfaced item
+`id`:: Identifier name
 
 ==== InterfacedItemDrop
 
 Represents an item that has been interfaced.
 
 Attributes:
-* `id`: Identifier name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `base_item`: Reference to the original item
+
+`id`:: Identifier name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`base_item`:: Reference to the original item
 
 === Declaration drops
 
@@ -207,171 +217,183 @@ Attributes:
 Represents an entity attribute. Includes identifier functionality.
 
 Attributes:
-* `id`: Attribute name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
-* `kind`: Kind of attribute (explicit, derived, inverse)
-* `supertype_attribute`: Reference to attribute in supertype if inherited
-* `optional`: Boolean indicating if attribute is optional
-* `type`: DataTypeDrop representing attribute type
-* `expression`: ExpressionDrop for derived attributes
+
+`id`:: Attribute name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
+`kind`:: Kind of attribute (explicit, derived, inverse)
+`supertype_attribute`:: Reference to attribute in supertype if inherited
+`optional`:: Boolean indicating if attribute is optional
+`type`:: DataTypeDrop representing attribute type
+`expression`:: ExpressionDrop for derived attributes
 
 ==== ConstantDrop
 
 Represents schema-level constants. Includes identifier functionality.
 
 Attributes:
-* `id`: Constant name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
-* `type`: DataTypeDrop representing constant type
-* `expression`: ExpressionDrop representing constant value
+
+`id`:: Constant name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
+`type`:: DataTypeDrop representing constant type
+`expression`:: ExpressionDrop representing constant value
 
 ==== EntityDrop
 
 Represents an EXPRESS entity. Includes identifier functionality.
 
 Attributes:
-* `id`: Entity name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
-* `abstract`: Boolean indicating if entity is abstract
-* `supertype_expression`: SupertypeExpressionDrop
-* `subtype_of`: Array of references to supertypes
-* `attributes`: Array of AttributeDrop objects
-* `unique_rules`: Array of UniqueRuleDrop objects
-* `where_rules`: Array of WhereRuleDrop objects
-* `informal_propositions`: Array of RemarkItemDrop objects
+
+`id`:: Entity name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
+`abstract`:: Boolean indicating if entity is abstract
+`supertype_expression`:: SupertypeExpressionDrop
+`subtype_of`:: Array of references to supertypes
+`attributes`:: Array of AttributeDrop objects
+`unique_rules`:: Array of UniqueRuleDrop objects
+`where_rules`:: Array of WhereRuleDrop objects
+`informal_propositions`:: Array of RemarkItemDrop objects
 
 ==== FunctionDrop
 
 Represents an EXPRESS function. Includes identifier functionality.
 
 Attributes:
-* `id`: Function name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
-* `parameters`: Array of ParameterDrop objects
-* `return_type`: DataTypeDrop representing return type
-* `types`: Array of TypeDrop objects
-* `entities`: Array of EntityDrop objects
-* `subtype_constraints`: Array of SubtypeConstraintDrop objects
-* `functions`: Array of FunctionDrop objects
-* `procedures`: Array of ProcedureDrop objects
-* `constants`: Array of ConstantDrop objects
-* `variables`: Array of VariableDrop objects
-* `statements`: Array of StatementDrop objects
+
+`id`:: Function name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
+`parameters`:: Array of ParameterDrop objects
+`return_type`:: DataTypeDrop representing return type
+`types`:: Array of TypeDrop objects
+`entities`:: Array of EntityDrop objects
+`subtype_constraints`:: Array of SubtypeConstraintDrop objects
+`functions`:: Array of FunctionDrop objects
+`procedures`:: Array of ProcedureDrop objects
+`constants`:: Array of ConstantDrop objects
+`variables`:: Array of VariableDrop objects
+`statements`:: Array of StatementDrop objects
 
 ==== ParameterDrop
 
 Represents function/procedure parameters. Includes identifier functionality.
 
 Attributes:
-* `id`: Parameter name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
-* `var`: Boolean indicating if parameter is VAR (variable)
-* `type`: DataTypeDrop representing parameter type
+
+`id`:: Parameter name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
+`var`:: Boolean indicating if parameter is VAR (variable)
+`type`:: DataTypeDrop representing parameter type
 
 ==== ProcedureDrop
 
 Represents an EXPRESS procedure. Includes identifier functionality.
 
 Attributes:
-* `id`: Procedure name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
-* `parameters`: Array of ParameterDrop objects
-* `types`: Array of TypeDrop objects
-* `entities`: Array of EntityDrop objects
-* `subtype_constraints`: Array of SubtypeConstraintDrop objects
-* `functions`: Array of FunctionDrop objects
-* `procedures`: Array of ProcedureDrop objects
-* `constants`: Array of ConstantDrop objects
-* `variables`: Array of VariableDrop objects
-* `statements`: Array of StatementDrop objects
+
+`id`:: Procedure name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
+`parameters`:: Array of ParameterDrop objects
+`types`:: Array of TypeDrop objects
+`entities`:: Array of EntityDrop objects
+`subtype_constraints`:: Array of SubtypeConstraintDrop objects
+`functions`:: Array of FunctionDrop objects
+`procedures`:: Array of ProcedureDrop objects
+`constants`:: Array of ConstantDrop objects
+`variables`:: Array of VariableDrop objects
+`statements`:: Array of StatementDrop objects
 
 ==== RemarkItemDrop
 
 Represents structured remarks.
 
 Attributes:
-* `id`: Remark identifier
-* `remarks`: Array of remark content strings
+
+`id`:: Remark identifier
+`remarks`:: Array of remark content strings
 
 ==== RuleDrop
 
 Represents EXPRESS global rules. Includes identifier functionality.
 
 Attributes:
-* `id`: Rule name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
-* `applies_to`: Array of references to entities rule applies to
-* `types`: Array of TypeDrop objects
-* `entities`: Array of EntityDrop objects
-* `subtype_constraints`: Array of SubtypeConstraintDrop objects
-* `functions`: Array of FunctionDrop objects
-* `procedures`: Array of ProcedureDrop objects
-* `constants`: Array of ConstantDrop objects
-* `variables`: Array of VariableDrop objects
-* `statements`: Array of StatementDrop objects
-* `where_rules`: Array of WhereRuleDrop objects
-* `informal_propositions`: Array of RemarkItemDrop objects
+
+`id`:: Rule name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
+`applies_to`:: Array of references to entities rule applies to
+`types`:: Array of TypeDrop objects
+`entities`:: Array of EntityDrop objects
+`subtype_constraints`:: Array of SubtypeConstraintDrop objects
+`functions`:: Array of FunctionDrop objects
+`procedures`:: Array of ProcedureDrop objects
+`constants`:: Array of ConstantDrop objects
+`variables`:: Array of VariableDrop objects
+`statements`:: Array of StatementDrop objects
+`where_rules`:: Array of WhereRuleDrop objects
+`informal_propositions`:: Array of RemarkItemDrop objects
 
 ==== TypeDrop
 
 Represents EXPRESS type definitions. Includes identifier functionality.
 
 Attributes:
-* `id`: Type name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
-* `underlying_type`: DataTypeDrop representing base type
-* `where_rules`: Array of WhereRuleDrop objects
-* `informal_propositions`: Array of RemarkItemDrop objects
+
+`id`:: Type name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
+`underlying_type`:: DataTypeDrop representing base type
+`where_rules`:: Array of WhereRuleDrop objects
+`informal_propositions`:: Array of RemarkItemDrop objects
 
 ==== UniqueRuleDrop
 
 Represents UNIQUE rules in entities. Includes identifier functionality.
 
 Attributes:
-* `id`: Rule name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
-* `attributes`: Array of references to attributes
+
+`id`:: Rule name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
+`attributes`:: Array of references to attributes
 
 ==== VariableDrop
 
 Represents local variables. Includes identifier functionality.
 
 Attributes:
-* `id`: Variable name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
-* `type`: DataTypeDrop representing variable type
-* `expression`: ExpressionDrop representing initial value
+
+`id`:: Variable name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
+`type`:: DataTypeDrop representing variable type
+`expression`:: ExpressionDrop representing initial value
 
 ==== WhereRuleDrop
 
 Represents WHERE rules. Includes identifier functionality.
 
 Attributes:
-* `id`: Rule name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
-* `expression`: ExpressionDrop representing rule condition
+
+`id`:: Rule name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
+`expression`:: ExpressionDrop representing rule condition
 
 === Data type drops
 
@@ -380,39 +402,43 @@ Attributes:
 Base class for aggregate types. Includes identifier functionality.
 
 Attributes:
-* `id`: Type name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
-* `base_type`: DataTypeDrop representing element type
+
+`id`:: Type name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
+`base_type`:: DataTypeDrop representing element type
 
 ==== ArrayDrop
 
 Represents EXPRESS ARRAY type.
 
 Attributes:
-* `bound1`: Lower bound expression
-* `bound2`: Upper bound expression
-* `optional`: Boolean indicating if array is optional
-* `unique`: Boolean indicating if elements must be unique
-* `base_type`: DataTypeDrop representing element type
+
+`bound1`:: Lower bound expression
+`bound2`:: Upper bound expression
+`optional`:: Boolean indicating if array is optional
+`unique`:: Boolean indicating if elements must be unique
+`base_type`:: DataTypeDrop representing element type
 
 ==== BagDrop
 
 Represents EXPRESS BAG type.
 
 Attributes:
-* `bound1`: Lower bound expression
-* `bound2`: Upper bound expression
-* `base_type`: DataTypeDrop representing element type
+
+`bound1`:: Lower bound expression
+`bound2`:: Upper bound expression
+`base_type`:: DataTypeDrop representing element type
 
 ==== BinaryDrop
 
 Represents EXPRESS BINARY type.
 
 Attributes:
-* `width`: Width specification expression
-* `fixed`: Boolean indicating if width is fixed
+
+`width`:: Width specification expression
+`fixed`:: Boolean indicating if width is fixed
 
 ==== BooleanDrop
 
@@ -423,39 +449,43 @@ Represents EXPRESS BOOLEAN type.
 Represents EXPRESS ENUMERATION type.
 
 Attributes:
-* `extensible`: Boolean indicating if enumeration is extensible
-* `based_on`: Reference to base enumeration
-* `items`: Array of EnumerationItemDrop objects
+
+`extensible`:: Boolean indicating if enumeration is extensible
+`based_on`:: Reference to base enumeration
+`items`:: Array of EnumerationItemDrop objects
 
 ==== EnumerationItemDrop
 
 Represents items in an enumeration. Includes identifier functionality.
 
 Attributes:
-* `id`: Item name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
+
+`id`:: Item name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
 
 ==== GenericDrop
 
 Represents EXPRESS GENERIC type. Includes identifier functionality.
 
 Attributes:
-* `id`: Type name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
+
+`id`:: Type name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
 
 ==== GenericEntityDrop
 
 Represents EXPRESS GENERIC_ENTITY type. Includes identifier functionality.
 
 Attributes:
-* `id`: Type name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
+
+`id`:: Type name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
 
 ==== IntegerDrop
 
@@ -466,10 +496,11 @@ Represents EXPRESS INTEGER type.
 Represents EXPRESS LIST type.
 
 Attributes:
-* `bound1`: Lower bound expression
-* `bound2`: Upper bound expression
-* `unique`: Boolean indicating if elements must be unique
-* `base_type`: DataTypeDrop representing element type
+
+`bound1`:: Lower bound expression
+`bound2`:: Upper bound expression
+`unique`:: Boolean indicating if elements must be unique
+`base_type`:: DataTypeDrop representing element type
 
 ==== LogicalDrop
 
@@ -480,34 +511,38 @@ Represents EXPRESS LOGICAL type.
 Represents EXPRESS REAL type.
 
 Attributes:
-* `precision`: Precision specification expression
+
+`precision`:: Precision specification expression
 
 ==== SelectDrop
 
 Represents EXPRESS SELECT type.
 
 Attributes:
-* `extensible`: Boolean indicating if select is extensible
-* `generic_entity`: Boolean indicating if select is generic entity
-* `based_on`: Reference to base select
-* `items`: Array of references to select items
+
+`extensible`:: Boolean indicating if select is extensible
+`generic_entity`:: Boolean indicating if select is generic entity
+`based_on`:: Reference to base select
+`items`:: Array of references to select items
 
 ==== SetDrop
 
 Represents EXPRESS SET type.
 
 Attributes:
-* `bound1`: Lower bound expression
-* `bound2`: Upper bound expression
-* `base_type`: DataTypeDrop representing element type
+
+`bound1`:: Lower bound expression
+`bound2`:: Upper bound expression
+`base_type`:: DataTypeDrop representing element type
 
 ==== StringDrop
 
 Represents EXPRESS STRING type.
 
 Attributes:
-* `width`: Width specification expression
-* `fixed`: Boolean indicating if width is fixed
+
+`width`:: Width specification expression
+`fixed`:: Boolean indicating if width is fixed
 
 === Expression drops
 
@@ -516,69 +551,77 @@ Attributes:
 Represents aggregate initialization expressions.
 
 Attributes:
-* `items`: Array of AggregateInitializerItemDrop objects
+
+`items`:: Array of AggregateInitializerItemDrop objects
 
 ==== AggregateInitializerItemDrop
 
 Represents items in an aggregate initializer.
 
 Attributes:
-* `expression`: ExpressionDrop representing item value
-* `repetition`: ExpressionDrop representing repetition count
+
+`expression`:: ExpressionDrop representing item value
+`repetition`:: ExpressionDrop representing repetition count
 
 ==== BinaryExpressionDrop
 
 Represents binary operations.
 
 Attributes:
-* `operator`: Operator symbol
-* `operand1`: ExpressionDrop for first operand
-* `operand2`: ExpressionDrop for second operand
+
+`operator`:: Operator symbol
+`operand1`:: ExpressionDrop for first operand
+`operand2`:: ExpressionDrop for second operand
 
 ==== EntityConstructorDrop
 
 Represents entity constructor expressions.
 
 Attributes:
-* `entity`: Reference to entity being constructed
-* `items`: Array of entity constructor items
+
+`entity`:: Reference to entity being constructed
+`items`:: Array of entity constructor items
 
 ==== FunctionCallDrop
 
 Represents function call expressions.
 
 Attributes:
-* `function`: Reference to called function
-* `parameters`: Array of parameter expressions
+
+`function`:: Reference to called function
+`parameters`:: Array of parameter expressions
 
 ==== IntervalDrop
 
 Represents interval expressions.
 
 Attributes:
-* `operator`: Interval operator
-* `operand1`: Lower bound expression
-* `operand2`: Upper bound expression
+
+`operator`:: Interval operator
+`operand1`:: Lower bound expression
+`operand2`:: Upper bound expression
 
 ==== QueryExpressionDrop
 
 Represents QUERY expressions.
 
 Attributes:
-* `id`: Query variable name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
-* `aggregate_source`: Expression providing source collection
-* `expression`: Query filter expression
+
+`id`:: Query variable name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
+`aggregate_source`:: Expression providing source collection
+`expression`:: Query filter expression
 
 ==== UnaryExpressionDrop
 
 Represents unary operations.
 
 Attributes:
-* `operator`: Operator symbol
-* `operand`: ExpressionDrop for operand
+
+`operator`:: Operator symbol
+`operand`:: ExpressionDrop for operand
 
 === Literal drops
 
@@ -587,36 +630,41 @@ Attributes:
 Represents binary literals.
 
 Attributes:
-* `value`: Binary value
+
+`value`:: Binary value
 
 ==== IntegerDrop
 
 Represents integer literals.
 
 Attributes:
-* `value`: Integer value
+
+`value`:: Integer value
 
 ==== LogicalDrop
 
 Represents logical literals.
 
 Attributes:
-* `value`: Logical value (TRUE, FALSE, UNKNOWN)
+
+`value`:: Logical value (TRUE, FALSE, UNKNOWN)
 
 ==== RealDrop
 
 Represents real number literals.
 
 Attributes:
-* `value`: Real number value
+
+`value`:: Real number value
 
 ==== StringDrop
 
 Represents string literals.
 
 Attributes:
-* `value`: String value
-* `encoded`: Boolean indicating if string is encoded
+
+`value`:: String value
+`encoded`:: Boolean indicating if string is encoded
 
 === Reference drops
 
@@ -625,32 +673,36 @@ Attributes:
 Represents references to attributes.
 
 Attributes:
-* `base`: Reference to base entity/type
-* `attribute`: Reference to attribute
+
+`base`:: Reference to base entity/type
+`attribute`:: Reference to attribute
 
 ==== GroupReferenceDrop
 
 Represents references to groups.
 
 Attributes:
-* `base`: Reference to base entity/type
-* `group`: Reference to group
+
+`base`:: Reference to base entity/type
+`group`:: Reference to group
 
 ==== IndexReferenceDrop
 
 Represents array/list index references.
 
 Attributes:
-* `base`: Reference to aggregate
-* `index1`: First index expression
-* `index2`: Second index expression (for ranges)
+
+`base`:: Reference to aggregate
+`index1`:: First index expression
+`index2`:: Second index expression (for ranges)
 
 ==== SimpleReferenceDrop
 
 Represents simple named references.
 
 Attributes:
-* `id`: Referenced name
+
+`id`:: Referenced name
 
 === Statement drops
 
@@ -659,44 +711,49 @@ Attributes:
 Represents ALIAS statements. Includes identifier functionality.
 
 Attributes:
-* `id`: Alias name
-* `remarks`: Array of remarks
-* `remark_items`: Array of RemarkItemDrop objects
-* `source`: Source code representation
-* `expression`: Referenced expression
-* `statements`: Array of statements in alias block
+
+`id`:: Alias name
+`remarks`:: Array of remarks
+`remark_items`:: Array of RemarkItemDrop objects
+`source`:: Source code representation
+`expression`:: Referenced expression
+`statements`:: Array of statements in alias block
 
 ==== AssignmentDrop
 
 Represents assignment statements.
 
 Attributes:
-* `expression1`: Target expression
-* `expression2`: Value expression
+
+`expression1`:: Target expression
+`expression2`:: Value expression
 
 ==== CaseActionDrop
 
 Represents CASE action clauses.
 
 Attributes:
-* `labels`: Array of case label expressions
-* `statement`: Statement to execute
+
+`labels`:: Array of case label expressions
+`statement`:: Statement to execute
 
 ==== CaseDrop
 
 Represents CASE statements.
 
 Attributes:
-* `expression`: Selector expression
-* `actions`: Array of CaseActionDrop objects
-* `otherwise`: Otherwise statement
+
+`expression`:: Selector expression
+`actions`:: Array of CaseActionDrop objects
+`otherwise`:: Otherwise statement
 
 ==== CompoundDrop
 
 Represents compound statements.
 
 Attributes:
-* `statements`: Array of statements
+
+`statements`:: Array of statements
 
 ==== EscapeDrop
 
@@ -707,9 +764,10 @@ Represents ESCAPE statements.
 Represents IF statements.
 
 Attributes:
-* `expression`: Condition expression
-* `statements`: Array of statements in then branch
-* `else_statements`: Array of statements in else branch
+
+`expression`:: Condition expression
+`statements`:: Array of statements in then branch
+`else_statements`:: Array of statements in else branch
 
 ==== NullDrop
 
@@ -720,23 +778,26 @@ Represents NULL statements.
 Represents procedure call statements.
 
 Attributes:
-* `procedure`: Reference to called procedure
-* `parameters`: Array of parameter expressions
+
+`procedure`:: Reference to called procedure
+`parameters`:: Array of parameter expressions
 
 ==== RepeatDrop
 
 Represents REPEAT statements.
 
 Attributes:
-* `expression`: Loop condition expression
-* `statements`: Array of statements in loop body
+
+`expression`:: Loop condition expression
+`statements`:: Array of statements in loop body
 
 ==== ReturnDrop
 
 Represents RETURN statements.
 
 Attributes:
-* `expression`: Return value expression
+
+`expression`:: Return value expression
 
 ==== SkipDrop
 
@@ -747,16 +808,21 @@ Represents SKIP statements.
 Represents EXPRESS CONSTANT declarations at the schema level. Includes identifier functionality through `IdentifierDrop`.
 
 Attributes:
+
 * [Added by IdentifierDrop]:
-** `id`: Identifier name (constant name)
-** `remarks`: Array of remarks associated with the constant
-** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
-** `source`: Source code representation
+
+`id`::: Identifier name (constant name)
+`remarks`::: Array of remarks associated with the constant
+`remark_items`::: Array of RemarkItemDrop objects containing structured remarks
+`source`::: Source code representation
+
 * Constant-specific attributes:
-** `type`: DataTypeDrop representing the constant's type
-** `expression`: ExpressionDrop representing the constant's value
+
+`type`::: DataTypeDrop representing the constant's type
+`expression`::: ExpressionDrop representing the constant's value
 
 Example EXPRESS:
+
 [source,express]
 ----
 CONSTANT
@@ -770,6 +836,7 @@ END_CONSTANT;
 ----
 
 Example usage showing identifier functionality:
+
 [source,liquid]
 ----
 Constants:
@@ -800,16 +867,21 @@ Constants:
 Represents an EXPRESS QUERY expression. Includes identifier functionality through `IdentifierDrop` since queries can have variable declarations.
 
 Attributes:
+
 * [Added by IdentifierDrop]:
-** `id`: Identifier name (query variable name)
-** `remarks`: Array of remarks associated with the query
-** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
-** `source`: Source code representation
+
+`id`::: Identifier name (query variable name)
+`remarks`::: Array of remarks associated with the query
+`remark_items`::: Array of RemarkItemDrop objects containing structured remarks
+`source`::: Source code representation
+
 * Query-specific attributes:
-** `aggregate_source`: Expression providing the source collection
-** `expression`: Query filter expression
+
+`aggregate_source`::: Expression providing the source collection
+`expression`::: Query filter expression
 
 Example EXPRESS:
+
 [source,express]
 ----
 RULE find_expensive_items FOR (catalog);
@@ -825,6 +897,7 @@ END_RULE;
 ----
 
 Example usage showing identifier functionality:
+
 [source,liquid]
 ----
 Query Variable: {{ query.id }}
@@ -853,13 +926,16 @@ Filter: {{ query.expression }}
 Represents an EXPRESS GENERIC type. Includes identifier functionality through `IdentifierDrop`.
 
 Attributes:
+
 * [Added by IdentifierDrop]:
-** `id`: Identifier name (generic type name)
-** `remarks`: Array of remarks associated with the generic type
-** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
-** `source`: Source code representation
+
+`id`::: Identifier name (generic type name)
+`remarks`::: Array of remarks associated with the generic type
+`remark_items`::: Array of RemarkItemDrop objects containing structured remarks
+`source`::: Source code representation
 
 Example EXPRESS:
+
 [source,express]
 ----
 TYPE list_type = LIST OF GENERIC;
@@ -869,6 +945,7 @@ END_TYPE;
 ----
 
 Example usage showing identifier functionality:
+
 [source,liquid]
 ----
 Generic Type: {{ type.id }}
@@ -894,13 +971,16 @@ Structured Documentation:
 Represents an EXPRESS GENERIC_ENTITY type. Includes identifier functionality through `IdentifierDrop`.
 
 Attributes:
+
 * [Added by IdentifierDrop]:
-** `id`: Identifier name (generic entity name)
-** `remarks`: Array of remarks associated with the generic entity
-** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
-** `source`: Source code representation
+
+`id`::: Identifier name (generic entity name)
+`remarks`::: Array of remarks associated with the generic entity
+`remark_items`::: Array of RemarkItemDrop objects containing structured remarks
+`source`::: Source code representation
 
 Example EXPRESS:
+
 [source,express]
 ----
 TYPE container = SET OF GENERIC_ENTITY;
@@ -910,6 +990,7 @@ END_TYPE;
 ----
 
 Example usage showing identifier functionality:
+
 [source,liquid]
 ----
 Generic Entity: {{ type.id }}
@@ -936,13 +1017,16 @@ Structured Documentation:
 Represents items in an EXPRESS ENUMERATION type. Includes identifier functionality through `IdentifierDrop`.
 
 Attributes:
+
 * [Added by IdentifierDrop]:
-** `id`: Identifier name (enumeration value name)
-** `remarks`: Array of remarks associated with the enumeration item
-** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
-** `source`: Source code representation
+
+`id`::: Identifier name (enumeration value name)
+`remarks`::: Array of remarks associated with the enumeration item
+`remark_items`::: Array of RemarkItemDrop objects containing structured remarks
+`source`::: Source code representation
 
 Example EXPRESS:
+
 [source,express]
 ----
 TYPE color = ENUMERATION OF
@@ -958,6 +1042,7 @@ END_TYPE;
 ----
 
 Example usage showing identifier functionality:
+
 [source,liquid]
 ----
 {% for item in type.underlying_type.items %}
@@ -985,15 +1070,19 @@ Structured Documentation:
 Represents an EXPRESS aggregate type definition. Includes identifier functionality through `IdentifierDrop`.
 
 Attributes:
+
 * [Added by IdentifierDrop]:
-** `id`: Identifier name (aggregate type name)
-** `remarks`: Array of remarks associated with the aggregate type
-** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
-** `source`: Source code representation
+
+`id`::: Identifier name (aggregate type name)
+`remarks`::: Array of remarks associated with the aggregate type
+`remark_items`::: Array of RemarkItemDrop objects containing structured remarks
+`source`::: Source code representation
 * Aggregate-specific attributes:
-** `base_type`: DataTypeDrop representing the element type
+
+`base_type`::: DataTypeDrop representing the element type
 
 Example EXPRESS:
+
 [source,express]
 ----
 TYPE point_list = LIST OF point;
@@ -1008,6 +1097,7 @@ END_TYPE;
 ----
 
 Example usage showing identifier functionality:
+
 [source,liquid]
 ----
 Aggregate Type: {{ type.id }}
@@ -1034,16 +1124,20 @@ Structured Documentation:
 Represents an EXPRESS ALIAS statement. Includes identifier functionality through `IdentifierDrop`.
 
 Attributes:
+
 * [Added by IdentifierDrop]:
-** `id`: Identifier name (alias name)
-** `remarks`: Array of remarks associated with the alias
-** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
-** `source`: Source code representation
+
+`id`::: Identifier name (alias name)
+`remarks`::: Array of remarks associated with the alias
+`remark_items`::: Array of RemarkItemDrop objects containing structured remarks
+`source`::: Source code representation
 * Alias-specific attributes:
-** `expression`: The referenced expression
-** `statements`: Array of statements in the ALIAS block
+
+`expression`::: The referenced expression
+`statements`::: Array of statements in the ALIAS block
 
 Example EXPRESS:
+
 [source,express]
 ----
 FUNCTION process_point(p : point) : REAL;
@@ -1057,6 +1151,7 @@ END_FUNCTION;
 ----
 
 Example usage showing identifier functionality:
+
 [source,liquid]
 ----
 {% for statement in function.statements %}
@@ -1088,16 +1183,20 @@ Example usage showing identifier functionality:
 Represents EXPRESS variable declarations in functions and procedures. Includes identifier functionality through `IdentifierDrop`.
 
 Attributes:
+
 * [Added by IdentifierDrop]:
-** `id`: Identifier name (variable name)
-** `remarks`: Array of remarks associated with the variable
-** `remark_items`: Array of RemarkItemDrop objects containing structured remarks
-** `source`: Source code representation
+
+`id`::: Identifier name (variable name)
+`remarks`::: Array of remarks associated with the variable
+`remark_items`::: Array of RemarkItemDrop objects containing structured remarks
+`source`::: Source code representation
 * Variable-specific attributes:
-** `type`: DataTypeDrop representing the variable's type
-** `expression`: ExpressionDrop representing the optional initial value
+
+`type`::: DataTypeDrop representing the variable's type
+`expression`::: ExpressionDrop representing the optional initial value
 
 Example EXPRESS:
+
 [source,express]
 ----
 FUNCTION calculate_area(width, height: REAL) : REAL;
@@ -1114,6 +1213,7 @@ END_FUNCTION;
 ----
 
 Example usage showing identifier functionality:
+
 [source,liquid]
 ----
 Local Variables:
@@ -1146,6 +1246,7 @@ Local Variables:
 Remark items provide a structured way to handle documentation in EXPRESS schemas. Unlike plain remarks, remark items have both an identifier and content, making them suitable for metadata and categorized documentation.
 
 Example EXPRESS with structured remarks:
+
 [source,express]
 ----
 SCHEMA building_schema;
@@ -1169,6 +1270,7 @@ END_SCHEMA;
 ----
 
 Example template for handling remark items:
+
 [source,liquid]
 ----
 {% macro process_remark_items item %}
@@ -1212,6 +1314,7 @@ Additional Information:
 ----
 
 Using the template:
+
 [source,liquid]
 ----
 Schema Documentation:
@@ -1237,6 +1340,7 @@ Attributes:
 ----
 
 Example output:
+
 [source,text]
 ----
 Schema Documentation:
@@ -1445,16 +1549,19 @@ When working with drops that share a common base class, you can use patterns lik
 When working with drops, remember these common attributes available through inheritance:
 
 1. From ModelElementDrop:
-* `_class`: Type of drop
-* `file`: Source file (if applicable)
-* `source`: Original source code
+
+`_class`:: Type of drop
+`file`:: Source file (if applicable)
+`source`:: Original source code
 
 2. From DeclarationDrop:
+
 * All ModelElementDrop attributes
 * Additional structure for named declarations
 
 3. When IdentifierDrop is included:
-* `id`: Identifier name
-* `remarks`: Documentation comments
-* `remark_items`: Structured documentation
-* `source`: Source representation
+
+`id`:: Identifier name
+`remarks`:: Documentation comments
+`remark_items`:: Structured documentation
+`source`:: Source representation

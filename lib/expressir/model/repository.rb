@@ -2,15 +2,12 @@ module Expressir
   module Model
     # Multi-schema global scope
     class Repository < ModelElement
-      model_attr_accessor :schemas, "Array<Declarations::Schema>"
+      attribute :schemas, Expressir::Model::Declarations::Schema, collection: true
 
-      # @param [Hash] options
-      # @option options [Array<Declarations::Schema>] :schemas
-      def initialize(options = {})
-        @schemas = options[:schemas] || []
-
-        super
-      end
+      # TODO: Add basic mappings that can be inherited by all subclasses
+      # key_value do
+      #   map 'schemas', to: :schemas
+      # end
 
       # @return [Array<Declaration>]
       def children

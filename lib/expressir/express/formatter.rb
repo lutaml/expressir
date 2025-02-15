@@ -1,5 +1,3 @@
-require_relative "../model"
-
 module Expressir
   module Express
     class Formatter

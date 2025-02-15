@@ -3,24 +3,11 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.4 Constant
-      class Constant < Declaration
+      class Constant < ::Expressir::Model::Declaration
         include Identifier
 
-        model_attr_accessor :type, "DataType"
-        model_attr_accessor :expression, "Expression"
-
-        # @param [Hash] options
-        # @option (see Identifier#initialize_identifier)
-        # @option options [DataType] :type
-        # @option options [Expression] :expression
-        def initialize(options = {})
-          initialize_identifier(options)
-
-          @type = options[:type]
-          @expression = options[:expression]
-
-          super
-        end
+        attribute :type, ::Expressir::Model::DataType
+        attribute :expression, ::Expressir::Model::Expression
 
         # @return [Array<Declaration>]
         def children

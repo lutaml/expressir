@@ -4,15 +4,7 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 8.1.2 Real data type
       class Real < DataType
-        model_attr_accessor :precision, "Expression"
-
-        # @param [Hash] options
-        # @option options [Expression] :precision
-        def initialize(options = {})
-          @precision = options[:precision]
-
-          super
-        end
+        attribute :precision, Expressir::Model::Expression
       end
     end
   end

@@ -6,18 +6,7 @@ module Expressir
       class Aggregate < DataType
         include Identifier
 
-        model_attr_accessor :base_type, "Type"
-
-        # @param [Hash] options
-        # @option (see Identifier#initialize_identifier)
-        # @option options [Type] :base_type
-        def initialize(options = {})
-          initialize_identifier(options)
-
-          @base_type = options[:base_type]
-
-          super
-        end
+        attribute :base_type, Expressir::Model::Declarations::Type
 
         # @return [Array<Declaration>]
         def children

@@ -18,6 +18,47 @@ module Expressir
         #   end
         # end
 
+        # TODO: MIGRATE: These were from the SchemaDrop object, we need to make
+        # these available in Liquid.
+        #
+        # def file_basename
+        #   File.basename(@model.file, ".exp")
+        # end
+        #
+        # def selected
+        #   @selected_schemas&.include?(@model.id) ||
+        #     @selected_schemas&.include?(file_basename)
+        # end
+        #
+        # def relative_path_prefix
+        #   return nil if @options.nil? || @options["document"].nil?
+        #
+        #   document = @options["document"]
+        #   file_path = File.dirname(@model.file)
+        #   docfile_directory = File.dirname(
+        #     document.attributes["docfile"] || ".",
+        #   )
+        #   document
+        #     .path_resolver
+        #     .system_path(file_path, docfile_directory)
+        # end
+        #
+        # def remarks
+        #   return [] unless @model.remarks
+        #
+        #   options = @options || {}
+        #   options["relative_path_prefix"] = relative_path_prefix
+        #
+        #   @model.remarks.map do |remark|
+        #     ::Expressir::Express::ExpressRemarksDecorator
+        #       .call(remark, options)
+        #   end
+        # end
+        #
+        # def formatted
+        #   @model.to_s(no_remarks: true)
+        # end
+
         include Identifier
 
         attribute :version, SchemaVersion

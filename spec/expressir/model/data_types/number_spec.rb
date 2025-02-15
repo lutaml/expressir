@@ -34,11 +34,11 @@ RSpec.describe Expressir::Model::DataTypes::Number do
 
       it "handles mixed-type arithmetic" do
         add_expr = Expressir::Model::Expressions::BinaryExpression.new(
-          operator: :ADDITION,
+          operator: "ADDITION",
           operand1: integer_value,
           operand2: real_value,
         )
-        expect(add_expr.operator).to eq :ADDITION
+        expect(add_expr.operator).to eq "ADDITION"
         expect(add_expr.operand1.value).to eq "5"
         expect(add_expr.operand2.value).to eq "5.5"
       end

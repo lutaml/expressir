@@ -40,7 +40,7 @@ RSpec.describe Expressir::Model::Declarations::Function do
     let(:statements) do
       [
         Expressir::Model::Statements::Return.new(
-          expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+          expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
         ),
       ]
     end
@@ -209,18 +209,18 @@ RSpec.describe Expressir::Model::Declarations::Function do
           statements: [
             Expressir::Model::Statements::Assignment.new(
               ref: Expressir::Model::References::SimpleReference.new(id: "test_var"),
-              expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+              expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
             ),
             Expressir::Model::Statements::If.new(
               expression: Expressir::Model::References::SimpleReference.new(id: "test_var"),
               statements: [
                 Expressir::Model::Statements::Return.new(
-                  expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+                  expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
                 ),
               ],
               else_statements: [
                 Expressir::Model::Statements::Return.new(
-                  expression: Expressir::Model::Literals::Logical.new(value: :FALSE),
+                  expression: Expressir::Model::Literals::Logical.new(value: "FALSE"),
                 ),
               ],
             ),

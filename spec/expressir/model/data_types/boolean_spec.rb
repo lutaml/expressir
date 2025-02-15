@@ -18,37 +18,37 @@ RSpec.describe Expressir::Model::DataTypes::Boolean do
     end
 
     context "when used in expressions" do
-      let(:true_value) { Expressir::Model::Literals::Logical.new(value: :TRUE) }
-      let(:false_value) { Expressir::Model::Literals::Logical.new(value: :FALSE) }
+      let(:true_value) { Expressir::Model::Literals::Logical.new(value: "TRUE") }
+      let(:false_value) { Expressir::Model::Literals::Logical.new(value: "FALSE") }
 
       it "handles boolean operations" do
         # Test AND operation
         and_expr = Expressir::Model::Expressions::BinaryExpression.new(
-          operator: :AND,
+          operator: "AND",
           operand1: true_value,
           operand2: false_value,
         )
-        expect(and_expr.operator).to eq :AND
-        expect(and_expr.operand1.value).to eq :TRUE
-        expect(and_expr.operand2.value).to eq :FALSE
+        expect(and_expr.operator).to eq "AND"
+        expect(and_expr.operand1.value).to eq "TRUE"
+        expect(and_expr.operand2.value).to eq "FALSE"
 
         # Test OR operation
         or_expr = Expressir::Model::Expressions::BinaryExpression.new(
-          operator: :OR,
+          operator: "OR",
           operand1: true_value,
           operand2: false_value,
         )
-        expect(or_expr.operator).to eq :OR
-        expect(or_expr.operand1.value).to eq :TRUE
-        expect(or_expr.operand2.value).to eq :FALSE
+        expect(or_expr.operator).to eq "OR"
+        expect(or_expr.operand1.value).to eq "TRUE"
+        expect(or_expr.operand2.value).to eq "FALSE"
 
         # Test NOT operation
         not_expr = Expressir::Model::Expressions::UnaryExpression.new(
-          operator: :NOT,
+          operator: "NOT",
           operand: true_value,
         )
-        expect(not_expr.operator).to eq :NOT
-        expect(not_expr.operand.value).to eq :TRUE
+        expect(not_expr.operator).to eq "NOT"
+        expect(not_expr.operand.value).to eq "TRUE"
       end
     end
   end
@@ -71,7 +71,7 @@ RSpec.describe Expressir::Model::DataTypes::Boolean do
     let(:boolean_type) { described_class.new }
 
     context "when used in conditional expressions" do
-      let(:true_value) { Expressir::Model::Literals::Logical.new(value: :TRUE) }
+      let(:true_value) { Expressir::Model::Literals::Logical.new(value: "TRUE") }
 
       it "can be used in if statements" do
         if_stmt = Expressir::Model::Statements::If.new(
@@ -79,7 +79,7 @@ RSpec.describe Expressir::Model::DataTypes::Boolean do
           statements: [],
           else_statements: [],
         )
-        expect(if_stmt.expression.value).to eq :TRUE
+        expect(if_stmt.expression.value).to eq "TRUE"
       end
 
       it "can be used in where rules" do
@@ -87,7 +87,7 @@ RSpec.describe Expressir::Model::DataTypes::Boolean do
           id: "test_rule",
           expression: true_value,
         )
-        expect(where_rule.expression.value).to eq :TRUE
+        expect(where_rule.expression.value).to eq "TRUE"
       end
     end
   end

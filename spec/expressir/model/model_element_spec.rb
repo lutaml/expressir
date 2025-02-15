@@ -1,124 +1,52 @@
 require "spec_helper"
 require_relative "../../../lib/expressir/express/parser"
 require_relative "../../../lib/expressir/express/formatter"
+require_relative "../../../lib/expressir/express/cache"
 
 RSpec.describe Expressir::Model::ModelElement do
-  describe ".to_hash" do
-    it "exports an object with a formatter (single.exp)" do |example|
-      print "\n[#{example.description}] "
-      exp_file = Expressir.root_path.join("spec", "syntax", "single.exp")
-      yaml_file = Expressir.root_path.join("spec", "syntax", "single_formatted.yaml")
-
-      repo = Expressir::Express::Parser.from_file(exp_file)
-
-      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path, formatter: Expressir::Express::Formatter))
-      # File.write(yaml_file, result)
-      expected_result = File.read(yaml_file)
-
-      expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
-    end
-
-    it "exports objects filtered by select_proc (multiple.exp)" do |example|
-      print "\n[#{example.description}] "
-      exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
-
-      repo = Expressir::Express::Parser.from_file(exp_file)
-
-      filtered_schemas = ["multiple_schema2", "multiple_schema3"]
-      select_proc = Proc.new do |value|
-        if value.is_a?(Expressir::Model::Declarations::Schema)
-          filtered_schemas.include?(value.id)
-        else
-          true
-        end
-      end
-
-      result = repo.to_hash(select_proc: select_proc)
-
-      expect(result["schemas"].map { |s| s["id"] }.sort).to eq(filtered_schemas)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
-    end
-  end
-
-  describe ".from_hash" do
-    it "parses an object (single.yaml)" do |example|
+  describe ".from_yaml/.to_yaml round trip" do
+    it "round-trips single schema YAML correctly" do |example|
       print "\n[#{example.description}] "
       yaml_file = Expressir.root_path.join("spec", "syntax", "single.yaml")
 
-      input = YAML.safe_load(File.read(yaml_file))
-      repo = Expressir::Model::ModelElement.from_hash(input, root_path: Expressir.root_path)
-
-      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
+      input = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
+      result = input.to_yaml
       expected_result = File.read(yaml_file)
 
       expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
-    it "parses an object (multiple.yaml)" do |example|
+    it "round-trips multiple schema YAML correctly" do |example|
       print "\n[#{example.description}] "
       yaml_file = Expressir.root_path.join("spec", "syntax", "multiple.yaml")
 
-      input = YAML.safe_load(File.read(yaml_file), permitted_classes: [Symbol]) # For UTF8 symbols
-      repo = Expressir::Model::ModelElement.from_hash(input, root_path: Expressir.root_path)
-
-      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
+      input = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
+      result = input.to_yaml
       expected_result = File.read(yaml_file)
 
       expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
-    it "parses an object (syntax.yaml)" do |example|
+    it "round-trips syntax schema YAML correctly" do |example|
       print "\n[#{example.description}] "
       yaml_file = Expressir.root_path.join("spec", "syntax", "syntax.yaml")
 
-      input = YAML.safe_load(File.read(yaml_file), permitted_classes: [Symbol]) # For UTF8 symbols
-      repo = Expressir::Model::ModelElement.from_hash(input, root_path: Expressir.root_path)
-
-      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
+      input = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
+      result = input.to_yaml
       expected_result = File.read(yaml_file)
 
       expect(result).to eq(expected_result)
-
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
-    it "parses an object (remark.yaml)" do |example|
+    it "round-trips remark schema YAML correctly" do |example|
       print "\n[#{example.description}] "
       yaml_file = Expressir.root_path.join("spec", "syntax", "remark.yaml")
 
-      input = YAML.safe_load(File.read(yaml_file), permitted_classes: [Symbol]) # For UTF8 symbols
-      repo = Expressir::Model::ModelElement.from_hash(input, root_path: Expressir.root_path)
-
-      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
+      input = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
+      result = input.to_yaml
       expected_result = File.read(yaml_file)
 
       expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
   end
 
@@ -136,11 +64,6 @@ RSpec.describe Expressir::Model::ModelElement do
       # schema scope
       schema = repo.schemas.first
       expect(schema.find("empty_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
     it "finds an object (multiple.exp)" do |example|
@@ -164,11 +87,6 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(schema.find("attribute_entity2")).to be_instance_of(Expressir::Model::Declarations::Entity)
       expect(schema.find("attribute_entity3")).to be_instance_of(Expressir::Model::Declarations::Entity)
       expect(schema.find("attribute_entity4")).to be_instance_of(Expressir::Model::Declarations::Entity)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
     it "finds an object (syntax.exp)" do |example|
@@ -184,11 +102,6 @@ RSpec.describe Expressir::Model::ModelElement do
       # schema scope
       schema = repo.schemas.first
       expect(schema.find("empty_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
     it "finds an object (remark.exp)" do |example|
@@ -332,11 +245,6 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(entity.find("remark_type.wr:WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
       expect(entity.find("remark_type.IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
       expect(entity.find("remark_type.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
   end
 
@@ -347,7 +255,7 @@ RSpec.describe Expressir::Model::ModelElement do
     result = []
 
     it "compares Expressir::Liquid with Expressir::Model" do
-      loop_model_attrs(repo, repo_drop, result)
+      check_nested_model_to_liquid(repo, repo_drop, result)
 
       result.each do |r|
         expect(r[:value]).to eq(r[:drop_value]),

@@ -31,7 +31,7 @@ RSpec.describe Expressir::Model::Declarations::Attribute do
     it "creates an explicit attribute" do
       expect(attribute).to be_a described_class
       expect(attribute.id).to eq "test_attribute"
-      expect(attribute.kind).to eq :EXPLICIT
+      expect(attribute.kind).to eq "EXPLICIT"
       expect(attribute.optional).to be true
       expect(attribute.type).to be_a Expressir::Model::DataTypes::String
       expect(attribute.remarks).to eq ["Test remark"]
@@ -67,17 +67,17 @@ RSpec.describe Expressir::Model::Declarations::Attribute do
       end
 
       it "handles explicit attributes" do
-        expect(explicit_attr.kind).to eq :EXPLICIT
+        expect(explicit_attr.kind).to eq "EXPLICIT"
         expect(explicit_attr.expression).to be_nil
       end
 
       it "handles derived attributes" do
-        expect(derived_attr.kind).to eq :DERIVED
+        expect(derived_attr.kind).to eq "DERIVED"
         expect(derived_attr.expression.value).to eq "42"
       end
 
       it "handles inverse attributes" do
-        expect(inverse_attr.kind).to eq :INVERSE
+        expect(inverse_attr.kind).to eq "INVERSE"
         expect(inverse_attr.expression.id).to eq "other_attr"
       end
     end

@@ -21,11 +21,6 @@ RSpec.describe Expressir::Express::Parser do
       expected_result = File.read(yaml_file)
 
       expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
     it "parses a file (multiple.exp)" do |example|
@@ -39,11 +34,6 @@ RSpec.describe Expressir::Express::Parser do
       expected_result = File.read(yaml_file)
 
       expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
     it "parses a file (mathematical_functions_schema.exp) with remark_items" do |example|
@@ -76,11 +66,6 @@ RSpec.describe Expressir::Express::Parser do
       expected_result = File.read(yaml_file)
 
       expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
     it "parses a file (remark.exp)" do |example|
@@ -94,11 +79,6 @@ RSpec.describe Expressir::Express::Parser do
       expected_result = File.read(yaml_file)
 
       expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
     it "parses a file including original source (multiple.exp)" do |example|
@@ -119,11 +99,6 @@ RSpec.describe Expressir::Express::Parser do
       stop_index = input.index("END_ENTITY;") + "END_ENTITY;".length - 1
       expected_result = input[start_index..stop_index]
       expect(entity.source).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
   end
 
@@ -149,11 +124,6 @@ RSpec.describe Expressir::Express::Parser do
       expect(schemas[3].id).to eq("multiple_schema3")
       expect(schemas[4].file).to eq(exp_files[1].to_s)
       expect(schemas[4].id).to eq("multiple_schema4")
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
   end
 end

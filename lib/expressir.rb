@@ -1,5 +1,5 @@
+require "zeitwerk"
 require_relative "expressir/version"
-
 require_relative "expressir/cli"
 require_relative "expressir/config"
 
@@ -35,6 +35,8 @@ module Expressir
   end
 end
 
+loader = Zeitwerk::Loader.for_gem
+loader.setup
 Dir[File.join(__dir__, "expressir", "express", "*.rb")].sort.each do |fea|
   require fea
 end

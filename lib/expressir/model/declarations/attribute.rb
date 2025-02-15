@@ -3,7 +3,7 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.2.1 Attributes
-      class Attribute < Declaration
+      class Attribute < ::Expressir::Model::Declaration
         include Identifier
 
         EXPLICIT = :EXPLICIT

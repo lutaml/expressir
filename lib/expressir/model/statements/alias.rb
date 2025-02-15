@@ -6,21 +6,8 @@ module Expressir
       class Alias < Statement
         include Identifier
 
-        model_attr_accessor :expression, "Expression"
-        model_attr_accessor :statements, "Array<Statement>"
-
-        # @param [Hash] options
-        # @option (see Identifier#initialize_identifier)
-        # @option options [Expression] :expression
-        # @option options [Array<Statement>] :statements
-        def initialize(options = {})
-          initialize_identifier(options)
-
-          @expression = options[:expression]
-          @statements = options[:statements] || []
-
-          super
-        end
+        attribute :expression, Expressir::Model::Expression
+        attribute :statements, Statement, collection: true
 
         # @return [Array<Declaration>]
         def children

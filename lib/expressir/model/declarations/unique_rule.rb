@@ -3,21 +3,10 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.2.2.1 Uniqueness rule
-      class UniqueRule < Declaration
+      class UniqueRule < ::Expressir::Model::Declaration
         include Identifier
 
-        model_attr_accessor :attributes, "Reference"
-
-        # @param [Hash] options
-        # @option (see Identifier#initialize_identifier)
-        # @option options [Reference] :attributes
-        def initialize(options = {})
-          initialize_identifier(options)
-
-          @attributes = options[:attributes] || []
-
-          super
-        end
+        attribute :attributes, ::Expressir::Model::Reference
 
         # @return [Array<Declaration>]
         def children

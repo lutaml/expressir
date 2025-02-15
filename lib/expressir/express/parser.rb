@@ -1,6 +1,4 @@
 require "parslet"
-require_relative "resolve_references_model_visitor"
-require_relative "../model"
 
 module Expressir
   module Express

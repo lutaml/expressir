@@ -3,50 +3,20 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.3 Schema
-      class Schema < Declaration
-        model_attr_accessor :file, "String"
+      class Schema < ::Expressir::Model::Declaration
+        attribute :file, :string
 
         include Identifier
 
-        model_attr_accessor :version, "SchemaVersion"
-        model_attr_accessor :interfaces, "Array<Interface>"
-        model_attr_accessor :constants, "Array<Constant>"
-        model_attr_accessor :types, "Array<Type>"
-        model_attr_accessor :entities, "Array<Entity>"
-        model_attr_accessor :subtype_constraints, "Array<SubtypeConstraint>"
-        model_attr_accessor :functions, "Array<Function>"
-        model_attr_accessor :rules, "Array<Rule>"
-        model_attr_accessor :procedures, "Array<Procedure>"
-
-        # @param [Hash] options
-        # @option options [String] :file
-        # @option (see Identifier#initialize_identifier)
-        # @option options [SchemaVersion] :version
-        # @option options [Array<Interface>] :interfaces
-        # @option options [Array<Constant>] :constants
-        # @option options [Array<Type>] :types
-        # @option options [Array<Entity>] :entities
-        # @option options [Array<SubtypeConstraint>] :subtype_constraints
-        # @option options [Array<Function>] :functions
-        # @option options [Array<Rule>] :rules
-        # @option options [Array<Procedure>] :procedures
-        def initialize(options = {})
-          @file = options[:file]
-
-          initialize_identifier(options)
-
-          @version = options[:version]
-          @interfaces = options[:interfaces] || []
-          @constants = options[:constants] || []
-          @types = options[:types] || []
-          @entities = options[:entities] || []
-          @subtype_constraints = options[:subtype_constraints] || []
-          @functions = options[:functions] || []
-          @rules = options[:rules] || []
-          @procedures = options[:procedures] || []
-
-          super
-        end
+        attribute :version, SchemaVersion
+        attribute :interfaces, Interface, collection: true
+        attribute :constants, Constant, collection: true
+        attribute :types, Type, collection: true
+        attribute :entities, Entity, collection: true
+        attribute :subtype_constraints, SubtypeConstraint, collection: true
+        attribute :functions, Function, collection: true
+        attribute :rules, Rule, collection: true
+        attribute :procedures, Procedure, collection: true
 
         # @return [Array<Declaration>]
         def safe_children

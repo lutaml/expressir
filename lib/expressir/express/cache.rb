@@ -1,5 +1,4 @@
 require "zlib"
-require_relative "../model"
 
 module Expressir
   module Express
@@ -16,10 +15,10 @@ module Expressir
         cache = Model::Cache.new(
           version: version,
           content: content,
+          root_path: root_path
         )
 
-        hash = cache.to_hash(root_path: root_path)
-        yaml = YAML.dump(hash)
+        yaml = cache.to_yaml
         yaml_compressed = Zlib::Deflate.deflate(yaml)
 
         File.binwrite(file, yaml_compressed)
@@ -36,8 +35,7 @@ module Expressir
 
         yaml_compressed = File.binread(file)
         yaml = Zlib::Inflate.inflate(yaml_compressed)
-        hash = YAML.safe_load(yaml, permitted_classes: [Symbol])
-        cache = Model::ModelElement.from_hash(hash, root_path: root_path)
+        cache = Model::Cache.from_yaml(yaml)
 
         if cache.version != version
           raise Error.new("Cache version mismatch, cache version is #{cache.version}, Expressir version is #{version}")

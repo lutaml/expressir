@@ -6,21 +6,8 @@ module Expressir
       class QueryExpression < Expression
         include Identifier
 
-        model_attr_accessor :aggregate_source, "Reference"
-        model_attr_accessor :expression, "Expression"
-
-        # @param [Hash] options
-        # @option (see Identifier#initialize_identifier)
-        # @option options [Reference] :aggregace_source
-        # @option options [Expression] :expression
-        def initialize(options = {})
-          initialize_identifier(options)
-
-          @aggregate_source = options[:aggregate_source]
-          @expression = options[:expression]
-
-          super
-        end
+        attribute :aggregate_source, ::Expressir::Model::Reference
+        attribute :expression, Expressir::Model::Expression
 
         # @return [Array<Declaration>]
         def children

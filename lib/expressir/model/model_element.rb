@@ -3,20 +3,23 @@ require "pathname"
 module Expressir
   module Model
     # Base model element
-    class ModelElement
-      CLASS_KEY = "_class".freeze
-      FILE_KEY = "file".freeze
-      SOURCE_KEY = "source".freeze
+    class ModelElement < Lutaml::Model::Serializable
+      SKIP_ATTRIBUTES = %i[parent _class].freeze
+      # :parent is a special attribute that is used to store the parent of the current element
+      # It is not a real attribute
+      attribute :parent, ModelElement
+      attribute :source, :string
+      attribute :_class, :string, default: -> { self.name }
 
-      private_constant :CLASS_KEY
-      private_constant :FILE_KEY
-      private_constant :SOURCE_KEY
 
-      # @return [ModelElement]
-      attr_accessor :parent
-
+      # TODO: Add basic mappings that can be inherited by all subclasses
+      # key_value do
+      #   map '_class', to: :_class, render_default: true
+      #   map 'source', to: :source
+      # end
       # @param [Hash] options
       def initialize(_options = {})
+        super
         attach_parent_to_children
       end
 
@@ -196,42 +199,25 @@ module Expressir
         node_class.new(node_options)
       end
 
-      # @return [Array<Symbol>]
-      def self.model_attrs
-        @model_attrs ||= []
-      end
-
-      # Define a new model attribute
-      # @param attr_name [Symbol] attribute name
-      # @param attr_type [Symbol] attribute type
-      # @!macro [attach] model_attr_accessor
-      #   @!attribute $1
-      #     @return [$2]
-      def self.model_attr_accessor(attr_name, _attr_type = nil)
-        @model_attrs ||= []
-        @model_attrs << attr_name
-
-        attr_accessor attr_name
-      end
-
       private
 
       # @return [nil]
       def attach_parent_to_children
-        self.class.model_attrs.each do |variable|
-          value = send(variable)
+        self.class.attributes.each_pair do |symbol, lutaml_attr|
 
+          value = self.send(symbol)
           case value
           when Array
-            value.each do |value|
-              if value.is_a? ModelElement
-                value.parent = self
+            value.each do |val|
+              if val.is_a?(ModelElement)
+                val.parent = self
               end
             end
           when ModelElement
             value.parent = self
           end
         end
+
         nil
       end
     end

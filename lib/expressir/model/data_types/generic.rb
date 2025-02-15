@@ -6,14 +6,6 @@ module Expressir
       class Generic < DataType
         include Identifier
 
-        # @param [Hash] options
-        # @option (see Identifier#initialize_identifier)
-        def initialize(options = {})
-          initialize_identifier(options)
-
-          super
-        end
-
         # @return [Array<Declaration>]
         def children
           [

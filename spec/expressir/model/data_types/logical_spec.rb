@@ -10,35 +10,35 @@ RSpec.describe Expressir::Model::DataTypes::Logical do
   end
 
   describe "tristate behavior" do
-    let(:true_value) { Expressir::Model::Literals::Logical.new(value: :TRUE) }
-    let(:false_value) { Expressir::Model::Literals::Logical.new(value: :FALSE) }
-    let(:unknown_value) { Expressir::Model::Literals::Logical.new(value: :UNKNOWN) }
+    let(:true_value) { Expressir::Model::Literals::Logical.new(value: "TRUE") }
+    let(:false_value) { Expressir::Model::Literals::Logical.new(value: "FALSE") }
+    let(:unknown_value) { Expressir::Model::Literals::Logical.new(value: "UNKNOWN") }
 
     context "with UNKNOWN values" do
       it "handles UNKNOWN in AND operations" do
         and_expr = Expressir::Model::Expressions::BinaryExpression.new(
-          operator: :AND,
+          operator: "AND",
           operand1: unknown_value,
           operand2: true_value,
         )
-        expect(and_expr.operand1.value).to eq :UNKNOWN
+        expect(and_expr.operand1.value).to eq "UNKNOWN"
       end
 
       it "handles UNKNOWN in OR operations" do
         or_expr = Expressir::Model::Expressions::BinaryExpression.new(
-          operator: :OR,
+          operator: "OR",
           operand1: unknown_value,
           operand2: false_value,
         )
-        expect(or_expr.operand1.value).to eq :UNKNOWN
+        expect(or_expr.operand1.value).to eq "UNKNOWN"
       end
 
       it "handles NOT of UNKNOWN" do
         not_expr = Expressir::Model::Expressions::UnaryExpression.new(
-          operator: :NOT,
+          operator: "NOT",
           operand: unknown_value,
         )
-        expect(not_expr.operand.value).to eq :UNKNOWN
+        expect(not_expr.operand.value).to eq "UNKNOWN"
       end
     end
   end
@@ -58,7 +58,7 @@ RSpec.describe Expressir::Model::DataTypes::Logical do
   end
 
   describe "edge cases" do
-    let(:unknown_value) { Expressir::Model::Literals::Logical.new(value: :UNKNOWN) }
+    let(:unknown_value) { Expressir::Model::Literals::Logical.new(value: "UNKNOWN") }
 
     context "when used in conditions" do
       it "handles UNKNOWN in where rules" do
@@ -66,7 +66,7 @@ RSpec.describe Expressir::Model::DataTypes::Logical do
           id: "test_rule",
           expression: unknown_value,
         )
-        expect(where_rule.expression.value).to eq :UNKNOWN
+        expect(where_rule.expression.value).to eq "UNKNOWN"
       end
     end
   end

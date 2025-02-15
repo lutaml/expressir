@@ -61,7 +61,7 @@ RSpec.describe Expressir::Model::Declarations::Constant do
         described_class.new(
           id: "BOOL_CONST",
           type: Expressir::Model::DataTypes::Logical.new,
-          expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+          expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
         )
       end
 
@@ -82,7 +82,7 @@ RSpec.describe Expressir::Model::Declarations::Constant do
 
       it "handles logical constants" do
         expect(logical_constant.type).to be_a Expressir::Model::DataTypes::Logical
-        expect(logical_constant.expression.value).to eq :TRUE
+        expect(logical_constant.expression.value).to eq "TRUE"
       end
     end
   end
@@ -94,7 +94,7 @@ RSpec.describe Expressir::Model::Declarations::Constant do
           id: "CALC_CONST",
           type: Expressir::Model::DataTypes::Integer.new,
           expression: Expressir::Model::Expressions::BinaryExpression.new(
-            operator: :ADDITION,
+            operator: "ADDITION",
             operand1: Expressir::Model::Literals::Integer.new(value: "5"),
             operand2: Expressir::Model::Literals::Integer.new(value: "3"),
           ),
@@ -122,7 +122,7 @@ RSpec.describe Expressir::Model::Declarations::Constant do
 
       it "handles arithmetic expressions" do
         expect(arithmetic_constant.expression).to be_a Expressir::Model::Expressions::BinaryExpression
-        expect(arithmetic_constant.expression.operator).to eq :ADDITION
+        expect(arithmetic_constant.expression.operator).to eq "ADDITION"
         expect(arithmetic_constant.expression.operand1.value).to eq "5"
         expect(arithmetic_constant.expression.operand2.value).to eq "3"
       end

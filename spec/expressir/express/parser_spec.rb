@@ -16,7 +16,7 @@ RSpec.describe Expressir::Express::Parser do
       yaml_file = Expressir.root_path.join("spec", "syntax", "single.yaml")
 
       repo = Expressir::Express::Parser.from_file(exp_file)
-      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
+      result = repo.to_yaml
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
 
@@ -29,7 +29,7 @@ RSpec.describe Expressir::Express::Parser do
       yaml_file = Expressir.root_path.join("spec", "syntax", "multiple.yaml")
 
       repo = Expressir::Express::Parser.from_file(exp_file)
-      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
+      result = repo.to_yaml
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
 
@@ -61,7 +61,7 @@ RSpec.describe Expressir::Express::Parser do
       yaml_file = Expressir.root_path.join("spec", "syntax", "syntax.yaml")
 
       repo = Expressir::Express::Parser.from_file(exp_file)
-      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
+      result = repo.to_yaml
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
 
@@ -74,7 +74,7 @@ RSpec.describe Expressir::Express::Parser do
       yaml_file = Expressir.root_path.join("spec", "syntax", "remark.yaml")
 
       repo = Expressir::Express::Parser.from_file(exp_file)
-      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
+      result = repo.to_yaml
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
 

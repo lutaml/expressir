@@ -149,24 +149,24 @@ RSpec.describe Expressir::Model::Declarations::Entity do
       end
 
       it "handles different attribute kinds" do
-        expect(entity_with_attributes.attributes.map(&:kind)).to eq %i[EXPLICIT DERIVED INVERSE]
+        expect(entity_with_attributes.attributes.map(&:kind)).to eq %w[EXPLICIT DERIVED INVERSE]
       end
 
       it "handles explicit attributes" do
         explicit_attr = entity_with_attributes.attributes.first
-        expect(explicit_attr.kind).to eq :EXPLICIT
+        expect(explicit_attr.kind).to eq "EXPLICIT"
         expect(explicit_attr.type).to be_a Expressir::Model::DataTypes::String
       end
 
       it "handles derived attributes" do
         derived_attr = entity_with_attributes.attributes[1]
-        expect(derived_attr.kind).to eq :DERIVED
+        expect(derived_attr.kind).to eq "DERIVED"
         expect(derived_attr.expression.value).to eq "42"
       end
 
       it "handles inverse attributes" do
         inverse_attr = entity_with_attributes.attributes.last
-        expect(inverse_attr.kind).to eq :INVERSE
+        expect(inverse_attr.kind).to eq "INVERSE"
         expect(inverse_attr.expression.id).to eq "other_attr"
       end
 
@@ -199,7 +199,7 @@ RSpec.describe Expressir::Model::Declarations::Entity do
           where_rules: [
             Expressir::Model::Declarations::WhereRule.new(
               id: "WR1",
-              expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+              expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
             ),
           ],
         )
@@ -226,7 +226,7 @@ RSpec.describe Expressir::Model::Declarations::Entity do
 
       it "handles where rules" do
         expect(entity_with_rules.where_rules.first.id).to eq "WR1"
-        expect(entity_with_rules.where_rules.first.expression.value).to eq :TRUE
+        expect(entity_with_rules.where_rules.first.expression.value).to eq "TRUE"
       end
 
       it "handles multiple rules" do
@@ -260,7 +260,7 @@ RSpec.describe Expressir::Model::Declarations::Entity do
         described_class.new(
           id: "complex_super",
           supertype_expression: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression.new(
-            operator: :AND,
+            operator: "AND",
             operand1: Expressir::Model::References::SimpleReference.new(id: "entity1"),
             operand2: Expressir::Model::References::SimpleReference.new(id: "entity2"),
           ),
@@ -279,7 +279,7 @@ RSpec.describe Expressir::Model::Declarations::Entity do
 
       it "handles complex supertype expressions" do
         expect(complex_supertype_expression.supertype_expression).to be_a Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-        expect(complex_supertype_expression.supertype_expression.operator).to eq :AND
+        expect(complex_supertype_expression.supertype_expression.operator).to eq "AND"
       end
     end
   end

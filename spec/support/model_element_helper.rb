@@ -1,9 +1,13 @@
 module Expressir
   module ModelElementSpecHelper
-    def loop_model_attrs(model, drop_model, result) # rubocop:disable Metrics/AbcSize
-      model.class.model_attrs.each do |attr|
-        value = model.send(attr)
-        drop_value = drop_model.send(attr)
+    def check_nested_model_to_liquid(model, drop_model, result) # rubocop:disable Metrics/AbcSize
+
+      model.class.attributes.each do |symbol, lutaml_attr|
+        # Skip `parent` and `_class` attributes as they are not a part of the model
+        next if ::Expressir::Model::ModelElement::SKIP_ATTRIBUTES.include?(symbol)
+
+        value = model.send(symbol)
+        drop_value = drop_model.send(symbol)
 
         case value
         when Array
@@ -11,11 +15,11 @@ module Expressir
             dv = drop_value[i]
 
             if v.is_a? ::Expressir::Model::ModelElement
-              loop_model_attrs(v, dv, result)
+              check_nested_model_to_liquid(v, dv, result)
             else
-              # puts "Expecting #{model.class.name} model_attr: #{attr} " \
+              # puts "Expecting #{model.class.name} model_attr: #{symbol} " \
               #      "value: #{v} equals to #{drop_model.class.name} " \
-              #      "model_attr: #{attr} value: #{dv}"
+              #      "model_attr: #{symbol} value: #{dv}"
 
               result << {
                 model: model.class.name,
@@ -27,7 +31,7 @@ module Expressir
             end
           end.compact
         when ::Expressir::Model::ModelElement
-          loop_model_attrs(value, drop_value, result)
+          check_nested_model_to_liquid(value, drop_value, result)
         else
           # puts "Expecting #{model.class.name} model_attr: #{attr} " \
           #      "value: #{value} equals to #{drop_model.class.name} " \

@@ -6,13 +6,13 @@ schemas:
   id: multiple_schema
   interfaces:
   - _class: Expressir::Model::Declarations::Interface
-    kind: :REFERENCE
+    kind: REFERENCE
     schema:
       _class: Expressir::Model::References::SimpleReference
       id: multiple_schema2
       base_path: multiple_schema2
   - _class: Expressir::Model::Declarations::Interface
-    kind: :REFERENCE
+    kind: REFERENCE
     schema:
       _class: Expressir::Model::References::SimpleReference
       id: multiple_schema3
@@ -24,7 +24,7 @@ schemas:
         id: attribute_entity3
         base_path: multiple_schema3.attribute_entity3
   - _class: Expressir::Model::Declarations::Interface
-    kind: :REFERENCE
+    kind: REFERENCE
     schema:
       _class: Expressir::Model::References::SimpleReference
       id: multiple_schema4
@@ -46,7 +46,7 @@ schemas:
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: test
-      kind: :EXPLICIT
+      kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean
   - _class: Expressir::Model::Declarations::Entity
@@ -63,7 +63,7 @@ schemas:
       base_path: multiple_schema.attribute_entity
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
-      kind: :EXPLICIT
+      kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
         ref:
@@ -88,7 +88,7 @@ schemas:
       base_path: multiple_schema2.attribute_entity2
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
-      kind: :EXPLICIT
+      kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
         ref:
@@ -113,7 +113,7 @@ schemas:
       base_path: multiple_schema3.attribute_entity3
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
-      kind: :EXPLICIT
+      kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
         ref:
@@ -138,7 +138,7 @@ schemas:
       base_path: multiple_schema4.attribute_entity
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
-      kind: :EXPLICIT
+      kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
         ref:
@@ -169,7 +169,7 @@ schemas:
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: test
-      kind: :EXPLICIT
+      kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean
 - _class: Expressir::Model::Declarations::Schema
@@ -181,7 +181,7 @@ schemas:
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: test
-      kind: :EXPLICIT
+      kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean
 - _class: Expressir::Model::Declarations::Schema
@@ -193,6 +193,6 @@ schemas:
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: test
-      kind: :EXPLICIT
+      kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean

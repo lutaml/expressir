@@ -217,7 +217,7 @@ RSpec.describe Expressir::Model::Declarations::Procedure do
               expression: Expressir::Model::Literals::Integer.new(value: "42"),
             ),
             Expressir::Model::Statements::If.new(
-              expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+              expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
               statements: [
                 Expressir::Model::Statements::Skip.new,
               ],
@@ -232,7 +232,7 @@ RSpec.describe Expressir::Model::Declarations::Procedure do
                   expression: Expressir::Model::Literals::Integer.new(value: "0"),
                 ),
               ],
-              while_expression: Expressir::Model::Literals::Logical.new(value: :FALSE),
+              while_expression: Expressir::Model::Literals::Logical.new(value: "FALSE"),
             ),
           ],
         )
@@ -248,7 +248,7 @@ RSpec.describe Expressir::Model::Declarations::Procedure do
       it "handles conditional statements" do
         if_stmt = procedure_with_statements.statements[1]
         expect(if_stmt).to be_a Expressir::Model::Statements::If
-        expect(if_stmt.expression.value).to eq :TRUE
+        expect(if_stmt.expression.value).to eq "TRUE"
         expect(if_stmt.statements.first).to be_a Expressir::Model::Statements::Skip
         expect(if_stmt.else_statements.first).to be_a Expressir::Model::Statements::Null
       end
@@ -257,7 +257,7 @@ RSpec.describe Expressir::Model::Declarations::Procedure do
         repeat_stmt = procedure_with_statements.statements[2]
         expect(repeat_stmt).to be_a Expressir::Model::Statements::Repeat
         expect(repeat_stmt.statements.first).to be_a Expressir::Model::Statements::Assignment
-        expect(repeat_stmt.while_expression.value).to eq :FALSE
+        expect(repeat_stmt.while_expression.value).to eq "FALSE"
       end
     end
   end

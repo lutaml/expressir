@@ -18,7 +18,7 @@ RSpec.describe Expressir::Model::Declarations::Type do
       [
         Expressir::Model::Declarations::WhereRule.new(
           id: "WR1",
-          expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+          expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
         ),
       ]
     end
@@ -115,7 +115,7 @@ RSpec.describe Expressir::Model::Declarations::Type do
           where_rules: [
             Expressir::Model::Declarations::WhereRule.new(
               id: "WR1",
-              expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+              expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
             ),
           ],
         )
@@ -128,12 +128,12 @@ RSpec.describe Expressir::Model::Declarations::Type do
           where_rules: [
             Expressir::Model::Declarations::WhereRule.new(
               id: "WR1",
-              expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+              expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
             ),
             Expressir::Model::Declarations::WhereRule.new(
               id: "WR2",
               expression: Expressir::Model::Expressions::BinaryExpression.new(
-                operator: :GREATER_THAN,
+                operator: "GREATER_THAN",
                 operand1: Expressir::Model::References::SimpleReference.new(id: "SELF"),
                 operand2: Expressir::Model::Literals::Integer.new(value: "0"),
               ),

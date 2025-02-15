@@ -91,22 +91,22 @@ RSpec.describe Expressir::Model::DataTypes::String do
 
       it "handles string concatenation" do
         concat_expr = Expressir::Model::Expressions::BinaryExpression.new(
-          operator: :COMBINE,
+          operator: "COMBINE",
           operand1: string1,
           operand2: string2,
         )
-        expect(concat_expr.operator).to eq :COMBINE
+        expect(concat_expr.operator).to eq "COMBINE"
         expect(concat_expr.operand1.value).to eq "test"
         expect(concat_expr.operand2.value).to eq "TEST"
       end
 
       it "handles LIKE operations" do
         like_expr = Expressir::Model::Expressions::BinaryExpression.new(
-          operator: :LIKE,
+          operator: "LIKE",
           operand1: string1,
           operand2: string2,
         )
-        expect(like_expr.operator).to eq :LIKE
+        expect(like_expr.operator).to eq "LIKE"
       end
     end
   end

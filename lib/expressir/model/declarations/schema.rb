@@ -6,6 +6,18 @@ module Expressir
       class Schema < ::Expressir::Model::Declaration
         attribute :file, :string
 
+        # TODO: MIGRATE: Set `file` path
+        # def file
+        #   node_options[FILE_KEY.to_sym] = root_path ? File.expand_path("#{root_path}/#{hash[FILE_KEY]}") : hash[FILE_KEY]
+        # end
+
+        # TODO: MIGRATE: Implement formatting of `source`
+        # def source
+        #   if self.class.method_defined?(:source) && formatter
+        #     hash[SOURCE_KEY] = formatter.format(self)
+        #   end
+        # end
+
         include Identifier
 
         attribute :version, SchemaVersion

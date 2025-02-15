@@ -9,6 +9,8 @@ module Expressir
       #   map 'schemas', to: :schemas
       # end
 
+      # TODO: Implement schema selection mechanism ("select_proc")
+
       # @return [Array<Declaration>]
       def children
         [

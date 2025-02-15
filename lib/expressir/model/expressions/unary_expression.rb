@@ -5,22 +5,12 @@ module Expressir
       # - section 12.1 Arithmetic operators
       # - section 12.4.1 NOT operator
       class UnaryExpression < Expression
-        MINUS = :MINUS
-        NOT = :NOT
-        PLUS = :PLUS
+        MINUS = "MINUS"
+        NOT = "NOT"
+        PLUS = "PLUS"
 
-        model_attr_accessor :operator, ":MINUS, :NOT, :PLUS"
-        model_attr_accessor :operand, "Expression"
-
-        # @param [Hash] options
-        # @option options [:MINUS, :NOT, :PLUS] :operator
-        # @option options [Expression] :operand
-        def initialize(options = {})
-          @operator = options[:operator]
-          @operand = options[:operand]
-
-          super
-        end
+        attribute :operator, :string, values: %w[MINUS NOT PLUS]
+        attribute :operand, Expression
       end
     end
   end

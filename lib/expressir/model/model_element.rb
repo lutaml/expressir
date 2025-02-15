@@ -94,109 +94,10 @@ module Expressir
         nil
       end
 
-      # @param [String] root_path
-      # @param [Express::Formatter] formatter
-      # @param [Boolean] include_empty
-      # @param [Proc] select_proc
-      # @return [Hash]
-      def to_hash(root_path: nil, formatter: nil, include_empty: nil, select_proc: nil)
-        # Filter out entries
-        has_filter = !select_proc.nil? && select_proc.is_a?(Proc)
-        return nil if has_filter && !select_proc.call(self)
-
-        hash = {}
-        hash[CLASS_KEY] = self.class.name
-
-        self.class.model_attrs.each do |variable|
-          value = send(variable)
-          empty = value.nil? || (value.is_a?(Array) && value.count.zero?)
-
-          # skip empty values
-          next unless !empty || include_empty
-
-          value_hash = case value
-                       when Array
-                         value.map do |v|
-                           if v.is_a? ModelElement
-                             v.to_hash(
-                               root_path: root_path,
-                               formatter: formatter,
-                               include_empty: include_empty,
-                               select_proc: select_proc,
-                             )
-                           else
-                             v
-                           end
-                         end.compact
-                       when ModelElement
-                         value.to_hash(
-                           root_path: root_path,
-                           formatter: formatter,
-                           include_empty: include_empty,
-                           select_proc: select_proc,
-                         )
-                       else
-                         value
-                       end
-
-          hash[variable.to_s] = value_hash unless value_hash.nil?
-        end
-
-        if is_a?(Declarations::Schema) && file
-          hash[FILE_KEY] = root_path ? Pathname.new(file).relative_path_from(root_path).to_s : file
-        end
-
-        if self.class.method_defined?(:source) && formatter
-          hash[SOURCE_KEY] = formatter.format(self)
-        end
-
-        hash
-      end
-
-      # @return [Liquid::Drop]
-      def to_liquid(options: nil)
-        klass_name = "#{self.class.name.gsub('::Model::', '::Liquid::')}Drop"
-        klass = Object.const_get(klass_name)
-        klass.new(self, options: options)
-      end
-
       def to_s(no_remarks: false, formatter: nil)
         f = formatter || Express::Formatter.new(no_remarks: no_remarks)
         f.no_remarks = no_remarks
         f.format(self)
-      end
-
-      # @param [Hash] hash
-      # @param [String] root_path
-      # @return [ModelElement]
-      def self.from_hash(hash, root_path: nil)
-        node_class = Object.const_get(hash[CLASS_KEY])
-        node_options = {}
-
-        node_class.model_attrs.each do |variable|
-          value = hash[variable.to_s]
-
-          node_options[variable] = case value
-                                   when Array
-                                     value.map do |value|
-                                       if value.is_a? Hash
-                                         from_hash(value, root_path: root_path)
-                                       else
-                                         value
-                                       end
-                                     end
-                                   when Hash
-                                     from_hash(value, root_path: root_path)
-                                   else
-                                     value
-                                   end
-        end
-
-        if (node_class == Declarations::Schema) && hash[FILE_KEY]
-          node_options[FILE_KEY.to_sym] = root_path ? File.expand_path("#{root_path}/#{hash[FILE_KEY]}") : hash[FILE_KEY]
-        end
-
-        node_class.new(node_options)
       end
 
       private

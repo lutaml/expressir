@@ -12,7 +12,7 @@ Many EXPRESS model elements have an identifier and associated documentation. In 
 `remark_items`:: Array of structured remarks as RemarkItemDrop objects
 `source`:: The original source code representation
 
-The following drops include identifier functionality:
+The following drops include Identifier functionality:
 
 * Schema drops
 * Type drops
@@ -40,7 +40,6 @@ Example using identifier attributes:
 
 [source,liquid]
 ----
-{% macro show_documentation item %}
 Name: {{ item.id }}
 
 {% if item.remarks.size > 0 %}
@@ -59,7 +58,6 @@ Structured Documentation:
 
 Source:
 {{ item.source }}
-{% endmacro %}
 ----
 
 === Identifier implementation details
@@ -86,25 +84,19 @@ When working with identifier attributes, consider these error handling patterns:
 
 [source,liquid]
 ----
-{% macro safe_get_id item %}
   {% if item %}
     {% if item.id %}{{ item.id }}{% else %}[Unnamed]{% endif %}
   {% else %}
     [Invalid Item]
   {% endif %}
-{% endmacro %}
 
-{% macro safe_get_remarks item %}
   {% if item and item.remarks %}
     {% for remark in item.remarks %}
       - {{ remark }}
     {% endfor %}
   {% endif %}
-{% endmacro %}
 
-{% macro safe_get_source item %}
   {% if item and item.source %}{{ item.source }}{% else %}[No Source Available]{% endif %}
-{% endmacro %}
 ----
 
 == Drop categories and attributes
@@ -1273,7 +1265,6 @@ Example template for handling remark items:
 
 [source,liquid]
 ----
-{% macro process_remark_items item %}
 {%- comment %}Group remarks by category{% endcomment %}
 {% assign metadata = [] %}
 {% assign technical = [] %}
@@ -1310,7 +1301,6 @@ Additional Information:
 - {{ ritem.id }}: {{ ritem.remarks | join: " " }}
 {% endfor %}
 {% endif %}
-{% endmacro %}
 ----
 
 Using the template:
@@ -1380,7 +1370,6 @@ Here are some common patterns for working with remark items in templates:
 
 [source,liquid]
 ----
-{% macro get_remarks_by_category item category %}
 {% assign filtered = [] %}
 {% for ritem in item.remark_items %}
   {% if ritem.id == category %}
@@ -1388,7 +1377,6 @@ Here are some common patterns for working with remark items in templates:
   {% endif %}
 {% endfor %}
 {{ filtered | map: "remarks" | join: " " }}
-{% endmacro %}
 
 {%- comment %}Usage examples:{% endcomment %}
 Author: {{ get_remarks_by_category schema "Author" }}
@@ -1399,7 +1387,6 @@ Version: {{ get_remarks_by_category schema "Version" }}
 
 [source,liquid]
 ----
-{% macro create_documentation_table item %}
 |===
 |Category |Value
 
@@ -1408,14 +1395,12 @@ Version: {{ get_remarks_by_category schema "Version" }}
 |{{ ritem.remarks | join: " " }}
 {% endfor %}
 |===
-{% endmacro %}
 ----
 
 ==== Inheritance-aware documentation
 
 [source,liquid]
 ----
-{% macro collect_all_remarks entity %}
 {%- comment %}Get direct remarks{% endcomment %}
 {% assign all_remarks = entity.remark_items %}
 
@@ -1437,7 +1422,6 @@ Version: {{ get_remarks_by_category schema "Version" }}
 {% for ritem in unique_remarks %}
 - {{ ritem.id }}: {{ ritem.remarks | join: " " }}
 {% endfor %}
-{% endmacro %}
 ----
 
 These patterns help maintain consistency and structure when working with documentation in EXPRESS schemas.
@@ -1513,7 +1497,6 @@ When working with drops that share a common base class, you can use patterns lik
 
 [source,liquid]
 ----
-{% macro process_declarations items %}
 {% for item in items %}
   {% case item._class %}
   {% when 'EntityDrop' %}
@@ -1526,9 +1509,7 @@ When working with drops that share a common base class, you can use patterns lik
     // Handle other declarations
   {% endcase %}
 {% endfor %}
-{% endmacro %}
 
-{% macro process_expressions exprs %}
 {% for expr in exprs %}
   {% case expr._class %}
   {% when 'BinaryExpressionDrop' %}
@@ -1541,7 +1522,6 @@ When working with drops that share a common base class, you can use patterns lik
     {{ expr }}
   {% endcase %}
 {% endfor %}
-{% endmacro %}
 ----
 
 === Common base class attributes

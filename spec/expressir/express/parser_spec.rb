@@ -52,10 +52,11 @@ RSpec.describe Expressir::Express::Parser do
       yaml_file = Expressir.root_path.join("spec", "syntax", "mathematical_functions_schema.yaml")
 
       repo = Expressir::Express::Parser.from_file(exp_file)
-      result = YAML.dump(repo.to_hash(root_path: Expressir.root_path))
+      result = repo.to_hash(root_path: Expressir.root_path)
       # File.write(yaml_file, result)
-      expected_result = File.read(yaml_file)
+      expected_result = YAML.load(File.read(yaml_file)) # rubocop:disable Security/YAMLLoad
 
+      # compare the result by hash as the yaml output varies with ruby version
       expect(result).to eq(expected_result)
 
       # Validate Object Space

@@ -9,6 +9,16 @@ module Expressir
         attribute :underlying_type, ::Expressir::Model::DataType
         attribute :where_rules, ::Expressir::Model::Declarations::WhereRule, collection: true
         attribute :informal_propositions, ::Expressir::Model::Declarations::RemarkItem, collection: true
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
+
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "underlying_type", to: :underlying_type
+          map "where_rules", to: :where_rules
+          map "informal_propositions", to: :informal_propositions
+        end
 
         # @return [Array<DataTypes::EnumerationItem>]
         def enumeration_items

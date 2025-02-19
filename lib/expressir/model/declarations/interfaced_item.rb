@@ -8,6 +8,17 @@ module Expressir
         attribute :remarks, :string, collection: true
         attribute :remark_items, RemarkItem, collection: true
         attribute :base_item, ModelElement
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
+
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "id", to: :id
+          map "remarks", to: :remarks
+          map "remark_items", to: :remark_items
+          map "base_item", to: :base_item
+        end
 
         # @return [Array<Declaration>]
         def children

@@ -17,6 +17,24 @@ module Expressir
         attribute :statements, Statement, collection: true
         attribute :where_rules, WhereRule, collection: true
         attribute :informal_propositions, RemarkItem, collection: true
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
+
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "applies_to", to: :applies_to
+          map "types", to: :types
+          map "entities", to: :entities
+          map "subtype_constraints", to: :subtype_constraints
+          map "functions", to: :functions
+          map "procedures", to: :procedures
+          map "constants", to: :constants
+          map "variables", to: :variables
+          map "statements", to: :statements
+          map "where_rules", to: :where_rules
+          map "informal_propositions", to: :informal_propositions
+        end
 
         # @return [Array<Declaration>]
         def children

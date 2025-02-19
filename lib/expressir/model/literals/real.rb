@@ -5,6 +5,14 @@ module Expressir
       # - section 7.5.3 Real literal
       class Real < Literal
         attribute :value, :string
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
+
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "value", to: :value
+        end
       end
     end
   end

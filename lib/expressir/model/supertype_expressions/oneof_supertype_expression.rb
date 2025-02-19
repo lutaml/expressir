@@ -5,6 +5,14 @@ module Expressir
       # - section 9.2.5.2 ONEOF
       class OneofSupertypeExpression < SupertypeExpression
         attribute :operands, ::Expressir::Model::SupertypeExpression, collection: true
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
+
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "operands", to: :operands
+        end
       end
     end
   end

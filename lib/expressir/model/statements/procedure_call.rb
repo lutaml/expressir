@@ -6,6 +6,15 @@ module Expressir
       class ProcedureCall < Statement
         attribute :procedure, ::Expressir::Model::Reference
         attribute :parameters, Expression, collection: true
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
+
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "procedure", to: :procedure
+          map "parameters", to: :parameters
+        end
       end
     end
   end

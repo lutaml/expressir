@@ -7,6 +7,16 @@ module Expressir
         attribute :id, :string
         attribute :ref, ::Expressir::Model::Reference
         attribute :base_path, :string
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
+
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "id", to: :id
+          map "ref", to: :ref
+          map "base_path", to: :base_path
+        end
       end
     end
   end

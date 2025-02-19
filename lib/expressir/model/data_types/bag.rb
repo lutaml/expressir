@@ -7,6 +7,16 @@ module Expressir
         attribute :bound1, Expressir::Model::Expression
         attribute :bound2, Expressir::Model::Expression
         attribute :base_type, Expressir::Model::DataType
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
+
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "bound1", to: :bound1
+          map "bound2", to: :bound2
+          map "base_type", to: :base_type
+        end
       end
     end
   end

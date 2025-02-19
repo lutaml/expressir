@@ -70,6 +70,26 @@ module Expressir
         attribute :functions, Function, collection: true
         attribute :rules, Rule, collection: true
         attribute :procedures, Procedure, collection: true
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
+
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "id", to: :id
+          map "file", to: :file
+          map "remarks", to: :remarks
+          map "remark_items", to: :remark_items
+          map "version", to: :version
+          map "interfaces", to: :interfaces
+          map "constants", to: :constants
+          map "types", to: :types
+          map "entities", to: :entities
+          map "subtype_constraints", to: :subtype_constraints
+          map "functions", to: :functions
+          map "rules", to: :rules
+          map "procedures", to: :procedures
+        end
 
         # @return [Array<Declaration>]
         def safe_children

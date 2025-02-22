@@ -4,17 +4,16 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 12.9 Aggregate initializer
       class AggregateInitializerItem < Expression
-        model_attr_accessor :expression, "Expression"
-        model_attr_accessor :repetition, "Expression"
+        attribute :expression, Expressir::Model::Expression
+        attribute :repetition, Expressir::Model::Expression
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [Expression] :expression
-        # @option options [Expression] :repetition
-        def initialize(options = {})
-          @expression = options[:expression]
-          @repetition = options[:repetition]
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "expression", to: :expression
+          map "repetition", to: :repetition
         end
       end
     end

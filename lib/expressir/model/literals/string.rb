@@ -4,17 +4,16 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 7.5.4 String literal
       class String < Literal
-        model_attr_accessor :value, "::String"
-        model_attr_accessor :encoded, "::Boolean"
+        attribute :value, :string
+        attribute :encoded, :boolean
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [::String] :value
-        # @option options [::Boolean] :encoded
-        def initialize(options = {})
-          @value = options[:value]
-          @encoded = options[:encoded]
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "value", to: :value
+          map "encoded", to: :encoded
         end
       end
     end

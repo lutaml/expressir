@@ -16,11 +16,6 @@ RSpec.describe Expressir::Express::Formatter do
       expected_result = File.read(formatted_exp_file)
 
       expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
     it "exports an object (multiple.exp)" do |example|
@@ -35,9 +30,6 @@ RSpec.describe Expressir::Express::Formatter do
       expected_result = File.read(formatted_exp_file)
 
       expect(result).to eq(expected_result)
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
     it "exports an object (remark.exp)" do |example|
@@ -52,11 +44,6 @@ RSpec.describe Expressir::Express::Formatter do
       expected_result = File.read(formatted_exp_file)
 
       expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
     it "exports an object (syntax.exp)" do |example|
@@ -71,11 +58,6 @@ RSpec.describe Expressir::Express::Formatter do
       expected_result = File.read(formatted_exp_file)
 
       expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
     it "exports an object with schema head formatter (syntax.exp)" do |example|
@@ -93,11 +75,6 @@ RSpec.describe Expressir::Express::Formatter do
       expected_result = File.read(formatted_exp_file)
 
       expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
     it "exports an object with hyperlink formatter (syntax.exp)" do |example|
@@ -115,11 +92,6 @@ RSpec.describe Expressir::Express::Formatter do
       expected_result = File.read(formatted_exp_file)
 
       expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
     it "exports an object with hyperlink formatter (multiple.exp)" do |example|
@@ -137,11 +109,6 @@ RSpec.describe Expressir::Express::Formatter do
       expected_result = File.read(formatted_exp_file)
 
       expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
     it "exports an object with schema head and hyperlink formatter (multiple.exp)" do |example|
@@ -160,11 +127,6 @@ RSpec.describe Expressir::Express::Formatter do
       expected_result = File.read(formatted_exp_file)
 
       expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
   end
 end

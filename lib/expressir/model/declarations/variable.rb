@@ -3,23 +3,19 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.5.4 Local variables
-      class Variable < Declaration
+      class Variable < ::Expressir::Model::Declaration
         include Identifier
 
-        model_attr_accessor :type, "DataType"
-        model_attr_accessor :expression, "Expression"
+        attribute :type, ::Expressir::Model::DataType
+        attribute :expression, ::Expressir::Model::Expression
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option (see Identifier#initialize_identifier)
-        # @option options [DataType] :type
-        # @option options [Expression] :expression
-        def initialize(options = {})
-          initialize_identifier(options)
-
-          @type = options[:type]
-          @expression = options[:expression]
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "type", to: :type
+          map "expression", to: :expression
         end
 
         # @return [Array<Declaration>]

@@ -4,18 +4,18 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 7.5.5 Logical literal
       class Logical < Literal
-        TRUE = :TRUE
-        FALSE = :FALSE
-        UNKNOWN = :UNKNOWN
+        TRUE = "TRUE"
+        FALSE = "FALSE"
+        UNKNOWN = "UNKNOWN"
 
-        model_attr_accessor :value, ":TRUE, :FALSE, :UNKNOWN"
+        attribute :value, :string, values: %w[TRUE FALSE UNKNOWN]
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [:TRUE, :FALSE, :UNKNOWN] :value
-        def initialize(options = {})
-          @value = options[:value]
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "value", to: :value
         end
       end
     end

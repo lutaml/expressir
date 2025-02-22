@@ -3,23 +3,19 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.5.3 Parameters
-      class Parameter < Declaration
+      class Parameter < ::Expressir::Model::Declaration
         include Identifier
 
-        model_attr_accessor :var, "Boolean"
-        model_attr_accessor :type, "DataType"
+        attribute :var, :boolean
+        attribute :type, ::Expressir::Model::DataType
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option (see Identifier#initialize_identifier)
-        # @option options [Boolean] :var
-        # @option options [DataType] :type
-        def initialize(options = {})
-          initialize_identifier(options)
-
-          @var = options[:var]
-          @type = options[:type]
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "var", to: :var
+          map "type", to: :type
         end
 
         # @return [Array<Declaration>]

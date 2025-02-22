@@ -3,24 +3,22 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 11 Interface specification
-      class Interface < Declaration
-        USE = :USE
-        REFERENCE = :REFERENCE
+      class Interface < ::Expressir::Model::Declaration
+        USE = "USE"
+        REFERENCE = "REFERENCE"
 
-        model_attr_accessor :kind, ":USE, :REFERENCE"
-        model_attr_accessor :schema, "Reference"
-        model_attr_accessor :items, "Array<InterfaceItem>"
+        attribute :kind, :string, values: %w[USE REFERENCE]
+        attribute :schema, ::Expressir::Model::Reference
+        attribute :items, InterfaceItem, collection: true
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [:USE, :REFERENCE] :kind
-        # @option options [Reference] :schema
-        # @option options [Array<InterfaceItem>] :items
-        def initialize(options = {})
-          @kind = options[:kind]
-          @schema = options[:schema]
-          @items = options[:items] || []
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "kind", to: :kind
+          map "schema", to: :schema
+          map "items", to: :items
         end
       end
     end

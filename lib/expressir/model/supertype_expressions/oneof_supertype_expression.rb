@@ -4,14 +4,14 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 9.2.5.2 ONEOF
       class OneofSupertypeExpression < SupertypeExpression
-        model_attr_accessor :operands, "Array<SupertypeExpression>"
+        attribute :operands, ::Expressir::Model::SupertypeExpression, collection: true
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [Array<SupertypeExpression>] :operands
-        def initialize(options = {})
-          @operands = options[:operands]
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "operands", to: :operands
         end
       end
     end

@@ -4,17 +4,16 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 13.3 Assignment
       class Assignment < Statement
-        model_attr_accessor :ref, "Reference"
-        model_attr_accessor :expression, "Expression"
+        attribute :ref, ::Expressir::Model::Reference
+        attribute :expression, Expressir::Model::Expression
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [Reference] :ref
-        # @option options [Expression] :expression
-        def initialize(options = {})
-          @ref = options[:ref]
-          @expression = options[:expression]
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "ref", to: :ref
+          map "expression", to: :expression
         end
       end
     end

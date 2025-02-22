@@ -4,17 +4,16 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 8.1.7 Binary data type
       class Binary < DataType
-        model_attr_accessor :width, "Expression"
-        model_attr_accessor :fixed, "::Boolean"
+        attribute :width, Expressir::Model::Expression
+        attribute :fixed, Expressir::Model::DataTypes::Boolean
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [Expression] :width
-        # @option options [::Boolean] :fixed
-        def initialize(options = {})
-          @width = options[:width]
-          @fixed = options[:fixed]
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "width", to: :width
+          map "fixed", to: :fixed
         end
       end
     end

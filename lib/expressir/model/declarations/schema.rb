@@ -3,49 +3,92 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.3 Schema
-      class Schema < Declaration
-        model_attr_accessor :file, "String"
+      class Schema < ::Expressir::Model::Declaration
+        attribute :file, :string
+
+        # TODO: MIGRATE: Set `file` path
+        # def file
+        #   node_options[FILE_KEY.to_sym] = root_path ? File.expand_path("#{root_path}/#{hash[FILE_KEY]}") : hash[FILE_KEY]
+        # end
+
+        # TODO: MIGRATE: Implement formatting of `source`
+        # def source
+        #   if self.class.method_defined?(:source) && formatter
+        #     hash[SOURCE_KEY] = formatter.format(self)
+        #   end
+        # end
+
+        # TODO: MIGRATE: These were from the SchemaDrop object, we need to make
+        # these available in Liquid.
+        #
+        # def file_basename
+        #   File.basename(@model.file, ".exp")
+        # end
+        #
+        # def selected
+        #   @selected_schemas&.include?(@model.id) ||
+        #     @selected_schemas&.include?(file_basename)
+        # end
+        #
+        # def relative_path_prefix
+        #   return nil if @options.nil? || @options["document"].nil?
+        #
+        #   document = @options["document"]
+        #   file_path = File.dirname(@model.file)
+        #   docfile_directory = File.dirname(
+        #     document.attributes["docfile"] || ".",
+        #   )
+        #   document
+        #     .path_resolver
+        #     .system_path(file_path, docfile_directory)
+        # end
+        #
+        # def remarks
+        #   return [] unless @model.remarks
+        #
+        #   options = @options || {}
+        #   options["relative_path_prefix"] = relative_path_prefix
+        #
+        #   @model.remarks.map do |remark|
+        #     ::Expressir::Express::ExpressRemarksDecorator
+        #       .call(remark, options)
+        #   end
+        # end
+        #
+        # def formatted
+        #   @model.to_s(no_remarks: true)
+        # end
 
         include Identifier
 
-        model_attr_accessor :version, "SchemaVersion"
-        model_attr_accessor :interfaces, "Array<Interface>"
-        model_attr_accessor :constants, "Array<Constant>"
-        model_attr_accessor :types, "Array<Type>"
-        model_attr_accessor :entities, "Array<Entity>"
-        model_attr_accessor :subtype_constraints, "Array<SubtypeConstraint>"
-        model_attr_accessor :functions, "Array<Function>"
-        model_attr_accessor :rules, "Array<Rule>"
-        model_attr_accessor :procedures, "Array<Procedure>"
+        attribute :version, SchemaVersion
+        attribute :interfaces, Interface, collection: true
+        attribute :constants, Constant, collection: true
+        attribute :types, Type, collection: true
+        attribute :entities, Entity, collection: true
+        attribute :subtype_constraints, SubtypeConstraint, collection: true
+        attribute :functions, Function, collection: true
+        attribute :rules, Rule, collection: true
+        attribute :procedures, Procedure, collection: true
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [String] :file
-        # @option (see Identifier#initialize_identifier)
-        # @option options [SchemaVersion] :version
-        # @option options [Array<Interface>] :interfaces
-        # @option options [Array<Constant>] :constants
-        # @option options [Array<Type>] :types
-        # @option options [Array<Entity>] :entities
-        # @option options [Array<SubtypeConstraint>] :subtype_constraints
-        # @option options [Array<Function>] :functions
-        # @option options [Array<Rule>] :rules
-        # @option options [Array<Procedure>] :procedures
-        def initialize(options = {})
-          @file = options[:file]
-
-          initialize_identifier(options)
-
-          @version = options[:version]
-          @interfaces = options[:interfaces] || []
-          @constants = options[:constants] || []
-          @types = options[:types] || []
-          @entities = options[:entities] || []
-          @subtype_constraints = options[:subtype_constraints] || []
-          @functions = options[:functions] || []
-          @rules = options[:rules] || []
-          @procedures = options[:procedures] || []
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "id", to: :id
+          map "file", to: :file
+          map "remarks", to: :remarks
+          map "remark_items", to: :remark_items
+          map "version", to: :version
+          map "interfaces", to: :interfaces
+          map "constants", to: :constants
+          map "types", to: :types
+          map "entities", to: :entities
+          map "subtype_constraints", to: :subtype_constraints
+          map "functions", to: :functions
+          map "rules", to: :rules
+          map "procedures", to: :procedures
         end
 
         # @return [Array<Declaration>]

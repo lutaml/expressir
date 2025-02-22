@@ -6,17 +6,14 @@ module Expressir
       class Aggregate < DataType
         include Identifier
 
-        model_attr_accessor :base_type, "Type"
+        attribute :base_type, Expressir::Model::Declarations::Type
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option (see Identifier#initialize_identifier)
-        # @option options [Type] :base_type
-        def initialize(options = {})
-          initialize_identifier(options)
-
-          @base_type = options[:base_type]
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "base_type", to: :base_type
         end
 
         # @return [Array<Declaration>]

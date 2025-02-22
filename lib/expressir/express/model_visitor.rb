@@ -1,20 +1,21 @@
-require_relative "../model"
-
 module Expressir
   module Express
     # @abstract
     class ModelVisitor
       def visit(node)
-        node.class.model_attrs.each do |variable|
-          value = node.send(variable)
+        node.class.attributes.each do |symbol, lutaml_attr|
+          next if ::Expressir::Model::ModelElement::SKIP_ATTRIBUTES.include?(symbol)
 
-          if value.is_a? Array
-            value.each do |value|
-              if value.is_a? Model::ModelElement
-                visit(value)
+          value = node.send(symbol)
+
+          case value
+          when Array
+            value.each do |val|
+              if val.is_a? Model::ModelElement
+                visit(val)
               end
             end
-          elsif value.is_a? Model::ModelElement
+          when Model::ModelElement
             visit(value)
           end
         end

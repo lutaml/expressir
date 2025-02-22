@@ -1,4 +1,3 @@
-require_relative "../model"
 require "set"
 
 # reference type is not recognized

@@ -131,7 +131,7 @@ RSpec.describe Expressir::Model::Declarations::Variable do
   describe "with different expressions" do
     let(:string_literal) { Expressir::Model::Literals::String.new(value: "test") }
     let(:real_literal) { Expressir::Model::Literals::Real.new(value: "3.14") }
-    let(:logical_literal) { Expressir::Model::Literals::Logical.new(value: :TRUE) }
+    let(:logical_literal) { Expressir::Model::Literals::Logical.new(value: "TRUE") }
 
     it "supports string expressions" do
       var = described_class.new(
@@ -157,7 +157,7 @@ RSpec.describe Expressir::Model::Declarations::Variable do
         expression: logical_literal,
       )
       expect(var.expression).to be_a Expressir::Model::Literals::Logical
-      expect(var.expression.value).to eq :TRUE
+      expect(var.expression.value).to eq "TRUE"
     end
   end
 end

@@ -58,7 +58,7 @@ schemas:
       - universal scope - type where, with prefix
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: :TRUE
+        value: "TRUE"
     informal_propositions:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: IP1
@@ -82,7 +82,7 @@ schemas:
       - entity scope - entity attribute
       - schema scope - entity attribute
       - universal scope - entity attribute
-      kind: :EXPLICIT
+      kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::String
     - _class: Expressir::Model::Declarations::Attribute
@@ -91,7 +91,7 @@ schemas:
       - entity scope - entity derived attribute
       - schema scope - entity derived attribute
       - universal scope - entity derived attribute
-      kind: :DERIVED
+      kind: DERIVED
       type:
         _class: Expressir::Model::DataTypes::String
       expression:
@@ -103,7 +103,7 @@ schemas:
       - entity scope - entity inverse attribute
       - schema scope - entity inverse attribute
       - universal scope - entity inverse attribute
-      kind: :INVERSE
+      kind: INVERSE
       type:
         _class: Expressir::Model::References::SimpleReference
         id: remark_entity
@@ -140,7 +140,7 @@ schemas:
         - placed inside WHERE clauses (or other enumerable context)
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: :TRUE
+        value: "TRUE"
     informal_propositions:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: IP1
@@ -260,7 +260,7 @@ schemas:
             base_path: remark_schema.remark_function.remark_variable
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: :TRUE
+          value: "TRUE"
   rules:
   - _class: Expressir::Model::Declarations::Rule
     id: remark_rule
@@ -352,7 +352,7 @@ schemas:
             base_path: remark_schema.remark_rule.remark_variable
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: :TRUE
+          value: "TRUE"
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -365,7 +365,7 @@ schemas:
       - universal scope - rule where, with prefix
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: :TRUE
+        value: "TRUE"
     informal_propositions:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: IP1
@@ -474,4 +474,4 @@ schemas:
             base_path: remark_schema.remark_procedure.remark_variable
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: :TRUE
+          value: "TRUE"

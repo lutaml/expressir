@@ -6,32 +6,24 @@ module Expressir
       class Repeat < Statement
         include Identifier
 
-        model_attr_accessor :bound1, "Expression"
-        model_attr_accessor :bound2, "Expression"
-        model_attr_accessor :increment, "Expression"
-        model_attr_accessor :while_expression, "Expression"
-        model_attr_accessor :until_expression, "Expression"
-        model_attr_accessor :statements, "Array<Statement>"
+        attribute :bound1, Expression
+        attribute :bound2, Expression
+        attribute :increment, Expression
+        attribute :while_expression, Expression
+        attribute :until_expression, Expression
+        attribute :statements, Statement, collection: true
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option (see Identifier#initialize_identifier)
-        # @option options [Expression] :bound1
-        # @option options [Expression] :bound2
-        # @option options [Expression] :increment
-        # @option options [Expression] :while_expression
-        # @option options [Expression] :until_expression
-        # @option options [Array<Statement>] :statements
-        def initialize(options = {})
-          initialize_identifier(options)
-
-          @bound1 = options[:bound1]
-          @bound2 = options[:bound2]
-          @increment = options[:increment]
-          @while_expression = options[:while_expression]
-          @until_expression = options[:until_expression]
-          @statements = options[:statements] || []
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "bound1", to: :bound1
+          map "bound2", to: :bound2
+          map "increment", to: :increment
+          map "while_expression", to: :while_expression
+          map "until_expression", to: :until_expression
+          map "statements", to: :statements
         end
 
         # @return [Array<Declaration>]

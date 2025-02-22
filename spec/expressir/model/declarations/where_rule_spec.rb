@@ -14,7 +14,7 @@ RSpec.describe Expressir::Model::Declarations::WhereRule do
     let(:id) { "test_where_rule" }
     let(:expression) do
       Expressir::Model::Expressions::BinaryExpression.new(
-        operator: :GREATER_THAN,
+        operator: "GREATER_THAN",
         operand1: Expressir::Model::References::SimpleReference.new(id: "SELF"),
         operand2: Expressir::Model::Literals::Integer.new(value: "0"),
       )
@@ -41,7 +41,7 @@ RSpec.describe Expressir::Model::Declarations::WhereRule do
         described_class.new(
           id: "simple_rule",
           expression: Expressir::Model::Expressions::BinaryExpression.new(
-            operator: :EQUAL,
+            operator: "EQUAL",
             operand1: Expressir::Model::References::SimpleReference.new(id: "x"),
             operand2: Expressir::Model::Literals::Integer.new(value: "42"),
           ),
@@ -52,9 +52,9 @@ RSpec.describe Expressir::Model::Declarations::WhereRule do
         described_class.new(
           id: "logical_rule",
           expression: Expressir::Model::Expressions::BinaryExpression.new(
-            operator: :AND,
-            operand1: Expressir::Model::Literals::Logical.new(value: :TRUE),
-            operand2: Expressir::Model::Literals::Logical.new(value: :TRUE),
+            operator: "AND",
+            operand1: Expressir::Model::Literals::Logical.new(value: "TRUE"),
+            operand2: Expressir::Model::Literals::Logical.new(value: "TRUE"),
           ),
         )
       end
@@ -75,14 +75,14 @@ RSpec.describe Expressir::Model::Declarations::WhereRule do
         described_class.new(
           id: "complex_rule",
           expression: Expressir::Model::Expressions::BinaryExpression.new(
-            operator: :AND,
+            operator: "AND",
             operand1: Expressir::Model::Expressions::BinaryExpression.new(
-              operator: :GREATER_THAN,
+              operator: "GREATER_THAN",
               operand1: Expressir::Model::References::SimpleReference.new(id: "x"),
               operand2: Expressir::Model::Literals::Integer.new(value: "0"),
             ),
             operand2: Expressir::Model::Expressions::BinaryExpression.new(
-              operator: :LESS_THAN,
+              operator: "LESS_THAN",
               operand1: Expressir::Model::References::SimpleReference.new(id: "x"),
               operand2: Expressir::Model::Literals::Integer.new(value: "100"),
             ),
@@ -91,15 +91,15 @@ RSpec.describe Expressir::Model::Declarations::WhereRule do
       end
 
       it "handles simple comparison expressions" do
-        expect(simple_comparison_rule.expression.operator).to eq :EQUAL
+        expect(simple_comparison_rule.expression.operator).to eq "EQUAL"
         expect(simple_comparison_rule.expression.operand1.id).to eq "x"
         expect(simple_comparison_rule.expression.operand2.value).to eq "42"
       end
 
       it "handles logical expressions" do
-        expect(logical_expression_rule.expression.operator).to eq :AND
-        expect(logical_expression_rule.expression.operand1.value).to eq :TRUE
-        expect(logical_expression_rule.expression.operand2.value).to eq :TRUE
+        expect(logical_expression_rule.expression.operator).to eq "AND"
+        expect(logical_expression_rule.expression.operand1.value).to eq "TRUE"
+        expect(logical_expression_rule.expression.operand2.value).to eq "TRUE"
       end
 
       it "handles function calls" do
@@ -110,9 +110,9 @@ RSpec.describe Expressir::Model::Declarations::WhereRule do
 
       it "handles complex nested expressions" do
         expr = complex_expression_rule.expression
-        expect(expr.operator).to eq :AND
-        expect(expr.operand1.operator).to eq :GREATER_THAN
-        expect(expr.operand2.operator).to eq :LESS_THAN
+        expect(expr.operator).to eq "AND"
+        expect(expr.operand1.operator).to eq "GREATER_THAN"
+        expect(expr.operand2.operator).to eq "LESS_THAN"
       end
     end
   end
@@ -125,7 +125,7 @@ RSpec.describe Expressir::Model::Declarations::WhereRule do
           where_rules: [
             described_class.new(
               id: "WR1",
-              expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+              expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
             ),
           ],
         )
@@ -137,7 +137,7 @@ RSpec.describe Expressir::Model::Declarations::WhereRule do
           where_rules: [
             described_class.new(
               id: "WR1",
-              expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+              expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
             ),
           ],
         )
@@ -167,7 +167,7 @@ RSpec.describe Expressir::Model::Declarations::WhereRule do
 
       let(:no_id_rule) do
         described_class.new(
-          expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+          expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
         )
       end
 
@@ -175,15 +175,15 @@ RSpec.describe Expressir::Model::Declarations::WhereRule do
         described_class.new(
           id: "nested_rule",
           expression: Expressir::Model::Expressions::BinaryExpression.new(
-            operator: :AND,
+            operator: "AND",
             operand1: Expressir::Model::Expressions::BinaryExpression.new(
-              operator: :OR,
-              operand1: Expressir::Model::Literals::Logical.new(value: :TRUE),
-              operand2: Expressir::Model::Literals::Logical.new(value: :FALSE),
+              operator: "OR",
+              operand1: Expressir::Model::Literals::Logical.new(value: "TRUE"),
+              operand2: Expressir::Model::Literals::Logical.new(value: "FALSE"),
             ),
             operand2: Expressir::Model::Expressions::UnaryExpression.new(
-              operator: :NOT,
-              operand: Expressir::Model::Literals::Logical.new(value: :FALSE),
+              operator: "NOT",
+              operand: Expressir::Model::Literals::Logical.new(value: "FALSE"),
             ),
           ),
         )
@@ -195,14 +195,14 @@ RSpec.describe Expressir::Model::Declarations::WhereRule do
 
       it "handles missing id" do
         expect(no_id_rule.id).to be_nil
-        expect(no_id_rule.expression.value).to eq :TRUE
+        expect(no_id_rule.expression.value).to eq "TRUE"
       end
 
       it "handles deeply nested expressions" do
         expr = complex_nested_expressions.expression
-        expect(expr.operator).to eq :AND
-        expect(expr.operand1.operator).to eq :OR
-        expect(expr.operand2.operator).to eq :NOT
+        expect(expr.operator).to eq "AND"
+        expect(expr.operand1.operator).to eq "OR"
+        expect(expr.operand2.operator).to eq "NOT"
       end
     end
 
@@ -210,21 +210,21 @@ RSpec.describe Expressir::Model::Declarations::WhereRule do
       let(:empty_id_rule) do
         described_class.new(
           id: "",
-          expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+          expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
         )
       end
 
       let(:long_id_rule) do
         described_class.new(
           id: "a" * 100,
-          expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+          expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
         )
       end
 
       let(:special_chars_rule) do
         described_class.new(
           id: "rule_with_$pecial_chars",
-          expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+          expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
         )
       end
 
@@ -246,7 +246,7 @@ RSpec.describe Expressir::Model::Declarations::WhereRule do
     let(:where_rule) do
       described_class.new(
         id: "test_rule",
-        expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+        expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
         remark_items: [
           Expressir::Model::Declarations::RemarkItem.new(id: "remark1"),
           Expressir::Model::Declarations::RemarkItem.new(id: "remark2"),
@@ -265,7 +265,7 @@ RSpec.describe Expressir::Model::Declarations::WhereRule do
       let(:simple_rule) do
         described_class.new(
           id: "simple_rule",
-          expression: Expressir::Model::Literals::Logical.new(value: :TRUE),
+          expression: Expressir::Model::Literals::Logical.new(value: "TRUE"),
         )
       end
 

@@ -5,23 +5,21 @@ module Expressir
       # - section 9.2.5.3 ANDOR
       # - section 9.2.5.4 AND
       class BinarySupertypeExpression < SupertypeExpression
-        AND = :AND
-        ANDOR = :ANDOR
+        AND = "AND"
+        ANDOR = "ANDOR"
 
-        model_attr_accessor :operator, ":AND, :ANDOR"
-        model_attr_accessor :operand1, "SupertypeExpression"
-        model_attr_accessor :operand2, "SupertypeExpression"
+        attribute :operator, :string, values: %w[AND ANDOR]
+        attribute :operand1, ::Expressir::Model::SupertypeExpression
+        attribute :operand2, ::Expressir::Model::SupertypeExpression
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [:AND, :ANDOR] :operator
-        # @option options [SupertypeExpression] :operand1
-        # @option options [SupertypeExpression] :operand2
-        def initialize(options = {})
-          @operator = options[:operator]
-          @operand1 = options[:operand1]
-          @operand2 = options[:operand2]
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "operator", to: :operator
+          map "operand1", to: :operand1
+          map "operand2", to: :operand2
         end
       end
     end

@@ -4,17 +4,16 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 12.7.3 Attribute references
       class AttributeReference < Reference
-        model_attr_accessor :ref, "Reference"
-        model_attr_accessor :attribute, "Reference"
+        attribute :ref, ::Expressir::Model::Reference
+        attribute :attribute, ::Expressir::Model::Reference
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [Reference] :ref
-        # @option options [Reference] :attribute
-        def initialize(options = {})
-          @ref = options[:ref]
-          @attribute = options[:attribute]
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "ref", to: :ref
+          map "attribute", to: :attribute
         end
       end
     end

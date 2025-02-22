@@ -6,20 +6,18 @@ module Expressir
       # - section 12.5.1 String indexing
       # - section 12.6.1 Aggregate indexing
       class IndexReference < Reference
-        model_attr_accessor :ref, "Reference"
-        model_attr_accessor :index1, "Expression"
-        model_attr_accessor :index2, "Expression"
+        attribute :ref, ::Expressir::Model::Reference
+        attribute :index1, Expressir::Model::Expression
+        attribute :index2, Expressir::Model::Expression
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [Reference] :ref
-        # @option options [Expression] :index1
-        # @option options [Expression] :index2
-        def initialize(options = {})
-          @ref = options[:ref]
-          @index1 = options[:index1]
-          @index2 = options[:index2]
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "ref", to: :ref
+          map "index1", to: :index1
+          map "index2", to: :index2
         end
       end
     end

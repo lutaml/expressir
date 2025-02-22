@@ -4,20 +4,18 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 8.4.1 Enumeration data type
       class Enumeration < DataType
-        model_attr_accessor :extensible, "::Boolean"
-        model_attr_accessor :based_on, "Reference"
-        model_attr_accessor :items, "::Array<EnumerationItem>"
+        attribute :extensible, Expressir::Model::DataTypes::Boolean
+        attribute :based_on, ::Expressir::Model::Reference
+        attribute :items, Expressir::Model::DataTypes::EnumerationItem, collection: true
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [::Boolean] :extensible
-        # @option options [Reference] :based_on
-        # @option options [::Array<EnumerationItem>] :items
-        def initialize(options = {})
-          @extensible = options[:extensible]
-          @based_on = options[:based_on]
-          @items = options[:items] || []
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "extensible", to: :extensible
+          map "based_on", to: :based_on
+          map "items", to: :items
         end
       end
     end

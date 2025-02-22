@@ -6,12 +6,12 @@ module Expressir
       class EnumerationItem < ModelElement
         include Identifier
 
-        # @param [Hash] options
-        # @option (see Identifier#initialize_identifier)
-        def initialize(options = {})
-          initialize_identifier(options)
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
         end
 
         # @return [Array<Declaration>]

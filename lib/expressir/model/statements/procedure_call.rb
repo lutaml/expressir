@@ -4,17 +4,16 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 13.8 Procedure call statement
       class ProcedureCall < Statement
-        model_attr_accessor :procedure, "Reference"
-        model_attr_accessor :parameters, "Array<Expression>"
+        attribute :procedure, ::Expressir::Model::Reference
+        attribute :parameters, Expression, collection: true
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [Reference] :procedure
-        # @option options [Array<Expression>] :parameters
-        def initialize(options = {})
-          @procedure = options[:procedure]
-          @parameters = options[:parameters] || []
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "procedure", to: :procedure
+          map "parameters", to: :parameters
         end
       end
     end

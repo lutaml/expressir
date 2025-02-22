@@ -2,18 +2,17 @@ module Expressir
   module Model
     module Declarations
       # Implicit item with remarks
-      class RemarkItem < Declaration
-        model_attr_accessor :id, "String"
-        model_attr_accessor :remarks, "Array<String>"
+      class RemarkItem < ::Expressir::Model::Declaration
+        attribute :id, :string
+        attribute :remarks, :string, collection: true
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [String] :id
-        # @option options [Array<String>] :remarks
-        def initialize(options = {})
-          @id = options[:id]
-          @remarks = options[:remarks] || []
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "id", to: :id
+          map "remarks", to: :remarks
         end
       end
     end

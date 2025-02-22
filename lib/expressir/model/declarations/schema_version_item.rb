@@ -4,17 +4,16 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 9.3 Schema
       class SchemaVersionItem < ModelElement
-        model_attr_accessor :name, "String"
-        model_attr_accessor :value, "String"
+        attribute :name, :string
+        attribute :value, :string
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [String] :name
-        # @option options [String] :value
-        def initialize(options = {})
-          @name = options[:name]
-          @value = options[:value]
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "name", to: :name
+          map "value", to: :value
         end
       end
     end

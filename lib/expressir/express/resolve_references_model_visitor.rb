@@ -1,6 +1,3 @@
-require_relative "model_visitor"
-require_relative "../model"
-
 module Expressir
   module Express
     class ResolveReferencesModelVisitor < ModelVisitor

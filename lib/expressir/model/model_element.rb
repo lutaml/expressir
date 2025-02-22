@@ -3,20 +3,24 @@ require "pathname"
 module Expressir
   module Model
     # Base model element
-    class ModelElement
-      CLASS_KEY = "_class".freeze
-      FILE_KEY = "file".freeze
-      SOURCE_KEY = "source".freeze
+    class ModelElement < Lutaml::Model::Serializable
+      SKIP_ATTRIBUTES = %i[parent _class].freeze
+      # :parent is a special attribute that is used to store the parent of the current element
+      # It is not a real attribute
+      attribute :parent, ModelElement
+      attribute :source, :string
+      attribute :_class, :string, default: -> { self.send(:name) }
+      attribute :source, :string
 
-      private_constant :CLASS_KEY
-      private_constant :FILE_KEY
-      private_constant :SOURCE_KEY
-
-      # @return [ModelElement]
-      attr_accessor :parent
+      # TODO: Add basic mappings that can be inherited by all subclasses
+      key_value do
+        map "_class", to: :_class, render_default: true
+        map "source", to: :source
+      end
 
       # @param [Hash] options
       def initialize(_options = {})
+        super
         attach_parent_to_children
       end
 
@@ -91,147 +95,31 @@ module Expressir
         nil
       end
 
-      # @param [String] root_path
-      # @param [Express::Formatter] formatter
-      # @param [Boolean] include_empty
-      # @param [Proc] select_proc
-      # @return [Hash]
-      def to_hash(root_path: nil, formatter: nil, include_empty: nil, select_proc: nil)
-        # Filter out entries
-        has_filter = !select_proc.nil? && select_proc.is_a?(Proc)
-        return nil if has_filter && !select_proc.call(self)
-
-        hash = {}
-        hash[CLASS_KEY] = self.class.name
-
-        self.class.model_attrs.each do |variable|
-          value = send(variable)
-          empty = value.nil? || (value.is_a?(Array) && value.count.zero?)
-
-          # skip empty values
-          next unless !empty || include_empty
-
-          value_hash = case value
-                       when Array
-                         value.map do |v|
-                           if v.is_a? ModelElement
-                             v.to_hash(
-                               root_path: root_path,
-                               formatter: formatter,
-                               include_empty: include_empty,
-                               select_proc: select_proc,
-                             )
-                           else
-                             v
-                           end
-                         end.compact
-                       when ModelElement
-                         value.to_hash(
-                           root_path: root_path,
-                           formatter: formatter,
-                           include_empty: include_empty,
-                           select_proc: select_proc,
-                         )
-                       else
-                         value
-                       end
-
-          hash[variable.to_s] = value_hash unless value_hash.nil?
-        end
-
-        if is_a?(Declarations::Schema) && file
-          hash[FILE_KEY] = root_path ? Pathname.new(file).relative_path_from(root_path).to_s : file
-        end
-
-        if self.class.method_defined?(:source) && formatter
-          hash[SOURCE_KEY] = formatter.format(self)
-        end
-
-        hash
-      end
-
-      # @return [Liquid::Drop]
-      def to_liquid(options: nil)
-        klass_name = "#{self.class.name.gsub('::Model::', '::Liquid::')}Drop"
-        klass = Object.const_get(klass_name)
-        klass.new(self, options: options)
-      end
-
       def to_s(no_remarks: false, formatter: nil)
         f = formatter || Express::Formatter.new(no_remarks: no_remarks)
         f.no_remarks = no_remarks
         f.format(self)
       end
 
-      # @param [Hash] hash
-      # @param [String] root_path
-      # @return [ModelElement]
-      def self.from_hash(hash, root_path: nil)
-        node_class = Object.const_get(hash[CLASS_KEY])
-        node_options = {}
-
-        node_class.model_attrs.each do |variable|
-          value = hash[variable.to_s]
-
-          node_options[variable] = case value
-                                   when Array
-                                     value.map do |value|
-                                       if value.is_a? Hash
-                                         from_hash(value, root_path: root_path)
-                                       else
-                                         value
-                                       end
-                                     end
-                                   when Hash
-                                     from_hash(value, root_path: root_path)
-                                   else
-                                     value
-                                   end
-        end
-
-        if (node_class == Declarations::Schema) && hash[FILE_KEY]
-          node_options[FILE_KEY.to_sym] = root_path ? File.expand_path("#{root_path}/#{hash[FILE_KEY]}") : hash[FILE_KEY]
-        end
-
-        node_class.new(node_options)
-      end
-
-      # @return [Array<Symbol>]
-      def self.model_attrs
-        @model_attrs ||= []
-      end
-
-      # Define a new model attribute
-      # @param attr_name [Symbol] attribute name
-      # @param attr_type [Symbol] attribute type
-      # @!macro [attach] model_attr_accessor
-      #   @!attribute $1
-      #     @return [$2]
-      def self.model_attr_accessor(attr_name, _attr_type = nil)
-        @model_attrs ||= []
-        @model_attrs << attr_name
-
-        attr_accessor attr_name
-      end
-
       private
 
       # @return [nil]
       def attach_parent_to_children
-        self.class.model_attrs.each do |variable|
-          value = send(variable)
+        self.class.attributes.each_pair do |symbol, lutaml_attr|
+          value = send(symbol)
 
           case value
           when Array
-            value.each do |value|
-              if value.is_a? ModelElement
-                value.parent = self
+            value.each do |val|
+              if val.is_a?(ModelElement)
+                val.parent = self
               end
             end
           when ModelElement
             value.parent = self
           end
         end
+
         nil
       end
     end

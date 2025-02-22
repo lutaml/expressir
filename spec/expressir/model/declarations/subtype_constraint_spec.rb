@@ -110,7 +110,7 @@ RSpec.describe Expressir::Model::Declarations::SubtypeConstraint do
   describe "with different supertype expressions" do
     let(:binary_supertype_expression) do
       Expressir::Model::SupertypeExpressions::BinarySupertypeExpression.new(
-        operator: :AND,
+        operator: "AND",
         operand1: Expressir::Model::References::SimpleReference.new(id: "entity1"),
         operand2: Expressir::Model::References::SimpleReference.new(id: "entity2"),
       )
@@ -123,7 +123,7 @@ RSpec.describe Expressir::Model::Declarations::SubtypeConstraint do
         supertype_expression: binary_supertype_expression,
       )
       expect(constraint.supertype_expression).to be_a Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-      expect(constraint.supertype_expression.operator).to eq :AND
+      expect(constraint.supertype_expression.operator).to eq "AND"
     end
 
     it "supports oneof supertype expressions" do

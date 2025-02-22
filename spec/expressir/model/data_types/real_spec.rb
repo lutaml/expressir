@@ -96,20 +96,20 @@ RSpec.describe Expressir::Model::DataTypes::Real do
 
     it "handles basic arithmetic expressions" do
       add_expr = Expressir::Model::Expressions::BinaryExpression.new(
-        operator: :ADDITION,
+        operator: "ADDITION",
         operand1: value1,
         operand2: value2,
       )
-      expect(add_expr.operator).to eq :ADDITION
+      expect(add_expr.operator).to eq "ADDITION"
       expect(add_expr.operand1.value).to eq "1.5"
       expect(add_expr.operand2.value).to eq "2.5"
 
       mult_expr = Expressir::Model::Expressions::BinaryExpression.new(
-        operator: :MULTIPLICATION,
+        operator: "MULTIPLICATION",
         operand1: value1,
         operand2: value2,
       )
-      expect(mult_expr.operator).to eq :MULTIPLICATION
+      expect(mult_expr.operator).to eq "MULTIPLICATION"
       expect(mult_expr.operand1.value).to eq "1.5"
       expect(mult_expr.operand2.value).to eq "2.5"
     end

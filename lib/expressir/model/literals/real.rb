@@ -4,14 +4,14 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 7.5.3 Real literal
       class Real < Literal
-        model_attr_accessor :value, "::String"
+        attribute :value, :string
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option options [::String] :value
-        def initialize(options = {})
-          @value = options[:value]
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "value", to: :value
         end
       end
     end

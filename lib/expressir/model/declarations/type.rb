@@ -3,26 +3,21 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.1 Type declaration
-      class Type < Declaration
+      class Type < ::Expressir::Model::Declaration
         include Identifier
 
-        model_attr_accessor :underlying_type, "DataType"
-        model_attr_accessor :where_rules, "Array<WhereRule>"
-        model_attr_accessor :informal_propositions, "Array<RemarkItem>"
+        attribute :underlying_type, ::Expressir::Model::DataType
+        attribute :where_rules, ::Expressir::Model::Declarations::WhereRule, collection: true
+        attribute :informal_propositions, ::Expressir::Model::Declarations::RemarkItem, collection: true
+        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :source, :string
 
-        # @param [Hash] options
-        # @option (see Identifier#initialize_identifier)
-        # @option options [DataType] :underlying_type
-        # @option options [Array<WhereRule>] :where_rules
-        # @option options [Array<RemarkItem>] :informal_propositions
-        def initialize(options = {})
-          initialize_identifier(options)
-
-          @underlying_type = options[:underlying_type]
-          @where_rules = options[:where_rules] || []
-          @informal_propositions = options[:informal_propositions] || []
-
-          super
+        key_value do
+          map "_class", to: :_class, render_default: true
+          map "source", to: :source
+          map "underlying_type", to: :underlying_type
+          map "where_rules", to: :where_rules
+          map "informal_propositions", to: :informal_propositions
         end
 
         # @return [Array<DataTypes::EnumerationItem>]

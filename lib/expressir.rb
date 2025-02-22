@@ -3,6 +3,7 @@ require_relative "expressir/version"
 require_relative "expressir/cli"
 require_relative "expressir/config"
 require "lutaml/model"
+require "liquid" # To enable Lutaml::Model::Liquefiable
 
 # ..........................................................
 # https://bugs.ruby-lang.org/issues/19319

@@ -9,12 +9,23 @@ module Expressir
       # It is not a real attribute
       attribute :parent, ModelElement
       attribute :source, :string
-      attribute :_class, :string, default: -> { self.send(:name) }
+      attribute :_class, :string, default: -> { self.send(:name) },
+        polymorphic_class: true
       attribute :source, :string
 
       # TODO: Add basic mappings that can be inherited by all subclasses
       key_value do
-        map "_class", to: :_class, render_default: true
+        map "_class", to: :_class, render_default: true,
+          polymorphic_map: {
+            "Expressir::Model::Cache" => "Expressir::Model::Cache",
+            "Expressir::Model::DataType" => "Expressir::Model::DataType",
+            "Expressir::Model::Declaration" => "Expressir::Model::Declaration",
+            "Expressir::Model::Expression" => "Expressir::Model::Expression",
+            "Expressir::Model::Literal" => "Expressir::Model::Literal",
+            "Expressir::Model::Repository" => "Expressir::Model::Repository",
+            "Expressir::Model::Statement" => "Expressir::Model::Statement",
+            "Expressir::Model::SupertypeExpression" => "Expressir::Model::SupertypeExpression",
+          }
         map "source", to: :source
       end
 

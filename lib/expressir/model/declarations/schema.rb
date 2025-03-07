@@ -4,8 +4,6 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 9.3 Schema
       class Schema < ::Expressir::Model::Declaration
-        attribute :file, :string
-
         # TODO: MIGRATE: Set `file` path
         # def file
         #   node_options[FILE_KEY.to_sym] = root_path ? File.expand_path("#{root_path}/#{hash[FILE_KEY]}") : hash[FILE_KEY]
@@ -61,6 +59,7 @@ module Expressir
 
         include Identifier
 
+        attribute :file, :string
         attribute :version, SchemaVersion
         attribute :interfaces, Interface, collection: true
         attribute :constants, Constant, collection: true

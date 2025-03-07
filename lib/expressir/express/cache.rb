@@ -41,7 +41,7 @@ module Expressir
           raise Error.new("Cache version mismatch, cache version is #{cache.version}, Expressir version is #{version}")
         end
 
-        cache.content
+        cache
       end
     end
   end

@@ -7,7 +7,8 @@ module Expressir
       SKIP_ATTRIBUTES = %i[parent _class].freeze
       # :parent is a special attribute that is used to store the parent of the current element
       # It is not a real attribute
-      attribute :parent, ModelElement
+      # attribute :parent, ModelElement
+      attr_accessor :parent
       attribute :source, :string
       attribute :_class, :string, default: -> { self.send(:name) },
         polymorphic_class: true

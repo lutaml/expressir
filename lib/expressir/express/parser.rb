@@ -386,7 +386,7 @@ module Expressir
       # @param [Boolean] skip_references skip resolving references
       # @param [Boolean] include_source attach original source code to model elements
       # @return [Model::Repository]
-      def self.from_file(file, skip_references: nil, include_source: nil) # rubocop:disable Metrics/AbcSize
+      def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil) # rubocop:disable Metrics/AbcSize
         source = File.read file
 
         begin
@@ -401,7 +401,12 @@ module Expressir
         @repository = transformed
 
         @repository.schemas.each do |schema|
-          schema.file = file.to_s
+          schema_file = file.to_s
+          # remove root path from file path
+          if root_path
+            schema_file = schema_file.gsub(/^#{root_path}\//, "")
+          end
+          schema.file = schema_file
         end
 
         unless skip_references

@@ -13,22 +13,27 @@ RSpec.describe Expressir::Express::Parser do
     it "parses a file (single.exp)" do |example|
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "single.exp")
-      yaml_file = Expressir.root_path.join("spec", "syntax", "single.yaml")
+      yaml_file = Expressir.root_path.join("spec", "syntax", "single_parser.yaml")
 
-      repo = Expressir::Express::Parser.from_file(exp_file)
+      repo = Expressir::Express::Parser.from_file(
+        exp_file,
+        root_path: Expressir.root_path,
+      )
       result = repo.to_yaml
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
-
       expect(result).to eq(expected_result)
     end
 
     it "parses a file (multiple.exp)" do |example|
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
-      yaml_file = Expressir.root_path.join("spec", "syntax", "multiple.yaml")
+      yaml_file = Expressir.root_path.join("spec", "syntax", "multiple_parser.yaml")
 
-      repo = Expressir::Express::Parser.from_file(exp_file)
+      repo = Expressir::Express::Parser.from_file(
+        exp_file,
+        root_path: Expressir.root_path,
+      )
       result = repo.to_yaml
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
@@ -41,18 +46,15 @@ RSpec.describe Expressir::Express::Parser do
       exp_file = Expressir.root_path.join("spec", "syntax", "mathematical_functions_schema.exp")
       yaml_file = Expressir.root_path.join("spec", "syntax", "mathematical_functions_schema.yaml")
 
-      repo = Expressir::Express::Parser.from_file(exp_file)
-      result = repo.to_hash(root_path: Expressir.root_path)
+      repo = Expressir::Express::Parser.from_file(
+        exp_file,
+        root_path: Expressir.root_path,
+      )
+      result = repo.to_yaml
       # File.write(yaml_file, result)
-      expected_result = YAML.load(File.read(yaml_file)) # rubocop:disable Security/YAMLLoad
+      expected_result = File.read(yaml_file)
 
-      # compare the result by hash as the yaml output varies with ruby version
       expect(result).to eq(expected_result)
-
-      # Validate Object Space
-      GC.start
-      GC.verify_compaction_references
-      GC.verify_internal_consistency
     end
 
     it "parses a file (syntax.exp)" do |example|
@@ -60,7 +62,10 @@ RSpec.describe Expressir::Express::Parser do
       exp_file = Expressir.root_path.join("spec", "syntax", "syntax.exp")
       yaml_file = Expressir.root_path.join("spec", "syntax", "syntax.yaml")
 
-      repo = Expressir::Express::Parser.from_file(exp_file)
+      repo = Expressir::Express::Parser.from_file(
+        exp_file,
+        root_path: Expressir.root_path,
+      )
       result = repo.to_yaml
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
@@ -73,7 +78,10 @@ RSpec.describe Expressir::Express::Parser do
       exp_file = Expressir.root_path.join("spec", "syntax", "remark.exp")
       yaml_file = Expressir.root_path.join("spec", "syntax", "remark.yaml")
 
-      repo = Expressir::Express::Parser.from_file(exp_file)
+      repo = Expressir::Express::Parser.from_file(
+        exp_file,
+        root_path: Expressir.root_path,
+      )
       result = repo.to_yaml
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)

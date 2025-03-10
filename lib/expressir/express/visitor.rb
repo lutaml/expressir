@@ -231,8 +231,10 @@ module Expressir
           # check if path can create implicit informal proposition
           # see https://github.com/lutaml/expressir/issues/50
           if parent_node.class.method_defined?(:informal_propositions) && current_path.match(/^IP\d+$/)
+            parent_node.informal_propositions ||= []
             parent_node.informal_propositions << remark_item
           else
+            parent_node.remark_items ||= []
             parent_node.remark_items << remark_item
           end
           parent_node.reset_children_by_id

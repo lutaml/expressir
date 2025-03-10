@@ -39,7 +39,7 @@ module Expressir
           [
             *parameters,
             *types,
-            *types.flat_map(&:enumeration_items),
+            *types&.flat_map(&:enumeration_items),
             *entities,
             *subtype_constraints,
             *functions,

@@ -102,7 +102,7 @@ RSpec.describe Expressir::Model::Declarations::Function do
       end
 
       it "handles functions without parameters" do
-        expect(no_params_function.parameters).to be_empty
+        expect(no_params_function.parameters).to be_nil
       end
 
       it "handles multiple parameters" do
@@ -296,8 +296,8 @@ RSpec.describe Expressir::Model::Declarations::Function do
       end
 
       it "handles minimal function definition" do
-        expect(minimal_function.parameters).to be_empty
-        expect(minimal_function.statements).to be_empty
+        expect(minimal_function.parameters).to be_nil
+        expect(minimal_function.statements).to be_nil
       end
 
       it "handles empty function body" do

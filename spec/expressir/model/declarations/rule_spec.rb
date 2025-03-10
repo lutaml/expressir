@@ -132,18 +132,18 @@ RSpec.describe Expressir::Model::Declarations::Rule do
       expect(rule.applies_to).to contain_exactly(
         an_instance_of(Expressir::Model::References::SimpleReference),
       )
-      expect(rule.types).to be_empty
-      expect(rule.entities).to be_empty
-      expect(rule.subtype_constraints).to be_empty
-      expect(rule.functions).to be_empty
-      expect(rule.procedures).to be_empty
-      expect(rule.constants).to be_empty
-      expect(rule.variables).to be_empty
-      expect(rule.statements).to be_empty
-      expect(rule.where_rules).to be_empty
-      expect(rule.informal_propositions).to be_empty
-      expect(rule.remarks).to be_empty
-      expect(rule.remark_items).to be_empty
+      expect(rule.types).to be_nil
+      expect(rule.entities).to be_nil
+      expect(rule.subtype_constraints).to be_nil
+      expect(rule.functions).to be_nil
+      expect(rule.procedures).to be_nil
+      expect(rule.constants).to be_nil
+      expect(rule.variables).to be_nil
+      expect(rule.statements).to be_nil
+      expect(rule.where_rules).to be_nil
+      expect(rule.informal_propositions).to be_nil
+      expect(rule.remarks).to be_nil
+      expect(rule.remark_items).to be_nil
     end
   end
 

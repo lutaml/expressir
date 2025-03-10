@@ -59,10 +59,10 @@ RSpec.describe Expressir::Model::Declarations::SubtypeConstraint do
       expect(constraint.id).to eq "test_constraint"
       expect(constraint.applies_to).to be_a Expressir::Model::References::SimpleReference
       expect(constraint.abstract).to be_nil
-      expect(constraint.total_over).to be_empty
+      expect(constraint.total_over).to be_nil
       expect(constraint.supertype_expression).to be_nil
-      expect(constraint.remarks).to be_empty
-      expect(constraint.remark_items).to be_empty
+      expect(constraint.remarks).to be_nil
+      expect(constraint.remark_items).to be_nil
     end
   end
 

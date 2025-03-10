@@ -114,7 +114,7 @@ RSpec.describe Expressir::Model::DataTypes::Enumeration do
 
       it "handles derived enumeration without additional items" do
         expect(empty_derived_enum.based_on.id).to eq "BASE"
-        expect(empty_derived_enum.items).to be_empty
+        expect(empty_derived_enum.items).to be_nil
       end
     end
   end
@@ -156,7 +156,7 @@ RSpec.describe Expressir::Model::DataTypes::Enumeration do
       end
 
       it "handles empty enumeration" do
-        expect(empty_enum.items).to be_empty
+        expect(empty_enum.items).to be_nil
       end
 
       it "handles single item enumeration" do

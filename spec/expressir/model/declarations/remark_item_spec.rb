@@ -25,13 +25,13 @@ RSpec.describe Expressir::Model::Declarations::RemarkItem do
     it "creates a remark item with only id" do
       item = described_class.new(id: "remark1")
       expect(item.id).to eq "remark1"
-      expect(item.remarks).to be_empty
+      expect(item.remarks).to be_nil
     end
 
     it "creates a remark item with minimal attributes" do
       item = described_class.new
       expect(item.id).to be_nil
-      expect(item.remarks).to be_empty
+      expect(item.remarks).to be_nil
     end
   end
 
@@ -136,7 +136,7 @@ RSpec.describe Expressir::Model::Declarations::RemarkItem do
 
     it "supports empty remarks array" do
       item = described_class.new(id: "no_remarks")
-      expect(item.remarks).to be_empty
+      expect(item.remarks).to be_nil
     end
 
     it "supports remarks with special characters" do

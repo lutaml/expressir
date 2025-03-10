@@ -88,7 +88,7 @@ RSpec.describe Expressir::Model::Declarations::Entity do
       end
 
       it "handles base entities" do
-        expect(base_entity.subtype_of).to be_empty
+        expect(base_entity.subtype_of).to be_nil
         expect(base_entity.attributes.first.id).to eq "base_attr"
       end
 
@@ -268,9 +268,9 @@ RSpec.describe Expressir::Model::Declarations::Entity do
       end
 
       it "handles empty entities" do
-        expect(empty_entity.attributes).to be_empty
-        expect(empty_entity.unique_rules).to be_empty
-        expect(empty_entity.where_rules).to be_empty
+        expect(empty_entity.attributes).to be_nil
+        expect(empty_entity.unique_rules).to be_nil
+        expect(empty_entity.where_rules).to be_nil
       end
 
       it "handles circular inheritance" do

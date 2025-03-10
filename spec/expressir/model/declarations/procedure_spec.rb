@@ -102,7 +102,7 @@ RSpec.describe Expressir::Model::Declarations::Procedure do
       end
 
       it "handles procedures without parameters" do
-        expect(no_params_procedure.parameters).to be_empty
+        expect(no_params_procedure.parameters).to be_nil
       end
 
       it "handles multiple parameters" do
@@ -298,8 +298,8 @@ RSpec.describe Expressir::Model::Declarations::Procedure do
       end
 
       it "handles empty procedures" do
-        expect(empty_procedure.parameters).to be_empty
-        expect(empty_procedure.statements).to be_empty
+        expect(empty_procedure.parameters).to be_nil
+        expect(empty_procedure.statements).to be_nil
       end
 
       it "handles procedures with only remarks" do

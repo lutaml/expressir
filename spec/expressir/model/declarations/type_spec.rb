@@ -160,7 +160,7 @@ RSpec.describe Expressir::Model::Declarations::Type do
       end
 
       it "handles no where rules" do
-        expect(type_without_rules.where_rules).to be_empty
+        expect(type_without_rules.where_rules).to be_nil
       end
     end
   end

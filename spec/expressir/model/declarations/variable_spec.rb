@@ -43,8 +43,8 @@ RSpec.describe Expressir::Model::Declarations::Variable do
       expect(var.id).to eq "test_var"
       expect(var.type).to be_nil
       expect(var.expression).to be_nil
-      expect(var.remarks).to be_empty
-      expect(var.remark_items).to be_empty
+      expect(var.remarks).to be_nil
+      expect(var.remark_items).to be_nil
     end
   end
 

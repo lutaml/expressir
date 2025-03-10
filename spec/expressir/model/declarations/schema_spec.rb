@@ -119,16 +119,16 @@ RSpec.describe Expressir::Model::Declarations::Schema do
       expect(schema.id).to eq "minimal_schema"
       expect(schema.file).to be_nil
       expect(schema.version).to be_nil
-      expect(schema.interfaces).to be_empty
-      expect(schema.constants).to be_empty
-      expect(schema.types).to be_empty
-      expect(schema.entities).to be_empty
-      expect(schema.subtype_constraints).to be_empty
-      expect(schema.functions).to be_empty
-      expect(schema.rules).to be_empty
-      expect(schema.procedures).to be_empty
-      expect(schema.remarks).to be_empty
-      expect(schema.remark_items).to be_empty
+      expect(schema.interfaces).to be_nil
+      expect(schema.constants).to be_nil
+      expect(schema.types).to be_nil
+      expect(schema.entities).to be_nil
+      expect(schema.subtype_constraints).to be_nil
+      expect(schema.functions).to be_nil
+      expect(schema.rules).to be_nil
+      expect(schema.procedures).to be_nil
+      expect(schema.remarks).to be_nil
+      expect(schema.remark_items).to be_nil
     end
   end
 

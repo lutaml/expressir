@@ -3,16 +3,16 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.2 Entity declaration
-      class Entity < ::Expressir::Model::Declaration
+      class Entity < ModelElement
         include Identifier
 
         attribute :abstract, :boolean
-        attribute :supertype_expression, ::Expressir::Model::SupertypeExpression
-        attribute :subtype_of, ::Expressir::Model::Reference, collection: true
-        attribute :attributes, ::Expressir::Model::Declarations::Attribute, collection: true
-        attribute :unique_rules, ::Expressir::Model::Declarations::UniqueRule, collection: true
-        attribute :where_rules, ::Expressir::Model::Declarations::WhereRule, collection: true
-        attribute :informal_propositions, ::Expressir::Model::Declarations::RemarkItem, collection: true
+        attribute :supertype_expression, ModelElement
+        attribute :subtype_of, ModelElement, collection: true
+        attribute :attributes, Attribute, collection: true
+        attribute :unique_rules, UniqueRule, collection: true
+        attribute :where_rules, WhereRule, collection: true
+        attribute :informal_propositions, RemarkItem, collection: true
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

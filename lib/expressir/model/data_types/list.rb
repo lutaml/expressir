@@ -3,11 +3,11 @@ module Expressir
     module DataTypes
       # Specified in ISO 10303-11:2004
       # - section 8.2.2 List data type
-      class List < DataType
-        attribute :bound1, Expressir::Model::Expression
-        attribute :bound2, Expressir::Model::Expression
-        attribute :unique, Expressir::Model::DataTypes::Boolean
-        attribute :base_type, Expressir::Model::DataType
+      class List < ModelElement
+        attribute :bound1, ModelElement
+        attribute :bound2, ModelElement
+        attribute :unique, :boolean
+        attribute :base_type, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

@@ -3,13 +3,13 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.7 Subtype constraints
-      class SubtypeConstraint < ::Expressir::Model::Declaration
+      class SubtypeConstraint < ModelElement
         include Identifier
 
-        attribute :applies_to, ::Expressir::Model::Reference
+        attribute :applies_to, ModelElement
         attribute :abstract, :boolean
-        attribute :total_over, ::Expressir::Model::Reference, collection: true
-        attribute :supertype_expression, ::Expressir::Model::SupertypeExpression
+        attribute :total_over, ModelElement, collection: true
+        attribute :supertype_expression, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

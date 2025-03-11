@@ -3,8 +3,8 @@ module Expressir
     module Expressions
       # Specified in ISO 10303-11:2004
       # - section 12.9 Aggregate initializer
-      class AggregateInitializer < Expression
-        attribute :items, AggregateInitializerItem, collection: true
+      class AggregateInitializer < ModelElement
+        attribute :items, ModelElement, collection: true
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

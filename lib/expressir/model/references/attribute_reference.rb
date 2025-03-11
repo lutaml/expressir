@@ -3,9 +3,9 @@ module Expressir
     module References
       # Specified in ISO 10303-11:2004
       # - section 12.7.3 Attribute references
-      class AttributeReference < Reference
-        attribute :ref, ::Expressir::Model::Reference
-        attribute :attribute, ::Expressir::Model::Reference
+      class AttributeReference < ModelElement
+        attribute :ref, ModelElement
+        attribute :attribute, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

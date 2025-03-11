@@ -3,9 +3,9 @@ module Expressir
     module References
       # Specified in ISO 10303-11:2004
       # - section 12.7.1 Simple references
-      class SimpleReference < Reference
+      class SimpleReference < ModelElement
         attribute :id, :string
-        attribute :ref, ::Expressir::Model::Reference
+        attribute :ref, ModelElement
         attribute :base_path, :string
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string

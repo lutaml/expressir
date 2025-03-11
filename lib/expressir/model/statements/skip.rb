@@ -3,7 +3,7 @@ module Expressir
     module Statements
       # Specified in ISO 10303-11:2004
       # - section 13.11 Skip statement
-      class Skip < Statement
+      class Skip < ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

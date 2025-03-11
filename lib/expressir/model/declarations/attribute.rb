@@ -3,7 +3,7 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.2.1 Attributes
-      class Attribute < ::Expressir::Model::Declaration
+      class Attribute < ModelElement
         include Identifier
 
         EXPLICIT = "EXPLICIT"
@@ -11,10 +11,10 @@ module Expressir
         INVERSE = "INVERSE"
 
         attribute :kind, :string, values: %w[EXPLICIT DERIVED INVERSE]
-        attribute :supertype_attribute, ::Expressir::Model::Reference
+        attribute :supertype_attribute, ModelElement
         attribute :optional, :boolean
-        attribute :type, DataType
-        attribute :expression, Expression
+        attribute :type, ModelElement
+        attribute :expression, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

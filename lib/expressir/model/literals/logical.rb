@@ -3,7 +3,7 @@ module Expressir
     module Literals
       # Specified in ISO 10303-11:2004
       # - section 7.5.5 Logical literal
-      class Logical < Literal
+      class Logical < ModelElement
         TRUE = "TRUE"
         FALSE = "FALSE"
         UNKNOWN = "UNKNOWN"

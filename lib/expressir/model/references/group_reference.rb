@@ -3,9 +3,9 @@ module Expressir
     module References
       # Specified in ISO 10303-11:2004
       # - section 12.7.4 Group references
-      class GroupReference < Reference
-        attribute :ref, ::Expressir::Model::Reference
-        attribute :entity, ::Expressir::Model::Reference
+      class GroupReference < ModelElement
+        attribute :ref, ModelElement
+        attribute :entity, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

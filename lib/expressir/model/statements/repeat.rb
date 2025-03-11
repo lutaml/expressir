@@ -3,15 +3,15 @@ module Expressir
     module Statements
       # Specified in ISO 10303-11:2004
       # - section 13.9 Repeat statement
-      class Repeat < Statement
+      class Repeat < ModelElement
         include Identifier
 
-        attribute :bound1, Expression
-        attribute :bound2, Expression
-        attribute :increment, Expression
-        attribute :while_expression, Expression
-        attribute :until_expression, Expression
-        attribute :statements, Statement, collection: true
+        attribute :bound1, ModelElement
+        attribute :bound2, ModelElement
+        attribute :increment, ModelElement
+        attribute :while_expression, ModelElement
+        attribute :until_expression, ModelElement
+        attribute :statements, ModelElement, collection: true
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

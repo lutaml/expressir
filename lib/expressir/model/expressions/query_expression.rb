@@ -3,11 +3,11 @@ module Expressir
     module Expressions
       # Specified in ISO 10303-11:2004
       # - section 12.6.7 Query expression
-      class QueryExpression < Expression
+      class QueryExpression < ModelElement
         include Identifier
 
-        attribute :aggregate_source, ::Expressir::Model::Reference
-        attribute :expression, Expressir::Model::Expression
+        attribute :aggregate_source, ModelElement
+        attribute :expression, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

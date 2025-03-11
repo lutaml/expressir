@@ -3,10 +3,10 @@ module Expressir
     module DataTypes
       # Specified in ISO 10303-11:2004
       # - section 8.4.1 Enumeration data type
-      class Enumeration < DataType
-        attribute :extensible, Expressir::Model::DataTypes::Boolean
-        attribute :based_on, ::Expressir::Model::Reference
-        attribute :items, Expressir::Model::DataTypes::EnumerationItem, collection: true
+      class Enumeration < ModelElement
+        attribute :extensible, :boolean
+        attribute :based_on, ModelElement
+        attribute :items, EnumerationItem, collection: true
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

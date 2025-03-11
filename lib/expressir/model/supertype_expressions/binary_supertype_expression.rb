@@ -4,13 +4,13 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 9.2.5.3 ANDOR
       # - section 9.2.5.4 AND
-      class BinarySupertypeExpression < SupertypeExpression
+      class BinarySupertypeExpression < ModelElement
         AND = "AND"
         ANDOR = "ANDOR"
 
         attribute :operator, :string, values: %w[AND ANDOR]
-        attribute :operand1, ::Expressir::Model::SupertypeExpression
-        attribute :operand2, ::Expressir::Model::SupertypeExpression
+        attribute :operand1, ModelElement
+        attribute :operand2, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

@@ -36,8 +36,8 @@ RSpec.describe Expressir::Model::Declarations::RemarkItem do
   end
 
   describe "inheritance" do
-    it "inherits from Declaration" do
-      expect(remark_item).to be_a Expressir::Model::Declaration
+    it "inherits from ModelElement" do
+      expect(remark_item).to be_a Expressir::Model::ModelElement
     end
   end
 

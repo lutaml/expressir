@@ -3,8 +3,8 @@ module Expressir
     module Statements
       # Specified in ISO 10303-11:2004
       # - section 13.10 Return statement
-      class Return < Statement
-        attribute :expression, Expression
+      class Return < ModelElement
+        attribute :expression, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

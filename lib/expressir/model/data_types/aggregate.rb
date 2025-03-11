@@ -3,10 +3,10 @@ module Expressir
     module DataTypes
       # Specified in ISO 10303-11:2004
       # - section 9.5.3.1 Aggregate data type
-      class Aggregate < DataType
+      class Aggregate < ModelElement
         include Identifier
 
-        attribute :base_type, Expressir::Model::Declarations::Type
+        attribute :base_type, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

@@ -9,7 +9,7 @@ module Expressir
       # - section 12.5 String operators
       # - section 12.6 Aggregate operators
       # - section 12.10 Complex entity instance construction operator
-      class BinaryExpression < Expression
+      class BinaryExpression < ModelElement
         ADDITION = "ADDITION"
         AND = "AND"
         COMBINE = "COMBINE"
@@ -42,8 +42,8 @@ module Expressir
                             MODULO MULTIPLICATION NOT_EQUAL OR REAL_DIVISION
                             SUBTRACTION XOR
                           ]
-        attribute :operand1, Expression
-        attribute :operand2, Expression
+        attribute :operand1, ModelElement
+        attribute :operand2, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

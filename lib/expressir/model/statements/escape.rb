@@ -3,7 +3,7 @@ module Expressir
     module Statements
       # Specified in ISO 10303-11:2004
       # - section 13.6 Escape statement
-      class Escape < Statement
+      class Escape < ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

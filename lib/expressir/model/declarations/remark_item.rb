@@ -2,7 +2,7 @@ module Expressir
   module Model
     module Declarations
       # Implicit item with remarks
-      class RemarkItem < ::Expressir::Model::Declaration
+      class RemarkItem < ModelElement
         attribute :id, :string
         attribute :remarks, :string, collection: true
         attribute :_class, :string, default: -> { self.send(:name) }

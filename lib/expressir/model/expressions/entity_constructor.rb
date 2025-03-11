@@ -3,9 +3,9 @@ module Expressir
     module Expressions
       # Specified in ISO 10303-11:2004
       # - section 9.2.6 Implicit declarations
-      class EntityConstructor < Expression
-        attribute :entity, ::Expressir::Model::Reference
-        attribute :parameters, Expression, collection: true
+      class EntityConstructor < ModelElement
+        attribute :entity, ModelElement
+        attribute :parameters, ModelElement, collection: true
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

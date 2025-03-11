@@ -3,10 +3,10 @@ module Expressir
     module Statements
       # Specified in ISO 10303-11:2004
       # - section 13.4 Case statement
-      class Case < Statement
-        attribute :expression, Expression
+      class Case < ModelElement
+        attribute :expression, ModelElement
         attribute :actions, CaseAction, collection: true
-        attribute :otherwise_statement, Statement
+        attribute :otherwise_statement, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

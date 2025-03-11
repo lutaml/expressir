@@ -133,8 +133,8 @@ RSpec.describe Expressir::Model::Declarations::Schema do
   end
 
   describe "inheritance" do
-    it "inherits from Declaration" do
-      expect(schema).to be_a Expressir::Model::Declaration
+    it "inherits from ModelElement" do
+      expect(schema).to be_a Expressir::Model::ModelElement
     end
 
     it "includes Identifier module" do

@@ -3,12 +3,12 @@ module Expressir
     module DataTypes
       # Specified in ISO 10303-11:2004
       # - section 8.2.1 Array data type
-      class Array < DataType
-        attribute :bound1, Expressir::Model::Expression
-        attribute :bound2, Expressir::Model::Expression
-        attribute :optional, Expressir::Model::DataTypes::Boolean
-        attribute :unique, Expressir::Model::DataTypes::Boolean
-        attribute :base_type, Expressir::Model::DataType
+      class Array < ModelElement
+        attribute :bound1, ModelElement
+        attribute :bound2, ModelElement
+        attribute :optional, :boolean
+        attribute :unique, :boolean
+        attribute :base_type, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

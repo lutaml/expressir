@@ -1,15 +1,8 @@
 require_relative "model/model_element"
-
 require_relative "model/cache"
-require_relative "model/data_type"
-require_relative "model/declaration"
-require_relative "model/expression"
 require_relative "model/identifier"
-require_relative "model/literal"
-require_relative "model/reference"
 require_relative "model/repository"
-require_relative "model/statement"
-require_relative "model/supertype_expression"
+
 require_relative "model/data_types/aggregate"
 require_relative "model/data_types/array"
 require_relative "model/data_types/bag"

@@ -4,7 +4,7 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 11 Interface specification
       class InterfaceItem < ModelElement
-        attribute :ref, ::Expressir::Model::Reference
+        attribute :ref, ModelElement
         attribute :id, :string
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string

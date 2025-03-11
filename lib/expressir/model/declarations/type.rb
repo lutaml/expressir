@@ -3,12 +3,12 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.1 Type declaration
-      class Type < ::Expressir::Model::Declaration
+      class Type < ModelElement
         include Identifier
 
-        attribute :underlying_type, ::Expressir::Model::DataType
-        attribute :where_rules, ::Expressir::Model::Declarations::WhereRule, collection: true
-        attribute :informal_propositions, ::Expressir::Model::Declarations::RemarkItem, collection: true
+        attribute :underlying_type, ModelElement
+        attribute :where_rules, WhereRule, collection: true
+        attribute :informal_propositions, RemarkItem, collection: true
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

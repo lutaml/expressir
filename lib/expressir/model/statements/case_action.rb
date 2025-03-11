@@ -4,8 +4,8 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 13.4 Case statement
       class CaseAction < ModelElement
-        attribute :labels, Expression, collection: true
-        attribute :statement, Statement
+        attribute :labels, ModelElement, collection: true
+        attribute :statement, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

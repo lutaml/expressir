@@ -3,7 +3,7 @@ module Expressir
     module DataTypes
       # Specified in ISO 10303-11:2004
       # - section 8.1.3 Integer data type
-      class Integer < DataType
+      class Integer < ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

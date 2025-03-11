@@ -3,8 +3,8 @@ module Expressir
     module Statements
       # Specified in ISO 10303-11:2004
       # - section 13.5 Compound statement
-      class Compound < Statement
-        attribute :statements, Statement, collection: true
+      class Compound < ModelElement
+        attribute :statements, ModelElement, collection: true
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

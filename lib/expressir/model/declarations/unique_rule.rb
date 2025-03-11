@@ -3,10 +3,10 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.2.2.1 Uniqueness rule
-      class UniqueRule < ::Expressir::Model::Declaration
+      class UniqueRule < ModelElement
         include Identifier
 
-        attribute :attributes, ::Expressir::Model::Reference, collection: true
+        attribute :attributes, ModelElement, collection: true
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

@@ -3,10 +3,10 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.2.2.2 Domain rules (WHERE clause)
-      class WhereRule < ::Expressir::Model::Declaration
+      class WhereRule < ModelElement
         include Identifier
 
-        attribute :expression, ::Expressir::Model::Expression
+        attribute :expression, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

@@ -3,15 +3,15 @@ module Expressir
     module Expressions
       # Specified in ISO 10303-11:2004
       # - section 12.2.4 Interval expressions
-      class Interval < Expression
+      class Interval < ModelElement
         LESS_THAN = "LESS_THAN"
         LESS_THAN_OR_EQUAL = "LESS_THAN_OR_EQUAL"
 
-        attribute :low, Expression
+        attribute :low, ModelElement
         attribute :operator1, :string, values: %w[LESS_THAN LESS_THAN_OR_EQUAL]
-        attribute :item, ::Expressir::Model::Reference
+        attribute :item, ModelElement
         attribute :operator2, :string, values: %w[LESS_THAN LESS_THAN_OR_EQUAL]
-        attribute :high, Expression
+        attribute :high, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

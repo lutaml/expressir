@@ -3,11 +3,11 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.5.4 Local variables
-      class Variable < ::Expressir::Model::Declaration
+      class Variable < ModelElement
         include Identifier
 
-        attribute :type, ::Expressir::Model::DataType
-        attribute :expression, ::Expressir::Model::Expression
+        attribute :type, ModelElement
+        attribute :expression, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

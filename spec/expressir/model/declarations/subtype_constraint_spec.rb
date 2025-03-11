@@ -67,8 +67,8 @@ RSpec.describe Expressir::Model::Declarations::SubtypeConstraint do
   end
 
   describe "inheritance" do
-    it "inherits from Declaration" do
-      expect(subtype_constraint).to be_a Expressir::Model::Declaration
+    it "inherits from ModelElement" do
+      expect(subtype_constraint).to be_a Expressir::Model::ModelElement
     end
 
     it "includes Identifier module" do

@@ -4,13 +4,13 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 12.1 Arithmetic operators
       # - section 12.4.1 NOT operator
-      class UnaryExpression < Expression
+      class UnaryExpression < ModelElement
         MINUS = "MINUS"
         NOT = "NOT"
         PLUS = "PLUS"
 
         attribute :operator, :string, values: %w[MINUS NOT PLUS]
-        attribute :operand, Expression
+        attribute :operand, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

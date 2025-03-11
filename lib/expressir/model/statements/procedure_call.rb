@@ -3,9 +3,9 @@ module Expressir
     module Statements
       # Specified in ISO 10303-11:2004
       # - section 13.8 Procedure call statement
-      class ProcedureCall < Statement
-        attribute :procedure, ::Expressir::Model::Reference
-        attribute :parameters, Expression, collection: true
+      class ProcedureCall < ModelElement
+        attribute :procedure, ModelElement
+        attribute :parameters, ModelElement, collection: true
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

@@ -3,7 +3,7 @@ module Expressir
     module DataTypes
       # Specified in ISO 10303-11:2004
       # - section 9.5.3.3 Generic entity data type
-      class GenericEntity < DataType
+      class GenericEntity < ModelElement
         include Identifier
 
         attribute :_class, :string, default: -> { self.send(:name) }

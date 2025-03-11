@@ -3,8 +3,8 @@ module Expressir
     module SupertypeExpressions
       # Specified in ISO 10303-11:2004
       # - section 9.2.5.2 ONEOF
-      class OneofSupertypeExpression < SupertypeExpression
-        attribute :operands, ::Expressir::Model::SupertypeExpression, collection: true
+      class OneofSupertypeExpression < ModelElement
+        attribute :operands, ModelElement, collection: true
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

@@ -3,11 +3,11 @@ module Expressir
     module DataTypes
       # Specified in ISO 10303-11:2004
       # - section 8.4.2 Select data type
-      class Select < DataType
-        attribute :extensible, Expressir::Model::DataTypes::Boolean
-        attribute :generic_entity, Expressir::Model::DataTypes::Boolean
-        attribute :based_on, ::Expressir::Model::Reference
-        attribute :items, ::Expressir::Model::Reference, collection: true
+      class Select < ModelElement
+        attribute :extensible, :boolean
+        attribute :generic_entity, :boolean
+        attribute :based_on, ModelElement
+        attribute :items, ModelElement, collection: true
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

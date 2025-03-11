@@ -3,11 +3,11 @@ module Expressir
     module Statements
       # Specified in ISO 10303-11:2004
       # - section 13.2 Alias statement
-      class Alias < Statement
+      class Alias < ModelElement
         include Identifier
 
-        attribute :expression, Expressir::Model::Expression
-        attribute :statements, Statement, collection: true
+        attribute :expression, ModelElement
+        attribute :statements, ModelElement, collection: true
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

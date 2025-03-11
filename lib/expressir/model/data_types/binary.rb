@@ -3,9 +3,9 @@ module Expressir
     module DataTypes
       # Specified in ISO 10303-11:2004
       # - section 8.1.7 Binary data type
-      class Binary < DataType
-        attribute :width, Expressir::Model::Expression
-        attribute :fixed, Expressir::Model::DataTypes::Boolean
+      class Binary < ModelElement
+        attribute :width, ModelElement
+        attribute :fixed, :boolean
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

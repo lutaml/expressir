@@ -3,9 +3,9 @@ module Expressir
     module Statements
       # Specified in ISO 10303-11:2004
       # - section 13.3 Assignment
-      class Assignment < Statement
-        attribute :ref, ::Expressir::Model::Reference
-        attribute :expression, Expressir::Model::Expression
+      class Assignment < ModelElement
+        attribute :ref, ModelElement
+        attribute :expression, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

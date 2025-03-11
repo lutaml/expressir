@@ -3,18 +3,18 @@ module Expressir
     module Declarations
       # Specified in ISO 10303-11:2004
       # - section 9.5.2 Procedure
-      class Procedure < ::Expressir::Model::Declaration
+      class Procedure < ModelElement
         include Identifier
 
-        attribute :parameters, ::Expressir::Model::Declarations::Parameter, collection: true
-        attribute :types, ::Expressir::Model::Declarations::Type, collection: true
-        attribute :entities, ::Expressir::Model::Declarations::Entity, collection: true
-        attribute :subtype_constraints, ::Expressir::Model::Declarations::SubtypeConstraint, collection: true
-        attribute :functions, ::Expressir::Model::Declarations::Function, collection: true
-        attribute :procedures, ::Expressir::Model::Declarations::Procedure, collection: true
-        attribute :constants, ::Expressir::Model::Declarations::Constant, collection: true
-        attribute :variables, ::Expressir::Model::Declarations::Variable, collection: true
-        attribute :statements, ::Expressir::Model::Statement, collection: true
+        attribute :parameters, Parameter, collection: true
+        attribute :types, ModelElement, collection: true
+        attribute :entities, Entity, collection: true
+        attribute :subtype_constraints, SubtypeConstraint, collection: true
+        attribute :functions, Function, collection: true
+        attribute :procedures, Procedure, collection: true
+        attribute :constants, Constant, collection: true
+        attribute :variables, Variable, collection: true
+        attribute :statements, ModelElement, collection: true
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string
 

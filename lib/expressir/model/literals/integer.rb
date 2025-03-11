@@ -3,7 +3,7 @@ module Expressir
     module Literals
       # Specified in ISO 10303-11:2004
       # - section 7.5.2 Integer literal
-      class Integer < Literal
+      class Integer < ModelElement
         attribute :value, :string
         attribute :_class, :string, default: -> { self.send(:name) }
         attribute :source, :string

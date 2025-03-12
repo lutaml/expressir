@@ -389,6 +389,12 @@ module Expressir
       def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil) # rubocop:disable Metrics/AbcSize
         source = File.read file
 
+        schema_file = file.to_s
+        # remove root path from file path
+        if root_path
+          schema_file = schema_file.gsub(/^#{root_path}\//, "")
+        end
+
         begin
           ast = Parser.new.parse source
         rescue Parslet::ParseFailed => e
@@ -397,15 +403,9 @@ module Expressir
         end
 
         visitor = Expressir::Express::Visitor.new(source, include_source: include_source)
-        transformed = visitor.visit_ast ast, :top
-        @repository = transformed
+        @repository = visitor.visit_ast ast, :top
 
         @repository.schemas.each do |schema|
-          schema_file = file.to_s
-          # remove root path from file path
-          if root_path
-            schema_file = schema_file.gsub(/^#{root_path}\//, "")
-          end
           schema.file = schema_file
         end
 
@@ -422,10 +422,10 @@ module Expressir
       # @param [Boolean] skip_references skip resolving references
       # @param [Boolean] include_source attach original source code to model elements
       # @return [Model::Repository]
-      def self.from_files(files, skip_references: nil, include_source: nil)
+      def self.from_files(files, skip_references: nil, include_source: nil, root_path: nil)
         schemas = files.each_with_index.map do |file, _i|
           # start = Time.now
-          repository = from_file(file, skip_references: true)
+          repository = from_file(file, skip_references: true, root_path: root_path)
           # STDERR.puts "#{i+1}/#{files.length} #{file} #{Time.now - start}"
           repository.schemas
         end.flatten

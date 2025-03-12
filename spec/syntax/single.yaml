@@ -2,8 +2,8 @@
 _class: Expressir::Model::Repository
 schemas:
 - _class: Expressir::Model::Declarations::Schema
-  file: spec/syntax/single.exp
   id: single_schema
+  file: spec/syntax/single.exp
   version:
     _class: Expressir::Model::Declarations::SchemaVersion
     value: version

@@ -2,7 +2,6 @@
 _class: Expressir::Model::Repository
 schemas:
 - _class: Expressir::Model::Declarations::Schema
-  file: spec/syntax/remark.exp
   id: remark_schema
   remarks:
   - |-
@@ -19,6 +18,7 @@ schemas:
     remarks:
     - schema scope - schema remark item
     - universal scope - schema remark item
+  file: spec/syntax/remark.exp
   constants:
   - _class: Expressir::Model::Declarations::Constant
     id: remark_constant
@@ -58,7 +58,7 @@ schemas:
       - universal scope - type where, with prefix
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     informal_propositions:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: IP1
@@ -140,7 +140,7 @@ schemas:
         - placed inside WHERE clauses (or other enumerable context)
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     informal_propositions:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: IP1
@@ -260,7 +260,7 @@ schemas:
             base_path: remark_schema.remark_function.remark_variable
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
   rules:
   - _class: Expressir::Model::Declarations::Rule
     id: remark_rule
@@ -352,7 +352,7 @@ schemas:
             base_path: remark_schema.remark_rule.remark_variable
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -365,7 +365,7 @@ schemas:
       - universal scope - rule where, with prefix
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     informal_propositions:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: IP1
@@ -474,4 +474,4 @@ schemas:
             base_path: remark_schema.remark_procedure.remark_variable
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'

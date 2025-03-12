@@ -43,8 +43,38 @@ RSpec.describe Expressir::Express::Parser do
 
     it "parses a file (mathematical_functions_schema.exp) with remark_items" do |example|
       print "\n[#{example.description}] "
-      exp_file = Expressir.root_path.join("spec", "syntax", "mathematical_functions_schema.exp")
-      yaml_file = Expressir.root_path.join("spec", "syntax", "mathematical_functions_schema.yaml")
+      exp_file = Expressir.root_path.join(
+        "spec", "syntax", "mathematical_functions_schema",
+        "mathematical_functions_schema.exp"
+      )
+      yaml_file = Expressir.root_path.join(
+        "spec", "syntax", "mathematical_functions_schema",
+        "mathematical_functions_schema.yaml"
+      )
+
+      repo = Expressir::Express::Parser.from_file(
+        exp_file,
+        root_path: Expressir.root_path,
+      )
+      result = repo.to_yaml
+      # File.write(yaml_file, result)
+      expected_result = File.read(yaml_file)
+
+      expect(result).to eq(expected_result)
+    end
+
+    it "parses a file (structural_response_definition_schema.exp) with remark_items" do |example|
+      print "\n[#{example.description}] "
+      exp_file = Expressir.root_path.join(
+        "spec", "syntax",
+        "structural_response_definition_schema",
+        "structural_response_definition_schema.exp"
+      )
+      yaml_file = Expressir.root_path.join(
+        "spec", "syntax",
+        "structural_response_definition_schema",
+        "structural_response_definition_schema.yaml"
+      )
 
       repo = Expressir::Express::Parser.from_file(
         exp_file,
@@ -60,7 +90,7 @@ RSpec.describe Expressir::Express::Parser do
     it "parses a file (syntax.exp)" do |example|
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "syntax.exp")
-      yaml_file = Expressir.root_path.join("spec", "syntax", "syntax.yaml")
+      yaml_file = Expressir.root_path.join("spec", "syntax", "syntax_parser.yaml")
 
       repo = Expressir::Express::Parser.from_file(
         exp_file,
@@ -76,7 +106,7 @@ RSpec.describe Expressir::Express::Parser do
     it "parses a file (remark.exp)" do |example|
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "remark.exp")
-      yaml_file = Expressir.root_path.join("spec", "syntax", "remark.yaml")
+      yaml_file = Expressir.root_path.join("spec", "syntax", "remark_parser.yaml")
 
       repo = Expressir::Express::Parser.from_file(
         exp_file,

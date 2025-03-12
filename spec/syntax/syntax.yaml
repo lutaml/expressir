@@ -2,8 +2,8 @@
 _class: Expressir::Model::Repository
 schemas:
 - _class: Expressir::Model::Declarations::Schema
-  file: spec/syntax/syntax.exp
   id: syntax_schema
+  file: spec/syntax/syntax.exp
   version:
     _class: Expressir::Model::Declarations::SchemaVersion
     value: "{ISO standard 10303 part(41) object(1) version(8)}"
@@ -111,7 +111,7 @@ schemas:
       _class: Expressir::Model::DataTypes::Boolean
     expression:
       _class: Expressir::Model::Literals::Logical
-      value: "TRUE"
+      value: 'TRUE'
   types:
   - _class: Expressir::Model::Declarations::Type
     id: empty_type
@@ -125,7 +125,7 @@ schemas:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Type
     id: where_label_type
     underlying_type:
@@ -135,7 +135,7 @@ schemas:
       id: WR1
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   entities:
   - _class: Expressir::Model::Declarations::Entity
     id: empty_entity
@@ -278,7 +278,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Entity
     id: derived_attribute_redeclared_entity
     subtype_of:
@@ -306,7 +306,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Entity
     id: derived_attribute_redeclared_renamed_entity
     subtype_of:
@@ -335,7 +335,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Entity
     id: inverse_attribute_entity
     attributes:
@@ -585,7 +585,7 @@ schemas:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Entity
     id: where_label_entity
     where_rules:
@@ -593,7 +593,7 @@ schemas:
       id: WR1
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   subtype_constraints:
   - _class: Expressir::Model::Declarations::SubtypeConstraint
     id: empty_subtype_constraint
@@ -634,7 +634,7 @@ schemas:
       base_path: syntax_schema.empty_entity
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-      operator: "ANDOR"
+      operator: ANDOR
       operand1:
         _class: Expressir::Model::References::SimpleReference
         id: a
@@ -649,7 +649,7 @@ schemas:
       base_path: syntax_schema.empty_entity
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-      operator: "AND"
+      operator: AND
       operand1:
         _class: Expressir::Model::References::SimpleReference
         id: a
@@ -664,13 +664,13 @@ schemas:
       base_path: syntax_schema.empty_entity
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-      operator: "ANDOR"
+      operator: ANDOR
       operand1:
         _class: Expressir::Model::References::SimpleReference
         id: a
       operand2:
         _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-        operator: "AND"
+        operator: AND
         operand1:
           _class: Expressir::Model::References::SimpleReference
           id: b
@@ -685,10 +685,10 @@ schemas:
       base_path: syntax_schema.empty_entity
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-      operator: "ANDOR"
+      operator: ANDOR
       operand1:
         _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-        operator: "AND"
+        operator: AND
         operand1:
           _class: Expressir::Model::References::SimpleReference
           id: a
@@ -706,10 +706,10 @@ schemas:
       base_path: syntax_schema.empty_entity
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-      operator: "AND"
+      operator: AND
       operand1:
         _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-        operator: "ANDOR"
+        operator: ANDOR
         operand1:
           _class: Expressir::Model::References::SimpleReference
           id: a
@@ -727,13 +727,13 @@ schemas:
       base_path: syntax_schema.empty_entity
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-      operator: "AND"
+      operator: AND
       operand1:
         _class: Expressir::Model::References::SimpleReference
         id: a
       operand2:
         _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-        operator: "ANDOR"
+        operator: ANDOR
         operand1:
           _class: Expressir::Model::References::SimpleReference
           id: b
@@ -761,7 +761,7 @@ schemas:
       base_path: syntax_schema.empty_entity
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-      operator: "AND"
+      operator: AND
       operand1:
         _class: Expressir::Model::References::SimpleReference
         id: a
@@ -780,7 +780,7 @@ schemas:
       base_path: syntax_schema.empty_entity
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-      operator: "ANDOR"
+      operator: ANDOR
       operand1:
         _class: Expressir::Model::References::SimpleReference
         id: a
@@ -799,7 +799,7 @@ schemas:
       base_path: syntax_schema.empty_entity
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-      operator: "AND"
+      operator: AND
       operand1:
         _class: Expressir::Model::SupertypeExpressions::OneofSupertypeExpression
         operands:
@@ -818,7 +818,7 @@ schemas:
       base_path: syntax_schema.empty_entity
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-      operator: "ANDOR"
+      operator: ANDOR
       operand1:
         _class: Expressir::Model::SupertypeExpressions::OneofSupertypeExpression
         operands:
@@ -837,7 +837,7 @@ schemas:
       base_path: syntax_schema.empty_entity
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-      operator: "AND"
+      operator: AND
       operand1:
         _class: Expressir::Model::SupertypeExpressions::OneofSupertypeExpression
         operands:
@@ -860,7 +860,7 @@ schemas:
       base_path: syntax_schema.empty_entity
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
-      operator: "ANDOR"
+      operator: ANDOR
       operand1:
         _class: Expressir::Model::SupertypeExpressions::OneofSupertypeExpression
         operands:
@@ -945,7 +945,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     statements:
     - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Function
@@ -959,14 +959,14 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     - _class: Expressir::Model::Declarations::Constant
       id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     statements:
     - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Function
@@ -1021,7 +1021,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     statements:
     - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Function
@@ -1035,14 +1035,14 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     statements:
     - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Function
@@ -1056,14 +1056,14 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     statements:
     - _class: Expressir::Model::Statements::Null
   rules:
@@ -1077,7 +1077,7 @@ schemas:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Rule
     id: type_rule
     applies_to:
@@ -1093,7 +1093,7 @@ schemas:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Rule
     id: constant_rule
     applies_to:
@@ -1107,12 +1107,12 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Rule
     id: multiple_constant_rule
     applies_to:
@@ -1126,19 +1126,19 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     - _class: Expressir::Model::Declarations::Constant
       id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Rule
     id: variable_rule
     applies_to:
@@ -1154,7 +1154,7 @@ schemas:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Rule
     id: multiple_variable_rule
     applies_to:
@@ -1174,7 +1174,7 @@ schemas:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Rule
     id: multiple_shorthand_variable_rule
     applies_to:
@@ -1194,7 +1194,7 @@ schemas:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Rule
     id: variable_expression_rule
     applies_to:
@@ -1208,12 +1208,12 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Rule
     id: multiple_variable_expression_rule
     applies_to:
@@ -1227,19 +1227,19 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Rule
     id: multiple_shorthand_variable_expression_rule
     applies_to:
@@ -1253,19 +1253,19 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Rule
     id: statement_rule
     applies_to:
@@ -1278,7 +1278,7 @@ schemas:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Rule
     id: where_label_rule
     applies_to:
@@ -1290,7 +1290,7 @@ schemas:
       id: WR1
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   procedures:
   - _class: Expressir::Model::Declarations::Procedure
     id: empty_procedure
@@ -1384,7 +1384,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Procedure
     id: multiple_constant_procedure
     constants:
@@ -1394,14 +1394,14 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     - _class: Expressir::Model::Declarations::Constant
       id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Procedure
     id: variable_procedure
     variables:
@@ -1440,7 +1440,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Procedure
     id: multiple_variable_expression_procedure
     variables:
@@ -1450,14 +1450,14 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Procedure
     id: multiple_shorthand_variable_expression_procedure
     variables:
@@ -1467,14 +1467,14 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Procedure
     id: statement_procedure
     statements:
@@ -1564,7 +1564,7 @@ schemas:
           id: test
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Procedure
       id: assignment_group_reference_statement
       statements:
@@ -1579,7 +1579,7 @@ schemas:
             id: test2
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Procedure
       id: assignment_index_reference_statement
       statements:
@@ -1594,7 +1594,7 @@ schemas:
             value: '1'
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Procedure
       id: assignment_index2_reference_statement
       statements:
@@ -1612,7 +1612,7 @@ schemas:
             value: '9'
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Procedure
       id: assignment_attribute_reference_statement
       statements:
@@ -1627,7 +1627,7 @@ schemas:
             id: test2
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Procedure
       id: case_statement
       statements:
@@ -1641,7 +1641,7 @@ schemas:
         - _class: Expressir::Model::Statements::CaseAction
           labels:
           - _class: Expressir::Model::Literals::Logical
-            value: "TRUE"
+            value: 'TRUE'
           statement:
             _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Declarations::Procedure
@@ -1657,13 +1657,13 @@ schemas:
         - _class: Expressir::Model::Statements::CaseAction
           labels:
           - _class: Expressir::Model::Literals::Logical
-            value: "TRUE"
+            value: 'TRUE'
           statement:
             _class: Expressir::Model::Statements::Null
         - _class: Expressir::Model::Statements::CaseAction
           labels:
           - _class: Expressir::Model::Literals::Logical
-            value: "TRUE"
+            value: 'TRUE'
           statement:
             _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Declarations::Procedure
@@ -1679,9 +1679,9 @@ schemas:
         - _class: Expressir::Model::Statements::CaseAction
           labels:
           - _class: Expressir::Model::Literals::Logical
-            value: "TRUE"
+            value: 'TRUE'
           - _class: Expressir::Model::Literals::Logical
-            value: "TRUE"
+            value: 'TRUE'
           statement:
             _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Declarations::Procedure
@@ -1697,7 +1697,7 @@ schemas:
         - _class: Expressir::Model::Statements::CaseAction
           labels:
           - _class: Expressir::Model::Literals::Logical
-            value: "TRUE"
+            value: 'TRUE'
           statement:
             _class: Expressir::Model::Statements::Null
         otherwise_statement:
@@ -1718,7 +1718,7 @@ schemas:
       - _class: Expressir::Model::Statements::If
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
         statements:
         - _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Declarations::Procedure
@@ -1727,7 +1727,7 @@ schemas:
       - _class: Expressir::Model::Statements::If
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
         statements:
         - _class: Expressir::Model::Statements::Null
         - _class: Expressir::Model::Statements::Null
@@ -1737,7 +1737,7 @@ schemas:
       - _class: Expressir::Model::Statements::If
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
         statements:
         - _class: Expressir::Model::Statements::Null
         else_statements:
@@ -1748,7 +1748,7 @@ schemas:
       - _class: Expressir::Model::Statements::If
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
         statements:
         - _class: Expressir::Model::Statements::Null
         - _class: Expressir::Model::Statements::Null
@@ -1760,7 +1760,7 @@ schemas:
       - _class: Expressir::Model::Statements::If
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
         statements:
         - _class: Expressir::Model::Statements::Null
         else_statements:
@@ -1772,7 +1772,7 @@ schemas:
       - _class: Expressir::Model::Statements::If
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
         statements:
         - _class: Expressir::Model::Statements::Null
         - _class: Expressir::Model::Statements::Null
@@ -1801,7 +1801,7 @@ schemas:
           base_path: syntax_schema.empty_procedure
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Procedure
       id: call_parameter2_statement
       statements:
@@ -1812,9 +1812,9 @@ schemas:
           base_path: syntax_schema.empty_procedure
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Procedure
       id: call_insert_statement
       statements:
@@ -1824,7 +1824,7 @@ schemas:
           id: INSERT
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Procedure
       id: call_remove_statement
       statements:
@@ -1834,7 +1834,7 @@ schemas:
           id: REMOVE
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Procedure
       id: repeat_statement
       statements:
@@ -1876,7 +1876,7 @@ schemas:
       - _class: Expressir::Model::Statements::Repeat
         while_expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
         statements:
         - _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Declarations::Procedure
@@ -1885,7 +1885,7 @@ schemas:
       - _class: Expressir::Model::Statements::Repeat
         until_expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
         statements:
         - _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Declarations::Procedure
@@ -1898,7 +1898,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Procedure
       id: skip_statement
       statements:
@@ -2273,21 +2273,21 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "TRUE"
+        value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: false_logical_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "FALSE"
+        value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: unknown_logical_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
-        value: "UNKNOWN"
+        value: UNKNOWN
     - _class: Expressir::Model::Declarations::Variable
       id: real_expression
       type:
@@ -2356,7 +2356,7 @@ schemas:
           id: ABS
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: acos_expression
       type:
@@ -2368,7 +2368,7 @@ schemas:
           id: ACOS
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: asin_expression
       type:
@@ -2380,7 +2380,7 @@ schemas:
           id: ASIN
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: atan_expression
       type:
@@ -2392,7 +2392,7 @@ schemas:
           id: ATAN
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: blength_expression
       type:
@@ -2404,7 +2404,7 @@ schemas:
           id: BLENGTH
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: cos_expression
       type:
@@ -2416,7 +2416,7 @@ schemas:
           id: COS
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: exists_expression
       type:
@@ -2428,7 +2428,7 @@ schemas:
           id: EXISTS
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: exp_expression
       type:
@@ -2440,7 +2440,7 @@ schemas:
           id: EXP
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: format_expression
       type:
@@ -2452,7 +2452,7 @@ schemas:
           id: FORMAT
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: hibound_expression
       type:
@@ -2464,7 +2464,7 @@ schemas:
           id: HIBOUND
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: hiindex_expression
       type:
@@ -2476,7 +2476,7 @@ schemas:
           id: HIINDEX
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: length_expression
       type:
@@ -2488,7 +2488,7 @@ schemas:
           id: LENGTH
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: lobound_expression
       type:
@@ -2500,7 +2500,7 @@ schemas:
           id: LOBOUND
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: loindex_expression
       type:
@@ -2512,7 +2512,7 @@ schemas:
           id: LOINDEX
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: log_expression
       type:
@@ -2524,7 +2524,7 @@ schemas:
           id: LOG
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: log2_expression
       type:
@@ -2536,7 +2536,7 @@ schemas:
           id: LOG2
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: log10_expression
       type:
@@ -2548,7 +2548,7 @@ schemas:
           id: LOG10
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: nvl_expression
       type:
@@ -2560,7 +2560,7 @@ schemas:
           id: NVL
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: odd_expression
       type:
@@ -2572,7 +2572,7 @@ schemas:
           id: ODD
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: rolesof_expression
       type:
@@ -2584,7 +2584,7 @@ schemas:
           id: ROLESOF
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: sin_expression
       type:
@@ -2596,7 +2596,7 @@ schemas:
           id: SIN
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: sizeof_expression
       type:
@@ -2608,7 +2608,7 @@ schemas:
           id: SIZEOF
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: sqrt_expression
       type:
@@ -2620,7 +2620,7 @@ schemas:
           id: SQRT
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: tan_expression
       type:
@@ -2632,7 +2632,7 @@ schemas:
           id: TAN
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: typeof_expression
       type:
@@ -2644,7 +2644,7 @@ schemas:
           id: TYPEOF
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: usedin_expression
       type:
@@ -2656,7 +2656,7 @@ schemas:
           id: USEDIN
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: value_expression
       type:
@@ -2668,7 +2668,7 @@ schemas:
           id: VALUE
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: value_in_expression
       type:
@@ -2680,7 +2680,7 @@ schemas:
           id: VALUE_IN
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: value_unique_expression
       type:
@@ -2692,14 +2692,14 @@ schemas:
           id: VALUE_UNIQUE
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: plus_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::UnaryExpression
-        operator: "PLUS"
+        operator: PLUS
         operand:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -2709,10 +2709,10 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::UnaryExpression
-        operator: "PLUS"
+        operator: PLUS
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "ADDITION"
+          operator: ADDITION
           operand1:
             _class: Expressir::Model::Literals::Integer
             value: '4'
@@ -2725,7 +2725,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::UnaryExpression
-        operator: "MINUS"
+        operator: MINUS
         operand:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -2735,10 +2735,10 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::UnaryExpression
-        operator: "MINUS"
+        operator: MINUS
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "ADDITION"
+          operator: ADDITION
           operand1:
             _class: Expressir::Model::Literals::Integer
             value: '4'
@@ -2751,7 +2751,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "ADDITION"
+        operator: ADDITION
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -2764,7 +2764,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "SUBTRACTION"
+        operator: SUBTRACTION
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -2777,7 +2777,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "MULTIPLICATION"
+        operator: MULTIPLICATION
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -2790,7 +2790,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "REAL_DIVISION"
+        operator: REAL_DIVISION
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -2803,7 +2803,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "INTEGER_DIVISION"
+        operator: INTEGER_DIVISION
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -2816,7 +2816,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "MODULO"
+        operator: MODULO
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -2829,7 +2829,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "EXPONENTIATION"
+        operator: EXPONENTIATION
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -2842,10 +2842,10 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "ADDITION"
+        operator: ADDITION
         operand1:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "ADDITION"
+          operator: ADDITION
           operand1:
             _class: Expressir::Model::Literals::Integer
             value: '4'
@@ -2861,10 +2861,10 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "SUBTRACTION"
+        operator: SUBTRACTION
         operand1:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "SUBTRACTION"
+          operator: SUBTRACTION
           operand1:
             _class: Expressir::Model::Literals::Integer
             value: '4'
@@ -2880,10 +2880,10 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "SUBTRACTION"
+        operator: SUBTRACTION
         operand1:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "ADDITION"
+          operator: ADDITION
           operand1:
             _class: Expressir::Model::Literals::Integer
             value: '4'
@@ -2899,10 +2899,10 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "ADDITION"
+        operator: ADDITION
         operand1:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "SUBTRACTION"
+          operator: SUBTRACTION
           operand1:
             _class: Expressir::Model::Literals::Integer
             value: '4'
@@ -2918,13 +2918,13 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "ADDITION"
+        operator: ADDITION
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '8'
         operand2:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "MULTIPLICATION"
+          operator: MULTIPLICATION
           operand1:
             _class: Expressir::Model::Literals::Integer
             value: '4'
@@ -2937,10 +2937,10 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "ADDITION"
+        operator: ADDITION
         operand1:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "MULTIPLICATION"
+          operator: MULTIPLICATION
           operand1:
             _class: Expressir::Model::Literals::Integer
             value: '8'
@@ -2956,10 +2956,10 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "MULTIPLICATION"
+        operator: MULTIPLICATION
         operand1:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "ADDITION"
+          operator: ADDITION
           operand1:
             _class: Expressir::Model::Literals::Integer
             value: '8'
@@ -2975,13 +2975,13 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "MULTIPLICATION"
+        operator: MULTIPLICATION
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '8'
         operand2:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "ADDITION"
+          operator: ADDITION
           operand1:
             _class: Expressir::Model::Literals::Integer
             value: '4'
@@ -2994,7 +2994,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "EQUAL"
+        operator: EQUAL
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -3007,7 +3007,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "NOT_EQUAL"
+        operator: NOT_EQUAL
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -3020,7 +3020,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "INSTANCE_EQUAL"
+        operator: INSTANCE_EQUAL
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -3033,7 +3033,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "INSTANCE_NOT_EQUAL"
+        operator: INSTANCE_NOT_EQUAL
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -3046,7 +3046,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "LESS_THAN"
+        operator: LESS_THAN
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -3059,7 +3059,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "GREATER_THAN"
+        operator: GREATER_THAN
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -3072,7 +3072,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "LESS_THAN_OR_EQUAL"
+        operator: LESS_THAN_OR_EQUAL
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -3085,7 +3085,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "GREATER_THAN_OR_EQUAL"
+        operator: GREATER_THAN_OR_EQUAL
         operand1:
           _class: Expressir::Model::Literals::Integer
           value: '4'
@@ -3098,173 +3098,173 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::UnaryExpression
-        operator: "NOT"
+        operator: NOT
         operand:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: not_or_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::UnaryExpression
-        operator: "NOT"
+        operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "OR"
+          operator: OR
           operand1:
             _class: Expressir::Model::Literals::Logical
-            value: "TRUE"
+            value: 'TRUE'
           operand2:
             _class: Expressir::Model::Literals::Logical
-            value: "FALSE"
+            value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: or_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "OR"
+        operator: OR
         operand1:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
         operand2:
           _class: Expressir::Model::Literals::Logical
-          value: "FALSE"
+          value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: and_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "AND"
+        operator: AND
         operand1:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
         operand2:
           _class: Expressir::Model::Literals::Logical
-          value: "FALSE"
+          value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: or_or_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "OR"
+        operator: OR
         operand1:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "OR"
+          operator: OR
           operand1:
             _class: Expressir::Model::Literals::Logical
-            value: "TRUE"
+            value: 'TRUE'
           operand2:
             _class: Expressir::Model::Literals::Logical
-            value: "FALSE"
+            value: 'FALSE'
         operand2:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: and_and_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "AND"
+        operator: AND
         operand1:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "AND"
+          operator: AND
           operand1:
             _class: Expressir::Model::Literals::Logical
-            value: "TRUE"
+            value: 'TRUE'
           operand2:
             _class: Expressir::Model::Literals::Logical
-            value: "FALSE"
+            value: 'FALSE'
         operand2:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: or_and_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "OR"
+        operator: OR
         operand1:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
         operand2:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "AND"
+          operator: AND
           operand1:
             _class: Expressir::Model::Literals::Logical
-            value: "FALSE"
+            value: 'FALSE'
           operand2:
             _class: Expressir::Model::Literals::Logical
-            value: "TRUE"
+            value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: and_or_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "OR"
+        operator: OR
         operand1:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "AND"
+          operator: AND
           operand1:
             _class: Expressir::Model::Literals::Logical
-            value: "TRUE"
+            value: 'TRUE'
           operand2:
             _class: Expressir::Model::Literals::Logical
-            value: "FALSE"
+            value: 'FALSE'
         operand2:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: parenthesis_or_and_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "AND"
+        operator: AND
         operand1:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "OR"
+          operator: OR
           operand1:
             _class: Expressir::Model::Literals::Logical
-            value: "TRUE"
+            value: 'TRUE'
           operand2:
             _class: Expressir::Model::Literals::Logical
-            value: "FALSE"
+            value: 'FALSE'
         operand2:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: and_parenthesis_or_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "AND"
+        operator: AND
         operand1:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
         operand2:
           _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "OR"
+          operator: OR
           operand1:
             _class: Expressir::Model::Literals::Logical
-            value: "FALSE"
+            value: 'FALSE'
           operand2:
             _class: Expressir::Model::Literals::Logical
-            value: "TRUE"
+            value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: combine_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "COMBINE"
+        operator: COMBINE
         operand1:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -3281,22 +3281,22 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "IN"
+        operator: IN
         operand1:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
         operand2:
           _class: Expressir::Model::Expressions::AggregateInitializer
           items:
           - _class: Expressir::Model::Literals::Logical
-            value: "TRUE"
+            value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: like_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
-        operator: "LIKE"
+        operator: LIKE
         operand1:
           _class: Expressir::Model::Literals::String
           value: xxx
@@ -3334,7 +3334,7 @@ schemas:
         _class: Expressir::Model::Expressions::AggregateInitializer
         items:
         - _class: Expressir::Model::Expressions::BinaryExpression
-          operator: "ADDITION"
+          operator: ADDITION
           operand1:
             _class: Expressir::Model::Literals::Integer
             value: '4'
@@ -3351,7 +3351,7 @@ schemas:
         - _class: Expressir::Model::Expressions::AggregateInitializerItem
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
-            operator: "ADDITION"
+            operator: ADDITION
             operand1:
               _class: Expressir::Model::Literals::Integer
               value: '4'
@@ -3360,7 +3360,7 @@ schemas:
               value: '2'
           repetition:
             _class: Expressir::Model::Expressions::BinaryExpression
-            operator: "ADDITION"
+            operator: ADDITION
             operand1:
               _class: Expressir::Model::Literals::Integer
               value: '4'
@@ -3379,7 +3379,7 @@ schemas:
           base_path: syntax_schema.parameter_function
         parameters:
         - _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: simple_reference_expression
       type:
@@ -3457,11 +3457,11 @@ schemas:
         low:
           _class: Expressir::Model::Literals::Integer
           value: '1'
-        operator1: "LESS_THAN"
+        operator1: LESS_THAN
         item:
           _class: Expressir::Model::Literals::Integer
           value: '5'
-        operator2: "LESS_THAN"
+        operator2: LESS_THAN
         high:
           _class: Expressir::Model::Literals::Integer
           value: '9'
@@ -3474,11 +3474,11 @@ schemas:
         low:
           _class: Expressir::Model::Literals::Integer
           value: '1'
-        operator1: "LESS_THAN_OR_EQUAL"
+        operator1: LESS_THAN_OR_EQUAL
         item:
           _class: Expressir::Model::Literals::Integer
           value: '5'
-        operator2: "LESS_THAN"
+        operator2: LESS_THAN
         high:
           _class: Expressir::Model::Literals::Integer
           value: '9'
@@ -3491,11 +3491,11 @@ schemas:
         low:
           _class: Expressir::Model::Literals::Integer
           value: '1'
-        operator1: "LESS_THAN"
+        operator1: LESS_THAN
         item:
           _class: Expressir::Model::Literals::Integer
           value: '5'
-        operator2: "LESS_THAN_OR_EQUAL"
+        operator2: LESS_THAN_OR_EQUAL
         high:
           _class: Expressir::Model::Literals::Integer
           value: '9'
@@ -3508,11 +3508,11 @@ schemas:
         low:
           _class: Expressir::Model::Literals::Integer
           value: '1'
-        operator1: "LESS_THAN_OR_EQUAL"
+        operator1: LESS_THAN_OR_EQUAL
         item:
           _class: Expressir::Model::Literals::Integer
           value: '5'
-        operator2: "LESS_THAN_OR_EQUAL"
+        operator2: LESS_THAN_OR_EQUAL
         high:
           _class: Expressir::Model::Literals::Integer
           value: '9'
@@ -3530,4 +3530,4 @@ schemas:
             id: test2
         expression:
           _class: Expressir::Model::Literals::Logical
-          value: "TRUE"
+          value: 'TRUE'

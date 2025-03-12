@@ -2,8 +2,8 @@
 _class: Expressir::Model::Repository
 schemas:
 - _class: Expressir::Model::Declarations::Schema
-  file: spec/syntax/multiple.exp
   id: multiple_schema
+  file: spec/syntax/multiple.exp
   interfaces:
   - _class: Expressir::Model::Declarations::Interface
     kind: REFERENCE
@@ -161,8 +161,8 @@ schemas:
     - _class: Expressir::Model::References::SimpleReference
       id: missing_entity
 - _class: Expressir::Model::Declarations::Schema
-  file: spec/syntax/multiple.exp
   id: multiple_schema2
+  file: spec/syntax/multiple.exp
   entities:
   - _class: Expressir::Model::Declarations::Entity
     id: attribute_entity2
@@ -173,8 +173,8 @@ schemas:
       type:
         _class: Expressir::Model::DataTypes::Boolean
 - _class: Expressir::Model::Declarations::Schema
-  file: spec/syntax/multiple.exp
   id: multiple_schema3
+  file: spec/syntax/multiple.exp
   entities:
   - _class: Expressir::Model::Declarations::Entity
     id: attribute_entity3
@@ -185,8 +185,8 @@ schemas:
       type:
         _class: Expressir::Model::DataTypes::Boolean
 - _class: Expressir::Model::Declarations::Schema
-  file: spec/syntax/multiple.exp
   id: multiple_schema4
+  file: spec/syntax/multiple.exp
   entities:
   - _class: Expressir::Model::Declarations::Entity
     id: attribute_entity

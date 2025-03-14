@@ -123,20 +123,66 @@ RSpec.describe Expressir::Express::Parser do
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
 
-      input = File.read(exp_file)
       repo = Expressir::Express::Parser.from_file(exp_file, include_source: true)
 
       schema = repo.schemas.first
-      start_index = input.index("SCHEMA")
-      stop_index = input.index("END_SCHEMA;") + "END_SCHEMA;".length - 1
-      expected_result = input[start_index..stop_index]
-      expect(schema.source).to eq(expected_result)
+      expected_result = <<~TEXT
+        SCHEMA multiple_schema;
+
+        REFERENCE FROM multiple_schema2;
+        REFERENCE FROM multiple_schema3
+          (attribute_entity3);
+        REFERENCE FROM multiple_schema4
+          (attribute_entity AS attribute_entity4);
+
+        ENTITY test;
+        END_ENTITY;
+
+        ENTITY empty_entity;
+        END_ENTITY;
+
+        ENTITY attribute_entity;
+          test : BOOLEAN;
+        END_ENTITY;
+
+        ENTITY subtype_empty_entity
+          SUBTYPE OF (empty_entity);
+        END_ENTITY;
+
+        ENTITY subtype_attribute_entity
+          SUBTYPE OF (attribute_entity);
+          SELF\\attribute_entity.test : BOOLEAN;
+        END_ENTITY;
+
+        ENTITY subtype_attribute_entity2
+          SUBTYPE OF (attribute_entity2);
+          SELF\\attribute_entity2.test : BOOLEAN;
+        END_ENTITY;
+
+        ENTITY subtype_attribute_entity3
+          SUBTYPE OF (attribute_entity3);
+          SELF\\attribute_entity3.test : BOOLEAN;
+        END_ENTITY;
+
+        ENTITY subtype_attribute_entity4
+          SUBTYPE OF (attribute_entity4);
+          SELF\\attribute_entity4.test : BOOLEAN;
+        END_ENTITY;
+
+        ENTITY subtype_missing_entity
+          SUBTYPE OF (missing_entity);
+        END_ENTITY;
+
+        END_SCHEMA;
+      TEXT
+      expect(schema.source).to eq(expected_result.strip)
 
       entity = schema.entities.first
-      start_index = input.index("ENTITY")
-      stop_index = input.index("END_ENTITY;") + "END_ENTITY;".length - 1
-      expected_result = input[start_index..stop_index]
-      expect(entity.source).to eq(expected_result)
+      expected_entity = <<~TEXT
+        ENTITY test;
+        END_ENTITY;
+      TEXT
+      expect(entity.source).to eq(expected_entity.strip)
     end
   end
 

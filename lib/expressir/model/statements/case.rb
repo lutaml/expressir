@@ -8,7 +8,6 @@ module Expressir
         attribute :actions, CaseAction, collection: true
         attribute :otherwise_statement, ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
-        attribute :source, :string
 
         key_value do
           map "_class", to: :_class, render_default: true

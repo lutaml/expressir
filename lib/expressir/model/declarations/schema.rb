@@ -4,59 +4,6 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 9.3 Schema
       class Schema < ModelElement
-        # TODO: MIGRATE: Set `file` path
-        # def file
-        #   node_options[FILE_KEY.to_sym] = root_path ? File.expand_path("#{root_path}/#{hash[FILE_KEY]}") : hash[FILE_KEY]
-        # end
-
-        # TODO: MIGRATE: Implement formatting of `source`
-        # def source
-        #   if self.class.method_defined?(:source) && formatter
-        #     hash[SOURCE_KEY] = formatter.format(self)
-        #   end
-        # end
-
-        # TODO: MIGRATE: These were from the SchemaDrop object, we need to make
-        # these available in Liquid.
-        #
-        # def file_basename
-        #   File.basename(@model.file, ".exp")
-        # end
-        #
-        # def selected
-        #   @selected_schemas&.include?(@model.id) ||
-        #     @selected_schemas&.include?(file_basename)
-        # end
-        #
-        # def relative_path_prefix
-        #   return nil if @options.nil? || @options["document"].nil?
-        #
-        #   document = @options["document"]
-        #   file_path = File.dirname(@model.file)
-        #   docfile_directory = File.dirname(
-        #     document.attributes["docfile"] || ".",
-        #   )
-        #   document
-        #     .path_resolver
-        #     .system_path(file_path, docfile_directory)
-        # end
-        #
-        # def remarks
-        #   return [] unless @model.remarks
-        #
-        #   options = @options || {}
-        #   options["relative_path_prefix"] = relative_path_prefix
-        #
-        #   @model.remarks.map do |remark|
-        #     ::Expressir::Express::ExpressRemarksDecorator
-        #       .call(remark, options)
-        #   end
-        # end
-        #
-        # def formatted
-        #   @model.to_s(no_remarks: true)
-        # end
-
         include Identifier
 
         attribute :file, :string
@@ -70,6 +17,9 @@ module Expressir
         attribute :rules, Rule, collection: true
         attribute :procedures, Procedure, collection: true
         attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :selected, :boolean, default: false
+        attribute :formatted, :string
+        attribute :file_basename, :string
 
         key_value do
           map "_class", to: :_class, render_default: true

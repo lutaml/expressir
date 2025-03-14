@@ -389,11 +389,8 @@ module Expressir
       def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil) # rubocop:disable Metrics/AbcSize
         source = File.read file
 
-        schema_file = file.to_s
         # remove root path from file path
-        if root_path
-          schema_file = schema_file.gsub(/^#{root_path}\//, "")
-        end
+        schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
         begin
           ast = Parser.new.parse source
@@ -407,6 +404,8 @@ module Expressir
 
         @repository.schemas.each do |schema|
           schema.file = schema_file
+          schema.file_basename = File.basename(schema_file, ".exp")
+          schema.formatted = schema.to_s(no_remarks: true)
         end
 
         unless skip_references

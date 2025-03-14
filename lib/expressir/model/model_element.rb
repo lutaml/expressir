@@ -9,7 +9,7 @@ module Expressir
       # It is not a real attribute
       # attribute :parent, ModelElement
       attr_accessor :parent
-      attribute :source, :string
+
       attribute :_class, :string, default: -> { self.send(:name) },
         polymorphic_class: true
       attribute :source, :string
@@ -158,6 +158,10 @@ module Expressir
             "Expressir::Model::SupertypeExpressions::OneofSupertypeExpression",
           }
         map "source", to: :source
+      end
+
+      def source
+        Expressir::Express::Formatter.format(self)
       end
 
       # @param [Hash] options

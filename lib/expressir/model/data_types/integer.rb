@@ -5,7 +5,6 @@ module Expressir
       # - section 8.1.3 Integer data type
       class Integer < ModelElement
         attribute :_class, :string, default: -> { self.send(:name) }
-        attribute :source, :string
 
         key_value do
           map "_class", to: :_class, render_default: true

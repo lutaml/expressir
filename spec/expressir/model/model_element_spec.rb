@@ -8,10 +8,10 @@ RSpec.describe Expressir::Model::ModelElement do
     it "round-trips single schema YAML correctly" do |example|
       print "\n[#{example.description}] "
       yaml_file = Expressir.root_path.join("spec", "syntax", "single.yaml")
+      expected_result = File.read(yaml_file)
 
       input = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
-      result = input.to_yaml
-      expected_result = File.read(yaml_file)
+      result = load_model_without_key(input, "source")
 
       expect(result).to eq(expected_result)
     end
@@ -19,10 +19,10 @@ RSpec.describe Expressir::Model::ModelElement do
     it "round-trips multiple schema YAML correctly" do |example|
       print "\n[#{example.description}] "
       yaml_file = Expressir.root_path.join("spec", "syntax", "multiple.yaml")
+      expected_result = File.read(yaml_file)
 
       input = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
-      result = input.to_yaml
-      expected_result = File.read(yaml_file)
+      result = load_model_without_key(input, "source")
 
       expect(result).to eq(expected_result)
     end
@@ -30,10 +30,10 @@ RSpec.describe Expressir::Model::ModelElement do
     it "round-trips syntax schema YAML correctly" do |example|
       print "\n[#{example.description}] "
       yaml_file = Expressir.root_path.join("spec", "syntax", "syntax.yaml")
+      expected_result = File.read(yaml_file)
 
       input = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
-      result = input.to_yaml
-      expected_result = File.read(yaml_file)
+      result = load_model_without_key(input, "source")
 
       expect(result).to eq(expected_result)
     end
@@ -41,10 +41,10 @@ RSpec.describe Expressir::Model::ModelElement do
     it "round-trips remark schema YAML correctly" do |example|
       print "\n[#{example.description}] "
       yaml_file = Expressir.root_path.join("spec", "syntax", "remark.yaml")
+      expected_result = File.read(yaml_file)
 
       input = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
-      result = input.to_yaml
-      expected_result = File.read(yaml_file)
+      result = load_model_without_key(input, "source")
 
       expect(result).to eq(expected_result)
     end
@@ -55,7 +55,7 @@ RSpec.describe Expressir::Model::ModelElement do
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "single.exp")
 
-      repo = Expressir::Express::Parser.from_file(exp_file)
+      repo = Expressir::Express::Parser.from_file(exp_file, root_path: Expressir.root_path)
 
       # universal scope
       expect(repo.find("single_schema")).to be_instance_of(Expressir::Model::Declarations::Schema)
@@ -64,6 +64,35 @@ RSpec.describe Expressir::Model::ModelElement do
       # schema scope
       schema = repo.schemas.first
       expect(schema.find("empty_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
+
+      # check schema file
+      expect(schema.file).to eq("spec/syntax/single.exp")
+
+      # check schema formatted
+      formatted_text = <<~TEXT
+        SCHEMA single_schema 'version';
+
+        ENTITY empty_entity;
+        END_ENTITY;
+
+        ENTITY subtype_empty_entity
+          SUBTYPE OF (empty_entity);
+        END_ENTITY;
+
+        END_SCHEMA;
+      TEXT
+
+      expect(schema.formatted).to eq(formatted_text.strip)
+      expect(schema.source).to eq(formatted_text.strip)
+
+      # check children
+      first_child = schema.children.first
+      formatted_child_text = <<~TEXT
+        ENTITY empty_entity;
+        END_ENTITY;
+      TEXT
+
+      expect(first_child.source).to eq(formatted_child_text.strip)
     end
 
     it "finds an object (multiple.exp)" do |example|

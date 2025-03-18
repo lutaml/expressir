@@ -20,7 +20,7 @@ module Expressir
         attribute :selected, :boolean, default: false
         attribute :formatted, :string
         attribute :file_basename, :string
-        attribute :head, :string
+        attribute :full_source, :string
 
         key_value do
           map "_class", to: :_class, render_default: true
@@ -62,7 +62,11 @@ module Expressir
           ]
         end
 
-        def head
+        def full_source
+          Expressir::Express::Formatter.format(self)
+        end
+
+        def source
           formatter = Class.new(Expressir::Express::Formatter) do
             include Expressir::Express::SchemaHeadFormatter
           end

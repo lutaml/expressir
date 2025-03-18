@@ -20,6 +20,7 @@ module Expressir
         attribute :selected, :boolean, default: false
         attribute :formatted, :string
         attribute :file_basename, :string
+        attribute :head, :string
 
         key_value do
           map "_class", to: :_class, render_default: true
@@ -59,6 +60,13 @@ module Expressir
             *interfaced_items,
             *safe_children,
           ]
+        end
+
+        def head
+          formatter = Class.new(Expressir::Express::Formatter) do
+            include Expressir::Express::SchemaHeadFormatter
+          end
+          formatter.format(self)
         end
 
         private

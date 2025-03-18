@@ -93,25 +93,24 @@ module Expressir
 
           interfaces.flat_map do |interface|
             schema = parent.children_by_id[interface.schema.id.safe_downcase]
-            if schema
-              schema_safe_children = schema.safe_children
-              schema_safe_children_by_id = schema_safe_children.select(&:id).map { |x| [x.id.safe_downcase, x] }.to_h
-              if interface.items.length.positive?
-                interface.items.map do |interface_item|
-                  base_item = schema_safe_children_by_id[interface_item.ref.id.safe_downcase]
-                  if base_item
-                    id = interface_item.id || base_item.id
-                    create_interfaced_item(id, base_item)
-                  end
-                end
-              else
-                schema_safe_children.map do |base_item|
-                  id = base_item.id
-                  create_interfaced_item(id, base_item)
-                end
+            next [] unless schema
+
+            safe_children = schema.safe_children
+            children_by_id = safe_children.each_with_object({}) do |child, hash|
+              hash[child.id.safe_downcase] = child if child.id
+            end
+
+            if interface.items.empty?
+              safe_children.map do |base_item|
+                create_interfaced_item(base_item.id, base_item)
+              end
+            else
+              interface.items.filter_map do |item|
+                base_item = children_by_id[item.ref.id.safe_downcase]
+                create_interfaced_item(item.id || base_item.id, base_item) if base_item
               end
             end
-          end.select { |x| x }
+          end.compact
         end
       end
     end

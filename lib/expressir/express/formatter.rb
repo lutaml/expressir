@@ -55,7 +55,7 @@ module Expressir
       # Formats Express model into an Express code
       # @param [Model::ModelElement] node
       # @return [String]
-      def format(node)
+      def format(node) # rubocop:disable Metrics/MethodLength
         case node
         when Model::Repository
           format_repository(node)
@@ -187,6 +187,18 @@ module Expressir
           format_supertype_expressions_binary_supertype_expression(node)
         when Model::SupertypeExpressions::OneofSupertypeExpression
           format_supertype_expressions_oneof_supertype_expression(node)
+        when Model::Declarations::SchemaVersionItem
+          # not implemented yet
+        when Model::Declarations::InterfacedItem
+          # not implemented yet
+        when Model::Declarations::RemarkItem
+          # not implemented yet
+        when Model::Cache
+          # not implemented yet
+        when Model::ModelElement
+          # not implemented yet
+        when NilClass
+          # not implemented yet
         else
           warn "#{node.class.name} format not implemented"
           ""

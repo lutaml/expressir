@@ -1595,6 +1595,8 @@ module Expressir
       end
 
       def indent(str)
+        return if str.nil?
+
         str.split("\n").map { |x| "#{INDENT}#{x}" }.join("\n")
       end
 

@@ -6,11 +6,12 @@ source "https://rubygems.org"
 gemspec
 
 gem "pry"
-gem "rake", "~> 13.0"
-gem "rspec", "~> 3.0"
-gem "rubocop", "~> 1.21"
+gem "rake"
+gem "rspec"
+gem "rubocop"
 gem "rubocop-performance"
 gem "rubocop-rake", require: false
 gem "rubocop-rspec", require: false
-gem "webrick", "~> 1.7"
-gem "yard", "~> 0.9"
+gem "yard"
+
+gem "lutaml-model", github: "lutaml/lutaml-model", branch: "main"

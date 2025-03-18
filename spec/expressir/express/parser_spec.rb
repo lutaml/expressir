@@ -175,7 +175,7 @@ RSpec.describe Expressir::Express::Parser do
 
         END_SCHEMA;
       TEXT
-      expect(schema.source).to eq(expected_result.strip)
+      expect(schema.full_source).to eq(expected_result.strip)
 
       entity = schema.entities.first
       expected_entity = <<~TEXT

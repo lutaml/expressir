@@ -71,7 +71,7 @@ RSpec.describe Expressir::Model::ModelElement do
       TEXT
 
       expect(schema.formatted).to eq(formatted_text.strip)
-      expect(schema.source).to eq(formatted_text.strip)
+      expect(schema.full_source).to eq(formatted_text.strip)
 
       # check children
       first_child = schema.children.first
@@ -140,7 +140,7 @@ RSpec.describe Expressir::Model::ModelElement do
         REFERENCE FROM contract_schema
           (contract AS contract2);
       TEXT
-      expect(schema.head).to eq(formatted_schema_head.strip)
+      expect(schema.source).to eq(formatted_schema_head.strip)
     end
 
     it "finds an object (remark.exp)" do |example|

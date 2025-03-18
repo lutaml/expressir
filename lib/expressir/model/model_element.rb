@@ -157,7 +157,6 @@ module Expressir
             "Expressir::Model::SupertypeExpressions::OneofSupertypeExpression" =>
             "Expressir::Model::SupertypeExpressions::OneofSupertypeExpression",
           }
-        map "source", to: :source
       end
 
       def source

@@ -13,7 +13,6 @@ module Expressir
 
         key_value do
           map "_class", to: :_class, render_default: true
-          map "source", to: :source
           map "underlying_type", to: :underlying_type
           map "where_rules", to: :where_rules
           map "informal_propositions", to: :informal_propositions

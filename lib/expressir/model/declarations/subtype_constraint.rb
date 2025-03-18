@@ -14,7 +14,6 @@ module Expressir
 
         key_value do
           map "_class", to: :_class, render_default: true
-          map "source", to: :source
           map "applies_to", to: :applies_to
           map "abstract", to: :abstract
           map "total_over", to: :total_over

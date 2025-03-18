@@ -16,7 +16,6 @@ module Expressir
 
         key_value do
           map "_class", to: :_class, render_default: true
-          map "source", to: :source
           map "bound1", to: :bound1
           map "bound2", to: :bound2
           map "increment", to: :increment

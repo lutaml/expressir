@@ -10,7 +10,6 @@ module Expressir
 
         key_value do
           map "_class", to: :_class, render_default: true
-          map "source", to: :source
           map "width", to: :width
           map "fixed", to: :fixed
         end

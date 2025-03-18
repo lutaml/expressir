@@ -11,7 +11,6 @@ module Expressir
 
         key_value do
           map "_class", to: :_class, render_default: true
-          map "source", to: :source
           map "expression", to: :expression
           map "actions", to: :actions
           map "otherwise_statement", to: :otherwise_statement

@@ -19,7 +19,6 @@ module Expressir
 
         key_value do
           map "_class", to: :_class, render_default: true
-          map "source", to: :source
           map "parameters", to: :parameters
           map "types", to: :types
           map "entities", to: :entities

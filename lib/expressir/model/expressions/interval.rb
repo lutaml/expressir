@@ -16,7 +16,6 @@ module Expressir
 
         key_value do
           map "_class", to: :_class, render_default: true
-          map "source", to: :source
           map "low", to: :low
           map "operator1", to: :operator1
           map "item", to: :item

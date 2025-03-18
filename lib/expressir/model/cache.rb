@@ -9,7 +9,6 @@ module Expressir
 
       key_value do
         map "_class", to: :_class, render_default: true
-        map "source", to: :source
         map "version", to: :version
         map "root_path", to: :root_path
         map "content", to: :content

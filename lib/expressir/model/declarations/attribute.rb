@@ -19,7 +19,6 @@ module Expressir
 
         key_value do
           map "_class", to: :_class, render_default: true
-          map "source", to: :source
           map "kind", to: :kind
           map "supertype_attribute", to: :supertype_attribute
           map "optional", to: :optional

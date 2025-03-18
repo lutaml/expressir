@@ -46,22 +46,5 @@ module Expressir
         end
       end
     end
-
-    def load_model_without_key(model, key)
-      yaml = model.to_yaml
-      hash = YAML.load(yaml) # rubocop:disable Security/YAMLLoad
-      remove_key(hash, key)
-      hash.to_yaml
-    end
-
-    def remove_key(data, key)
-      if data.is_a?(Hash)
-        data.delete(key)
-        data.each_value { |value| remove_key(value, key) }
-      elsif data.is_a?(Array)
-        data.each { |item| remove_key(item, key) }
-      end
-      data
-    end
   end
 end

@@ -11,7 +11,6 @@ module Expressir
 
         key_value do
           map "_class", to: :_class, render_default: true
-          map "source", to: :source
           map "extensible", to: :extensible
           map "based_on", to: :based_on
           map "items", to: :items

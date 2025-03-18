@@ -13,7 +13,6 @@ module Expressir
 
         key_value do
           map "_class", to: :_class, render_default: true
-          map "source", to: :source
           map "ref", to: :ref
           map "index1", to: :index1
           map "index2", to: :index2

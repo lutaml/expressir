@@ -13,7 +13,7 @@ module Expressir
         attribute :unique_rules, UniqueRule, collection: true
         attribute :where_rules, WhereRule, collection: true
         attribute :informal_propositions, RemarkItem, collection: true
-        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :_class, :string, default: -> { send(:name) }
 
         key_value do
           map "_class", to: :_class, render_default: true

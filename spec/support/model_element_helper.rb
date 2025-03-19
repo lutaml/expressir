@@ -1,7 +1,7 @@
 module Expressir
   module ModelElementSpecHelper
     def check_nested_model_to_liquid(model, drop_model, result) # rubocop:disable Metrics/AbcSize
-      model.class.attributes.each do |symbol, lutaml_attr|
+      model.class.attributes.each_key do |symbol|
         # Skip `parent` and `_class` attributes as they are not a part of the model
         next if ::Expressir::Model::ModelElement::SKIP_ATTRIBUTES.include?(symbol)
 

@@ -6,7 +6,7 @@ module Expressir
       class Assignment < ModelElement
         attribute :ref, ModelElement
         attribute :expression, ModelElement
-        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :_class, :string, default: -> { send(:name) }
 
         key_value do
           map "_class", to: :_class, render_default: true

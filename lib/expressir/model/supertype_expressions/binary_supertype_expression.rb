@@ -5,13 +5,13 @@ module Expressir
       # - section 9.2.5.3 ANDOR
       # - section 9.2.5.4 AND
       class BinarySupertypeExpression < ModelElement
-        AND = "AND"
-        ANDOR = "ANDOR"
+        AND = "AND".freeze
+        ANDOR = "ANDOR".freeze
 
         attribute :operator, :string, values: %w[AND ANDOR]
         attribute :operand1, ModelElement
         attribute :operand2, ModelElement
-        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :_class, :string, default: -> { send(:name) }
 
         key_value do
           map "_class", to: :_class, render_default: true

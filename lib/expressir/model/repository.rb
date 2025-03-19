@@ -3,7 +3,7 @@ module Expressir
     # Multi-schema global scope
     class Repository < ModelElement
       attribute :schemas, Expressir::Model::Declarations::Schema, collection: true
-      attribute :_class, :string, default: -> { self.send(:name) }
+      attribute :_class, :string, default: -> { send(:name) }
 
       key_value do
         map "_class", to: :_class, render_default: true

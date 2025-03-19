@@ -6,16 +6,16 @@ module Expressir
       class Attribute < ModelElement
         include Identifier
 
-        EXPLICIT = "EXPLICIT"
-        DERIVED = "DERIVED"
-        INVERSE = "INVERSE"
+        EXPLICIT = "EXPLICIT".freeze
+        DERIVED = "DERIVED".freeze
+        INVERSE = "INVERSE".freeze
 
         attribute :kind, :string, values: %w[EXPLICIT DERIVED INVERSE]
         attribute :supertype_attribute, ModelElement
         attribute :optional, :boolean
         attribute :type, ModelElement
         attribute :expression, ModelElement
-        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :_class, :string, default: -> { send(:name) }
 
         key_value do
           map "_class", to: :_class, render_default: true

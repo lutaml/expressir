@@ -6,7 +6,7 @@ module Expressir
       class InterfaceItem < ModelElement
         attribute :ref, ModelElement
         attribute :id, :string
-        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :_class, :string, default: -> { send(:name) }
 
         key_value do
           map "_class", to: :_class, render_default: true

@@ -8,7 +8,7 @@ module Expressir
         attribute :remarks, :string, collection: true
         attribute :remark_items, RemarkItem, collection: true
         attribute :base_item, ModelElement
-        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :_class, :string, default: -> { send(:name) }
 
         key_value do
           map "_class", to: :_class, render_default: true

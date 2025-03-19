@@ -4,13 +4,13 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 11 Interface specification
       class Interface < ModelElement
-        USE = "USE"
-        REFERENCE = "REFERENCE"
+        USE = "USE".freeze
+        REFERENCE = "REFERENCE".freeze
 
         attribute :kind, :string, values: %w[USE REFERENCE]
         attribute :schema, ModelElement
         attribute :items, InterfaceItem, collection: true
-        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :_class, :string, default: -> { send(:name) }
 
         key_value do
           map "_class", to: :_class, render_default: true

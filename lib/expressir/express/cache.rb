@@ -15,7 +15,7 @@ module Expressir
         cache = Model::Cache.new(
           version: version,
           content: content,
-          root_path: root_path
+          root_path: root_path,
         )
 
         yaml = cache.to_yaml

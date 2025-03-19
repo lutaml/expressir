@@ -16,7 +16,7 @@ module Expressir
         attribute :functions, Function, collection: true
         attribute :rules, Rule, collection: true
         attribute :procedures, Procedure, collection: true
-        attribute :_class, :string, default: -> { self.send(:name) }
+        attribute :_class, :string, default: -> { send(:name) }
         attribute :selected, :boolean, default: false
         attribute :formatted, :string
         attribute :file_basename, :string

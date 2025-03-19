@@ -1638,7 +1638,7 @@ module Expressir
 
       def format_remarks(node)
         if node.class.method_defined?(:remarks) && !@no_remarks &&
-          !node.remarks.nil?
+            !node.remarks.nil?
 
           node.remarks.map do |remark|
             format_remark(node, remark)

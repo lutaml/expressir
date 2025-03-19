@@ -10,7 +10,7 @@ module Expressir
 
         key_value do
           map "_class", to: :_class, render_default: true
-          map "value", to: :value
+          map "value", to: :value, value_map: { to: { nil: :empty, empty: :empty } }
           map "encoded", to: :encoded
         end
       end

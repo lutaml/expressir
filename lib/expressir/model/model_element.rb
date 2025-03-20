@@ -160,7 +160,10 @@ module Expressir
       end
 
       def source
-        Expressir::Express::Formatter.format(self)
+        formatter = Class.new(Expressir::Express::Formatter) do
+          include Expressir::Express::HyperlinkFormatter
+        end
+        formatter.format(self)
       end
 
       # @param [Hash] options

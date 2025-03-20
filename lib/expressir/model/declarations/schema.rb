@@ -69,6 +69,7 @@ module Expressir
         def source
           formatter = Class.new(Expressir::Express::Formatter) do
             include Expressir::Express::SchemaHeadFormatter
+            include Expressir::Express::HyperlinkFormatter
           end
           formatter.format(self)
         end

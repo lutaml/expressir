@@ -9,7 +9,7 @@ module Expressir
       # @param file [String] File being processed
       # @param options [Hash] Options for benchmarking
       # @return The result of the block
-      def measure_file(file, options = {})
+      def measure_file(file)
         return yield unless Expressir.configuration.benchmark_enabled?
 
         if Expressir.configuration.benchmark_ips?
@@ -58,7 +58,15 @@ module Expressir
       # @param files [Array<String>] List of files to process
       # @return [Array] Results from processing files
       def measure_collection(files)
-        return yield(files) unless Expressir.configuration.benchmark_enabled?
+        unless Expressir.configuration.benchmark_enabled?
+          # Process each file individually even when benchmarking is disabled
+          results = []
+          files.each do |file|
+            file_results = yield(file)
+            results.concat(Array(file_results))
+          end
+          return results
+        end
 
         results = []
         total_time = ::Benchmark.measure do

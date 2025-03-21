@@ -11,6 +11,23 @@ module Expressir
       end
     end
 
+    desc "clean PATH", "Strip remarks and prettify EXPRESS schema at PATH"
+    method_option :output, type: :string, desc: "Output file path (defaults to stdout)"
+    def clean(path)
+      repository = Expressir::Express::Parser.from_file(path)
+      formatted_schemas = repository.schemas.map do |schema|
+        # Format schema without remarks
+        schema.to_s(no_remarks: true)
+      end.join("\n\n")
+
+      if options[:output]
+        File.write(options[:output], formatted_schemas)
+        puts "Cleaned schema written to #{options[:output]}"
+      else
+        puts formatted_schemas
+      end
+    end
+
     no_commands do
       def _validate_schema(path)
         repository = Expressir::Express::Parser.from_file(path)

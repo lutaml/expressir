@@ -183,7 +183,7 @@ module Expressir
           puts "Processing file #{index + 1}/#{schema_files.size}: #{file}"
 
           # Benchmark with caching
-          results = Expressir::Benchmark.measure_with_cache(file, cache_path) do |path|
+          Expressir::Benchmark.measure_with_cache(file, cache_path) do |path|
             Expressir::Express::Parser.from_file(path)
           end
 

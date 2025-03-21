@@ -38,7 +38,7 @@ module Expressir
         cache = Model::Cache.from_yaml(yaml)
 
         if cache.version != version
-          raise CacheVersionMismatchError.new(cache.version, version)
+          raise Error::CacheVersionMismatchError.new(cache.version, version)
         end
 
         cache

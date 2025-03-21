@@ -1,4 +1,5 @@
 require "parslet"
+require_relative "error"
 
 module Expressir
   module Express
@@ -386,6 +387,7 @@ module Expressir
       # @param [Boolean] skip_references skip resolving references
       # @param [Boolean] include_source attach original source code to model elements
       # @return [Model::Repository]
+      # @raise [SchemaParseFailure] if the schema file fails to parse
       def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil) # rubocop:disable Metrics/AbcSize
         Expressir::Benchmark.measure_file(file) do
           source = File.read file
@@ -396,8 +398,8 @@ module Expressir
           begin
             ast = Parser.new.parse source
           rescue Parslet::ParseFailed => e
-            puts "Parslet::ParseFailed:"
-            puts e.parse_failure_cause.ascii_tree
+            # Instead of just printing, raise a proper error with file context
+            raise Error::SchemaParseFailure.new(schema_file, e)
           end
 
           visitor = Expressir::Express::Visitor.new(source, include_source: include_source)
@@ -424,15 +426,32 @@ module Expressir
       # @param [Array<String>] files Express file paths
       # @param [Boolean] skip_references skip resolving references
       # @param [Boolean] include_source attach original source code to model elements
+      # @yield [filename, schemas, error] Optional block called for each file processed
+      # @yieldparam filename [String] Name of the file being processed
+      # @yieldparam schemas [Array, nil] Array of parsed schemas (nil if parsing failed)
+      # @yieldparam error [Exception, nil] Error that occurred (nil if parsing succeeded)
       # @return [Model::Repository]
       def self.from_files(files, skip_references: nil, include_source: nil, root_path: nil)
-        schemas = Expressir::Benchmark.measure_collection(files) do |file|
+        all_schemas = []
+
+        files.each do |file|
           repository = from_file(file, skip_references: true, root_path: root_path)
-          repository.schemas
+          file_schemas = repository.schemas
+          all_schemas.concat(file_schemas)
+
+          # Call the progress block if provided
+          yield(file, file_schemas, nil) if block_given?
+        rescue StandardError => e
+          # Call the progress block with the error if provided
+          yield(file, nil, e) if block_given?
+
+          # Re-raise the error if it's not a schema parse failure
+          # This allows handling of specific schema parse failures while still propagating other errors
+          raise unless e.is_a?(Error::SchemaParseFailure)
         end
 
         @repository = Model::Repository.new(
-          schemas: schemas,
+          schemas: all_schemas,
         )
 
         unless skip_references

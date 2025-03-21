@@ -185,32 +185,91 @@ making it easy to parse for further analysis or visualization.
 
 == Usage: Ruby
 
-=== Filtering out schemas
+=== Parsing EXPRESS schema files
 
-Use the `select_proc` argument of `to_hash`.
+==== General
 
-Example:
+The library provides two main methods for parsing EXPRESS files.
+
+==== Parsing a single file
+
+Use the `from_file` method to parse a single EXPRESS schema file:
 
 [source,ruby]
 ----
+# Parse a single file
+repository = Expressir::Express::Parser.from_file("path/to/schema.exp")
 
+# With options
+repository = Expressir::Express::Parser.from_file(
+  "path/to/schema.exp",
+  skip_references: false,  # Set to true to skip resolving references
+  include_source: true,    # Set to true to include original source in the model
+  root_path: "/base/path"  # Optional base path for relative paths
+)
+----
+
+The `from_file` method will raise a `SchemaParseFailure` exception if the schema
+fails to parse, providing information about the specific file and the parsing
+error:
+
+[source,ruby]
+----
+begin
+  repository = Expressir::Express::Parser.from_file("path/to/schema.exp")
+rescue Expressir::Express::Error::SchemaParseFailure => e
+  puts "Failed to parse schema: #{e.message}"
+  puts "Filename: #{e.filename}"
+  puts "Error details: #{e.parse_failure_cause.ascii_tree}"
+end
+----
+
+==== Parsing multiple files
+
+Use the `from_files` method to parse multiple EXPRESS schema files:
+
+[source,ruby]
+----
+# Parse multiple files
+files = ["schema1.exp", "schema2.exp", "schema3.exp"]
+repository = Expressir::Express::Parser.from_files(files)
+----
+
+You can provide a block to track loading progress and handle errors:
+
+[source,ruby]
+----
+files = ["schema1.exp", "schema2.exp", "schema3.exp"]
+repository = Expressir::Express::Parser.from_files(files) do |filename, schemas, error|
+  if error
+    puts "Error loading #{filename}: #{error.message}"
+    # Skip the file with an error or take other action
+  else
+    puts "Successfully loaded #{schemas.length} schemas from #{filename}"
+  end
+end
+----
+
+=== Filtering out schemas
+
+You can filter out specific schemas from the repository easily since
+`Expressir::Model::Repository` implements `Enumerable`.
+
+[source,ruby]
+----
 schema_yaml = YAML.load_file('documents/iso-10303-41/schemas.yaml')
 schema_paths = schema_yaml['schemas'].map {|x,y| y['path'].gsub("../../", "")}
 
 repo = Expressir::Express::Parser.from_files(schema_paths)
 
 filtered_schemas = ["action_schema", "date_time_schema"]
-select_proc = Proc.new do |value|
-  if value.is_a?(Expressir::Model::Declarations::Schema)
-    filtered_schemas.include?(value.id)
-  else
-    true
-  end
+repo.select do |schema|
+  filtered_schemas.include?(schema.name)
+end.each do |schema|
+  puts "Schema name: #{schema.name}"
+  puts "Schema file: #{schema.file}"
+  puts "Schema version: #{schema.version}"
 end
-
-repo_hash = repo.to_hash(select_proc: select_proc)
-schemas = repo_hash['schemas']
-schemas.map {|s| s["id"] }
 ----
 
 === Convert models to Liquid

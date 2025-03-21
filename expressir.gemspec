@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = ["open.source@ribose.com"]
 
   spec.summary = "EXPRESS parser and toolkit for Ruby"
-  spec.description = "Expressir (“EXPRESS in Ruby”) is a Ruby parser for EXPRESS and a set of tools for accessing EXPRESS data models."
+  spec.description = 'Expressir ("EXPRESS in Ruby") is a Ruby parser for EXPRESS and a set of tools for accessing EXPRESS data models.'
 
   spec.homepage = "https://github.com/lutaml/expressir"
   spec.license = "BSD-2-Clause"
@@ -33,6 +33,8 @@ Gem::Specification.new do |spec|
 
   spec.test_files = `git ls-files -- {spec}/*`.split("\n")
 
+  spec.add_dependency "benchmark-ips"
+  spec.add_dependency "csv"
   spec.add_dependency "liquid"
   spec.add_dependency "lutaml-model", "~>0.7"
   spec.add_dependency "parslet", "~> 2.0"

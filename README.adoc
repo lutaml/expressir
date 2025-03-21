@@ -30,64 +30,6 @@ Expressir consists of 3 parts:
 // ** OMG UML 2 for Eclipse (XMI 2.1)
 
 
-== Usage
-
-This gem ships with a CLI tool. To check what's available you can simply run
-`expressir`, by default it will display some usage instructions.
-
-[source, sh]
-----
-$ expressir
-
-Commands:
-  expressir format PATH     # pretty print EXPRESS schema located at PATH
-  expressir help [COMMAND]  # Describe available commands or one specific command
-  expressir version         # The Expressir Version
-----
-
-=== Pretty print
-
-[source, sh]
-----
-expressir format schemas/resources/action_schema/action_schema.exp
-----
-
-
-== Development
-
-We are following Sandi Metz's Rules for this gem, you can read
-the http://robots.thoughtbot.com/post/50655960596/sandi-metz-rules-for-developers[description of the rules here] All new code should follow these rules.
-If you make changes in a pre-existing file that violates these rules you should
-fix the violations as part of your contribution.
-
-=== Setup
-
-Clone the repository.
-
-[source, sh]
-----
-git clone https://github.com/metanorma/expressir
-----
-
-Setup your environment.
-
-[source, sh]
-----
-bin/setup
-git submodule update --init
-bundle exec rake generate
-bundle exec rake compile
-----
-
-Run the test suite
-
-[source, sh]
-----
-bundle exec rake
-----
-
-
-
 == Installation
 
 Add this line to your application's `Gemfile`:
@@ -112,7 +54,136 @@ $ gem install expressir
 ----
 
 
-== Usage
+== Testing
+
+Run the test suite:
+
+[source, sh]
+----
+bundle exec rake
+----
+
+
+== Usage: CLI
+
+This gem ships with a CLI tool. To check what's available you can simply run
+`expressir`, by default it will display some usage instructions.
+
+[source, sh]
+----
+$ expressir
+
+Commands:
+  expressir benchmark FILE_OR_YAML             # Benchmark schema loading performance for a file or list of files from YAML
+  expressir benchmark-cache FILE_OR_YAML       # Benchmark schema loading with caching
+  expressir clean PATH                         # Strip remarks and prettify EXPRESS schema at PATH
+  expressir format PATH                        # pretty print EXPRESS schema located at PATH
+  expressir help [COMMAND]                     # Describe available commands or one specific command
+  expressir validate *PATH                     # validate EXPRESS schema located at PATH
+  expressir version                            # Expressir Version
+----
+
+=== Pretty print
+
+[source, sh]
+----
+expressir format schemas/resources/action_schema/action_schema.exp
+----
+
+=== Clean schema
+
+The `clean` command strips remarks and prettifies EXPRESS schemas. You can
+optionally save the result to a file.
+
+[source, sh]
+----
+# Output to stdout
+expressir clean schemas/resources/action_schema/action_schema.exp
+
+# Save to file
+expressir clean schemas/resources/action_schema/action_schema.exp --output clean_schema.exp
+----
+
+=== Benchmarking
+
+Expressir includes powerful benchmarking capabilities for measuring schema
+loading performance. You can benchmark individual files or multiple files listed
+in a YAML configuration.
+
+==== Benchmark a single file
+
+[source, sh]
+----
+# Basic benchmarking
+expressir benchmark schemas/resources/action_schema/action_schema.exp
+
+# With detailed output
+expressir benchmark schemas/resources/action_schema/action_schema.exp --verbose
+
+# Using benchmark-ips for more detailed statistics
+expressir benchmark schemas/resources/action_schema/action_schema.exp --ips
+
+# With specific output format
+expressir benchmark schemas/resources/action_schema/action_schema.exp --format json
+----
+
+==== Benchmark multiple files from YAML
+
+Create a YAML file with a list of schema paths:
+
+.schemas.yml
+[source, yaml]
+----
+schemas:
+  - schemas/resources/action_schema/action_schema.exp
+  - schemas/resources/approval_schema/approval_schema.exp
+  - schemas/resources/date_time_schema/date_time_schema.exp
+----
+
+Then benchmark all schemas at once:
+
+[source, sh]
+----
+expressir benchmark schemas.yml --verbose
+----
+
+==== Benchmark with caching
+
+You can also benchmark schema loading with caching to measure parsing time,
+cache writing time, and cache reading time:
+
+[source, sh]
+----
+# Benchmark a single file with caching
+expressir benchmark-cache schemas/resources/action_schema/action_schema.exp
+
+# With custom cache location
+expressir benchmark-cache schemas/resources/action_schema/action_schema.exp --cache_path /tmp/schema_cache.bin
+
+# Benchmark multiple files from YAML with caching
+expressir benchmark-cache schemas.yml --verbose
+----
+
+==== Benchmark options
+
+The benchmark commands support several options:
+
+[options="header"]
+|===
+| Option | Description
+| `--ips` | Use benchmark-ips for detailed statistics
+| `--verbose` | Show detailed output
+| `--save` | Save benchmark results to file
+| `--format FORMAT` | Output format: json, csv, or default
+| `--cache_path PATH` | (benchmark-cache only) Path to store the cache file
+|===
+
+When using the `--format json` option, results will be output in JSON format,
+making it easy to parse for further analysis or visualization.
+
+
+
+== Usage: Ruby
 
 === Filtering out schemas
 
@@ -142,7 +213,7 @@ schemas = repo_hash['schemas']
 schemas.map {|s| s["id"] }
 ----
 
-=== Convert models to liquid
+=== Convert models to Liquid
 
 Use `to_liquid` method to convert the models of `Expressir::Model::*` to liquid
 drop models (`Expressir::Liquid::*`).
@@ -158,24 +229,24 @@ repo_drop = repo.to_liquid
 where `repo` is an instance of `Expressir::Model::Repository` and
 `repo_drop` is an instance of `Expressir::Liquid::RepositoryDrop`.
 
-The liquid drop models of `Expressir::Liquid::*` have the same attributes
+The Liquid drop models of `Expressir::Liquid::*` have the same attributes
 (`model_attr`) as the models of `Expressir::Model::*`.
 
 For example, `Expressir::Model::Repository` has the following attributes:
 
-- schemas
+* `schemas`
 
 and each `Expressir::Model::Declarations::Schema` has the following attributes:
 
-- file
-- version
-- interfaces
-- constants
-- entities
-- subtype_constraints
-- functions
-- rules
-- procedures
+* `file`
+* `version`
+* `interfaces`
+* `constants`
+* `entities`
+* `subtype_constraints`
+* `functions`
+* `rules`
+* `procedures`
 
 Thus, `Expressir::Liquid::Repository` has the same attribute `schemas`
 and `Expressir::Liquid::Declarations::SchemaDrop` has same attribute `file`.
@@ -187,6 +258,7 @@ repo_drop = repo.to_liquid
 schema = repo_drop.schemas.first
 schema.file = "path/to/file.exp"
 ----
+
 
 == Contributing
 
@@ -207,12 +279,23 @@ Here are a few technical guidelines to follow:
 * Party!
 
 
+== Documentation
+
+Expressir provides detailed documentation on various aspects of its functionality:
+
+* link:docs/benchmarking.adoc[Benchmarking]: Learn about Expressir's built-in
+capabilities for measuring schema loading performance, particularly useful for
+large schemas or when optimizing performance.
+
+* link:docs/liquid_drops.adoc[Liquid Integration]: Documentation on how to use
+Expressir models with Liquid templates for flexible document generation.
+
 == License
 
 Expressir is distributed under the BSD 2-clause license.
 
-Expressir originally contained some code from the NIST Reeper project but
-has been completely rewritten.
+NOTE: Expressir originally contained some code from the NIST Reeper project but no
+longer contains them.
 
 The https://www.nist.gov/services-resources/software/reeper[NIST Reeper license]
 is reproduced below:

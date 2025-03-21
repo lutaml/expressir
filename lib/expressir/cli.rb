@@ -1,4 +1,5 @@
 require "thor"
+require "yaml"
 
 module Expressir
   class Cli < Thor
@@ -28,6 +29,50 @@ module Expressir
       end
     end
 
+    desc "benchmark FILE_OR_YAML", "Benchmark schema loading performance for a file or list of files from YAML"
+    method_option :ips, type: :boolean, desc: "Use benchmark-ips for detailed statistics"
+    method_option :verbose, type: :boolean, desc: "Show verbose output"
+    method_option :save, type: :boolean, desc: "Save benchmark results to file"
+    method_option :format, type: :string, desc: "Output format (json, csv, default)"
+    def benchmark(path)
+      # Enable benchmarking via configuration
+      Expressir.configuration.benchmark_enabled = true
+      Expressir.configuration.benchmark_ips = options[:ips]
+      Expressir.configuration.benchmark_verbose = options[:verbose]
+      Expressir.configuration.benchmark_save = options[:save]
+      Expressir.configuration.benchmark_format = options[:format] if options[:format]
+
+      if [".yml", ".yaml"].include?(File.extname(path).downcase)
+        benchmark_from_yaml(path)
+      else
+        benchmark_file(path)
+      end
+    end
+
+    desc "benchmark-cache FILE_OR_YAML", "Benchmark schema loading with caching"
+    method_option :ips, type: :boolean, desc: "Use benchmark-ips for detailed statistics"
+    method_option :verbose, type: :boolean, desc: "Show verbose output"
+    method_option :save, type: :boolean, desc: "Save benchmark results to file"
+    method_option :format, type: :string, desc: "Output format (json, csv, default)"
+    method_option :cache_path, type: :string, desc: "Path to store the cache file"
+    def benchmark_cache(path)
+      # Same options as benchmark + cache_path
+      Expressir.configuration.benchmark_enabled = true
+      Expressir.configuration.benchmark_ips = options[:ips]
+      Expressir.configuration.benchmark_verbose = options[:verbose]
+      Expressir.configuration.benchmark_save = options[:save]
+      Expressir.configuration.benchmark_format = options[:format] if options[:format]
+
+      # Run benchmarks with cache
+      cache_path = options[:cache_path] || generate_temp_cache_path
+
+      if [".yml", ".yaml"].include?(File.extname(path).downcase)
+        benchmark_cache_from_yaml(path, cache_path)
+      else
+        benchmark_cache_file(path, cache_path)
+      end
+    end
+
     no_commands do
       def _validate_schema(path)
         repository = Expressir::Express::Parser.from_file(path)
@@ -46,6 +91,109 @@ module Expressir
         array.each do |msg|
           puts msg
         end
+      end
+
+      def benchmark_file(path)
+        puts "Express Schema Loading Benchmark"
+        puts "--------------------------------"
+
+        repository = Expressir::Benchmark.measure_file(path) do
+          Expressir::Express::Parser.from_file(path)
+        end
+
+        if repository
+          puts "Loaded #{repository.schemas.size} schemas"
+        else
+          puts "Failed to load schema"
+        end
+      end
+
+      def benchmark_from_yaml(yaml_path)
+        puts "Express Schema Loading Benchmark from YAML"
+        puts "--------------------------------"
+
+        # Load schema list from YAML
+        schema_list = YAML.load_file(yaml_path)
+        if schema_list.is_a?(Hash) && schema_list["schemas"]
+          # Handle format: { "schemas": ["path1", "path2", ...] }
+          schema_files = schema_list["schemas"]
+        elsif schema_list.is_a?(Array)
+          # Handle format: ["path1", "path2", ...]
+          schema_files = schema_list
+        else
+          puts "Invalid YAML format. Expected an array of schema paths or a hash with a 'schemas' key."
+          return
+        end
+
+        puts "YAML File: #{yaml_path}"
+        puts "Number of schemas in list: #{schema_files.size}"
+        puts "--------------------------------"
+
+        # Load the schemas
+        Expressir::Benchmark.measure_collection(schema_files) do |file|
+          repository = Expressir::Express::Parser.from_file(file)
+          repository.schemas
+        end
+      end
+
+      def benchmark_cache_file(path, cache_path)
+        puts "Express Schema Loading Benchmark with Caching"
+        puts "--------------------------------"
+        puts "Schema: #{path}"
+        puts "Cache: #{cache_path}"
+        puts "--------------------------------"
+
+        # Benchmark with caching
+        results = Expressir::Benchmark.measure_with_cache(path, cache_path) do |file|
+          Expressir::Express::Parser.from_file(file)
+        end
+
+        if results[:repository]
+          schema_count = results[:repository].schemas.size
+          puts "Loaded #{schema_count} schemas"
+        else
+          puts "Failed to load schema"
+        end
+      end
+
+      def benchmark_cache_from_yaml(yaml_path, cache_path)
+        puts "Express Schema Loading Benchmark with Caching from YAML"
+        puts "--------------------------------"
+
+        # Load schema list from YAML
+        schema_list = YAML.load_file(yaml_path)
+        if schema_list.is_a?(Hash) && schema_list["schemas"]
+          # Handle format: { "schemas": ["path1", "path2", ...] }
+          schema_files = schema_list["schemas"]
+        elsif schema_list.is_a?(Array)
+          # Handle format: ["path1", "path2", ...]
+          schema_files = schema_list
+        else
+          puts "Invalid YAML format. Expected an array of schema paths or a hash with a 'schemas' key."
+          return
+        end
+
+        puts "YAML File: #{yaml_path}"
+        puts "Number of schemas in list: #{schema_files.size}"
+        puts "Cache: #{cache_path}"
+        puts "--------------------------------"
+
+        # Process each file with caching
+        schema_files.each_with_index do |file, index|
+          puts "Processing file #{index + 1}/#{schema_files.size}: #{file}"
+
+          # Benchmark with caching
+          results = Expressir::Benchmark.measure_with_cache(file, cache_path) do |path|
+            Expressir::Express::Parser.from_file(path)
+          end
+
+          puts "--------------------------------"
+        end
+      end
+
+      def generate_temp_cache_path
+        require "tempfile"
+        Tempfile.new(["expressir_cache", ".bin"]).path
       end
     end
 

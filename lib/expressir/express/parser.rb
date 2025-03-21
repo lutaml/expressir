@@ -387,33 +387,37 @@ module Expressir
       # @param [Boolean] include_source attach original source code to model elements
       # @return [Model::Repository]
       def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil) # rubocop:disable Metrics/AbcSize
-        source = File.read file
+        Expressir::Benchmark.measure_file(file) do
+          source = File.read file
 
-        # remove root path from file path
-        schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
+          # remove root path from file path
+          schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
-        begin
-          ast = Parser.new.parse source
-        rescue Parslet::ParseFailed => e
-          puts "Parslet::ParseFailed:"
-          puts e.parse_failure_cause.ascii_tree
+          begin
+            ast = Parser.new.parse source
+          rescue Parslet::ParseFailed => e
+            puts "Parslet::ParseFailed:"
+            puts e.parse_failure_cause.ascii_tree
+          end
+
+          visitor = Expressir::Express::Visitor.new(source, include_source: include_source)
+          @repository = visitor.visit_ast ast, :top
+
+          @repository.schemas.each do |schema|
+            schema.file = schema_file
+            schema.file_basename = File.basename(schema_file, ".exp")
+            schema.formatted = schema.to_s(no_remarks: true)
+          end
+
+          unless skip_references
+            Expressir::Benchmark.measure_references do
+              @resolve_references_model_visitor = ResolveReferencesModelVisitor.new
+              @resolve_references_model_visitor.visit(@repository)
+            end
+          end
+
+          @repository
         end
-
-        visitor = Expressir::Express::Visitor.new(source, include_source: include_source)
-        @repository = visitor.visit_ast ast, :top
-
-        @repository.schemas.each do |schema|
-          schema.file = schema_file
-          schema.file_basename = File.basename(schema_file, ".exp")
-          schema.formatted = schema.to_s(no_remarks: true)
-        end
-
-        unless skip_references
-          @resolve_references_model_visitor = ResolveReferencesModelVisitor.new
-          @resolve_references_model_visitor.visit(@repository)
-        end
-
-        @repository
       end
 
       # Parses Express files into an Express model
@@ -422,20 +426,20 @@ module Expressir
       # @param [Boolean] include_source attach original source code to model elements
       # @return [Model::Repository]
       def self.from_files(files, skip_references: nil, include_source: nil, root_path: nil)
-        schemas = files.each_with_index.map do |file, _i|
-          # start = Time.now
+        schemas = Expressir::Benchmark.measure_collection(files) do |file|
           repository = from_file(file, skip_references: true, root_path: root_path)
-          # STDERR.puts "#{i+1}/#{files.length} #{file} #{Time.now - start}"
           repository.schemas
-        end.flatten
+        end
 
         @repository = Model::Repository.new(
           schemas: schemas,
         )
 
-        unless @skip_references
-          @resolve_references_model_visitor = ResolveReferencesModelVisitor.new
-          @resolve_references_model_visitor.visit(@repository)
+        unless skip_references
+          Expressir::Benchmark.measure_references do
+            @resolve_references_model_visitor = ResolveReferencesModelVisitor.new
+            @resolve_references_model_visitor.visit(@repository)
+          end
         end
 
         @repository

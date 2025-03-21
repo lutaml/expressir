@@ -24,8 +24,6 @@ require "set"
 # - prevents segfault in ANTLR4 C++ runtime, not sure why they are caused
 # - e.g. see visit_schema_decl
 
-require "objspace"
-
 module Expressir
   module Express
     class Visitor
@@ -110,9 +108,18 @@ module Expressir
           ]
           Ctx.new nodes, name
         when Array
-          ast.map do |v|
-            v.length == 1 or raise "element of array invalid (#{v.keys})"
-            to_ctx(v.values[0], v.keys[0])
+          ast.map do |element|
+            # Each array element should have exactly one key-value pair
+            unless element.length == 1
+              raise Error::VisitorInvalidInputError.new("Invalid array element: expected single key-value pair, got #{element.keys}")
+            end
+
+            # Extract the single key and value
+            key = element.keys[0]
+            value = element.values[0]
+
+            # Create context with the value and name it after the key
+            to_ctx(value, key)
           end
         when nil
           nil
@@ -122,7 +129,6 @@ module Expressir
       end
 
       def get_source_pos(ctx)
-        nil
         ranges = case ctx
                  when Ctx
                    ctx.source_pos and return ctx.source_pos # cache
@@ -134,7 +140,7 @@ module Expressir
                  when Array
                    ctx.map { |item| get_source_pos(item) }
                  else
-                   raise "unknown type in Ctx tree: #{ctx}"
+                   raise Error::VisitorInvalidInputError.new("unknown type in Ctx tree: #{ctx}")
                  end
         source_pos = ranges.compact.reduce do |item, acc|
           [[item[0], acc[0]].min, [item[1], acc[1]].max]
@@ -434,11 +440,11 @@ module Expressir
       end
 
       def visit_abstract_entity_declaration(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_abstract_entity_declaration called with invalid context")
       end
 
       def visit_abstract_supertype(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_abstract_supertype called with invalid context")
       end
 
       def visit_abstract_supertype_declaration(ctx)
@@ -469,7 +475,7 @@ module Expressir
         elsif ctx__XOR
           Model::Expressions::BinaryExpression::XOR
         else
-          raise "Invalid state"
+          raise Error::VisitorInvalidStateError.new("visit_add_like_op called with invalid context")
         end
       end
 
@@ -512,7 +518,7 @@ module Expressir
       end
 
       def visit_algorithm_head(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_algorithm_head called with invalid context")
       end
 
       def visit_alias_stmt(ctx)
@@ -601,7 +607,7 @@ module Expressir
       end
 
       def visit_attribute_reference(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_attribute_reference called with invalid context")
       end
 
       def visit_bag_type(ctx)
@@ -652,7 +658,7 @@ module Expressir
       end
 
       def visit_bound_spec(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_bound_spec called with invalid context")
       end
 
       def visit_built_in_constant(ctx)
@@ -846,7 +852,7 @@ module Expressir
       end
 
       def visit_entity_body(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_entity_body called with invalid context")
       end
 
       def visit_entity_constructor(ctx)
@@ -910,7 +916,7 @@ module Expressir
       end
 
       def visit_entity_head(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_entity_head called with invalid context")
       end
 
       def visit_entity_id(ctx)
@@ -920,7 +926,7 @@ module Expressir
       end
 
       def visit_enumeration_extension(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_enumeration_extension called with invalid context")
       end
 
       def visit_enumeration_id(ctx)
@@ -1112,7 +1118,7 @@ module Expressir
       end
 
       def visit_function_head(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_function_head called with invalid context")
       end
 
       def visit_function_id(ctx)
@@ -1254,7 +1260,7 @@ module Expressir
       end
 
       def visit_group_reference(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_group_reference called with invalid context")
       end
 
       def visit_if_stmt(ctx)
@@ -1292,7 +1298,7 @@ module Expressir
       end
 
       def visit_increment_control(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_increment_control called with invalid context")
       end
 
       def visit_index(ctx)
@@ -1327,7 +1333,7 @@ module Expressir
       end
 
       def visit_index_reference(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_index_reference called with invalid context")
       end
 
       def visit_instantiable_type(ctx)
@@ -1398,7 +1404,7 @@ module Expressir
         elsif ctx__LESS_THAN_OR_EQUAL
           Model::Expressions::Interval::LESS_THAN_OR_EQUAL
         else
-          raise "Invalid state"
+          raise Error::VisitorInvalidStateError.new("visit_interval_op called with invalid context")
         end
       end
 
@@ -1508,7 +1514,7 @@ module Expressir
         elsif ctx__string_literal
           visit(ctx__string_literal)
         else
-          raise "Invalid state"
+          raise Error::VisitorInvalidStateError.new("visit_literal called with invalid context")
         end
       end
 
@@ -1554,7 +1560,7 @@ module Expressir
                 elsif ctx__UNKNOWN
                   Model::Literals::Logical::UNKNOWN
                 else
-                  raise "Invalid state"
+                  raise Error::VisitorInvalidStateError.new("visit_logical_literal called with invalid context")
                 end
 
         Model::Literals::Logical.new(
@@ -1588,7 +1594,7 @@ module Expressir
         elsif ctx__COMBINE
           Model::Expressions::BinaryExpression::COMBINE
         else
-          raise "Invalid state"
+          raise Error::VisitorInvalidStateError.new("visit_multiplication_like_op called with invalid context")
         end
       end
 
@@ -1679,7 +1685,7 @@ module Expressir
         elsif ctx__qualifiable_factor
           handle_qualified_ref(visit(ctx__qualifiable_factor), ctx__qualifier)
         else
-          raise "Invalid state"
+          raise Error::VisitorInvalidStateError.new("visit_primary called with invalid context")
         end
       end
 
@@ -1734,7 +1740,7 @@ module Expressir
       end
 
       def visit_procedure_head(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_procedure_head called with invalid context")
       end
 
       def visit_procedure_head_parameter(ctx)
@@ -1826,7 +1832,7 @@ module Expressir
       end
 
       def visit_redeclared_attribute(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_redeclared_attribute called with invalid context")
       end
 
       def visit_referenced_attribute(ctx)
@@ -1878,7 +1884,7 @@ module Expressir
         elsif ctx__INSTANCE_EQUAL
           Model::Expressions::BinaryExpression::INSTANCE_EQUAL
         else
-          raise "Invalid state"
+          raise Error::VisitorInvalidStateError.new("visit_rel_op called with invalid context")
         end
       end
 
@@ -1894,7 +1900,7 @@ module Expressir
         elsif ctx__LIKE
           Model::Expressions::BinaryExpression::LIKE
         else
-          raise "Invalid state"
+          raise Error::VisitorInvalidStateError.new("visit_rel_op_extended called with invalid context")
         end
       end
 
@@ -2021,7 +2027,7 @@ module Expressir
       end
 
       def visit_rule_head(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_rule_head called with invalid context")
       end
 
       def visit_rule_id(ctx)
@@ -2037,7 +2043,7 @@ module Expressir
       end
 
       def visit_schema_body(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_schema_body called with invalid context")
       end
 
       def visit_schema_body_declaration(ctx)
@@ -2120,7 +2126,7 @@ module Expressir
       end
 
       def visit_selector(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_selector called with invalid context")
       end
 
       def visit_select_extension(ctx)
@@ -2185,12 +2191,12 @@ module Expressir
 
               handle_binary_expression(operands, operators)
             else
-              raise "Invalid state"
+              raise Error::VisitorInvalidStateError.new("visit_simple_expression called with invalid context")
             end
           elsif ctx__term.length == 1
             visit(ctx__term[0])
           else
-            raise "Invalid state"
+            raise Error::VisitorInvalidStateError.new("visit_simple_expression called with invalid context")
           end
         end
       end
@@ -2276,7 +2282,7 @@ module Expressir
         elsif ctx__EncodedStringLiteral
           handle_encoded_string_literal(ctx__EncodedStringLiteral)
         else
-          raise "Invalid state"
+          raise Error::VisitorInvalidStateError.new("visit_string_literal called with invalid context")
         end
       end
 
@@ -2333,7 +2339,7 @@ module Expressir
       end
 
       def visit_subtype_constraint_head(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_subtype_constraint_head called with invalid context")
       end
 
       def visit_subtype_constraint_id(ctx)
@@ -2349,7 +2355,7 @@ module Expressir
       end
 
       def visit_supertype_constraint(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_supertype_constraint called with invalid context")
       end
 
       def visit_supertype_expression(ctx)
@@ -2364,12 +2370,12 @@ module Expressir
 
               handle_binary_supertype_expression(operands, operators)
             else
-              raise "Invalid state"
+              raise Error::VisitorInvalidStateError.new("visit_supertype_expression called with invalid context")
             end
           elsif ctx__supertype_factor.length == 1
             visit(ctx__supertype_factor[0])
           else
-            raise "Invalid state"
+            raise Error::VisitorInvalidStateError.new("visit_supertype_expression called with invalid context")
           end
         end
       end
@@ -2386,12 +2392,12 @@ module Expressir
 
               handle_binary_supertype_expression(operands, operators)
             else
-              raise "Invalid state"
+              raise Error::VisitorInvalidStateError.new("visit_supertype_factor called with invalid context")
             end
           elsif ctx__supertype_term.length == 1
             visit(ctx__supertype_term[0])
           else
-            raise "Invalid state"
+            raise Error::VisitorInvalidStateError.new("visit_supertype_factor called with invalid context")
           end
         end
       end
@@ -2432,12 +2438,12 @@ module Expressir
 
               handle_binary_expression(operands, operators)
             else
-              raise "Invalid state"
+              raise Error::VisitorInvalidStateError.new("visit_term called with invalid context")
             end
           elsif ctx__factor.length == 1
             visit(ctx__factor[0])
           else
-            raise "Invalid state"
+            raise Error::VisitorInvalidStateError.new("visit_term called with invalid context")
           end
         end
       end
@@ -2496,7 +2502,7 @@ module Expressir
         elsif ctx__NOT
           Model::Expressions::UnaryExpression::NOT
         else
-          raise "Invalid state"
+          raise Error::VisitorInvalidStateError.new("visit_unary_op called with invalid context")
         end
       end
 
@@ -2571,12 +2577,12 @@ module Expressir
       end
 
       def visit_width_spec(_ctx)
-        raise "Invalid state"
+        raise Error::VisitorInvalidStateError.new("visit_width_spec called with invalid context")
       end
 
       def handle_binary_expression(operands, operators)
         if operands.length != operators.length + 1
-          raise "Invalid state"
+          raise Error::VisitorInvalidStateError.new("handle_binary_expression called with invalid context")
         end
 
         expression = Model::Expressions::BinaryExpression.new(
@@ -2596,7 +2602,7 @@ module Expressir
 
       def handle_binary_supertype_expression(operands, operators)
         if operands.length != operators.length + 1
-          raise "Invalid state"
+          raise Error::VisitorInvalidStateError.new("handle_binary_supertype_expression called with invalid context")
         end
 
         expression = Model::SupertypeExpressions::BinarySupertypeExpression.new(
@@ -2643,7 +2649,7 @@ module Expressir
               index2: index_reference.index2,
             )
           else
-            raise "Invalid state"
+            raise Error::VisitorInvalidStateError.new("handle_qualified_ref called with invalid context")
           end
         end
       end

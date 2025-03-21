@@ -30,12 +30,11 @@ module Expressir
           end
 
           # Calculate objects per second
-          if result && result.respond_to?(:schemas)
+          if result.respond_to?(:schemas)
             objects_per_second = calculate_objects_per_second(result)
             puts "Objects per second: #{objects_per_second}" if Expressir.configuration.benchmark_verbose?
           end
 
-          result
         else
           # Standard benchmarking
           result = nil
@@ -43,15 +42,15 @@ module Expressir
             result = yield
           end
 
-          if result && result.respond_to?(:schemas)
+          if result.respond_to?(:schemas)
             objects_per_second = calculate_objects_per_second(result, time.real)
             output_benchmark_result(file, time.real, objects_per_second)
           else
             output_benchmark_result(file, time.real)
           end
 
-          result
         end
+        result
       end
 
       # Benchmarks file collection processing
@@ -105,7 +104,6 @@ module Expressir
             end
           end
 
-          result
         else
           result = nil
           time = ::Benchmark.measure do
@@ -113,8 +111,8 @@ module Expressir
           end
 
           output_benchmark_result("Reference resolution", time.real)
-          result
         end
+        result
       end
 
       # Benchmark with caching
@@ -203,16 +201,14 @@ module Expressir
           count += schema.constants.size if schema.constants
 
           # Count attributes in entities
-          if schema.entities
-            schema.entities.each do |entity|
-              # Count explicit attributes
-              if entity.attributes
-                count += entity.attributes.size
-              end
-
-              # Count inheritance relationships
-              count += 1 if entity.subtype_of
+          schema.entities&.each do |entity|
+            # Count explicit attributes
+            if entity.attributes
+              count += entity.attributes.size
             end
+
+            # Count inheritance relationships
+            count += 1 if entity.subtype_of
           end
         end
 

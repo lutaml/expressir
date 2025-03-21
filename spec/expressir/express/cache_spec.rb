@@ -63,7 +63,7 @@ RSpec.describe Expressir::Express::Cache do
 
         expect do
           Expressir::Express::Cache.from_file(temp_file)
-        end.to raise_error(Expressir::Error)
+        end.to raise_error(Expressir::Express::CacheVersionMismatchError)
       ensure
         temp_file.close
         temp_file.unlink

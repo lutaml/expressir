@@ -347,7 +347,7 @@ module Expressir
         rule(:supertypeRule) { (tSUPERTYPE >> subtypeConstraint).as(:supertypeRule) }
         rule(:supertypeTerm) { (entityRef | oneOf | op_leftparen >> supertypeExpression >> op_rightparen).as(:supertypeTerm) }
         rule(:syntax) { (spaces.as(:spaces) >> schemaDecl.repeat(1).as(:schemaDecl) >> spaces.as(:trailer)).as(:syntax) }
-        rule(:tailRemark) { (str("--") >> (str("\n").absent? >> any).repeat >> str("\n")).as(:tailRemark) }
+        rule(:tailRemark) { (str("--") >> (str("\n").absent? >> any).repeat >> str("\n").maybe).as(:tailRemark) }
         rule(:term) { (factor >> (multiplicationLikeOp >> factor).as(:item).repeat.as(:rhs)).as(:term) }
         rule(:totalOver) do
           (tTOTAL_OVER >> op_leftparen >> (entityRef >> (op_comma >> entityRef).repeat).as(:listOf_entityRef) >> op_rightparen >> op_delim).as(:totalOver)

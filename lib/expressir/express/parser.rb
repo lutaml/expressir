@@ -32,7 +32,7 @@ module Expressir
         ].freeze
 
         def keyword_rule(str)
-          key_chars = str.to_s.split(//)
+          key_chars = str.to_s.split("")
           key_chars
             .collect! { |char| match("[#{char}#{char.downcase}]") }
             .reduce(:>>) >> match["a-zA-Z0-9_"].absent?

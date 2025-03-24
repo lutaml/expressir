@@ -198,7 +198,7 @@ module Expressir
       def find(path)
         return self if path.empty?
 
-        path_parts = path.safe_downcase.split(/\./).map do |current_path|
+        path_parts = path.safe_downcase.split(".").map do |current_path|
           _, _, current_path = current_path.rpartition(":") # ignore prefix
           current_path
         end

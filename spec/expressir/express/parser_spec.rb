@@ -184,6 +184,21 @@ RSpec.describe Expressir::Express::Parser do
       TEXT
       expect(entity.source).to eq(expected_entity.strip)
     end
+
+    it "parses a file (without_ending_newline.exp)" do |example|
+      print "\n[#{example.description}] "
+      exp_file = Expressir.root_path.join("spec", "syntax", "without_ending_newline.exp")
+      yaml_file = Expressir.root_path.join("spec", "syntax", "without_ending_newline.yaml")
+
+      repo = Expressir::Express::Parser.from_file(
+        exp_file,
+        root_path: Expressir.root_path,
+      )
+      result = repo.to_yaml
+
+      expected_result = File.read(yaml_file)
+      expect(result).to eq(expected_result)
+    end
   end
 
   describe ".from_files" do

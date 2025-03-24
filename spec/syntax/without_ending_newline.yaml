@@ -1,0 +1,43 @@
+---
+_class: Expressir::Model::Repository
+schemas:
+- id: Analysis_representation_arm
+  _class: Expressir::Model::Declarations::Schema
+  file: spec/syntax/without_ending_newline.exp
+  interfaces:
+  - _class: Expressir::Model::Declarations::Interface
+    kind: USE
+    schema:
+      _class: Expressir::Model::References::SimpleReference
+      id: Foundation_representation_arm
+  entities:
+  - id: Analysis_model
+    _class: Expressir::Model::Declarations::Entity
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: Representation
+    attributes:
+    - _class: Expressir::Model::Declarations::Attribute
+      kind: EXPLICIT
+      supertype_attribute:
+        _class: Expressir::Model::References::AttributeReference
+        ref:
+          _class: Expressir::Model::References::GroupReference
+          ref:
+            _class: Expressir::Model::References::SimpleReference
+            id: SELF
+          entity:
+            _class: Expressir::Model::References::SimpleReference
+            id: Representation
+        attribute:
+          _class: Expressir::Model::References::SimpleReference
+          id: context_of_items
+      type:
+        _class: Expressir::Model::References::SimpleReference
+        id: Analysis_representation_context
+        base_path: Analysis_representation_arm.Analysis_representation_context
+  - id: Analysis_representation_context
+    _class: Expressir::Model::Declarations::Entity
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: Representation_context

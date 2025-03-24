@@ -252,9 +252,9 @@ module Expressir
       def get_remarks(ctx, indent = "")
         case ctx
         when Ctx
-          ctx.values.map { |item| get_remarks(item, "#{indent}  ") }.inject([], :+)
+          ctx.values.sum([]) { |item| get_remarks(item, "#{indent}  ") }
         when Array
-          ctx.map { |item| get_remarks(item, "#{indent}  ") }.inject([], :+)
+          ctx.sum([]) { |item| get_remarks(item, "#{indent}  ") }
         else
           if %i[tailRemark embeddedRemark].include?(ctx.name)
             [get_source_pos(ctx)]
@@ -2100,7 +2100,7 @@ module Expressir
         value = value.value
 
         items = if value.start_with?("{") && value.end_with?("}")
-                  parts = value.sub(/^\{/, "").sub(/\}$/, "").split(" ")
+                  parts = value.sub(/^\{/, "").sub(/\}$/, "").split
                   parts.map do |part|
                     if match = part.match(/^(.+)\((\d+)\)$/)
                       Model::Declarations::SchemaVersionItem.new(
@@ -2186,8 +2186,8 @@ module Expressir
         if ctx__term
           if ctx__term.length >= 2
             if ctx__add_like_op && (ctx__add_like_op.length == ctx__term.length - 1)
-              operands = ctx__term.map(&method(:visit))
-              operators = ctx__add_like_op.map(&method(:visit))
+              operands = ctx__term.map { |item| visit(item) }
+              operators = ctx__add_like_op.map { |item| visit(item) }
 
               handle_binary_expression(operands, operators)
             else
@@ -2365,7 +2365,7 @@ module Expressir
         if ctx__supertype_factor
           if ctx__supertype_factor.length >= 2
             if ctx__ANDOR && (ctx__ANDOR.length == ctx__supertype_factor.length - 1)
-              operands = ctx__supertype_factor.map(&method(:visit))
+              operands = ctx__supertype_factor.map { |item| visit(item) }
               operators = ctx__ANDOR.map { Model::SupertypeExpressions::BinarySupertypeExpression::ANDOR }
 
               handle_binary_supertype_expression(operands, operators)
@@ -2387,7 +2387,7 @@ module Expressir
         if ctx__supertype_term
           if ctx__supertype_term.length >= 2
             if ctx__AND && (ctx__AND.length == ctx__supertype_term.length - 1)
-              operands = ctx__supertype_term.map(&method(:visit))
+              operands = ctx__supertype_term.map { |item| visit(item) }
               operators = ctx__AND.map { Model::SupertypeExpressions::BinarySupertypeExpression::AND }
 
               handle_binary_supertype_expression(operands, operators)
@@ -2433,8 +2433,8 @@ module Expressir
         if ctx__factor
           if ctx__factor.length >= 2
             if ctx__multiplication_like_op && (ctx__multiplication_like_op.length == ctx__factor.length - 1)
-              operands = ctx__factor.map(&method(:visit))
-              operators = ctx__multiplication_like_op.map(&method(:visit))
+              operands = ctx__factor.map { |item| visit(item) }
+              operators = ctx__multiplication_like_op.map { |item| visit(item) }
 
               handle_binary_expression(operands, operators)
             else

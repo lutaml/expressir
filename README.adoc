@@ -80,6 +80,7 @@ Commands:
   expressir format PATH                        # pretty print EXPRESS schema located at PATH
   expressir help [COMMAND]                     # Describe available commands or one specific command
   expressir validate *PATH                     # validate EXPRESS schema located at PATH
+  expressir coverage *PATH                     # List EXPRESS entities and check documentation coverage
   expressir version                            # Expressir Version
 ----
 
@@ -180,6 +181,66 @@ The benchmark commands support several options:
 
 When using the `--format json` option, results will be output in JSON format,
 making it easy to parse for further analysis or visualization.
+
+=== Documentation coverage
+
+Expressir can analyze EXPRESS schemas to check for documentation coverage. This helps
+identify which entities are properly documented with remarks and which ones require
+documentation.
+
+==== Analyzing documentation coverage
+
+Use the `coverage` command to check documentation coverage of EXPRESS schemas:
+
+[source, sh]
+----
+# Analyze a single EXPRESS file
+expressir coverage schemas/resources/action_schema/action_schema.exp
+
+# Analyze multiple EXPRESS files
+expressir coverage schemas/resources/action_schema/action_schema.exp schemas/resources/approval_schema/approval_schema.exp
+
+# Analyze all EXPRESS files in a directory (recursively)
+expressir coverage schemas/resources/
+
+# Analyze files specified in a YAML file
+expressir coverage schemas.yml
+----
+
+The output shows which entities are missing documentation, calculates coverage percentages,
+and provides an overall documentation coverage summary.
+
+==== Coverage options
+
+The coverage command supports different output formats:
+
+[options="header"]
+|===
+| Option | Description
+| `--format text` | (Default) Display a human-readable table with coverage information
+| `--format json` | Output in JSON format for programmatic processing
+| `--format yaml` | Output in YAML format for programmatic processing
+|===
+
+Example with JSON output:
+
+[source, sh]
+----
+expressir coverage schemas/resources/ --format json
+----
+
+==== Coverage output
+
+The default text output displays:
+
+1. Directory coverage (when analyzing multiple directories)
+2. File coverage, showing:
+   - File path
+   - List of undocumented entities
+   - Coverage percentage
+3. Overall documentation coverage statistics
+
+This helps identify areas of your EXPRESS schemas that need documentation improvement.
 
 
 

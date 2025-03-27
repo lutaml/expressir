@@ -29,7 +29,7 @@ module Expressir
     class Visitor
       class Ctx
         attr_reader :name, :data
-        attr_accessor :source_pos
+        attr_accessor :source_pos, :remarks_cache
 
         def initialize(data, name)
           @data = data
@@ -97,8 +97,8 @@ module Expressir
         when Hash
           nodes = Hash[
             ast.map do |k, v|
-              if k =~ /^listOf_(.*)$/
-                itemkey = $1.to_sym
+              if k.start_with?("listOf_")
+                itemkey = k[7..].to_sym
                 ary = Array === v ? v : [v]
                 [itemkey, to_ctx(ary.select { |v| v[itemkey] }.map { |v| v.slice(itemkey) })]
               else
@@ -135,8 +135,10 @@ module Expressir
                    ctx.values.map { |item| get_source_pos(item) }
                  when SimpleCtx
                    return nil unless ctx.data.respond_to? :offset
+                   offset = ctx.data.position.charpos_fast if ctx.data.position.respond_to? :charpos_fast
+                   offset = ctx.data.offset if offset.nil?
 
-                   [[ctx.data.offset, ctx.data.offset + ctx.data.length]]
+                   [[offset, offset + ctx.data.length]]
                  when Array
                    ctx.map { |item| get_source_pos(item) }
                  else
@@ -249,12 +251,21 @@ module Expressir
         end
       end
 
-      def get_remarks(ctx, indent = "")
+      def get_remarks(ctx)
         case ctx
         when Ctx
-          ctx.values.sum([]) { |item| get_remarks(item, "#{indent}  ") }
+          ctx.remarks_cache and return ctx.remarks_cache
+          r = []
+          ctx.values.each do |item|
+            r.concat(get_remarks(item))
+          end
+          ctx.remarks_cache = r
         when Array
-          ctx.sum([]) { |item| get_remarks(item, "#{indent}  ") }
+          r = []
+          ctx.each do |item|
+            r.concat(get_remarks(item))
+          end
+          r
         else
           if %i[tailRemark embeddedRemark].include?(ctx.name)
             [get_source_pos(ctx)]
@@ -2708,6 +2719,17 @@ module Expressir
           encoded: true,
         )
       end
+    end
+  end
+end
+
+module Parslet
+  class Position
+    def charpos_fast
+      # Fast path for one-byte strings
+      return @bytepos if @string.length == @string.bytesize
+      # Slow path for multi-byte strings
+      @string[0, @bytepos].length
     end
   end
 end

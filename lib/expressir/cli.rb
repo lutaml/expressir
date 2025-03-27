@@ -1,5 +1,6 @@
 require "thor"
 require "yaml"
+require "terminal-table"
 
 module Expressir
   class Cli < Thor
@@ -223,6 +224,183 @@ module Expressir
       exit 1 unless [no_valid, no_version].all?(&:empty?)
 
       puts "Validation passed for all EXPRESS schemas."
+    end
+
+    desc "coverage *PATH", "List EXPRESS entities and check documentation coverage"
+    method_option :format, type: :string, desc: "Output format (text, json, yaml)", default: "text"
+    def coverage(*paths)
+      if paths.empty?
+        puts "No paths specified. Please provide paths to EXPRESS files or directories."
+        exit 1
+      end
+
+      reports = []
+
+      paths.each do |path|
+        if File.directory?(path)
+          # Handle directory (find .exp files and process)
+          puts "Processing directory: #{path}"
+          exp_files = Dir.glob(File.join(path, "**", "*.exp"))
+          if exp_files.empty?
+            puts "No EXPRESS files found in directory: #{path}"
+            next
+          end
+
+          # Parse all files and create a repository
+          repository = nil
+          begin
+            repository = Expressir::Express::Parser.from_files(exp_files)
+            report = Expressir::Coverage::Report.from_repository(repository)
+            reports << report
+          rescue StandardError => e
+            puts "Error processing directory #{path}: #{e.message}"
+          end
+        elsif File.extname(path).downcase == ".exp"
+          # Handle single EXPRESS file
+          puts "Processing file: #{path}"
+          begin
+            report = Expressir::Coverage::Report.from_file(path)
+            reports << report
+          rescue StandardError => e
+            puts "Error processing file #{path}: #{e.message}"
+          end
+        elsif [".yml", ".yaml"].include?(File.extname(path).downcase)
+          # Handle YAML manifest
+          puts "Processing YAML manifest: #{path}"
+          begin
+            schema_list = YAML.load_file(path)
+            if schema_list.is_a?(Hash) && schema_list["schemas"]
+              schema_files = schema_list["schemas"]
+            elsif schema_list.is_a?(Array)
+              schema_files = schema_list
+            else
+              puts "Invalid YAML format. Expected an array of schema paths or a hash with a 'schemas' key."
+              next
+            end
+
+            repository = Expressir::Express::Parser.from_files(schema_files)
+            report = Expressir::Coverage::Report.from_repository(repository)
+            reports << report
+          rescue StandardError => e
+            puts "Error processing YAML manifest #{path}: #{e.message}"
+          end
+        else
+          puts "Unsupported file type: #{path}"
+        end
+      end
+
+      if reports.empty?
+        puts "No valid EXPRESS files were processed. Nothing to report."
+        exit 1
+      end
+
+      # Generate output based on format
+      case options[:format].downcase
+      when "json"
+        display_json_output(reports)
+      when "yaml"
+        display_yaml_output(reports)
+      else # Default to text
+        display_text_output(reports)
+      end
+    end
+
+    no_commands do
+      def display_text_output(reports)
+        puts "\nEXPRESS Documentation Coverage"
+        puts "=============================="
+
+        # If multiple reports, display directory coverage first
+        if reports.size > 1
+          puts "\nDirectory Coverage:"
+          puts "-----------------"
+
+          # Collect directory data from all reports
+          dirs = {}
+          reports.each do |report|
+            report.directory_reports.each do |dir_report|
+              dir = dir_report[:directory]
+              dirs[dir] ||= { total: 0, documented: 0 }
+              dirs[dir][:total] += dir_report[:total]
+              dirs[dir][:documented] += dir_report[:documented]
+            end
+          end
+
+          # Create a simple table format
+          puts "| #{'Directory'.ljust(30)} | #{'Total'.ljust(10)} | #{'Documented'.ljust(10)} | #{'Coverage %'.ljust(10)} |"
+          puts "|#{'-' * 32}|#{'-' * 12}|#{'-' * 12}|#{'-' * 12}|"
+
+          # Add rows for each directory
+          dirs.each do |dir, stats|
+            coverage = stats[:total] > 0 ? (stats[:documented].to_f / stats[:total] * 100).round(2) : 100.0
+            puts "| #{dir.ljust(30)} | #{stats[:total].to_s.ljust(10)} | #{stats[:documented].to_s.ljust(10)} | #{coverage.to_s.ljust(10)} |"
+          end
+        end
+
+        # Display file coverage
+        puts "\nFile Coverage:"
+        puts "-------------"
+
+        # Create a simple table format
+        puts "| #{'File'.ljust(40)} | #{'Undocumented Entities'.ljust(40)} | #{'Coverage %'.ljust(10)} |"
+        puts "|#{'-' * 42}|#{'-' * 42}|#{'-' * 12}|"
+
+        reports.each do |report|
+          report.file_reports.each do |file_report|
+            file_path = file_report[:file]
+            # Truncate file path if it's too long
+            if file_path.length > 38
+              file_path = "..." + file_path[-35..-1]
+            end
+            undocumented = file_report[:undocumented].join(", ")
+            # Truncate undocumented list if it's too long
+            if undocumented.length > 38
+              undocumented = undocumented[0..35] + "..."
+            end
+            coverage = file_report[:coverage].round(2)
+
+            puts "| #{file_path.ljust(40)} | #{undocumented.ljust(40)} | #{coverage.to_s.ljust(10)} |"
+          end
+        end
+
+        # Get structured report for overall statistics
+        overall = build_structured_report(reports)[:overall]
+
+        puts "\nOverall Documentation Coverage: #{overall[:coverage_percentage]}%"
+        puts "Total Entities: #{overall[:total_entities]}"
+        puts "Documented Entities: #{overall[:documented_entities]}"
+        puts "Undocumented Entities: #{overall[:undocumented_entities]}"
+      end
+
+      # Create a structured data report from coverage reports
+      # @param reports [Array<Expressir::Coverage::Report>] The coverage reports
+      # @return [Hash] A structured hash with coverage data
+      def build_structured_report(reports)
+        {
+          overall: {
+            total_entities: reports.sum { |r| r.total_entities.size },
+            documented_entities: reports.sum { |r| r.documented_entities.size },
+            undocumented_entities: reports.sum { |r| r.undocumented_entities.size },
+            coverage_percentage: if reports.sum { |r| r.total_entities.size } > 0
+                                   (reports.sum { |r| r.documented_entities.size }.to_f / reports.sum { |r| r.total_entities.size } * 100).round(2)
+                                 else
+                                   100.0
+                                 end,
+          },
+          files: reports.flat_map { |r| r.file_reports },
+          directories: reports.flat_map { |r| r.directory_reports },
+        }
+      end
+
+      def display_json_output(reports)
+        require "json"
+        puts JSON.pretty_generate(build_structured_report(reports))
+      end
+
+      def display_yaml_output(reports)
+        require "yaml"
+        puts build_structured_report(reports).to_yaml
+      end
     end
 
     desc "version", "Expressir Version"

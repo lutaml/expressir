@@ -46,13 +46,13 @@ module Expressir
       def file_reports
         @schema_reports.map do |report|
           {
-            file: report[:schema].file,
-            file_basename: File.basename(report[:schema].file),
-            directory: File.dirname(report[:schema].file),
-            total: report[:total].size,
-            documented: report[:documented].size,
-            undocumented: report[:undocumented],
-            coverage: report[:coverage],
+            "file" => report[:schema].file,
+            "file_basename" => File.basename(report[:schema].file),
+            "directory" => File.dirname(report[:schema].file),
+            "total" => report[:total].size,
+            "documented" => report[:documented].size,
+            "undocumented" => report[:undocumented],
+            "coverage" => report[:coverage],
           }
         end
       end
@@ -61,21 +61,21 @@ module Expressir
       # @return [Array<Hash>] Array of directory report hashes
       def directory_reports
         # Group by directory
-        by_directory = file_reports.group_by { |r| r[:directory] }
+        by_directory = file_reports.group_by { |r| r["directory"] }
 
         # Aggregate stats for each directory
         by_directory.map do |directory, reports|
-          total = reports.sum { |r| r[:total] }
-          documented = reports.sum { |r| r[:documented] }
+          total = reports.sum { |r| r["total"] }
+          documented = reports.sum { |r| r["documented"] }
           coverage = total > 0 ? (documented.to_f / total) * 100 : 100.0
 
           {
-            directory: directory,
-            total: total,
-            documented: documented,
-            undocumented: total - documented,
-            coverage: coverage,
-            files: reports.size,
+            "directory" => directory,
+            "total" => total,
+            "documented" => documented,
+            "undocumented" => total - documented,
+            "coverage" => coverage,
+            "files" => reports.size,
           }
         end
       end
@@ -84,14 +84,14 @@ module Expressir
       # @return [Hash] The report as a hash
       def to_h
         {
-          overall: {
-            total: @total_entities.size,
-            documented: @documented_entities.size,
-            undocumented: @undocumented_entities.size,
-            coverage: coverage_percentage,
+          "overall" => {
+            "total" => @total_entities.size,
+            "documented" => @documented_entities.size,
+            "undocumented" => @undocumented_entities.size,
+            "coverage" => coverage_percentage,
           },
-          directories: directory_reports,
-          files: file_reports,
+          "directories" => directory_reports,
+          "files" => file_reports,
         }
       end
 
@@ -134,10 +134,19 @@ module Expressir
 
       # Format an entity for display
       # @param entity [Expressir::Model::ModelElement] The entity to format
-      # @return [String] A formatted string representation of the entity
+      # @return [Hash] A hash with type and name of the entity
       def format_entity(entity)
-        type = entity.class.name.split("::").last.downcase
-        "#{type}: #{entity.id}"
+        # Get class name (e.g., "Type" from "Expressir::Model::Declarations::Type")
+        type_name = entity.class.name.split("::").last
+
+        # Convert to EXPRESS convention (e.g., "TYPE")
+        express_type = type_name.upcase
+
+        # Return structured format
+        {
+          "type" => express_type,
+          "name" => entity.id.to_s,
+        }
       end
     end
 

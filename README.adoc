@@ -243,6 +243,66 @@ The default text output displays:
 This helps identify areas of your EXPRESS schemas that need documentation improvement.
 
 
+=== Documentation Coverage Analysis in Ruby
+
+Expressir's documentation coverage feature can also be used programmatically in your Ruby code to analyze and report on documentation coverage of EXPRESS schemas:
+
+[source,ruby]
+----
+# Create a coverage report from a file
+report = Expressir::Coverage::Report.from_file("path/to/schema.exp")
+
+# Or create a report from a repository
+repository = Expressir::Express::Parser.from_file("path/to/schema.exp")
+report = Expressir::Coverage::Report.from_repository(repository)
+
+# Access overall statistics
+puts "Overall coverage: #{report.coverage_percentage}%"
+puts "Total entities: #{report.total_entities.size}"
+puts "Documented entities: #{report.documented_entities.size}"
+puts "Undocumented entities: #{report.undocumented_entities.size}"
+
+# Access file-level reports
+report.file_reports.each do |file_report|
+  puts "File: #{file_report[:file]}"
+  puts "  Coverage: #{file_report[:coverage]}%"
+  puts "  Total entities: #{file_report[:total]}"
+  puts "  Documented entities: #{file_report[:documented]}"
+  puts "  Undocumented entities: #{file_report[:undocumented].join(', ')}"
+end
+
+# Access directory-level reports
+report.directory_reports.each do |dir_report|
+  puts "Directory: #{dir_report[:directory]}"
+  puts "  Coverage: #{dir_report[:coverage]}%"
+  puts "  Total entities: #{dir_report[:total]}"
+  puts "  Documented entities: #{dir_report[:documented]}"
+  puts "  Undocumented entities: #{dir_report[:undocumented]}"
+  puts "  Number of files: #{dir_report[:files]}"
+end
+
+# Generate a structured hash representation
+report_hash = report.to_h  # Contains overall, directories and files sections
+----
+
+You can also use the core methods directly to check documentation status:
+
+[source,ruby]
+----
+# Check if an entity has documentation
+schema = repository.schemas.first
+entity = schema.entities.first
+
+if Expressir::Coverage.entity_documented?(entity)
+  puts "Entity #{entity.id} is documented"
+else
+  puts "Entity #{entity.id} is not documented"
+end
+
+# Find all entities in a schema
+all_entities = Expressir::Coverage.find_entities(schema)
+puts "Found #{all_entities.size} entities in schema #{schema.id}"
+----
 
 == Usage: Ruby
 

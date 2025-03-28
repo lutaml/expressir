@@ -1,3 +1,5 @@
+require "pathname"
+
 module Expressir
   # Coverage module for calculating documentation coverage of EXPRESS entities
   module Coverage
@@ -45,10 +47,19 @@ module Expressir
       # @return [Array<Hash>] Array of file report hashes
       def file_reports
         @schema_reports.map do |report|
+          absolute_path = report[:schema].file
+          relative_path = begin
+            Pathname.new(absolute_path).relative_path_from(Pathname.pwd).to_s
+          rescue ArgumentError
+            # If paths are on different drives or otherwise incompatible,
+            # fall back to the absolute path
+            absolute_path
+          end
+
           {
-            "file" => report[:schema].file,
-            "file_basename" => File.basename(report[:schema].file),
-            "directory" => File.dirname(report[:schema].file),
+            "file" => relative_path,
+            "file_basename" => File.basename(absolute_path),
+            "directory" => File.dirname(absolute_path),
             "total" => report[:total].size,
             "documented" => report[:documented].size,
             "undocumented" => report[:undocumented],
@@ -60,17 +71,26 @@ module Expressir
       # Get directory-level reports
       # @return [Array<Hash>] Array of directory report hashes
       def directory_reports
-        # Group by directory
+        # Group by directory (absolute path)
         by_directory = file_reports.group_by { |r| r["directory"] }
 
         # Aggregate stats for each directory
         by_directory.map do |directory, reports|
+          # Convert directory to relative path
+          relative_directory = begin
+            Pathname.new(directory).relative_path_from(Pathname.pwd).to_s
+          rescue ArgumentError
+            # If paths are on different drives or otherwise incompatible,
+            # fall back to the absolute path
+            directory
+          end
+
           total = reports.sum { |r| r["total"] }
           documented = reports.sum { |r| r["documented"] }
           coverage = total > 0 ? (documented.to_f / total) * 100 : 100.0
 
           {
-            "directory" => directory,
+            "directory" => relative_directory,
             "total" => total,
             "documented" => documented,
             "undocumented" => total - documented,

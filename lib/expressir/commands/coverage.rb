@@ -1,6 +1,7 @@
 require "terminal-table"
 require "json"
 require "yaml"
+require "ruby-progressbar"
 
 module Expressir
   module Commands
@@ -59,10 +60,25 @@ module Expressir
           return
         end
 
-        # Parse all files and create a repository
+        say "Found #{exp_files.size} EXPRESS files to process"
+
+        # Initialize progress bar for directory files
+        progress = ProgressBar.create(
+          title: "Processing files",
+          total: exp_files.size,
+          format: "%t: [%B] %p%% %a [%c/%C] %e",
+          output: $stdout,
+        )
+
+        # Parse all files and create a repository with progress tracking
         repository = nil
         begin
-          repository = Expressir::Express::Parser.from_files(exp_files)
+          repository = Expressir::Express::Parser.from_files(exp_files) do |filename, schemas, error|
+            if error
+              say "  Error processing #{File.basename(filename)}: #{error.message}"
+            end
+            progress.increment
+          end
           report = Expressir::Coverage::Report.from_repository(repository)
           reports << report
         rescue StandardError => e
@@ -73,6 +89,7 @@ module Expressir
       def handle_express_file(path, reports)
         say "Processing file: #{path}"
         begin
+          # For a single file, we don't need a progress bar
           report = Expressir::Coverage::Report.from_file(path)
           reports << report
         rescue StandardError => e
@@ -84,8 +101,25 @@ module Expressir
         say "Processing YAML manifest: #{path}"
         begin
           schema_list = YAML.load_file(path)
+          manifest_dir = File.dirname(path)
+
           if schema_list.is_a?(Hash) && schema_list["schemas"]
-            schema_files = schema_list["schemas"]
+            schemas_data = schema_list["schemas"]
+
+            # Handle the nested structure with schema name keys and path values
+            if schemas_data.is_a?(Hash)
+              schema_files = schemas_data.values.map do |schema_data|
+                if schema_data.is_a?(Hash) && schema_data["path"]
+                  # Make path relative to the manifest location
+                  File.expand_path(schema_data["path"], manifest_dir)
+                end
+              end.compact
+
+              say "Found #{schema_files.size} schema files to process"
+            else
+              # If it's a direct array of paths (old format)
+              schema_files = schemas_data
+            end
           elsif schema_list.is_a?(Array)
             schema_files = schema_list
           else
@@ -93,11 +127,32 @@ module Expressir
             return
           end
 
-          repository = Expressir::Express::Parser.from_files(schema_files)
-          report = Expressir::Coverage::Report.from_repository(repository)
-          reports << report
+          # Initialize progress bar
+          if schema_files && !schema_files.empty?
+            say "Processing schemas from manifest file"
+
+            progress = ProgressBar.create(
+              title: "Processing schemas",
+              total: schema_files.size,
+              format: "%t: [%B] %p%% %a [%c/%C] %e",
+              output: $stdout,
+            )
+
+            # Process files with progress tracking
+            repository = Expressir::Express::Parser.from_files(schema_files) do |filename, schemas, error|
+              if error
+                say "  Error processing #{File.basename(filename)}: #{error.message}"
+              end
+              progress.increment
+            end
+
+            # Create and add the report
+            report = Expressir::Coverage::Report.from_repository(repository)
+            reports << report
+          end
         rescue StandardError => e
           say "Error processing YAML manifest #{path}: #{e.message}"
+          say "Debug: schema_list structure: #{schema_list.class}" if schema_list
         end
       end
 

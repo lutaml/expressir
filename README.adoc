@@ -279,6 +279,16 @@ Example with JSON output:
 expressir coverage schemas/resources/ --format json
 ----
 
+When using JSON or YAML output formats, all file and directory paths are displayed relative to the current working directory:
+
+[source, yaml]
+----
+- file: "schemas/resources/action_schema/action_schema.exp"
+  file_basename: action_schema.exp
+  directory: "schemas/resources/action_schema"
+  # ... other fields
+----
+
 ==== Coverage output
 
 The default text output displays:

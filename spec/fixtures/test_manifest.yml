@@ -1,0 +1,6 @@
+---
+schemas:
+  test_schema_1:
+    path: spec/syntax/remark.exp
+  test_schema_2:
+    path: spec/expressir/test_undocumented.exp

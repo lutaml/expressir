@@ -71,9 +71,8 @@ module Expressir
         )
 
         # Parse all files and create a repository with progress tracking
-        repository = nil
         begin
-          repository = Expressir::Express::Parser.from_files(exp_files) do |filename, schemas, error|
+          repository = Expressir::Express::Parser.from_files(exp_files) do |filename, _schemas, error|
             if error
               say "  Error processing #{File.basename(filename)}: #{error.message}"
             end
@@ -139,7 +138,7 @@ module Expressir
             )
 
             # Process files with progress tracking
-            repository = Expressir::Express::Parser.from_files(schema_files) do |filename, schemas, error|
+            repository = Expressir::Express::Parser.from_files(schema_files) do |filename, _schemas, error|
               if error
                 say "  Error processing #{File.basename(filename)}: #{error.message}"
               end
@@ -196,7 +195,7 @@ module Expressir
 
         # Add rows
         dirs.each do |dir, stats|
-          coverage = stats["total"] > 0 ? (stats["documented"].to_f / stats["total"] * 100).round(2) : 100.0
+          coverage = stats["total"].positive? ? (stats["documented"].to_f / stats["total"] * 100).round(2) : 100.0
           table.add_row [dir, stats["total"], stats["documented"], "#{coverage}%"]
         end
 
@@ -220,20 +219,11 @@ module Expressir
         reports.each do |report|
           report.file_reports.each do |file_report|
             file_path = file_report["file"]
-            # Truncate file path if it's too long
-            if file_path.length > 38
-              file_path = "..." + file_path[-35..-1]
-            end
 
             # Format undocumented entities as "TYPE name, TYPE name, ..."
             undocumented_formatted = file_report["undocumented"].map do |entity_info|
               "#{entity_info['type']} #{entity_info['name']}"
             end.join(", ")
-
-            # Truncate undocumented list if it's too long
-            if undocumented_formatted.length > 38
-              undocumented_formatted = undocumented_formatted[0..35] + "..."
-            end
 
             coverage = file_report["coverage"].round(2)
             table.add_row [file_path, undocumented_formatted, "#{coverage}%"]
@@ -270,14 +260,14 @@ module Expressir
             "total_entities" => reports.sum { |r| r.total_entities.size },
             "documented_entities" => reports.sum { |r| r.documented_entities.size },
             "undocumented_entities" => reports.sum { |r| r.undocumented_entities.size },
-            "coverage_percentage" => if reports.sum { |r| r.total_entities.size } > 0
+            "coverage_percentage" => if reports.sum { |r| r.total_entities.size }.positive?
                                        (reports.sum { |r| r.documented_entities.size }.to_f / reports.sum { |r| r.total_entities.size } * 100).round(2)
                                      else
                                        100.0
                                      end,
           },
-          "files" => reports.flat_map { |r| r.file_reports },
-          "directories" => reports.flat_map { |r| r.directory_reports },
+          "files" => reports.flat_map(&:file_reports),
+          "directories" => reports.flat_map(&:directory_reports),
         }
       end
 

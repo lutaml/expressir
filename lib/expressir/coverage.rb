@@ -87,7 +87,7 @@ module Expressir
 
           total = reports.sum { |r| r["total"] }
           documented = reports.sum { |r| r["documented"] }
-          coverage = total > 0 ? (documented.to_f / total) * 100 : 100.0
+          coverage = total.positive? ? (documented.to_f / total) * 100 : 100.0
 
           {
             "directory" => relative_directory,
@@ -185,7 +185,7 @@ module Expressir
       end
 
       # For schema entities, check if there's a remark_item with their ID
-      if entity.parent && entity.parent.respond_to?(:remark_items) && entity.parent.remark_items
+      if entity.parent.respond_to?(:remark_items) && entity.parent.remark_items
         entity_id = entity.id.to_s.downcase
         entity.parent.remark_items.any? do |item|
           item.id.to_s.downcase == entity_id || item.id.to_s.downcase.include?("#{entity_id}.")
@@ -211,11 +211,9 @@ module Expressir
       entities.concat(schema.subtype_constraints) if schema.subtype_constraints
 
       # Add enumeration items from types
-      if schema.types
-        schema.types.each do |type|
-          if type.respond_to?(:enumeration_items) && type.enumeration_items
-            entities.concat(type.enumeration_items)
-          end
+      schema.types&.each do |type|
+        if type.respond_to?(:enumeration_items) && type.enumeration_items
+          entities.concat(type.enumeration_items)
         end
       end
 

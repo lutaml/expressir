@@ -2729,7 +2729,7 @@ module Parslet
       # Fast path for one-byte strings
       return @bytepos if @string.length == @string.bytesize
       # Slow path for multi-byte strings
-      @string[0, @bytepos].length
+      charpos
     end
   end
 end

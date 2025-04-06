@@ -93,9 +93,9 @@ module Expressir
         rule(:boundSpec) { (op_leftbracket >> bound1 >> op_colon >> bound2 >> op_rightbracket).as(:boundSpec) }
         rule(:builtInConstant) { (tCONST_E | tPI | tSELF | op_question_mark).as(:builtInConstant) }
         rule(:builtInFunction) do
-          (tABS | tACOS | tASIN | tATAN | tBLENGTH | tCOS | tEXISTS | tEXP | tFORMAT | tHIBOUND | tHIINDEX | tLENGTH |
-           tLOBOUND | tLOINDEX | tLOG2 | tLOG10 | tLOG | tNVL | tODD | tROLESOF | tSIN | tSIZEOF | tSQRT | tTAN |
-           tTYPEOF | tUSEDIN | tVALUE_IN | tVALUE_UNIQUE | tVALUE).as(:builtInFunction)
+          cts((sABS | sACOS | sASIN | sATAN | sBLENGTH | sCOS | sEXISTS | sEXP | sFORMAT | sHIBOUND | sHIINDEX | sLENGTH |
+            sLOBOUND | sLOINDEX | sLOG2 | sLOG10 | sLOG | sNVL | sODD | sROLESOF | sSIN | sSIZEOF | sSQRT | sTAN |
+            sTYPEOF | sUSEDIN | sVALUE_IN | sVALUE_UNIQUE | sVALUE).as(:builtInFunction))
         end
         rule(:builtInProcedure) { (tINSERT | tREMOVE).as(:builtInProcedure) }
         rule(:caseAction) { ((caseLabel >> (op_comma >> caseLabel).repeat).as(:listOf_caseLabel) >> op_colon >> stmt).as(:caseAction) }
@@ -205,9 +205,9 @@ module Expressir
            (op_decl >> expression).maybe >> op_delim).as(:localVariable)
         end
         rule(:logicalExpression) { expression.as(:logicalExpression) }
-        rule(:logicalLiteral) { (tFALSE | tTRUE | tUNKNOWN).as(:logicalLiteral) }
+        rule(:logicalLiteral) { (cts(sFALSE | sTRUE | sUNKNOWN).as(:logicalLiteral)) }
         rule(:logicalType) { tLOGICAL.as(:logicalType) }
-        rule(:multiplicationLikeOp) { (op_asterisk | op_slash | tDIV | tMOD | tAND | op_double_pipe).as(:multiplicationLikeOp) }
+        rule(:multiplicationLikeOp) { (op_asterisk | op_slash | cts(sDIV | sMOD | sAND) | op_double_pipe).as(:multiplicationLikeOp) }
         rule(:namedTypeOrRename) { (namedTypes >> (tAS >> (entityId | typeId)).maybe).as(:namedTypeOrRename) }
         rule(:namedTypes) { (entityRef | typeRef).as(:namedTypes) }
         rule(:nullStmt) { op_delim.as(:nullStmt) }

@@ -396,8 +396,9 @@ module Expressir
       def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil) # rubocop:disable Metrics/AbcSize
         source = File.read file
         cache_key = cache_key(source)
-        ret = cache_get(cache_key)
-        return ret if ret
+        do_cache = skip_references.nil? && include_source.nil? && root_path.nil?
+        ret = cache_get(cache_key) if do_cache
+        return ret unless ret.nil?
 
         Expressir::Benchmark.measure_file(file) do
 
@@ -427,7 +428,7 @@ module Expressir
             end
           end
 
-          cache_put(cache_key, @repository)
+          cache_put(cache_key, @repository) if do_cache
           @repository
         end
       end

@@ -3,6 +3,14 @@ require "digest"
 require_relative "error"
 require_relative "parser_cache"
 
+# TODO: how to handle this better?
+# We need to make sure parslet_extensions from plurimath are loaded at this time
+begin
+  require "plurimath/asciimath/parslet_extensions"
+rescue LoadError
+  puts "Could not load parslet_extensions. Performance will be degraded"
+end
+
 module Expressir
   module Express
     class Parser

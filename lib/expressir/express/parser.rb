@@ -404,7 +404,8 @@ module Expressir
       def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
         source = File.read file
         cache_key = cache_key(source)
-        do_cache = skip_references.nil? && include_source.nil? && root_path.nil?
+        cache_key += "_true" if skip_references
+        do_cache = include_source.nil? && root_path.nil?
         ret = cache_get(cache_key) if do_cache
         return ret unless ret.nil?
 

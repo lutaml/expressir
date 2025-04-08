@@ -135,6 +135,7 @@ module Expressir
                    ctx.values.map { |item| get_source_pos(item) }
                  when SimpleCtx
                    return nil unless ctx.data.respond_to? :offset
+
                    offset = ctx.data.position.charpos_fast if ctx.data.position.respond_to? :charpos_fast
                    offset = ctx.data.offset if offset.nil?
 
@@ -256,7 +257,8 @@ module Expressir
         when Ctx
           ctx.remarks_cache and return ctx.remarks_cache
           r = []
-          ctx.values.each do |item|
+          # each_value doesn't perform well in the line below on mathematical_functions_schema.exp
+          ctx.values.each do |item| # rubocop:disable Style/HashEachMethods
             r.concat(get_remarks(item))
           end
           ctx.remarks_cache = r
@@ -2728,6 +2730,7 @@ module Parslet
     def charpos_fast
       # Fast path for one-byte strings
       return @bytepos if @string.length == @string.bytesize
+
       # Slow path for multi-byte strings
       charpos
     end

@@ -401,7 +401,7 @@ module Expressir
       # @param [Boolean] include_source attach original source code to model elements
       # @return [Model::Repository]
       # @raise [SchemaParseFailure] if the schema file fails to parse
-      def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil) # rubocop:disable Metrics/AbcSize
+      def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
         source = File.read file
         cache_key = cache_key(source)
         do_cache = skip_references.nil? && include_source.nil? && root_path.nil?
@@ -409,7 +409,6 @@ module Expressir
         return ret unless ret.nil?
 
         Expressir::Benchmark.measure_file(file) do
-
           # remove root path from file path
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 

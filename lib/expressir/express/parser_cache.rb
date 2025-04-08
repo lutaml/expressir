@@ -9,8 +9,8 @@ module Expressir
         path = cache_path(key)
         return nil unless File.exist?(path)
 
-        File.open(path, "rb") { |f| Marshal.load(f) }
-      rescue
+        File.open(path, "rb") { |f| Marshal.load(f) } # rubocop:disable Security/MarshalLoad
+      rescue # rubocop:disable Style/RescueStandardError
         nil
       end
 

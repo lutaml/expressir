@@ -1,6 +1,10 @@
+require 'set'
+
 module Expressir
   module Express
     class ResolveReferencesModelVisitor < ModelVisitor
+      SKIP_ATTRIBUTES = Set.new(%i[source full_source id kind]).freeze
+
       def visit(node)
         if node.is_a? Model::References::SimpleReference
           visit_references_simple_reference(node)

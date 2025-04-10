@@ -5,6 +5,10 @@ module Expressir
     # Base model element
     class ModelElement < Lutaml::Model::Serializable
       SKIP_ATTRIBUTES = %i[parent _class].freeze
+      ATTACH_SKIP_ATTRIBUTES = Set.new(
+        %i[parent _class source id remarks
+                 remark_items base_path operator value
+                 operator1 operator2 name]).freeze
       # :parent is a special attribute that is used to store the parent of the current element
       # It is not a real attribute
       # attribute :parent, ModelElement
@@ -254,6 +258,8 @@ module Expressir
       # @return [nil]
       def attach_parent_to_children
         self.class.attributes.each_pair do |symbol, _lutaml_attr|
+          next if ATTACH_SKIP_ATTRIBUTES.include?(symbol)
+
           value = send(symbol)
 
           case value

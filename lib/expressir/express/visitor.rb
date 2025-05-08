@@ -88,7 +88,7 @@ module Expressir
           private_methods.grep(/^visit_/).map do |name|
             rulename = name.to_s.sub(/^visit_/, "").gsub(/_([a-z])/) { $1.upcase }
             [rulename.to_sym, name.to_sym]
-          end
+          end,
         ]
       end
 
@@ -104,7 +104,7 @@ module Expressir
               else
                 [k, to_ctx(v, k)]
               end
-            end
+            end,
           ]
           Ctx.new nodes, name
         when Array

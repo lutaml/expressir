@@ -67,7 +67,7 @@ module Expressir
         end
         rule(:aliasStmt) do
           (tALIAS >> variableId >> tFOR >> generalRef >> qualifier.repeat.as(:qualifier) >>
-           op_delim >> stmt.repeat(1).as(:stmt) >> tEND_ALIAS >> (op_delim.as(:op_delim2))).as(:aliasStmt)
+           op_delim >> stmt.repeat(1).as(:stmt) >> tEND_ALIAS >> op_delim.as(:op_delim2)).as(:aliasStmt)
         end
         rule(:anyKeyword) { KEYWORDS.map { |kw| send("t#{kw}") }.inject(:|) }
         rule(:arrayType) do
@@ -116,7 +116,7 @@ module Expressir
         rule(:element) { (expression >> (op_colon >> repetition).maybe).as(:element) }
         rule(:embeddedRemark) { (str("(*") >> (str("*)").absent? >> (embeddedRemark | any)).repeat >> str("*)")).as(:embeddedRemark) }
         rule(:encodedCharacter) { (octet >> octet >> octet >> octet) }
-        rule(:encodedStringLiteral) { cts((str('"') >> (encodedCharacter.repeat(1)) >> str('"')).as(:str)).as(:encodedStringLiteral) }
+        rule(:encodedStringLiteral) { cts((str('"') >> encodedCharacter.repeat(1) >> str('"')).as(:str)).as(:encodedStringLiteral) }
         rule(:entityBody) do
           (explicitAttr.repeat.as(:explicitAttr) >> deriveClause.maybe >> inverseClause.maybe >> uniqueClause.maybe >> whereClause.maybe).as(:entityBody)
         end
@@ -149,7 +149,7 @@ module Expressir
         rule(:functionHead) do
           (tFUNCTION >> functionId >>
            (op_leftparen >> (formalParameter >> (op_delim >> formalParameter).repeat).as(:listOf_formalParameter) >> op_rightparen).maybe >>
-           op_colon >> parameterType >> (op_delim.as(:op_delim2))).as(:functionHead)
+           op_colon >> parameterType >> op_delim.as(:op_delim2)).as(:functionHead)
         end
         rule(:functionId) { simpleId.as(:functionId) }
         rule(:functionRef) { functionId.as(:functionRef) }
@@ -181,7 +181,7 @@ module Expressir
         rule(:intervalItem) { simpleExpression.as(:intervalItem) }
         rule(:intervalLow) { simpleExpression.as(:intervalLow) }
         rule(:interval) do
-          (op_left_curly_brace >> intervalLow >> intervalOp >> intervalItem >> (intervalOp.as(:intervalOp2)) >>
+          (op_left_curly_brace >> intervalLow >> intervalOp >> intervalItem >> intervalOp.as(:intervalOp2) >>
            intervalHigh >> op_right_curly_brace).as(:interval)
         end
         rule(:intervalOp) { (op_less_equal | op_less_than).as(:intervalOp) }
@@ -256,7 +256,7 @@ module Expressir
         rule(:procedureHead) do
           (tPROCEDURE >> procedureId >>
            (op_leftparen >> (procedureHeadParameter >>
-                             (op_delim >> procedureHeadParameter).repeat).as(:listOf_procedureHeadParameter) >> op_rightparen).maybe >> (op_delim.as(:op_delim2))).as(:procedureHead)
+                             (op_delim >> procedureHeadParameter).repeat).as(:listOf_procedureHeadParameter) >> op_rightparen).maybe >> op_delim.as(:op_delim2)).as(:procedureHead)
         end
         rule(:procedureId) { simpleId.as(:procedureId) }
         rule(:procedureRef) { procedureId.as(:procedureRef) }
@@ -281,7 +281,7 @@ module Expressir
         end
         rule(:renameId) { (constantId | entityId | functionId | procedureId | typeId).as(:renameId) }
         rule(:repeatControl) { (incrementControl.maybe >> whileControl.maybe >> untilControl.maybe).as(:repeatControl) }
-        rule(:repeatStmt) { (tREPEAT >> repeatControl >> op_delim >> stmt.repeat(1).as(:stmt) >> tEND_REPEAT >> (op_delim.as(:op_delim2))).as(:repeatStmt) }
+        rule(:repeatStmt) { (tREPEAT >> repeatControl >> op_delim >> stmt.repeat(1).as(:stmt) >> tEND_REPEAT >> op_delim.as(:op_delim2)).as(:repeatStmt) }
         rule(:repetition) { numericExpression.as(:repetition) }
         rule(:resourceOrRename) { (resourceRef >> (tAS >> renameId).maybe).as(:resourceOrRename) }
         rule(:resourceRef) { (constantRef | entityRef | functionRef | procedureRef | typeRef).as(:resourceRef) }
@@ -301,7 +301,7 @@ module Expressir
            schemaBodyDeclaration.repeat.as(:schemaBodyDeclaration)).as(:schemaBody)
         end
         rule(:schemaDecl) do
-          (tSCHEMA >> schemaId >> schemaVersionId.maybe >> op_delim >> schemaBody >> tEND_SCHEMA >> (op_delim.as(:op_delim2))).as(:schemaDecl)
+          (tSCHEMA >> schemaId >> schemaVersionId.maybe >> op_delim >> schemaBody >> tEND_SCHEMA >> op_delim.as(:op_delim2)).as(:schemaDecl)
         end
         rule(:schemaId) { simpleId.as(:schemaId) }
         rule(:schemaRef) { schemaId.as(:schemaRef) }
@@ -353,7 +353,7 @@ module Expressir
           (tTOTAL_OVER >> op_leftparen >> (entityRef >> (op_comma >> entityRef).repeat).as(:listOf_entityRef) >> op_rightparen >> op_delim).as(:totalOver)
         end
         rule(:typeDecl) do
-          (tTYPE >> typeId >> op_equals >> underlyingType >> op_delim >> whereClause.maybe >> tEND_TYPE >> (op_delim.as(:op_delim2))).as(:typeDecl)
+          (tTYPE >> typeId >> op_equals >> underlyingType >> op_delim >> whereClause.maybe >> tEND_TYPE >> op_delim.as(:op_delim2)).as(:typeDecl)
         end
         rule(:typeId) { simpleId.as(:typeId) }
         rule(:typeLabelId) { simpleId.as(:typeLabelId) }
@@ -363,7 +363,7 @@ module Expressir
         rule(:unaryOp) { (op_plus | op_minus | tNOT).as(:unaryOp) }
         rule(:underlyingType) { (concreteTypes | constructedTypes).as(:underlyingType) }
         rule(:uniqueClause) do
-          (tUNIQUE >> (uniqueRule >> op_delim >> (uniqueRule >> (op_delim.as(:op_delim2))).repeat).as(:listOf_uniqueRule)).as(:uniqueClause)
+          (tUNIQUE >> (uniqueRule >> op_delim >> (uniqueRule >> op_delim.as(:op_delim2)).repeat).as(:listOf_uniqueRule)).as(:uniqueClause)
         end
         rule(:uniqueRule) do
           ((ruleLabelId >> op_colon).maybe >> (referencedAttribute >> (op_comma >> referencedAttribute).repeat).as(:listOf_referencedAttribute)).as(:uniqueRule)

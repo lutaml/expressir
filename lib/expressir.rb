@@ -3,6 +3,7 @@ require_relative "expressir/version"
 require_relative "expressir/cli"
 require_relative "expressir/config"
 require_relative "expressir/benchmark"
+require_relative "expressir/coverage"
 require "lutaml/model"
 require "liquid" # To enable Lutaml::Model::Liquefiable
 

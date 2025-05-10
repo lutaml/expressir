@@ -1,5 +1,15 @@
 require "parslet"
+require "digest"
 require_relative "error"
+require_relative "parser_cache"
+
+# TODO: how to handle this better?
+# We need to make sure parslet_extensions from plurimath are loaded at this time
+begin
+  require "plurimath/asciimath/parslet_extensions"
+rescue LoadError
+  puts "Could not load parslet_extensions. Performance will be degraded"
+end
 
 module Expressir
   module Express
@@ -41,6 +51,8 @@ module Expressir
         KEYWORDS.each do |keyword|
           sym = "t#{keyword}".to_sym
           rule(sym) { cts(keyword_rule(keyword).as(:str)).as(sym) }
+          sym_no_s = "s#{keyword}".to_sym
+          rule(sym_no_s) { keyword_rule(keyword).as(:str).as(sym) }
         end
 
         rule(:abstractEntityDeclaration) { tABSTRACT.as(:abstractEntityDeclaration) }
@@ -70,6 +82,7 @@ module Expressir
            op_delim >> stmt.repeat(1).as(:stmt) >> tEND_ALIAS >> op_delim.as(:op_delim2)).as(:aliasStmt)
         end
         rule(:anyKeyword) { KEYWORDS.map { |kw| send("t#{kw}") }.inject(:|) }
+        rule(:anyKeywordNoSpace) { KEYWORDS.map { |kw| send("s#{kw}") }.inject(:|) }
         rule(:arrayType) do
           (tARRAY >> boundSpec >> tOF >> tOPTIONAL.maybe >> tUNIQUE.maybe >> instantiableType).as(:arrayType)
         end
@@ -319,7 +332,7 @@ module Expressir
         end
         rule(:simpleFactorExpression) { (op_leftparen >> expression >> op_rightparen | primary).as(:simpleFactorExpression) }
         rule(:simpleFactorUnaryExpression) { (unaryOp >> simpleFactorExpression).as(:simpleFactorUnaryExpression) }
-        rule(:simpleId) { anyKeyword.absent? >> cts((match["a-zA-Z_"] >> match["a-zA-Z0-9_"].repeat).as(:str)).as(:simpleId) }
+        rule(:simpleId) { cts(anyKeywordNoSpace.absent?) >> cts((match["a-zA-Z_"] >> match["a-zA-Z0-9_"].repeat).as(:str)).as(:simpleId) }
         rule(:simpleStringLiteral) { cts((str("'") >> (str("'").absent? >> any).repeat >> str("'")).as(:str)).as(:simpleStringLiteral) }
         rule(:simpleTypes) { (binaryType | booleanType | integerType | logicalType | numberType | realType | stringType).as(:simpleTypes) }
         rule(:skipStmt) { (tSKIP >> op_delim).as(:skipStmt) }
@@ -388,10 +401,15 @@ module Expressir
       # @param [Boolean] include_source attach original source code to model elements
       # @return [Model::Repository]
       # @raise [SchemaParseFailure] if the schema file fails to parse
-      def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil) # rubocop:disable Metrics/AbcSize
-        Expressir::Benchmark.measure_file(file) do
-          source = File.read file
+      def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
+        source = File.read file
+        cache_key = cache_key(source)
+        cache_key += "_true" if skip_references
+        do_cache = include_source.nil? && root_path.nil?
+        ret = cache_get(cache_key) if do_cache
+        return ret unless ret.nil?
 
+        Expressir::Benchmark.measure_file(file) do
           # remove root path from file path
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
@@ -418,6 +436,7 @@ module Expressir
             end
           end
 
+          cache_put(cache_key, @repository) if do_cache
           @repository
         end
       end
@@ -462,6 +481,20 @@ module Expressir
         end
 
         @repository
+      end
+
+      def self.cache_key(content)
+        Digest::SHA256.hexdigest(content)
+      end
+
+      def self.cache_get(key)
+        @@cache ||= ParserCache.new
+        @@cache.cache_get(key)
+      end
+
+      def self.cache_put(key, value)
+        @@cache ||= ParserCache.new
+        @@cache.cache_put(key, value)
       end
     end
   end

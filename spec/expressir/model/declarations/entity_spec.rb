@@ -161,6 +161,7 @@ RSpec.describe Expressir::Model::Declarations::Entity do
       it "handles derived attributes" do
         derived_attr = entity_with_attributes.attributes[1]
         expect(derived_attr.kind).to eq "DERIVED"
+        expect(derived_attr.id).to eq "derived_attr"
         expect(derived_attr.expression.value).to eq "42"
       end
 

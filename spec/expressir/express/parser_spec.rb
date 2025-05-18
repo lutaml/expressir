@@ -199,6 +199,35 @@ RSpec.describe Expressir::Express::Parser do
       expected_result = File.read(yaml_file)
       expect(result).to eq(expected_result)
     end
+
+    it "parses a file and assigns derived attributes (derived_attribute.exp)" do |example|
+      exp_file = Expressir.root_path.join("spec", "syntax", "derived_attribute.exp")
+
+      repo = Expressir::Express::Parser.from_file(
+        exp_file,
+        root_path: Expressir.root_path,
+      )
+      
+      entity = repo.schemas.first.entities[2]
+      expect(entity.attributes.map(&:id)).to include("coordinates")
+      attribute = entity.attributes[3]
+      expect(attribute.remarks).to eq(["the rectangular cartesian coordinates of this point;"])
+      expect(attribute.remark_items.map(&:remarks)).to eq(
+        [["[[figure-geometry_schema-Geomfig2]]\n.Spherical point attributes\n====\nimage::Geomfig2.gif[]\n===="]]  
+      )
+    end
+
+    it "parses a file and assigns derived attributes (derived_attribute_deep.exp)" do |example|
+      exp_file = Expressir.root_path.join("spec", "syntax", "derived_attribute_deep.exp")
+
+      repo = Expressir::Express::Parser.from_file(
+        exp_file,
+        root_path: Expressir.root_path,
+      )
+
+      entity = repo.schemas.first.entities[4]
+      expect(entity.attributes.map(&:id)).to include("country_population")
+    end
   end
 
   describe ".from_files" do

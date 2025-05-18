@@ -580,10 +580,11 @@ module Expressir
         ctx__redeclared_attribute = ctx.redeclared_attribute
         ctx__redeclared_attribute__qualified_attribute = ctx__redeclared_attribute&.qualified_attribute
         ctx__redeclared_attribute__attribute_id = ctx__redeclared_attribute&.attribute_id
+        ctx__redeclared_attribute__qualified_attribute__attribute_qualifier_attribute_id = ctx__redeclared_attribute__qualified_attribute&.attribute_qualifier&.attribute_ref&.attribute_id
 
-        id = visit_if(ctx__attribute_id || ctx__redeclared_attribute__attribute_id)
-        supertype_attribute = visit_if(ctx__redeclared_attribute__qualified_attribute)
-
+        id = visit_if(ctx__attribute_id || ctx__redeclared_attribute__attribute_id || ctx__redeclared_attribute__qualified_attribute__attribute_qualifier_attribute_id)
+        supertype_attribute = visit_if(ctx__redeclared_attribute__qualified_attribute)       
+        
         Model::Declarations::Attribute.new(
           id: id,
           supertype_attribute: supertype_attribute,

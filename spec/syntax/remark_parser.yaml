@@ -90,13 +90,13 @@ schemas:
       - entity scope - entity derived attribute
       - schema scope - entity derived attribute
       - universal scope - entity derived attribute
-      _class: Expressir::Model::Declarations::Attribute
-      kind: DERIVED
       type:
         _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Literals::String
         value: xxx
+      _class: Expressir::Model::Declarations::DerivedAttribute
+      kind: DERIVED
     - id: remark_inverse_attribute
       remarks:
       - entity scope - entity inverse attribute

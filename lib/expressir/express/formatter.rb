@@ -219,13 +219,15 @@ module Expressir
                " ",
              ].join
            end,
-          *if node.supertype_attribute && node.id
+          *if node.supertype_attribute && node.id != node.supertype_attribute.attribute.id
              [
                "RENAMED",
                " ",
+               node.id,
+               " ",
              ].join
            end,
-          *if node.id
+          *if node.id && !node.supertype_attribute
              [
                node.id,
                " ",

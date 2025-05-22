@@ -160,7 +160,7 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(repo.find("remark_schema.remark_enumeration_item")).to be_instance_of(Expressir::Model::DataTypes::EnumerationItem)
       expect(repo.find("remark_schema.remark_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
       expect(repo.find("remark_schema.remark_entity.remark_attribute")).to be_instance_of(Expressir::Model::Declarations::Attribute)
-      expect(repo.find("remark_schema.remark_entity.remark_derived_attribute")).to be_instance_of(Expressir::Model::Declarations::Attribute)
+      expect(repo.find("remark_schema.remark_entity.remark_derived_attribute")).to be_instance_of(Expressir::Model::Declarations::DerivedAttribute)
       expect(repo.find("remark_schema.remark_entity.remark_inverse_attribute")).to be_instance_of(Expressir::Model::Declarations::Attribute)
       expect(repo.find("remark_schema.remark_entity.UR1")).to be_instance_of(Expressir::Model::Declarations::UniqueRule)
       expect(repo.find("remark_schema.remark_entity.WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
@@ -202,7 +202,7 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(schema.find("remark_enumeration_item")).to be_instance_of(Expressir::Model::DataTypes::EnumerationItem)
       expect(schema.find("remark_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
       expect(schema.find("remark_entity.remark_attribute")).to be_instance_of(Expressir::Model::Declarations::Attribute)
-      expect(schema.find("remark_entity.remark_derived_attribute")).to be_instance_of(Expressir::Model::Declarations::Attribute)
+      expect(schema.find("remark_entity.remark_derived_attribute")).to be_instance_of(Expressir::Model::Declarations::DerivedAttribute)
       expect(schema.find("remark_entity.remark_inverse_attribute")).to be_instance_of(Expressir::Model::Declarations::Attribute)
       expect(schema.find("remark_entity.UR1")).to be_instance_of(Expressir::Model::Declarations::UniqueRule)
       expect(schema.find("remark_entity.WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
@@ -243,7 +243,7 @@ RSpec.describe Expressir::Model::ModelElement do
       # entity scope
       entity = schema.entities.first
       expect(entity.find("remark_attribute")).to be_instance_of(Expressir::Model::Declarations::Attribute)
-      expect(entity.find("remark_derived_attribute")).to be_instance_of(Expressir::Model::Declarations::Attribute)
+      expect(entity.find("remark_derived_attribute")).to be_instance_of(Expressir::Model::Declarations::DerivedAttribute)
       expect(entity.find("remark_inverse_attribute")).to be_instance_of(Expressir::Model::Declarations::Attribute)
       expect(entity.find("UR1")).to be_instance_of(Expressir::Model::Declarations::UniqueRule)
       expect(entity.find("WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)

@@ -85,7 +85,7 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::String
-    - _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::DerivedAttribute
       id: remark_derived_attribute
       remarks:
       - entity scope - entity derived attribute

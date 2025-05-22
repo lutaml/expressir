@@ -62,7 +62,8 @@ schemas:
       id: attribute_entity
       base_path: multiple_schema.attribute_entity
     attributes:
-    - _class: Expressir::Model::Declarations::Attribute
+    - id: test
+      _class: Expressir::Model::Declarations::Attribute
       kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
@@ -87,7 +88,8 @@ schemas:
       id: attribute_entity2
       base_path: multiple_schema2.attribute_entity2
     attributes:
-    - _class: Expressir::Model::Declarations::Attribute
+    - id: test
+      _class: Expressir::Model::Declarations::Attribute
       kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
@@ -112,7 +114,8 @@ schemas:
       id: attribute_entity3
       base_path: multiple_schema3.attribute_entity3
     attributes:
-    - _class: Expressir::Model::Declarations::Attribute
+    - id: test
+      _class: Expressir::Model::Declarations::Attribute
       kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
@@ -137,7 +140,8 @@ schemas:
       id: attribute_entity4
       base_path: multiple_schema4.attribute_entity
     attributes:
-    - _class: Expressir::Model::Declarations::Attribute
+    - id: test
+      _class: Expressir::Model::Declarations::Attribute
       kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference

@@ -812,9 +812,8 @@ module Expressir
         type = visit_if(ctx__parameter_type)
         expression = visit_if(ctx__expression)
 
-        Model::Declarations::Attribute.new(
-          id: attribute.id, # reuse
-          kind: Model::Declarations::Attribute::DERIVED,
+        Model::Declarations::DerivedAttribute.new(
+          id: attribute.id,
           supertype_attribute: attribute.supertype_attribute, # reuse
           type: type,
           expression: expression,

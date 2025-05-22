@@ -56,6 +56,8 @@ module Expressir
             "Expressir::Model::DataTypes::Set",
                         "Expressir::Model::DataTypes::String" =>
             "Expressir::Model::DataTypes::String",
+                        "Expressir::Model::Declarations::DerivedAttribute" =>
+            "Expressir::Model::Declarations::DerivedAttribute",
                         "Expressir::Model::Declarations::Attribute" =>
             "Expressir::Model::Declarations::Attribute",
                         "Expressir::Model::Declarations::Constant" =>

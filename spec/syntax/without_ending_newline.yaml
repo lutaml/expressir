@@ -17,7 +17,8 @@ schemas:
     - _class: Expressir::Model::References::SimpleReference
       id: Representation
     attributes:
-    - _class: Expressir::Model::Declarations::Attribute
+    - id: context_of_items
+      _class: Expressir::Model::Declarations::Attribute
       kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference

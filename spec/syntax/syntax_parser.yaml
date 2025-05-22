@@ -224,7 +224,8 @@ schemas:
       id: attribute_entity
       base_path: syntax_schema.attribute_entity
     attributes:
-    - _class: Expressir::Model::Declarations::Attribute
+    - id: test
+      _class: Expressir::Model::Declarations::Attribute
       kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
@@ -272,13 +273,13 @@ schemas:
     _class: Expressir::Model::Declarations::Entity
     attributes:
     - id: test
-      _class: Expressir::Model::Declarations::Attribute
-      kind: DERIVED
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
+      _class: Expressir::Model::Declarations::DerivedAttribute
+      kind: DERIVED
   - id: derived_attribute_redeclared_entity
     _class: Expressir::Model::Declarations::Entity
     subtype_of:
@@ -286,8 +287,7 @@ schemas:
       id: attribute_entity
       base_path: syntax_schema.attribute_entity
     attributes:
-    - _class: Expressir::Model::Declarations::Attribute
-      kind: DERIVED
+    - id: test
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
         ref:
@@ -307,6 +307,8 @@ schemas:
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
+      _class: Expressir::Model::Declarations::DerivedAttribute
+      kind: DERIVED
   - id: derived_attribute_redeclared_renamed_entity
     _class: Expressir::Model::Declarations::Entity
     subtype_of:
@@ -315,8 +317,6 @@ schemas:
       base_path: syntax_schema.attribute_entity
     attributes:
     - id: test2
-      _class: Expressir::Model::Declarations::Attribute
-      kind: DERIVED
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
         ref:
@@ -336,6 +336,8 @@ schemas:
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
+      _class: Expressir::Model::Declarations::DerivedAttribute
+      kind: DERIVED
   - id: inverse_attribute_entity
     _class: Expressir::Model::Declarations::Entity
     attributes:
@@ -451,7 +453,8 @@ schemas:
       id: attribute_entity
       base_path: syntax_schema.attribute_entity
     attributes:
-    - _class: Expressir::Model::Declarations::Attribute
+    - id: test
+      _class: Expressir::Model::Declarations::Attribute
       kind: INVERSE
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
@@ -474,6 +477,7 @@ schemas:
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: test
+        base_path: syntax_schema.inverse_attribute_redeclared_entity.test
   - id: inverse_attribute_redeclared_renamed_entity
     _class: Expressir::Model::Declarations::Entity
     subtype_of:

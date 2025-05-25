@@ -1433,9 +1433,8 @@ module Expressir
                        visit(ctx__attribute_ref)
                      end
 
-        Model::Declarations::Attribute.new(
+        Model::Declarations::InverseAttribute.new(
           id: attribute.id, # reuse
-          kind: Model::Declarations::Attribute::INVERSE,
           supertype_attribute: attribute.supertype_attribute, # reuse
           type: type,
           expression: expression,

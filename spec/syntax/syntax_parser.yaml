@@ -342,8 +342,6 @@ schemas:
     _class: Expressir::Model::Declarations::Entity
     attributes:
     - id: test
-      _class: Expressir::Model::Declarations::Attribute
-      kind: INVERSE
       type:
         _class: Expressir::Model::References::SimpleReference
         id: attribute_entity
@@ -352,12 +350,12 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: test
         base_path: syntax_schema.inverse_attribute_entity.test
+      _class: Expressir::Model::Declarations::InverseAttribute
+      kind: INVERSE
   - id: inverse_attribute_entity_entity
     _class: Expressir::Model::Declarations::Entity
     attributes:
     - id: test
-      _class: Expressir::Model::Declarations::Attribute
-      kind: INVERSE
       type:
         _class: Expressir::Model::References::SimpleReference
         id: attribute_entity
@@ -370,12 +368,12 @@ schemas:
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
+      _class: Expressir::Model::Declarations::InverseAttribute
+      kind: INVERSE
   - id: inverse_attribute_set_entity
     _class: Expressir::Model::Declarations::Entity
     attributes:
     - id: test
-      _class: Expressir::Model::Declarations::Attribute
-      kind: INVERSE
       type:
         _class: Expressir::Model::DataTypes::Set
         base_type:
@@ -386,12 +384,12 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: test
         base_path: syntax_schema.inverse_attribute_set_entity.test
+      _class: Expressir::Model::Declarations::InverseAttribute
+      kind: INVERSE
   - id: inverse_attribute_set_bound_entity
     _class: Expressir::Model::Declarations::Entity
     attributes:
     - id: test
-      _class: Expressir::Model::Declarations::Attribute
-      kind: INVERSE
       type:
         _class: Expressir::Model::DataTypes::Set
         bound1:
@@ -408,12 +406,12 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: test
         base_path: syntax_schema.inverse_attribute_set_bound_entity.test
+      _class: Expressir::Model::Declarations::InverseAttribute
+      kind: INVERSE
   - id: inverse_attribute_bag_entity
     _class: Expressir::Model::Declarations::Entity
     attributes:
     - id: test
-      _class: Expressir::Model::Declarations::Attribute
-      kind: INVERSE
       type:
         _class: Expressir::Model::DataTypes::Bag
         base_type:
@@ -424,12 +422,12 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: test
         base_path: syntax_schema.inverse_attribute_bag_entity.test
+      _class: Expressir::Model::Declarations::InverseAttribute
+      kind: INVERSE
   - id: inverse_attribute_bag_bound_entity
     _class: Expressir::Model::Declarations::Entity
     attributes:
     - id: test
-      _class: Expressir::Model::Declarations::Attribute
-      kind: INVERSE
       type:
         _class: Expressir::Model::DataTypes::Bag
         bound1:
@@ -446,6 +444,8 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: test
         base_path: syntax_schema.inverse_attribute_bag_bound_entity.test
+      _class: Expressir::Model::Declarations::InverseAttribute
+      kind: INVERSE
   - id: inverse_attribute_redeclared_entity
     _class: Expressir::Model::Declarations::Entity
     subtype_of:
@@ -454,8 +454,6 @@ schemas:
       base_path: syntax_schema.attribute_entity
     attributes:
     - id: test
-      _class: Expressir::Model::Declarations::Attribute
-      kind: INVERSE
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
         ref:
@@ -478,6 +476,8 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: test
         base_path: syntax_schema.inverse_attribute_redeclared_entity.test
+      _class: Expressir::Model::Declarations::InverseAttribute
+      kind: INVERSE
   - id: inverse_attribute_redeclared_renamed_entity
     _class: Expressir::Model::Declarations::Entity
     subtype_of:
@@ -486,8 +486,6 @@ schemas:
       base_path: syntax_schema.attribute_entity
     attributes:
     - id: test2
-      _class: Expressir::Model::Declarations::Attribute
-      kind: INVERSE
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
         ref:
@@ -509,6 +507,8 @@ schemas:
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: test
+      _class: Expressir::Model::Declarations::InverseAttribute
+      kind: INVERSE
   - id: unique_entity
     _class: Expressir::Model::Declarations::Entity
     attributes:

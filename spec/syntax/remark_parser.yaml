@@ -102,8 +102,6 @@ schemas:
       - entity scope - entity inverse attribute
       - schema scope - entity inverse attribute
       - universal scope - entity inverse attribute
-      _class: Expressir::Model::Declarations::Attribute
-      kind: INVERSE
       type:
         _class: Expressir::Model::References::SimpleReference
         id: remark_entity
@@ -112,6 +110,8 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: remark_attribute
         base_path: remark_schema.remark_entity.remark_attribute
+      _class: Expressir::Model::Declarations::InverseAttribute
+      kind: INVERSE
     unique_rules:
     - id: UR1
       remarks:

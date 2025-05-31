@@ -90,20 +90,18 @@ schemas:
       - entity scope - entity derived attribute
       - schema scope - entity derived attribute
       - universal scope - entity derived attribute
-      _class: Expressir::Model::Declarations::Attribute
-      kind: DERIVED
       type:
         _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Literals::String
         value: xxx
+      _class: Expressir::Model::Declarations::DerivedAttribute
+      kind: DERIVED
     - id: remark_inverse_attribute
       remarks:
       - entity scope - entity inverse attribute
       - schema scope - entity inverse attribute
       - universal scope - entity inverse attribute
-      _class: Expressir::Model::Declarations::Attribute
-      kind: INVERSE
       type:
         _class: Expressir::Model::References::SimpleReference
         id: remark_entity
@@ -112,6 +110,8 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: remark_attribute
         base_path: remark_schema.remark_entity.remark_attribute
+      _class: Expressir::Model::Declarations::InverseAttribute
+      kind: INVERSE
     unique_rules:
     - id: UR1
       remarks:

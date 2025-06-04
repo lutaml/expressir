@@ -3,6 +3,16 @@ require "pathname"
 module Expressir
   # Coverage module for calculating documentation coverage of EXPRESS entities
   module Coverage
+    # Mapping of EXPRESS entity type names to their corresponding class names
+    ENTITY_TYPE_MAP = {
+      "TYPE" => "Expressir::Model::Declarations::Type",
+      "ENTITY" => "Expressir::Model::Declarations::Entity",
+      "CONSTANT" => "Expressir::Model::Declarations::Constant",
+      "FUNCTION" => "Expressir::Model::Declarations::Function",
+      "RULE" => "Expressir::Model::Declarations::Rule",
+      "PROCEDURE" => "Expressir::Model::Declarations::Procedure",
+      "SUBTYPE_CONSTRAINT" => "Expressir::Model::Declarations::SubtypeConstraint",
+    }.freeze
     # Represents a documentation coverage report for EXPRESS schemas
     class Report
       attr_reader :repository, :schema_reports, :total_entities, :documented_entities,
@@ -10,8 +20,10 @@ module Expressir
 
       # Initialize a coverage report
       # @param repository [Expressir::Model::Repository] The repository to analyze
-      def initialize(repository)
+      # @param skip_types [Array<String>] Array of entity type names to skip from coverage
+      def initialize(repository, skip_types = [])
         @repository = repository
+        @skip_types = skip_types
         @schema_reports = []
         @total_entities = []
         @documented_entities = []
@@ -22,17 +34,19 @@ module Expressir
 
       # Create a report from a repository
       # @param repository [Expressir::Model::Repository] The repository to analyze
+      # @param skip_types [Array<String>] Array of entity type names to skip from coverage
       # @return [Report] The coverage report
-      def self.from_repository(repository)
-        new(repository)
+      def self.from_repository(repository, skip_types = [])
+        new(repository, skip_types)
       end
 
       # Create a report from a schema file
       # @param path [String] Path to the schema file
+      # @param skip_types [Array<String>] Array of entity type names to skip from coverage
       # @return [Report] The coverage report
-      def self.from_file(path)
+      def self.from_file(path, skip_types = [])
         repository = Expressir::Express::Parser.from_file(path)
-        new(repository)
+        new(repository, skip_types)
       end
 
       # Calculate the overall coverage percentage
@@ -137,7 +151,7 @@ module Expressir
       # @param schema [Expressir::Model::Declarations::Schema] The schema to analyze
       # @return [Hash] A hash with coverage information
       def process_schema(schema)
-        entities = Expressir::Coverage.find_entities(schema)
+        entities = Expressir::Coverage.find_entities(schema, @skip_types)
         documented = entities.select { |e| Expressir::Coverage.entity_documented?(e) }
         undocumented = entities - documented
 
@@ -197,8 +211,9 @@ module Expressir
 
     # Find all entities in a schema
     # @param schema [Expressir::Model::Declarations::Schema] The schema to analyze
+    # @param skip_types [Array<String>] Array of entity type names to skip from coverage
     # @return [Array<Expressir::Model::ModelElement>] Array of entities
-    def self.find_entities(schema)
+    def self.find_entities(schema, skip_types = [])
       entities = []
 
       # Add all schema-level entities
@@ -210,15 +225,25 @@ module Expressir
       entities.concat(schema.procedures) if schema.procedures
       entities.concat(schema.subtype_constraints) if schema.subtype_constraints
 
-      # Add enumeration items from types
-      schema.types&.each do |type|
-        if type.respond_to?(:enumeration_items) && type.enumeration_items
-          entities.concat(type.enumeration_items)
+      # Add enumeration items from types (only if TYPE is not being skipped)
+      unless skip_types.include?("TYPE")
+        schema.types&.each do |type|
+          if type.respond_to?(:enumeration_items) && type.enumeration_items
+            entities.concat(type.enumeration_items)
+          end
         end
       end
 
       # Filter out any nil elements and ensure all have IDs
-      entities.compact.select { |e| e.respond_to?(:id) && e.id }
+      entities = entities.compact.select { |e| e.respond_to?(:id) && e.id }
+
+      # Filter out skipped entity types
+      if skip_types.any?
+        skip_classes = skip_types.map { |type| ENTITY_TYPE_MAP[type] }.compact
+        entities = entities.reject { |entity| skip_classes.include?(entity.class.name) }
+      end
+
+      entities
     end
   end
 end

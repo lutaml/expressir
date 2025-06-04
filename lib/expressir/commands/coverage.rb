@@ -1,30 +1,24 @@
 require "terminal-table"
 require "json"
+require "yaml"
+require "ruby-progressbar"
 
 module Expressir
   module Commands
     class Coverage < Base
       def run(paths)
-        # Early validation check
         if paths.empty?
           exit_with_error "No paths specified. Please provide paths to EXPRESS files or directories."
         end
 
-        # Use common processing methods from base class
-        repositories = process_paths(paths)
+        reports = collect_reports(paths)
 
-        # Early check for no valid files
-        if repositories.empty?
+        if reports.empty?
           exit_with_error "No valid EXPRESS files were processed. Nothing to report."
         end
 
-        # Generate reports from repositories
-        reports = repositories.map do |repo|
-          Expressir::Coverage::Report.from_repository(repo)
-        end
-
         # Generate output based on format
-        case options[:format]&.downcase
+        case options[:format].downcase
         when "json"
           display_json_output(reports)
         when "yaml"
@@ -35,6 +29,134 @@ module Expressir
       end
 
       private
+
+      def collect_reports(paths)
+        reports = []
+
+        paths.each do |path|
+          handle_path(path, reports)
+        end
+
+        reports
+      end
+
+      def handle_path(path, reports)
+        if File.directory?(path)
+          handle_directory(path, reports)
+        elsif File.extname(path).downcase == ".exp"
+          handle_express_file(path, reports)
+        elsif [".yml", ".yaml"].include?(File.extname(path).downcase)
+          handle_yaml_manifest(path, reports)
+        else
+          say "Unsupported file type: #{path}"
+        end
+      end
+
+      def handle_directory(path, reports)
+        say "Processing directory: #{path}"
+        exp_files = Dir.glob(File.join(path, "**", "*.exp"))
+        if exp_files.empty?
+          say "No EXPRESS files found in directory: #{path}"
+          return
+        end
+
+        say "Found #{exp_files.size} EXPRESS files to process"
+
+        # Initialize progress bar for directory files
+        progress = ProgressBar.create(
+          title: "Processing files",
+          total: exp_files.size,
+          format: "%t: [%B] %p%% %a [%c/%C] %e",
+          output: $stdout,
+        )
+
+        # Parse all files and create a repository with progress tracking
+        begin
+          repository = Expressir::Express::Parser.from_files(exp_files) do |filename, _schemas, error|
+            if error
+              say "  Error processing #{File.basename(filename)}: #{error.message}"
+            end
+            progress.increment
+          end
+          skip_types = parse_skip_types
+          report = Expressir::Coverage::Report.from_repository(repository, skip_types)
+          reports << report
+        rescue StandardError => e
+          say "Error processing directory #{path}: #{e.message}"
+        end
+      end
+
+      def handle_express_file(path, reports)
+        say "Processing file: #{path}"
+        begin
+          # For a single file, we don't need a progress bar
+          skip_types = parse_skip_types
+          report = Expressir::Coverage::Report.from_file(path, skip_types)
+          reports << report
+        rescue StandardError => e
+          say "Error processing file #{path}: #{e.message}"
+        end
+      end
+
+      def handle_yaml_manifest(path, reports)
+        say "Processing YAML manifest: #{path}"
+        begin
+          schema_list = YAML.load_file(path)
+          manifest_dir = File.dirname(path)
+
+          if schema_list.is_a?(Hash) && schema_list["schemas"]
+            schemas_data = schema_list["schemas"]
+
+            # Handle the nested structure with schema name keys and path values
+            if schemas_data.is_a?(Hash)
+              schema_files = schemas_data.values.map do |schema_data|
+                if schema_data.is_a?(Hash) && schema_data["path"]
+                  # Make path relative to the manifest location
+                  File.expand_path(schema_data["path"], manifest_dir)
+                end
+              end.compact
+
+              say "Found #{schema_files.size} schema files to process"
+            else
+              # If it's a direct array of paths (old format)
+              schema_files = schemas_data
+            end
+          elsif schema_list.is_a?(Array)
+            schema_files = schema_list
+          else
+            say "Invalid YAML format. Expected an array of schema paths or a hash with a 'schemas' key."
+            return
+          end
+
+          # Initialize progress bar
+          if schema_files && !schema_files.empty?
+            say "Processing schemas from manifest file"
+
+            progress = ProgressBar.create(
+              title: "Processing schemas",
+              total: schema_files.size,
+              format: "%t: [%B] %p%% %a [%c/%C] %e",
+              output: $stdout,
+            )
+
+            # Process files with progress tracking
+            repository = Expressir::Express::Parser.from_files(schema_files) do |filename, _schemas, error|
+              if error
+                say "  Error processing #{File.basename(filename)}: #{error.message}"
+              end
+              progress.increment
+            end
+
+            # Create and add the report
+            skip_types = parse_skip_types
+            report = Expressir::Coverage::Report.from_repository(repository, skip_types)
+            reports << report
+          end
+        rescue StandardError => e
+          say "Error processing YAML manifest #{path}: #{e.message}"
+          say "Debug: schema_list structure: #{schema_list.class}" if schema_list
+        end
+      end
 
       def display_text_output(reports)
         say "\nEXPRESS Documentation Coverage"
@@ -158,6 +280,27 @@ module Expressir
 
       def display_yaml_output(reports)
         say build_structured_report(reports).to_yaml
+      end
+
+      # Parse and validate the skip_types option
+      # @return [Array<String>] Array of validated entity type names
+      def parse_skip_types
+        skip_types_option = options["exclude"]
+        return [] unless skip_types_option
+
+        # Split by comma and clean up whitespace
+        requested_types = skip_types_option.split(",").map(&:strip).map(&:upcase)
+
+        # Validate against known entity types
+        valid_types = Expressir::Coverage::ENTITY_TYPE_MAP.keys
+        invalid_types = requested_types - valid_types
+
+        unless invalid_types.empty?
+          exit_with_error "Invalid entity types: #{invalid_types.join(', ')}. " \
+                          "Valid types are: #{valid_types.join(', ')}"
+        end
+
+        requested_types
       end
     end
   end

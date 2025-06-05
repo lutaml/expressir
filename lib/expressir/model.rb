@@ -1,74 +1,95 @@
-require_relative "model/model_element"
-require_relative "model/cache"
-require_relative "model/identifier"
-require_relative "model/repository"
+# This file is kept for backward compatibility and to ensure all model classes are loaded
+# when explicitly requiring 'expressir/model'. The actual autoload definitions are in the main
+# expressir.rb file.
 
-require_relative "model/data_types/aggregate"
-require_relative "model/data_types/array"
-require_relative "model/data_types/bag"
-require_relative "model/data_types/binary"
-require_relative "model/data_types/boolean"
-require_relative "model/data_types/enumeration"
-require_relative "model/data_types/enumeration_item"
-require_relative "model/data_types/generic_entity"
-require_relative "model/data_types/generic"
-require_relative "model/data_types/integer"
-require_relative "model/data_types/list"
-require_relative "model/data_types/logical"
-require_relative "model/data_types/number"
-require_relative "model/data_types/real"
-require_relative "model/data_types/set"
-require_relative "model/data_types/select"
-require_relative "model/data_types/string"
-require_relative "model/declarations/attribute"
-require_relative "model/declarations/constant"
-require_relative "model/declarations/derived_attribute"
-require_relative "model/declarations/entity"
-require_relative "model/declarations/function"
-require_relative "model/declarations/inverse_attribute"
-require_relative "model/declarations/interface"
-require_relative "model/declarations/interface_item"
-require_relative "model/declarations/interfaced_item"
-require_relative "model/declarations/parameter"
-require_relative "model/declarations/procedure"
-require_relative "model/declarations/remark_item"
-require_relative "model/declarations/rule"
-require_relative "model/declarations/schema"
-require_relative "model/declarations/schema_version"
-require_relative "model/declarations/schema_version_item"
-require_relative "model/declarations/subtype_constraint"
-require_relative "model/declarations/type"
-require_relative "model/declarations/unique_rule"
-require_relative "model/declarations/variable"
-require_relative "model/declarations/where_rule"
-require_relative "model/expressions/aggregate_initializer"
-require_relative "model/expressions/aggregate_initializer_item"
-require_relative "model/expressions/binary_expression"
-require_relative "model/expressions/entity_constructor"
-require_relative "model/expressions/function_call"
-require_relative "model/expressions/interval"
-require_relative "model/expressions/query_expression"
-require_relative "model/expressions/unary_expression"
-require_relative "model/literals/binary"
-require_relative "model/literals/integer"
-require_relative "model/literals/logical"
-require_relative "model/literals/real"
-require_relative "model/literals/string"
-require_relative "model/references/attribute_reference"
-require_relative "model/references/group_reference"
-require_relative "model/references/index_reference"
-require_relative "model/references/simple_reference"
-require_relative "model/statements/alias"
-require_relative "model/statements/assignment"
-require_relative "model/statements/case"
-require_relative "model/statements/case_action"
-require_relative "model/statements/compound"
-require_relative "model/statements/escape"
-require_relative "model/statements/if"
-require_relative "model/statements/null"
-require_relative "model/statements/procedure_call"
-require_relative "model/statements/repeat"
-require_relative "model/statements/return"
-require_relative "model/statements/skip"
-require_relative "model/supertype_expressions/binary_supertype_expression"
-require_relative "model/supertype_expressions/oneof_supertype_expression"
+# Ensure all model classes are loaded by referencing them
+# This triggers the autoload mechanism for each class
+
+# Core model classes
+Expressir::Model::ModelElement
+Expressir::Model::Cache
+Expressir::Model::Identifier
+Expressir::Model::Repository
+
+# Data types
+Expressir::Model::DataTypes::Aggregate
+Expressir::Model::DataTypes::Array
+Expressir::Model::DataTypes::Bag
+Expressir::Model::DataTypes::Binary
+Expressir::Model::DataTypes::Boolean
+Expressir::Model::DataTypes::Enumeration
+Expressir::Model::DataTypes::EnumerationItem
+Expressir::Model::DataTypes::GenericEntity
+Expressir::Model::DataTypes::Generic
+Expressir::Model::DataTypes::Integer
+Expressir::Model::DataTypes::List
+Expressir::Model::DataTypes::Logical
+Expressir::Model::DataTypes::Number
+Expressir::Model::DataTypes::Real
+Expressir::Model::DataTypes::Select
+Expressir::Model::DataTypes::Set
+Expressir::Model::DataTypes::String
+
+# Declarations
+Expressir::Model::Declarations::Attribute
+Expressir::Model::Declarations::Constant
+Expressir::Model::Declarations::DerivedAttribute
+Expressir::Model::Declarations::Entity
+Expressir::Model::Declarations::Function
+Expressir::Model::Declarations::Interface
+Expressir::Model::Declarations::InterfaceItem
+Expressir::Model::Declarations::InterfacedItem
+Expressir::Model::Declarations::InverseAttribute
+Expressir::Model::Declarations::Parameter
+Expressir::Model::Declarations::Procedure
+Expressir::Model::Declarations::RemarkItem
+Expressir::Model::Declarations::Rule
+Expressir::Model::Declarations::Schema
+Expressir::Model::Declarations::SchemaVersion
+Expressir::Model::Declarations::SchemaVersionItem
+Expressir::Model::Declarations::SubtypeConstraint
+Expressir::Model::Declarations::Type
+Expressir::Model::Declarations::UniqueRule
+Expressir::Model::Declarations::Variable
+Expressir::Model::Declarations::WhereRule
+
+# Expressions
+Expressir::Model::Expressions::AggregateInitializer
+Expressir::Model::Expressions::AggregateInitializerItem
+Expressir::Model::Expressions::BinaryExpression
+Expressir::Model::Expressions::EntityConstructor
+Expressir::Model::Expressions::FunctionCall
+Expressir::Model::Expressions::Interval
+Expressir::Model::Expressions::QueryExpression
+Expressir::Model::Expressions::UnaryExpression
+
+# Literals
+Expressir::Model::Literals::Binary
+Expressir::Model::Literals::Integer
+Expressir::Model::Literals::Logical
+Expressir::Model::Literals::Real
+Expressir::Model::Literals::String
+
+# References
+Expressir::Model::References::AttributeReference
+Expressir::Model::References::GroupReference
+Expressir::Model::References::IndexReference
+Expressir::Model::References::SimpleReference
+
+# Statements
+Expressir::Model::Statements::Alias
+Expressir::Model::Statements::Assignment
+Expressir::Model::Statements::Case
+Expressir::Model::Statements::CaseAction
+Expressir::Model::Statements::Compound
+Expressir::Model::Statements::Escape
+Expressir::Model::Statements::If
+Expressir::Model::Statements::Null
+Expressir::Model::Statements::ProcedureCall
+Expressir::Model::Statements::Repeat
+Expressir::Model::Statements::Return
+Expressir::Model::Statements::Skip
+
+# Supertype expressions
+Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
+Expressir::Model::SupertypeExpressions::OneofSupertypeExpression

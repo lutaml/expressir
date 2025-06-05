@@ -271,31 +271,62 @@ module Expressir
         remark_tokens = remark_tokens.reject { |x| @attached_remark_tokens.include?(x) }
 
         # parse remarks, find remark targets
-        tagged_remark_tokens = remark_tokens.map do |span|
+        tagged_remark_tokens = []
+        untagged_remark_tokens = []
+
+        remark_tokens.each do |span|
           text = @source[span[0]..span[1] - 1]
-          _, remark_tag, remark_text = if text.start_with?("--")
+          remark_type = if text.start_with?("--")
+                          :tail
+                        else
+                          :embedded
+                        end
+
+          _, remark_tag, remark_text = if remark_type == :tail
                                          text.match(/^--"([^"]*)"(.*)$/).to_a
                                        else
                                          text.match(/^\(\*"([^"]*)"(.*)\*\)$/m).to_a
                                        end
 
           if remark_tag
+            # Tagged remark
             remark_target = find_remark_target(node, remark_tag)
+            if remark_text
+              remark_text = remark_text.strip.force_encoding("UTF-8")
+            end
+            tagged_remark_tokens << [span, remark_target, remark_text] if remark_target
+          elsif remark_type == :embedded
+            # Untagged embedded remark
+            # Extract content between "(*" and "*)"
+            untagged_text = text[2..-3].strip.force_encoding("UTF-8")
+            untagged_remark_tokens << [span, untagged_text, remark_type]
+          else
+            # TODO: parse tail remarks
+            # Extract content after "--"
+            untagged_text = text[2..-1].strip.force_encoding("UTF-8")
+            untagged_remark_tokens << [span, untagged_text, remark_type]
           end
-          if remark_text
-            remark_text = remark_text.strip.force_encoding("UTF-8")
-          end
+        end
 
-          [span, remark_target, remark_text]
-        end.select { |x| x[1] }
-
+        # Attach tagged remarks
         tagged_remark_tokens.each do |span, remark_target, remark_text|
-          # attach remark
           remark_target.remarks ||= []
           remark_target.remarks << remark_text
-
-          # mark remark as attached, so that it is not attached again at higher nesting level
           @attached_remark_tokens << span
+        end
+
+        # Attach untagged remarks to the current node if it supports them
+        # All ModelElements support untagged remarks, but we may get Arrays here
+        if untagged_remark_tokens.respond_to?(:untagged_remarks) &&
+            !untagged_remark_tokens.empty?
+
+          node.untagged_remarks ||= []
+          untagged_remark_tokens.each do |span, untagged_text, remark_type|
+            next unless remark_type == :embedded
+
+            node.untagged_remarks << untagged_text
+            @attached_remark_tokens << span
+          end
         end
       end
 

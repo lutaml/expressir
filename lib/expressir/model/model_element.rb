@@ -13,6 +13,7 @@ module Expressir
       attribute :_class, :string, default: -> { send(:name) },
                                   polymorphic_class: true
       attribute :source, :string
+      attribute :untagged_remarks, :string, collection: true
 
       # TODO: Add basic mappings that can be inherited by all subclasses
       key_value do

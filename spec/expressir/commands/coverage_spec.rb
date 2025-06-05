@@ -119,7 +119,7 @@ RSpec.describe Expressir::Commands::Coverage do
     let(:command) { described_class.new(options) }
 
     it "processes all EXPRESS files in a directory" do
-      command.run(["samples/"])
+      command.run(["spec/fixtures/examples"])
 
       # Check that JSON file was created
       expect(output.string).to include("JSON coverage report written to: coverage_report.json")

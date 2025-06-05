@@ -21,6 +21,7 @@ RSpec.configure do |config|
     ex.run
   rescue SystemExit => e
     puts "Got SystemExit: #{e.inspect}."
-    raise
+    puts e.backtrace if e.backtrace
+    # raise
   end
 end

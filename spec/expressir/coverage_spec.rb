@@ -106,12 +106,12 @@ RSpec.describe Expressir::Coverage do
       filtered_entities = Expressir::Coverage.apply_exclusions(all_entities, exclusions)
 
       # Should not contain any parameters or variables
-      expect(filtered_entities.any? { |e| e.is_a?(Expressir::Model::Declarations::Parameter) }).to be false
-      expect(filtered_entities.any? { |e| e.is_a?(Expressir::Model::Declarations::Variable) }).to be false
+      expect(filtered_entities.any?(Expressir::Model::Declarations::Parameter)).to be false
+      expect(filtered_entities.any?(Expressir::Model::Declarations::Variable)).to be false
 
       # Should still contain other types
-      expect(filtered_entities.any? { |e| e.is_a?(Expressir::Model::Declarations::Entity) }).to be true
-      expect(filtered_entities.any? { |e| e.is_a?(Expressir::Model::Declarations::Type) }).to be true
+      expect(filtered_entities.any?(Expressir::Model::Declarations::Entity)).to be true
+      expect(filtered_entities.any?(Expressir::Model::Declarations::Type)).to be true
     end
 
     it "excludes TYPE subtypes" do
@@ -159,8 +159,8 @@ RSpec.describe Expressir::Coverage do
       filtered_entities = Expressir::Coverage.apply_exclusions(all_entities, exclusions)
 
       # Should exclude parameters, variables, and SELECT types
-      expect(filtered_entities.any? { |e| e.is_a?(Expressir::Model::Declarations::Parameter) }).to be false
-      expect(filtered_entities.any? { |e| e.is_a?(Expressir::Model::Declarations::Variable) }).to be false
+      expect(filtered_entities.any?(Expressir::Model::Declarations::Parameter)).to be false
+      expect(filtered_entities.any?(Expressir::Model::Declarations::Variable)).to be false
 
       select_types = filtered_entities.select do |e|
         e.is_a?(Expressir::Model::Declarations::Type) &&

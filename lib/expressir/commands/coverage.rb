@@ -275,32 +275,67 @@ module Expressir
       end
 
       def display_json_output(reports)
-        say JSON.pretty_generate(build_structured_report(reports))
+        output_file = options[:output] || "coverage_report.json"
+        File.write(output_file, JSON.pretty_generate(build_structured_report(reports)))
+        say "JSON coverage report written to: #{output_file}"
       end
 
       def display_yaml_output(reports)
-        say build_structured_report(reports).to_yaml
+        output_file = options[:output] || "coverage_report.yaml"
+        File.write(output_file, build_structured_report(reports).to_yaml)
+        say "YAML coverage report written to: #{output_file}"
       end
 
       # Parse and validate the skip_types option
       # @return [Array<String>] Array of validated entity type names
       def parse_skip_types
-        skip_types_option = options["exclude"]
+        skip_types_option = options["exclude"] || options[:exclude]
         return [] unless skip_types_option
 
-        # Split by comma and clean up whitespace
-        requested_types = skip_types_option.split(",").map(&:strip).map(&:upcase)
+        # Handle both string (comma-separated) and array inputs
+        requested_types = if skip_types_option.is_a?(Array)
+                            skip_types_option.map(&:to_s).map(&:strip).map(&:upcase)
+                          else
+                            skip_types_option.split(",").map(&:strip).map(&:upcase)
+                          end
 
-        # Validate against known entity types
-        valid_types = Expressir::Coverage::ENTITY_TYPE_MAP.keys
-        invalid_types = requested_types - valid_types
-
-        unless invalid_types.empty?
-          exit_with_error "Invalid entity types: #{invalid_types.join(', ')}. " \
-                          "Valid types are: #{valid_types.join(', ')}"
+        # Validate each type (supports both TYPE and TYPE:SUBTYPE formats)
+        requested_types.each do |type|
+          validate_skip_type(type)
         end
 
         requested_types
+      end
+
+      # Validate a single skip type (supports TYPE:SUBTYPE syntax)
+      # @param type [String] The type to validate
+      def validate_skip_type(type)
+        if type.include?(":")
+          # Handle TYPE:SUBTYPE format
+          main_type, subtype = type.split(":", 2)
+
+          # Validate main type
+          unless Expressir::Coverage::ENTITY_TYPE_MAP.key?(main_type)
+            exit_with_error "Invalid entity type: #{main_type}. " \
+                            "Valid types are: #{Expressir::Coverage::ENTITY_TYPE_MAP.keys.join(', ')}"
+          end
+
+          # For TYPE, validate subtype
+          if main_type == "TYPE"
+            unless Expressir::Coverage::TYPE_SUBTYPES.include?(subtype)
+              exit_with_error "Invalid TYPE subtype: #{subtype}. " \
+                              "Valid TYPE subtypes are: #{Expressir::Coverage::TYPE_SUBTYPES.join(', ')}"
+            end
+          else
+            exit_with_error "Subtype syntax (#{type}) is only supported for TYPE entities"
+          end
+        else
+          # Handle simple type format
+          unless Expressir::Coverage::ENTITY_TYPE_MAP.key?(type)
+            exit_with_error "Invalid entity type: #{type}. " \
+                            "Valid types are: #{Expressir::Coverage::ENTITY_TYPE_MAP.keys.join(', ')}"
+          end
+        end
       end
     end
   end

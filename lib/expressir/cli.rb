@@ -55,7 +55,8 @@ module Expressir
 
     desc "coverage *PATH", "List EXPRESS entities and check documentation coverage"
     method_option :format, type: :string, desc: "Output format (text, json, yaml)", default: "text"
-    method_option :exclude, type: :string, desc: "Comma-separated list of EXPRESS entity types to skip from coverage (e.g., TYPE,CONSTANT)"
+    method_option :exclude, type: :string, desc: "Comma-separated list of EXPRESS entity types to skip from coverage (e.g., TYPE,CONSTANT,TYPE:SELECT)"
+    method_option :output, type: :string, desc: "Output file path for JSON/YAML formats (defaults to coverage_report.json/yaml)"
     def coverage(*paths)
       Commands::Coverage.new(options).run(paths)
     end

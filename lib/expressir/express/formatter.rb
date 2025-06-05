@@ -1638,16 +1638,36 @@ module Expressir
         end
       end
 
+      def format_untagged_remark(remark)
+        [
+          "(*",
+          " ",
+          remark,
+          " ",
+          "*)",
+        ].join
+      end
+
       def format_remarks(node)
+        remarks = []
+
+        # Add tagged remarks
         if node.class.method_defined?(:remarks) && !@no_remarks &&
             !node.remarks.nil?
-
-          node.remarks.map do |remark|
+          remarks.concat(node.remarks.map do |remark|
             format_remark(node, remark)
-          end
-        else
-          []
+          end)
         end
+
+        # Add untagged remarks
+        if node.respond_to?(:untagged_remarks) && !@no_remarks &&
+            !node.untagged_remarks.nil?
+          remarks.concat(node.untagged_remarks.map do |remark|
+            format_untagged_remark(remark)
+          end)
+        end
+
+        remarks
       end
 
       def format_scope_remarks(node)

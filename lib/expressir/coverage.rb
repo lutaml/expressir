@@ -12,7 +12,50 @@ module Expressir
       "RULE" => "Expressir::Model::Declarations::Rule",
       "PROCEDURE" => "Expressir::Model::Declarations::Procedure",
       "SUBTYPE_CONSTRAINT" => "Expressir::Model::Declarations::SubtypeConstraint",
+      "PARAMETER" => "Expressir::Model::Declarations::Parameter",
+      "VARIABLE" => "Expressir::Model::Declarations::Variable",
+      "ATTRIBUTE" => "Expressir::Model::Declarations::Attribute",
+      "DERIVED_ATTRIBUTE" => "Expressir::Model::Declarations::DerivedAttribute",
+      "INVERSE_ATTRIBUTE" => "Expressir::Model::Declarations::InverseAttribute",
+      "UNIQUE_RULE" => "Expressir::Model::Declarations::UniqueRule",
+      "WHERE_RULE" => "Expressir::Model::Declarations::WhereRule",
+      "ENUMERATION_ITEM" => "Expressir::Model::DataTypes::EnumerationItem",
+      "INTERFACE" => "Expressir::Model::Declarations::Interface",
+      "INTERFACE_ITEM" => "Expressir::Model::Declarations::InterfaceItem",
+      "INTERFACED_ITEM" => "Expressir::Model::Declarations::InterfacedItem",
+      "SCHEMA_VERSION" => "Expressir::Model::Declarations::SchemaVersion",
+      "SCHEMA_VERSION_ITEM" => "Expressir::Model::Declarations::SchemaVersionItem",
     }.freeze
+
+    # Mapping of class names to EXPRESS entity type names (for proper formatting)
+    CLASS_TO_EXPRESS_TYPE_MAP = {
+      "Type" => "TYPE",
+      "Entity" => "ENTITY",
+      "Constant" => "CONSTANT",
+      "Function" => "FUNCTION",
+      "Rule" => "RULE",
+      "Procedure" => "PROCEDURE",
+      "SubtypeConstraint" => "SUBTYPE_CONSTRAINT",
+      "Parameter" => "PARAMETER",
+      "Variable" => "VARIABLE",
+      "Attribute" => "ATTRIBUTE",
+      "DerivedAttribute" => "DERIVED_ATTRIBUTE",
+      "InverseAttribute" => "INVERSE_ATTRIBUTE",
+      "UniqueRule" => "UNIQUE_RULE",
+      "WhereRule" => "WHERE_RULE",
+      "EnumerationItem" => "ENUMERATION_ITEM",
+      "Interface" => "INTERFACE",
+      "InterfaceItem" => "INTERFACE_ITEM",
+      "InterfacedItem" => "INTERFACED_ITEM",
+      "SchemaVersion" => "SCHEMA_VERSION",
+      "SchemaVersionItem" => "SCHEMA_VERSION_ITEM",
+    }.freeze
+
+    # Available TYPE subtypes based on data types
+    TYPE_SUBTYPES = %w[
+      AGGREGATE ARRAY BAG BINARY BOOLEAN ENUMERATION GENERIC GENERIC_ENTITY
+      INTEGER LIST LOGICAL NUMBER REAL SELECT SET STRING
+    ].freeze
     # Represents a documentation coverage report for EXPRESS schemas
     class Report
       attr_reader :repository, :schema_reports, :total_entities, :documented_entities,
@@ -173,8 +216,8 @@ module Expressir
         # Get class name (e.g., "Type" from "Expressir::Model::Declarations::Type")
         type_name = entity.class.name.split("::").last
 
-        # Convert to EXPRESS convention (e.g., "TYPE")
-        express_type = type_name.upcase
+        # Use proper mapping to EXPRESS convention
+        express_type = CLASS_TO_EXPRESS_TYPE_MAP[type_name] || type_name.upcase
 
         # Return structured format
         {
@@ -209,11 +252,35 @@ module Expressir
       end
     end
 
-    # Find all entities in a schema
-    # @param schema [Expressir::Model::Declarations::Schema] The schema to analyze
+    # Find all entities in a schema or repository
+    # @param schema_or_repo [Expressir::Model::Declarations::Schema, Expressir::Model::Repository] The schema or repository to analyze
     # @param skip_types [Array<String>] Array of entity type names to skip from coverage
     # @return [Array<Expressir::Model::ModelElement>] Array of entities
-    def self.find_entities(schema, skip_types = [])
+    def self.find_entities(schema_or_repo, skip_types = [])
+      entities = []
+
+      # Handle both repository and schema inputs
+      if schema_or_repo.is_a?(Expressir::Model::Repository)
+        # If it's a repository, process all schemas
+        schema_or_repo.schemas.each do |schema|
+          entities.concat(find_entities_in_schema(schema))
+        end
+      else
+        # If it's a schema, process it directly
+        entities.concat(find_entities_in_schema(schema_or_repo))
+      end
+
+      # Filter out any nil elements and ensure all have IDs
+      entities = entities.compact.select { |e| e.respond_to?(:id) && e.id }
+
+      # Filter out skipped entity types
+      apply_exclusions(entities, skip_types)
+    end
+
+    # Find all entities in a single schema
+    # @param schema [Expressir::Model::Declarations::Schema] The schema to analyze
+    # @return [Array<Expressir::Model::ModelElement>] Array of entities
+    def self.find_entities_in_schema(schema)
       entities = []
 
       # Add all schema-level entities
@@ -224,26 +291,184 @@ module Expressir
       entities.concat(schema.rules) if schema.rules
       entities.concat(schema.procedures) if schema.procedures
       entities.concat(schema.subtype_constraints) if schema.subtype_constraints
+      entities.concat(schema.interfaces) if schema.interfaces
 
-      # Add enumeration items from types (only if TYPE is not being skipped)
-      unless skip_types.include?("TYPE")
-        schema.types&.each do |type|
-          if type.respond_to?(:enumeration_items) && type.enumeration_items
-            entities.concat(type.enumeration_items)
-          end
+      # Add nested entities recursively
+      entities.concat(find_nested_entities(schema))
+
+      entities
+    end
+
+    # Find all nested entities within a container (schema, entity, function, etc.)
+    # @param container [Expressir::Model::ModelElement] The container to search
+    # @return [Array<Expressir::Model::ModelElement>] Array of nested entities
+    def self.find_nested_entities(container)
+      entities = []
+
+      # Handle different container types
+      case container
+      when Expressir::Model::Declarations::Schema
+        # Schema-level nested entities
+        container.types&.each do |type|
+          entities.concat(find_nested_entities(type))
         end
-      end
+        container.entities&.each do |entity|
+          entities.concat(find_nested_entities(entity))
+        end
+        container.functions&.each do |function|
+          entities.concat(find_nested_entities(function))
+        end
+        container.rules&.each do |rule|
+          entities.concat(find_nested_entities(rule))
+        end
+        container.procedures&.each do |procedure|
+          entities.concat(find_nested_entities(procedure))
+        end
+        container.interfaces&.each do |interface|
+          entities.concat(find_nested_entities(interface))
+        end
 
-      # Filter out any nil elements and ensure all have IDs
-      entities = entities.compact.select { |e| e.respond_to?(:id) && e.id }
+      when Expressir::Model::Declarations::Type
+        # Type nested entities
+        if container.respond_to?(:enumeration_items) && container.enumeration_items
+          entities.concat(container.enumeration_items)
+        end
 
-      # Filter out skipped entity types
-      if skip_types.any?
-        skip_classes = skip_types.map { |type| ENTITY_TYPE_MAP[type] }.compact
-        entities = entities.reject { |entity| skip_classes.include?(entity.class.name) }
+      when Expressir::Model::Declarations::Entity
+        # Entity nested entities
+        entities.concat(container.attributes) if container.attributes
+        entities.concat(container.unique_rules) if container.unique_rules
+        entities.concat(container.where_rules) if container.where_rules
+
+      when Expressir::Model::Declarations::Function
+        # Function nested entities
+        entities.concat(container.parameters) if container.parameters
+        entities.concat(container.variables) if container.variables
+        entities.concat(container.constants) if container.constants
+        entities.concat(container.types) if container.types
+        entities.concat(container.entities) if container.entities
+        entities.concat(container.functions) if container.functions
+        entities.concat(container.procedures) if container.procedures
+        entities.concat(container.subtype_constraints) if container.subtype_constraints
+
+        # Recursively find nested entities in nested containers
+        container.types&.each { |type| entities.concat(find_nested_entities(type)) }
+        container.entities&.each { |entity| entities.concat(find_nested_entities(entity)) }
+        container.functions&.each { |function| entities.concat(find_nested_entities(function)) }
+        container.procedures&.each { |procedure| entities.concat(find_nested_entities(procedure)) }
+
+      when Expressir::Model::Declarations::Rule
+        # Rule nested entities
+        entities.concat(container.variables) if container.variables
+        entities.concat(container.constants) if container.constants
+        entities.concat(container.types) if container.types
+        entities.concat(container.entities) if container.entities
+        entities.concat(container.functions) if container.functions
+        entities.concat(container.procedures) if container.procedures
+        entities.concat(container.subtype_constraints) if container.subtype_constraints
+
+        # Recursively find nested entities in nested containers
+        container.types&.each { |type| entities.concat(find_nested_entities(type)) }
+        container.entities&.each { |entity| entities.concat(find_nested_entities(entity)) }
+        container.functions&.each { |function| entities.concat(find_nested_entities(function)) }
+        container.procedures&.each { |procedure| entities.concat(find_nested_entities(procedure)) }
+
+      when Expressir::Model::Declarations::Procedure
+        # Procedure nested entities
+        entities.concat(container.parameters) if container.parameters
+        entities.concat(container.variables) if container.variables
+        entities.concat(container.constants) if container.constants
+        entities.concat(container.types) if container.types
+        entities.concat(container.entities) if container.entities
+        entities.concat(container.functions) if container.functions
+        entities.concat(container.procedures) if container.procedures
+        entities.concat(container.subtype_constraints) if container.subtype_constraints
+
+        # Recursively find nested entities in nested containers
+        container.types&.each { |type| entities.concat(find_nested_entities(type)) }
+        container.entities&.each { |entity| entities.concat(find_nested_entities(entity)) }
+        container.functions&.each { |function| entities.concat(find_nested_entities(function)) }
+        container.procedures&.each { |procedure| entities.concat(find_nested_entities(procedure)) }
+
+      when Expressir::Model::Declarations::Interface
+        # Interface nested entities
+        entities.concat(container.items) if container.items
       end
 
       entities
+    end
+
+    # Apply exclusions to filter out entities based on skip_types (supports both simple and TYPE:SUBTYPE syntax)
+    # @param entities [Array<Expressir::Model::ModelElement>] The entities to filter
+    # @param exclusions [Array<String>] Array of entity type names to exclude from coverage
+    # @return [Array<Expressir::Model::ModelElement>] Filtered entities
+    def self.apply_exclusions(entities, exclusions)
+      filter_skipped_entities(entities, exclusions)
+    end
+
+    # Filter out entities based on skip_types (supports both simple and TYPE:SUBTYPE syntax)
+    # @param entities [Array<Expressir::Model::ModelElement>] The entities to filter
+    # @param skip_types [Array<String>] Array of entity type names to skip from coverage
+    # @return [Array<Expressir::Model::ModelElement>] Filtered entities
+    def self.filter_skipped_entities(entities, skip_types)
+      return entities if skip_types.empty?
+
+      # Parse skip_types into simple types and TYPE subtypes
+      simple_skips = []
+      type_subtype_skips = []
+
+      skip_types.each do |skip_type|
+        if skip_type.include?(":")
+          # Handle TYPE:SUBTYPE format
+          main_type, subtype = skip_type.split(":", 2)
+          if main_type == "TYPE" && TYPE_SUBTYPES.include?(subtype)
+            type_subtype_skips << subtype
+          end
+        else
+          # Handle simple type format
+          simple_skips << skip_type
+        end
+      end
+
+      # Filter entities
+      entities.reject do |entity|
+        entity_class = entity.class.name
+
+        # Check simple type exclusions
+        # Convert entity class to EXPRESS type name for comparison
+        class_name = entity_class.split("::").last
+        express_type = CLASS_TO_EXPRESS_TYPE_MAP[class_name] || class_name.upcase
+
+        if simple_skips.include?(express_type)
+          true
+        # Check TYPE subtype exclusions
+        elsif entity_class == "Expressir::Model::Declarations::Type" && type_subtype_skips.any?
+          entity_subtype = get_type_subtype(entity)
+          type_subtype_skips.include?(entity_subtype)
+        else
+          false
+        end
+      end
+    end
+
+    # Get the subtype of a TYPE entity based on its underlying_type
+    # @param type_entity [Expressir::Model::Declarations::Type] The TYPE entity
+    # @return [String] The subtype name (e.g., "SELECT", "ENUMERATION")
+    def self.get_type_subtype(type_entity)
+      return nil unless type_entity.respond_to?(:underlying_type) && type_entity.underlying_type
+
+      # Get the class name of the underlying type
+      underlying_class = type_entity.underlying_type.class.name
+
+      # Extract the data type name (e.g., "Select" from "Expressir::Model::DataTypes::Select")
+      if underlying_class.start_with?("Expressir::Model::DataTypes::")
+        data_type_name = underlying_class.split("::").last
+        # Convert to uppercase (e.g., "Select" -> "SELECT")
+        data_type_name.upcase
+      else
+        # For other types, try to extract the last part of the class name
+        underlying_class.split("::").last&.upcase
+      end
     end
   end
 end

@@ -2,6 +2,8 @@
 _class: Expressir::Model::Repository
 schemas:
 - id: syntax_schema
+  untagged_remarks:
+  - constants
   _class: Expressir::Model::Declarations::Schema
   file: spec/syntax/syntax.exp
   version:
@@ -114,6 +116,8 @@ schemas:
       value: 'TRUE'
   types:
   - id: empty_type
+    untagged_remarks:
+    - types
     _class: Expressir::Model::Declarations::Type
     underlying_type:
       _class: Expressir::Model::DataTypes::Boolean
@@ -138,6 +142,8 @@ schemas:
         value: 'TRUE'
   entities:
   - id: empty_entity
+    untagged_remarks:
+    - entities
     _class: Expressir::Model::Declarations::Entity
   - id: abstract_entity
     _class: Expressir::Model::Declarations::Entity
@@ -600,6 +606,8 @@ schemas:
         value: 'TRUE'
   subtype_constraints:
   - id: empty_subtype_constraint
+    untagged_remarks:
+    - subtype constraints
     _class: Expressir::Model::Declarations::SubtypeConstraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
@@ -881,6 +889,8 @@ schemas:
           id: d
   functions:
   - id: empty_function
+    untagged_remarks:
+    - functions
     _class: Expressir::Model::Declarations::Function
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
@@ -1072,6 +1082,8 @@ schemas:
     - _class: Expressir::Model::Statements::Null
   rules:
   - id: empty_rule
+    untagged_remarks:
+    - rules
     _class: Expressir::Model::Declarations::Rule
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
@@ -1297,6 +1309,8 @@ schemas:
         value: 'TRUE'
   procedures:
   - id: empty_procedure
+    untagged_remarks:
+    - procedures
     _class: Expressir::Model::Declarations::Procedure
   - id: parameter_procedure
     _class: Expressir::Model::Declarations::Procedure
@@ -1487,6 +1501,8 @@ schemas:
     _class: Expressir::Model::Declarations::Procedure
     procedures:
     - id: alias_simple_reference_statement
+      untagged_remarks:
+      - statements
       _class: Expressir::Model::Declarations::Procedure
       statements:
       - id: test
@@ -1911,6 +1927,8 @@ schemas:
     _class: Expressir::Model::Declarations::Procedure
     types:
     - id: binary_type
+      untagged_remarks:
+      - simple types
       _class: Expressir::Model::Declarations::Type
       underlying_type:
         _class: Expressir::Model::DataTypes::Binary
@@ -1976,6 +1994,8 @@ schemas:
           value: '3'
         fixed: true
     - id: array_type
+      untagged_remarks:
+      - aggregation types
       _class: Expressir::Model::Declarations::Type
       underlying_type:
         _class: Expressir::Model::DataTypes::Array
@@ -2102,6 +2122,8 @@ schemas:
         base_type:
           _class: Expressir::Model::DataTypes::String
     - id: select_type
+      untagged_remarks:
+      - constructed types
       _class: Expressir::Model::Declarations::Type
       underlying_type:
         _class: Expressir::Model::DataTypes::Select
@@ -2229,6 +2251,8 @@ schemas:
           _class: Expressir::Model::DataTypes::EnumerationItem
     functions:
     - id: generic_type
+      untagged_remarks:
+      - generic types
       _class: Expressir::Model::Declarations::Function
       return_type:
         _class: Expressir::Model::DataTypes::Generic
@@ -2255,6 +2279,16 @@ schemas:
       statements:
       - _class: Expressir::Model::Statements::Null
   - id: expressions
+    untagged_remarks:
+    - literal expressions
+    - constant expressions
+    - function expressions
+    - operator expressions
+    - aggregate initializer expressions
+    - function call or entity constructor expressions
+    - reference expressions
+    - interval expressions
+    - query expressions
     _class: Expressir::Model::Declarations::Procedure
     variables:
     - id: binary_expression

@@ -900,3 +900,24 @@ PROCEDURE expressions;
 END_PROCEDURE;
 
 END_SCHEMA;
+-- constants
+-- types
+-- entities
+-- subtype constraints
+-- functions
+-- rules
+-- procedures
+-- statements
+-- simple types
+-- aggregation types
+-- constructed types
+-- generic types
+-- literal expressions
+-- constant expressions
+-- function expressions
+-- operator expressions
+-- aggregate initializer expressions
+-- function call or entity constructor expressions
+-- reference expressions
+-- interval expressions
+-- query expressions

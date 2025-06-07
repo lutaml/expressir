@@ -12,6 +12,8 @@ schemas:
       id: Foundation_representation_arm
   entities:
   - id: Analysis_model
+    untagged_remarks:
+    - ISO/TS 10303-1006
     _class: Expressir::Model::Declarations::Entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference

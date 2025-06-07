@@ -208,7 +208,8 @@ module Expressir
       private
 
       def format_repository(node)
-        node.schemas&.map { |x| format(x) }&.join("\n\n")
+        result = node.schemas&.map { |x| format(x) }&.join("\n\n")
+        result ? "#{result}\n" : ""
       end
 
       def format_declarations_attribute(node)
@@ -1615,37 +1616,43 @@ module Expressir
       end
 
       def format_remark(node, remark)
+        # Handle embedded remarks
         if remark.include?("\n")
           [
             [
-              "(*",
-              '"',
+              "(*\"",
               node.path || node.id,
-              '"',
+              "\" ",
             ].join,
             remark,
             "*)",
           ].join("\n")
         else
+          # Handle tail remarks
           [
-            "--",
-            '"',
+            "--\"",
             node.path || node.id,
-            '"',
-            " ",
+            "\" ",
             remark,
           ].join
         end
       end
 
       def format_untagged_remark(remark)
-        [
-          "(*",
-          " ",
-          remark,
-          " ",
-          "*)",
-        ].join
+        # Handle embedded remarks
+        if remark.include?("\n")
+          [
+            "(* ",
+            remark,
+            "*)",
+          ].join("\n")
+        else
+          # Handle tail remarks
+          [
+            "-- ",
+            remark,
+          ].join
+        end
       end
 
       def format_remarks(node)

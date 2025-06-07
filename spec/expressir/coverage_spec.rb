@@ -175,8 +175,56 @@ RSpec.describe Expressir::Coverage do
       expect(filtered_entities.size).to eq(all_entities.size)
     end
 
+    it "excludes inner functions with FUNCTION:INNER" do
+      nested_schema_path = File.join("spec", "fixtures", "examples", "nested_functions_test_schema.exp")
+      repository = Expressir::Express::Parser.from_file(nested_schema_path)
+      all_entities = Expressir::Coverage.find_entities(repository)
+
+      exclusions = ["FUNCTION:INNER"]
+      filtered_entities = Expressir::Coverage.apply_exclusions(all_entities, exclusions)
+
+      # Should exclude inner functions but keep top-level functions
+      all_functions = all_entities.select { |e| e.is_a?(Expressir::Model::Declarations::Function) }
+      filtered_functions = filtered_entities.select { |e| e.is_a?(Expressir::Model::Declarations::Function) }
+
+      # Should have fewer functions after filtering
+      expect(filtered_functions.size).to be < all_functions.size
+
+      # Should only contain top-level functions
+      top_level_function_names = filtered_functions.map(&:id).map(&:to_s)
+      expect(top_level_function_names).to include("top_level_function")
+      expect(top_level_function_names).to include("another_top_level_function")
+      expect(top_level_function_names).not_to include("inner_function_in_function")
+      expect(top_level_function_names).not_to include("deeply_nested_function")
+      expect(top_level_function_names).not_to include("inner_function_in_rule")
+      expect(top_level_function_names).not_to include("inner_function_in_procedure")
+      expect(top_level_function_names).not_to include("nested_in_procedure_function")
+    end
+
+    it "handles mixed exclusions including FUNCTION:INNER" do
+      nested_schema_path = File.join("spec", "fixtures", "examples", "nested_functions_test_schema.exp")
+      repository = Expressir::Express::Parser.from_file(nested_schema_path)
+      all_entities = Expressir::Coverage.find_entities(repository)
+
+      exclusions = ["PARAMETER", "FUNCTION:INNER", "VARIABLE"]
+      filtered_entities = Expressir::Coverage.apply_exclusions(all_entities, exclusions)
+
+      # Should exclude parameters, variables, and inner functions
+      expect(filtered_entities.any?(Expressir::Model::Declarations::Parameter)).to be false
+      expect(filtered_entities.any?(Expressir::Model::Declarations::Variable)).to be false
+
+      # Should exclude inner functions but keep top-level functions
+      filtered_functions = filtered_entities.select { |e| e.is_a?(Expressir::Model::Declarations::Function) }
+      top_level_function_names = filtered_functions.map(&:id).map(&:to_s)
+      expect(top_level_function_names).to include("top_level_function")
+      expect(top_level_function_names).to include("another_top_level_function")
+      expect(top_level_function_names).not_to include("inner_function_in_function")
+      expect(top_level_function_names).not_to include("inner_function_in_rule")
+      expect(top_level_function_names).not_to include("inner_function_in_procedure")
+    end
+
     it "handles invalid exclusion patterns gracefully" do
-      exclusions = ["INVALID_TYPE", "TYPE:INVALID_SUBTYPE"]
+      exclusions = ["INVALID_TYPE", "TYPE:INVALID_SUBTYPE", "FUNCTION:INVALID_SUBTYPE"]
       filtered_entities = Expressir::Coverage.apply_exclusions(all_entities, exclusions)
 
       # Should return all entities since invalid exclusions don't match anything

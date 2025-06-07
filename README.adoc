@@ -344,6 +344,42 @@ expressir coverage --exclude=TYPE:SELECT schemas/resources/action_schema/action_
 expressir coverage --exclude=TYPE:SELECT,TYPE:ENUMERATION schemas/resources/action_schema/action_schema.exp
 ----
 
+==== FUNCTION subtype exclusion
+
+For FUNCTION elements, you can exclude inner functions (functions nested within
+other functions, rules, or procedures) using the `FUNCTION:INNER` syntax:
+
+[source, sh]
+----
+# Exclude inner functions from coverage analysis
+expressir coverage --exclude=FUNCTION:INNER schemas/resources/action_schema/action_schema.exp
+
+# Combine with other exclusions
+expressir coverage --exclude=TYPE:SELECT,FUNCTION:INNER schemas/resources/action_schema/action_schema.exp
+----
+
+This is useful when you want to focus documentation coverage on top-level
+functions while excluding nested helper functions that may not require
+individual documentation.
+
+Valid FUNCTION subtypes that can be excluded:
+
+`INNER`:: Inner functions nested within other functions, rules, or procedures
++
+[example]
+====
+----
+FUNCTION outer_function : BOOLEAN;
+  -- This inner function would be excluded with FUNCTION:INNER
+  FUNCTION inner_helper_function : BOOLEAN;
+    RETURN (TRUE);
+  END_FUNCTION;
+
+  RETURN (TRUE);
+END_FUNCTION;
+----
+====
+
 Valid TYPE subtypes that can be excluded:
 
 `AGGREGATE`:: Aggregate type

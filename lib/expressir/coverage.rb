@@ -413,16 +413,19 @@ module Expressir
     def self.filter_skipped_entities(entities, skip_types)
       return entities if skip_types.empty?
 
-      # Parse skip_types into simple types and TYPE subtypes
+      # Parse skip_types into simple types, TYPE subtypes, and FUNCTION subtypes
       simple_skips = []
       type_subtype_skips = []
+      function_subtype_skips = []
 
       skip_types.each do |skip_type|
         if skip_type.include?(":")
-          # Handle TYPE:SUBTYPE format
+          # Handle TYPE:SUBTYPE and FUNCTION:SUBTYPE format
           main_type, subtype = skip_type.split(":", 2)
           if main_type == "TYPE" && TYPE_SUBTYPES.include?(subtype)
             type_subtype_skips << subtype
+          elsif main_type == "FUNCTION" && subtype == "INNER"
+            function_subtype_skips << subtype
           end
         else
           # Handle simple type format
@@ -445,6 +448,9 @@ module Expressir
         elsif entity_class == "Expressir::Model::Declarations::Type" && type_subtype_skips.any?
           entity_subtype = get_type_subtype(entity)
           type_subtype_skips.include?(entity_subtype)
+        # Check FUNCTION:INNER exclusions
+        elsif entity_class == "Expressir::Model::Declarations::Function" && function_subtype_skips.include?("INNER")
+          is_inner_function?(entity)
         else
           false
         end
@@ -469,6 +475,19 @@ module Expressir
         # For other types, try to extract the last part of the class name
         underlying_class.split("::").last&.upcase
       end
+    end
+
+    # Check if a function is an inner function (nested within another function, rule, or procedure)
+    # @param function_entity [Expressir::Model::Declarations::Function] The function entity to check
+    # @return [Boolean] True if the function is nested within another function, rule, or procedure
+    def self.is_inner_function?(function_entity)
+      return false unless function_entity.respond_to?(:parent) && function_entity.parent
+
+      # Check if the parent is a function, rule, or procedure (not a schema)
+      parent = function_entity.parent
+      parent.is_a?(Expressir::Model::Declarations::Function) ||
+        parent.is_a?(Expressir::Model::Declarations::Rule) ||
+        parent.is_a?(Expressir::Model::Declarations::Procedure)
     end
   end
 end

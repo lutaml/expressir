@@ -20,7 +20,7 @@ RSpec.describe Expressir::Commands::Coverage do
         base_dir = File.expand_path("spec/fixtures/examples", Dir.pwd)
         ignore_patterns = [
           File.join(base_dir, "nested_functions_test_schema.exp"),
-          File.join(base_dir, "*_test_*.exp")
+          File.join(base_dir, "*_test_*.exp"),
         ]
         temp_ignore_file.write(ignore_patterns.to_yaml)
         temp_ignore_file.rewind
@@ -176,9 +176,9 @@ RSpec.describe Expressir::Commands::Coverage do
       temp_ignore_file.rewind
 
       command_with_both = described_class.new({
-        exclude: "FUNCTION:INNER",
-        ignore_files: temp_ignore_file.path
-      })
+                                                exclude: "FUNCTION:INNER",
+                                                ignore_files: temp_ignore_file.path,
+                                              })
 
       # Capture output to avoid cluttering test output
       allow(command_with_both).to receive(:say)

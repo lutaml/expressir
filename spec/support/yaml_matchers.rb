@@ -22,7 +22,7 @@ RSpec::Matchers.define :be_yaml_equivalent do |expected|
     end
   end
 
-  failure_message_when_negated do |actual|
+  failure_message_when_negated do |_actual|
     "Expected YAML content to be different, but they were equivalent"
   end
 

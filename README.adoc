@@ -271,6 +271,7 @@ The coverage command supports different output formats and exclusion options:
 | `--format json` | Output in JSON format for programmatic processing
 | `--format yaml` | Output in YAML format for programmatic processing
 | `--exclude TYPES` | Comma-separated list of EXPRESS entity types to exclude from coverage analysis
+| `--ignore-files PATH` | Path to YAML file containing array of files to ignore from overall coverage calculation
 |===
 
 ==== Excluding entity types from coverage
@@ -360,11 +361,12 @@ expressir coverage --exclude=TYPE:SELECT,FUNCTION:INNER schemas/resources/action
 
 This is useful when you want to focus documentation coverage on top-level
 functions while excluding nested helper functions that may not require
-individual documentation.
+individual documentation. The exclusion works recursively, excluding functions
+at any nesting level within other constructs.
 
 Valid FUNCTION subtypes that can be excluded:
 
-`INNER`:: Inner functions nested within other functions, rules, or procedures
+`INNER`:: Inner functions nested within other functions, rules, or procedures (at any depth)
 +
 [example]
 ====
@@ -372,13 +374,171 @@ Valid FUNCTION subtypes that can be excluded:
 FUNCTION outer_function : BOOLEAN;
   -- This inner function would be excluded with FUNCTION:INNER
   FUNCTION inner_helper_function : BOOLEAN;
+    -- Even deeply nested functions are excluded
+    FUNCTION deeply_nested_function : BOOLEAN;
+      RETURN (TRUE);
+    END_FUNCTION;
     RETURN (TRUE);
   END_FUNCTION;
 
   RETURN (TRUE);
 END_FUNCTION;
+
+RULE example_rule FOR (some_entity);
+  -- Inner functions in rules are also excluded
+  FUNCTION inner_function_in_rule : BOOLEAN;
+    RETURN (TRUE);
+  END_FUNCTION;
+WHERE
+  WR1: inner_function_in_rule();
+END_RULE;
+
+PROCEDURE example_procedure;
+  -- Inner functions in procedures are also excluded
+  FUNCTION inner_function_in_procedure : BOOLEAN;
+    RETURN (TRUE);
+  END_FUNCTION;
+END_PROCEDURE;
 ----
 ====
+
+The `FUNCTION:INNER` exclusion helps maintain focus on documenting the primary
+API functions while ignoring implementation details of nested helper functions.
+
+==== Ignoring files from coverage calculation
+
+You can exclude entire files from the overall coverage calculation using the
+`--ignore-files` option. This is useful when you have files that should not
+contribute to the overall documentation coverage statistics, such as test
+schemas, example files, or legacy schemas.
+
+[source, sh]
+----
+# Use ignore files to exclude specific files from coverage calculation
+expressir coverage --ignore-files ignore_list.yaml schemas/resources/
+
+# Combine with other options
+expressir coverage --ignore-files ignore_list.yaml --exclude=TYPE:SELECT --format=json schemas/resources/
+----
+
+===== Ignore files YAML format
+
+The ignore files YAML should contain an array of file patterns. Each pattern
+can be either an exact file path or use glob patterns for matching multiple files.
+
+.ignore_list.yaml
+[source, yaml]
+----
+# Array of file patterns to ignore
+- examples/test_schema.exp                    # Exact file path
+- examples/*_test_*.exp                       # Glob pattern for test files
+- legacy/old_*.exp                           # Glob pattern for legacy files
+- temp/temporary_schema.exp                   # Another exact path
+----
+
+===== Pattern matching behavior
+
+File patterns in the ignore files YAML support:
+
+* **Exact paths**: Match specific files exactly
+* **Glob patterns**: Use `*` for wildcard matching
+* **Relative paths**: Patterns are resolved relative to the YAML file's directory
+* **Absolute paths**: Full system paths are also supported
+
+[source, yaml]
+----
+# Examples of different pattern types
+- schemas/action_schema/action_schema.exp     # Exact relative path
+- /full/path/to/schema.exp                   # Absolute path
+- schemas/**/test_*.exp                      # Recursive glob pattern
+- temp/*.exp                                 # All .exp files in temp directory
+----
+
+===== Behavior of ignored files
+
+When files are ignored using the `--ignore-files` option:
+
+. **Excluded from overall statistics**: Ignored files do not contribute to the
+   overall coverage percentage calculation
+
+. **Still processed and reported**: Ignored files are still analyzed and appear
+   in the output, but marked with an `ignored: true` flag
+
+. **Separate reporting section**: In JSON/YAML output formats, ignored files
+   appear in both the main `files` section (with the ignored flag) and in a
+   separate `ignored_files` section
+
+. **Overall statistics updated**: The overall statistics include additional
+   fields showing the count of ignored files and entities
+
+.Example JSON output with ignored files:
+[source, json]
+----
+{
+  "overall": {
+    "coverage_percentage": 75.0,
+    "total_entities": 100,
+    "documented_entities": 75,
+    "undocumented_entities": 25,
+    "ignored_files_count": 2,
+    "ignored_entities_count": 15
+  },
+  "files": [
+    {
+      "file": "schemas/main_schema.exp",
+      "ignored": false,
+      "coverage": 80.0,
+      "total": 50,
+      "documented": 40,
+      "undocumented": ["entity1", "entity2"]
+    },
+    {
+      "file": "examples/test_schema.exp",
+      "ignored": true,
+      "matched_pattern": "examples/*_test_*.exp",
+      "coverage": 20.0,
+      "total": 10,
+      "documented": 2,
+      "undocumented": ["test_entity1", "test_entity2"]
+    }
+  ],
+  "ignored_files": [
+    {
+      "file": "examples/test_schema.exp",
+      "matched_pattern": "examples/*_test_*.exp",
+      "coverage": 20.0,
+      "total": 10,
+      "documented": 2,
+      "undocumented": ["test_entity1", "test_entity2"]
+    }
+  ]
+}
+----
+
+===== Error handling
+
+The ignore files functionality handles various error conditions gracefully:
+
+* **Missing YAML file**: If the specified ignore files YAML doesn't exist, a
+  warning is displayed and coverage analysis continues normally
+
+* **Invalid YAML format**: If the YAML file is malformed or doesn't contain an
+  array, a warning is displayed and the file is ignored
+
+* **Non-matching patterns**: Patterns that don't match any files are silently
+  ignored (no error or warning)
+
+* **Permission errors**: File access errors are reported as warnings
+
+===== Use cases for ignore files
+
+Common scenarios where ignore files are useful:
+
+* **Test schemas**: Exclude test or example schemas from production coverage metrics
+* **Legacy files**: Ignore old schemas that are being phased out
+* **Generated files**: Exclude automatically generated schemas
+* **Work-in-progress**: Temporarily ignore files under development
+* **Different coverage standards**: Apply different documentation standards to different file sets
 
 Valid TYPE subtypes that can be excluded:
 

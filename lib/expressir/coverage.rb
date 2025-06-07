@@ -59,14 +59,16 @@ module Expressir
     # Represents a documentation coverage report for EXPRESS schemas
     class Report
       attr_reader :repository, :schema_reports, :total_entities, :documented_entities,
-                  :undocumented_entities
+                  :undocumented_entities, :ignored_files
 
       # Initialize a coverage report
       # @param repository [Expressir::Model::Repository] The repository to analyze
       # @param skip_types [Array<String>] Array of entity type names to skip from coverage
-      def initialize(repository, skip_types = [])
+      # @param ignored_files [Hash] Hash mapping absolute file paths to their matched patterns
+      def initialize(repository, skip_types = [], ignored_files = {})
         @repository = repository
         @skip_types = skip_types
+        @ignored_files = ignored_files
         @schema_reports = []
         @total_entities = []
         @documented_entities = []
@@ -78,18 +80,20 @@ module Expressir
       # Create a report from a repository
       # @param repository [Expressir::Model::Repository] The repository to analyze
       # @param skip_types [Array<String>] Array of entity type names to skip from coverage
+      # @param ignored_files [Hash] Hash mapping absolute file paths to their matched patterns
       # @return [Report] The coverage report
-      def self.from_repository(repository, skip_types = [])
-        new(repository, skip_types)
+      def self.from_repository(repository, skip_types = [], ignored_files = {})
+        new(repository, skip_types, ignored_files)
       end
 
       # Create a report from a schema file
       # @param path [String] Path to the schema file
       # @param skip_types [Array<String>] Array of entity type names to skip from coverage
+      # @param ignored_files [Hash] Hash mapping absolute file paths to their matched patterns
       # @return [Report] The coverage report
-      def self.from_file(path, skip_types = [])
+      def self.from_file(path, skip_types = [], ignored_files = {})
         repository = Expressir::Express::Parser.from_file(path)
-        new(repository, skip_types)
+        new(repository, skip_types, ignored_files)
       end
 
       # Calculate the overall coverage percentage
@@ -113,6 +117,39 @@ module Expressir
             absolute_path
           end
 
+          file_report = {
+            "file" => relative_path,
+            "file_basename" => File.basename(absolute_path),
+            "directory" => File.dirname(absolute_path),
+            "total" => report[:total].size,
+            "documented" => report[:documented].size,
+            "undocumented" => report[:undocumented],
+            "coverage" => report[:coverage],
+            "ignored" => report[:ignored] || false,
+          }
+
+          # Add matched pattern for ignored files
+          if report[:ignored] && report[:matched_pattern]
+            file_report["matched_pattern"] = report[:matched_pattern]
+          end
+
+          file_report
+        end
+      end
+
+      # Get ignored file reports
+      # @return [Array<Hash>] Array of ignored file report hashes
+      def ignored_file_reports
+        @schema_reports.select { |report| report[:ignored] }.map do |report|
+          absolute_path = report[:schema].file
+          relative_path = begin
+            Pathname.new(absolute_path).relative_path_from(Pathname.pwd).to_s
+          rescue ArgumentError
+            # If paths are on different drives or otherwise incompatible,
+            # fall back to the absolute path
+            absolute_path
+          end
+
           {
             "file" => relative_path,
             "file_basename" => File.basename(absolute_path),
@@ -121,6 +158,7 @@ module Expressir
             "documented" => report[:documented].size,
             "undocumented" => report[:undocumented],
             "coverage" => report[:coverage],
+            "matched_pattern" => report[:matched_pattern],
           }
         end
       end
@@ -182,11 +220,14 @@ module Expressir
           schema_report = process_schema(schema)
           @schema_reports << schema_report
 
-          @total_entities.concat(schema_report[:total])
-          @documented_entities.concat(schema_report[:documented])
-          @undocumented_entities.concat(schema_report[:undocumented].map do |entity|
-            { schema: schema.id, entity: entity }
-          end)
+          # Only include non-ignored files in overall statistics
+          unless schema_report[:ignored]
+            @total_entities.concat(schema_report[:total])
+            @documented_entities.concat(schema_report[:documented])
+            @undocumented_entities.concat(schema_report[:undocumented].map do |entity|
+              { schema: schema.id, entity: entity }
+            end)
+          end
         end
       end
 
@@ -200,12 +241,19 @@ module Expressir
 
         coverage = entities.empty? ? 100.0 : (documented.size.to_f / entities.size) * 100
 
+        # Check if this schema file is ignored
+        schema_file = File.expand_path(schema.file) if schema.file
+        ignored = @ignored_files.key?(schema_file)
+        matched_pattern = @ignored_files[schema_file] if ignored
+
         {
           schema: schema,
           total: entities,
           documented: documented,
           undocumented: undocumented.map { |e| format_entity(e) },
           coverage: coverage,
+          ignored: ignored,
+          matched_pattern: matched_pattern,
         }
       end
 

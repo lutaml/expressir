@@ -32,27 +32,28 @@ module Expressir
 
       def collect_reports(paths)
         reports = []
+        ignored_files = parse_ignore_files
 
         paths.each do |path|
-          handle_path(path, reports)
+          handle_path(path, reports, ignored_files)
         end
 
         reports
       end
 
-      def handle_path(path, reports)
+      def handle_path(path, reports, ignored_files)
         if File.directory?(path)
-          handle_directory(path, reports)
+          handle_directory(path, reports, ignored_files)
         elsif File.extname(path).downcase == ".exp"
-          handle_express_file(path, reports)
+          handle_express_file(path, reports, ignored_files)
         elsif [".yml", ".yaml"].include?(File.extname(path).downcase)
-          handle_yaml_manifest(path, reports)
+          handle_yaml_manifest(path, reports, ignored_files)
         else
           say "Unsupported file type: #{path}"
         end
       end
 
-      def handle_directory(path, reports)
+      def handle_directory(path, reports, ignored_files)
         say "Processing directory: #{path}"
         exp_files = Dir.glob(File.join(path, "**", "*.exp"))
         if exp_files.empty?
@@ -79,26 +80,26 @@ module Expressir
             progress.increment
           end
           skip_types = parse_skip_types
-          report = Expressir::Coverage::Report.from_repository(repository, skip_types)
+          report = Expressir::Coverage::Report.from_repository(repository, skip_types, ignored_files)
           reports << report
         rescue StandardError => e
           say "Error processing directory #{path}: #{e.message}"
         end
       end
 
-      def handle_express_file(path, reports)
+      def handle_express_file(path, reports, ignored_files)
         say "Processing file: #{path}"
         begin
           # For a single file, we don't need a progress bar
           skip_types = parse_skip_types
-          report = Expressir::Coverage::Report.from_file(path, skip_types)
+          report = Expressir::Coverage::Report.from_file(path, skip_types, ignored_files)
           reports << report
         rescue StandardError => e
           say "Error processing file #{path}: #{e.message}"
         end
       end
 
-      def handle_yaml_manifest(path, reports)
+      def handle_yaml_manifest(path, reports, ignored_files)
         say "Processing YAML manifest: #{path}"
         begin
           schema_list = YAML.load_file(path)
@@ -149,7 +150,7 @@ module Expressir
 
             # Create and add the report
             skip_types = parse_skip_types
-            report = Expressir::Coverage::Report.from_repository(repository, skip_types)
+            report = Expressir::Coverage::Report.from_repository(repository, skip_types, ignored_files)
             reports << report
           end
         rescue StandardError => e
@@ -258,20 +259,39 @@ module Expressir
       end
 
       def build_structured_report(reports)
-        {
-          "overall" => {
-            "total_entities" => reports.sum { |r| r.total_entities.size },
-            "documented_entities" => reports.sum { |r| r.documented_entities.size },
-            "undocumented_entities" => reports.sum { |r| r.undocumented_entities.size },
-            "coverage_percentage" => if reports.sum { |r| r.total_entities.size }.positive?
-                                       (reports.sum { |r| r.documented_entities.size }.to_f / reports.sum { |r| r.total_entities.size } * 100).round(2)
-                                     else
-                                       100.0
-                                     end,
-          },
+        # Calculate ignored file statistics
+        ignored_files = reports.flat_map(&:ignored_file_reports)
+        ignored_entities_count = ignored_files.sum { |f| f["total"] }
+
+        overall_stats = {
+          "total_entities" => reports.sum { |r| r.total_entities.size },
+          "documented_entities" => reports.sum { |r| r.documented_entities.size },
+          "undocumented_entities" => reports.sum { |r| r.undocumented_entities.size },
+          "coverage_percentage" => if reports.sum { |r| r.total_entities.size }.positive?
+                                     (reports.sum { |r| r.documented_entities.size }.to_f / reports.sum { |r| r.total_entities.size } * 100).round(2)
+                                   else
+                                     100.0
+                                   end,
+        }
+
+        # Add ignored file information if there are any
+        if ignored_files.any?
+          overall_stats["ignored_files_count"] = ignored_files.size
+          overall_stats["ignored_entities_count"] = ignored_entities_count
+        end
+
+        structured_report = {
+          "overall" => overall_stats,
           "files" => reports.flat_map(&:file_reports),
           "directories" => reports.flat_map(&:directory_reports),
         }
+
+        # Add ignored files section if there are any
+        if ignored_files.any?
+          structured_report["ignored_files"] = ignored_files
+        end
+
+        structured_report
       end
 
       def display_json_output(reports)
@@ -341,6 +361,55 @@ module Expressir
             exit_with_error "Invalid entity type: #{type}. " \
                             "Valid types are: #{Expressir::Coverage::ENTITY_TYPE_MAP.keys.join(', ')}"
           end
+        end
+      end
+
+      # Parse and expand ignore files from YAML
+      # @return [Hash] Hash mapping absolute file paths to their matched patterns
+      def parse_ignore_files
+        ignore_files_option = options["ignore_files"] || options[:ignore_files]
+        return {} unless ignore_files_option
+
+        unless File.exist?(ignore_files_option)
+          say "Warning: Ignore files YAML not found: #{ignore_files_option}"
+          return {}
+        end
+
+        begin
+          patterns = YAML.load_file(ignore_files_option)
+          unless patterns.is_a?(Array)
+            say "Warning: Invalid ignore files YAML format. Expected an array of file patterns."
+            return {}
+          end
+
+          ignore_files_dir = File.dirname(File.expand_path(ignore_files_option))
+          expanded_files = {}
+
+          patterns.each do |pattern|
+            # Resolve pattern relative to the YAML file's directory
+            full_pattern = File.expand_path(pattern, ignore_files_dir)
+
+            # Expand glob pattern
+            matched_files = Dir.glob(full_pattern)
+
+            if matched_files.empty?
+              say "Warning: No files matched pattern: #{pattern}"
+            else
+              matched_files.each do |file_path|
+                # Store absolute path and the original pattern that matched it
+                expanded_files[File.expand_path(file_path)] = pattern
+              end
+            end
+          end
+
+          if expanded_files.any?
+            say "Found #{expanded_files.size} files to ignore from patterns"
+          end
+
+          expanded_files
+        rescue StandardError => e
+          say "Warning: Error processing ignore files YAML #{ignore_files_option}: #{e.message}"
+          {}
         end
       end
     end

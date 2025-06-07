@@ -668,4 +668,62 @@ Two issues need to be addressed for specifying setpoint or feedback environmenta
 
 The global versus local issue can easily be handled by storing a scalar for the global control data case, and storing an array for the local control data case.
 
-By convention, if the *setpoint_data* and *feedback_data* are not present in an instance of *sbec_control_dataset*, then building automation systems are free to enforce appropriate
+By convention, if the *setpoint_data* and *feedback_data* are not present in an instance of *sbec_control_dataset*, then building automation systems are free to enforce appropriate control algorithms based on the control type.
+*)
+
+(*"environmental_conditions_schema.sbec_control_dataset.sensor_location"
+the location of the sensors within the control zone.
+*)
+
+(*"environmental_conditions_schema.sbec_control_dataset.reference_state"
+reference data applicable to the control data set.
+*)
+
+(*"environmental_conditions_schema.sbec_control_dataset.the_type"
+the environmental control type, which gives general information on the control algorithms to be enforced.
+*)
+
+(*"environmental_conditions_schema.sbec_condition"
+
+An *sbec_condition* is the supertype for all environmental condition entities in smart building systems.
+*)
+
+(*"environmental_conditions_schema.sbec_setpoint_control_dataset"
+
+An *sbec_setpoint_control_dataset* is an *sbec_control_dataset* that contains setpoint control data.
+*)
+
+(*"environmental_conditions_schema.sbec_setpoint_control_dataset.setpoint_data"
+the setpoint control data for environmental parameters.
+*)
+
+(*"environmental_conditions_schema.sbec_feedback_control_dataset"
+
+An *sbec_feedback_control_dataset* is an *sbec_control_dataset* that contains feedback control data.
+*)
+
+(*"environmental_conditions_schema.sbec_feedback_control_dataset.feedback_data"
+the feedback control data based on sensor readings.
+*)
+
+(*"environmental_conditions_schema.sbec_reference_state"
+
+An *sbec_reference_state* is reference environmental data for control algorithms.
+*)
+
+(*"environmental_conditions_schema.sbec_reference_state.data"
+reference environmental data.
+*)
+
+(*"environmental_conditions_schema.sbec_zone_control"
+
+An *sbec_zone_control* is the environmental control information pertaining to a building zone.
+*)
+
+(*"environmental_conditions_schema.sbec_zone_control.control_conditions"
+the environmental controls for a zone.
+*)
+
+(*"environmental_conditions_schema.sbec_zone_control.reference_state"
+reference data applicable to the zone controls.
+*)

@@ -509,3 +509,51 @@ where stem:[vec eta] is the efficiency vector. Usually, stem:[vec eta] is evalua
 | stem:[ TH ]
 
 | *comfort_specific_heat_pressure*
+| specific heat at constant pressure scale (stem:[c_t])
+| stem:[ P // ( T TH)]
+
+| *energy_ratio*
+| Energy ratio: stem:[gamma = e_{"ref"} // (p_{"ref"} t_{"ref"})]
+| -
+
+| *energy_ratio_consumption*
+| energy consumption scale (stem:[e_{"ref"}])
+| stem:[ P T ]
+
+| *energy_ratio_generation*
+| energy generation scale (stem:[p_{"ref"} t_{"ref"}])
+| stem:[ P T ]
+
+| *coef_efficiency*
+| Efficiency coefficient: stem:[c_e = eta // (1/2 rho_{"ref"} q_{"ref"}^2)]
+| stem:[ 1 // ( P T // T^3 )]
+
+| *coef_power_consumption_x*
+| Power consumption coefficient, x-component: stem:[c_{p,x} = (p_x - p_{x,{"ref"}}) // (1/2 rho_{"ref"} q_{"ref"}^2)]
+| stem:[ 1 // ( P T // T^3 )]
+
+| *coef_power_consumption_y*
+| Power consumption coefficient, y-component: stem:[c_{p,y} = (p_y - p_{y,{"ref"}}) // (1/2 rho_{"ref"} q_{"ref"}^2)]
+| stem:[ 1 // ( P T // T^3 )]
+
+| *coef_power_consumption_z*
+| Power consumption coefficient, z-component: stem:[c_{p,z} = (p_z - p_{z,{"ref"}}) // (1/2 rho_{"ref"} q_{"ref"}^2)]
+| stem:[ 1 // ( P T // T^3 )]
+
+| *coef_efficiency_dynamic*
+| Dynamic efficiency coefficient: stem:[c_{e,d} = eta_d // (1/2 rho_{"ref"} q_{"ref"}^2)]
+| stem:[ 1 // ( P T // T^3 )]
+
+| *coef_efficiency_reference*
+| Reference efficiency coefficient: stem:[c_{e,{"ref"}} = eta_{"ref"} // (1/2 rho_{"ref"} q_{"ref"}^2)]
+| stem:[ 1 // ( P T // T^3 )]
+
+| *time_reference*
+| Reference time scale (stem:[t_{"ref"}])
+| stem:[T]
+
+|===
+
+====
+
+*)

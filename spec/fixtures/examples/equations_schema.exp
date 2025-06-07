@@ -871,4 +871,33 @@ A *demand_response_model* is the model for relating electricity demand to price 
 the particular demand response model type.
 *)
 
-(*"energy_equations_schema.load_forec
+(*"energy_equations_schema.load_forecasting_model"
+
+A *load_forecasting_model* is the model for predicting electricity demand based on historical data and external factors.
+*)
+
+(*"energy_equations_schema.load_forecasting_model.model_type"
+the particular load forecasting model type.
+*)
+
+(*"energy_equations_schema.renewable_generation_model"
+
+A *renewable_generation_model* is the model for predicting renewable energy generation based on weather conditions and equipment characteristics.
+*)
+
+(*"energy_equations_schema.renewable_generation_model.model_type"
+the particular renewable generation model type.
+*)
+
+(*"energy_equations_schema.renewable_generation_model.optimization_model"
+optional optimization model for renewable generation scheduling.
+*)
+
+(*"energy_equations_schema.storage_model"
+
+A *storage_model* is the model for energy storage system behavior including charging, discharging, and efficiency characteristics.
+*)
+
+(*"energy_equations_schema.storage_model.model_type"
+the particular storage model type.
+*)

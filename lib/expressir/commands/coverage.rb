@@ -307,11 +307,11 @@ module Expressir
         requested_types
       end
 
-      # Validate a single skip type (supports TYPE:SUBTYPE syntax)
+      # Validate a single skip type (supports TYPE:SUBTYPE and FUNCTION:SUBTYPE syntax)
       # @param type [String] The type to validate
       def validate_skip_type(type)
         if type.include?(":")
-          # Handle TYPE:SUBTYPE format
+          # Handle TYPE:SUBTYPE and FUNCTION:SUBTYPE format
           main_type, subtype = type.split(":", 2)
 
           # Validate main type
@@ -326,8 +326,14 @@ module Expressir
               exit_with_error "Invalid TYPE subtype: #{subtype}. " \
                               "Valid TYPE subtypes are: #{Expressir::Coverage::TYPE_SUBTYPES.join(', ')}"
             end
+          # For FUNCTION, validate subtype
+          elsif main_type == "FUNCTION"
+            unless subtype == "INNER"
+              exit_with_error "Invalid FUNCTION subtype: #{subtype}. " \
+                              "Valid FUNCTION subtypes are: INNER"
+            end
           else
-            exit_with_error "Subtype syntax (#{type}) is only supported for TYPE entities"
+            exit_with_error "Subtype syntax (#{type}) is only supported for TYPE and FUNCTION entities"
           end
         else
           # Handle simple type format

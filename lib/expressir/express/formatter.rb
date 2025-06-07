@@ -1622,7 +1622,7 @@ module Expressir
             [
               "(*\"",
               node.path || node.id,
-              "\" ",
+              "\"",
             ].join,
             remark,
             "*)",
@@ -1642,7 +1642,7 @@ module Expressir
         # Handle embedded remarks
         if remark.include?("\n")
           [
-            "(* ",
+            "(*",
             remark,
             "*)",
           ].join("\n")

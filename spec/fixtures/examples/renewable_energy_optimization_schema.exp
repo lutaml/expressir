@@ -870,5 +870,3 @@ A *demand_response_model* is the model for relating electricity demand to price 
 (*"energy_equations_schema.demand_response_model.model_type"
 the particular demand response model type.
 *)
-
-(*"energy_equations_schema.load_forec

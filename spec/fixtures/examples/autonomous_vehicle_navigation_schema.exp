@@ -22,8 +22,8 @@ In addition, any modified copy of the Schema shall include the following notice:
 THIS SCHEMA HAS BEEN MODIFIED FROM THE SCHEMA DEFINED IN
 ACME 5000-42 ed8 Virtual reality spatial computing - VR Geometry schema
 AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
+*)
 
- *)
 SCHEMA vr_geometry_schema '{acme standard 5000 part(42) version(13) object(1) vr-geometry-schema(1)}';
 
 REFERENCE FROM vr_model_schema   -- ACME 5000-42
@@ -727,4 +727,13 @@ WHERE
   WR1: SIZEOF(SELF\vr_surface_curve.associated_geometry) = 2;
   WR2: vr_associated_surface(SELF\vr_surface_curve.associated_geometry[1]) = vr_associated_surface(SELF\vr_surface_curve.associated_geometry[2]);
   WR3: 'VR_GEOMETRY_SCHEMA.VR_PCURVE' IN TYPEOF(SELF\vr_surface_curve.associated_geometry[1]);
-  WR
+  WR4: 'VR_GEOMETRY_SCHEMA.VR_PCURVE' IN TYPEOF(SELF\vr_surface_curve.associated_geometry[2]);
+END_ENTITY;
+
+ENTITY vr_bounded_surface_curve
+  SUBTYPE OF (vr_surface_curve);
+WHERE
+  WR1: ('VR_GEOMETRY_SCHEMA.VR_BOUNDED_CURVE' IN TYPEOF(SELF\vr_surface_curve.curve_3d));
+END_ENTITY;
+
+END_SCHEMA; -- vr_geometry_schema

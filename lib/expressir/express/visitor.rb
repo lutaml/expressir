@@ -282,28 +282,35 @@ module Expressir
                           :embedded
                         end
 
-          _, remark_tag, remark_text = if remark_type == :tail
-                                         text.match(/^--"([^"]*)"(.*)$/).to_a
-                                       else
-                                         text.match(/^\(\*"([^"]*)"(.*)\*\)$/m).to_a
-                                       end
-
-          if remark_tag
-            # Tagged remark
-            remark_target = find_remark_target(node, remark_tag)
-            if remark_text
-              remark_text = remark_text.strip.force_encoding("UTF-8")
+          if text.start_with?("--\"") && text.include?("\"")
+            # Tagged tail remark: --"tag" content
+            quote_end = text.index("\"", 3)
+            if quote_end
+              remark_target_path = text[3...quote_end]
+              remark_text = text[(quote_end + 1)..-1].strip.force_encoding("UTF-8")
+              remark_target = find_remark_target(node, remark_target_path)
+              if remark_target
+                tagged_remark_tokens << [span, remark_target, remark_text]
+              end
             end
-            tagged_remark_tokens << [span, remark_target, remark_text] if remark_target
-          elsif remark_type == :embedded
-            # Untagged embedded remark
-            # Extract content between "(*" and "*)"
-            untagged_text = text[2..-3].strip.force_encoding("UTF-8")
+          elsif text.start_with?("(*\"") && text.include?("\"")
+            # Tagged embedded remark: (*"tag" content *)
+            quote_end = text.index("\"", 3)
+            if quote_end
+              remark_target_path = text[3...quote_end]
+              remark_text = text[(quote_end + 1)...-2].strip.force_encoding("UTF-8")
+              remark_target = find_remark_target(node, remark_target_path)
+              if remark_target
+                tagged_remark_tokens << [span, remark_target, remark_text]
+              end
+            end
+          elsif text.start_with?("--")
+            # Untagged tail remark: -- content
+            untagged_text = text[2..-1].strip.force_encoding("UTF-8")
             untagged_remark_tokens << [span, untagged_text, remark_type]
           else
-            # TODO: parse tail remarks
-            # Extract content after "--"
-            untagged_text = text[2..-1].strip.force_encoding("UTF-8")
+            # Untagged embedded remark: (* content *)
+            untagged_text = text[2...-2].strip.force_encoding("UTF-8")
             untagged_remark_tokens << [span, untagged_text, remark_type]
           end
         end
@@ -317,13 +324,10 @@ module Expressir
 
         # Attach untagged remarks to the current node if it supports them
         # All ModelElements support untagged remarks, but we may get Arrays here
-        if untagged_remark_tokens.respond_to?(:untagged_remarks) &&
-            !untagged_remark_tokens.empty?
-
+        if node.respond_to?(:untagged_remarks) && !untagged_remark_tokens.empty?
           node.untagged_remarks ||= []
           untagged_remark_tokens.each do |span, untagged_text, remark_type|
-            next unless remark_type == :embedded
-
+            # Handle both embedded and tail remarks
             node.untagged_remarks << untagged_text
             @attached_remark_tokens << span
           end

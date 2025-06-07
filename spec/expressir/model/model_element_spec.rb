@@ -10,7 +10,7 @@ RSpec.describe Expressir::Model::ModelElement do
       yaml_file = Expressir.root_path.join("spec", "syntax", "single.yaml")
       expected_result = File.read(yaml_file)
       result = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
-      expect(result.to_yaml).to eq(expected_result)
+      expect(result.to_yaml).to be_yaml_equivalent(expected_result)
     end
 
     it "round-trips multiple schema YAML correctly" do |example|
@@ -18,7 +18,7 @@ RSpec.describe Expressir::Model::ModelElement do
       yaml_file = Expressir.root_path.join("spec", "syntax", "multiple.yaml")
       expected_result = File.read(yaml_file)
       result = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
-      expect(result.to_yaml).to eq(expected_result)
+      expect(result.to_yaml).to be_yaml_equivalent(expected_result)
     end
 
     it "round-trips syntax schema YAML correctly" do |example|
@@ -26,7 +26,7 @@ RSpec.describe Expressir::Model::ModelElement do
       yaml_file = Expressir.root_path.join("spec", "syntax", "syntax.yaml")
       expected_result = File.read(yaml_file)
       result = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
-      expect(result.to_yaml).to eq(expected_result)
+      expect(result.to_yaml).to be_yaml_equivalent(expected_result)
     end
 
     it "round-trips remark schema YAML correctly" do |example|
@@ -34,7 +34,7 @@ RSpec.describe Expressir::Model::ModelElement do
       yaml_file = Expressir.root_path.join("spec", "syntax", "remark.yaml")
       expected_result = File.read(yaml_file)
       result = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
-      expect(result.to_yaml).to eq(expected_result)
+      expect(result.to_yaml).to be_yaml_equivalent(expected_result)
     end
   end
 

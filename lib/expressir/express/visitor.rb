@@ -287,7 +287,7 @@ module Expressir
             quote_end = text.index("\"", 3)
             if quote_end
               remark_target_path = text[3...quote_end]
-              remark_text = text[(quote_end + 1)..-1].strip.force_encoding("UTF-8")
+              remark_text = text[(quote_end + 1)..].strip.force_encoding("UTF-8")
               remark_target = find_remark_target(node, remark_target_path)
               if remark_target
                 tagged_remark_tokens << [span, remark_target, remark_text]
@@ -306,7 +306,7 @@ module Expressir
             end
           elsif text.start_with?("--")
             # Untagged tail remark: -- content
-            untagged_text = text[2..-1].strip.force_encoding("UTF-8")
+            untagged_text = text[2..].strip.force_encoding("UTF-8")
             untagged_remark_tokens << [span, untagged_text, remark_type]
           else
             # Untagged embedded remark: (* content *)
@@ -326,7 +326,7 @@ module Expressir
         # All ModelElements support untagged remarks, but we may get Arrays here
         if node.respond_to?(:untagged_remarks) && !untagged_remark_tokens.empty?
           node.untagged_remarks ||= []
-          untagged_remark_tokens.each do |span, untagged_text, remark_type|
+          untagged_remark_tokens.each do |span, untagged_text, _remark_type|
             # Handle both embedded and tail remarks
             node.untagged_remarks << untagged_text
             @attached_remark_tokens << span

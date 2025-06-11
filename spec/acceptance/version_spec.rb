@@ -10,7 +10,7 @@ RSpec.describe "Expressir" do
       expect(Expressir::VERSION).not_to be nil
     end
 
-    it "displays the current verison" do |example|
+    it "displays the current version" do |example|
       print "\n[#{example.description}] "
       command = %w(version)
       output = capture_stdout { Expressir::Cli.start(command) }

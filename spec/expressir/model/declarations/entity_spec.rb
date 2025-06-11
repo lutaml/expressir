@@ -32,7 +32,7 @@ RSpec.describe Expressir::Model::Declarations::Entity do
     end
     let(:informal_propositions) do
       [
-        Expressir::Model::Declarations::RemarkItem.new(id: "IP1", remarks: ["First proposition"]),
+        Expressir::Model::Declarations::InformalPropositionRule.new(id: "IP1", remarks: ["First proposition"]),
       ]
     end
 
@@ -300,7 +300,7 @@ RSpec.describe Expressir::Model::Declarations::Entity do
           Expressir::Model::Declarations::WhereRule.new(id: "WR1"),
         ],
         informal_propositions: [
-          Expressir::Model::Declarations::RemarkItem.new(id: "IP1"),
+          Expressir::Model::Declarations::InformalPropositionRule.new(id: "IP1"),
         ],
         remark_items: [
           Expressir::Model::Declarations::RemarkItem.new(id: "remark1"),

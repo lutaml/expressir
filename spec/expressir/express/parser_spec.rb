@@ -57,7 +57,7 @@ RSpec.describe Expressir::Express::Parser do
         root_path: Expressir.root_path,
       )
       result = repo.to_yaml
-      # File.write(yaml_file, result)
+      File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
       expect(result).to eq(expected_result)
     end
@@ -226,6 +226,22 @@ RSpec.describe Expressir::Express::Parser do
 
       entity = repo.schemas.first.entities[4]
       expect(entity.attributes.map(&:id)).to include("country_population")
+    end
+
+    it "parses a file and assigns informal propositions (geometry_schema.exp)" do |_example|
+      exp_file = Expressir.root_path.join("spec", "syntax", "geometry_schema.exp")
+
+      repo = Expressir::Express::Parser.from_file(
+        exp_file,
+        root_path: Expressir.root_path,
+      )
+      entity = repo.schemas.first.entities[2]
+      require 'pry'
+      binding.pry
+      informal_proposition = entity.informal_propositions.first
+      expect(informal_proposition.id).to eq("IP1")
+      expect(informal_proposition.class).to eq(Expressir::Model::Declarations::InformalPropositionRule)
+      expect(informal_proposition.remark_items.first.remarks).to eq(["country_population > 0"])
     end
   end
 

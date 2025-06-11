@@ -236,11 +236,11 @@ module Expressir
             current_path.match(/^IP\d+$/) || path_prefix.match(/^IP\d+$/)
           )
 
-            id = if current_path.match(/^IP\d+$/)
-                 current_path
-               else
-                 path_prefix
-               end
+            id = if /^IP\d+$/.match?(current_path)
+                   current_path
+                 else
+                   path_prefix
+                 end
 
             parent_node.informal_propositions ||= []
             informal_proposition = Model::Declarations::InformalPropositionRule.new(
@@ -253,7 +253,7 @@ module Expressir
             # Reassign the informal proposition id to the remark item
             remark_item.id = id
             remark_item.parent = informal_proposition
-            
+
             informal_proposition.remark_items ||= []
             informal_proposition.remark_items << remark_item
 

@@ -177,7 +177,6 @@ module Expressir
         node
       end
 
-      # ###########################################3
       private
 
       def visit_top(ctx)
@@ -226,26 +225,46 @@ module Expressir
         # check if path can create implicit remark item
         # see https://github.com/lutaml/expressir/issues/78
         rest, _, current_path = path.rpartition(".") # get last path part
-        _, _, current_path = current_path.rpartition(":") # ignore prefix
+        path_prefix, _, current_path = current_path.rpartition(":")
         parent_node = node_find(node, rest)
         if parent_node&.class&.method_defined?(:remark_items)
           remark_item = Model::Declarations::RemarkItem.new(
             id: current_path,
           )
-          remark_item.parent = parent_node
 
-          # check if path can create implicit informal proposition
-          # see https://github.com/lutaml/expressir/issues/50
-          if parent_node.class.method_defined?(:informal_propositions) && current_path.match(/^IP\d+$/)
+          if parent_node.class.method_defined?(:informal_propositions) && (
+            current_path.match(/^IP\d+$/) || path_prefix.match(/^IP\d+$/)
+          )
+
+            id = if current_path.match(/^IP\d+$/)
+                 current_path
+               else
+                 path_prefix
+               end
+
             parent_node.informal_propositions ||= []
-            parent_node.informal_propositions << remark_item
+            informal_proposition = Model::Declarations::InformalPropositionRule.new(
+              id: id,
+            )
+
+            informal_proposition.parent = parent_node
+            parent_node.informal_propositions << informal_proposition
+
+            # Reassign the informal proposition id to the remark item
+            remark_item.id = id
+            remark_item.parent = informal_proposition
+            
+            informal_proposition.remark_items ||= []
+            informal_proposition.remark_items << remark_item
+
+            parent_node.reset_children_by_id
+            informal_proposition
           else
             parent_node.remark_items ||= []
             parent_node.remark_items << remark_item
+            remark_item.parent = parent_node
+            remark_item
           end
-          parent_node.reset_children_by_id
-
-          remark_item
         end
       end
 
@@ -303,6 +322,14 @@ module Expressir
               if remark_target
                 tagged_remark_tokens << [span, remark_target, remark_text]
               end
+            end
+          elsif text.match?(/^--IP\d+:/)
+            # Tagged tail remark: --IP1: content
+            remark_target_path = text[2..].strip.force_encoding("UTF-8")
+            remark_target = find_remark_target(node, remark_target_path)
+            # binding.pry
+            if remark_target
+              tagged_remark_tokens << [span, remark_target, remark_text]
             end
           elsif text.start_with?("--")
             # Untagged tail remark: -- content

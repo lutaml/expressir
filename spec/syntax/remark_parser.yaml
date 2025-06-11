@@ -60,15 +60,14 @@ schemas:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
     informal_propositions:
-    - _class: Expressir::Model::Declarations::RemarkItem
-      id: IP1
+    - id: IP1
       remarks:
-      - type scope - type informal proposition
       - type scope - type informal proposition, with prefix
       - schema scope - type informal proposition
       - schema scope - type informal proposition, with prefix
       - universal scope - type informal proposition
       - universal scope - type informal proposition, with prefix
+      _class: Expressir::Model::Declarations::InformalPropositionRule
   entities:
   - id: remark_entity
     remarks:
@@ -142,15 +141,14 @@ schemas:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
     informal_propositions:
-    - _class: Expressir::Model::Declarations::RemarkItem
-      id: IP1
+    - id: IP1
       remarks:
-      - entity scope - entity informal proposition
       - entity scope - entity informal proposition, with prefix
       - schema scope - entity informal proposition
       - schema scope - entity informal proposition, with prefix
       - universal scope - entity informal proposition
       - universal scope - entity informal proposition, with prefix
+      _class: Expressir::Model::Declarations::InformalPropositionRule
   subtype_constraints:
   - id: remark_subtype_constraint
     remarks:
@@ -367,15 +365,14 @@ schemas:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
     informal_propositions:
-    - _class: Expressir::Model::Declarations::RemarkItem
-      id: IP1
+    - id: IP1
       remarks:
-      - rule scope - rule informal proposition
       - rule scope - rule informal proposition, with prefix
       - schema scope - rule informal proposition
       - schema scope - rule informal proposition, with prefix
       - universal scope - rule informal proposition
       - universal scope - rule informal proposition, with prefix
+      _class: Expressir::Model::Declarations::InformalPropositionRule
   procedures:
   - id: remark_procedure
     remarks:

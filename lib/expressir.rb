@@ -98,6 +98,7 @@ module Expressir
       autoload :UniqueRule, "expressir/model/declarations/unique_rule"
       autoload :Variable, "expressir/model/declarations/variable"
       autoload :WhereRule, "expressir/model/declarations/where_rule"
+      autoload :InformalPropositionRule, "expressir/model/declarations/informal_proposition_rule"
     end
 
     module Expressions

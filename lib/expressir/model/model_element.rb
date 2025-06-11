@@ -79,6 +79,8 @@ module Expressir
             "Expressir::Model::Declarations::Procedure",
                         "Expressir::Model::Declarations::RemarkItem" =>
             "Expressir::Model::Declarations::RemarkItem",
+                        "Expressir::Model::Declarations::InformalPropositionRule" =>
+            "Expressir::Model::Declarations::InformalPropositionRule",
                         "Expressir::Model::Declarations::Rule" =>
             "Expressir::Model::Declarations::Rule",
                         "Expressir::Model::Declarations::SchemaVersionItem" =>

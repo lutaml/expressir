@@ -1661,7 +1661,7 @@ module Expressir
         # Add tagged remarks
         if node.class.method_defined?(:remarks) && !@no_remarks &&
             !node.remarks.nil?
-          remarks.concat(node.remarks.map do |remark|
+          remarks.concat(node.remarks.compact.map do |remark|
             format_remark(node, remark)
           end)
         end

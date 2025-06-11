@@ -12,7 +12,7 @@ module Expressir
         attribute :attributes, Attribute, collection: true
         attribute :unique_rules, UniqueRule, collection: true
         attribute :where_rules, WhereRule, collection: true
-        attribute :informal_propositions, RemarkItem, collection: true
+        attribute :informal_propositions, InformalPropositionRule, collection: true
         attribute :_class, :string, default: -> { send(:name) }
 
         key_value do

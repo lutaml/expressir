@@ -236,7 +236,7 @@ RSpec.describe Expressir::Express::Parser do
         root_path: Expressir.root_path,
       )
       entity = repo.schemas.first.entities[2]
-      require 'pry'
+      require "pry"
       binding.pry
       informal_proposition = entity.informal_propositions.first
       expect(informal_proposition.id).to eq("IP1")

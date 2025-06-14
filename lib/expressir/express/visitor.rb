@@ -258,7 +258,7 @@ module Expressir
             informal_proposition.remark_items << remark_item
 
             parent_node.reset_children_by_id
-            informal_proposition
+            remark_item
           else
             parent_node.remark_items ||= []
             parent_node.remark_items << remark_item
@@ -324,10 +324,11 @@ module Expressir
               end
             end
           elsif text.match?(/^--IP\d+:/)
-            # Tagged tail remark: --IP1: content
-            remark_target_path = text[2..].strip.force_encoding("UTF-8")
+            # Unquoted tagged tail remark: --IP1: content
+            remark_target_path = text[2..].strip
+            colon_end = text.index(":", 5)
+            remark_text = text[(colon_end + 1)...-2].strip.force_encoding("UTF-8")
             remark_target = find_remark_target(node, remark_target_path)
-            # binding.pry
             if remark_target
               tagged_remark_tokens << [span, remark_target, remark_text]
             end

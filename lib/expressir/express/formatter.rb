@@ -91,6 +91,8 @@ module Expressir
           format_declarations_variable(node)
         when Model::Declarations::WhereRule
           format_declarations_where_rule(node)
+        when Model::Declarations::InformalPropositionRule
+          format_declarations_informal_proposition_rule(node)
         when Model::DataTypes::Aggregate
           format_data_types_aggregate(node)
         when Model::DataTypes::Array
@@ -822,6 +824,18 @@ module Expressir
            end,
           format(node.expression),
           ";",
+        ].join
+      end
+
+      def format_declarations_informal_proposition_rule(node)
+        [
+          *if node.id
+             [
+               node.id,
+               ":",
+               " ",
+             ].join
+           end,
         ].join
       end
 
@@ -1629,6 +1643,8 @@ module Expressir
           ].join("\n")
         else
           # Handle tail remarks
+          
+          if remark.include?("rule scope - rule informal proposition")
           [
             "--\"",
             node.path || node.id,

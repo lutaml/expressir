@@ -249,7 +249,7 @@ Attributes:
 `attributes`:: Array of AttributeDrop objects
 `unique_rules`:: Array of UniqueRuleDrop objects
 `where_rules`:: Array of WhereRuleDrop objects
-`informal_propositions`:: Array of RemarkItemDrop objects
+`informal_propositions`:: Array of InformalPropositionRule objects
 
 ==== FunctionDrop
 

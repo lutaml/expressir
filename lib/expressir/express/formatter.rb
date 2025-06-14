@@ -1643,8 +1643,6 @@ module Expressir
           ].join("\n")
         else
           # Handle tail remarks
-          
-          if remark.include?("rule scope - rule informal proposition")
           [
             "--\"",
             node.path || node.id,

@@ -235,17 +235,9 @@ module Expressir
           if parent_node.class.method_defined?(:informal_propositions) && (
             current_path.match(/^IP\d+$/) || path_prefix.match(/^IP\d+$/)
           )
-
-            id = if /^IP\d+$/.match?(current_path)
-                   current_path
-                 else
-                   path_prefix
-                 end
-
+            id = /^IP\d+$/.match?(current_path) ? current_path : path_prefix
             parent_node.informal_propositions ||= []
-            informal_proposition = Model::Declarations::InformalPropositionRule.new(
-              id: id,
-            )
+            informal_proposition = Model::Declarations::InformalPropositionRule.new(id: id)
 
             informal_proposition.parent = parent_node
             parent_node.informal_propositions << informal_proposition

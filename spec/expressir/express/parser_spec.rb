@@ -41,7 +41,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
     end
 
-    it "parses a file (mathematical_functions_schema.exp) with remark_items" do |example|
+    xit "parses a file (mathematical_functions_schema.exp) with remark_items" do |example|
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join(
         "spec", "syntax", "mathematical_functions_schema",

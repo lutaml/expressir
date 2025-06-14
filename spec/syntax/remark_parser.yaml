@@ -16,6 +16,9 @@ schemas:
     id: remark_item
     remarks:
     - schema scope - schema remark item
+  - _class: Expressir::Model::Declarations::RemarkItem
+    id: remark_item
+    remarks:
     - universal scope - schema remark item
   _class: Expressir::Model::Declarations::Schema
   file: spec/syntax/remark.exp
@@ -67,6 +70,11 @@ schemas:
       - schema scope - type informal proposition, with prefix
       - universal scope - type informal proposition
       - universal scope - type informal proposition, with prefix
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP1
+        remarks:
+        - type scope - type informal proposition
       _class: Expressir::Model::Declarations::InformalPropositionRule
   entities:
   - id: remark_entity
@@ -148,6 +156,11 @@ schemas:
       - schema scope - entity informal proposition, with prefix
       - universal scope - entity informal proposition
       - universal scope - entity informal proposition, with prefix
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP1
+        remarks:
+        - entity scope - entity informal proposition
       _class: Expressir::Model::Declarations::InformalPropositionRule
   subtype_constraints:
   - id: remark_subtype_constraint
@@ -372,6 +385,11 @@ schemas:
       - schema scope - rule informal proposition, with prefix
       - universal scope - rule informal proposition
       - universal scope - rule informal proposition, with prefix
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP1
+        remarks:
+        - rule scope - rule informal proposition
       _class: Expressir::Model::Declarations::InformalPropositionRule
   procedures:
   - id: remark_procedure

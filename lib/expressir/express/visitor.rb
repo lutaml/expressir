@@ -238,7 +238,6 @@ module Expressir
             id = /^IP\d+$/.match?(current_path) ? current_path : path_prefix
             parent_node.informal_propositions ||= []
             informal_proposition = Model::Declarations::InformalPropositionRule.new(id: id)
-
             informal_proposition.parent = parent_node
             parent_node.informal_propositions << informal_proposition
 
@@ -250,13 +249,12 @@ module Expressir
             informal_proposition.remark_items << remark_item
 
             parent_node.reset_children_by_id
-            remark_item
           else
             parent_node.remark_items ||= []
             parent_node.remark_items << remark_item
             remark_item.parent = parent_node
-            remark_item
           end
+          remark_item
         end
       end
 

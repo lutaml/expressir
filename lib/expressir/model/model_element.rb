@@ -186,7 +186,15 @@ module Expressir
         path_parts = []
         loop do
           if current_node.class.method_defined?(:id) && !(current_node.is_a? References::SimpleReference)
-            path_parts << current_node.id
+            # Skip adding the ID if this is a RemarkItem that belongs to an InformalPropositionRule
+            # and has the same ID as its parent
+            if current_node.is_a?(Declarations::RemarkItem) && 
+               current_node.parent.is_a?(Declarations::InformalPropositionRule) &&
+               current_node.id == current_node.parent.id
+              # Skip this ID
+            else
+              path_parts << current_node.id
+            end
           end
 
           current_node = current_node.parent

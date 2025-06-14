@@ -236,12 +236,10 @@ RSpec.describe Expressir::Express::Parser do
         root_path: Expressir.root_path,
       )
       entity = repo.schemas.first.entities[2]
-      require "pry"
-      binding.pry
       informal_proposition = entity.informal_propositions.first
       expect(informal_proposition.id).to eq("IP1")
       expect(informal_proposition.class).to eq(Expressir::Model::Declarations::InformalPropositionRule)
-      expect(informal_proposition.remark_items.first.remarks).to eq(["country_population > 0"])
+      expect(informal_proposition.remark_items.first.remarks).to eq(["This is informal proposition"])
     end
   end
 

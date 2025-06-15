@@ -155,8 +155,8 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(repo.find("remark_schema.remark_type")).to be_instance_of(Expressir::Model::Declarations::Type)
       expect(repo.find("remark_schema.remark_type.WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
       expect(repo.find("remark_schema.remark_type.wr:WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
-      expect(repo.find("remark_schema.remark_type.IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
-      expect(repo.find("remark_schema.remark_type.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
+      expect(repo.find("remark_schema.remark_type.IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
+      expect(repo.find("remark_schema.remark_type.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
       expect(repo.find("remark_schema.remark_enumeration_item")).to be_instance_of(Expressir::Model::DataTypes::EnumerationItem)
       expect(repo.find("remark_schema.remark_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
       expect(repo.find("remark_schema.remark_entity.remark_attribute")).to be_instance_of(Expressir::Model::Declarations::Attribute)
@@ -165,8 +165,8 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(repo.find("remark_schema.remark_entity.UR1")).to be_instance_of(Expressir::Model::Declarations::UniqueRule)
       expect(repo.find("remark_schema.remark_entity.WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
       expect(repo.find("remark_schema.remark_entity.wr:WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
-      expect(repo.find("remark_schema.remark_entity.IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
-      expect(repo.find("remark_schema.remark_entity.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
+      expect(repo.find("remark_schema.remark_entity.IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
+      expect(repo.find("remark_schema.remark_entity.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
       expect(repo.find("remark_schema.remark_subtype_constraint")).to be_instance_of(Expressir::Model::Declarations::SubtypeConstraint)
       expect(repo.find("remark_schema.remark_function")).to be_instance_of(Expressir::Model::Declarations::Function)
       expect(repo.find("remark_schema.remark_function.remark_parameter")).to be_instance_of(Expressir::Model::Declarations::Parameter)
@@ -187,8 +187,8 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(repo.find("remark_schema.remark_rule.remark_variable")).to be_instance_of(Expressir::Model::Declarations::Variable)
       expect(repo.find("remark_schema.remark_rule.WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
       expect(repo.find("remark_schema.remark_rule.wr:WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
-      expect(repo.find("remark_schema.remark_rule.IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
-      expect(repo.find("remark_schema.remark_rule.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
+      expect(repo.find("remark_schema.remark_rule.IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
+      expect(repo.find("remark_schema.remark_rule.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
       expect(repo.find("remark_schema.remark_item")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
 
       # schema scope
@@ -197,8 +197,8 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(schema.find("remark_type")).to be_instance_of(Expressir::Model::Declarations::Type)
       expect(schema.find("remark_type.WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
       expect(schema.find("remark_type.wr:WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
-      expect(schema.find("remark_type.IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
-      expect(schema.find("remark_type.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
+      expect(schema.find("remark_type.IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
+      expect(schema.find("remark_type.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
       expect(schema.find("remark_enumeration_item")).to be_instance_of(Expressir::Model::DataTypes::EnumerationItem)
       expect(schema.find("remark_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
       expect(schema.find("remark_entity.remark_attribute")).to be_instance_of(Expressir::Model::Declarations::Attribute)
@@ -207,8 +207,8 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(schema.find("remark_entity.UR1")).to be_instance_of(Expressir::Model::Declarations::UniqueRule)
       expect(schema.find("remark_entity.WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
       expect(schema.find("remark_entity.wr:WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
-      expect(schema.find("remark_entity.IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
-      expect(schema.find("remark_entity.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
+      expect(schema.find("remark_entity.IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
+      expect(schema.find("remark_entity.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
       expect(schema.find("remark_subtype_constraint")).to be_instance_of(Expressir::Model::Declarations::SubtypeConstraint)
       expect(schema.find("remark_function")).to be_instance_of(Expressir::Model::Declarations::Function)
       expect(schema.find("remark_function.remark_parameter")).to be_instance_of(Expressir::Model::Declarations::Parameter)
@@ -229,16 +229,16 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(schema.find("remark_rule.remark_variable")).to be_instance_of(Expressir::Model::Declarations::Variable)
       expect(schema.find("remark_rule.WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
       expect(schema.find("remark_rule.wr:WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
-      expect(schema.find("remark_rule.IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
-      expect(schema.find("remark_rule.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
+      expect(schema.find("remark_rule.IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
+      expect(schema.find("remark_rule.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
       expect(schema.find("remark_item")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
 
       # type scope
       type = schema.types.first
       expect(type.find("WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
       expect(type.find("wr:WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
-      expect(type.find("IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
-      expect(type.find("ip:IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
+      expect(type.find("IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
+      expect(type.find("ip:IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
 
       # entity scope
       entity = schema.entities.first
@@ -248,8 +248,8 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(entity.find("UR1")).to be_instance_of(Expressir::Model::Declarations::UniqueRule)
       expect(entity.find("WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
       expect(entity.find("wr:WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
-      expect(entity.find("IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
-      expect(entity.find("ip:IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
+      expect(entity.find("IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
+      expect(entity.find("ip:IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
 
       # function scope
       function = schema.functions.first
@@ -275,15 +275,15 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(rule.find("remark_variable")).to be_instance_of(Expressir::Model::Declarations::Variable)
       expect(rule.find("WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
       expect(rule.find("wr:WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
-      expect(rule.find("IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
-      expect(rule.find("ip:IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
+      expect(rule.find("IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
+      expect(rule.find("ip:IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
 
       # retry search in parent scope
       expect(entity.find("remark_type")).to be_instance_of(Expressir::Model::Declarations::Type)
       expect(entity.find("remark_type.WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
       expect(entity.find("remark_type.wr:WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
-      expect(entity.find("remark_type.IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
-      expect(entity.find("remark_type.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::RemarkItem)
+      expect(entity.find("remark_type.IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
+      expect(entity.find("remark_type.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
     end
   end
 

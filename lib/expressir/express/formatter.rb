@@ -91,6 +91,8 @@ module Expressir
           format_declarations_variable(node)
         when Model::Declarations::WhereRule
           format_declarations_where_rule(node)
+        when Model::Declarations::InformalPropositionRule
+          format_declarations_informal_proposition_rule(node)
         when Model::DataTypes::Aggregate
           format_data_types_aggregate(node)
         when Model::DataTypes::Array
@@ -822,6 +824,18 @@ module Expressir
            end,
           format(node.expression),
           ";",
+        ].join
+      end
+
+      def format_declarations_informal_proposition_rule(node)
+        [
+          *if node.id
+             [
+               node.id,
+               ":",
+               " ",
+             ].join
+           end,
         ].join
       end
 
@@ -1661,7 +1675,7 @@ module Expressir
         # Add tagged remarks
         if node.class.method_defined?(:remarks) && !@no_remarks &&
             !node.remarks.nil?
-          remarks.concat(node.remarks.map do |remark|
+          remarks.concat(node.remarks.compact.map do |remark|
             format_remark(node, remark)
           end)
         end

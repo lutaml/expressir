@@ -247,13 +247,12 @@ module Expressir
 
             informal_proposition.remark_items ||= []
             informal_proposition.remark_items << remark_item
-
-            parent_node.reset_children_by_id
           else
             parent_node.remark_items ||= []
             parent_node.remark_items << remark_item
             remark_item.parent = parent_node
           end
+          parent_node.reset_children_by_id
           remark_item
         end
       end

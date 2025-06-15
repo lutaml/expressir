@@ -16,9 +16,6 @@ schemas:
     id: remark_item
     remarks:
     - schema scope - schema remark item
-  - _class: Expressir::Model::Declarations::RemarkItem
-    id: remark_item
-    remarks:
     - universal scope - schema remark item
   _class: Expressir::Model::Declarations::Schema
   file: spec/syntax/remark.exp

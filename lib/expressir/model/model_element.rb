@@ -86,7 +86,7 @@ module Expressir
         "Expressir::Model::Statements::Return" => "Expressir::Model::Statements::Return",
         "Expressir::Model::Statements::Skip" => "Expressir::Model::Statements::Skip",
         "Expressir::Model::SupertypeExpressions::BinarySupertypeExpression" => "Expressir::Model::SupertypeExpressions::BinarySupertypeExpression",
-        "Expressir::Model::SupertypeExpressions::OneofSupertypeExpression" => "Expressir::Model::SupertypeExpressions::OneofSupertypeExpression"
+        "Expressir::Model::SupertypeExpressions::OneofSupertypeExpression" => "Expressir::Model::SupertypeExpressions::OneofSupertypeExpression",
       }.freeze
 
       key_value do

@@ -13,7 +13,6 @@ module Expressir
           map "expression", to: :expression
         end
 
-        # @return [Array<Declaration>]
         def children
           [
             *remark_items,

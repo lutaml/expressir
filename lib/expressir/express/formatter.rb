@@ -1641,6 +1641,14 @@ module Expressir
             remark,
             "*)",
           ].join("\n")
+        elsif node.path.nil? && node.id.include?("IP")
+          # Handle inmediate informal propositions
+          [
+            "--",
+            node.id,
+            " ",
+            remark,
+          ].join
         else
           # Handle tail remarks
           [

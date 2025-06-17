@@ -125,7 +125,7 @@ several physical lines.
 --"remark_schema.remark_type.IP1" schema scope - type informal proposition, with prefix
 --"remark_schema.remark_type.IP1" universal scope - type informal proposition
 --"remark_schema.remark_type.IP1" universal scope - type informal proposition, with prefix
---"remark_schema.remark_type.IP1" type scope - type informal proposition
+--IP1 type scope - type informal proposition
 --"remark_schema.remark_entity" schema scope - entity
 --"remark_schema.remark_entity" universal scope - entity
 --"remark_schema.remark_entity.remark_attribute" entity scope - entity attribute
@@ -152,7 +152,7 @@ several physical lines.
 --"remark_schema.remark_entity.IP1" schema scope - entity informal proposition, with prefix
 --"remark_schema.remark_entity.IP1" universal scope - entity informal proposition
 --"remark_schema.remark_entity.IP1" universal scope - entity informal proposition, with prefix
---"remark_schema.remark_entity.IP1" entity scope - entity informal proposition
+--IP1 entity scope - entity informal proposition
 --"remark_schema.remark_subtype_constraint" schema scope - subtype constraint
 --"remark_schema.remark_subtype_constraint" universal scope - subtype constraint
 --"remark_schema.remark_function" schema scope - function
@@ -203,7 +203,7 @@ several physical lines.
 --"remark_schema.remark_rule.IP1" schema scope - rule informal proposition, with prefix
 --"remark_schema.remark_rule.IP1" universal scope - rule informal proposition
 --"remark_schema.remark_rule.IP1" universal scope - rule informal proposition, with prefix
---"remark_schema.remark_rule.IP1" rule scope - rule informal proposition
+--IP1 rule scope - rule informal proposition
 --"remark_schema.remark_procedure" schema scope - procedure
 --"remark_schema.remark_procedure" universal scope - procedure
 --"remark_schema.remark_procedure.remark_parameter" procedure scope - procedure parameter

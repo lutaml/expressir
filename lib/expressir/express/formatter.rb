@@ -936,7 +936,7 @@ module Expressir
                    ]
                  end
 
-        [format(node.function), params].flatten.join
+        [format(node.function), params].join
       end
 
       def format_expressions_interval(node)

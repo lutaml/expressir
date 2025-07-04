@@ -524,7 +524,7 @@ module Expressir
           type_subtype_skips.include?(entity_subtype)
         # Check FUNCTION:INNER exclusions
         elsif entity_class == "Expressir::Model::Declarations::Function" && function_subtype_skips.include?("INNER")
-          is_inner_function?(entity)
+          inner_function?(entity)
         else
           false
         end
@@ -554,7 +554,7 @@ module Expressir
     # Check if a function is an inner function (nested within another function, rule, or procedure)
     # @param function_entity [Expressir::Model::Declarations::Function] The function entity to check
     # @return [Boolean] True if the function is nested within another function, rule, or procedure
-    def self.is_inner_function?(function_entity)
+    def self.inner_function?(function_entity)
       return false unless function_entity.respond_to?(:parent) && function_entity.parent
 
       # Check if the parent is a function, rule, or procedure (not a schema)

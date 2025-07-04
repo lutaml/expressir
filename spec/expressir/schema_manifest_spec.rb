@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "tmpdir"
 
 RSpec.describe Expressir::SchemaManifest do
   let(:test_manifest_path) do
@@ -34,7 +35,7 @@ RSpec.describe Expressir::SchemaManifest do
       it "raises an error for non-existent file" do
         expect do
           described_class.from_file("non_existent.yml")
-        end.to raise_error(Errno::ENOENT)
+        end.to raise_error(Expressir::InvalidSchemaManifestError)
       end
     end
   end

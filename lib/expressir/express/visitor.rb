@@ -153,7 +153,7 @@ module Expressir
 
       def get_source(ctx)
         a, b = get_source_pos ctx
-        @source[a..b - 1].strip
+        @source[a..(b - 1)].strip
       end
 
       def visit_ast(ast, name)
@@ -287,7 +287,7 @@ module Expressir
         untagged_remark_tokens = []
 
         remark_tokens.each do |span|
-          text = @source[span[0]..span[1] - 1]
+          text = @source[span[0]..(span[1] - 1)]
           remark_type = if text.start_with?("--")
                           :tail
                         else

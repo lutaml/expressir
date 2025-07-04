@@ -285,9 +285,15 @@ module Expressir
           derived_attributes = []
           inverse_attributes = []
         else
-          explicit_attributes = node.attributes.select { |x| x.kind == Model::Declarations::Attribute::EXPLICIT }
-          derived_attributes = node.attributes.select { |x| x.kind == Model::Declarations::Attribute::DERIVED }
-          inverse_attributes = node.attributes.select { |x| x.kind == Model::Declarations::Attribute::INVERSE }
+          explicit_attributes = node.attributes.select do |x|
+            x.kind == Model::Declarations::Attribute::EXPLICIT
+          end
+          derived_attributes = node.attributes.select do |x|
+            x.kind == Model::Declarations::Attribute::DERIVED
+          end
+          inverse_attributes = node.attributes.select do |x|
+            x.kind == Model::Declarations::Attribute::INVERSE
+          end
         end
 
         [
@@ -395,7 +401,9 @@ module Expressir
                parameter_indent = INDENT_CHAR * "FUNCTION #{node.id}(".length
                [
                  "(",
-                 node.parameters.map { |x| format(x) }.join(";\n#{parameter_indent}"),
+                 node.parameters.map do |x|
+                   format(x)
+                 end.join(";\n#{parameter_indent}"),
                  ")",
                ].join
              end,
@@ -515,7 +523,9 @@ module Expressir
                parameter_indent = INDENT_CHAR * "PROCEDURE #{node.id}(".length
                [
                  "(",
-                 node.parameters.map { |x| format(x) }.join(";\n#{parameter_indent}"),
+                 node.parameters.map do |x|
+                   format(x)
+                 end.join(";\n#{parameter_indent}"),
                  ")",
                ].join
              end,
@@ -964,7 +974,9 @@ module Expressir
           "|",
           " ",
           format(node.expression),
-          *format_remarks(node).instance_eval { |x| x&.length&.positive? ? ["\n", *x, "\n"] : x },
+          *format_remarks(node).instance_eval do |x|
+            x&.length&.positive? ? ["\n", *x, "\n"] : x
+          end,
           ")",
         ].join
       end
@@ -1423,7 +1435,9 @@ module Expressir
                     "\n",
                     indent([
                       "(",
-                      node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
+                      node.items.map do |x|
+                        format(x)
+                      end.join(",\n#{item_indent}"),
                       ")",
                     ].join),
                   ].join
@@ -1439,7 +1453,9 @@ module Expressir
                     "\n",
                     indent([
                       "(",
-                      node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
+                      node.items.map do |x|
+                        format(x)
+                      end.join(",\n#{item_indent}"),
                       ")",
                     ].join),
                   ].join
@@ -1559,7 +1575,9 @@ module Expressir
                     "\n",
                     indent([
                       "(",
-                      node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
+                      node.items.map do |x|
+                        format(x)
+                      end.join(",\n#{item_indent}"),
                       ")",
                     ].join),
                   ].join
@@ -1573,7 +1591,9 @@ module Expressir
                     "\n",
                     indent([
                       "(",
-                      node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
+                      node.items.map do |x|
+                        format(x)
+                      end.join(",\n#{item_indent}"),
                       ")",
                     ].join),
                   ].join

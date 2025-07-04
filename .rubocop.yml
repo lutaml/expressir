@@ -1,14 +1,14 @@
-require:
-  - rubocop-performance
-
 inherit_from:
   - https://raw.githubusercontent.com/riboseinc/oss-guides/master/ci/rubocop.yml
   - .rubocop_todo.yml
 
-Naming/VariableName:
-  Exclude:
-  - lib/expressir/express/visitor.rb
-Layout/LineLength:
-  Max: 160
+plugins:
+- rubocop-performance
+- rubocop-rake
+- rubocop-rspec
+
 AllCops:
-  TargetRubyVersion: 2.7
+  TargetRubyVersion: 3.0
+  NewCops: enable
+  Exclude:
+    - 'vendor/**/*'

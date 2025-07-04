@@ -14,8 +14,10 @@ RSpec.describe Expressir::Model::DataTypes::EnumerationItem do
     let(:remarks) { ["Primary color", "First item in list"] }
     let(:remark_items) do
       [
-        Expressir::Model::Declarations::RemarkItem.new(id: "remark1", remarks: ["Detail 1"]),
-        Expressir::Model::Declarations::RemarkItem.new(id: "remark2", remarks: ["Detail 2"]),
+        Expressir::Model::Declarations::RemarkItem.new(id: "remark1",
+                                                       remarks: ["Detail 1"]),
+        Expressir::Model::Declarations::RemarkItem.new(id: "remark2",
+                                                       remarks: ["Detail 2"]),
       ]
     end
 

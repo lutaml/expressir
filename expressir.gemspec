@@ -31,8 +31,6 @@ Gem::Specification.new do |spec|
     end
   end
 
-  spec.test_files = `git ls-files -- {spec}/*`.split("\n")
-
   spec.add_dependency "base64"
   spec.add_dependency "benchmark-ips"
   spec.add_dependency "csv"

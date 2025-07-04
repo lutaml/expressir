@@ -90,7 +90,8 @@ module Expressir
       }.freeze
 
       key_value do
-        map "_class", to: :_class, render_default: true, polymorphic_map: POLYMORPHIC_CLASS_MAP
+        map "_class", to: :_class, render_default: true,
+                      polymorphic_map: POLYMORPHIC_CLASS_MAP
       end
 
       def source
@@ -173,7 +174,9 @@ module Expressir
 
       # @return [Hash<String, Declaration>]
       def children_by_id
-        @children_by_id ||= children.select(&:id).map { |x| [x.id.safe_downcase, x] }.to_h
+        @children_by_id ||= children.select(&:id).to_h do |x|
+          [x.id.safe_downcase, x]
+        end
       end
 
       # @return [nil]

@@ -18,8 +18,12 @@ RSpec.describe Expressir::Model::DataTypes::Boolean do
     end
 
     context "when used in expressions" do
-      let(:true_value) { Expressir::Model::Literals::Logical.new(value: "TRUE") }
-      let(:false_value) { Expressir::Model::Literals::Logical.new(value: "FALSE") }
+      let(:true_value) do
+        Expressir::Model::Literals::Logical.new(value: "TRUE")
+      end
+      let(:false_value) do
+        Expressir::Model::Literals::Logical.new(value: "FALSE")
+      end
 
       it "handles boolean operations" do
         # Test AND operation
@@ -71,7 +75,9 @@ RSpec.describe Expressir::Model::DataTypes::Boolean do
     let(:boolean_type) { described_class.new }
 
     context "when used in conditional expressions" do
-      let(:true_value) { Expressir::Model::Literals::Logical.new(value: "TRUE") }
+      let(:true_value) do
+        Expressir::Model::Literals::Logical.new(value: "TRUE")
+      end
 
       it "can be used in if statements" do
         if_stmt = Expressir::Model::Statements::If.new(

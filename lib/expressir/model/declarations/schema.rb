@@ -108,7 +108,10 @@ module Expressir
             else
               interface.items.filter_map do |item|
                 base_item = children_by_id[item.ref.id.safe_downcase]
-                create_interfaced_item(item.id || base_item.id, base_item) if base_item
+                if base_item
+                  create_interfaced_item(item.id || base_item.id,
+                                         base_item)
+                end
               end
             end
           end.compact

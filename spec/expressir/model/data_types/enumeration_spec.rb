@@ -222,7 +222,8 @@ RSpec.describe Expressir::Model::DataTypes::Enumeration do
       end
 
       it "preserves item case sensitivity" do
-        expect(mixed_case_enum.items.map(&:id)).to eq ["item1", "ITEM2", "Item3"]
+        expect(mixed_case_enum.items.map(&:id)).to eq ["item1", "ITEM2",
+                                                       "Item3"]
       end
     end
   end

@@ -7,7 +7,7 @@ RSpec.describe "Expressir" do
       puts "Running tests in GC stress mode. It may take a couple of hours ..." if GC.stress
 
       print "\n[#{example.description}] "
-      expect(Expressir::VERSION).not_to be nil
+      expect(Expressir::VERSION).not_to be_nil
     end
 
     it "displays the current version" do |example|

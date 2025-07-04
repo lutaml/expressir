@@ -32,7 +32,8 @@ module Expressir
         say "--------------------------------"
 
         # Benchmark with caching
-        results = Expressir::Benchmark.measure_with_cache(path, cache_path) do |file|
+        results = Expressir::Benchmark.measure_with_cache(path,
+                                                          cache_path) do |file|
           Expressir::Express::Parser.from_file(file)
         end
 

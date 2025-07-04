@@ -6,16 +6,17 @@ RSpec.describe Expressir::Express::Parser do
     it "throws an exception if the file to parse does not exist" do |example|
       print "\n[#{example.description}] "
       expect do
-        Expressir::Express::Parser.from_file("non-existing-file")
+        described_class.from_file("non-existing-file")
       end.to raise_error(Errno::ENOENT)
     end
 
     it "parses a file (single.exp)" do |example|
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "single.exp")
-      yaml_file = Expressir.root_path.join("spec", "syntax", "single_parser.yaml")
+      yaml_file = Expressir.root_path.join("spec", "syntax",
+                                           "single_parser.yaml")
 
-      repo = Expressir::Express::Parser.from_file(
+      repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
       )
@@ -28,9 +29,10 @@ RSpec.describe Expressir::Express::Parser do
     it "parses a file (multiple.exp)" do |example|
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
-      yaml_file = Expressir.root_path.join("spec", "syntax", "multiple_parser.yaml")
+      yaml_file = Expressir.root_path.join("spec", "syntax",
+                                           "multiple_parser.yaml")
 
-      repo = Expressir::Express::Parser.from_file(
+      repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
       )
@@ -52,7 +54,7 @@ RSpec.describe Expressir::Express::Parser do
         "mathematical_functions_schema.yaml"
       )
 
-      repo = Expressir::Express::Parser.from_file(
+      repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
       )
@@ -75,7 +77,7 @@ RSpec.describe Expressir::Express::Parser do
         "structural_response_definition_schema.yaml"
       )
 
-      repo = Expressir::Express::Parser.from_file(
+      repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
       )
@@ -89,9 +91,10 @@ RSpec.describe Expressir::Express::Parser do
     it "parses a file (syntax.exp)" do |example|
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "syntax.exp")
-      yaml_file = Expressir.root_path.join("spec", "syntax", "syntax_parser.yaml")
+      yaml_file = Expressir.root_path.join("spec", "syntax",
+                                           "syntax_parser.yaml")
 
-      repo = Expressir::Express::Parser.from_file(
+      repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
       )
@@ -105,9 +108,10 @@ RSpec.describe Expressir::Express::Parser do
     it "parses a file (remark.exp)" do |example|
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "remark.exp")
-      yaml_file = Expressir.root_path.join("spec", "syntax", "remark_parser.yaml")
+      yaml_file = Expressir.root_path.join("spec", "syntax",
+                                           "remark_parser.yaml")
 
-      repo = Expressir::Express::Parser.from_file(
+      repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
       )
@@ -122,7 +126,8 @@ RSpec.describe Expressir::Express::Parser do
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
 
-      repo = Expressir::Express::Parser.from_file(exp_file, include_source: true)
+      repo = described_class.from_file(exp_file,
+                                       include_source: true)
 
       schema = repo.schemas.first
       expected_result = <<~TEXT
@@ -186,10 +191,12 @@ RSpec.describe Expressir::Express::Parser do
 
     it "parses a file (without_ending_newline.exp)" do |example|
       print "\n[#{example.description}] "
-      exp_file = Expressir.root_path.join("spec", "syntax", "without_ending_newline.exp")
-      yaml_file = Expressir.root_path.join("spec", "syntax", "without_ending_newline.yaml")
+      exp_file = Expressir.root_path.join("spec", "syntax",
+                                          "without_ending_newline.exp")
+      yaml_file = Expressir.root_path.join("spec", "syntax",
+                                           "without_ending_newline.yaml")
 
-      repo = Expressir::Express::Parser.from_file(
+      repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
       )
@@ -200,9 +207,10 @@ RSpec.describe Expressir::Express::Parser do
     end
 
     it "parses a file and assigns derived attributes (derived_attribute.exp)" do |_example|
-      exp_file = Expressir.root_path.join("spec", "syntax", "derived_attribute.exp")
+      exp_file = Expressir.root_path.join("spec", "syntax",
+                                          "derived_attribute.exp")
 
-      repo = Expressir::Express::Parser.from_file(
+      repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
       )
@@ -217,9 +225,10 @@ RSpec.describe Expressir::Express::Parser do
     end
 
     it "parses a file and assigns derived attributes (derived_attribute_deep.exp)" do |_example|
-      exp_file = Expressir.root_path.join("spec", "syntax", "derived_attribute_deep.exp")
+      exp_file = Expressir.root_path.join("spec", "syntax",
+                                          "derived_attribute_deep.exp")
 
-      repo = Expressir::Express::Parser.from_file(
+      repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
       )
@@ -229,9 +238,10 @@ RSpec.describe Expressir::Express::Parser do
     end
 
     it "parses a file and assigns informal propositions (geometry_schema.exp)" do |_example|
-      exp_file = Expressir.root_path.join("spec", "syntax", "geometry_schema.exp")
+      exp_file = Expressir.root_path.join("spec", "syntax",
+                                          "geometry_schema.exp")
 
-      repo = Expressir::Express::Parser.from_file(
+      repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
       )
@@ -251,7 +261,7 @@ RSpec.describe Expressir::Express::Parser do
         Expressir.root_path.join("spec", "syntax", "multiple.exp"),
       ]
 
-      repo = Expressir::Express::Parser.from_files(exp_files)
+      repo = described_class.from_files(exp_files)
 
       schemas = repo.schemas
       expect(schemas.count).to eq(5)

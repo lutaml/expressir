@@ -32,7 +32,8 @@ RSpec.describe Expressir::Model::Declarations::Entity do
     end
     let(:informal_propositions) do
       [
-        Expressir::Model::Declarations::InformalPropositionRule.new(id: "IP1", remarks: ["First proposition"]),
+        Expressir::Model::Declarations::InformalPropositionRule.new(id: "IP1",
+                                                                    remarks: ["First proposition"]),
       ]
     end
 
@@ -97,7 +98,9 @@ RSpec.describe Expressir::Model::Declarations::Entity do
       end
 
       it "handles multiple inheritance" do
-        expect(multiple_inheritance_entity.subtype_of.map(&:id)).to eq ["base_entity", "other_entity"]
+        expect(multiple_inheritance_entity.subtype_of.map(&:id)).to eq [
+          "base_entity", "other_entity"
+        ]
       end
 
       it "handles abstract supertypes" do
@@ -149,7 +152,8 @@ RSpec.describe Expressir::Model::Declarations::Entity do
       end
 
       it "handles different attribute kinds" do
-        expect(entity_with_attributes.attributes.map(&:kind)).to eq %w[EXPLICIT DERIVED INVERSE]
+        expect(entity_with_attributes.attributes.map(&:kind)).to eq %w[EXPLICIT
+                                                                       DERIVED INVERSE]
       end
 
       it "handles explicit attributes" do
@@ -231,7 +235,8 @@ RSpec.describe Expressir::Model::Declarations::Entity do
       end
 
       it "handles multiple rules" do
-        expect(multiple_rules_entity.unique_rules.map(&:id)).to eq ["UR1", "UR2"]
+        expect(multiple_rules_entity.unique_rules.map(&:id)).to eq ["UR1",
+                                                                    "UR2"]
         expect(multiple_rules_entity.where_rules.map(&:id)).to eq ["WR1", "WR2"]
       end
     end

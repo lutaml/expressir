@@ -43,7 +43,8 @@ RSpec.describe Expressir::Model::ModelElement do
       print "\n[#{example.description}] "
       exp_file = Expressir.root_path.join("spec", "syntax", "single.exp")
 
-      repo = Expressir::Express::Parser.from_file(exp_file, root_path: Expressir.root_path)
+      repo = Expressir::Express::Parser.from_file(exp_file,
+                                                  root_path: Expressir.root_path)
 
       # universal scope
       expect(repo.find("single_schema")).to be_instance_of(Expressir::Model::Declarations::Schema)

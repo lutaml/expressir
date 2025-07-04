@@ -41,7 +41,9 @@ module Expressir
         end
 
         def method_missing(name, *args)
-          rulename = name.to_s.sub(/^visit_/, "").gsub(/_([a-z])/) { |m| m[1].upcase }.to_sym
+          rulename = name.to_s.sub(/^visit_/, "").gsub(/_([a-z])/) do |m|
+            m[1].upcase
+          end.to_sym
           self.class.define_method(name) { @data[rulename] }
           send name, *args
         end
@@ -84,28 +86,28 @@ module Expressir
 
         @attached_remark_tokens = Set.new
 
-        @visit_methods = Hash[
-          private_methods.grep(/^visit_/).map do |name|
-            rulename = name.to_s.sub(/^visit_/, "").gsub(/_([a-z])/) { $1.upcase }
-            [rulename.to_sym, name.to_sym]
-          end,
-        ]
+        @visit_methods = private_methods.grep(/^visit_/).to_h do |name|
+          rulename = name.to_s.sub(/^visit_/, "").gsub(/_([a-z])/) do
+            $1.upcase
+          end
+          [rulename.to_sym, name.to_sym]
+        end
       end
 
       def to_ctx(ast, name = :unnamed)
         case ast
         when Hash
-          nodes = Hash[
-            ast.map do |k, v|
-              if k =~ /^listOf_(.*)$/
-                itemkey = $1.to_sym
-                ary = Array === v ? v : [v]
-                [itemkey, to_ctx(ary.select { |v| v[itemkey] }.map { |v| v.slice(itemkey) })]
-              else
-                [k, to_ctx(v, k)]
-              end
-            end,
-          ]
+          nodes = ast.to_h do |k, v|
+            if k =~ /^listOf_(.*)$/
+              itemkey = $1.to_sym
+              ary = Array === v ? v : [v]
+              [itemkey, to_ctx(ary.select do |v|
+                v[itemkey]
+              end.map { |v| v.slice(itemkey) })]
+            else
+              [k, to_ctx(v, k)]
+            end
+          end
           Ctx.new nodes, name
         when Array
           ast.map do |element|
@@ -276,7 +278,9 @@ module Expressir
         remark_tokens = get_remarks ctx
 
         # skip already attached remarks
-        remark_tokens = remark_tokens.reject { |x| @attached_remark_tokens.include?(x) }
+        remark_tokens = remark_tokens.reject do |x|
+          @attached_remark_tokens.include?(x)
+        end
 
         # parse remarks, find remark targets
         tagged_remark_tokens = []
@@ -580,7 +584,8 @@ module Expressir
         ctx__stmt = ctx.stmt
 
         id = visit_if(ctx__variable_id)
-        expression = handle_qualified_ref(visit_if(ctx__general_ref), ctx__qualifier)
+        expression = handle_qualified_ref(visit_if(ctx__general_ref),
+                                          ctx__qualifier)
         statements = visit_if_map(ctx__stmt)
 
         Model::Statements::Alias.new(
@@ -952,7 +957,8 @@ module Expressir
                     ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration) && true
         supertype_expression = visit_if(ctx__entity_head__subsuper__supertype_constraint__abstract_supertype_declaration ||
                                         ctx__entity_head__subsuper__supertype_constraint__supertype_rule)
-        subtype_of = visit_if(ctx__entity_head__subsuper__subtype_declaration, [])
+        subtype_of = visit_if(ctx__entity_head__subsuper__subtype_declaration,
+                              [])
         attributes = [
           *visit_if_map_flatten(ctx__entity_body__explicit_attr),
           *visit_if(ctx__entity_body__derive_clause),
@@ -1034,7 +1040,9 @@ module Expressir
 
         extensible = ctx__EXTENSIBLE && true
         based_on = visit_if(ctx__enumeration_extension__type_ref)
-        items = visit_if(ctx__enumeration_items || ctx__enumeration_extension__enumeration_items, [])
+        items = visit_if(
+          ctx__enumeration_items || ctx__enumeration_extension__enumeration_items, []
+        )
 
         Model::DataTypes::Enumeration.new(
           extensible: extensible,
@@ -1151,10 +1159,18 @@ module Expressir
         return_type = visit_if(ctx__function_head__parameter_type)
         declarations = visit_if_map(ctx__algorithm_head__declaration)
         types = declarations.select { |x| x.is_a? Model::Declarations::Type }
-        entities = declarations.select { |x| x.is_a? Model::Declarations::Entity }
-        subtype_constraints = declarations.select { |x| x.is_a? Model::Declarations::SubtypeConstraint }
-        functions = declarations.select { |x| x.is_a? Model::Declarations::Function }
-        procedures = declarations.select { |x| x.is_a? Model::Declarations::Procedure }
+        entities = declarations.select do |x|
+          x.is_a? Model::Declarations::Entity
+        end
+        subtype_constraints = declarations.select do |x|
+          x.is_a? Model::Declarations::SubtypeConstraint
+        end
+        functions = declarations.select do |x|
+          x.is_a? Model::Declarations::Function
+        end
+        procedures = declarations.select do |x|
+          x.is_a? Model::Declarations::Procedure
+        end
         constants = visit_if(ctx__algorithm_head__constant_decl, [])
         variables = visit_if(ctx__algorithm_head__local_decl, [])
         statements = visit_if_map(ctx__stmt)
@@ -1773,10 +1789,18 @@ module Expressir
         parameters = visit_if_map_flatten(ctx__procedure_head__procedure_head_parameter)
         declarations = visit_if_map(ctx__algorithm_head__declaration)
         types = declarations.select { |x| x.is_a? Model::Declarations::Type }
-        entities = declarations.select { |x| x.is_a? Model::Declarations::Entity }
-        subtype_constraints = declarations.select { |x| x.is_a? Model::Declarations::SubtypeConstraint }
-        functions = declarations.select { |x| x.is_a? Model::Declarations::Function }
-        procedures = declarations.select { |x| x.is_a? Model::Declarations::Procedure }
+        entities = declarations.select do |x|
+          x.is_a? Model::Declarations::Entity
+        end
+        subtype_constraints = declarations.select do |x|
+          x.is_a? Model::Declarations::SubtypeConstraint
+        end
+        functions = declarations.select do |x|
+          x.is_a? Model::Declarations::Function
+        end
+        procedures = declarations.select do |x|
+          x.is_a? Model::Declarations::Procedure
+        end
         constants = visit_if(ctx__algorithm_head__constant_decl, [])
         variables = visit_if(ctx__algorithm_head__local_decl, [])
         statements = visit_if_map(ctx__stmt)
@@ -2058,10 +2082,18 @@ module Expressir
         applies_to = visit_if_map(ctx__rule_head__entity_ref)
         declarations = visit_if_map(ctx__algorithm_head__declaration)
         types = declarations.select { |x| x.is_a? Model::Declarations::Type }
-        entities = declarations.select { |x| x.is_a? Model::Declarations::Entity }
-        subtype_constraints = declarations.select { |x| x.is_a? Model::Declarations::SubtypeConstraint }
-        functions = declarations.select { |x| x.is_a? Model::Declarations::Function }
-        procedures = declarations.select { |x| x.is_a? Model::Declarations::Procedure }
+        entities = declarations.select do |x|
+          x.is_a? Model::Declarations::Entity
+        end
+        subtype_constraints = declarations.select do |x|
+          x.is_a? Model::Declarations::SubtypeConstraint
+        end
+        functions = declarations.select do |x|
+          x.is_a? Model::Declarations::Function
+        end
+        procedures = declarations.select do |x|
+          x.is_a? Model::Declarations::Procedure
+        end
         constants = visit_if(ctx__algorithm_head__constant_decl, [])
         variables = visit_if(ctx__algorithm_head__local_decl, [])
         statements = visit_if_map(ctx__stmt)
@@ -2123,11 +2155,19 @@ module Expressir
         constants = visit_if(ctx__schema_body__constant_decl, [])
         declarations = visit_if_map(ctx__schema_body__schema_body_declaration)
         types = declarations.select { |x| x.is_a? Model::Declarations::Type }
-        entities = declarations.select { |x| x.is_a? Model::Declarations::Entity }
-        subtype_constraints = declarations.select { |x| x.is_a? Model::Declarations::SubtypeConstraint }
-        functions = declarations.select { |x| x.is_a? Model::Declarations::Function }
+        entities = declarations.select do |x|
+          x.is_a? Model::Declarations::Entity
+        end
+        subtype_constraints = declarations.select do |x|
+          x.is_a? Model::Declarations::SubtypeConstraint
+        end
+        functions = declarations.select do |x|
+          x.is_a? Model::Declarations::Function
+        end
         rules = declarations.select { |x| x.is_a? Model::Declarations::Rule }
-        procedures = declarations.select { |x| x.is_a? Model::Declarations::Procedure }
+        procedures = declarations.select do |x|
+          x.is_a? Model::Declarations::Procedure
+        end
 
         Model::Declarations::Schema.new(
           id: id,
@@ -2208,7 +2248,9 @@ module Expressir
         extensible = ctx__EXTENSIBLE && true
         generic_entity = ctx__GENERIC_ENTITY && true
         based_on = visit_if(ctx__select_extension__type_ref)
-        items = visit_if(ctx__select_list || ctx__select_extension__select_list, [])
+        items = visit_if(
+          ctx__select_list || ctx__select_extension__select_list, []
+        )
 
         Model::DataTypes::Select.new(
           extensible: extensible,
@@ -2422,7 +2464,9 @@ module Expressir
           if ctx__supertype_factor.length >= 2
             if ctx__ANDOR && (ctx__ANDOR.length == ctx__supertype_factor.length - 1)
               operands = ctx__supertype_factor.map { |item| visit(item) }
-              operators = ctx__ANDOR.map { Model::SupertypeExpressions::BinarySupertypeExpression::ANDOR }
+              operators = ctx__ANDOR.map do
+                Model::SupertypeExpressions::BinarySupertypeExpression::ANDOR
+              end
 
               handle_binary_supertype_expression(operands, operators)
             else
@@ -2444,7 +2488,9 @@ module Expressir
           if ctx__supertype_term.length >= 2
             if ctx__AND && (ctx__AND.length == ctx__supertype_term.length - 1)
               operands = ctx__supertype_term.map { |item| visit(item) }
-              operators = ctx__AND.map { Model::SupertypeExpressions::BinarySupertypeExpression::AND }
+              operators = ctx__AND.map do
+                Model::SupertypeExpressions::BinarySupertypeExpression::AND
+              end
 
               handle_binary_supertype_expression(operands, operators)
             else

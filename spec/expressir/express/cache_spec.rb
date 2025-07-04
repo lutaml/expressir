@@ -14,7 +14,8 @@ RSpec.describe Expressir::Express::Cache do
       repository = Expressir::Model::Repository.new
 
       begin
-        Expressir::Express::Cache.to_file(temp_file, repository, test_overwrite_version: TEST_VERSION)
+        described_class.to_file(temp_file, repository,
+                                test_overwrite_version: TEST_VERSION)
 
         size = File.size(temp_file)
 
@@ -30,7 +31,8 @@ RSpec.describe Expressir::Express::Cache do
     it "throws an exception if the cache file does not exist" do |example|
       print "\n[#{example.description}] "
       expect do
-        Expressir::Express::Cache.from_file("non-existing-file", test_overwrite_version: TEST_VERSION)
+        described_class.from_file("non-existing-file",
+                                  test_overwrite_version: TEST_VERSION)
       end.to raise_error(Errno::ENOENT)
     end
 
@@ -41,9 +43,11 @@ RSpec.describe Expressir::Express::Cache do
       repository = Expressir::Model::Repository.new
 
       begin
-        Expressir::Express::Cache.to_file(temp_file, repository, test_overwrite_version: TEST_VERSION)
+        described_class.to_file(temp_file, repository,
+                                test_overwrite_version: TEST_VERSION)
 
-        result = Expressir::Express::Cache.from_file(temp_file, test_overwrite_version: TEST_VERSION)
+        result = described_class.from_file(temp_file,
+                                           test_overwrite_version: TEST_VERSION)
 
         expect(result.content).to be_instance_of(Expressir::Model::Repository)
       ensure
@@ -59,10 +63,11 @@ RSpec.describe Expressir::Express::Cache do
       repository = Expressir::Model::Repository.new
 
       begin
-        Expressir::Express::Cache.to_file(temp_file, repository, test_overwrite_version: TEST_VERSION)
+        described_class.to_file(temp_file, repository,
+                                test_overwrite_version: TEST_VERSION)
 
         expect do
-          Expressir::Express::Cache.from_file(temp_file)
+          described_class.from_file(temp_file)
         end.to raise_error(Expressir::Express::CacheVersionMismatchError)
       ensure
         temp_file.close

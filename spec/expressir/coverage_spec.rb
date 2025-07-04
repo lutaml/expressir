@@ -9,7 +9,7 @@ RSpec.describe Expressir::Coverage do
         remarks: ["This is a test remark"],
       )
 
-      expect(Expressir::Coverage.entity_documented?(entity)).to be true
+      expect(described_class.entity_documented?(entity)).to be true
     end
 
     it "returns false for an entity without remarks" do
@@ -18,7 +18,7 @@ RSpec.describe Expressir::Coverage do
         id: "test_entity",
       )
 
-      expect(Expressir::Coverage.entity_documented?(entity)).to be false
+      expect(described_class.entity_documented?(entity)).to be false
     end
 
     it "returns true for an entity with empty remarks array but has remark items" do
@@ -34,19 +34,23 @@ RSpec.describe Expressir::Coverage do
         ],
       )
 
-      expect(Expressir::Coverage.entity_documented?(entity)).to be true
+      expect(described_class.entity_documented?(entity)).to be true
     end
   end
 
   describe ".find_entities" do
     let(:sample_schema_path) { File.join("spec", "syntax", "syntax.exp") }
-    let(:repository) { Expressir::Express::Parser.from_file(sample_schema_path) }
+    let(:repository) do
+      Expressir::Express::Parser.from_file(sample_schema_path)
+    end
 
     it "finds all entity types in a schema" do
-      entities = Expressir::Coverage.find_entities(repository)
+      entities = described_class.find_entities(repository)
 
       # Should find various entity types
-      entity_types = entities.map { |e| e.class.name.split("::").last }.uniq.sort
+      entity_types = entities.map do |e|
+        e.class.name.split("::").last
+      end.uniq.sort
 
       expect(entity_types).to include("Entity")
       expect(entity_types).to include("Type")
@@ -63,23 +67,33 @@ RSpec.describe Expressir::Coverage do
     end
 
     it "finds nested entities within functions" do
-      entities = Expressir::Coverage.find_entities(repository)
+      entities = described_class.find_entities(repository)
 
       # Should find parameters and variables within functions
-      parameters = entities.select { |e| e.is_a?(Expressir::Model::Declarations::Parameter) }
-      variables = entities.select { |e| e.is_a?(Expressir::Model::Declarations::Variable) }
+      parameters = entities.select do |e|
+        e.is_a?(Expressir::Model::Declarations::Parameter)
+      end
+      variables = entities.select do |e|
+        e.is_a?(Expressir::Model::Declarations::Variable)
+      end
 
       expect(parameters).not_to be_empty
       expect(variables).not_to be_empty
     end
 
     it "finds nested entities within entities" do
-      entities = Expressir::Coverage.find_entities(repository)
+      entities = described_class.find_entities(repository)
 
       # Should find attributes, unique rules, where rules within entities
-      attributes = entities.select { |e| e.is_a?(Expressir::Model::Declarations::Attribute) }
-      where_rules = entities.select { |e| e.is_a?(Expressir::Model::Declarations::WhereRule) }
-      unique_rules = entities.select { |e| e.is_a?(Expressir::Model::Declarations::UniqueRule) }
+      attributes = entities.select do |e|
+        e.is_a?(Expressir::Model::Declarations::Attribute)
+      end
+      where_rules = entities.select do |e|
+        e.is_a?(Expressir::Model::Declarations::WhereRule)
+      end
+      unique_rules = entities.select do |e|
+        e.is_a?(Expressir::Model::Declarations::UniqueRule)
+      end
 
       expect(attributes).not_to be_empty
       expect(where_rules).not_to be_empty
@@ -87,10 +101,12 @@ RSpec.describe Expressir::Coverage do
     end
 
     it "finds enumeration items within types" do
-      entities = Expressir::Coverage.find_entities(repository)
+      entities = described_class.find_entities(repository)
 
       # Should find enumeration items within enumeration types
-      enum_items = entities.select { |e| e.is_a?(Expressir::Model::DataTypes::EnumerationItem) }
+      enum_items = entities.select do |e|
+        e.is_a?(Expressir::Model::DataTypes::EnumerationItem)
+      end
 
       expect(enum_items).not_to be_empty
     end
@@ -98,12 +114,15 @@ RSpec.describe Expressir::Coverage do
 
   describe ".apply_exclusions" do
     let(:sample_schema_path) { File.join("spec", "syntax", "syntax.exp") }
-    let(:repository) { Expressir::Express::Parser.from_file(sample_schema_path) }
-    let(:all_entities) { Expressir::Coverage.find_entities(repository) }
+    let(:repository) do
+      Expressir::Express::Parser.from_file(sample_schema_path)
+    end
+    let(:all_entities) { described_class.find_entities(repository) }
 
     it "excludes specified entity types" do
       exclusions = ["PARAMETER", "VARIABLE"]
-      filtered_entities = Expressir::Coverage.apply_exclusions(all_entities, exclusions)
+      filtered_entities = described_class.apply_exclusions(all_entities,
+                                                           exclusions)
 
       # Should not contain any parameters or variables
       expect(filtered_entities.any?(Expressir::Model::Declarations::Parameter)).to be false
@@ -116,7 +135,8 @@ RSpec.describe Expressir::Coverage do
 
     it "excludes TYPE subtypes" do
       exclusions = ["TYPE:SELECT"]
-      filtered_entities = Expressir::Coverage.apply_exclusions(all_entities, exclusions)
+      filtered_entities = described_class.apply_exclusions(all_entities,
+                                                           exclusions)
 
       # Should exclude SELECT types but keep other types
       select_types = filtered_entities.select do |e|
@@ -137,7 +157,8 @@ RSpec.describe Expressir::Coverage do
 
     it "excludes multiple TYPE subtypes" do
       exclusions = ["TYPE:SELECT", "TYPE:ENUMERATION"]
-      filtered_entities = Expressir::Coverage.apply_exclusions(all_entities, exclusions)
+      filtered_entities = described_class.apply_exclusions(all_entities,
+                                                           exclusions)
 
       # Should exclude both SELECT and ENUMERATION types
       select_types = filtered_entities.select do |e|
@@ -156,7 +177,8 @@ RSpec.describe Expressir::Coverage do
 
     it "handles mixed exclusions" do
       exclusions = ["PARAMETER", "TYPE:SELECT", "VARIABLE"]
-      filtered_entities = Expressir::Coverage.apply_exclusions(all_entities, exclusions)
+      filtered_entities = described_class.apply_exclusions(all_entities,
+                                                           exclusions)
 
       # Should exclude parameters, variables, and SELECT types
       expect(filtered_entities.any?(Expressir::Model::Declarations::Parameter)).to be false
@@ -170,22 +192,28 @@ RSpec.describe Expressir::Coverage do
     end
 
     it "returns all entities when no exclusions specified" do
-      filtered_entities = Expressir::Coverage.apply_exclusions(all_entities, [])
+      filtered_entities = described_class.apply_exclusions(all_entities, [])
 
       expect(filtered_entities.size).to eq(all_entities.size)
     end
 
     it "excludes inner functions with FUNCTION:INNER" do
-      nested_schema_path = File.join("spec", "fixtures", "examples", "nested_functions_test_schema.exp")
+      nested_schema_path = File.join("spec", "fixtures", "examples",
+                                     "nested_functions_test_schema.exp")
       repository = Expressir::Express::Parser.from_file(nested_schema_path)
-      all_entities = Expressir::Coverage.find_entities(repository)
+      all_entities = described_class.find_entities(repository)
 
       exclusions = ["FUNCTION:INNER"]
-      filtered_entities = Expressir::Coverage.apply_exclusions(all_entities, exclusions)
+      filtered_entities = described_class.apply_exclusions(all_entities,
+                                                           exclusions)
 
       # Should exclude inner functions but keep top-level functions
-      all_functions = all_entities.select { |e| e.is_a?(Expressir::Model::Declarations::Function) }
-      filtered_functions = filtered_entities.select { |e| e.is_a?(Expressir::Model::Declarations::Function) }
+      all_functions = all_entities.select do |e|
+        e.is_a?(Expressir::Model::Declarations::Function)
+      end
+      filtered_functions = filtered_entities.select do |e|
+        e.is_a?(Expressir::Model::Declarations::Function)
+      end
 
       # Should have fewer functions after filtering
       expect(filtered_functions.size).to be < all_functions.size
@@ -202,19 +230,23 @@ RSpec.describe Expressir::Coverage do
     end
 
     it "handles mixed exclusions including FUNCTION:INNER" do
-      nested_schema_path = File.join("spec", "fixtures", "examples", "nested_functions_test_schema.exp")
+      nested_schema_path = File.join("spec", "fixtures", "examples",
+                                     "nested_functions_test_schema.exp")
       repository = Expressir::Express::Parser.from_file(nested_schema_path)
-      all_entities = Expressir::Coverage.find_entities(repository)
+      all_entities = described_class.find_entities(repository)
 
       exclusions = ["PARAMETER", "FUNCTION:INNER", "VARIABLE"]
-      filtered_entities = Expressir::Coverage.apply_exclusions(all_entities, exclusions)
+      filtered_entities = described_class.apply_exclusions(all_entities,
+                                                           exclusions)
 
       # Should exclude parameters, variables, and inner functions
       expect(filtered_entities.any?(Expressir::Model::Declarations::Parameter)).to be false
       expect(filtered_entities.any?(Expressir::Model::Declarations::Variable)).to be false
 
       # Should exclude inner functions but keep top-level functions
-      filtered_functions = filtered_entities.select { |e| e.is_a?(Expressir::Model::Declarations::Function) }
+      filtered_functions = filtered_entities.select do |e|
+        e.is_a?(Expressir::Model::Declarations::Function)
+      end
       top_level_function_names = filtered_functions.map(&:id).map(&:to_s)
       expect(top_level_function_names).to include("top_level_function")
       expect(top_level_function_names).to include("another_top_level_function")
@@ -224,8 +256,10 @@ RSpec.describe Expressir::Coverage do
     end
 
     it "handles invalid exclusion patterns gracefully" do
-      exclusions = ["INVALID_TYPE", "TYPE:INVALID_SUBTYPE", "FUNCTION:INVALID_SUBTYPE"]
-      filtered_entities = Expressir::Coverage.apply_exclusions(all_entities, exclusions)
+      exclusions = ["INVALID_TYPE", "TYPE:INVALID_SUBTYPE",
+                    "FUNCTION:INVALID_SUBTYPE"]
+      filtered_entities = described_class.apply_exclusions(all_entities,
+                                                           exclusions)
 
       # Should return all entities since invalid exclusions don't match anything
       expect(filtered_entities.size).to eq(all_entities.size)
@@ -253,14 +287,18 @@ RSpec.describe Expressir::Coverage do
 
       it "applies exclusions when specified" do
         report_without_exclusions = Expressir::Coverage::Report.from_file(sample_schema_path)
-        report_with_exclusions = Expressir::Coverage::Report.from_file(sample_schema_path, exclusions: ["PARAMETER", "VARIABLE"])
+        report_with_exclusions = Expressir::Coverage::Report.from_file(
+          sample_schema_path, exclusions: ["PARAMETER", "VARIABLE"]
+        )
 
         expect(report_with_exclusions.total_entities.size).to be <= report_without_exclusions.total_entities.size
       end
     end
 
     context "with a repository" do
-      let(:repository) { Expressir::Express::Parser.from_file(sample_schema_path) }
+      let(:repository) do
+        Expressir::Express::Parser.from_file(sample_schema_path)
+      end
 
       it "creates a report from a repository" do
         report = Expressir::Coverage::Report.from_repository(repository)
@@ -277,7 +315,9 @@ RSpec.describe Expressir::Coverage do
 
       it "applies exclusions when specified" do
         report_without_exclusions = Expressir::Coverage::Report.from_repository(repository)
-        report_with_exclusions = Expressir::Coverage::Report.from_repository(repository, exclusions: ["PARAMETER", "VARIABLE"])
+        report_with_exclusions = Expressir::Coverage::Report.from_repository(
+          repository, exclusions: ["PARAMETER", "VARIABLE"]
+        )
 
         expect(report_with_exclusions.total_entities.size).to be <= report_without_exclusions.total_entities.size
       end
@@ -288,7 +328,9 @@ RSpec.describe Expressir::Coverage do
       let(:report) { Expressir::Coverage::Report.from_file(syntax_schema_path) }
 
       it "detects all major entity types" do
-        entity_types = report.total_entities.map { |e| e.class.name.split("::").last }.uniq.sort
+        entity_types = report.total_entities.map do |e|
+          e.class.name.split("::").last
+        end.uniq.sort
 
         # Should detect all major EXPRESS entity types
         expected_types = %w[

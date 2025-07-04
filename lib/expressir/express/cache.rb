@@ -9,7 +9,8 @@ module Expressir
       # @param root_path [String] Express repository root path, to be stripped from Express file paths to create a portable cache file
       # @param test_overwrite_version [String] don't use, only for tests
       # @return [nil]
-      def self.to_file(file, content, root_path: nil, test_overwrite_version: nil)
+      def self.to_file(file, content, root_path: nil,
+test_overwrite_version: nil)
         version = test_overwrite_version || VERSION
 
         cache = Model::Cache.new(

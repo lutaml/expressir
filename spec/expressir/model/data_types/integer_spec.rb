@@ -36,9 +36,15 @@ RSpec.describe Expressir::Model::DataTypes::Integer do
   end
 
   describe "value range" do
-    let(:min_value) { Expressir::Model::Literals::Integer.new(value: "-2147483648") }
-    let(:max_value) { Expressir::Model::Literals::Integer.new(value: "2147483647") }
-    let(:out_of_range_value) { Expressir::Model::Literals::Integer.new(value: "9999999999999999999") }
+    let(:min_value) do
+      Expressir::Model::Literals::Integer.new(value: "-2147483648")
+    end
+    let(:max_value) do
+      Expressir::Model::Literals::Integer.new(value: "2147483647")
+    end
+    let(:out_of_range_value) do
+      Expressir::Model::Literals::Integer.new(value: "9999999999999999999")
+    end
 
     it "accepts values within range" do
       expect(min_value.value).to eq "-2147483648"

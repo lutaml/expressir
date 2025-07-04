@@ -1,6 +1,6 @@
 ---
 schemas:
   test_schema_1:
-    path: spec/syntax/remark.exp
+    path: ../syntax/remark.exp
   test_schema_2:
-    path: spec/expressir/test_undocumented.exp
+    path: ../syntax/single.exp

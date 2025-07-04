@@ -8,7 +8,7 @@ module Expressir
         cache_path = options[:cache_path] || generate_temp_cache_path
 
         if [".yml", ".yaml"].include?(File.extname(path).downcase)
-          benchmark_cache_from_yaml(path, cache_path)
+          benchmark_cache_from_manifest(path, cache_path)
         else
           benchmark_cache_file(path, cache_path)
         end
@@ -45,24 +45,15 @@ module Expressir
         end
       end
 
-      def benchmark_cache_from_yaml(yaml_path, cache_path)
-        say "Express Schema Loading Benchmark with Caching from YAML"
+      def benchmark_cache_from_manifest(manifest_path, cache_path)
+        say "Express Schema Loading Benchmark with Caching from Manifest"
         say "--------------------------------"
 
-        # Load schema list from YAML
-        schema_list = YAML.load_file(yaml_path)
-        if schema_list.is_a?(Hash) && schema_list["schemas"]
-          # Handle format: { "schemas": ["path1", "path2", ...] }
-          schema_files = schema_list["schemas"]
-        elsif schema_list.is_a?(Array)
-          # Handle format: ["path1", "path2", ...]
-          schema_files = schema_list
-        else
-          say "Invalid YAML format. Expected an array of schema paths or a hash with a 'schemas' key."
-          return
-        end
+        # Load schema manifest
+        manifest = Expressir::SchemaManifest.from_file(manifest_path)
+        schema_files = manifest.schemas.map(&:path)
 
-        say "YAML File: #{yaml_path}"
+        say "Manifest File: #{manifest_path}"
         say "Number of schemas in list: #{schema_files.size}"
         say "Cache: #{cache_path}"
         say "--------------------------------"

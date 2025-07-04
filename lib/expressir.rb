@@ -29,6 +29,7 @@ end
 
 module Expressir
   class Error < StandardError; end
+  class InvalidSchemaManifestError < Error; end
 
   def self.root
     File.dirname(__dir__)

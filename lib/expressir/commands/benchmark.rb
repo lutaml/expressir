@@ -5,7 +5,7 @@ module Expressir
         configure_benchmarking
 
         if [".yml", ".yaml"].include?(File.extname(path).downcase)
-          benchmark_from_yaml(path)
+          benchmark_from_manifest(path)
         else
           benchmark_file(path)
         end
@@ -36,24 +36,15 @@ module Expressir
         end
       end
 
-      def benchmark_from_yaml(yaml_path)
-        say "Express Schema Loading Benchmark from YAML"
+      def benchmark_from_manifest(manifest_path)
+        say "Express Schema Loading Benchmark from Manifest"
         say "--------------------------------"
 
-        # Load schema list from YAML
-        schema_list = YAML.load_file(yaml_path)
-        if schema_list.is_a?(Hash) && schema_list["schemas"]
-          # Handle format: { "schemas": ["path1", "path2", ...] }
-          schema_files = schema_list["schemas"]
-        elsif schema_list.is_a?(Array)
-          # Handle format: ["path1", "path2", ...]
-          schema_files = schema_list
-        else
-          say "Invalid YAML format. Expected an array of schema paths or a hash with a 'schemas' key."
-          return
-        end
+        # Load schema manifest
+        manifest = Expressir::SchemaManifest.from_file(manifest_path)
+        schema_files = manifest.schemas.map(&:path)
 
-        say "YAML File: #{yaml_path}"
+        say "Manifest File: #{manifest_path}"
         say "Number of schemas in list: #{schema_files.size}"
         say "--------------------------------"
 

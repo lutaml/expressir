@@ -47,7 +47,7 @@ module Expressir
         elsif File.extname(path).downcase == ".exp"
           handle_express_file(path, reports, ignored_files)
         elsif [".yml", ".yaml"].include?(File.extname(path).downcase)
-          handle_yaml_manifest(path, reports, ignored_files)
+          handle_schema_manifest(path, reports, ignored_files)
         else
           say "Unsupported file type: #{path}"
         end
@@ -80,8 +80,11 @@ module Expressir
             progress.increment
           end
           skip_types = parse_skip_types
-          report = Expressir::Coverage::Report.from_repository(repository,
-                                                               skip_types, ignored_files)
+          report = Expressir::Coverage::Report.from_repository(
+            repository,
+            skip_types,
+            ignored_files,
+          )
           reports << report
         rescue StandardError => e
           say "Error processing directory #{path}: #{e.message}"
@@ -101,35 +104,14 @@ module Expressir
         end
       end
 
-      def handle_yaml_manifest(path, reports, ignored_files)
-        say "Processing YAML manifest: #{path}"
+      def handle_schema_manifest(path, reports, ignored_files)
+        say "Processing schema manifest: #{path}"
         begin
-          schema_list = YAML.load_file(path)
-          manifest_dir = File.dirname(path)
+          # Load schema manifest
+          manifest = Expressir::SchemaManifest.from_file(path)
+          schema_files = manifest.schemas.map(&:path)
 
-          if schema_list.is_a?(Hash) && schema_list["schemas"]
-            schemas_data = schema_list["schemas"]
-
-            # Handle the nested structure with schema name keys and path values
-            if schemas_data.is_a?(Hash)
-              schema_files = schemas_data.values.filter_map do |schema_data|
-                if schema_data.is_a?(Hash) && schema_data["path"]
-                  # Make path relative to the manifest location
-                  File.expand_path(schema_data["path"], manifest_dir)
-                end
-              end
-
-              say "Found #{schema_files.size} schema files to process"
-            else
-              # If it's a direct array of paths (old format)
-              schema_files = schemas_data
-            end
-          elsif schema_list.is_a?(Array)
-            schema_files = schema_list
-          else
-            say "Invalid YAML format. Expected an array of schema paths or a hash with a 'schemas' key."
-            return
-          end
+          say "Found #{schema_files.size} schema files to process"
 
           # Initialize progress bar
           if schema_files && !schema_files.empty?
@@ -152,13 +134,15 @@ module Expressir
 
             # Create and add the report
             skip_types = parse_skip_types
-            report = Expressir::Coverage::Report.from_repository(repository,
-                                                                 skip_types, ignored_files)
+            report = Expressir::Coverage::Report.from_repository(
+              repository,
+              skip_types,
+              ignored_files,
+            )
             reports << report
           end
         rescue StandardError => e
-          say "Error processing YAML manifest #{path}: #{e.message}"
-          say "Debug: schema_list structure: #{schema_list.class}" if schema_list
+          say "Error processing schema manifest #{path}: #{e.message}"
         end
       end
 

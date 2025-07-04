@@ -178,17 +178,17 @@ expressir benchmark schemas/resources/action_schema/action_schema.exp --ips
 expressir benchmark schemas/resources/action_schema/action_schema.exp --format json
 ----
 
-==== Benchmark multiple files from YAML
+==== Benchmark multiple files from schema manifest
 
-Create a YAML file with a list of schema paths:
+Create a schema manifest YAML file with a list of schema paths:
 
 .schemas.yml
 [source, yaml]
 ----
 schemas:
-  - schemas/resources/action_schema/action_schema.exp
-  - schemas/resources/approval_schema/approval_schema.exp
-  - schemas/resources/date_time_schema/date_time_schema.exp
+  - path: schemas/resources/action_schema/action_schema.exp
+  - path: schemas/resources/approval_schema/approval_schema.exp
+  - path: schemas/resources/date_time_schema/date_time_schema.exp
 ----
 
 Then benchmark all schemas at once:
@@ -864,6 +864,203 @@ end
 all_entities = Expressir::Coverage.find_entities(schema)
 puts "Found #{all_entities.size} entities in schema #{schema.id}"
 ----
+
+=== EXPRESS schema manifest
+
+==== General
+
+The EXPRESS schema manifest is a file format defined by ELF at
+https://www.expresslang.org/docs[EXPRESS schema manifest specification].
+
+Expressir provides a `SchemaManifest` class for managing collections of EXPRESS
+schema files. This is particularly useful when working with multiple related
+schemas or when you need to organize schema files in a structured way.
+
+The `SchemaManifest` class allows you to:
+
+* Load schema file lists from YAML manifest files
+* Manage schema metadata and paths
+* Programmatically create and manipulate schema collections
+* Save manifest configurations to files
+
+
+[example]
+.Example project structure with schema manifest:
+====
+[source]
+----
+project/
+├── schemas.yml   # Schema manifest
+└── schemas/
+    ├── core/
+    │   ├── action_schema.exp
+    │   └── approval_schema.exp
+    └── extensions/
+        └── date_time_schema.exp
+----
+
+.schemas.yml
+[source,yaml]
+----
+schemas:
+  - path: schemas/core/action_schema.exp
+    id: action_schema
+  - path: schemas/core/approval_schema.exp
+    id: approval_schema
+  - path: schemas/extensions/date_time_schema.exp
+    id: date_time_schema
+----
+====
+
+==== Creating a schema manifest
+
+===== From a YAML file
+
+Load an existing schema manifest from a YAML file:
+
+[source,ruby]
+----
+# Load manifest from file
+manifest = Expressir::SchemaManifest.from_file("schemas.yml")
+
+# Access schema entries
+manifest.schemas.each do |schema_entry|
+  puts "Schema path: #{schema_entry.path}"
+  puts "Schema ID: #{schema_entry.id}" if schema_entry.id
+end
+
+# Get all schema file paths
+schema_paths = manifest.schemas.map(&:path)
+----
+
+===== Programmatically
+
+Create a new schema manifest programmatically:
+
+[source,ruby]
+----
+# Create an empty manifest
+manifest = Expressir::SchemaManifest.new
+
+# Add schema entries
+manifest.schemas << Expressir::SchemaManifestEntry.new(
+  path: "schemas/action_schema.exp",
+  id: "action_schema"
+)
+
+manifest.schemas << Expressir::SchemaManifestEntry.new(
+  path: "schemas/approval_schema.exp"
+)
+
+# Set base path for the manifest
+manifest.base_path = "/path/to/schemas"
+----
+
+==== Schema manifest YAML format
+
+The schema manifest uses a structured YAML format:
+
+[source,yaml]
+----
+schemas:
+  - path: schemas/resources/action_schema/action_schema.exp
+    id: action_schema
+  - path: schemas/resources/approval_schema/approval_schema.exp
+    id: approval_schema
+  - path: schemas/resources/date_time_schema/date_time_schema.exp
+----
+
+===== Schema entry attributes
+
+Each schema entry in the manifest can have the following attributes:
+
+`path`:: (Required) The file path to the EXPRESS schema file
+`id`:: (Optional) A unique identifier for the schema
+`container_path`:: (Optional) Container path information
+
+
+==== Working with schema manifests
+
+===== Saving manifests
+
+Save a manifest to a file:
+
+[source,ruby]
+----
+# Save to a specific file
+manifest.to_file("output_schemas.yml")
+
+# Save to a path with automatic filename
+manifest.save_to_path("/path/to/output/")
+----
+
+===== Concatenating manifests
+
+Combine multiple manifests:
+
+[source,ruby]
+----
+manifest1 = Expressir::SchemaManifest.from_file("schemas1.yml")
+manifest2 = Expressir::SchemaManifest.from_file("schemas2.yml")
+
+# Concatenate manifests
+combined_manifest = manifest1.concat(manifest2)
+
+# Or use the + operator
+combined_manifest = manifest1 + manifest2
+----
+
+===== Using manifests with parsers
+
+Parse all schemas from a manifest:
+
+[source,ruby]
+----
+# Load manifest
+manifest = Expressir::SchemaManifest.from_file("schemas.yml")
+
+# Get schema file paths
+schema_paths = manifest.schemas.map(&:path)
+
+# Parse all schemas
+repository = Expressir::Express::Parser.from_files(schema_paths)
+
+# With progress tracking
+repository = Expressir::Express::Parser.from_files(schema_paths) do |filename, schemas, error|
+  if error
+    puts "Error loading #{filename}: #{error.message}"
+  else
+    puts "Successfully loaded #{schemas.length} schemas from #{filename}"
+  end
+end
+----
+
+==== Integration with CLI commands
+
+Schema manifests are supported by several CLI commands:
+
+===== Benchmarking with manifests
+
+[source,sh]
+----
+# Benchmark all schemas in a manifest
+expressir benchmark schemas.yml --verbose
+
+# Benchmark with caching
+expressir benchmark-cache schemas.yml --cache_path /tmp/cache.bin
+----
+
+===== Coverage analysis with manifests
+
+[source,sh]
+----
+# Analyze coverage for all schemas in manifest
+expressir coverage schemas.yml
+
+# With output format and exclusions
+expressir coverage schemas.yml --format json --exclude=TYPE:SELECT
+----
+
 
 
 == Contributing

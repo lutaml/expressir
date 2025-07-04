@@ -3,7 +3,9 @@ require "stringio"
 
 RSpec.describe Expressir::Commands::Coverage do
   let(:output) { StringIO.new }
-  let(:test_manifest_path) { File.join("spec", "fixtures", "test_manifest.yml") }
+  let(:test_manifest_path) do
+    File.join("spec", "fixtures", "test_manifest.yml")
+  end
   let(:sample_schema_path) { File.join("spec", "syntax", "syntax.exp") }
 
   before do
@@ -39,7 +41,7 @@ RSpec.describe Expressir::Commands::Coverage do
       expect(json_content).to include("\"coverage_percentage\":")
 
       # Clean up
-      File.delete("coverage_report.json") if File.exist?("coverage_report.json")
+      FileUtils.rm_f("coverage_report.json")
     end
 
     it "outputs YAML format when requested" do
@@ -56,7 +58,7 @@ RSpec.describe Expressir::Commands::Coverage do
       expect(yaml_content).to include("coverage_percentage:")
 
       # Clean up
-      File.delete("coverage_report.yaml") if File.exist?("coverage_report.yaml")
+      FileUtils.rm_f("coverage_report.yaml")
     end
   end
 
@@ -80,7 +82,9 @@ RSpec.describe Expressir::Commands::Coverage do
       # Verify no excluded entity types appear in undocumented list
       if json_output["files"].any?
         undocumented = json_output["files"].first["undocumented"] || []
-        parameter_entities = undocumented.select { |e| e["type"] == "PARAMETER" }
+        parameter_entities = undocumented.select do |e|
+          e["type"] == "PARAMETER"
+        end
         variable_entities = undocumented.select { |e| e["type"] == "VARIABLE" }
 
         expect(parameter_entities).to be_empty
@@ -88,29 +92,33 @@ RSpec.describe Expressir::Commands::Coverage do
       end
 
       # Clean up
-      File.delete("coverage_report.json") if File.exist?("coverage_report.json")
+      FileUtils.rm_f("coverage_report.json")
     end
 
     it "applies TYPE subtype exclusions" do
-      type_exclusion_command = described_class.new(format: "json", exclude: ["TYPE:SELECT"])
+      type_exclusion_command = described_class.new(format: "json",
+                                                   exclude: ["TYPE:SELECT"])
       type_exclusion_command.run([sample_schema_path])
 
       # Should successfully exclude SELECT types without errors
       expect(output.string).to include("JSON coverage report written to: coverage_report.json")
 
       # Clean up
-      File.delete("coverage_report.json") if File.exist?("coverage_report.json")
+      FileUtils.rm_f("coverage_report.json")
     end
 
     it "handles multiple exclusions" do
-      multi_exclusion_command = described_class.new(format: "json", exclude: ["PARAMETER", "TYPE:SELECT", "ENUMERATION_ITEM"])
+      multi_exclusion_command = described_class.new(format: "json",
+                                                    exclude: [
+                                                      "PARAMETER", "TYPE:SELECT", "ENUMERATION_ITEM"
+                                                    ])
       multi_exclusion_command.run([sample_schema_path])
 
       # Should successfully apply multiple exclusions without errors
       expect(output.string).to include("JSON coverage report written to: coverage_report.json")
 
       # Clean up
-      File.delete("coverage_report.json") if File.exist?("coverage_report.json")
+      FileUtils.rm_f("coverage_report.json")
     end
   end
 
@@ -132,7 +140,7 @@ RSpec.describe Expressir::Commands::Coverage do
       expect(json_output["directories"]).not_to be_empty
 
       # Clean up
-      File.delete("coverage_report.json") if File.exist?("coverage_report.json")
+      FileUtils.rm_f("coverage_report.json")
     end
   end
 
@@ -158,7 +166,7 @@ RSpec.describe Expressir::Commands::Coverage do
       expect(file_names).to include("remark.exp")
 
       # Clean up
-      File.delete("coverage_report.json") if File.exist?("coverage_report.json")
+      FileUtils.rm_f("coverage_report.json")
     end
   end
 
@@ -188,7 +196,7 @@ RSpec.describe Expressir::Commands::Coverage do
       expect(file_report["total"]).to be > 0
 
       # Clean up
-      File.delete("coverage_report.json") if File.exist?("coverage_report.json")
+      FileUtils.rm_f("coverage_report.json")
     end
 
     it "provides detailed undocumented entity information" do
@@ -210,11 +218,12 @@ RSpec.describe Expressir::Commands::Coverage do
       end
 
       # Clean up
-      File.delete("coverage_report.json") if File.exist?("coverage_report.json")
+      FileUtils.rm_f("coverage_report.json")
     end
   end
 
-  describe "#run with yaml manifest", skip: "Temporary skip while fixing SystemExit issue" do
+  describe "#run with yaml manifest",
+           skip: "Temporary skip while fixing SystemExit issue" do
     # Create a minimal options hash
     let(:options) { { format: "text" } }
     # Create an instance of the command with test mode to prevent real exits
@@ -241,7 +250,8 @@ RSpec.describe Expressir::Commands::Coverage do
     end
 
     context "with a complex nested YAML manifest" do
-      it "correctly processes schema files from nested paths", :aggregate_failures do
+      it "correctly processes schema files from nested paths",
+         :aggregate_failures do
         # The private method is tested indirectly through the run method
         command.run([test_manifest_path])
 
@@ -278,7 +288,7 @@ RSpec.describe Expressir::Commands::Coverage do
         expect(yaml_content).to include("file: spec/syntax/remark.exp")
 
         # Clean up
-        File.delete("coverage_report.yaml") if File.exist?("coverage_report.yaml")
+        FileUtils.rm_f("coverage_report.yaml")
       end
 
       it "creates a json report from the manifest" do
@@ -303,22 +313,25 @@ RSpec.describe Expressir::Commands::Coverage do
         expect(json_content).to include("\"file\": \"spec/syntax/remark.exp\"")
 
         # Clean up
-        File.delete("coverage_report.json") if File.exist?("coverage_report.json")
+        FileUtils.rm_f("coverage_report.json")
       end
     end
 
     context "with an invalid YAML manifest" do
       # Use a temporary file for the invalid manifest
-      let(:invalid_manifest_path) { File.join("spec", "fixtures", "invalid_manifest.yml") }
+      let(:invalid_manifest_path) do
+        File.join("spec", "fixtures", "invalid_manifest.yml")
+      end
 
       before do
         # Create an invalid manifest file - valid YAML but wrong structure
-        File.write(invalid_manifest_path, "# Valid YAML but missing schemas key\nkey1: value1\nkey2: value2")
+        File.write(invalid_manifest_path,
+                   "# Valid YAML but missing schemas key\nkey1: value1\nkey2: value2")
       end
 
       after do
         # Clean up the temporary file
-        File.delete(invalid_manifest_path) if File.exist?(invalid_manifest_path)
+        FileUtils.rm_f(invalid_manifest_path)
       end
 
       it "handles errors gracefully" do
@@ -357,7 +370,7 @@ RSpec.describe Expressir::Commands::Coverage do
           command.run([invalid_file])
         end.to raise_error(SystemExit)
       ensure
-        File.delete(invalid_file) if File.exist?(invalid_file)
+        FileUtils.rm_f(invalid_file)
       end
     end
   end

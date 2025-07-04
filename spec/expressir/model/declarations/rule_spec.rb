@@ -89,7 +89,8 @@ RSpec.describe Expressir::Model::Declarations::Rule do
       statements: [statement],
       where_rules: [where_rule],
       informal_propositions: [
-        Expressir::Model::Declarations::RemarkItem.new(id: "IP1", remarks: ["Informal proposition"]),
+        Expressir::Model::Declarations::RemarkItem.new(id: "IP1",
+                                                       remarks: ["Informal proposition"]),
       ],
       remarks: ["Rule remark"],
       remark_items: [

@@ -2,7 +2,9 @@ require "spec_helper"
 
 RSpec.describe Expressir::Model::Declarations::Variable do
   let(:integer_type) { Expressir::Model::DataTypes::Integer.new }
-  let(:integer_expression) { Expressir::Model::Literals::Integer.new(value: "42") }
+  let(:integer_expression) do
+    Expressir::Model::Literals::Integer.new(value: "42")
+  end
 
   let(:variable) do
     described_class.new(
@@ -129,9 +131,13 @@ RSpec.describe Expressir::Model::Declarations::Variable do
   end
 
   describe "with different expressions" do
-    let(:string_literal) { Expressir::Model::Literals::String.new(value: "test") }
+    let(:string_literal) do
+      Expressir::Model::Literals::String.new(value: "test")
+    end
     let(:real_literal) { Expressir::Model::Literals::Real.new(value: "3.14") }
-    let(:logical_literal) { Expressir::Model::Literals::Logical.new(value: "TRUE") }
+    let(:logical_literal) do
+      Expressir::Model::Literals::Logical.new(value: "TRUE")
+    end
 
     it "supports string expressions" do
       var = described_class.new(

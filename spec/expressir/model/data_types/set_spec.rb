@@ -71,7 +71,9 @@ RSpec.describe Expressir::Model::DataTypes::Set do
     end
 
     context "when initializing sets" do
-      let(:empty_set) { Expressir::Model::Expressions::AggregateInitializer.new(items: []) }
+      let(:empty_set) do
+        Expressir::Model::Expressions::AggregateInitializer.new(items: [])
+      end
       let(:single_item_set) do
         Expressir::Model::Expressions::AggregateInitializer.new(
           items: [Expressir::Model::Literals::Integer.new(value: "1")],

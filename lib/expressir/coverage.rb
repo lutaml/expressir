@@ -236,7 +236,9 @@ module Expressir
       # @return [Hash] A hash with coverage information
       def process_schema(schema)
         entities = Expressir::Coverage.find_entities(schema, @skip_types)
-        documented = entities.select { |e| Expressir::Coverage.entity_documented?(e) }
+        documented = entities.select do |e|
+          Expressir::Coverage.entity_documented?(e)
+        end
         undocumented = entities - documented
 
         coverage = entities.empty? ? 100.0 : (documented.size.to_f / entities.size) * 100
@@ -400,10 +402,18 @@ module Expressir
         entities.concat(container.subtype_constraints) if container.subtype_constraints
 
         # Recursively find nested entities in nested containers
-        container.types&.each { |type| entities.concat(find_nested_entities(type)) }
-        container.entities&.each { |entity| entities.concat(find_nested_entities(entity)) }
-        container.functions&.each { |function| entities.concat(find_nested_entities(function)) }
-        container.procedures&.each { |procedure| entities.concat(find_nested_entities(procedure)) }
+        container.types&.each do |type|
+          entities.concat(find_nested_entities(type))
+        end
+        container.entities&.each do |entity|
+          entities.concat(find_nested_entities(entity))
+        end
+        container.functions&.each do |function|
+          entities.concat(find_nested_entities(function))
+        end
+        container.procedures&.each do |procedure|
+          entities.concat(find_nested_entities(procedure))
+        end
 
       when Expressir::Model::Declarations::Rule
         # Rule nested entities
@@ -416,10 +426,18 @@ module Expressir
         entities.concat(container.subtype_constraints) if container.subtype_constraints
 
         # Recursively find nested entities in nested containers
-        container.types&.each { |type| entities.concat(find_nested_entities(type)) }
-        container.entities&.each { |entity| entities.concat(find_nested_entities(entity)) }
-        container.functions&.each { |function| entities.concat(find_nested_entities(function)) }
-        container.procedures&.each { |procedure| entities.concat(find_nested_entities(procedure)) }
+        container.types&.each do |type|
+          entities.concat(find_nested_entities(type))
+        end
+        container.entities&.each do |entity|
+          entities.concat(find_nested_entities(entity))
+        end
+        container.functions&.each do |function|
+          entities.concat(find_nested_entities(function))
+        end
+        container.procedures&.each do |procedure|
+          entities.concat(find_nested_entities(procedure))
+        end
 
       when Expressir::Model::Declarations::Procedure
         # Procedure nested entities
@@ -433,10 +451,18 @@ module Expressir
         entities.concat(container.subtype_constraints) if container.subtype_constraints
 
         # Recursively find nested entities in nested containers
-        container.types&.each { |type| entities.concat(find_nested_entities(type)) }
-        container.entities&.each { |entity| entities.concat(find_nested_entities(entity)) }
-        container.functions&.each { |function| entities.concat(find_nested_entities(function)) }
-        container.procedures&.each { |procedure| entities.concat(find_nested_entities(procedure)) }
+        container.types&.each do |type|
+          entities.concat(find_nested_entities(type))
+        end
+        container.entities&.each do |entity|
+          entities.concat(find_nested_entities(entity))
+        end
+        container.functions&.each do |function|
+          entities.concat(find_nested_entities(function))
+        end
+        container.procedures&.each do |procedure|
+          entities.concat(find_nested_entities(procedure))
+        end
 
       when Expressir::Model::Declarations::Interface
         # Interface nested entities

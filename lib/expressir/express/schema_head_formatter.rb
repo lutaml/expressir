@@ -9,7 +9,8 @@ module Expressir
       # @!visibility private
       def self.included(mod)
         if !mod.superclass.private_method_defined?(:format_declarations_schema) || !mod.superclass.private_method_defined?(:format_declarations_schema_head)
-          raise Error::FormatterMethodMissingError.new("SchemaHeadFormatter", "format_declarations_schema/format_declarations_schema_head")
+          raise Error::FormatterMethodMissingError.new("SchemaHeadFormatter",
+                                                       "format_declarations_schema/format_declarations_schema_head")
         end
       end
 

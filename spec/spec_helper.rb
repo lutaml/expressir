@@ -2,7 +2,7 @@ require "bundler/setup"
 require "expressir"
 require "yaml"
 
-Dir["./spec/support/**/*.rb"].sort.each { |file| require file }
+Dir["./spec/support/**/*.rb"].each { |file| require file }
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -17,7 +17,7 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-  config.around(:example) do |ex|
+  config.around do |ex|
     ex.run
   rescue SystemExit => e
     puts "Got SystemExit: #{e.inspect}."

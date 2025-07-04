@@ -46,7 +46,8 @@ module Expressir
     autoload :HyperlinkFormatter, "expressir/express/hyperlink_formatter"
     autoload :ModelVisitor, "expressir/express/model_visitor"
     autoload :Parser, "expressir/express/parser"
-    autoload :ResolveReferencesModelVisitor, "expressir/express/resolve_references_model_visitor"
+    autoload :ResolveReferencesModelVisitor,
+             "expressir/express/resolve_references_model_visitor"
     autoload :SchemaHeadFormatter, "expressir/express/schema_head_formatter"
     autoload :Visitor, "expressir/express/visitor"
   end
@@ -81,33 +82,42 @@ module Expressir
     module Declarations
       autoload :Attribute, "expressir/model/declarations/attribute"
       autoload :Constant, "expressir/model/declarations/constant"
-      autoload :DerivedAttribute, "expressir/model/declarations/derived_attribute"
+      autoload :DerivedAttribute,
+               "expressir/model/declarations/derived_attribute"
       autoload :Entity, "expressir/model/declarations/entity"
       autoload :Function, "expressir/model/declarations/function"
       autoload :Interface, "expressir/model/declarations/interface"
       autoload :InterfaceItem, "expressir/model/declarations/interface_item"
       autoload :InterfacedItem, "expressir/model/declarations/interfaced_item"
-      autoload :InverseAttribute, "expressir/model/declarations/inverse_attribute"
+      autoload :InverseAttribute,
+               "expressir/model/declarations/inverse_attribute"
       autoload :Parameter, "expressir/model/declarations/parameter"
       autoload :Procedure, "expressir/model/declarations/procedure"
       autoload :RemarkItem, "expressir/model/declarations/remark_item"
       autoload :Rule, "expressir/model/declarations/rule"
       autoload :Schema, "expressir/model/declarations/schema"
       autoload :SchemaVersion, "expressir/model/declarations/schema_version"
-      autoload :SchemaVersionItem, "expressir/model/declarations/schema_version_item"
-      autoload :SubtypeConstraint, "expressir/model/declarations/subtype_constraint"
+      autoload :SchemaVersionItem,
+               "expressir/model/declarations/schema_version_item"
+      autoload :SubtypeConstraint,
+               "expressir/model/declarations/subtype_constraint"
       autoload :Type, "expressir/model/declarations/type"
       autoload :UniqueRule, "expressir/model/declarations/unique_rule"
       autoload :Variable, "expressir/model/declarations/variable"
       autoload :WhereRule, "expressir/model/declarations/where_rule"
-      autoload :InformalPropositionRule, "expressir/model/declarations/informal_proposition_rule"
+      autoload :InformalPropositionRule,
+               "expressir/model/declarations/informal_proposition_rule"
     end
 
     module Expressions
-      autoload :AggregateInitializer, "expressir/model/expressions/aggregate_initializer"
-      autoload :AggregateInitializerItem, "expressir/model/expressions/aggregate_initializer_item"
-      autoload :BinaryExpression, "expressir/model/expressions/binary_expression"
-      autoload :EntityConstructor, "expressir/model/expressions/entity_constructor"
+      autoload :AggregateInitializer,
+               "expressir/model/expressions/aggregate_initializer"
+      autoload :AggregateInitializerItem,
+               "expressir/model/expressions/aggregate_initializer_item"
+      autoload :BinaryExpression,
+               "expressir/model/expressions/binary_expression"
+      autoload :EntityConstructor,
+               "expressir/model/expressions/entity_constructor"
       autoload :FunctionCall, "expressir/model/expressions/function_call"
       autoload :Interval, "expressir/model/expressions/interval"
       autoload :QueryExpression, "expressir/model/expressions/query_expression"
@@ -123,7 +133,8 @@ module Expressir
     end
 
     module References
-      autoload :AttributeReference, "expressir/model/references/attribute_reference"
+      autoload :AttributeReference,
+               "expressir/model/references/attribute_reference"
       autoload :GroupReference, "expressir/model/references/group_reference"
       autoload :IndexReference, "expressir/model/references/index_reference"
       autoload :SimpleReference, "expressir/model/references/simple_reference"
@@ -145,8 +156,10 @@ module Expressir
     end
 
     module SupertypeExpressions
-      autoload :BinarySupertypeExpression, "expressir/model/supertype_expressions/binary_supertype_expression"
-      autoload :OneofSupertypeExpression, "expressir/model/supertype_expressions/oneof_supertype_expression"
+      autoload :BinarySupertypeExpression,
+               "expressir/model/supertype_expressions/binary_supertype_expression"
+      autoload :OneofSupertypeExpression,
+               "expressir/model/supertype_expressions/oneof_supertype_expression"
     end
   end
 

@@ -10,6 +10,6 @@ gem "rake"
 gem "rspec"
 gem "rubocop"
 gem "rubocop-performance"
-gem "rubocop-rake", require: false
-gem "rubocop-rspec", require: false
+gem "rubocop-rake"
+gem "rubocop-rspec"
 gem "yard"

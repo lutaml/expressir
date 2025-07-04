@@ -29,7 +29,9 @@ RSpec.describe Expressir::Model::DataTypes::Number do
     let(:number_type) { described_class.new }
 
     context "when used in expressions" do
-      let(:integer_value) { Expressir::Model::Literals::Integer.new(value: "5") }
+      let(:integer_value) do
+        Expressir::Model::Literals::Integer.new(value: "5")
+      end
       let(:real_value) { Expressir::Model::Literals::Real.new(value: "5.5") }
 
       it "handles mixed-type arithmetic" do
@@ -47,10 +49,18 @@ RSpec.describe Expressir::Model::DataTypes::Number do
 
   describe "edge cases" do
     context "with extreme values" do
-      let(:max_integer) { Expressir::Model::Literals::Integer.new(value: "2147483647") }
-      let(:min_integer) { Expressir::Model::Literals::Integer.new(value: "-2147483648") }
-      let(:large_real) { Expressir::Model::Literals::Real.new(value: "1.7976931348623157E+308") }
-      let(:small_real) { Expressir::Model::Literals::Real.new(value: "2.2250738585072014E-308") }
+      let(:max_integer) do
+        Expressir::Model::Literals::Integer.new(value: "2147483647")
+      end
+      let(:min_integer) do
+        Expressir::Model::Literals::Integer.new(value: "-2147483648")
+      end
+      let(:large_real) do
+        Expressir::Model::Literals::Real.new(value: "1.7976931348623157E+308")
+      end
+      let(:small_real) do
+        Expressir::Model::Literals::Real.new(value: "2.2250738585072014E-308")
+      end
 
       it "handles maximum integer values" do
         expect(max_integer.value).to eq "2147483647"

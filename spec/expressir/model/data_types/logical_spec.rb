@@ -11,8 +11,12 @@ RSpec.describe Expressir::Model::DataTypes::Logical do
 
   describe "tristate behavior" do
     let(:true_value) { Expressir::Model::Literals::Logical.new(value: "TRUE") }
-    let(:false_value) { Expressir::Model::Literals::Logical.new(value: "FALSE") }
-    let(:unknown_value) { Expressir::Model::Literals::Logical.new(value: "UNKNOWN") }
+    let(:false_value) do
+      Expressir::Model::Literals::Logical.new(value: "FALSE")
+    end
+    let(:unknown_value) do
+      Expressir::Model::Literals::Logical.new(value: "UNKNOWN")
+    end
 
     context "with UNKNOWN values" do
       it "handles UNKNOWN in AND operations" do
@@ -58,7 +62,9 @@ RSpec.describe Expressir::Model::DataTypes::Logical do
   end
 
   describe "edge cases" do
-    let(:unknown_value) { Expressir::Model::Literals::Logical.new(value: "UNKNOWN") }
+    let(:unknown_value) do
+      Expressir::Model::Literals::Logical.new(value: "UNKNOWN")
+    end
 
     context "when used in conditions" do
       it "handles UNKNOWN in where rules" do

@@ -4,7 +4,9 @@ require "yaml"
 
 RSpec.describe Expressir::Commands::Coverage do
   let(:command) { described_class.new({}) }
-  let(:test_schema_path) { "spec/fixtures/examples/nested_functions_test_schema.exp" }
+  let(:test_schema_path) do
+    "spec/fixtures/examples/nested_functions_test_schema.exp"
+  end
 
   describe "ignore files functionality" do
     let(:temp_ignore_file) { Tempfile.new(["ignore_files", ".yaml"]) }
@@ -32,8 +34,10 @@ RSpec.describe Expressir::Commands::Coverage do
         # Capture output to avoid cluttering test output
         allow(command_with_ignore).to receive(:say)
 
-        reports = command_with_ignore.send(:collect_reports, ["spec/fixtures/examples/"])
-        structured_report = command_with_ignore.send(:build_structured_report, reports)
+        reports = command_with_ignore.send(:collect_reports,
+                                           ["spec/fixtures/examples/"])
+        structured_report = command_with_ignore.send(:build_structured_report,
+                                                     reports)
 
         # Should have ignored files information
         expect(structured_report["overall"]["ignored_files_count"]).to be > 0
@@ -46,7 +50,9 @@ RSpec.describe Expressir::Commands::Coverage do
         expect(ignored_files.size).to be > 0
 
         # Verify nested_functions_test_schema.exp is in ignored files
-        nested_file = ignored_files.find { |f| f["file_basename"] == "nested_functions_test_schema.exp" }
+        nested_file = ignored_files.find do |f|
+          f["file_basename"] == "nested_functions_test_schema.exp"
+        end
         expect(nested_file).not_to be_nil
         expect(nested_file["ignored"]).to be_nil # ignored files section doesn't need this flag
         expect(nested_file["matched_pattern"]).not_to be_nil
@@ -58,12 +64,16 @@ RSpec.describe Expressir::Commands::Coverage do
         # Capture output to avoid cluttering test output
         allow(command_with_ignore).to receive(:say)
 
-        reports = command_with_ignore.send(:collect_reports, ["spec/fixtures/examples/"])
-        structured_report = command_with_ignore.send(:build_structured_report, reports)
+        reports = command_with_ignore.send(:collect_reports,
+                                           ["spec/fixtures/examples/"])
+        structured_report = command_with_ignore.send(:build_structured_report,
+                                                     reports)
 
         # Check files section includes ignored files with flag
         files = structured_report["files"]
-        nested_file = files.find { |f| f["file_basename"] == "nested_functions_test_schema.exp" }
+        nested_file = files.find do |f|
+          f["file_basename"] == "nested_functions_test_schema.exp"
+        end
 
         expect(nested_file).not_to be_nil
         expect(nested_file["ignored"]).to be true
@@ -122,7 +132,8 @@ RSpec.describe Expressir::Commands::Coverage do
       # Capture output to avoid cluttering test output
       allow(command_with_exclusion).to receive(:say)
 
-      reports = command_with_exclusion.send(:collect_reports, [test_schema_path])
+      reports = command_with_exclusion.send(:collect_reports,
+                                            [test_schema_path])
       report = reports.first
 
       # Should have fewer entities when inner functions are excluded
@@ -145,7 +156,8 @@ RSpec.describe Expressir::Commands::Coverage do
       # Capture output to avoid cluttering test output
       allow(command_without_exclusion).to receive(:say)
 
-      reports = command_without_exclusion.send(:collect_reports, [test_schema_path])
+      reports = command_without_exclusion.send(:collect_reports,
+                                               [test_schema_path])
       report = reports.first
 
       # Should have all entities including inner functions
@@ -190,9 +202,12 @@ RSpec.describe Expressir::Commands::Coverage do
       expect(report.total_entities.size).to eq(5) # Only top-level entities
 
       # File should not be ignored
-      structured_report = command_with_both.send(:build_structured_report, reports)
+      structured_report = command_with_both.send(:build_structured_report,
+                                                 reports)
       files = structured_report["files"]
-      test_file = files.find { |f| f["file_basename"] == "nested_functions_test_schema.exp" }
+      test_file = files.find do |f|
+        f["file_basename"] == "nested_functions_test_schema.exp"
+      end
       expect(test_file["ignored"]).to be false
     end
   end

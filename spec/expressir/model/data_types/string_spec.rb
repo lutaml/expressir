@@ -113,8 +113,12 @@ RSpec.describe Expressir::Model::DataTypes::String do
 
   describe "character encoding" do
     context "with special characters" do
-      let(:unicode_string) { Expressir::Model::Literals::String.new(value: "αβγδε") }
-      let(:escaped_string) { Expressir::Model::Literals::String.new(value: "line1\nline2") }
+      let(:unicode_string) do
+        Expressir::Model::Literals::String.new(value: "αβγδε")
+      end
+      let(:escaped_string) do
+        Expressir::Model::Literals::String.new(value: "line1\nline2")
+      end
       let(:empty_string) { Expressir::Model::Literals::String.new(value: "") }
 
       it "handles Unicode characters" do

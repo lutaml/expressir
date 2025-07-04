@@ -18,9 +18,15 @@ RSpec.describe Expressir::Model::DataTypes::Real do
 
   describe "precision handling" do
     context "with different precision values" do
-      let(:zero_precision) { described_class.new(precision: Expressir::Model::Literals::Integer.new(value: "0")) }
-      let(:high_precision) { described_class.new(precision: Expressir::Model::Literals::Integer.new(value: "30")) }
-      let(:negative_precision) { described_class.new(precision: Expressir::Model::Literals::Integer.new(value: "-1")) }
+      let(:zero_precision) do
+        described_class.new(precision: Expressir::Model::Literals::Integer.new(value: "0"))
+      end
+      let(:high_precision) do
+        described_class.new(precision: Expressir::Model::Literals::Integer.new(value: "30"))
+      end
+      let(:negative_precision) do
+        described_class.new(precision: Expressir::Model::Literals::Integer.new(value: "-1"))
+      end
 
       it "handles zero precision" do
         expect(zero_precision.precision.value).to eq "0"
@@ -52,10 +58,16 @@ RSpec.describe Expressir::Model::DataTypes::Real do
 
   describe "edge cases" do
     context "with extreme values" do
-      let(:max_value) { Expressir::Model::Literals::Real.new(value: "1.7976931348623157E+308") }
-      let(:min_value) { Expressir::Model::Literals::Real.new(value: "2.2250738585072014E-308") }
+      let(:max_value) do
+        Expressir::Model::Literals::Real.new(value: "1.7976931348623157E+308")
+      end
+      let(:min_value) do
+        Expressir::Model::Literals::Real.new(value: "2.2250738585072014E-308")
+      end
       let(:zero) { Expressir::Model::Literals::Real.new(value: "0.0") }
-      let(:negative_zero) { Expressir::Model::Literals::Real.new(value: "-0.0") }
+      let(:negative_zero) do
+        Expressir::Model::Literals::Real.new(value: "-0.0")
+      end
 
       it "handles maximum values" do
         expect(max_value.value).to eq "1.7976931348623157E+308"
@@ -72,9 +84,15 @@ RSpec.describe Expressir::Model::DataTypes::Real do
     end
 
     context "with special cases" do
-      let(:scientific_notation) { Expressir::Model::Literals::Real.new(value: "1.23E-4") }
-      let(:trailing_zeros) { Expressir::Model::Literals::Real.new(value: "1.230000") }
-      let(:leading_zeros) { Expressir::Model::Literals::Real.new(value: "00123.45") }
+      let(:scientific_notation) do
+        Expressir::Model::Literals::Real.new(value: "1.23E-4")
+      end
+      let(:trailing_zeros) do
+        Expressir::Model::Literals::Real.new(value: "1.230000")
+      end
+      let(:leading_zeros) do
+        Expressir::Model::Literals::Real.new(value: "00123.45")
+      end
 
       it "handles scientific notation" do
         expect(scientific_notation.value).to eq "1.23E-4"

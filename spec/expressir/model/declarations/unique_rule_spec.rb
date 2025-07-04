@@ -79,7 +79,8 @@ RSpec.describe Expressir::Model::Declarations::UniqueRule do
 
       it "handles multiple attributes" do
         expect(multiple_attributes_rule.attributes.length).to eq 3
-        expect(multiple_attributes_rule.attributes.map(&:id)).to eq ["attr1", "attr2", "attr3"]
+        expect(multiple_attributes_rule.attributes.map(&:id)).to eq ["attr1",
+                                                                     "attr2", "attr3"]
       end
 
       it "handles complex attribute references" do
@@ -180,7 +181,8 @@ RSpec.describe Expressir::Model::Declarations::UniqueRule do
       end
 
       it "handles duplicate attributes" do
-        expect(duplicate_attributes_rule.attributes.map(&:id)).to eq ["attr1", "attr1"]
+        expect(duplicate_attributes_rule.attributes.map(&:id)).to eq ["attr1",
+                                                                      "attr1"]
       end
     end
 

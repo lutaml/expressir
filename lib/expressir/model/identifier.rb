@@ -4,7 +4,8 @@ module Expressir
       def self.included(mod)
         mod.attribute :id, :string
         mod.attribute :remarks, :string, collection: true
-        mod.attribute :remark_items, ::Expressir::Model::Declarations::RemarkItem, collection: true
+        mod.attribute :remark_items,
+                      ::Expressir::Model::Declarations::RemarkItem, collection: true
         mod.attribute :untagged_remarks, :string, collection: true
 
         mod.key_value do

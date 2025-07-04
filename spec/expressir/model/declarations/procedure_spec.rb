@@ -304,7 +304,8 @@ RSpec.describe Expressir::Model::Declarations::Procedure do
 
       it "handles procedures with only remarks" do
         expect(only_remarks_procedure.remarks).to eq ["Remark 1", "Remark 2"]
-        expect(only_remarks_procedure.remark_items.map(&:id)).to eq ["remark1", "remark2"]
+        expect(only_remarks_procedure.remark_items.map(&:id)).to eq ["remark1",
+                                                                     "remark2"]
       end
 
       it "handles deeply nested procedures" do

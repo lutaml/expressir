@@ -146,7 +146,8 @@ module Expressir
 
         # Measure cache reading time
         cache_read_time = ::Benchmark.measure do
-          results[:cached_repository] = Expressir::Express::Cache.from_file(cache_path)
+          results[:cached_repository] =
+            Expressir::Express::Cache.from_file(cache_path)
         end
         results[:cache_read_time] = cache_read_time.real
 
@@ -287,8 +288,10 @@ module Expressir
           }
           puts JSON.generate(result)
         when "csv"
-          headers = ["Files", "Schemas", "Objects", "Total Time (s)", "Avg Time (s)", "Objects/s"]
-          values = [count, schema_count, total_objects, total_time.round(4), avg_time.round(4), objects_per_second]
+          headers = ["Files", "Schemas", "Objects", "Total Time (s)",
+                     "Avg Time (s)", "Objects/s"]
+          values = [count, schema_count, total_objects, total_time.round(4),
+                    avg_time.round(4), objects_per_second]
 
           puts headers.join(",")
           puts values.join(",")

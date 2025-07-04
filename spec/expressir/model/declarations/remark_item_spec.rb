@@ -142,7 +142,8 @@ RSpec.describe Expressir::Model::Declarations::RemarkItem do
     it "supports remarks with special characters" do
       item = described_class.new(
         id: "special_chars",
-        remarks: ["Remark with spaces", "Remark with\nnewline", "Remark with \"quotes\""],
+        remarks: ["Remark with spaces", "Remark with\nnewline",
+                  "Remark with \"quotes\""],
       )
       expect(item.remarks.size).to eq 3
       expect(item.remarks).to include("Remark with spaces")

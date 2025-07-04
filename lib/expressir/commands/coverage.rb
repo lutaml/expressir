@@ -80,7 +80,8 @@ module Expressir
             progress.increment
           end
           skip_types = parse_skip_types
-          report = Expressir::Coverage::Report.from_repository(repository, skip_types, ignored_files)
+          report = Expressir::Coverage::Report.from_repository(repository,
+                                                               skip_types, ignored_files)
           reports << report
         rescue StandardError => e
           say "Error processing directory #{path}: #{e.message}"
@@ -92,7 +93,8 @@ module Expressir
         begin
           # For a single file, we don't need a progress bar
           skip_types = parse_skip_types
-          report = Expressir::Coverage::Report.from_file(path, skip_types, ignored_files)
+          report = Expressir::Coverage::Report.from_file(path, skip_types,
+                                                         ignored_files)
           reports << report
         rescue StandardError => e
           say "Error processing file #{path}: #{e.message}"
@@ -110,12 +112,12 @@ module Expressir
 
             # Handle the nested structure with schema name keys and path values
             if schemas_data.is_a?(Hash)
-              schema_files = schemas_data.values.map do |schema_data|
+              schema_files = schemas_data.values.filter_map do |schema_data|
                 if schema_data.is_a?(Hash) && schema_data["path"]
                   # Make path relative to the manifest location
                   File.expand_path(schema_data["path"], manifest_dir)
                 end
-              end.compact
+              end
 
               say "Found #{schema_files.size} schema files to process"
             else
@@ -150,7 +152,8 @@ module Expressir
 
             # Create and add the report
             skip_types = parse_skip_types
-            report = Expressir::Coverage::Report.from_repository(repository, skip_types, ignored_files)
+            report = Expressir::Coverage::Report.from_repository(repository,
+                                                                 skip_types, ignored_files)
             reports << report
           end
         rescue StandardError => e
@@ -200,7 +203,8 @@ module Expressir
         # Add rows
         dirs.each do |dir, stats|
           coverage = stats["total"].positive? ? (stats["documented"].to_f / stats["total"] * 100).round(2) : 100.0
-          table.add_row [dir, stats["total"], stats["documented"], "#{coverage}%"]
+          table.add_row [dir, stats["total"], stats["documented"],
+                         "#{coverage}%"]
         end
 
         say table
@@ -250,10 +254,12 @@ module Expressir
           },
         )
 
-        table.add_row ["Coverage Percentage", "#{overall['coverage_percentage']}%"]
+        table.add_row ["Coverage Percentage",
+                       "#{overall['coverage_percentage']}%"]
         table.add_row ["Total Entities", overall["total_entities"]]
         table.add_row ["Documented Entities", overall["documented_entities"]]
-        table.add_row ["Undocumented Entities", overall["undocumented_entities"]]
+        table.add_row ["Undocumented Entities",
+                       overall["undocumented_entities"]]
 
         say table
       end
@@ -265,10 +271,20 @@ module Expressir
 
         overall_stats = {
           "total_entities" => reports.sum { |r| r.total_entities.size },
-          "documented_entities" => reports.sum { |r| r.documented_entities.size },
-          "undocumented_entities" => reports.sum { |r| r.undocumented_entities.size },
-          "coverage_percentage" => if reports.sum { |r| r.total_entities.size }.positive?
-                                     (reports.sum { |r| r.documented_entities.size }.to_f / reports.sum { |r| r.total_entities.size } * 100).round(2)
+          "documented_entities" => reports.sum do |r|
+            r.documented_entities.size
+          end,
+          "undocumented_entities" => reports.sum do |r|
+            r.undocumented_entities.size
+          end,
+          "coverage_percentage" => if reports.sum do |r|
+            r.total_entities.size
+          end.positive?
+                                     (reports.sum do |r|
+                                       r.documented_entities.size
+                                     end.to_f / reports.sum do |r|
+                                                  r.total_entities.size
+                                                end * 100).round(2)
                                    else
                                      100.0
                                    end,
@@ -296,7 +312,8 @@ module Expressir
 
       def display_json_output(reports)
         output_file = options[:output] || "coverage_report.json"
-        File.write(output_file, JSON.pretty_generate(build_structured_report(reports)))
+        File.write(output_file,
+                   JSON.pretty_generate(build_structured_report(reports)))
         say "JSON coverage report written to: #{output_file}"
       end
 

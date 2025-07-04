@@ -8,7 +8,8 @@ module Expressir
 
         attribute :underlying_type, ModelElement
         attribute :where_rules, WhereRule, collection: true
-        attribute :informal_propositions, InformalPropositionRule, collection: true
+        attribute :informal_propositions, InformalPropositionRule,
+                  collection: true
         attribute :_class, :string, default: -> { send(:name) }
 
         key_value do

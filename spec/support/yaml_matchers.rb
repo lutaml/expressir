@@ -17,8 +17,8 @@ RSpec::Matchers.define :be_yaml_equivalent do |expected|
       actual_parsed = YAML.safe_load(actual)
       expected_parsed = YAML.safe_load(expected)
       "Expected YAML content to be equivalent, but got differences:\n" \
-      "Expected: #{expected_parsed.inspect}\n" \
-      "Actual:   #{actual_parsed.inspect}"
+        "Expected: #{expected_parsed.inspect}\n" \
+        "Actual:   #{actual_parsed.inspect}"
     end
   end
 

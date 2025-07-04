@@ -106,7 +106,8 @@ RSpec.describe Expressir::Model::Declarations::Function do
       end
 
       it "handles multiple parameters" do
-        expect(multiple_params_function.parameters.map(&:id)).to eq ["param1", "param2"]
+        expect(multiple_params_function.parameters.map(&:id)).to eq ["param1",
+                                                                     "param2"]
         expect(multiple_params_function.parameters.first.type).to be_a Expressir::Model::DataTypes::Integer
         expect(multiple_params_function.parameters.last.type).to be_a Expressir::Model::DataTypes::String
       end

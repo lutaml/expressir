@@ -96,12 +96,15 @@ RSpec.describe Expressir::Model::Declarations::Type do
 
       it "handles enumeration types" do
         expect(enumeration_type.underlying_type).to be_a Expressir::Model::DataTypes::Enumeration
-        expect(enumeration_type.underlying_type.items.map(&:id)).to eq ["ITEM1", "ITEM2"]
+        expect(enumeration_type.underlying_type.items.map(&:id)).to eq [
+          "ITEM1", "ITEM2"
+        ]
       end
 
       it "handles select types" do
         expect(select_type.underlying_type).to be_a Expressir::Model::DataTypes::Select
-        expect(select_type.underlying_type.items.map(&:id)).to eq ["type1", "type2"]
+        expect(select_type.underlying_type.items.map(&:id)).to eq ["type1",
+                                                                   "type2"]
       end
     end
   end
@@ -156,7 +159,8 @@ RSpec.describe Expressir::Model::Declarations::Type do
 
       it "handles multiple where rules" do
         expect(type_with_multiple_rules.where_rules.length).to eq 2
-        expect(type_with_multiple_rules.where_rules.map(&:id)).to eq ["WR1", "WR2"]
+        expect(type_with_multiple_rules.where_rules.map(&:id)).to eq ["WR1",
+                                                                      "WR2"]
       end
 
       it "handles no where rules" do
@@ -282,7 +286,8 @@ RSpec.describe Expressir::Model::Declarations::Type do
 
       it "provides access to enumeration items" do
         expect(enumeration_type.enumeration_items.length).to eq 3
-        expect(enumeration_type.enumeration_items.map(&:id)).to eq ["RED", "GREEN", "BLUE"]
+        expect(enumeration_type.enumeration_items.map(&:id)).to eq ["RED",
+                                                                    "GREEN", "BLUE"]
       end
 
       it "maintains enumeration item remarks" do
@@ -309,7 +314,8 @@ RSpec.describe Expressir::Model::Declarations::Type do
 
     it "returns all child elements" do
       children_ids = type.children.map(&:id)
-      expect(children_ids).to contain_exactly("WR1", "WR2", "remark1", "remark2")
+      expect(children_ids).to contain_exactly("WR1", "WR2", "remark1",
+                                              "remark2")
     end
 
     context "with enumeration type" do

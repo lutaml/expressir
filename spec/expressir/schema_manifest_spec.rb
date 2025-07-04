@@ -67,7 +67,7 @@ RSpec.describe Expressir::SchemaManifest do
   describe "#to_file" do
     it "writes the manifest to a file" do
       manifest = described_class.from_file(test_manifest_path)
-      temp_file = "/tmp/test_manifest_output.yml"
+      temp_file = File.join(Dir.tmpdir, "test_manifest_output.yml")
 
       begin
         manifest.to_file(temp_file)

@@ -27,9 +27,12 @@ module Expressir
       from_yaml(File.read(path)).tap do |x|
         x.set_initial_path(path)
       end
+    rescue StandardError => e
+      raise InvalidSchemaManifestError, "Invalid schema manifest format: #{e.message}"
     end
 
     def to_file(to_path = path)
+      FileUtils.mkdir_p(File.dirname(to_path))
       File.write(to_path, to_yaml)
     end
 

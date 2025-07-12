@@ -1,4 +1,5 @@
-require "terminal-table"
+require "table_tennis"
+require "paint"
 require "json"
 require "yaml"
 require "ruby-progressbar"
@@ -173,54 +174,78 @@ module Expressir
           end
         end
 
-        # Create table
-        table = Terminal::Table.new(
-          title: "Directory Coverage",
-          headings: ["Directory", "Total", "Documented", "Coverage %"],
-          style: {
-            border_x: "-",
-            border_y: "|",
-            border_i: "+",
-          },
-        )
-
-        # Add rows
+        table_data = []
         dirs.each do |dir, stats|
           coverage = stats["total"].positive? ? (stats["documented"].to_f / stats["total"] * 100).round(2) : 100.0
-          table.add_row [dir, stats["total"], stats["documented"],
-                         "#{coverage}%"]
+          table_data << {
+            directory: dir,
+            total: stats["total"].to_s,
+            documented: stats["documented"].to_s,
+            coverage_percentage: "#{coverage}%",
+          }
         end
+
+        table = TableTennis.new(
+          table_data,
+          {
+            title: "Entity coverage per directory",
+            headers: {
+              file: "Directory",
+              total: "Total Entities",
+              documented: "Documented Entities",
+              coverage_percentage: "Coverage %",
+            },
+            titleize: true,
+            layout: true,
+          },
+        )
 
         say table
       end
 
       def display_file_coverage(reports)
-        say "\nFile Coverage:"
-
-        # Create table
-        table = Terminal::Table.new(
-          title: "File Coverage",
-          headings: ["File", "Undocumented Entities", "Coverage %"],
-          style: {
-            border_x: "-",
-            border_y: "|",
-            border_i: "+",
-          },
-        )
-
+        # Prepare data for table_tennis
+        table_data = []
         reports.each do |report|
           report.file_reports.each do |file_report|
             file_path = file_report["file"]
 
             # Format undocumented entities as "TYPE name, TYPE name, ..."
-            undocumented_formatted = file_report["undocumented"].map do |entity_info|
+            undocumented = file_report["undocumented"].map do |entity_info|
               "#{entity_info['type']} #{entity_info['name']}"
             end.join(", ")
 
             coverage = file_report["coverage"].round(2)
-            table.add_row [file_path, undocumented_formatted, "#{coverage}%"]
+
+            table_data << {
+              file: File.basename(file_path),
+              undocumented_entities: if undocumented.empty?
+                                       "None"
+                                     else
+                                       undocumented
+                                     end,
+              coverage_percentage: "#{coverage}%",
+            }
           end
         end
+
+        table = TableTennis.new(
+          table_data,
+          {
+            title: "Entity coverage in file",
+            headers: {
+              file: "File",
+              undocumented_entities: "Undocumented Entities",
+              coverage_percentage: "Coverage %",
+            },
+            titleize: true,
+            layout: {
+              file: 30,
+              undocumented_entities: 50,
+              coverage_percentage: 20,
+            },
+          },
+        )
 
         say table
       end
@@ -229,21 +254,34 @@ module Expressir
         # Get structured report for overall statistics
         overall = build_structured_report(reports)["overall"]
 
-        table = Terminal::Table.new(
-          title: "Overall Documentation Coverage",
-          style: {
-            border_x: "-",
-            border_y: "|",
-            border_i: "+",
+        coverage_percentage = overall["coverage_percentage"]
+        table_data = [
+          {
+            metric: "Coverage Percentage",
+            value: "#{coverage_percentage}%",
+          },
+          {
+            metric: "Total Entities",
+            value: overall["total_entities"].to_s,
+          },
+          {
+            metric: "Documented Entities",
+            value: overall["documented_entities"].to_s,
+          },
+          {
+            metric: "Undocumented Entities",
+            value: overall["undocumented_entities"].to_s,
+          },
+        ]
+
+        table = TableTennis.new(
+          table_data,
+          {
+            title: "Entity overall coverage",
+            titleize: true,
+            layout: true,
           },
         )
-
-        table.add_row ["Coverage Percentage",
-                       "#{overall['coverage_percentage']}%"]
-        table.add_row ["Total Entities", overall["total_entities"]]
-        table.add_row ["Documented Entities", overall["documented_entities"]]
-        table.add_row ["Undocumented Entities",
-                       overall["undocumented_entities"]]
 
         say table
       end
@@ -253,6 +291,15 @@ module Expressir
         ignored_files = reports.flat_map(&:ignored_file_reports)
         ignored_entities_count = ignored_files.sum { |f| f["total"] }
 
+        total = reports.sum { |r| r.total_entities.size }
+        documented = reports.sum { |r| r.documented_entities.size }
+
+        coverage_per = if total.positive?
+                         (documented.to_f / total * 100).round(2)
+                       else
+                         100.0
+                       end
+
         overall_stats = {
           "total_entities" => reports.sum { |r| r.total_entities.size },
           "documented_entities" => reports.sum do |r|
@@ -261,17 +308,7 @@ module Expressir
           "undocumented_entities" => reports.sum do |r|
             r.undocumented_entities.size
           end,
-          "coverage_percentage" => if reports.sum do |r|
-            r.total_entities.size
-          end.positive?
-                                     (reports.sum do |r|
-                                       r.documented_entities.size
-                                     end.to_f / reports.sum do |r|
-                                                  r.total_entities.size
-                                                end * 100).round(2)
-                                   else
-                                     100.0
-                                   end,
+          "coverage_percentage" => coverage_per,
         }
 
         # Add ignored file information if there are any

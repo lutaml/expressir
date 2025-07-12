@@ -218,7 +218,7 @@ module Expressir
             coverage = file_report["coverage"].round(2)
 
             table_data << {
-              file: File.basename(file_path),
+              filename: File.basename(file_path),
               undocumented_entities: if undocumented.empty?
                                        "None"
                                      else
@@ -234,13 +234,13 @@ module Expressir
           {
             title: "Entity coverage in file",
             headers: {
-              file: "File",
+              filename: "Filename",
               undocumented_entities: "Undocumented Entities",
               coverage_percentage: "Coverage %",
             },
             titleize: true,
             layout: {
-              file: 30,
+              filename: 30,
               undocumented_entities: 50,
               coverage_percentage: 20,
             },

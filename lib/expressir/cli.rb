@@ -1,6 +1,5 @@
 require "thor"
 require "yaml"
-require "terminal-table"
 
 require_relative "commands/base"
 require_relative "commands/format"

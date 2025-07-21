@@ -102,7 +102,7 @@ module Expressir
       end
 
       # @param [Hash] options
-      def initialize(_options = {})
+      def initialize(_options = {}, register: nil)
         super
         attach_parent_to_children
       end

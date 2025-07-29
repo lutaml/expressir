@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "benchmark-ips"
   spec.add_dependency "csv"
   spec.add_dependency "liquid"
-  spec.add_dependency "lutaml-model", "~>0.7"
+  spec.add_dependency "lutaml-model", "0.7.3"
   spec.add_dependency "parslet", "~> 2.0"
   spec.add_dependency "ruby-progressbar", "~> 1.11"
   spec.add_dependency "terminal-table", "~> 3.0"

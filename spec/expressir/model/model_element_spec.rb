@@ -94,17 +94,17 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(repo.find("multiple_schema")).to be_instance_of(Expressir::Model::Declarations::Schema)
       expect(repo.find("multiple_schema.empty_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
       expect(repo.find("multiple_schema.attribute_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
-      expect(repo.find("multiple_schema.attribute_entity2")).to be_instance_of(Expressir::Model::Declarations::Entity)
-      expect(repo.find("multiple_schema.attribute_entity3")).to be_instance_of(Expressir::Model::Declarations::Entity)
-      expect(repo.find("multiple_schema.attribute_entity4")).to be_instance_of(Expressir::Model::Declarations::Entity)
+      expect(repo.find("multiple_schema2.attribute_entity2")).to be_instance_of(Expressir::Model::Declarations::Entity)
+      expect(repo.find("multiple_schema3.attribute_entity3")).to be_instance_of(Expressir::Model::Declarations::Entity)
+      expect(repo.find("multiple_schema4.attribute_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
 
       # schema scope
       schema = repo.schemas.first
       expect(schema.find("empty_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
       expect(schema.find("attribute_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
-      expect(schema.find("attribute_entity2")).to be_instance_of(Expressir::Model::Declarations::Entity)
-      expect(schema.find("attribute_entity3")).to be_instance_of(Expressir::Model::Declarations::Entity)
-      expect(schema.find("attribute_entity4")).to be_instance_of(Expressir::Model::Declarations::Entity)
+      expect(repo.schemas[1].find("attribute_entity2")).to be_instance_of(Expressir::Model::Declarations::Entity)
+      expect(repo.schemas[2].find("attribute_entity3")).to be_instance_of(Expressir::Model::Declarations::Entity)
+      expect(repo.schemas[3].find("attribute_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
     end
 
     it "finds an object (syntax.exp)" do |example|
@@ -280,11 +280,11 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(rule.find("ip:IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
 
       # retry search in parent scope
-      expect(entity.find("remark_type")).to be_instance_of(Expressir::Model::Declarations::Type)
-      expect(entity.find("remark_type.WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
-      expect(entity.find("remark_type.wr:WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
-      expect(entity.find("remark_type.IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
-      expect(entity.find("remark_type.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
+      expect(schema.find("remark_type")).to be_instance_of(Expressir::Model::Declarations::Type)
+      expect(schema.find("remark_type.WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
+      expect(schema.find("remark_type.wr:WR1")).to be_instance_of(Expressir::Model::Declarations::WhereRule)
+      expect(schema.find("remark_type.IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
+      expect(schema.find("remark_type.ip:IP1")).to be_instance_of(Expressir::Model::Declarations::InformalPropositionRule)
     end
   end
 

@@ -39,7 +39,6 @@ RSpec.describe Expressir::Express::Parser do
       result = repo.to_yaml
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
-
       expect(result).to eq(expected_result)
     end
 
@@ -84,7 +83,6 @@ RSpec.describe Expressir::Express::Parser do
       result = repo.to_yaml
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
-
       expect(result).to eq(expected_result)
     end
 
@@ -101,7 +99,6 @@ RSpec.describe Expressir::Express::Parser do
       result = repo.to_yaml
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
-
       expect(result).to eq(expected_result)
     end
 
@@ -118,7 +115,6 @@ RSpec.describe Expressir::Express::Parser do
       result = repo.to_yaml
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
-
       expect(result).to eq(expected_result)
     end
 
@@ -201,7 +197,7 @@ RSpec.describe Expressir::Express::Parser do
         root_path: Expressir.root_path,
       )
       result = repo.to_yaml
-
+      # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
       expect(result).to eq(expected_result)
     end

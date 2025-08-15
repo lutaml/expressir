@@ -1,8 +1,8 @@
 ---
 _class: Expressir::Model::Repository
 schemas:
-- id: multiple_schema
-  _class: Expressir::Model::Declarations::Schema
+- _class: Expressir::Model::Declarations::Schema
+  id: multiple_schema
   file: spec/syntax/multiple.exp
   interfaces:
   - _class: Expressir::Model::Declarations::Interface
@@ -37,33 +37,33 @@ schemas:
         base_path: multiple_schema4.attribute_entity
       id: attribute_entity4
   entities:
-  - id: test
-    _class: Expressir::Model::Declarations::Entity
-  - id: empty_entity
-    _class: Expressir::Model::Declarations::Entity
-  - id: attribute_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: test
+  - _class: Expressir::Model::Declarations::Entity
+    id: empty_entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: attribute_entity
     attributes:
-    - id: test
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: subtype_empty_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: subtype_empty_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: multiple_schema.empty_entity
-  - id: subtype_attribute_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: subtype_attribute_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
       base_path: multiple_schema.attribute_entity
     attributes:
-    - id: test
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test
       kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
@@ -81,15 +81,15 @@ schemas:
           id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: subtype_attribute_entity2
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: subtype_attribute_entity2
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity2
       base_path: multiple_schema2.attribute_entity2
     attributes:
-    - id: test
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test
       kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
@@ -107,15 +107,15 @@ schemas:
           id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: subtype_attribute_entity3
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: subtype_attribute_entity3
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity3
       base_path: multiple_schema3.attribute_entity3
     attributes:
-    - id: test
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test
       kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
@@ -133,15 +133,15 @@ schemas:
           id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: subtype_attribute_entity4
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: subtype_attribute_entity4
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity4
       base_path: multiple_schema4.attribute_entity
     attributes:
-    - id: test
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test
       kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
@@ -159,44 +159,44 @@ schemas:
           id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: subtype_missing_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: subtype_missing_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: missing_entity
-- id: multiple_schema2
-  _class: Expressir::Model::Declarations::Schema
+- _class: Expressir::Model::Declarations::Schema
+  id: multiple_schema2
   file: spec/syntax/multiple.exp
   entities:
-  - id: attribute_entity2
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: attribute_entity2
     attributes:
-    - id: test
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean
-- id: multiple_schema3
-  _class: Expressir::Model::Declarations::Schema
+- _class: Expressir::Model::Declarations::Schema
+  id: multiple_schema3
   file: spec/syntax/multiple.exp
   entities:
-  - id: attribute_entity3
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: attribute_entity3
     attributes:
-    - id: test
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean
-- id: multiple_schema4
-  _class: Expressir::Model::Declarations::Schema
+- _class: Expressir::Model::Declarations::Schema
+  id: multiple_schema4
   file: spec/syntax/multiple.exp
   entities:
-  - id: attribute_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: attribute_entity
     attributes:
-    - id: test
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean

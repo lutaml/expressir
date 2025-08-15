@@ -1,17 +1,17 @@
 ---
 _class: Expressir::Model::Repository
 schemas:
-- id: single_schema
-  _class: Expressir::Model::Declarations::Schema
+- _class: Expressir::Model::Declarations::Schema
+  id: single_schema
   file: spec/syntax/single.exp
   version:
     _class: Expressir::Model::Declarations::SchemaVersion
     value: version
   entities:
-  - id: empty_entity
-    _class: Expressir::Model::Declarations::Entity
-  - id: subtype_empty_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: empty_entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: subtype_empty_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity

@@ -1,5 +1,4 @@
 require "table_tennis"
-require "paint"
 require "json"
 require "yaml"
 require "ruby-progressbar"

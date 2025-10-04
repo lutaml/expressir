@@ -1,6 +1,7 @@
 require "bundler/setup"
 require "expressir"
 require "yaml"
+require "canon"
 
 Dir["./spec/support/**/*.rb"].each { |file| require file }
 

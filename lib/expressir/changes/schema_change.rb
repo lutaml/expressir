@@ -47,7 +47,9 @@ module Expressir
         version_str = version.to_s
 
         # Find existing edition with this version
-        existing_index = edition_change.find_index { |ed| ed.version == version_str }
+        existing_index = edition_change.find_index do |ed|
+          ed.version == version_str
+        end
 
         # Create new edition
         edition = EditionChange.new(
@@ -56,7 +58,7 @@ module Expressir
           additions: changes[:additions] || [],
           modifications: changes[:modifications] || [],
           removals: changes[:removals] || [],
-          deletions: changes[:deletions] || []
+          deletions: changes[:deletions] || [],
         )
 
         if existing_index

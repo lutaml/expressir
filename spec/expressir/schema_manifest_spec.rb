@@ -25,9 +25,7 @@ RSpec.describe Expressir::SchemaManifest do
       it "creates SchemaManifestEntry objects for each schema" do
         manifest = described_class.from_file(test_manifest_path)
 
-        manifest.schemas.each do |entry|
-          expect(entry).to be_a(Expressir::SchemaManifestEntry)
-        end
+        expect(manifest.schemas).to all(be_a(Expressir::SchemaManifestEntry))
       end
     end
 

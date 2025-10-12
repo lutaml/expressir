@@ -22,7 +22,7 @@ module Expressir
         description = generate_description(xml_doc)
 
         # Load or create change schema
-        change_schema = if output_file && File.exist?(output_file) && File.size(output_file) > 0
+        change_schema = if output_file && File.exist?(output_file) && File.size(output_file).positive?
                           Expressir::Changes::SchemaChange.from_file(output_file)
                         else
                           Expressir::Changes::SchemaChange.create_new(schema_name)
@@ -48,7 +48,7 @@ module Expressir
         {
           additions: extract_added_objects(xml_doc),
           modifications: extract_modified_objects(xml_doc),
-          removals: extract_removed_objects(xml_doc)
+          removals: extract_removed_objects(xml_doc),
         }
       end
 
@@ -56,7 +56,7 @@ module Expressir
         xml_doc.xpath("//schema.modifications/modified.object").map do |node|
           Expressir::Changes::ItemChange.new(
             type: node["type"],
-            name: node["name"]
+            name: node["name"],
           )
         end
       end
@@ -65,7 +65,7 @@ module Expressir
         xml_doc.xpath("//schema.additions/added.object").map do |node|
           Expressir::Changes::ItemChange.new(
             type: node["type"],
-            name: node["name"]
+            name: node["name"],
           )
         end
       end
@@ -74,7 +74,7 @@ module Expressir
         xml_doc.xpath("//schema.removals/removed.object").map do |node|
           Expressir::Changes::ItemChange.new(
             type: node["type"],
-            name: node["name"]
+            name: node["name"],
           )
         end
       end

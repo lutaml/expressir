@@ -8,6 +8,7 @@ require_relative "commands/benchmark"
 require_relative "commands/benchmark_cache"
 require_relative "commands/validate"
 require_relative "commands/coverage"
+require_relative "commands/changes"
 require_relative "commands/version"
 
 module Expressir
@@ -72,6 +73,9 @@ module Expressir
     def coverage(*paths)
       Commands::Coverage.new(options).run(paths)
     end
+
+    desc "changes SUBCOMMAND", "Commands for EXPRESS Changes files"
+    subcommand "changes", Commands::Changes
 
     desc "version", "Expressir Version"
     def version

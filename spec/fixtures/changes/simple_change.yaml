@@ -1,0 +1,8 @@
+---
+schema: test_schema
+edition_change:
+- version: '2'
+  description: 'TYPE text: Underlying Type changed'
+  modifications:
+  - type: TYPE
+    name: text

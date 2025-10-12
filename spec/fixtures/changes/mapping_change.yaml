@@ -1,0 +1,7 @@
+---
+schema: advanced_boundary_representation
+edition_change:
+- version: '4'
+  changes:
+  - change: Advanced_brep_shape_representation ENTITY mapping updated
+  - change: Manifold_solid_brep TYPE mapping modified

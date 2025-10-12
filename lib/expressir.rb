@@ -170,10 +170,19 @@ module Expressir
     autoload :Benchmark, "expressir/commands/benchmark"
     autoload :BenchmarkCache, "expressir/commands/benchmark_cache"
     autoload :Clean, "expressir/commands/clean"
+    autoload :ImportComparison, "expressir/commands/import_comparison"
     autoload :Coverage, "expressir/commands/coverage"
     autoload :Format, "expressir/commands/format"
     autoload :Validate, "expressir/commands/validate"
     autoload :Version, "expressir/commands/version"
+  end
+
+  # Autoload for Changes module classes
+  module Changes
+    autoload :SchemaChange, "expressir/changes/schema_change"
+    autoload :EditionChange, "expressir/changes/edition_change"
+    autoload :ItemChange, "expressir/changes/item_change"
+    autoload :MappingChange, "expressir/changes/mapping_change"
   end
 end
 

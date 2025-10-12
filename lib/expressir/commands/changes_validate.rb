@@ -38,13 +38,13 @@ module Expressir
             say "Normalizing through round-trip serialization..." if options[:verbose]
 
             output_path = if options[:in_place]
-                           path
-                         elsif options[:output]
-                           options[:output]
-                         else
-                           # Output to stdout
-                           nil
-                         end
+                            path
+                          elsif options[:output]
+                            options[:output]
+                          else
+                            # Output to stdout
+                            nil
+                          end
 
             if output_path
               schema_change.to_file(output_path)

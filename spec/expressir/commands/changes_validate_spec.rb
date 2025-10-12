@@ -83,7 +83,8 @@ RSpec.describe Expressir::Commands::ChangesValidate do
       it "shows success message with verbose output" do
         require "tempfile"
         Tempfile.create(["output", ".yaml"]) do |f|
-          command = described_class.new(normalize: true, output: f.path, verbose: true)
+          command = described_class.new(normalize: true, output: f.path,
+                                        verbose: true)
           expect do
             command.run(valid_fixture)
           end.to output(/✓ Normalized file written to/).to_stdout
@@ -102,7 +103,8 @@ RSpec.describe Expressir::Commands::ChangesValidate do
       end
 
       it "rejects both --in-place and --output" do
-        command = described_class.new(in_place: true, normalize: true, output: "test.yaml")
+        command = described_class.new(in_place: true, normalize: true,
+                                      output: "test.yaml")
         command.instance_variable_set(:@test_mode, true)
 
         expect do

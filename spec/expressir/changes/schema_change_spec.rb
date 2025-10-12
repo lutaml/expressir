@@ -84,10 +84,11 @@ RSpec.describe Expressir::Changes::SchemaChange do
     it "adds a new edition" do
       changes = {
         additions: [
-          Expressir::Changes::ItemChange.new(type: "ENTITY", name: "new_entity")
+          Expressir::Changes::ItemChange.new(type: "ENTITY",
+                                             name: "new_entity"),
         ],
         modifications: [],
-        removals: []
+        removals: [],
       }
 
       schema.add_or_update_edition("2", "Added new entity", changes)
@@ -100,19 +101,19 @@ RSpec.describe Expressir::Changes::SchemaChange do
     it "replaces an existing edition with same version" do
       changes1 = {
         additions: [
-          Expressir::Changes::ItemChange.new(type: "ENTITY", name: "entity1")
+          Expressir::Changes::ItemChange.new(type: "ENTITY", name: "entity1"),
         ],
         modifications: [],
-        removals: []
+        removals: [],
       }
       schema.add_or_update_edition("2", "First description", changes1)
 
       changes2 = {
         additions: [
-          Expressir::Changes::ItemChange.new(type: "ENTITY", name: "entity2")
+          Expressir::Changes::ItemChange.new(type: "ENTITY", name: "entity2"),
         ],
         modifications: [],
-        removals: []
+        removals: [],
       }
       schema.add_or_update_edition("2", "Second description", changes2)
 
@@ -124,19 +125,19 @@ RSpec.describe Expressir::Changes::SchemaChange do
     it "adds new edition when version is different" do
       changes1 = {
         additions: [
-          Expressir::Changes::ItemChange.new(type: "ENTITY", name: "entity1")
+          Expressir::Changes::ItemChange.new(type: "ENTITY", name: "entity1"),
         ],
         modifications: [],
-        removals: []
+        removals: [],
       }
       schema.add_or_update_edition("2", "Version 2", changes1)
 
       changes2 = {
         additions: [
-          Expressir::Changes::ItemChange.new(type: "ENTITY", name: "entity2")
+          Expressir::Changes::ItemChange.new(type: "ENTITY", name: "entity2"),
         ],
         modifications: [],
-        removals: []
+        removals: [],
       }
       schema.add_or_update_edition("3", "Version 3", changes2)
 

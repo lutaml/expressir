@@ -76,6 +76,7 @@ $ expressir
 Commands:
   expressir benchmark FILE_OR_YAML             # Benchmark schema loading performance for a file or list of files from YAML
   expressir benchmark-cache FILE_OR_YAML       # Benchmark schema loading with caching
+  expressir changes SUBCOMMAND                 # Commands for EXPRESS Changes files
   expressir clean PATH                         # Strip remarks and prettify EXPRESS schema at PATH
   expressir format PATH                        # pretty print EXPRESS schema located at PATH
   expressir help [COMMAND]                     # Describe available commands or one specific command
@@ -667,6 +668,103 @@ The default text output displays:
 This helps identify areas of your EXPRESS schemas that need documentation
 improvement.
 
+=== EXPRESS Changes files
+
+Expressir provides commands for working with EXPRESS Changes files that track
+schema modifications across versions.
+
+==== Validating change files
+
+The `changes validate` command validates EXPRESS Changes YAML files and
+optionally normalizes them through round-trip serialization.
+
+[source, sh]
+----
+# Validate a changes file
+expressir changes validate schema.changes.yaml
+
+# Validate with verbose output
+expressir changes validate schema.changes.yaml --verbose
+
+# Validate and normalize (outputs to stdout)
+expressir changes validate schema.changes.yaml --normalize
+
+# Validate and normalize in-place
+expressir changes validate schema.changes.yaml --normalize --in-place
+
+# Validate and save normalized output to a new file
+expressir changes validate schema.changes.yaml --normalize --output normalized.yaml
+----
+
+[options="header"]
+|===
+| Option | Description
+| `--normalize` | Normalize file through round-trip serialization
+| `--in-place` | Update file in place (requires `--normalize`)
+| `--output PATH` | Output file path for normalized output
+| `--verbose` | Show verbose output with validation details
+|===
+
+The validate command performs the following checks:
+
+. Verifies the YAML file can be parsed
+. Validates against the SchemaChange model structure
+. Ensures all required fields are present
+. Checks that change items have valid types
+
+When using `--normalize`, the command:
+
+. Loads the file and validates it
+. Serializes it back to YAML with consistent formatting
+. Either outputs to stdout, saves in-place, or writes to a new file
+
+This is useful for:
+
+* **Standardizing formatting**: Ensures consistent YAML structure
+* **Catching errors early**: Validates before committing changes
+* **Cleaning up files**: Removes inconsistencies in formatting
+
+==== Importing from eengine XML
+
+The `changes import-eengine` command converts eengine comparison XML files to
+EXPRESS Changes YAML format.
+
+[source, sh]
+----
+# Import and output to stdout
+expressir changes import-eengine comparison.xml schema_name "2"
+
+# Import and save to file
+expressir changes import-eengine comparison.xml schema_name "2" -o output.yaml
+
+# Import with verbose output
+expressir changes import-eengine comparison.xml schema_name "2" -o output.yaml --verbose
+
+# Append to existing changes file
+expressir changes import-eengine comparison.xml schema_name "3" -o existing.yaml
+----
+
+[options="header"]
+|===
+| Option | Description
+| `-o, --output PATH` | Output YAML file path (stdout if not specified)
+| `--verbose` | Show verbose output
+|===
+
+The import command:
+
+. Parses the eengine XML comparison file
+. Extracts additions, modifications, and removals
+. Creates or updates an EXPRESS Changes YAML file
+. Supports appending new versions to existing files
+
+When the output file already exists:
+
+* **Same version**: Replaces the existing edition with that version
+* **New version**: Adds a new edition to the file
+
+This allows you to build up a complete change history incrementally.
+
 
 == Usage: Ruby
 
@@ -1062,6 +1160,196 @@ expressir coverage schemas.yml --format json --exclude=TYPE:SELECT
 ----
 
 
+
+== Working with EXPRESS Changes
+
+=== General
+
+Expressir provides the `Changes` module for managing and tracking changes to
+EXPRESS schemas across versions. This module implements the EXPRESS Changes YAML
+format defined by ELF (Express Language Foundation).
+
+The Changes module enables:
+
+* Loading and saving schema change records from/to YAML files
+* Programmatic creation and manipulation of change records
+* Smart edition handling (replace same version, add new version)
+* Support for all change types: additions, modifications, removals, deletions
+* Support for mapping changes in ARM/MIM schemas
+
+=== Reading change files
+
+Load an existing schema change file:
+
+[source,ruby]
+----
+require "expressir/changes"
+
+# Load from file
+change_schema = Expressir::Changes::SchemaChange.from_file("schema.changes.yaml")
+
+# Access schema name
+puts "Schema: #{change_schema.schema}"
+
+# Iterate through change editions
+change_schema.edition_change.each do |edition|
+  puts "Version #{edition.version}: #{edition.description}"
+
+  # Access changes by type
+  puts "  Additions: #{edition.additions.size}" if edition.additions
+  puts "  Modifications: #{edition.modifications.size}" if edition.modifications
+  puts "  Deletions: #{edition.deletions.size}" if edition.deletions
+  puts "  Removals: #{edition.removals.size}" if edition.removals
+end
+----
+
+=== Creating change records
+
+Create a new change schema programmatically:
+
+[source,ruby]
+----
+# Create a new empty change schema
+change_schema = Expressir::Changes::SchemaChange.create_new("my_schema")
+
+# Create change items
+new_entity = Expressir::Changes::ItemChange.new(
+  type: "ENTITY",
+  name: "new_entity_name"
+)
+
+modified_function = Expressir::Changes::ItemChange.new(
+  type: "FUNCTION",
+  name: "modified_function",
+  description: "Updated parameters"
+)
+
+# Add a change edition
+changes = {
+  additions: [new_entity],
+  modifications: [modified_function],
+  removals: []
+}
+
+change_schema.add_or_update_edition(
+  "2",
+  "Added new entity and modified function",
+  changes
+)
+
+# Save to file
+change_schema.to_file("my_schema.changes.yaml")
+----
+
+=== Updating existing change files
+
+The `add_or_update_edition` method provides smart handling:
+
+* **Same version**: Replaces the existing edition
+* **Different version**: Adds a new edition
+
+[source,ruby]
+----
+# Load existing change file
+change_schema = Expressir::Changes::SchemaChange.from_file("schema.changes.yaml")
+
+# Add a new version
+changes = {
+  modifications: [
+    Expressir::Changes::ItemChange.new(type: "TYPE", name: "updated_type")
+  ]
+}
+change_schema.add_or_update_edition("3", "Modified type definition", changes)
+
+# Or replace existing version
+change_schema.add_or_update_edition("2", "Revised description", changes)
+
+# Save changes
+change_schema.to_file("schema.changes.yaml")
+----
+
+=== Change item fields
+
+Change items support the following fields:
+
+`type`:: (Required) The EXPRESS construct type (ENTITY, TYPE, FUNCTION, etc.)
+`name`:: (Required) The name of the construct
+`description`:: (Optional) Additional details about the change
+`interfaced_items`:: (Optional) For REFERENCE_FROM items
+
+[source,ruby]
+----
+item = Expressir::Changes::ItemChange.new(
+  type: "REFERENCE_FROM",
+  name: "measure_schema",
+  interfaced_items: "length_measure"
+)
+----
+
+=== Change edition fields
+
+Change editions support categorizing changes into:
+
+`additions`:: New elements added to the schema
+`modifications`:: Existing elements that were modified
+`removals`:: Elements removed from the schema
+`deletions`:: Alternative term for removals (both supported)
+`mapping`:: Mapping-related changes (for ARM/MIM modules)
+`changes`:: General changes (alternative to mapping)
+
+[source,ruby]
+----
+edition = Expressir::Changes::EditionChange.new(
+  version: "2",
+  description: "Added support for new functionality",
+  additions: [item1, item2],
+  modifications: [item3],
+  deletions: [item4],
+  mapping: [mapping_change]
+)
+----
+
+=== Mapping changes
+
+For ARM/MIM schema mappings, use `MappingChange`:
+
+[source,ruby]
+----
+mapping_change = Expressir::Changes::MappingChange.new(
+  change: "Entity_name ENTITY mapping updated"
+)
+----
+
+=== Example change file format
+
+[source,yaml]
+----
+---
+schema: support_resource_schema
+edition_change:
+- version: '2'
+  description: |-
+    The definitions of the following EXPRESS entity data types were modified:
+
+    * action;
+    * action_directive;
+    * action_method.
+  additions:
+  - type: FUNCTION
+    name: type_check_function
+  modifications:
+  - type: FUNCTION
+    name: bag_to_set
+- version: '4'
+  description: |-
+    Added support for external element references.
+  additions:
+  - type: ENTITY
+    name: component_path_shape_aspect
+  modifications:
+  - type: FUNCTION
+    name: type_check_function
+----
 
 == Contributing
 

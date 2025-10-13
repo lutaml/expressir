@@ -63,23 +63,14 @@ RSpec.describe Expressir::Changes::SchemaChange do
         f.rewind
 
         schema = described_class.from_file(f.path)
-        expect(schema.schema).to eq("")
-        expect(schema.edition_change).to eq([])
+        expect(schema.schema).to be_nil
+        expect(schema.edition_change).to be_nil
       end
     end
   end
 
-  describe ".create_new" do
-    it "creates a new empty change schema" do
-      schema = described_class.create_new("new_schema")
-
-      expect(schema.schema).to eq("new_schema")
-      expect(schema.edition_change).to eq([])
-    end
-  end
-
   describe "#add_or_update_edition" do
-    let(:schema) { described_class.create_new("test_schema") }
+    let(:schema) { described_class.new(schema: "test_schema") }
 
     it "adds a new edition" do
       changes = {

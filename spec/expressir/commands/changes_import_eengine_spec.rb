@@ -67,7 +67,7 @@ RSpec.describe Expressir::Commands::ChangesImportEengine do
 
       Tempfile.create(["output", ".yaml"]) do |f|
         # Create initial file
-        initial = Expressir::Changes::SchemaChange.create_new(schema_name)
+        initial = Expressir::Changes::SchemaChange.new(schema: schema_name)
         initial.add_or_update_edition("1", "Version 1",
                                       { additions: [], modifications: [], removals: [] })
         initial.to_file(f.path)
@@ -87,7 +87,7 @@ RSpec.describe Expressir::Commands::ChangesImportEengine do
 
       Tempfile.create(["output", ".yaml"]) do |f|
         # Create initial file
-        initial = Expressir::Changes::SchemaChange.create_new(schema_name)
+        initial = Expressir::Changes::SchemaChange.new(schema: schema_name)
         initial.add_or_update_edition("2", "Old description",
                                       { additions: [], modifications: [], removals: [] })
         initial.to_file(f.path)

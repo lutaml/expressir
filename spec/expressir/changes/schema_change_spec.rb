@@ -79,7 +79,7 @@ RSpec.describe Expressir::Changes::SchemaChange do
                                              name: "new_entity"),
         ],
         modifications: [],
-        removals: [],
+        deletions: [],
       }
 
       schema.add_or_update_edition("2", "Added new entity", changes)
@@ -95,7 +95,7 @@ RSpec.describe Expressir::Changes::SchemaChange do
           Expressir::Changes::ItemChange.new(type: "ENTITY", name: "entity1"),
         ],
         modifications: [],
-        removals: [],
+        deletions: [],
       }
       schema.add_or_update_edition("2", "First description", changes1)
 
@@ -104,7 +104,7 @@ RSpec.describe Expressir::Changes::SchemaChange do
           Expressir::Changes::ItemChange.new(type: "ENTITY", name: "entity2"),
         ],
         modifications: [],
-        removals: [],
+        deletions: [],
       }
       schema.add_or_update_edition("2", "Second description", changes2)
 
@@ -119,7 +119,7 @@ RSpec.describe Expressir::Changes::SchemaChange do
           Expressir::Changes::ItemChange.new(type: "ENTITY", name: "entity1"),
         ],
         modifications: [],
-        removals: [],
+        deletions: [],
       }
       schema.add_or_update_edition("2", "Version 2", changes1)
 
@@ -128,7 +128,7 @@ RSpec.describe Expressir::Changes::SchemaChange do
           Expressir::Changes::ItemChange.new(type: "ENTITY", name: "entity2"),
         ],
         modifications: [],
-        removals: [],
+        deletions: [],
       }
       schema.add_or_update_edition("3", "Version 3", changes2)
 

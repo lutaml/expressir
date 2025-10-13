@@ -69,7 +69,7 @@ RSpec.describe Expressir::Commands::ChangesImportEengine do
         # Create initial file
         initial = Expressir::Changes::SchemaChange.new(schema: schema_name)
         initial.add_or_update_edition("1", "Version 1",
-                                      { additions: [], modifications: [], removals: [] })
+                                      { additions: [], modifications: [], deletions: [] })
         initial.to_file(f.path)
 
         # Convert and append
@@ -89,7 +89,7 @@ RSpec.describe Expressir::Commands::ChangesImportEengine do
         # Create initial file
         initial = Expressir::Changes::SchemaChange.new(schema: schema_name)
         initial.add_or_update_edition("2", "Old description",
-                                      { additions: [], modifications: [], removals: [] })
+                                      { additions: [], modifications: [], deletions: [] })
         initial.to_file(f.path)
 
         # Convert and replace

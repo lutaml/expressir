@@ -12,7 +12,6 @@ module Expressir
       attribute :description, :string
       attribute :additions, ItemChange, collection: true
       attribute :modifications, ItemChange, collection: true
-      attribute :removals, ItemChange, collection: true
       attribute :deletions, ItemChange, collection: true
       attribute :mapping, MappingChange, collection: true
       attribute :changes, MappingChange, collection: true
@@ -22,7 +21,6 @@ module Expressir
         map "description", to: :description
         map "additions", to: :additions
         map "modifications", to: :modifications
-        map "removals", to: :removals
         map "deletions", to: :deletions
         map "mapping", to: :mapping
         map "changes", to: :changes

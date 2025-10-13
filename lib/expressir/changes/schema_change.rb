@@ -33,7 +33,7 @@ module Expressir
       #
       # @param version [String] Version number
       # @param description [String] Description of changes
-      # @param changes [Hash] Hash with :additions, :modifications, :removals
+      # @param changes [Hash] Hash with :additions, :modifications, :deletions
       # @return [EditionChange] The added or updated edition
       def add_or_update_edition(version, description, changes)
         version_str = version.to_s
@@ -52,7 +52,6 @@ module Expressir
           description: description,
           additions: changes[:additions] || [],
           modifications: changes[:modifications] || [],
-          removals: changes[:removals] || [],
           deletions: changes[:deletions] || [],
         )
 

@@ -754,7 +754,7 @@ expressir changes import-eengine comparison.xml schema_name "3" -o existing.yaml
 The import command:
 
 . Parses the eengine XML comparison file
-. Extracts additions, modifications, and removals
+. Extracts additions, modifications, and deletions
 . Creates or updates an EXPRESS Changes YAML file
 . Supports appending new versions to existing files
 
@@ -1174,7 +1174,7 @@ The Changes module enables:
 * Loading and saving schema change records from/to YAML files
 * Programmatic creation and manipulation of change records
 * Smart edition handling (replace same version, add new version)
-* Support for all change types: additions, modifications, removals, deletions
+* Support for all change types: additions, modifications, deletions
 * Support for mapping changes in ARM/MIM schemas
 
 === Reading change files
@@ -1199,7 +1199,6 @@ change_schema.editions.each do |edition|
   puts "  Additions: #{edition.additions.size}" if edition.additions
   puts "  Modifications: #{edition.modifications.size}" if edition.modifications
   puts "  Deletions: #{edition.deletions.size}" if edition.deletions
-  puts "  Removals: #{edition.removals.size}" if edition.removals
 end
 ----
 
@@ -1228,7 +1227,7 @@ modified_function = Expressir::Changes::ItemChange.new(
 changes = {
   additions: [new_entity],
   modifications: [modified_function],
-  removals: []
+  deletions: []
 }
 
 change_schema.add_or_update_edition(
@@ -1292,8 +1291,7 @@ Change editions support categorizing changes into:
 
 `additions`:: New elements added to the schema
 `modifications`:: Existing elements that were modified
-`removals`:: Elements removed from the schema
-`deletions`:: Alternative term for removals (both supported)
+`deletions`:: Elements removed from the schema
 `mapping`:: Mapping-related changes (for ARM/MIM modules)
 `changes`:: General changes (alternative to mapping)
 

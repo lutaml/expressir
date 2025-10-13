@@ -48,7 +48,7 @@ module Expressir
         {
           additions: extract_added_objects(xml_doc),
           modifications: extract_modified_objects(xml_doc),
-          removals: extract_removed_objects(xml_doc),
+          deletions: extract_deleted_objects(xml_doc),
         }
       end
 
@@ -62,7 +62,7 @@ module Expressir
       end
 
       def extract_added_objects(xml_doc)
-        xml_doc.xpath("//schema.additions/added.object").map do |node|
+        xml_doc.xpath("//schema.additions/modified.object").map do |node|
           Expressir::Changes::ItemChange.new(
             type: node["type"],
             name: node["name"],
@@ -70,8 +70,8 @@ module Expressir
         end
       end
 
-      def extract_removed_objects(xml_doc)
-        xml_doc.xpath("//schema.removals/removed.object").map do |node|
+      def extract_deleted_objects(xml_doc)
+        xml_doc.xpath("//schema.deletions/modified.object").map do |node|
           Expressir::Changes::ItemChange.new(
             type: node["type"],
             name: node["name"],
@@ -89,13 +89,13 @@ module Expressir
         end
 
         # Get descriptions from additions
-        xml_doc.xpath("//schema.additions/added.object/description").each do |desc|
+        xml_doc.xpath("//schema.additions/modified.object/description").each do |desc|
           text = desc.text.strip
           parts << text unless text.empty?
         end
 
-        # Get descriptions from removals
-        xml_doc.xpath("//schema.removals/removed.object/description").each do |desc|
+        # Get descriptions from deletions
+        xml_doc.xpath("//schema.deletions/modified.object/description").each do |desc|
           text = desc.text.strip
           parts << text unless text.empty?
         end

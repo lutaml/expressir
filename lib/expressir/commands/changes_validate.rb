@@ -31,7 +31,7 @@ module Expressir
 
           say "✓ File is valid" if options[:verbose]
           say "  Schema: #{schema_change.schema}" if options[:verbose]
-          say "  Editions: #{schema_change.edition_change.length}" if options[:verbose]
+          say "  Editions: #{schema_change.editions.length}" if options[:verbose]
 
           # Normalize if requested
           if options[:normalize]

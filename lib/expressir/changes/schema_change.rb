@@ -8,11 +8,11 @@ module Expressir
     # Represents changes to an EXPRESS schema across multiple versions
     class SchemaChange < Lutaml::Model::Serializable
       attribute :schema, :string
-      attribute :edition_change, EditionChange, collection: true
+      attribute :editions, EditionChange, collection: true
 
       yaml do
         map "schema", to: :schema
-        map "edition_change", to: :edition_change
+        map "editions", to: :editions
       end
 
       class << self
@@ -38,11 +38,11 @@ module Expressir
       def add_or_update_edition(version, description, changes)
         version_str = version.to_s
 
-        # Initialize edition_change array if nil
-        self.edition_change ||= []
+        # Initialize editions array if nil
+        self.editions ||= []
 
         # Find existing edition with this version
-        existing_index = edition_change.find_index do |ed|
+        existing_index = editions.find_index do |ed|
           ed.version == version_str
         end
 
@@ -58,10 +58,10 @@ module Expressir
 
         if existing_index
           # Replace existing edition with same version
-          edition_change[existing_index] = edition
+          editions[existing_index] = edition
         else
           # Add new edition
-          edition_change << edition
+          editions << edition
         end
 
         edition

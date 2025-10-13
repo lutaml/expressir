@@ -1,6 +1,6 @@
 ---
 schema: advanced_boundary_representation
-edition_change:
+editions:
 - version: '4'
   changes:
   - change: Advanced_brep_shape_representation ENTITY mapping updated

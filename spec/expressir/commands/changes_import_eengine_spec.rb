@@ -33,8 +33,8 @@ RSpec.describe Expressir::Commands::ChangesImportEengine do
         require "expressir/changes"
         change_schema = Expressir::Changes::SchemaChange.from_file(f.path)
         expect(change_schema.schema).to eq(schema_name)
-        expect(change_schema.edition_change.size).to eq(1)
-        expect(change_schema.edition_change[0].version).to eq(version)
+        expect(change_schema.editions.size).to eq(1)
+        expect(change_schema.editions[0].version).to eq(version)
       end
     end
 
@@ -43,9 +43,9 @@ RSpec.describe Expressir::Commands::ChangesImportEengine do
       Tempfile.create(["output", ".yaml"]) do |f|
         result = described_class.call(xml_fixture, f.path, schema_name, version)
 
-        expect(result.edition_change[0].modifications.size).to eq(1)
-        expect(result.edition_change[0].modifications[0].type).to eq("TYPE")
-        expect(result.edition_change[0].modifications[0].name).to eq("text")
+        expect(result.editions[0].modifications.size).to eq(1)
+        expect(result.editions[0].modifications[0].type).to eq("TYPE")
+        expect(result.editions[0].modifications[0].name).to eq("text")
       end
     end
 
@@ -54,7 +54,7 @@ RSpec.describe Expressir::Commands::ChangesImportEengine do
       Tempfile.create(["output", ".yaml"]) do |f|
         result = described_class.call(xml_fixture, f.path, schema_name, version)
 
-        description = result.edition_change[0].description
+        description = result.editions[0].description
         expect(description).not_to start_with("\n")
         expect(description).not_to end_with("\n")
         expect(description).to include("Underlying Type changed")
@@ -75,9 +75,9 @@ RSpec.describe Expressir::Commands::ChangesImportEengine do
         # Convert and append
         result = described_class.call(xml_fixture, f.path, schema_name, "2")
 
-        expect(result.edition_change.size).to eq(2)
-        expect(result.edition_change[0].version).to eq("1")
-        expect(result.edition_change[1].version).to eq("2")
+        expect(result.editions.size).to eq(2)
+        expect(result.editions[0].version).to eq("1")
+        expect(result.editions[1].version).to eq("2")
       end
     end
 
@@ -95,8 +95,8 @@ RSpec.describe Expressir::Commands::ChangesImportEengine do
         # Convert and replace
         result = described_class.call(xml_fixture, f.path, schema_name, "2")
 
-        expect(result.edition_change.size).to eq(1)
-        expect(result.edition_change[0].description).to include("TYPE text")
+        expect(result.editions.size).to eq(1)
+        expect(result.editions[0].description).to include("TYPE text")
       end
     end
   end

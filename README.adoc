@@ -1192,7 +1192,7 @@ change_schema = Expressir::Changes::SchemaChange.from_file("schema.changes.yaml"
 puts "Schema: #{change_schema.schema}"
 
 # Iterate through change editions
-change_schema.edition_change.each do |edition|
+change_schema.editions.each do |edition|
   puts "Version #{edition.version}: #{edition.description}"
 
   # Access changes by type
@@ -1326,7 +1326,7 @@ mapping_change = Expressir::Changes::MappingChange.new(
 ----
 ---
 schema: support_resource_schema
-edition_change:
+editions:
 - version: '2'
   description: |-
     The definitions of the following EXPRESS entity data types were modified:

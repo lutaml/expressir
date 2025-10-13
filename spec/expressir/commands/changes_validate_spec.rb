@@ -161,7 +161,7 @@ RSpec.describe Expressir::Commands::ChangesValidate do
           normalized = Expressir::Changes::SchemaChange.from_file(f.path)
 
           expect(normalized.schema).to eq(original.schema)
-          expect(normalized.edition_change.length).to eq(original.edition_change.length)
+          expect(normalized.editions.length).to eq(original.editions.length)
         end
       end
     end

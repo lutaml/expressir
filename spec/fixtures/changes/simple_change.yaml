@@ -1,6 +1,6 @@
 ---
 schema: test_schema
-edition_change:
+editions:
 - version: '2'
   description: 'TYPE text: Underlying Type changed'
   modifications:

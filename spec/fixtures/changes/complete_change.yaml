@@ -1,6 +1,6 @@
 ---
 schema: topology_schema
-edition_change:
+editions:
 - version: '2'
   description: Also changes of technical corrigendum 1 of edition 2 are listed here.
   additions:

@@ -729,6 +729,10 @@ This is useful for:
 The `changes import-eengine` command converts eengine comparison XML files to
 EXPRESS Changes YAML format.
 
+The eengine compare XML format is created through
+`exp-engine-engine/kernel/compare.lisp` in the EXPRESS Engine code. Expressir is
+compatible with v5.2.7 of eengine output.
+
 [source, sh]
 ----
 # Import and output to stdout

@@ -1210,7 +1210,7 @@ Create a new change schema programmatically:
 [source,ruby]
 ----
 # Create a new empty change schema
-change_schema = Expressir::Changes::SchemaChange.create_new("my_schema")
+change_schema = Expressir::Changes::SchemaChange.new(schema: "my_schema")
 
 # Create change items
 new_entity = Expressir::Changes::ItemChange.new(

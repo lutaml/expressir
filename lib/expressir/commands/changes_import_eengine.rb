@@ -25,7 +25,7 @@ module Expressir
         change_schema = if output_file && File.exist?(output_file) && File.size(output_file).positive?
                           Expressir::Changes::SchemaChange.from_file(output_file)
                         else
-                          Expressir::Changes::SchemaChange.create_new(schema_name)
+                          Expressir::Changes::SchemaChange.new(schema: schema_name)
                         end
 
         # Add or update edition

@@ -23,17 +23,9 @@ module Expressir
         def from_file(path)
           content = File.read(path)
           # Handle empty or minimal YAML files
-          return new(schema: "", edition_change: []) if content.strip == "---"
+          return new if content.strip == "---" || content.strip.empty?
 
           from_yaml(content)
-        end
-
-        # Create a new empty SchemaChange
-        #
-        # @param schema_name [String] Name of the schema
-        # @return [SchemaChange] New instance with empty change editions
-        def create_new(schema_name)
-          new(schema: schema_name, edition_change: [])
         end
       end
 
@@ -45,6 +37,9 @@ module Expressir
       # @return [EditionChange] The added or updated edition
       def add_or_update_edition(version, description, changes)
         version_str = version.to_s
+
+        # Initialize edition_change array if nil
+        self.edition_change ||= []
 
         # Find existing edition with this version
         existing_index = edition_change.find_index do |ed|

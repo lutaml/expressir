@@ -49,6 +49,43 @@ RSpec.describe Expressir::Commands::ChangesImportEengine do
       end
     end
 
+    it "extracts additions from XML including interface items" do
+      require "tempfile"
+      Tempfile.create(["output", ".yaml"]) do |f|
+        result = described_class.call(xml_fixture, f.path, schema_name, version)
+
+        additions = result.editions[0].additions
+        expect(additions.size).to eq(3)
+
+        # Check interface items with interfaced.items attribute
+        interface_items = additions.select(&:interfaced_items)
+        expect(interface_items.size).to eq(2)
+        expect(interface_items[0].type).to eq("USE_FROM")
+        expect(interface_items[0].name).to eq("geometric_model_schema")
+        expect(interface_items[0].interfaced_items).to eq("convex_hexahedron")
+        expect(interface_items[1].interfaced_items).to eq("cyclide_segment_solid")
+
+        # Check entity addition without interfaced.items
+        entity_item = additions.find { |a| a.type == "ENTITY" }
+        expect(entity_item).not_to be_nil
+        expect(entity_item.name).to eq("shape_representation")
+        expect(entity_item.interfaced_items).to be_nil
+      end
+    end
+
+    it "extracts deletions from XML including interface items" do
+      require "tempfile"
+      Tempfile.create(["output", ".yaml"]) do |f|
+        result = described_class.call(xml_fixture, f.path, schema_name, version)
+
+        deletions = result.editions[0].deletions
+        expect(deletions.size).to eq(1)
+        expect(deletions[0].type).to eq("REFERENCE_FROM")
+        expect(deletions[0].name).to eq("old_schema")
+        expect(deletions[0].interfaced_items).to eq("removed_item")
+      end
+    end
+
     it "strips whitespace from descriptions" do
       require "tempfile"
       Tempfile.create(["output", ".yaml"]) do |f|
@@ -97,6 +134,53 @@ RSpec.describe Expressir::Commands::ChangesImportEengine do
 
         expect(result.editions.size).to eq(1)
         expect(result.editions[0].description).to include("TYPE text")
+      end
+    end
+
+    context "with ARM mode XML" do
+      let(:arm_fixture) do
+        File.join(__dir__, "../../fixtures/changes/sample_eengine_arm.xml")
+      end
+
+      it "detects and processes ARM mode XML" do
+        require "tempfile"
+        Tempfile.create(["output", ".yaml"]) do |f|
+          result = described_class.call(arm_fixture, f.path, "example_arm", "1")
+
+          additions = result.editions[0].additions
+          expect(additions.size).to eq(1)
+          expect(additions[0].type).to eq("ENTITY")
+          expect(additions[0].name).to eq("Example_Entity")
+
+          modifications = result.editions[0].modifications
+          expect(modifications.size).to eq(1)
+          expect(modifications[0].type).to eq("ENTITY")
+          expect(modifications[0].name).to eq("Modified_Entity")
+        end
+      end
+    end
+
+    context "with MIM mode XML" do
+      let(:mim_fixture) do
+        File.join(__dir__, "../../fixtures/changes/sample_eengine_mim.xml")
+      end
+
+      it "detects and processes MIM mode XML" do
+        require "tempfile"
+        Tempfile.create(["output", ".yaml"]) do |f|
+          result = described_class.call(mim_fixture, f.path, "example_mim", "1")
+
+          additions = result.editions[0].additions
+          expect(additions.size).to eq(1)
+          expect(additions[0].type).to eq("USE_FROM")
+          expect(additions[0].name).to eq("common_schema")
+          expect(additions[0].interfaced_items).to eq("identifier")
+
+          deletions = result.editions[0].deletions
+          expect(deletions.size).to eq(1)
+          expect(deletions[0].type).to eq("TYPE")
+          expect(deletions[0].name).to eq("deprecated_type")
+        end
       end
     end
   end

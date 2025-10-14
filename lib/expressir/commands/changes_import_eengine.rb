@@ -1,41 +1,45 @@
 # frozen_string_literal: true
 
 require_relative "base"
-require "moxml"
+require_relative "../eengine/compare_report"
 
 module Expressir
   module Commands
     # Command to import eengine comparison XML to EXPRESS Changes YAML
     class ChangesImportEengine < Base
-      def self.call(input_file, output_file, schema_name, version, **options)
-        new.call(input_file, output_file, schema_name, version, **options)
-      end
-
-      def call(input_file, output_file, schema_name, version, **options)
+      # Parse XML string and convert to SchemaChange
+      #
+      # @param xml_content [String] Eengine XML content
+      # @param schema_name [String] Schema name
+      # @param version [String] Version identifier
+      # @param options [Hash] Additional options
+      # @return [Expressir::Changes::SchemaChange]
+      def self.from_xml(xml_content, schema_name, version, **options)
         require "expressir/changes"
 
-        # Parse the eengine XML using Moxml
+        # Parse into CompareReport using Lutaml::Model
+        compare_report = Expressir::Eengine::CompareReport.from_xml(xml_content)
+
+        # Convert to SchemaChange
+        convert_to_schema_change(compare_report, schema_name, version, **options)
+      end
+
+      # File-based workflow (backward compatible)
+      def self.call(input_file, output_file, schema_name, version, **options)
+        require "expressir/changes"
+
         xml_content = File.read(input_file)
-        xml_doc = Moxml.new.parse(xml_content)
 
-        # Detect XML mode from root element
-        xml_mode = detect_xml_mode(xml_doc)
+        # Load existing schema if output file exists
+        existing_schema = if output_file && File.exist?(output_file) && File.size(output_file).positive?
+                            Expressir::Changes::SchemaChange.from_file(output_file)
+                          else
+                            nil
+                          end
 
-        # Extract changes from XML
-        changes = extract_changes(xml_doc, xml_mode)
-        description = generate_description(xml_doc, xml_mode)
+        change_schema = from_xml(xml_content, schema_name, version,
+                                  existing_schema: existing_schema, **options)
 
-        # Load or create change schema
-        change_schema = if output_file && File.exist?(output_file) && File.size(output_file).positive?
-                          Expressir::Changes::SchemaChange.from_file(output_file)
-                        else
-                          Expressir::Changes::SchemaChange.new(schema: schema_name)
-                        end
-
-        # Add or update edition
-        change_schema.add_or_update_edition(version, description, changes)
-
-        # Save to file
         if output_file
           change_schema.to_file(output_file)
           puts "Change YAML file written to: #{output_file}" if options[:verbose]
@@ -46,91 +50,57 @@ module Expressir
         change_schema
       end
 
-      private
+      class << self
+        private
 
-      # Detect XML mode from root element (arm, mim, or schema)
-      def detect_xml_mode(xml_doc)
-        root = xml_doc.root
-        return nil unless root
+        def convert_to_schema_change(compare_report, schema_name, version, **options)
+          require "expressir/changes"
 
-        case root.name
-        when "arm.changes"
-          "arm"
-        when "mim.changes"
-          "mim"
-        when "schema.changes"
-          "schema"
-        else
-          # Default to schema mode if unrecognized
-          "schema"
-        end
-      end
+          # Extract changes from CompareReport
+          changes = {
+            additions: extract_items(compare_report.additions),
+            modifications: extract_items(compare_report.modifications),
+            deletions: extract_items(compare_report.deletions),
+          }
 
-      def extract_changes(xml_doc, xml_mode)
-        {
-          additions: extract_added_objects(xml_doc, xml_mode),
-          modifications: extract_modified_objects(xml_doc, xml_mode),
-          deletions: extract_deleted_objects(xml_doc, xml_mode),
-        }
-      end
+          description = extract_description(compare_report)
 
-      def extract_modified_objects(xml_doc, xml_mode)
-        xpath = "//#{xml_mode}.modifications/modified.object"
-        xml_doc.xpath(xpath).map do |node|
-          extract_item_change(node)
-        end
-      end
+          # Use existing schema or create new one
+          change_schema = options[:existing_schema] ||
+                          Expressir::Changes::SchemaChange.new(schema: schema_name)
+          change_schema.add_or_update_edition(version, description, changes)
 
-      def extract_added_objects(xml_doc, xml_mode)
-        xpath = "//#{xml_mode}.additions/modified.object"
-        xml_doc.xpath(xpath).map do |node|
-          extract_item_change(node)
-        end
-      end
-
-      def extract_deleted_objects(xml_doc, xml_mode)
-        xpath = "//#{xml_mode}.deletions/modified.object"
-        xml_doc.xpath(xpath).map do |node|
-          extract_item_change(node)
-        end
-      end
-
-      def extract_item_change(node)
-        item_change = Expressir::Changes::ItemChange.new(
-          type: node["type"],
-          name: node["name"],
-        )
-
-        # Extract interfaced.items attribute if present (for interface changes)
-        if node["interfaced.items"]
-          item_change.interfaced_items = node["interfaced.items"]
+          change_schema
         end
 
-        item_change
-      end
+        def extract_items(changes_section)
+          return [] unless changes_section&.modified_objects
 
-      def generate_description(xml_doc, xml_mode)
-        parts = []
-
-        # Get descriptions from modifications
-        xml_doc.xpath("//#{xml_mode}.modifications/modified.object/description").each do |desc|
-          text = desc.text.strip
-          parts << text unless text.empty?
+          changes_section.modified_objects.map do |obj|
+            item_change = Expressir::Changes::ItemChange.new(
+              type: obj.type,
+              name: obj.name,
+            )
+            item_change.interfaced_items = obj.interfaced_items if obj.interfaced_items
+            item_change
+          end
         end
 
-        # Get descriptions from additions
-        xml_doc.xpath("//#{xml_mode}.additions/modified.object/description").each do |desc|
-          text = desc.text.strip
-          parts << text unless text.empty?
-        end
+        def extract_description(compare_report)
+          parts = []
 
-        # Get descriptions from deletions
-        xml_doc.xpath("//#{xml_mode}.deletions/modified.object/description").each do |desc|
-          text = desc.text.strip
-          parts << text unless text.empty?
-        end
+          [compare_report.modifications, compare_report.additions, compare_report.deletions].each do |section|
+            next unless section&.modified_objects
 
-        parts.join("\n\n")
+            section.modified_objects.each do |obj|
+              if obj.description && !obj.description.strip.empty?
+                parts << obj.description.strip
+              end
+            end
+          end
+
+          parts.join("\n\n")
+        end
       end
     end
   end

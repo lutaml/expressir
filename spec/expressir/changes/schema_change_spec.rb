@@ -52,8 +52,8 @@ RSpec.describe Expressir::Changes::SchemaChange do
 
       expect(schema.schema).to eq("advanced_boundary_representation")
       expect(schema.editions.size).to eq(1)
-      expect(schema.editions[0].changes.size).to eq(2)
-      expect(schema.editions[0].changes[0].change).to include("mapping")
+      expect(schema.editions[0].mappings.size).to eq(2)
+      expect(schema.editions[0].mappings[0].description).to include("mapping")
     end
 
     it "handles empty files" do

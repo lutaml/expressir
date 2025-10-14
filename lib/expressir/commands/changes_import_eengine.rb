@@ -21,7 +21,8 @@ module Expressir
         compare_report = Expressir::Eengine::CompareReport.from_xml(xml_content)
 
         # Convert to SchemaChange
-        convert_to_schema_change(compare_report, schema_name, version, **options)
+        convert_to_schema_change(compare_report, schema_name, version,
+                                 **options)
       end
 
       # File-based workflow (backward compatible)
@@ -33,12 +34,10 @@ module Expressir
         # Load existing schema if output file exists
         existing_schema = if output_file && File.exist?(output_file) && File.size(output_file).positive?
                             Expressir::Changes::SchemaChange.from_file(output_file)
-                          else
-                            nil
                           end
 
         change_schema = from_xml(xml_content, schema_name, version,
-                                  existing_schema: existing_schema, **options)
+                                 existing_schema: existing_schema, **options)
 
         if output_file
           change_schema.to_file(output_file)
@@ -53,7 +52,8 @@ module Expressir
       class << self
         private
 
-        def convert_to_schema_change(compare_report, schema_name, version, **options)
+        def convert_to_schema_change(compare_report, schema_name, version,
+**options)
           require "expressir/changes"
 
           # Extract changes from CompareReport
@@ -67,7 +67,7 @@ module Expressir
 
           # Use existing schema or create new one
           change_schema = options[:existing_schema] ||
-                          Expressir::Changes::SchemaChange.new(schema: schema_name)
+            Expressir::Changes::SchemaChange.new(schema: schema_name)
           change_schema.add_or_update_edition(version, description, changes)
 
           change_schema
@@ -89,7 +89,8 @@ module Expressir
         def extract_description(compare_report)
           parts = []
 
-          [compare_report.modifications, compare_report.additions, compare_report.deletions].each do |section|
+          [compare_report.modifications, compare_report.additions,
+           compare_report.deletions].each do |section|
             next unless section&.modified_objects
 
             section.modified_objects.each do |obj|

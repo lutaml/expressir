@@ -724,17 +724,40 @@ This is useful for:
 * **Catching errors early**: Validates before committing changes
 * **Cleaning up files**: Removes inconsistencies in formatting
 
-==== Importing from eengine XML
+==== Importing from Express Engine comparison report XML
 
-The `changes import-eengine` command converts eengine comparison XML files to
-EXPRESS Changes YAML format.
+The `changes import-eengine` command converts Express Engine (eengine) comparison
+XML files to EXPRESS Changes YAML format.
 
 The eengine compare XML format is created through
-`exp-engine-engine/kernel/compare.lisp` in the EXPRESS Engine code. Expressir is
+`exp-engine-engine/kernel/compare.lisp` in the Express Engine code. Expressir is
 compatible with v5.2.7 of eengine output.
+
+The import command:
+
+. Parses the eengine XML comparison file
+. Automatically detects the XML mode (Schema/ARM/MIM)
+. Extracts additions, modifications, and deletions
+. Converts modified objects to EXPRESS Changes item format
+. Preserves interface change information (`interfaced.items`)
+. Creates or updates an EXPRESS Changes YAML file
+. Supports appending new versions to existing files
+
+When the output file already exists:
+
+* **Same version**: Replaces the existing edition with that version
+* **New version**: Adds a new edition to the file
+
+This allows you to build up a complete change history incrementally across
+multiple schema versions.
+
+Syntax:
 
 [source, sh]
 ----
+# Basic syntax
+expressir changes import-eengine INPUT_XML SCHEMA_NAME VERSION [options]
+
 # Import and output to stdout
 expressir changes import-eengine comparison.xml schema_name "2"
 
@@ -748,26 +771,62 @@ expressir changes import-eengine comparison.xml schema_name "2" -o output.yaml -
 expressir changes import-eengine comparison.xml schema_name "3" -o existing.yaml
 ----
 
-[options="header"]
-|===
-| Option | Description
-| `-o, --output PATH` | Output YAML file path (stdout if not specified)
-| `--verbose` | Show verbose output
-|===
+Where:
 
-The import command:
+`INPUT_XML`:: Path to the eengine comparison XML file
+`SCHEMA_NAME`:: Name of the schema being tracked (e.g., `aic_csg`, `action_schema`)
+`VERSION`:: Version number for this set of changes (e.g., `"2"`, `"3"`)
 
-. Parses the eengine XML comparison file
-. Extracts additions, modifications, and deletions
-. Creates or updates an EXPRESS Changes YAML file
-. Supports appending new versions to existing files
+Options:
 
-When the output file already exists:
+`-o, --output PATH`:: Output YAML file path (stdout if not specified)
+`--verbose`:: Show verbose output including parsed items
 
-* **Same version**: Replaces the existing edition with that version
-* **New version**: Adds a new edition to the file
+The command automatically detects and handles all three eengine XML comparison
+formats:
 
-This allows you to build up a complete change history incrementally.
+Schema mode:: `<schema.changes>` root element with `<schema.additions>`,
+`<schema.modifications>`, and `<schema.deletions>` sections. See API docs for
+details.
+
+Example workflow for importing changes from multiple versions:
+
+.Importing multiple versions incrementally
+[example]
+[source, sh]
+----
+# Import version 2 changes
+expressir changes import-eengine v2_comparison.xml action_schema "2" \
+  -o action_schema.changes.yaml
+
+# Import version 3 changes (appends to existing file)
+expressir changes import-eengine v3_comparison.xml action_schema "3" \
+  -o action_schema.changes.yaml
+
+# Import version 4 changes (appends to existing file)
+expressir changes import-eengine v4_comparison.xml action_schema "4" \
+  -o action_schema.changes.yaml
+
+# Verify the result
+cat action_schema.changes.yaml
+----
+
+This creates a single YAML file tracking changes across all three versions:
+
+[source,yaml]
+----
+schema: action_schema
+editions:
+- version: '2'
+  description: Changes from eengine comparison
+  additions: [...]
+- version: '3'
+  description: Changes from eengine comparison
+  additions: [...]
+- version: '4'
+  description: Changes from eengine comparison
+  additions: [...]
+----
 
 
 == Usage: Ruby
@@ -1171,7 +1230,7 @@ expressir coverage schemas.yml --format json --exclude=TYPE:SELECT
 
 Expressir provides the `Changes` module for managing and tracking changes to
 EXPRESS schemas across versions. This module implements the EXPRESS Changes YAML
-format defined by ELF (Express Language Foundation).
+format defined by ELF (Express Language Foundation) (ELF 5005).
 
 The Changes module enables:
 
@@ -1180,6 +1239,205 @@ The Changes module enables:
 * Smart edition handling (replace same version, add new version)
 * Support for all change types: additions, modifications, deletions
 * Support for mapping changes in ARM/MIM schemas
+* Programmatic import from Express Engine comparison XML files
+
+
+=== Importing from Express Engine XML programmatically
+
+==== General
+
+Expressir provides programmatic API access for parsing Express Engine comparison XML
+and converting it to EXPRESS Changes format.
+
+Parse Eengine XML into a structured object model:
+
+[source,ruby]
+----
+require "expressir/eengine/compare_report"
+
+# Parse from XML string
+xml_content = File.read("comparison.xml")
+report = Expressir::Eengine::CompareReport.from_xml(xml_content)
+
+# Or parse from file
+report = Expressir::Eengine::CompareReport.from_file("comparison.xml")
+----
+
+Convert Eengine XML directly to EXPRESS Changes format:
+
+[source,ruby]
+----
+require "expressir/commands/changes_import_eengine"
+
+# Parse XML and convert to SchemaChange in one step
+xml_content = File.read("comparison.xml")
+change_schema = Expressir::Commands::ChangesImportEengine.from_xml(
+  xml_content,
+  "aic_csg",      # schema name
+  "1.0"           # version
+)
+
+# Use the SchemaChange object
+change_schema.editions.first.additions.each do |item|
+  puts "#{item.type}: #{item.name}"
+  puts "  interfaced_items: #{item.interfaced_items}" if item.interfaced_items
+end
+
+# Save to file
+change_schema.to_file("output.changes.yaml")
+----
+
+==== Compare modes
+
+===== General
+
+Expressir automatically detects and parses all three Eengine XML modes.
+
+[source,ruby]
+----
+# All modes are handled automatically
+arm_report = Expressir::Eengine::CompareReport.from_file("arm_comparison.xml")
+mim_report = Expressir::Eengine::CompareReport.from_file("mim_comparison.xml")
+schema_report = Expressir::Eengine::CompareReport.from_file("schema_comparison.xml")
+
+puts arm_report.mode     # => "arm"
+puts mim_report.mode     # => "mim"
+puts schema_report.mode  # => "schema"
+----
+
+===== Schema mode
+
+`<schema.changes>` with `<schema.additions>`, `<schema.modifications>`, `<schema.deletions>`
+
+[example]
+====
+[source,xml]
+----
+<schema.changes schema_name="aic_csg">
+  <schema.additions>
+    <modified.object type="ENTITY" name="new_entity" />
+  </schema.additions>
+  <schema.modifications>
+    <modified.object type="TYPE" name="modified_type" />
+  </schema.modifications>
+  <schema.deletions>
+    <modified.object type="FUNCTION" name="removed_function" />
+  </schema.deletions>
+</schema.changes>
+----
+====
+
+===== ARM mode
+
+`<arm.changes>` root element with `<arm.additions>`,
+`<arm.modifications>`, and `<arm.deletions>` sections
+
+[example]
+====
+[source,xml]
+----
+<arm.changes schema_name="example_arm">
+  <arm.additions>
+    <modified.object type="ENTITY" name="new_arm_entity" />
+  </arm.additions>
+</arm.changes>
+----
+====
+
+
+===== MIM mode
+
+`<mim.changes>` root element with `<mim.additions>`,
+`<mim.modifications>`, and `<mim.deletions>` sections
+
+[example]
+====
+[source,xml]
+----
+<mim.changes schema_name="example_mim">
+  <mim.additions>
+    <modified.object type="ENTITY" name="new_mim_entity" />
+  </mim.additions>
+</mim.changes>
+----
+====
+
+==== Interface changes
+
+The eengine XML format tracks interface changes (USE_FROM, REFERENCE_FROM) with
+the `interfaced.items` attribute. This attribute lists the specific items being
+imported or referenced from another schema.
+
+.Example XML with interface changes
+[example]
+====
+[source,xml]
+----
+<schema.changes schema_name="aic_csg">
+  <schema.additions>
+    <modified.object type="USE_FROM" name="geometric_model_schema"
+      interfaced.items="convex_hexahedron" />
+
+    <modified.object type="USE_FROM" name="geometric_model_schema"
+      interfaced.items="cyclide_segment_solid" />
+
+    <modified.object type="REFERENCE_FROM" name="measure_schema"
+      interfaced.items="length_measure" />
+  </schema.additions>
+</schema.changes>
+----
+
+This will be converted to EXPRESS Changes YAML as:
+
+[source,yaml]
+----
+schema: aic_csg
+editions:
+- version: '2'
+  description: Changes from eengine comparison
+  additions:
+  - type: USE_FROM
+    name: geometric_model_schema
+    interfaced_items: convex_hexahedron
+  - type: USE_FROM
+    name: geometric_model_schema
+    interfaced_items: cyclide_segment_solid
+  - type: REFERENCE_FROM
+    name: measure_schema
+    interfaced_items: length_measure
+----
+====
+
+Eengine XML files track interface changes (USE_FROM, REFERENCE_FROM) with the
+`interfaced.items` attribute:
+
+[source,ruby]
+----
+report = Expressir::Eengine::CompareReport.from_file("comparison.xml")
+
+# Find interface changes
+report.additions&.modified_objects&.each do |obj|
+  if obj.type == "USE_FROM" || obj.type == "REFERENCE_FROM"
+    puts "#{obj.type} #{obj.name}"
+    puts "  Items: #{obj.interfaced_items}" if obj.interfaced_items
+  end
+end
+----
+
+
+==== Supported change types
+
+The import command recognizes all standard EXPRESS construct types:
+
+* `ENTITY` - Entity definitions
+* `TYPE` - Type definitions
+* `FUNCTION` - Function definitions
+* `PROCEDURE` - Procedure definitions
+* `RULE` - Rule definitions
+* `CONSTANT` - Constant definitions
+* `USE_FROM` - Interface imports (preserves `interfaced.items`)
+* `REFERENCE_FROM` - Interface references (preserves `interfaced.items`)
+
 
 === Reading change files
 

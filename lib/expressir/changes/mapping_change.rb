@@ -6,11 +6,11 @@ module Expressir
   module Changes
     # Represents a mapping change entry
     class MappingChange < Lutaml::Model::Serializable
-      attribute :change, :string
+      attribute :name, :string
       attribute :description, :string
 
       yaml do
-        map "change", to: :change
+        map "name", to: :name
         map "description", to: :description
       end
     end

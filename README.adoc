@@ -1296,7 +1296,7 @@ Change editions support categorizing changes into:
 `additions`:: New elements added to the schema
 `modifications`:: Existing elements that were modified
 `deletions`:: Elements removed from the schema
-`mapping`:: Mapping-related changes (for ARM/MIM modules)
+`mappings`:: Mapping-related changes (for ARM/MIM modules)
 `changes`:: General changes (alternative to mapping)
 
 [source,ruby]
@@ -1307,7 +1307,7 @@ edition = Expressir::Changes::EditionChange.new(
   additions: [item1, item2],
   modifications: [item3],
   deletions: [item4],
-  mapping: [mapping_change]
+  mappings: [mapping_change]
 )
 ----
 

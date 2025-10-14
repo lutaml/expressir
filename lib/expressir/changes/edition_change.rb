@@ -13,7 +13,7 @@ module Expressir
       attribute :additions, ItemChange, collection: true
       attribute :modifications, ItemChange, collection: true
       attribute :deletions, ItemChange, collection: true
-      attribute :mapping, MappingChange, collection: true
+      attribute :mappings, MappingChange, collection: true
       attribute :changes, MappingChange, collection: true
 
       yaml do
@@ -22,7 +22,7 @@ module Expressir
         map "additions", to: :additions
         map "modifications", to: :modifications
         map "deletions", to: :deletions
-        map "mapping", to: :mapping
+        map "mappings", to: :mappings
         map "changes", to: :changes
       end
     end

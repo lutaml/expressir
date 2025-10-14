@@ -42,7 +42,7 @@ module Expressir
           when "mim"
             MimCompareReport.from_xml(xml_content)
           else
-            super(xml_content)
+            super
           end
         end
 

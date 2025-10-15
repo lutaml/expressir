@@ -95,7 +95,9 @@ RSpec.describe Expressir::Commands::ChangesImportEengine do
         expect(result.editions[0].description).to be_nil
 
         # Item-level descriptions should be preserved as an array
-        modification = result.editions[0].modifications.find { |m| m.name == "text" }
+        modification = result.editions[0].modifications.find do |m|
+          m.name == "text"
+        end
         expect(modification.description).to eq(["TYPE text: Underlying Type changed"])
       end
     end
@@ -138,7 +140,9 @@ RSpec.describe Expressir::Commands::ChangesImportEengine do
         # Edition description should be nil (no aggregation)
         expect(result.editions[0].description).to be_nil
         # Item descriptions should be preserved as an array
-        modification = result.editions[0].modifications.find { |m| m.name == "text" }
+        modification = result.editions[0].modifications.find do |m|
+          m.name == "text"
+        end
         expect(modification.description).to be_a(Array)
         expect(modification.description.first).to include("TYPE text")
       end

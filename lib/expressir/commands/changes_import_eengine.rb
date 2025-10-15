@@ -58,9 +58,12 @@ module Expressir
 
           # Extract changes from CompareReport
           changes = {
-            additions: extract_items(compare_report.additions, options[:xml_content]),
-            modifications: extract_items(compare_report.modifications, options[:xml_content]),
-            deletions: extract_items(compare_report.deletions, options[:xml_content]),
+            additions: extract_items(compare_report.additions,
+                                     options[:xml_content]),
+            modifications: extract_items(compare_report.modifications,
+                                         options[:xml_content]),
+            deletions: extract_items(compare_report.deletions,
+                                     options[:xml_content]),
           }
 
           # Use existing schema or create new one
@@ -106,7 +109,9 @@ module Expressir
             # Extract <li> elements or use text content
             li_elements = Nokogiri::HTML.fragment(html).css("li")
             result[name] = if li_elements.any?
-                             li_elements.map { |li| li.text.strip }.reject(&:empty?)
+                             li_elements.map do |li|
+                               li.text.strip
+                             end.reject(&:empty?)
                            else
                              [Nokogiri::HTML.fragment(html).text.strip]
                            end
@@ -157,7 +162,9 @@ module Expressir
           # Convert <ul><li>...</li></ul> to AsciiDoc list format
           text = text.gsub(%r{<ul>\s*}i, "")
           text = text.gsub(%r{\s*</ul>}i, "")
-          text = text.gsub(%r{<li>(.*?)</li>}im) { "* #{Regexp.last_match(1).strip}" }
+          text = text.gsub(%r{<li>(.*?)</li>}im) do
+            "* #{Regexp.last_match(1).strip}"
+          end
 
           # Clean up any extra whitespace
           text.strip

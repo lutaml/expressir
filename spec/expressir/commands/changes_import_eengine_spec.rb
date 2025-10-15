@@ -86,15 +86,17 @@ RSpec.describe Expressir::Commands::ChangesImportEengine do
       end
     end
 
-    it "strips whitespace from descriptions" do
+    it "extracts descriptions at item level (not edition level)" do
       require "tempfile"
       Tempfile.create(["output", ".yaml"]) do |f|
         result = described_class.call(xml_fixture, f.path, schema_name, version)
 
-        description = result.editions[0].description
-        expect(description).not_to start_with("\n")
-        expect(description).not_to end_with("\n")
-        expect(description).to include("Underlying Type changed")
+        # Edition-level description should be nil
+        expect(result.editions[0].description).to be_nil
+
+        # Item-level descriptions should be preserved as an array
+        modification = result.editions[0].modifications.find { |m| m.name == "text" }
+        expect(modification.description).to eq(["TYPE text: Underlying Type changed"])
       end
     end
 
@@ -133,7 +135,12 @@ RSpec.describe Expressir::Commands::ChangesImportEengine do
         result = described_class.call(xml_fixture, f.path, schema_name, "2")
 
         expect(result.editions.size).to eq(1)
-        expect(result.editions[0].description).to include("TYPE text")
+        # Edition description should be nil (no aggregation)
+        expect(result.editions[0].description).to be_nil
+        # Item descriptions should be preserved as an array
+        modification = result.editions[0].modifications.find { |m| m.name == "text" }
+        expect(modification.description).to be_a(Array)
+        expect(modification.description.first).to include("TYPE text")
       end
     end
 

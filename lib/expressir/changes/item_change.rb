@@ -8,7 +8,7 @@ module Expressir
     class ItemChange < Lutaml::Model::Serializable
       attribute :type, :string
       attribute :name, :string
-      attribute :description, :string
+      attribute :description, :string, collection: true
       attribute :interfaced_items, :string
 
       yaml do

@@ -22,7 +22,7 @@ module Expressir
 
         # Convert to SchemaChange
         convert_to_schema_change(compare_report, schema_name, version,
-                                 **options)
+                                 xml_content: xml_content, **options)
       end
 
       # File-based workflow (backward compatible)
@@ -58,31 +58,58 @@ module Expressir
 
           # Extract changes from CompareReport
           changes = {
-            additions: extract_items(compare_report.additions),
-            modifications: extract_items(compare_report.modifications),
-            deletions: extract_items(compare_report.deletions),
+            additions: extract_items(compare_report.additions, options[:xml_content]),
+            modifications: extract_items(compare_report.modifications, options[:xml_content]),
+            deletions: extract_items(compare_report.deletions, options[:xml_content]),
           }
-
-          description = extract_description(compare_report)
 
           # Use existing schema or create new one
           change_schema = options[:existing_schema] ||
             Expressir::Changes::SchemaChange.new(schema: schema_name)
-          change_schema.add_or_update_edition(version, description, changes)
+
+          # No edition-level description from eengine (only item-level)
+          change_schema.add_or_update_edition(version, nil, changes)
 
           change_schema
         end
 
-        def extract_items(changes_section)
+        def extract_items(changes_section, xml_content)
           return [] unless changes_section&.modified_objects
 
+          # Extract descriptions from XML as arrays
+          descriptions = extract_descriptions_from_xml(xml_content)
+
           changes_section.modified_objects.map do |obj|
-            item_change = Expressir::Changes::ItemChange.new(
+            Expressir::Changes::ItemChange.new(
               type: obj.type,
               name: obj.name,
+              interfaced_items: obj.interfaced_items,
+              description: descriptions[obj.name],
             )
-            item_change.interfaced_items = obj.interfaced_items if obj.interfaced_items
-            item_change
+          end
+        end
+
+        def extract_descriptions_from_xml(xml_content)
+          return {} unless xml_content
+
+          require "nokogiri"
+          doc = Nokogiri::XML(xml_content)
+
+          doc.xpath("//modified.object").each_with_object({}) do |node, result|
+            name = node["name"]
+            desc_node = node.at_xpath("description")
+            next unless desc_node
+
+            html = desc_node.inner_html.strip
+            next if html.empty?
+
+            # Extract <li> elements or use text content
+            li_elements = Nokogiri::HTML.fragment(html).css("li")
+            result[name] = if li_elements.any?
+                             li_elements.map { |li| li.text.strip }.reject(&:empty?)
+                           else
+                             [Nokogiri::HTML.fragment(html).text.strip]
+                           end
           end
         end
 
@@ -94,13 +121,46 @@ module Expressir
             next unless section&.modified_objects
 
             section.modified_objects.each do |obj|
-              if obj.description && !obj.description.strip.empty?
-                parts << obj.description.strip
-              end
+              next unless obj.description
+
+              description_text = normalize_description(obj.description)
+              next if description_text.strip.empty?
+
+              parts << convert_html_to_asciidoc(description_text.strip)
             end
           end
 
-          parts.join("\n\n")
+          parts.empty? ? nil : parts.join("\n\n")
+        end
+
+        def normalize_description(description)
+          # Handle both String and Array (when XML has nested elements)
+          case description
+          when String
+            description
+          when Array
+            # Join array elements, handling nested structures
+            description.map { |elem| normalize_description(elem) }.join("\n")
+          when Hash
+            # Handle hash elements (from XML parsing)
+            if description.key?("__text__")
+              description["__text__"]
+            else
+              description.values.map { |v| normalize_description(v) }.join("\n")
+            end
+          else
+            description.to_s
+          end
+        end
+
+        def convert_html_to_asciidoc(text)
+          # Convert <ul><li>...</li></ul> to AsciiDoc list format
+          text = text.gsub(%r{<ul>\s*}i, "")
+          text = text.gsub(%r{\s*</ul>}i, "")
+          text = text.gsub(%r{<li>(.*?)</li>}im) { "* #{Regexp.last_match(1).strip}" }
+
+          # Clean up any extra whitespace
+          text.strip
         end
       end
     end

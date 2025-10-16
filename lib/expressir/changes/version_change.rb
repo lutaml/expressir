@@ -6,9 +6,9 @@ require_relative "mapping_change"
 
 module Expressir
   module Changes
-    # Represents a version edition of schema changes
-    class EditionChange < Lutaml::Model::Serializable
-      attribute :version, :string
+    # Represents a version version of schema changes
+    class VersionChange < Lutaml::Model::Serializable
+      attribute :version, :integer
       attribute :description, :string
       attribute :additions, ItemChange, collection: true
       attribute :modifications, ItemChange, collection: true

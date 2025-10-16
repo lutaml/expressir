@@ -180,7 +180,7 @@ module Expressir
   # Autoload for Changes module classes
   module Changes
     autoload :SchemaChange, "expressir/changes/schema_change"
-    autoload :EditionChange, "expressir/changes/edition_change"
+    autoload :VersionChange, "expressir/changes/version_change"
     autoload :ItemChange, "expressir/changes/item_change"
     autoload :MappingChange, "expressir/changes/mapping_change"
   end

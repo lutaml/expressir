@@ -51,7 +51,7 @@ RSpec.describe Expressir::Commands::ChangesValidate do
           # Verify file was written
           content = File.read(f.path)
           expect(content).to include("schema: test_schema")
-          expect(content).to include("version: '2'")
+          expect(content).to include("version: 2")
 
           # Verify it can be loaded back
           require "expressir/changes"
@@ -161,7 +161,7 @@ RSpec.describe Expressir::Commands::ChangesValidate do
           normalized = Expressir::Changes::SchemaChange.from_file(f.path)
 
           expect(normalized.schema).to eq(original.schema)
-          expect(normalized.editions.length).to eq(original.editions.length)
+          expect(normalized.versions.length).to eq(original.versions.length)
         end
       end
     end

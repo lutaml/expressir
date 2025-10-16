@@ -70,8 +70,8 @@ module Expressir
           change_schema = options[:existing_schema] ||
             Expressir::Changes::SchemaChange.new(schema: schema_name)
 
-          # No edition-level description from eengine (only item-level)
-          change_schema.add_or_update_edition(version, nil, changes)
+          # No version-level description from eengine (only item-level)
+          change_schema.add_or_update_version(version, nil, changes)
 
           change_schema
         end

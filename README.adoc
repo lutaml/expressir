@@ -745,8 +745,8 @@ The import command:
 
 When the output file already exists:
 
-* **Same version**: Replaces the existing edition with that version
-* **New version**: Adds a new edition to the file
+* **Same version**: Replaces the existing version with that version
+* **New version**: Adds a new version to the file
 
 This allows you to build up a complete change history incrementally across
 multiple schema versions.
@@ -816,14 +816,14 @@ This creates a single YAML file tracking changes across all three versions:
 [source,yaml]
 ----
 schema: action_schema
-editions:
-- version: '2'
+versions:
+- version: 2
   description: Changes from eengine comparison
   additions: [...]
-- version: '3'
+- version: 3
   description: Changes from eengine comparison
   additions: [...]
-- version: '4'
+- version: 4
   description: Changes from eengine comparison
   additions: [...]
 ----
@@ -1236,7 +1236,7 @@ The Changes module enables:
 
 * Loading and saving schema change records from/to YAML files
 * Programmatic creation and manipulation of change records
-* Smart edition handling (replace same version, add new version)
+* Smart version handling (replace same version, add new version)
 * Support for all change types: additions, modifications, deletions
 * Support for mapping changes in ARM/MIM schemas
 * Programmatic import from Express Engine comparison XML files
@@ -1278,7 +1278,7 @@ change_schema = Expressir::Commands::ChangesImportEengine.from_xml(
 )
 
 # Use the SchemaChange object
-change_schema.editions.first.additions.each do |item|
+change_schema.versions.first.additions.each do |item|
   puts "#{item.type}: #{item.name}"
   puts "  interfaced_items: #{item.interfaced_items}" if item.interfaced_items
 end
@@ -1392,8 +1392,8 @@ This will be converted to EXPRESS Changes YAML as:
 [source,yaml]
 ----
 schema: aic_csg
-editions:
-- version: '2'
+versions:
+- version: 2
   description: Changes from eengine comparison
   additions:
   - type: USE_FROM
@@ -1453,14 +1453,14 @@ change_schema = Expressir::Changes::SchemaChange.from_file("schema.changes.yaml"
 # Access schema name
 puts "Schema: #{change_schema.schema}"
 
-# Iterate through change editions
-change_schema.editions.each do |edition|
-  puts "Version #{edition.version}: #{edition.description}"
+# Iterate through change versions
+change_schema.versions.each do |version|
+  puts "Version #{version.version}: #{version.description}"
 
   # Access changes by type
-  puts "  Additions: #{edition.additions.size}" if edition.additions
-  puts "  Modifications: #{edition.modifications.size}" if edition.modifications
-  puts "  Deletions: #{edition.deletions.size}" if edition.deletions
+  puts "  Additions: #{version.additions.size}" if version.additions
+  puts "  Modifications: #{version.modifications.size}" if version.modifications
+  puts "  Deletions: #{version.deletions.size}" if version.deletions
 end
 ----
 
@@ -1485,14 +1485,14 @@ modified_function = Expressir::Changes::ItemChange.new(
   description: "Updated parameters"
 )
 
-# Add a change edition
+# Add a change version
 changes = {
   additions: [new_entity],
   modifications: [modified_function],
   deletions: []
 }
 
-change_schema.add_or_update_edition(
+change_schema.add_or_update_version(
   "2",
   "Added new entity and modified function",
   changes
@@ -1504,10 +1504,10 @@ change_schema.to_file("my_schema.changes.yaml")
 
 === Updating existing change files
 
-The `add_or_update_edition` method provides smart handling:
+The `add_or_update_version` method provides smart handling:
 
-* **Same version**: Replaces the existing edition
-* **Different version**: Adds a new edition
+* **Same version**: Replaces the existing version
+* **Different version**: Adds a new version
 
 [source,ruby]
 ----
@@ -1520,10 +1520,10 @@ changes = {
     Expressir::Changes::ItemChange.new(type: "TYPE", name: "updated_type")
   ]
 }
-change_schema.add_or_update_edition("3", "Modified type definition", changes)
+change_schema.add_or_update_version("3", "Modified type definition", changes)
 
 # Or replace existing version
-change_schema.add_or_update_edition("2", "Revised description", changes)
+change_schema.add_or_update_version("2", "Revised description", changes)
 
 # Save changes
 change_schema.to_file("schema.changes.yaml")
@@ -1547,9 +1547,9 @@ item = Expressir::Changes::ItemChange.new(
 )
 ----
 
-=== Change edition fields
+=== Change version fields
 
-Change editions support categorizing changes into:
+Change versions support categorizing changes into:
 
 `additions`:: New elements added to the schema
 `modifications`:: Existing elements that were modified
@@ -1559,7 +1559,7 @@ Change editions support categorizing changes into:
 
 [source,ruby]
 ----
-edition = Expressir::Changes::EditionChange.new(
+version = Expressir::Changes::VersionChange.new(
   version: "2",
   description: "Added support for new functionality",
   additions: [item1, item2],
@@ -1586,8 +1586,8 @@ mapping_change = Expressir::Changes::MappingChange.new(
 ----
 ---
 schema: support_resource_schema
-editions:
-- version: '2'
+versions:
+- version: 2
   description: |-
     The definitions of the following EXPRESS entity data types were modified:
 
@@ -1600,7 +1600,7 @@ editions:
   modifications:
   - type: FUNCTION
     name: bag_to_set
-- version: '4'
+- version: 4
   description: |-
     Added support for external element references.
   additions:

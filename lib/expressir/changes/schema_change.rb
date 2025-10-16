@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 require "lutaml/model"
-require_relative "edition_change"
+require_relative "version_change"
 
 module Expressir
   module Changes
     # Represents changes to an EXPRESS schema across multiple versions
     class SchemaChange < Lutaml::Model::Serializable
       attribute :schema, :string
-      attribute :editions, EditionChange, collection: true
+      attribute :versions, VersionChange, collection: true
 
       yaml do
         map "schema", to: :schema
-        map "editions", to: :editions
+        map "versions", to: :versions
       end
 
       class << self
@@ -23,32 +23,40 @@ module Expressir
         def from_file(path)
           content = File.read(path)
           # Handle empty or minimal YAML files
+          # Skip leading comments and empty lines
+          lines = content.lines
+          yaml_start_index = lines.find_index do |line|
+            !line.strip.start_with?('#') && !line.strip.empty?
+          end
+
+          if yaml_start_index
+            content = lines[yaml_start_index..-1].join
+          end
+
           return new if content.strip == "---" || content.strip.empty?
 
           from_yaml(content)
         end
       end
 
-      # Add or update a change edition in this schema
+      # Add or update a change version in this schema
       #
       # @param version [String] Version number
       # @param description [String] Description of changes
       # @param changes [Hash] Hash with :additions, :modifications, :deletions
-      # @return [EditionChange] The added or updated edition
-      def add_or_update_edition(version, description, changes)
-        version_str = version.to_s
+      # @return [VersionChange] The added or updated version
+      def add_or_update_version(version, description, changes)
+        # Initialize versions array if nil
+        self.versions ||= []
 
-        # Initialize editions array if nil
-        self.editions ||= []
-
-        # Find existing edition with this version
-        existing_index = editions.find_index do |ed|
-          ed.version == version_str
+        # Find existing version with this version
+        existing_index = versions.find_index do |ed|
+          ed.version == version
         end
 
-        # Create new edition
-        edition = EditionChange.new(
-          version: version_str,
+        # Create new version
+        version = VersionChange.new(
+          version: version,
           description: description,
           additions: changes[:additions] || [],
           modifications: changes[:modifications] || [],
@@ -56,14 +64,14 @@ module Expressir
         )
 
         if existing_index
-          # Replace existing edition with same version
-          editions[existing_index] = edition
+          # Replace existing version with same version
+          versions[existing_index] = version
         else
-          # Add new edition
-          editions << edition
+          # Add new version
+          versions << version
         end
 
-        edition
+        version
       end
 
       # Save this SchemaChange to a YAML file
@@ -71,7 +79,11 @@ module Expressir
       # @param path [String] Path where to save the file
       # @return [Integer] Number of bytes written
       def to_file(path)
-        File.write(path, to_yaml)
+        # Add schema hint for editor support
+        content = "# yaml-language-server: " +
+          "$schema=https://www.expresslang.org/schemas/changes/v1/schema_changes.yaml" +
+          "\n" + to_yaml
+        File.write(path, content)
       end
     end
   end

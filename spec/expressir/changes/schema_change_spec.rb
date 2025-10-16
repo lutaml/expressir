@@ -21,28 +21,28 @@ RSpec.describe Expressir::Changes::SchemaChange do
       schema = described_class.from_file(simple_fixture)
 
       expect(schema.schema).to eq("test_schema")
-      expect(schema.editions.size).to eq(1)
-      expect(schema.editions[0].version).to eq("2")
-      expect(schema.editions[0].modifications.size).to eq(1)
-      expect(schema.editions[0].modifications[0].type).to eq("TYPE")
-      expect(schema.editions[0].modifications[0].name).to eq("text")
+      expect(schema.versions.size).to eq(1)
+      expect(schema.versions[0].version).to eq(2)
+      expect(schema.versions[0].modifications.size).to eq(1)
+      expect(schema.versions[0].modifications[0].type).to eq("TYPE")
+      expect(schema.versions[0].modifications[0].name).to eq("text")
     end
 
-    it "loads a complete change file with multiple editions" do
+    it "loads a complete change file with multiple versions" do
       schema = described_class.from_file(complete_fixture)
 
       expect(schema.schema).to eq("topology_schema")
-      expect(schema.editions.size).to eq(2)
+      expect(schema.versions.size).to eq(2)
 
-      # Check first edition
-      ed1 = schema.editions[0]
-      expect(ed1.version).to eq("2")
+      # Check first version
+      ed1 = schema.versions[0]
+      expect(ed1.version).to eq(2)
       expect(ed1.additions.size).to eq(2)
       expect(ed1.modifications.size).to eq(2)
 
-      # Check second edition with deletions
-      ed2 = schema.editions[1]
-      expect(ed2.version).to eq("7")
+      # Check second version with deletions
+      ed2 = schema.versions[1]
+      expect(ed2.version).to eq(7)
       expect(ed2.deletions.size).to eq(2)
       expect(ed2.deletions[0].interfaced_items).to eq("length_measure")
     end
@@ -51,9 +51,9 @@ RSpec.describe Expressir::Changes::SchemaChange do
       schema = described_class.from_file(mapping_fixture)
 
       expect(schema.schema).to eq("advanced_boundary_representation")
-      expect(schema.editions.size).to eq(1)
-      expect(schema.editions[0].mappings.size).to eq(2)
-      expect(schema.editions[0].mappings[0].description).to include("mapping")
+      expect(schema.versions.size).to eq(1)
+      expect(schema.versions[0].mappings.size).to eq(2)
+      expect(schema.versions[0].mappings[0].description).to include("mapping")
     end
 
     it "handles empty files" do
@@ -64,15 +64,15 @@ RSpec.describe Expressir::Changes::SchemaChange do
 
         schema = described_class.from_file(f.path)
         expect(schema.schema).to be_nil
-        expect(schema.editions).to be_nil
+        expect(schema.versions).to be_nil
       end
     end
   end
 
-  describe "#add_or_update_edition" do
+  describe "#add_or_update_version" do
     let(:schema) { described_class.new(schema: "test_schema") }
 
-    it "adds a new edition" do
+    it "adds a new version" do
       changes = {
         additions: [
           Expressir::Changes::ItemChange.new(type: "ENTITY",
@@ -82,14 +82,14 @@ RSpec.describe Expressir::Changes::SchemaChange do
         deletions: [],
       }
 
-      schema.add_or_update_edition("2", "Added new entity", changes)
+      schema.add_or_update_version(2, "Added new entity", changes)
 
-      expect(schema.editions.size).to eq(1)
-      expect(schema.editions[0].version).to eq("2")
-      expect(schema.editions[0].additions.size).to eq(1)
+      expect(schema.versions.size).to eq(1)
+      expect(schema.versions[0].version).to eq(2)
+      expect(schema.versions[0].additions.size).to eq(1)
     end
 
-    it "replaces an existing edition with same version" do
+    it "replaces an existing version with same version" do
       changes1 = {
         additions: [
           Expressir::Changes::ItemChange.new(type: "ENTITY", name: "entity1"),
@@ -97,7 +97,7 @@ RSpec.describe Expressir::Changes::SchemaChange do
         modifications: [],
         deletions: [],
       }
-      schema.add_or_update_edition("2", "First description", changes1)
+      schema.add_or_update_version(2, "First description", changes1)
 
       changes2 = {
         additions: [
@@ -106,14 +106,14 @@ RSpec.describe Expressir::Changes::SchemaChange do
         modifications: [],
         deletions: [],
       }
-      schema.add_or_update_edition("2", "Second description", changes2)
+      schema.add_or_update_version(2, "Second description", changes2)
 
-      expect(schema.editions.size).to eq(1)
-      expect(schema.editions[0].description).to eq("Second description")
-      expect(schema.editions[0].additions[0].name).to eq("entity2")
+      expect(schema.versions.size).to eq(1)
+      expect(schema.versions[0].description).to eq("Second description")
+      expect(schema.versions[0].additions[0].name).to eq("entity2")
     end
 
-    it "adds new edition when version is different" do
+    it "adds new version when version is different" do
       changes1 = {
         additions: [
           Expressir::Changes::ItemChange.new(type: "ENTITY", name: "entity1"),
@@ -121,7 +121,7 @@ RSpec.describe Expressir::Changes::SchemaChange do
         modifications: [],
         deletions: [],
       }
-      schema.add_or_update_edition("2", "Version 2", changes1)
+      schema.add_or_update_version(2, "Version 2", changes1)
 
       changes2 = {
         additions: [
@@ -130,11 +130,11 @@ RSpec.describe Expressir::Changes::SchemaChange do
         modifications: [],
         deletions: [],
       }
-      schema.add_or_update_edition("3", "Version 3", changes2)
+      schema.add_or_update_version(3, "Version 3", changes2)
 
-      expect(schema.editions.size).to eq(2)
-      expect(schema.editions[0].version).to eq("2")
-      expect(schema.editions[1].version).to eq("3")
+      expect(schema.versions.size).to eq(2)
+      expect(schema.versions[0].version).to eq(2)
+      expect(schema.versions[1].version).to eq(3)
     end
   end
 
@@ -149,12 +149,12 @@ RSpec.describe Expressir::Changes::SchemaChange do
         # Verify file was written
         content = File.read(f.path)
         expect(content).to include("schema: test_schema")
-        expect(content).to include("version: '2'")
+        expect(content).to include("version: 2")
 
         # Verify it can be read back
         reloaded = described_class.from_file(f.path)
         expect(reloaded.schema).to eq(schema.schema)
-        expect(reloaded.editions.size).to eq(schema.editions.size)
+        expect(reloaded.versions.size).to eq(schema.versions.size)
       end
     end
   end
@@ -166,8 +166,8 @@ RSpec.describe Expressir::Changes::SchemaChange do
       reloaded = described_class.from_yaml(yaml_output)
 
       expect(reloaded.schema).to eq(schema.schema)
-      expect(reloaded.editions.size).to eq(schema.editions.size)
-      expect(reloaded.editions[0].version).to eq(schema.editions[0].version)
+      expect(reloaded.versions.size).to eq(schema.versions.size)
+      expect(reloaded.versions[0].version).to eq(schema.versions[0].version)
     end
 
     it "maintains data integrity for complete change" do
@@ -176,11 +176,11 @@ RSpec.describe Expressir::Changes::SchemaChange do
       reloaded = described_class.from_yaml(yaml_output)
 
       expect(reloaded.schema).to eq(schema.schema)
-      expect(reloaded.editions.size).to eq(schema.editions.size)
+      expect(reloaded.versions.size).to eq(schema.versions.size)
 
       # Verify deletions field
-      ed2 = reloaded.editions[1]
-      expect(ed2.deletions.size).to eq(schema.editions[1].deletions.size)
+      ed2 = reloaded.versions[1]
+      expect(ed2.deletions.size).to eq(schema.versions[1].deletions.size)
     end
   end
 end

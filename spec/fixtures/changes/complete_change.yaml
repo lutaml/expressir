@@ -1,7 +1,7 @@
 ---
 schema: topology_schema
-editions:
-- version: '2'
+versions:
+- version: 2
   description: Also changes of technical corrigendum 1 of edition 2 are listed here.
   additions:
   - type: FUNCTION
@@ -13,7 +13,7 @@ editions:
     name: edge
   - type: FUNCTION
     name: edge_reversed
-- version: '7'
+- version: 7
   description: WHERE 'WR4' expression changed
   additions:
   - type: ENTITY

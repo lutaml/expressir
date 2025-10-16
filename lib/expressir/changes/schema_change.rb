@@ -26,11 +26,11 @@ module Expressir
           # Skip leading comments and empty lines
           lines = content.lines
           yaml_start_index = lines.find_index do |line|
-            !line.strip.start_with?('#') && !line.strip.empty?
+            !line.strip.start_with?("#") && !line.strip.empty?
           end
 
           if yaml_start_index
-            content = lines[yaml_start_index..-1].join
+            content = lines[yaml_start_index..].join
           end
 
           return new if content.strip == "---" || content.strip.empty?
@@ -80,9 +80,7 @@ module Expressir
       # @return [Integer] Number of bytes written
       def to_file(path)
         # Add schema hint for editor support
-        content = "# yaml-language-server: " +
-          "$schema=https://www.expresslang.org/schemas/changes/v1/schema_changes.yaml" +
-          "\n" + to_yaml
+        content = "# yaml-language-server: $schema=https://www.expresslang.org/schemas/changes/v1/schema_changes.yaml\n#{to_yaml}"
         File.write(path, content)
       end
     end

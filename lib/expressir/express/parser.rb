@@ -1,5 +1,6 @@
 require "parslet"
 require_relative "error"
+require_relative "../cache/cache_manager"
 
 module Expressir
   module Express
@@ -596,34 +597,59 @@ module Expressir
         end
       end
 
+      # Get or create the shared cache manager
+      #
+      # @return [Expressir::Cache::CacheManager] cache manager instance
+      def self.cache_manager
+        @cache_manager ||= Expressir::Cache::CacheManager.new
+      end
+
+      # Clear the parser cache
+      #
+      # @return [void]
+      def self.clear_cache
+        cache_manager.clear
+      end
+
+      # Get cache statistics
+      #
+      # @return [Hash] cache statistics
+      def self.cache_stats
+        cache_manager.stats
+      end
+
       # Parses Express file into an Express model
       # @param [String] file Express file path
       # @param [Boolean] skip_references skip resolving references
       # @param [Boolean] include_source attach original source code to model elements
+      # @param [Boolean] disable_cache disable caching for this parse operation
       # @return [Model::Repository]
       # @raise [SchemaParseFailure] if the schema file fails to parse
-      def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil) # rubocop:disable Metrics/AbcSize
+      def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil, disable_cache: nil) # rubocop:disable Metrics/AbcSize
         Expressir::Benchmark.measure_file(file) do
           source = File.read file
 
           # remove root path from file path
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
-          begin
-            ast = Parser.new.parse source
-          rescue Parslet::ParseFailed => e
-            # Instead of just printing, raise a proper error with file context
-            raise Error::SchemaParseFailure.new(schema_file, e)
-          end
+          # Try to get from cache if caching is enabled
+          if disable_cache
+            @repository = parse_file_content(source, schema_file,
+                                             include_source)
+          else
+            cached_repository = cache_manager.fetch_for_file(
+              file_path: file,
+              content: source,
+            ) do
+              parse_file_content(source, schema_file, include_source)
+            end
 
-          visitor = Expressir::Express::Visitor.new(source,
-                                                    include_source: include_source)
-          @repository = visitor.visit_ast ast, :top
+            @repository = cached_repository
 
-          @repository.schemas.each do |schema|
-            schema.file = schema_file
-            schema.file_basename = File.basename(schema_file, ".exp")
-            schema.formatted = schema.to_s(no_remarks: true)
+            # Update schema file paths to use schema_file instead of absolute path
+            @repository.schemas.each do |schema|
+              schema.file = schema_file
+            end
           end
 
           unless skip_references
@@ -636,6 +662,36 @@ module Expressir
           @repository
         end
       end
+
+      # Parse file content into a repository
+      #
+      # @param source [String] EXPRESS source code
+      # @param schema_file [String] schema file path
+      # @param include_source [Boolean] whether to include source in model
+      # @return [Model::Repository] parsed repository
+      # @raise [SchemaParseFailure] if parsing fails
+      def self.parse_file_content(source, schema_file, include_source)
+        begin
+          ast = Parser.new.parse source
+        rescue Parslet::ParseFailed => e
+          # Instead of just printing, raise a proper error with file context
+          raise Error::SchemaParseFailure.new(schema_file, e)
+        end
+
+        visitor = Expressir::Express::Visitor.new(source,
+                                                  include_source: include_source)
+        repository = visitor.visit_ast ast, :top
+
+        repository.schemas.each do |schema|
+          schema.file = schema_file
+          schema.file_basename = File.basename(schema_file, ".exp")
+          schema.formatted = schema.to_s(no_remarks: true)
+        end
+
+        repository
+      end
+
+      private_class_method :parse_file_content
 
       # Parses Express files into an Express model
       # @param [Array<String>] files Express file paths

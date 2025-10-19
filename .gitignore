@@ -21,3 +21,4 @@
 
 # rubocop guide
 .rubocop-https---*
+.cache/

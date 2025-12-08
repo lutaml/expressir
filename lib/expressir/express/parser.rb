@@ -680,6 +680,39 @@ root_path: nil)
 
         @repository
       end
+
+      # Parses Express content string into an Express model
+      # @param [String] content Express content as string
+      # @param [Boolean] skip_references skip resolving references
+      # @param [Boolean] include_source attach original source code to model elements
+      # @return [Model::Repository]
+      # @raise [SchemaParseFailure] if the content fails to parse
+      def self.from_exp(content, skip_references: nil, include_source: nil)
+        begin
+          ast = Parser.new.parse content
+        rescue Parslet::ParseFailed => e
+          raise Error::SchemaParseFailure.new("(from string)", e)
+        end
+
+        visitor = Expressir::Express::Visitor.new(content,
+                                                  include_source: include_source)
+        repository = visitor.visit_ast ast, :top
+
+        repository.schemas.each do |schema|
+          schema.file = nil
+          schema.file_basename = nil
+          schema.formatted = schema.to_s(no_remarks: true)
+        end
+
+        unless skip_references
+          Expressir::Benchmark.measure_references do
+            resolve_references_model_visitor = ResolveReferencesModelVisitor.new
+            resolve_references_model_visitor.visit(repository)
+          end
+        end
+
+        repository
+      end
     end
   end
 end

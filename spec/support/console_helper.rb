@@ -1,29 +1,32 @@
+# frozen_string_literal: true
+
+require "stringio"
+
 module Expressir
+  # Helper module for capturing console output in tests
   module ConsoleHelper
-    def capture_stdout(&_block)
+    # Capture stdout during block execution
+    # @yield Block to execute
+    # @return [String] Captured stdout content
+    def capture_stdout
       original_stdout = $stdout
-      $stdout = fake = StringIO.new
-
-      begin
-        yield
-      ensure
-        $stdout = original_stdout
-      end
-
-      fake.string
+      $stdout = StringIO.new
+      yield
+      $stdout.string
+    ensure
+      $stdout = original_stdout
     end
 
-    def capture_stderr(&_block)
+    # Capture stderr during block execution
+    # @yield Block to execute
+    # @return [String] Captured stderr content
+    def capture_stderr
       original_stderr = $stderr
-      $stderr = fake = StringIO.new
-
-      begin
-        yield
-      ensure
-        $stderr = original_stderr
-      end
-
-      fake.string
+      $stderr = StringIO.new
+      yield
+      $stderr.string
+    ensure
+      $stderr = original_stderr
     end
   end
 end

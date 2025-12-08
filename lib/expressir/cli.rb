@@ -10,6 +10,8 @@ require_relative "commands/validate"
 require_relative "commands/coverage"
 require_relative "commands/changes"
 require_relative "commands/version"
+require_relative "commands/package"
+require_relative "commands/manifest"
 
 module Expressir
   class Cli < Thor
@@ -76,6 +78,12 @@ module Expressir
 
     desc "changes SUBCOMMAND", "Commands for EXPRESS Changes files"
     subcommand "changes", Commands::Changes
+
+    desc "manifest SUBCOMMAND", "Schema manifest management commands"
+    subcommand "manifest", Commands::Manifest
+
+    desc "package SUBCOMMAND", "LER package management commands"
+    subcommand "package", Commands::Package
 
     desc "version", "Expressir Version"
     def version

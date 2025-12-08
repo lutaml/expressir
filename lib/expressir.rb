@@ -59,6 +59,14 @@ module Expressir
     autoload :Cache, "expressir/model/cache"
     autoload :Identifier, "expressir/model/identifier"
     autoload :Repository, "expressir/model/repository"
+    autoload :RepositoryValidator, "expressir/model/repository_validator"
+    autoload :DependencyResolver, "expressir/model/dependency_resolver"
+
+    module Indexes
+      autoload :EntityIndex, "expressir/model/indexes/entity_index"
+      autoload :TypeIndex, "expressir/model/indexes/type_index"
+      autoload :ReferenceIndex, "expressir/model/indexes/reference_index"
+    end
 
     module DataTypes
       autoload :Aggregate, "expressir/model/data_types/aggregate"
@@ -164,6 +172,13 @@ module Expressir
     end
   end
 
+  # Autoload for Package module classes
+  module Package
+    autoload :Metadata, "expressir/package/metadata"
+    autoload :Builder, "expressir/package/builder"
+    autoload :Reader, "expressir/package/reader"
+  end
+
   # Autoload for Commands module classes
   module Commands
     autoload :Base, "expressir/commands/base"
@@ -185,5 +200,3 @@ module Expressir
     autoload :MappingChange, "expressir/changes/mapping_change"
   end
 end
-
-require_relative "expressir/model"

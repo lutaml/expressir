@@ -10,6 +10,8 @@ module Expressir
         attribute :supertype_expression, ModelElement
         attribute :subtype_of, ModelElement, collection: true
         attribute :attributes, Attribute, collection: true
+        attribute :derived_attributes, DerivedAttribute, collection: true
+        attribute :inverse_attributes, InverseAttribute, collection: true
         attribute :unique_rules, UniqueRule, collection: true
         attribute :where_rules, WhereRule, collection: true
         attribute :informal_propositions, InformalPropositionRule,
@@ -22,6 +24,8 @@ module Expressir
           map "supertype_expression", to: :supertype_expression
           map "subtype_of", to: :subtype_of
           map "attributes", to: :attributes
+          map "derived_attributes", to: :derived_attributes
+          map "inverse_attributes", to: :inverse_attributes
           map "unique_rules", to: :unique_rules
           map "where_rules", to: :where_rules
           map "informal_propositions", to: :informal_propositions
@@ -31,6 +35,8 @@ module Expressir
         def children
           [
             *attributes,
+            *derived_attributes,
+            *inverse_attributes,
             *unique_rules,
             *where_rules,
             *informal_propositions,

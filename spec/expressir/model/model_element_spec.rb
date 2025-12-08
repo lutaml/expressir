@@ -289,7 +289,9 @@ RSpec.describe Expressir::Model::ModelElement do
   end
 
   describe ".to_liquid" do
-    let(:exp_file) { Expressir.root_path.join("spec", "syntax", "test-generic.exp") }
+    let(:exp_file) do
+      Expressir.root_path.join("spec", "syntax", "test-generic.exp")
+    end
     let(:repo) { Expressir::Express::Parser.from_file(exp_file) }
     let(:repo_drop) { repo.to_liquid }
     let(:result) { [] }

@@ -984,14 +984,6 @@ module Expressir
               say "#{prefix}#{connector}#{colorize(item.ref || item.id, :cyan)}"
             end
           end
-
-          # Memoize items-them-apply issue per item.
-          items.each_with_index do |item, _i|
-            indexes_checked << item.ref
-            depth_check_tag.item_cache << item.ref
-            msg_cache << item.ref
-            items_checked << item
-          end
         end
       end
 

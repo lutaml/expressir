@@ -289,10 +289,10 @@ RSpec.describe Expressir::Model::ModelElement do
   end
 
   describe ".to_liquid" do
-    exp_file = Expressir.root_path.join("spec", "syntax", "test-generic.exp")
-    repo = Expressir::Express::Parser.from_file(exp_file)
-    repo_drop = repo.to_liquid
-    result = []
+    let(:exp_file) { Expressir.root_path.join("spec", "syntax", "test-generic.exp") }
+    let(:repo) { Expressir::Express::Parser.from_file(exp_file) }
+    let(:repo_drop) { repo.to_liquid }
+    let(:result) { [] }
 
     it "compares Expressir::Liquid with Expressir::Model" do
       check_nested_model_to_liquid(repo, repo_drop, result)

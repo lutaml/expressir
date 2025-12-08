@@ -24,6 +24,10 @@ RSpec.describe Expressir::Package::Builder do
   let(:builder) { described_class.new }
 
   after do
+    # Windows: Force garbage collection to release file handles
+    GC.start if Gem.win_platform?
+    # Small delay on Windows to ensure file handles are released
+    sleep 0.1 if Gem.win_platform?
     FileUtils.rm_f(output_path)
   end
 
@@ -45,6 +49,8 @@ RSpec.describe Expressir::Package::Builder do
                     })
 
       expect { Zip::File.open(output_path) }.not_to raise_error
+      # Windows: Release file handle
+      GC.start if Gem.win_platform?
     end
 
     it "includes metadata.yaml in package" do
@@ -57,6 +63,8 @@ RSpec.describe Expressir::Package::Builder do
         metadata_entry = zip.find_entry("metadata.yaml")
         expect(metadata_entry).not_to be_nil
       end
+      # Windows: Release file handle
+      GC.start if Gem.win_platform?
     end
 
     it "includes manifest.yaml in package" do
@@ -69,6 +77,8 @@ RSpec.describe Expressir::Package::Builder do
         manifest_entry = zip.find_entry("manifest.yaml")
         expect(manifest_entry).not_to be_nil
       end
+      # Windows: Release file handle
+      GC.start if Gem.win_platform?
     end
 
     it "includes indexes in package" do
@@ -84,6 +94,8 @@ RSpec.describe Expressir::Package::Builder do
         expect(zip.find_entry("type_index.marshal")).not_to be_nil
         expect(zip.find_entry("reference_index.marshal")).not_to be_nil
       end
+      # Windows: Release file handle
+      GC.start if Gem.win_platform?
     end
 
     it "uses default options when not provided" do
@@ -100,6 +112,8 @@ RSpec.describe Expressir::Package::Builder do
         expect(metadata.resolution_mode).to eq("resolved")
         expect(metadata.serialization_format).to eq("marshal")
       end
+      # Windows: Release file handle
+      GC.start if Gem.win_platform?
     end
 
     it "raises error for invalid metadata" do
@@ -124,6 +138,8 @@ RSpec.describe Expressir::Package::Builder do
         Zip::File.open(output_path) do |zip|
           expect(zip.find_entry("repository.marshal")).not_to be_nil
         end
+        # Windows: Release file handle
+        GC.start if Gem.win_platform?
       end
     end
 
@@ -138,6 +154,8 @@ RSpec.describe Expressir::Package::Builder do
         Zip::File.open(output_path) do |zip|
           expect(zip.find_entry("repository.json")).not_to be_nil
         end
+        # Windows: Release file handle
+        GC.start if Gem.win_platform?
       end
     end
 
@@ -152,6 +170,8 @@ RSpec.describe Expressir::Package::Builder do
         Zip::File.open(output_path) do |zip|
           expect(zip.find_entry("repository.yaml")).not_to be_nil
         end
+        # Windows: Release file handle
+        GC.start if Gem.win_platform?
       end
     end
   end
@@ -180,6 +200,8 @@ RSpec.describe Expressir::Package::Builder do
         end
 
         express_file.unlink
+        # Windows: Release file handle
+        GC.start if Gem.win_platform?
       end
 
       it "skips schemas without file paths" do
@@ -195,6 +217,8 @@ RSpec.describe Expressir::Package::Builder do
           end
           expect(express_entries).to be_empty
         end
+        # Windows: Release file handle
+        GC.start if Gem.win_platform?
       end
     end
 
@@ -212,6 +236,8 @@ RSpec.describe Expressir::Package::Builder do
           end
           expect(express_entries).to be_empty
         end
+        # Windows: Release file handle
+        GC.start if Gem.win_platform?
       end
     end
   end
@@ -230,6 +256,8 @@ RSpec.describe Expressir::Package::Builder do
         )
         expect(metadata.name).to eq("Custom Name")
       end
+      # Windows: Release file handle
+      GC.start if Gem.win_platform?
     end
 
     it "sets package version from options" do
@@ -245,6 +273,8 @@ RSpec.describe Expressir::Package::Builder do
         )
         expect(metadata.version).to eq("2.5.0")
       end
+      # Windows: Release file handle
+      GC.start if Gem.win_platform?
     end
 
     it "sets package description from options" do
@@ -261,6 +291,8 @@ RSpec.describe Expressir::Package::Builder do
         )
         expect(metadata.description).to eq("Test description")
       end
+      # Windows: Release file handle
+      GC.start if Gem.win_platform?
     end
 
     it "records schema count" do
@@ -276,6 +308,8 @@ RSpec.describe Expressir::Package::Builder do
         )
         expect(metadata.schemas).to eq(1)
       end
+      # Windows: Release file handle
+      GC.start if Gem.win_platform?
     end
 
     it "records expressir version" do
@@ -291,6 +325,8 @@ RSpec.describe Expressir::Package::Builder do
         )
         expect(metadata.expressir_version).to eq(Expressir::VERSION)
       end
+      # Windows: Release file handle
+      GC.start if Gem.win_platform?
     end
 
     it "records created_at timestamp" do
@@ -307,6 +343,8 @@ RSpec.describe Expressir::Package::Builder do
         expect(metadata.created_at).not_to be_nil
         expect(Time.parse(metadata.created_at)).to be_within(5).of(Time.now)
       end
+      # Windows: Release file handle
+      GC.start if Gem.win_platform?
     end
   end
 end

@@ -27,7 +27,7 @@ RSpec.describe Expressir::Package::Reader do
     GC.start if Gem.win_platform?
     # Small delay on Windows to ensure file handles are released
     sleep 0.1 if Gem.win_platform?
-    FileUtils.rm_f(package_path) if File.exist?(package_path)
+    FileUtils.rm_f(package_path)
   end
 
   describe ".load" do

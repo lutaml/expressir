@@ -1,6 +1,10 @@
+require_relative "formatters/remark_item_formatter"
+
 module Expressir
   module Express
     class Formatter
+      include RemarkItemFormatter
+
       INDENT_CHAR = " ".freeze
       INDENT_WIDTH = 2
       INDENT = INDENT_CHAR * INDENT_WIDTH
@@ -194,7 +198,7 @@ module Expressir
         when Model::Declarations::InterfacedItem
           # not implemented yet
         when Model::Declarations::RemarkItem
-          # not implemented yet
+          format_remark_item(node)
         when Model::Cache
           # not implemented yet
         when Model::ModelElement

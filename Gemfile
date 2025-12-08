@@ -6,7 +6,8 @@ source "https://rubygems.org"
 gemspec
 
 gem "canon"
-gem "pry"
+gem "lutaml-model", github: "lutaml/lutaml-model", branch: "main"
+gem "openssl"
 gem "rake"
 gem "rspec"
 gem "rubocop"

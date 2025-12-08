@@ -222,8 +222,7 @@ RSpec.describe Expressir::Commands::Coverage do
     end
   end
 
-  describe "#run with yaml manifest",
-           skip: "Temporary skip while fixing SystemExit issue" do
+  describe "#run with yaml manifest" do
     # Create a minimal options hash
     let(:options) { { format: "text" } }
     # Create an instance of the command with test mode to prevent real exits
@@ -256,7 +255,7 @@ RSpec.describe Expressir::Commands::Coverage do
         command.run([test_manifest_path])
 
         # Check that the output contains expected messages
-        expect(output.string).to include("Processing YAML manifest: #{test_manifest_path}")
+        expect(output.string).to include("Processing schema manifest: #{test_manifest_path}")
         expect(output.string).to include("Found 2 schema files")
         expect(output.string).to include("Processing schemas from manifest file")
 
@@ -335,17 +334,13 @@ RSpec.describe Expressir::Commands::Coverage do
       end
 
       it "handles errors gracefully" do
-        # Enable test mode to prevent exit and raise an exception instead
-        command.instance_variable_set(:@test_mode, true)
-
         # The private method is tested indirectly through the run method
         expect do
           command.run([invalid_manifest_path])
-        end.to raise_error(/Invalid YAML format/)
+        end.to raise_error(/No valid EXPRESS files were processed/)
 
         # Check that error messages were displayed
-        expect(output.string).to include("Processing YAML manifest: #{invalid_manifest_path}")
-        expect(output.string).to include("Invalid YAML format. Expected an array of schema paths or a hash with a 'schemas' key")
+        expect(output.string).to include("Processing schema manifest: #{invalid_manifest_path}")
       end
     end
   end

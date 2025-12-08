@@ -75,6 +75,8 @@ module Expressir
     end
 
     def path_relative_to_absolute(relative_path)
+      return relative_path if relative_path.nil? || relative_path.empty?
+
       eval_path = Pathname.new(relative_path)
       return relative_path if eval_path.absolute?
 
@@ -87,12 +89,20 @@ module Expressir
     end
 
     def path_absolute_to_relative(absolute_path, container_path)
+      return absolute_path if absolute_path.nil? || absolute_path.empty?
+
       container_path ||= @path
       return absolute_path unless container_path
+      return absolute_path if container_path.empty?
 
       p = Pathname.new(container_path)
       container = p.directory? ? p.to_s : p.dirname
-      Pathname.new(absolute_path).relative_path_from(container).to_s
+
+      # Check if absolute_path is actually absolute
+      abs_pathname = Pathname.new(absolute_path)
+      return absolute_path unless abs_pathname.absolute?
+
+      abs_pathname.relative_path_from(container).to_s
     end
 
     def update_path(new_path)

@@ -153,11 +153,26 @@ RSpec.describe Expressir::Model::Declarations::RemarkItem do
   end
 
   describe "formatting" do
-    xit "formats as single-line remark" do
+    let(:schema) do
+      Expressir::Model::Declarations::Schema.new(
+        id: "test_schema",
+        entities: [parent_entity],
+      )
+    end
+
+    let(:repository) do
+      Expressir::Model::Repository.new(schemas: [schema])
+    end
+
+    before do
+      schema.parent = repository
+    end
+
+    it "formats as single-line remark" do
       expect(remark_item.to_s).to include('--"test_schema.test_entity.remark1"')
     end
 
-    xit "formats as multi-line remark when remarks contain newlines" do
+    it "formats as multi-line remark when remarks contain newlines" do
       item = described_class.new(
         id: "multiline",
         remarks: ["First line\nSecond line"],

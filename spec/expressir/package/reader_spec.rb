@@ -23,7 +23,11 @@ RSpec.describe Expressir::Package::Reader do
   let(:reader) { described_class.new }
 
   after do
-    FileUtils.rm_f(package_path)
+    # Windows: Force garbage collection to release file handles
+    GC.start if Gem.win_platform?
+    # Small delay on Windows to ensure file handles are released
+    sleep 0.1 if Gem.win_platform?
+    FileUtils.rm_f(package_path) if File.exist?(package_path)
   end
 
   describe ".load" do
@@ -264,6 +268,9 @@ RSpec.describe Expressir::Package::Reader do
       loaded_repo = reader.load(test_path)
       expect(loaded_repo.schemas.size).to eq(1)
 
+      # Windows: Force garbage collection before cleanup
+      GC.start if Gem.win_platform?
+      sleep 0.1 if Gem.win_platform?
       FileUtils.rm_f(test_path)
     end
 
@@ -279,6 +286,9 @@ RSpec.describe Expressir::Package::Reader do
       loaded_repo = reader.load(test_path)
       expect(loaded_repo.schemas.size).to eq(1)
 
+      # Windows: Force garbage collection before cleanup
+      GC.start if Gem.win_platform?
+      sleep 0.1 if Gem.win_platform?
       FileUtils.rm_f(test_path)
     end
 
@@ -294,6 +304,9 @@ RSpec.describe Expressir::Package::Reader do
       loaded_repo = reader.load(test_path)
       expect(loaded_repo.schemas.size).to eq(1)
 
+      # Windows: Force garbage collection before cleanup
+      GC.start if Gem.win_platform?
+      sleep 0.1 if Gem.win_platform?
       FileUtils.rm_f(test_path)
     end
   end

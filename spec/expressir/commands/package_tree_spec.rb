@@ -212,6 +212,7 @@ RSpec.describe Expressir::Commands::Package, "#tree" do
 
     describe "#colorize" do
       it "returns colored text when no_color is false" do
+        skip "Paint gem does not support colors on Windows" if Gem.win_platform?
         skip "Requires paint gem" unless defined?(Paint)
 
         result = command.send(:colorize, "test", :red)

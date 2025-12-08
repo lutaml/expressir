@@ -103,6 +103,9 @@ RSpec.describe "LER Package Round-trip Integration", :integration do
           expect(manifest.schemas.first.path).to eq("express_files/test_schema.exp")
           expect(manifest.schemas.first.path).not_to include(dir) # No absolute paths
         end
+
+        # Windows: Ensure zip files are released before cleanup
+        GC.start if Gem.win_platform?
       end
     end
   end
@@ -170,6 +173,9 @@ RSpec.describe "LER Package Round-trip Integration", :integration do
           expect(zip.find_entry("express_files/main_schema.exp")).not_to be_nil
           expect(zip.find_entry("express_files/dependency_schema.exp")).not_to be_nil
         end
+
+        # Windows: Ensure zip files are released before cleanup
+        GC.start if Gem.win_platform?
       end
     end
   end
@@ -201,6 +207,9 @@ RSpec.describe "LER Package Round-trip Integration", :integration do
 
           expect(entity).not_to be_nil
           expect(entity.id).to eq("test_entity")
+
+          # Windows: Ensure zip files are released before cleanup
+          GC.start if Gem.win_platform?
         end
       end
     end
@@ -234,6 +243,9 @@ RSpec.describe "LER Package Round-trip Integration", :integration do
         # Verify indexes are working
         expect(loaded_repo.entity_index.count).to eq(1)
         expect(loaded_repo.type_index.count).to eq(1)
+
+        # Windows: Ensure zip files are released before cleanup
+        GC.start if Gem.win_platform?
       end
     end
   end
@@ -265,6 +277,9 @@ RSpec.describe "LER Package Round-trip Integration", :integration do
         entity = loaded_repo.find_entity(qualified_name: "test_schema.test_entity")
 
         expect(entity).not_to be_nil
+
+        # Windows: Ensure zip files are released before cleanup
+        GC.start if Gem.win_platform?
       end
     end
   end
@@ -295,6 +310,9 @@ RSpec.describe "LER Package Round-trip Integration", :integration do
         expect(loaded_repo.type_index.count).to eq(original_type_count)
         expect(loaded_repo.entity_index.empty?).to be false
         expect(loaded_repo.type_index.empty?).to be false
+
+        # Windows: Ensure zip files are released before cleanup
+        GC.start if Gem.win_platform?
       end
     end
   end

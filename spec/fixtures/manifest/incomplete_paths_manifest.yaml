@@ -1,5 +1,5 @@
 schemas:
-  resolved_schema:
+  test_schema:
     path: ../schemas/test_schema.exp
   empty_path_schema:
     path: ""

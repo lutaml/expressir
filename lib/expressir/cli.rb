@@ -7,6 +7,8 @@ require_relative "commands/clean"
 require_relative "commands/benchmark"
 require_relative "commands/benchmark_cache"
 require_relative "commands/validate"
+require_relative "commands/validate_load"
+require_relative "commands/validate_ascii"
 require_relative "commands/coverage"
 require_relative "commands/changes"
 require_relative "commands/version"
@@ -57,10 +59,8 @@ module Expressir
       Commands::BenchmarkCache.new(options).run(path)
     end
 
-    desc "validate *PATH", "validate EXPRESS schema located at PATH"
-    def validate(*paths)
-      Commands::Validate.new(options).run(paths)
-    end
+    desc "validate SUBCOMMAND", "EXPRESS schema validation commands"
+    subcommand "validate", Commands::Validate
 
     desc "coverage *PATH",
          "List EXPRESS entities and check documentation coverage"

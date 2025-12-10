@@ -81,6 +81,7 @@ Commands:
   expressir format PATH                        # pretty print EXPRESS schema located at PATH
   expressir help [COMMAND]                     # Describe available commands or one specific command
   expressir validate *PATH                     # validate EXPRESS schema located at PATH
+  expressir validate ascii PATH                # Validate EXPRESS files for ASCII-only content (excluding remarks)
   expressir coverage *PATH                     # List EXPRESS entities and check documentation coverage
   expressir version                            # Expressir Version
 ----
@@ -97,9 +98,10 @@ expressir format schemas/resources/action_schema/action_schema.exp
 ----
 
 This command:
-1. Parses the EXPRESS schema
-2. Formats it with consistent indentation and spacing
-3. Outputs the formatted schema to stdout
+
+. Parses the EXPRESS schema
+. Formats it with consistent indentation and spacing
+. Outputs the formatted schema to stdout
 
 === Clean schema
 
@@ -124,28 +126,135 @@ expressir clean schemas/resources/action_schema/action_schema.exp --output clean
 
 === Validate schema
 
-The `validate` command performs validation checks on EXPRESS schema files.
+The `validate load` command performs validation checks on EXPRESS schema files.
 
 It verifies:
 
-. That the schema can be parsed correctly
+. That the schema can be parsed correctly into the EXPRESS data model
 . That the schema includes a version string
 
 [source, sh]
 ----
 # Validate a single schema
-expressir validate schemas/resources/action_schema/action_schema.exp
+expressir validate load schemas/resources/action_schema/action_schema.exp
 
 # Validate multiple schemas
-expressir validate schemas/resources/action_schema/action_schema.exp schemas/resources/approval_schema/approval_schema.exp
+expressir validate load schemas/resources/action_schema/action_schema.exp schemas/resources/approval_schema/approval_schema.exp
+
+# Validate schemas from a schema manifest YAML
+expressir validate load schemas.yml
 ----
 
 The command reports any schemas that:
 
-* Failed to parse
+* Failed to parse into the EXPRESS data model
 * Are missing a version string
 
 If all validations pass, it will display "Validation passed for all EXPRESS schemas."
+
+=== Validate ASCII content
+
+The `validate ascii` command validates that EXPRESS schema files contain only
+ASCII characters outside of remarks. This ensures compatibility with systems
+that don't support Unicode, while allowing Unicode in documentation comments.
+
+[source, sh]
+----
+# Validate a single file
+expressir validate ascii schema.exp
+
+# Validate schema manifest YAML
+expressir validate ascii schemas.yml
+
+# Validate directory (non-recursive)
+expressir validate ascii schemas/
+
+# Validate directory recursively
+expressir validate ascii schemas/ --recursive
+
+# Output in YAML format
+expressir validate ascii schemas/ --yaml
+
+# Check remarks as well (include remarks in validation)
+expressir validate ascii schema.exp --check-remarks
+----
+
+The command checks that all EXPRESS code (excluding remarks) contains only
+7-bit ASCII characters. Tagged remarks (both embedded `(* ... *)` and tail
+`-- ...` comments) are excluded from validation, allowing documentation to
+contain Unicode without triggering errors.
+
+[options="header"]
+|===
+| Option | Description
+
+| `--recursive`, `-r`
+| Validate EXPRESS files under the specified path recursively
+
+| `--yaml`, `-y`
+| Output results in YAML format for programmatic processing
+
+| `--check-remarks`
+| Include remarks in ASCII validation (default: false, remarks are excluded)
+|===
+
+The validator provides:
+
+* Detailed violation reports with line and column numbers
+* Replacement suggestions (AsciiMath for math symbols, ISO 10303-11 encoding for others)
+* Summary statistics
+* Visual indicators for non-ASCII sequences
+
+This command is particularly useful before exporting schemas to formats that
+don't support Unicode, such as EEP (Express Engine Parser) and eengine (Express
+Engine).
+
+
+[example]
+====
+[source, sh]
+----
+$ expressir validate ascii spec/fixtures/validate_ascii/non_ascii_in_code.exp
+
+spec/fixtures/validate_ascii/non_ascii_in_code.exp:
+  Line 3, Column 9:
+      ENTITY 製品;
+             ^^ Non-ASCII sequence
+      "製" - Hex: 0x88fd, UTF-8 bytes: 0xe8 0xa3 0xbd
+      Replacement: ISO 10303-11: "000088FD"
+      "品" - Hex: 0x54c1, UTF-8 bytes: 0xe5 0x93 0x81
+      Replacement: ISO 10303-11: "000054C1"
+
+  ...
+  Line 10, Column 24:
+        symbol : STRING := 'μ';
+                            ^ Non-ASCII sequence
+      "μ" - Hex: 0x3bc, UTF-8 bytes: 0xce 0xbc
+      Replacement: AsciiMath: mu
+
+  ...
+
+  Found 7 non-ASCII sequence(s) in non_ascii_in_code.exp
+
+Summary:
+  Scanned 1 EXPRESS file(s)
+  Found 7 non-ASCII sequence(s) in 1 file(s)
+
+╭──────────────────────────────────────────────────────────────────────────╮
+│                       Non-ASCII Characters Summary                       │
+├──────────────────────────┬─────────────┬────────────────────┬────────────┤
+│ File                     │ Symbol      │ Replacement        │ Occurrenc… │
+├──────────────────────────┼─────────────┼────────────────────┼────────────┤
+│ validate_ascii/non_asci… │ "製" (0x88… │ ISO 10303-11: "00… │          1 │
+│ validate_ascii/non_asci… │ "品" (0x54… │ ISO 10303-11: "00… │          1 │
+│ ...                      │             │                    │            │
+│ validate_ascii/non_asci… │ "μ" (0x3bc) │ AsciiMath: mu      │          1 │
+│ ...                      │             │                    │            │
+│ TOTAL                    │ 10 unique   │ —                  │         11 │
+╰──────────────────────────┴─────────────┴────────────────────┴────────────╯
+----
+====
+
 
 === Version
 
@@ -1058,6 +1167,7 @@ schemas:
   - path: schemas/resources/approval_schema/approval_schema.exp
     id: approval_schema
   - path: schemas/resources/date_time_schema/date_time_schema.exp
+    id: date_time_schema
 ----
 
 Each schema entry in the manifest can have the following attributes:

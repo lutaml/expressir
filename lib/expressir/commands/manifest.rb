@@ -56,14 +56,14 @@ module Expressir
           say "Error: At least one root schema is required", :red
           say "Usage: expressir manifest create ROOT_SCHEMA [MORE_SCHEMAS...] -o OUTPUT.yaml",
               :yellow
-          exit 1
+          raise Thor::Error, "At least one root schema is required"
         end
 
         # Verify root schemas exist
         root_schemas.each do |schema|
           unless File.exist?(schema)
             say "Error: Root schema not found: #{schema}", :red
-            exit 1
+            raise Thor::Error, "Root schema not found: #{schema}"
           end
         end
 
@@ -171,8 +171,8 @@ module Expressir
         end
       rescue StandardError => e
         say "Error creating manifest: #{e.message}", :red
-        say e.backtrace.join("\n") if opts[:verbose]
-        exit 1
+        say e.backtrace.join("\n") if options[:verbose]
+        raise Thor::Error, "Failed to create manifest: #{e.message}"
       end
 
       desc "resolve MANIFEST", "Resolve schema paths in manifest"
@@ -216,7 +216,7 @@ module Expressir
       def resolve(manifest_path)
         unless File.exist?(manifest_path)
           say "Error: Manifest file not found: #{manifest_path}", :red
-          exit 1
+          raise Thor::Error, "Manifest file not found: #{manifest_path}"
         end
 
         say "Resolving schema paths in: #{manifest_path}..." if options[:verbose]
@@ -282,7 +282,7 @@ module Expressir
       rescue StandardError => e
         say "Error resolving manifest: #{e.message}", :red
         say e.backtrace.join("\n") if options[:verbose]
-        exit 1
+        raise Thor::Error, "Failed to resolve manifest: #{e.message}"
       end
 
       desc "validate MANIFEST", "Validate a schema manifest"
@@ -311,7 +311,7 @@ module Expressir
       def validate(manifest_path)
         unless File.exist?(manifest_path)
           say "Error: Manifest file not found: #{manifest_path}", :red
-          exit 1
+          raise Thor::Error, "Manifest file not found: #{manifest_path}"
         end
 
         # Convert string keys to symbols for compatibility with tests
@@ -342,8 +342,8 @@ module Expressir
                                    name_errors, reference_errors)
       rescue StandardError => e
         say "Error validating manifest: #{e.message}", :red
-        say e.backtrace.join("\n") if opts[:verbose]
-        exit 1
+        say e.backtrace.join("\n") if options && options[:verbose]
+        raise Thor::Error, "Failed to validate manifest: #{e.message}"
       end
 
       private
@@ -402,7 +402,7 @@ name_errors, reference_errors)
             path_warnings.each { |w| say "  - #{w[:message]}", :yellow }
           end
 
-          exit 1
+          raise Thor::Error, "Manifest validation failed"
         else
           say "✓ Manifest is valid", :green
           if opts[:verbose]

@@ -166,7 +166,7 @@ RSpec.describe Expressir::Manifest::Validator do
       it "includes schema ID in error" do
         errors = validator.validate_referential_integrity
         error = errors.first
-        expect(error[:schema]).to eq("schema_with_bad_ref")
+        expect(error[:schema]).to eq("schema_with_unresolved_use")
       end
 
       it "includes referenced schema name in error" do
@@ -185,7 +185,7 @@ RSpec.describe Expressir::Manifest::Validator do
         errors = validator.validate_referential_integrity
         error = errors.first
         expect(error[:message]).to include("Cannot resolve USE FROM nonexistent_schema")
-        expect(error[:message]).to include("schema_with_bad_ref")
+        expect(error[:message]).to include("schema_with_unresolved_use")
       end
     end
 
@@ -256,7 +256,7 @@ RSpec.describe Expressir::Manifest::Validator do
 
       it "includes schemas with valid paths" do
         registry = validator.send(:build_schema_registry)
-        expect(registry).to have_key("resolved_schema")
+        expect(registry).to have_key("test_schema")
       end
     end
   end

@@ -22,3 +22,5 @@
 # rubocop guide
 .rubocop-https---*
 _site/
+
+Gemfile.lock

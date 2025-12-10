@@ -1,11 +1,10 @@
 ---
-title: Changes Overview
-parent: Guides
+title: Changes
 nav_order: 4
 has_children: true
 ---
 
-= Changes Overview
+= Changes
 
 == Purpose
 
@@ -57,7 +56,7 @@ Validation:: Validate changes files to ensure completeness and correctness.
 Documentation generation:: Use changes data to generate release notes,
 changelogs, and migration guides.
 
-== File format overview
+== File format
 
 Changes files use YAML format with a simple, hierarchical structure:
 
@@ -261,7 +260,7 @@ Express Changes files track different types of EXPRESS constructs:
 
 Schema-level entities::
 * `ENTITY` - Entity definitions
-* `TYPE` - Type definitions  
+* `TYPE` - Type definitions
 * `FUNCTION` - Function definitions
 * `PROCEDURE` - Procedure definitions
 * `RULE` - Rule definitions

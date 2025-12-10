@@ -1,10 +1,10 @@
 ---
-title: Overview
-parent: Core Topics
-nav_order: 1
+title: Core Topics
+nav_order: 2
+has_children: true
 ---
 
-= Core Topics Overview
+= Core Topics
 
 This section covers the fundamental concepts and essential information you need to understand and work with Expressir.
 
@@ -20,7 +20,7 @@ The Core Topics section provides comprehensive coverage of:
 
 == Topics
 
-=== link:introduction.html[Introduction]
+=== link:../introduction.html[Introduction]
 
 Learn what Expressir is, its key features, and how it fits into the EXPRESS ecosystem.
 
@@ -31,7 +31,7 @@ Learn what Expressir is, its key features, and how it fits into the EXPRESS ecos
 * When to use Expressir
 * Comparison with other tools
 
-=== link:getting-started.html[Getting Started]
+=== link:../getting-started.html[Getting Started]
 
 Get up and running with Expressir quickly with installation instructions and first steps.
 
@@ -42,7 +42,7 @@ Get up and running with Expressir quickly with installation instructions and fir
 * Simple Ruby API examples
 * Next steps for learning
 
-=== link:express-language.html[EXPRESS Language]
+=== link:../express-language.html[EXPRESS Language]
 
 Understand the EXPRESS data modeling language that Expressir parses and processes.
 
@@ -53,7 +53,7 @@ Understand the EXPRESS data modeling language that Expressir parses and processe
 * Key concepts (schemas, entities, types)
 * EXPRESS syntax basics
 
-=== link:data-model.html[Data Model]
+=== link:../data-model.html[Data Model]
 
 Explore Expressir's Ruby data model that represents EXPRESS schemas.
 
@@ -64,7 +64,7 @@ Explore Expressir's Ruby data model that represents EXPRESS schemas.
 * Working with the model programmatically
 * Model traversal patterns
 
-=== link:parsers.html[Parsers]
+=== link:../parsers.html[Parsers]
 
 Discover how Expressir parses multiple EXPRESS formats.
 
@@ -75,7 +75,7 @@ Discover how Expressir parses multiple EXPRESS formats.
 * Parsing strategies
 * Error handling and recovery
 
-=== link:ler-packages.html[LER Packages]
+=== link:../ler-packages.html[LER Packages]
 
 Learn about LutaML EXPRESS Repository (LER) packages for efficient schema distribution.
 
@@ -90,9 +90,9 @@ Learn about LutaML EXPRESS Repository (LER) packages for efficient schema distri
 
 After reading the Core Topics:
 
-* Try the link:../tutorials/[Tutorials] for hands-on learning
-* Consult the link:../guides/[Guides] for specific tasks
-* Reference the link:../references/[References] for detailed specifications
+* Try the link:../../tutorials/[Tutorials] for hands-on learning
+* Consult the link:../../guides/[Guides] for specific tasks
+* Reference the link:../../references/[References] for detailed specifications
 
 == Prerequisites
 
@@ -106,11 +106,11 @@ To get the most from these topics, you should have:
 
 We recommend reading the Core Topics in order if you're new to Expressir:
 
-. Start with link:introduction.html[Introduction] to understand what Expressir is
-. Follow link:getting-started.html[Getting Started] to install and try it
-. Read link:express-language.html[EXPRESS Language] to understand the domain
-. Study link:data-model.html[Data Model] to work with schemas programmatically
-. Review link:parsers.html[Parsers] to understand how parsing works
-. Explore link:ler-packages.html[LER Packages] for advanced deployment scenarios
+. Start with link:../introduction.html[Introduction] to understand what Expressir is
+. Follow link:../getting-started.html[Getting Started] to install and try it
+. Read link:../express-language.html[EXPRESS Language] to understand the domain
+. Study link:../data-model.html[Data Model] to work with schemas programmatically
+. Review link:../parsers.html[Parsers] to understand how parsing works
+. Explore link:../ler-packages.html[LER Packages] for advanced deployment scenarios
 
-If you're already familiar with EXPRESS, you can skip directly to link:data-model.html[Data Model] to understand how Expressir represents schemas in Ruby.
+If you're already familiar with EXPRESS, you can skip directly to link:../data-model.html[Data Model] to understand how Expressir represents schemas in Ruby.

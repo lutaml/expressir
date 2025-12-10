@@ -1,6 +1,5 @@
 ---
-title: Liquid Overview
-parent: Guides
+title: Liquid
 has_children: true
 nav_order: 6
 ---
@@ -16,9 +15,9 @@ EXPRESS data models into human-readable documentation in any format.
 
 == References
 
-* link:../../_tutorials/liquid-templates.html[Liquid Templates Tutorial]
+* link:../../tutorials/liquid-templates.html[Liquid Templates Tutorial]
   - Step-by-step introduction
-* link:../ruby-api/index.html[Ruby API Guides] - Programming interface
+* link:../ruby-api/[Ruby API Guides] - Programming interface
 * https://shopify.github.io/liquid/[Liquid Documentation] - Official
   Liquid language reference
 
@@ -103,7 +102,7 @@ pattern:
 
 [source]
 ----
-EXPRESS Schema → Expressir Parser → Ruby Data Model → 
+EXPRESS Schema → Expressir Parser → Ruby Data Model →
 Liquid Drop → Template → Documentation Output
 ----
 
@@ -128,7 +127,7 @@ output = template.render("repository" => repo_drop)
 Every Expressir model class has a corresponding drop:
 
 * `Repository` → `RepositoryDrop`
-* `Schema` → `SchemaDrop`  
+* `Schema` → `SchemaDrop`
 * `Entity` → `EntityDrop`
 * `Type` → `TypeDrop`
 * `Attribute` → `AttributeDrop`
@@ -289,7 +288,7 @@ Liquid templates are ideal for:
 
 **Documentation generation**::
 * Schema overviews
-* Entity reference pages  
+* Entity reference pages
 * Type catalogs
 * Function documentation
 
@@ -332,7 +331,7 @@ For basic pretty-printing, use
 link:../ruby-api/formatting-schemas.html[Expressir's built-in
 formatter].
 
-== Architecture overview
+== Architecture
 
 The Expressir Liquid integration consists of several layers:
 
@@ -450,7 +449,7 @@ Continue learning about Liquid integration:
 
 **Practice examples**:
 
-* link:../../_tutorials/liquid-templates.html[Liquid Templates
+* link:../../tutorials/liquid-templates.html[Liquid Templates
   Tutorial] - Hands-on exercises
 * Browse example templates in the Expressir repository
 

@@ -1,6 +1,6 @@
 ---
 title: Loading Packages
-parent: LER Packages Overview
+parent: LER Packages
 grand_parent: Guides
 nav_order: 2
 ---
@@ -410,7 +410,7 @@ class SchemaLoader
     @package_path = package_path
     @schemas_dir = schemas_dir
   end
-  
+
   def load
     # Check if package exists and is recent
     if package_fresh?
@@ -419,33 +419,33 @@ class SchemaLoader
       load_from_express_and_rebuild
     end
   end
-  
+
   private
-  
+
   def package_fresh?
     return false unless File.exist?(@package_path)
-    
+
     package_mtime = File.mtime(@package_path)
     schemas_mtime = Dir.glob("#{@schemas_dir}/**/*.exp")
                       .map { |f| File.mtime(f) }
                       .max
-    
+
     package_mtime > schemas_mtime
   end
-  
+
   def load_from_package
     puts "Loading from package (cached)..."
     Expressir::Model::Repository.from_package(@package_path)
   end
-  
+
   def load_from_express_and_rebuild
     puts "Loading from EXPRESS (cache stale)..."
     files = Dir.glob("#{@schemas_dir}/**/*.exp")
     repo = Expressir::Express::Parser.from_files(files)
-    
+
     puts "Rebuilding package cache..."
     repo.export_to_package(@package_path)
-    
+
     repo
   end
 end
@@ -555,20 +555,20 @@ def load_package_safely(path, fallback_dir = nil)
     repo = Expressir::Model::Repository.from_package(path)
     puts "✓ Loaded package: #{path}"
     return repo
-    
+
   rescue ArgumentError => e
     puts "Package not found: #{path}"
-    
+
     if fallback_dir && Dir.exist?(fallback_dir)
       puts "Falling back to EXPRESS files..."
       return load_from_express(fallback_dir)
     else
       raise "No package or fallback available"
     end
-    
+
   rescue StandardError => e
     puts "Error loading package: #{e.message}"
-    
+
     if fallback_dir && Dir.exist?(fallback_dir)
       puts "Attempting recovery from EXPRESS files..."
       return load_from_express(fallback_dir)

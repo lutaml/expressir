@@ -1,6 +1,6 @@
 ---
 title: Basic Templates
-parent: Liquid Overview
+parent: Liquid
 grand_parent: Guides
 nav_order: 1
 ---
@@ -235,7 +235,7 @@ Use `case` for multiple value checks:
 {% when 1 %}
   One attribute
 {% when 2 %}
-  Two attributes  
+  Two attributes
 {% else %}
   {{ entity.attributes.size }} attributes
 {% endcase %}
@@ -454,7 +454,7 @@ Combine loops for hierarchical data:
 {% for entity in schema.entities %}
 {{ forloop.index }}. **{{ entity.id }}**
    {% if entity.abstract %}(Abstract){% endif %}
-   
+
    {% if entity.attributes.size > 0 %}
    Attributes:
    {% for attr in entity.attributes limit:3 %}
@@ -464,7 +464,7 @@ Combine loops for hierarchical data:
      {% endif %}
    {% endfor %}
    {% endif %}
-   
+
    {% unless forloop.last %}
    ---
    {% endunless %}
@@ -665,7 +665,7 @@ Total: {{ total }}
 [source,liquid]
 ----
 {% comment %}❌ Complex{% endcomment %}
-{% if entity.attributes.size > 0 and entity.where_rules.size > 0 
+{% if entity.attributes.size > 0 and entity.where_rules.size > 0
    and entity.remarks.size > 0 %}
 
 {% comment %}✅ Better - break down{% endcomment %}
@@ -709,7 +709,7 @@ First pass: identify root entities (no supertypes).
 Second pass: recursively show children.
 {% endcomment %}
 
-{% assign root_entities = schema.entities 
+{% assign root_entities = schema.entities
    | where: "subtype_of", empty %}
 
 {% for entity in root_entities %}

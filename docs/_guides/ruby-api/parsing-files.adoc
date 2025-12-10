@@ -1,6 +1,6 @@
 ---
 title: Parsing Files
-parent: Ruby API Overview
+parent: Ruby API
 grand_parent: Guides
 nav_order: 1
 ---
@@ -240,7 +240,7 @@ begin
 rescue Expressir::Express::Error::SchemaParseFailure => e
   puts "Parse failed: #{e.filename}"
   puts "Root cause: #{e.parse_failure_cause.message}"
-  
+
   # Display parse tree for debugging
   puts "\nParse error details:"
   puts e.parse_failure_cause.ascii_tree
@@ -362,7 +362,7 @@ schema = repository.schemas.first
 # Access entities
 schema.entities&.each do |entity|
   puts "Entity: #{entity.id}"
-  
+
   # Access attributes
   entity.attributes&.each do |attr|
     puts "  Attribute: #{attr.id}"

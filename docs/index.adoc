@@ -4,11 +4,9 @@ title: Home
 nav_order: 1
 ---
 
-= Expressir Documentation
+= Expressir
 :toc: macro
 :toclevels: 2
-
-image::assets/images/expressir-logo.svg[Expressir Logo,200,200,align="center"]
 
 [.lead]
 *EXPRESS parser and toolkit for Ruby.* Parse, analyze, and transform EXPRESS data models with a comprehensive Ruby API.
@@ -119,17 +117,17 @@ expressir package build schema.exp output.ler
 
 This documentation is organized into four main sections:
 
-=== link:pages/[Core Topics]
+=== Core Topics
 
 Fundamental concepts and essential information:
 
-* link:pages/introduction.html[Introduction] - What is Expressir and when to use it
-* link:pages/getting-started.html[Getting Started] - Installation and first steps
-* link:pages/express-language.html[EXPRESS Language] - Understanding EXPRESS data modeling
-* link:pages/data-model.html[Data Model] - Expressir's Ruby data model
-* link:pages/parsers.html[Parsers] - Parsing EXPRESS files
-* link:pages/schema-manifests.html[Schema Manifests] - Managing collections of EXPRESS schemas
-* link:pages/ler-packages.html[LER Packages] - High-performance schema packages
+* link:introduction.html[Introduction] - What is Expressir and when to use it
+* link:getting-started.html[Getting Started] - Installation and first steps
+* link:express-language.html[EXPRESS Language] - Understanding EXPRESS data modeling
+* link:data-model.html[Data Model] - Expressir's Ruby data model
+* link:parsers.html[Parsers] - Parsing EXPRESS files
+* link:schema-manifests.html[Schema Manifests] - Managing collections of EXPRESS schemas
+* link:ler-packages.html[LER Packages] - High-performance schema packages
 
 === link:tutorials/[Tutorials]
 
@@ -152,7 +150,6 @@ Task-oriented how-to documentation:
 * link:guides/manifests/[Manifests] - Managing schema collections
 * link:guides/changes/[Changes] - Tracking schema changes
 * link:guides/liquid/[Liquid] - Template integration
-* link:guides/deployment/[Deployment] - Production deployment
 
 === link:references/[References]
 

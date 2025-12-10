@@ -1,7 +1,7 @@
 ---
 title: Importing from Express Engine
-parent: Changes Overview
-grand_parent: Guides
+parent: Changes
+grand_parent: Overview
 nav_order: 3
 ---
 
@@ -366,10 +366,10 @@ are being imported or referenced from another schema via `USE_FROM` or
   <schema.additions>
     <modified.object type="USE_FROM" name="geometric_model_schema"
       interfaced.items="convex_hexahedron" />
-    
+
     <modified.object type="USE_FROM" name="geometric_model_schema"
       interfaced.items="cyclide_segment_solid" />
-    
+
     <modified.object type="REFERENCE_FROM" name="measure_schema"
       interfaced.items="length_measure" />
   </schema.additions>
@@ -575,10 +575,10 @@ output_file = "#{schema_name}.changes.yaml"
 # Import versions 2-5
 (2..5).each do |version|
   xml_file = "v#{version}_comparison.xml"
-  
+
   if File.exist?(xml_file)
     puts "Importing version #{version}..."
-    
+
     Expressir::Commands::ChangesImportEengine.call(
       xml_file,
       output_file,
@@ -757,7 +757,7 @@ OUTPUT_FILE="${SCHEMA_NAME}.changes.yaml"
 for xml in ${XML_DIR}/v*_comparison.xml; do
   # Extract version from filename (e.g., v2_comparison.xml -> 2)
   version=$(basename "$xml" | sed 's/v\([0-9]*\)_comparison.xml/\1/')
-  
+
   echo "Importing version $version from $xml..."
   expressir changes import-eengine \
     "$xml" \

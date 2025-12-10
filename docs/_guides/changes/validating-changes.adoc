@@ -1,6 +1,6 @@
 ---
 title: Validating Changes Files
-parent: Changes Overview
+parent: Changes
 grand_parent: Guides
 nav_order: 2
 ---
@@ -274,11 +274,11 @@ begin
   changes = Expressir::Changes::SchemaChange.from_file(
     "schema.changes.yaml"
   )
-  
+
   puts "File is valid"
   puts "Schema: #{changes.schema}"
   puts "Versions: #{changes.versions&.size || 0}"
-  
+
 rescue Psych::SyntaxError => e
   puts "YAML syntax error: #{e.message}"
 rescue StandardError => e
@@ -532,15 +532,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.0'
-          
+
       - name: Install Expressir
         run: gem install expressir
-        
+
       - name: Validate Changes Files
         run: |
           exitcode=0

@@ -1,10 +1,10 @@
 ---
 title: Overview
-parent: Guides
+has_children: true
 nav_order: 1
 ---
 
-= Guides Overview
+= Overview
 
 Task-oriented guides that show you how to accomplish specific goals with Expressir. Each guide focuses on a particular aspect or workflow.
 
@@ -22,94 +22,94 @@ The guides are organized by topic area:
 
 == Guide Categories
 
-=== link:cli/[CLI Guides]
+=== link:../cli/[CLI Guides]
 
 Learn to use Expressir's command-line tools effectively.
 
 *Available guides:*
 
-* link:cli/format-schemas.html[Formatting Schemas] - Pretty-print and clean schemas
-* link:cli/validate-schemas.html[Validating Schemas] - Ensure schema correctness
-* link:cli/benchmark-performance.html[Benchmarking Performance] - Measure and optimize
-* link:cli/coverage-analysis.html[Coverage Analysis] - Check documentation coverage
-* link:cli/managing-changes.html[Managing Changes] - Work with change files
+* link:../cli/format-schemas.html[Formatting Schemas] - Pretty-print and clean schemas
+* link:../cli/validate-schemas.html[Validating Schemas] - Ensure schema correctness
+* link:../cli/benchmark-performance.html[Benchmarking Performance] - Measure and optimize
+* link:../cli/coverage-analysis.html[Coverage Analysis] - Check documentation coverage
+* link:../cli/managing-changes.html[Managing Changes] - Work with change files
 
 ---
 
-=== link:ruby-api/[Ruby API Guides]
+=== link:../ruby-api/[Ruby API Guides]
 
 Integrate Expressir into your Ruby applications.
 
 *Available guides:*
 
-* link:ruby-api/parsing-files.html[Parsing Files] - Load EXPRESS schemas
-* link:ruby-api/working-with-repository.html[Working with Repository] - Navigate schema collections
-* link:ruby-api/filtering-schemas.html[Filtering Schemas] - Select specific schemas
-* link:ruby-api/model-traversal.html[Model Traversal] - Navigate the data model
+* link:../ruby-api/parsing-files.html[Parsing Files] - Load EXPRESS schemas
+* link:../ruby-api/working-with-repository.html[Working with Repository] - Navigate schema collections
+* link:../ruby-api/formatting-schemas.html[Formatting Schemas] - Format schemas programmatically
+* link:../ruby-api/search-engine.html[Search Engine] - Use the search API
 
 ---
 
-=== link:ler/[LER Guides]
+=== link:../ler/[LER Guides]
 
 Work with high-performance LER packages.
 
 *Available guides:*
 
-* link:ler/building-packages.html[Building Packages] - Create LER files
-* link:ler/loading-packages.html[Loading Packages] - Use pre-built packages
-* link:ler/querying-packages.html[Querying Packages] - Search and filter
-* link:ler/validation.html[Package Validation] - Ensure package integrity
-* link:ler/advanced-statistics.html[Advanced Statistics] - Analyze package contents
+* link:../ler/creating-packages.html[Creating Packages] - Build LER files
+* link:../ler/loading-packages.html[Loading Packages] - Use pre-built packages
+* link:../ler/querying-packages.html[Querying Packages] - Search and filter
+* link:../ler/validating-packages.html[Validating Packages] - Ensure package integrity
+* link:../ler/package-formats.html[Package Formats] - Choose serialization formats
 
 ---
 
-=== link:manifests/[Manifest Guides]
+=== link:../manifests/[Manifest Guides]
 
 Manage schema collections with manifests for reproducible builds.
 
 *Available guides:*
 
-* link:manifests/creating-manifests.html[Creating Manifests] - Generate manifests from root schemas
-* link:manifests/resolving-manifests.html[Resolving Manifests] - Auto-resolve missing schema paths
-* link:manifests/validating-manifests.html[Validating Manifests] - Ensure manifest completeness and integrity
+* link:../manifests/creating-manifests.html[Creating Manifests] - Generate manifests from root schemas
+* link:../manifests/resolving-manifests.html[Resolving Manifests] - Auto-resolve missing schema paths
+* link:../manifests/validating-manifests.html[Validating Manifests] - Ensure manifest completeness and integrity
 
 ---
 
-=== link:changes/[Changes Guides]
+=== link:../changes/[Changes Guides]
 
 Track and manage schema modifications across versions.
 
 *Available guides:*
 
-* link:changes/creating-changes.html[Creating Changes] - Document modifications
-* link:changes/validating-changes.html[Validating Changes] - Verify change files
-* link:changes/importing-eengine.html[Importing from eengine] - Convert eengine XML
-* link:changes/managing-versions.html[Managing Versions] - Handle version history
+* link:../changes/changes-format.html[Changes Format] - Understanding the format
+* link:../changes/validating-changes.html[Validating Changes] - Verify change files
+* link:../changes/importing-eengine.html[Importing from eengine] - Convert eengine XML
+* link:../changes/programmatic-usage.html[Programmatic Usage] - Use changes API
 
 ---
 
-=== link:liquid/[Liquid Guides]
+=== link:../liquid/[Liquid Guides]
 
 Generate documentation using Liquid templates.
 
 *Available guides:*
 
-* link:liquid/setup.html[Setup] - Configure Liquid integration
-* link:liquid/basic-templates.html[Basic Templates] - Create simple templates
-* link:liquid/drop-attributes.html[Drop Attributes] - Access model data
-* link:liquid/advanced-patterns.html[Advanced Patterns] - Complex templating
+* link:../liquid/basic-templates.html[Basic Templates] - Create simple templates
+* link:../liquid/filters-and-tags.html[Filters and Tags] - Use Liquid features
+* link:../liquid/drops-reference.html[Drops Reference] - Access model data
+* link:../liquid/documentation-generation.html[Documentation Generation] - Generate docs
 
 ---
 
-=== link:deployment/[Deployment Guides]
+=== link:../deployment/[Deployment Guides]
 
 Deploy Expressir in production environments.
 
 *Available guides:*
 
-* link:deployment/integrating-rails.html[Integrating with Rails] - Use in Rails apps
-* link:deployment/gem-configuration.html[Gem Configuration] - Configure for production
-* link:deployment/performance-tuning.html[Performance Tuning] - Optimize for scale
+* link:../deployment/integrating-rails.html[Integrating with Rails] - Use in Rails apps
+* link:../deployment/gem-configuration.html[Gem Configuration] - Configure for production
+* link:../deployment/performance-tuning.html[Performance Tuning] - Optimize for scale
 
 == Using These Guides
 
@@ -128,13 +128,13 @@ Each guide follows a structured format:
 
 *If you want to...*
 
-* Use the command-line tools → Start with link:cli/[CLI Guides]
-* Write Ruby code → Begin with link:ruby-api/[Ruby API Guides]
-* Work with packages → Explore link:ler/[LER Guides]
-* Manage schema collections → See link:manifests/[Manifest Guides]
-* Track changes → Check link:changes/[Changes Guides]
-* Generate docs → See link:liquid/[Liquid Guides]
-* Deploy to production → Review link:deployment/[Deployment Guides]
+* Use the command-line tools → Start with link:../cli/[CLI Guides]
+* Write Ruby code → Begin with link:../ruby-api/[Ruby API Guides]
+* Work with packages → Explore link:../ler/[LER Guides]
+* Manage schema collections → See link:../manifests/[Manifest Guides]
+* Track changes → Check link:../changes/[Changes Guides]
+* Generate docs → See link:../liquid/[Liquid Guides]
+* Deploy to production → Review link:../deployment/[Deployment Guides]
 
 === Quick Reference
 

@@ -1,6 +1,5 @@
 ---
 title: Schema Manifests
-parent: Core Topics
 nav_order: 6
 ---
 

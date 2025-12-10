@@ -1,10 +1,10 @@
 ---
-title: Overview
-parent: References
-nav_order: 1
+title: References
+has_children: true
+nav_order: 5
 ---
 
-= References Overview
+= References
 
 Comprehensive technical specifications and API documentation for Expressir. Use this section when you need complete, detailed information about specific features.
 
@@ -198,12 +198,12 @@ Suppose you want to use the `from_file` parser method:
 
 *For learning:*
 
-* Start with link:../pages/[Core Topics] to understand concepts
-* Try link:../tutorials/[Tutorials] for hands-on practice
+* Start with link:../../[Core Topics] to understand concepts
+* Try link:../../tutorials/[Tutorials] for hands-on practice
 
 *For tasks:*
 
-* Use link:../guides/[Guides] for step-by-step instructions
+* Use link:../../guides/[Guides] for step-by-step instructions
 * Return here for detailed specifications
 
 == Contributing

@@ -1,6 +1,6 @@
 ---
 title: Changes Format Specification
-parent: Changes Overview
+parent: Changes
 grand_parent: Guides
 nav_order: 1
 ---

@@ -1,6 +1,6 @@
 ---
 title: Querying Packages
-parent: LER Packages Overview
+parent: LER Packages
 grand_parent: Guides
 nav_order: 3
 ---
@@ -614,7 +614,7 @@ class QueryCache
     @engine = engine
     @cache = {}
   end
-  
+
   def search(pattern:, **options)
     cache_key = [pattern, options].hash
     @cache[cache_key] ||= @engine.search(
@@ -622,7 +622,7 @@ class QueryCache
       **options
     )
   end
-  
+
   def clear
     @cache.clear
   end

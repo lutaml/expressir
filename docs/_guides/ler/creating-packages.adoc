@@ -1,6 +1,6 @@
 ---
 title: Creating Packages
-parent: LER Packages Overview
+parent: LER Packages
 grand_parent: Guides
 nav_order: 1
 ---
@@ -373,7 +373,7 @@ expressir package build input.exp debug.ler \
 Indexes are automatically built and included:
 
 * Entity index: Fast entity lookups by qualified name
-* Type index: Fast type lookups with category filtering  
+* Type index: Fast type lookups with category filtering
 * Reference index: Tracks inter-schema dependencies
 
 No additional configuration needed - indexes are always included.
@@ -421,15 +421,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.0
-          
+
       - name: Install Expressir
         run: gem install expressir
-        
+
       - name: Build LER package
         run: |
           expressir package build \
@@ -439,7 +439,7 @@ jobs:
             --version "${{ github.sha }}" \
             --validate \
             --verbose
-            
+
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
@@ -459,11 +459,11 @@ require "expressir"
 desc "Build LER package for production"
 task :build_package do
   puts "Building LER package..."
-  
+
   repo = Expressir::Model::Repository.from_files(
     Dir.glob("schemas/**/*.exp")
   )
-  
+
   repo.export_to_package(
     "dist/production.ler",
     name: "Production Schemas",
@@ -472,7 +472,7 @@ task :build_package do
     express_mode: "include_all",
     serialization_format: "marshal"
   )
-  
+
   puts "Package created: dist/production.ler"
   puts "Size: #{File.size("dist/production.ler")} bytes"
 end
@@ -505,15 +505,15 @@ options = {
 
 OptionParser.new do |opts|
   opts.banner = "Usage: build_package.rb INPUT OUTPUT [options]"
-  
+
   opts.on("--name NAME", "Package name") do |v|
     options[:name] = v
   end
-  
+
   opts.on("--version VERSION", "Package version") do |v|
     options[:version] = v
   end
-  
+
   opts.on("--format FORMAT", "Serialization format") do |v|
     options[:format] = v
   end
@@ -593,7 +593,7 @@ Invalid metadata: serialization_format must be 'marshal', 'json', or 'yaml'
 ====
 Check that all options have valid values:
 * `express_mode`: "include_all" or "allow_external"
-* `resolution_mode`: "resolved" or "bare"  
+* `resolution_mode`: "resolved" or "bare"
 * `serialization_format`: "marshal", "json", or "yaml"
 ====
 

@@ -1,6 +1,6 @@
 ---
 title: Drops Reference
-parent: Liquid Overview
+parent: Liquid
 grand_parent: Guides
 nav_order: 2
 ---
@@ -330,7 +330,7 @@ This is an AGGREGATE type.
 type_drop = schema_drop.types.first
 
 puts type_drop.id                      # "label"
-puts type_drop.underlying_type._class # 
+puts type_drop.underlying_type._class #
   # "Expressir::Model::DataTypes::String"
 ----
 

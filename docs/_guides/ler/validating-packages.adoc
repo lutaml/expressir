@@ -1,6 +1,6 @@
 ---
 title: Validating Packages
-parent: LER Packages Overview
+parent: LER Packages
 grand_parent: Guides
 nav_order: 4
 ---
@@ -296,7 +296,7 @@ if validation[:valid?]
   puts "✓ Validation passed"
 else
   puts "✗ Validation failed with #{validation[:errors].size} errors"
-  
+
   # Display errors
   validation[:errors].each_with_index do |error, i|
     puts "\nError #{i + 1}: [#{error[:type]}]"
@@ -311,7 +311,7 @@ end
 # Display warnings
 if validation[:warnings]&.any?
   puts "\nWarnings (#{validation[:warnings].size}):"
-  
+
   validation[:warnings].each_with_index do |warning, i|
     puts "\nWarning #{i + 1}: [#{warning[:type]}]"
     puts "  Message: #{warning[:message]}"
@@ -511,7 +511,7 @@ Always validate before deploying:
 def deploy_package(package_path)
   # Load package
   repo = Expressir::Model::Repository.from_package(package_path)
-  
+
   # Comprehensive validation
   validation = repo.validate(
     strict: true,
@@ -520,12 +520,12 @@ def deploy_package(package_path)
     check_duplicates: true,
     check_self_references: true
   )
-  
+
   # Fail fast on errors
   if !validation[:valid?]
     raise "Package validation failed: #{validation[:errors].size} errors"
   end
-  
+
   # Log warnings
   if validation[:warnings]&.any?
     puts "Package has #{validation[:warnings].size} warnings"
@@ -533,7 +533,7 @@ def deploy_package(package_path)
       puts "  - #{w[:message]}"
     end
   end
-  
+
   # Deploy package
   deploy_to_production(package_path)
 end
@@ -555,22 +555,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.0
-          
+
       - name: Install Expressir
         run: gem install expressir
-        
+
       - name: Build package
         run: |
           expressir package build \
             schemas/main.exp \
             output/schemas.ler \
             --validate
-            
+
       - name: Validate package
         run: |
           expressir package validate \
@@ -579,7 +579,7 @@ jobs:
             --check-interfaces \
             --check-completeness \
             --format json > validation.json
-            
+
       - name: Upload validation results
         uses: actions/upload-artifact@v2
         with:
@@ -601,10 +601,10 @@ class ValidationGate
     duplicates: true,
     self_references: true
   }
-  
+
   def self.validate(package_path)
     repo = Expressir::Model::Repository.from_package(package_path)
-    
+
     validation = repo.validate(
       strict: true,
       check_interfaces: REQUIRED_CHECKS[:interfaces],
@@ -612,26 +612,26 @@ class ValidationGate
       check_duplicates: REQUIRED_CHECKS[:duplicates],
       check_self_references: REQUIRED_CHECKS[:self_references]
     )
-    
+
     # Fail on errors
     if !validation[:valid?]
       log_errors(validation)
       return false
     end
-    
+
     # Log but allow warnings
     log_warnings(validation) if validation[:warnings]&.any?
-    
+
     true
   end
-  
+
   def self.log_errors(validation)
     puts "VALIDATION FAILED"
     validation[:errors].each do |error|
       puts "  ✗ #{error[:message]}"
     end
   end
-  
+
   def self.log_warnings(validation)
     puts "VALIDATION WARNINGS"
     validation[:warnings].each do |warning|
@@ -653,29 +653,29 @@ def fix_and_validate(schema_dir, output_package)
   # Parse all schemas
   files = Dir.glob("#{schema_dir}/**/*.exp")
   repo = Expressir::Express::Parser.from_files(files)
-  
+
   # Initial validation
   validation = repo.validate(strict: true)
-  
+
   if validation[:errors].any?
     puts "Found #{validation[:errors].size} errors"
-    
+
     # Attempt automated fixes
     validation[:errors].each do |error|
       case error[:type]
       when :missing_schema_reference
         puts "Cannot auto-fix missing schema: #{error[:referenced_schema]}"
         puts "  Add schema manually or update reference"
-        
+
       when :missing_interface_item
         puts "Cannot auto-fix missing item: #{error[:item]}"
         puts "  Update interface or add item to schema"
       end
     end
-    
+
     return false
   end
-  
+
   # Create package
   repo.export_to_package(output_package)
   true
@@ -690,14 +690,14 @@ Create validation report for review:
 ----
 def create_validation_report(package_path, output_file)
   repo = Expressir::Model::Repository.from_package(package_path)
-  
+
   validation = repo.validate(
     strict: true,
     check_interfaces: true,
     check_completeness: true,
     detailed: true
   )
-  
+
   report = {
     package: package_path,
     validated_at: Time.now.iso8601,
@@ -710,7 +710,7 @@ def create_validation_report(package_path, output_file)
     warnings: validation[:warnings],
     interface_report: validation[:interface_report]
   }
-  
+
   File.write(output_file, JSON.pretty_generate(report))
   puts "Validation report written to #{output_file}"
 end

@@ -1,6 +1,5 @@
 ---
 title: Liquid Templates
-parent: Tutorials
 nav_order: 6
 ---
 

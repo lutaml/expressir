@@ -1,6 +1,6 @@
 ---
 title: Filters and Tags
-parent: Liquid Overview
+parent: Liquid
 grand_parent: Guides
 nav_order: 3
 ---
@@ -756,7 +756,7 @@ Allows multiple statements without individual tag pairs.
   {% assign description = entity.remarks | join: " " %}
   {% if description.size > 200 %}
     {{ description | truncate: 200 }}
-    
+
     [Read more](#{{ entity.id }}-full)
   {% else %}
     {{ description }}

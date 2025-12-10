@@ -1,6 +1,6 @@
 ---
 title: Programmatic Usage
-parent: Changes Overview
+parent: Changes
 grand_parent: Guides
 nav_order: 4
 ---
@@ -424,10 +424,10 @@ if version_2
     type: "FUNCTION",
     name: "new_function"
   )
-  
+
   # Update description
   version_2.description = "Enhanced version 2 with new function"
-  
+
   puts "Modified version 2"
 end
 ----
@@ -626,27 +626,27 @@ class SchemaChangeTracker
     @changes_file = changes_file
     @changes = load_or_create_changes
   end
-  
+
   def track_addition(type, name, description)
     item = Expressir::Changes::ItemChange.new(
       type: type,
       name: name,
       description: description ? [description] : nil
     )
-    
+
     @pending_additions << item
   end
-  
+
   def track_modification(type, name, description)
     item = Expressir::Changes::ItemChange.new(
       type: type,
       name: name,
       description: description ? [description] : nil
     )
-    
+
     @pending_modifications << item
   end
-  
+
   def save_version(version, description)
     @changes.add_or_update_version(
       version,
@@ -657,13 +657,13 @@ class SchemaChangeTracker
         deletions: @pending_deletions
       }
     )
-    
+
     @changes.to_file(@changes_file)
     clear_pending_changes
   end
-  
+
   private
-  
+
   def load_or_create_changes
     if File.exist?(@changes_file)
       Expressir::Changes::SchemaChange.from_file(@changes_file)
@@ -671,7 +671,7 @@ class SchemaChangeTracker
       Expressir::Changes::SchemaChange.new(schema: @schema_name)
     end
   end
-  
+
   def clear_pending_changes
     @pending_additions = []
     @pending_modifications = []
@@ -702,31 +702,31 @@ class ChangeReportGenerator
   def initialize(changes_file)
     @changes = Expressir::Changes::SchemaChange.from_file(changes_file)
   end
-  
+
   def generate_report
     report = []
     report << "# Change Report for #{@changes.schema}"
     report << ""
-    
+
     @changes.versions&.each do |version|
       report << generate_version_section(version)
     end
-    
+
     report.join("\n")
   end
-  
+
   private
-  
+
   def generate_version_section(version)
     lines = []
     lines << "## Version #{version.version}"
     lines << ""
-    
+
     if version.description
       lines << version.description
       lines << ""
     end
-    
+
     if version.additions&.any?
       lines << "### Additions"
       version.additions.each do |item|
@@ -735,7 +735,7 @@ class ChangeReportGenerator
       end
       lines << ""
     end
-    
+
     if version.modifications&.any?
       lines << "### Modifications"
       version.modifications.each do |item|
@@ -744,7 +744,7 @@ class ChangeReportGenerator
       end
       lines << ""
     end
-    
+
     if version.deletions&.any?
       lines << "### Deletions"
       version.deletions.each do |item|
@@ -752,7 +752,7 @@ class ChangeReportGenerator
       end
       lines << ""
     end
-    
+
     lines.join("\n")
   end
 end
@@ -774,14 +774,14 @@ require "expressir/changes"
 def compare_versions(changes, version1, version2)
   v1 = changes.versions&.find { |v| v.version == version1 }
   v2 = changes.versions&.find { |v| v.version == version2 }
-  
+
   return nil unless v1 && v2
-  
+
   {
     version1: version1,
     version2: version2,
     added_in_v2: (v2.additions&.size || 0) - (v1.additions&.size || 0),
-    modified_in_v2: (v2.modifications&.size || 0) - 
+    modified_in_v2: (v2.modifications&.size || 0) -
                     (v1.modifications&.size || 0),
     deleted_in_v2: (v2.deletions&.size || 0) - (v1.deletions&.size || 0)
   }
@@ -807,11 +807,11 @@ def process_all_changes(directory)
   Dir.glob("#{directory}/**/*.changes.yaml").each do |file|
     begin
       changes = Expressir::Changes::SchemaChange.from_file(file)
-      
+
       puts "File: #{file}"
       puts "  Schema: #{changes.schema}"
       puts "  Versions: #{changes.versions&.size || 0}"
-      
+
       # Process each version
       changes.versions&.each do |version|
         total_changes = (version.additions&.size || 0) +
@@ -819,7 +819,7 @@ def process_all_changes(directory)
                        (version.deletions&.size || 0)
         puts "    v#{version.version}: #{total_changes} changes"
       end
-      
+
     rescue StandardError => e
       puts "Error processing #{file}: #{e.message}"
     end
@@ -867,19 +867,19 @@ Validate data before using:
 ----
 def validate_change_item(item)
   errors = []
-  
+
   errors << "Missing type" if item.type.nil? || item.type.empty?
   errors << "Missing name" if item.name.nil? || item.name.empty?
-  
+
   valid_types = %w[
     ENTITY TYPE FUNCTION PROCEDURE RULE CONSTANT
     SUBTYPE_CONSTRAINT USE_FROM REFERENCE_FROM
   ]
-  
+
   unless valid_types.include?(item.type)
     errors << "Invalid type: #{item.type}"
   end
-  
+
   errors
 end
 
@@ -908,23 +908,23 @@ def save_changes_safely(changes, path)
     FileUtils.cp(path, backup_path)
     puts "Created backup: #{backup_path}"
   end
-  
+
   begin
     changes.to_file(path)
     puts "Saved to: #{path}"
-    
+
     # Remove backup on success
     File.delete("#{path}.backup") if File.exist?("#{path}.backup")
-    
+
   rescue StandardError => e
     puts "Error saving file: #{e.message}"
-    
+
     # Restore backup if it exists
     if File.exist?("#{path}.backup")
       FileUtils.mv("#{path}.backup", path)
       puts "Restored from backup"
     end
-    
+
     raise
   end
 end
@@ -1018,7 +1018,7 @@ The Changes API provides comprehensive programmatic control:
 * Four main classes: SchemaChange, VersionChange, ItemChange, MappingChange
 * Load from files with `from_file` method
 * Create changes programmatically with `new` and `add_or_update_version`
-* Save with `to_file` method 
+* Save with `to_file` method
 * Version management strategies for different workflows
 * Integration patterns for automation
 * Proper error handling for robust applications

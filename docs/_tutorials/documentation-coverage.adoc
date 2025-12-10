@@ -1,6 +1,5 @@
 ---
 title: Documentation Coverage
-parent: Tutorials
 nav_order: 7
 ---
 

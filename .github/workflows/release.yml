@@ -1,5 +1,10 @@
 name: release
 
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+
 on:
   workflow_dispatch:
     inputs:

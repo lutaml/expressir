@@ -1,11 +1,10 @@
 ---
-title: Ruby API Overview
-parent: Guides
+title: Ruby API
 nav_order: 2
 has_children: true
 ---
 
-= Ruby API Overview
+= Ruby API
 
 == Purpose
 
@@ -69,7 +68,7 @@ repository = Expressir::Express::Parser.from_file("schema.exp")
 # Access schemas and entities
 repository.schemas.each do |schema|
   puts "Schema: #{schema.id}"
-  
+
   schema.entities&.each do |entity|
     puts "  Entity: #{entity.id}"
   end

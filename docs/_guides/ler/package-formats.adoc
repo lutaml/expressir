@@ -1,6 +1,6 @@
 ---
 title: Package Formats
-parent: LER Packages Overview
+parent: LER Packages
 grand_parent: Guides
 nav_order: 5
 ---
@@ -442,13 +442,13 @@ require "expressir"
 
 def convert_package(input, output, format)
   puts "Converting #{input} to #{format}..."
-  
+
   # Load existing package
   repo = Expressir::Model::Repository.from_package(input)
-  
+
   # Get original metadata
   metadata = load_metadata(input)
-  
+
   # Export in new format
   repo.export_to_package(
     output,
@@ -457,12 +457,12 @@ def convert_package(input, output, format)
     description: metadata["description"],
     serialization_format: format
   )
-  
+
   # Compare sizes
   old_size = File.size(input)
   new_size = File.size(output)
   reduction = ((old_size - new_size) / old_size.to_f * 100).round(1)
-  
+
   puts "✓ Converted successfully"
   puts "  Old size: #{old_size} bytes"
   puts "  New size: #{new_size} bytes"
@@ -472,7 +472,7 @@ end
 def load_metadata(package_path)
   require "zip"
   require "yaml"
-  
+
   Zip::File.open(package_path) do |zip|
     entry = zip.find_entry("metadata.yaml")
     YAML.safe_load(entry.get_input_stream.read)
@@ -493,9 +493,9 @@ def bulk_convert(input_dir, output_dir, format)
   Dir.glob("#{input_dir}/**/*.ler").each do |input|
     relative_path = input.sub(input_dir, "")
     output = File.join(output_dir, relative_path)
-    
+
     FileUtils.mkdir_p(File.dirname(output))
-    
+
     puts "Converting #{relative_path}..."
     convert_package(input, output, format)
   end

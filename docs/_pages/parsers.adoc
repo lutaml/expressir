@@ -1,6 +1,5 @@
 ---
 title: Parsers
-parent: Core Topics
 nav_order: 6
 ---
 

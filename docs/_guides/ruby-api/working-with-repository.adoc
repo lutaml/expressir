@@ -1,6 +1,6 @@
 ---
 title: Working with Repository
-parent: Ruby API Overview
+parent: Ruby API
 grand_parent: Guides
 nav_order: 2
 ---
@@ -256,11 +256,11 @@ if result[:valid?]
   puts "Repository is valid"
 else
   puts "Validation failed"
-  
+
   result[:errors].each do |error|
     puts "ERROR: #{error}"
   end
-  
+
   result[:warnings].each do |warning|
     puts "WARNING: #{warning}"
   end

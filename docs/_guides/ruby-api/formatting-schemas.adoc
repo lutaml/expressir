@@ -1,6 +1,6 @@
 ---
 title: Formatting Schemas
-parent: Ruby API Overview
+parent: Ruby API
 grand_parent: Guides
 nav_order: 4
 ---
@@ -326,7 +326,7 @@ repository = Expressir::Express::Parser.from_file("schema.exp")
 result = repository.validate
 if result[:valid?]
   puts "Schema is valid"
-  
+
   # Format and save
   formatter = Expressir::Express::Formatter.new(no_remarks: true)
   output = formatter.format(repository)
@@ -384,12 +384,12 @@ files.each do |file|
   begin
     repository = Expressir::Express::Parser.from_file(file)
     output = formatter.format(repository)
-    
+
     # Save to output directory
     output_file = file.sub("schemas/", "formatted/")
     FileUtils.mkdir_p(File.dirname(output_file))
     File.write(output_file, output)
-    
+
     puts "✓ Formatted #{file}"
   rescue => e
     puts "✗ Error formatting #{file}: #{e.message}"
@@ -444,7 +444,7 @@ File.open("output.exp", "w") do |f|
     output = formatter.format(schema)
     f.write(output)
     f.write("\n\n")
-    
+
     # Output is written and can be garbage collected
   end
 end

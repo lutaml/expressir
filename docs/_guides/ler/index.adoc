@@ -1,11 +1,10 @@
 ---
-title: LER Packages Overview
-parent: Guides
+title: LER Packages
 nav_order: 3
 has_children: true
 ---
 
-= LER Packages Overview
+= LER Packages
 
 == Purpose
 

@@ -1,0 +1,129 @@
+# Lychee link checker configuration for Expressir documentation
+# https://github.com/lycheeverse/lychee
+
+# Maximum number of concurrent network requests
+max_concurrency = 8
+
+# Maximum number of redirects to follow
+max_redirects = 5
+
+# Request timeout in seconds
+timeout = 30
+
+# Maximum number of retries per request
+max_retries = 2
+
+# Wait time between retries in seconds
+retry_wait_time = 2
+
+# User agent string
+user_agent = "Mozilla/5.0 (compatible; Lychee/1.0; +https://github.com/lutaml/expressir)"
+
+# Accept invalid SSL certificates (be careful with this)
+insecure = false
+
+# Only check links with these schemes
+scheme = ["https", "http"]
+
+# Accepted HTTP status codes
+accept = [
+  "100..=103", # Informational
+  "200..=299", # Success
+  "429",       # Too Many Requests (we retry these)
+]
+
+# Exclude these URLs from checking
+exclude = [
+  # Local development URLs
+  "http://localhost*",
+  "http://127\\.0\\.0\\.1*",
+  "http://0\\.0\\.0\\.0*",
+
+  # Placeholder URLs
+  "http://example\\.com*",
+  "https://example\\.com*",
+  "http://example\\.org*",
+  "https://example\\.org*",
+
+  # Private/internal networks
+  "http://192\\.168\\..*",
+  "http://10\\..*",
+  "http://172\\.(1[6-9]|2[0-9]|3[01])\\..*",
+
+  # Avoid checking certain external sites that may rate-limit
+  "https://www\.linkedin\\.com/.*",
+  "https://twitter\\.com/.*",
+  "https://x\\.com/.*",
+
+  # GitHub URLs that require authentication
+  "https://github\\.com/.*/(issues|pull)/[0-9]+/files.*",
+
+  # Fragments only (internal page anchors without base URL)
+  "^#.*",
+]
+
+# Exclude specific paths from being checked
+exclude_path = [
+  # Exclude vendor and cache directories
+  "**/vendor/**",
+  "**/node_modules/**",
+  "**/.bundle/**",
+  "**/.cache/**",
+
+  # Exclude build artifacts
+  "**/_site/assets/**",
+
+  # Exclude test/fixture files if any
+  "**/fixtures/**",
+  "**/test/**",
+  "**/spec/**",
+]
+
+# Include only these file types
+include = [
+  "**/*.html",
+  "**/*.md",
+  "**/*.adoc",
+]
+
+# Exclude files matching these patterns
+exclude_file = [
+  "Gemfile.lock",
+  "package-lock.json",
+]
+
+# Check method: "get" or "head"
+# HEAD is faster but some servers don't support it
+method = "get"
+
+# Cache results to avoid rechecking
+cache = true
+
+# Maximum cache age in seconds (1 day)
+max_cache_age = 86400
+
+# Verbose output
+verbose = false
+
+# Skip checking mail addresses (mailto: links)
+exclude_mail = true
+
+# Don't check private IP addresses
+exclude_private = true
+
+# Don't check link-local addresses
+exclude_link_local = true
+
+# Don't check loopback addresses
+exclude_loopback = true
+
+# Require HTTPS for certain domains (security best practice)
+require_https = false
+
+# Follow permanent redirects (301)
+include_verbatim = false
+
+# Optionally set custom headers for specific domains
+# [[headers]]
+# pattern = "https://api\\.github\\.com/.*"
+# headers = { "Authorization" = "token $GITHUB_TOKEN" }

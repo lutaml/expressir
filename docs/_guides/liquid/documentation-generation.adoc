@@ -1,6 +1,6 @@
 ---
 title: Documentation Generation
-parent: Liquid Overview
+parent: Liquid
 grand_parent: Guides
 nav_order: 4
 ---
@@ -127,7 +127,7 @@ class DocumentationGenerator
     puts "Generating #{schema.id}..."
     template = load_template("schema")
     output = template.render("schema" => schema)
-    
+
     schema_dir = File.join(@output_dir, "schemas")
     FileUtils.mkdir_p(schema_dir)
     File.write(File.join(schema_dir, "#{schema.id}.md"), output)
@@ -396,7 +396,7 @@ class AdvancedDocumentationGenerator
   def print_summary(repo_drop)
     total_entities = repo_drop.schemas.sum { |s| s.entities.size }
     total_types = repo_drop.schemas.sum { |s| s.types.size }
-    
+
     puts "\nSummary:"
     puts "  Schemas: #{repo_drop.schemas.size}"
     puts "  Entities: #{total_entities}"
@@ -743,11 +743,11 @@ template = Liquid::Template.parse(full_template)
 </head>
 <body>
   <header>{{ header_content }}</header>
-  
+
   <main>
     {{ content }}
   </main>
-  
+
   <footer>{{ footer_content }}</footer>
 </body>
 </html>
@@ -792,13 +792,13 @@ module DocGenerator
 
     def generate
       start_time = Time.now
-      
+
       puts "🚀 Starting documentation generation..."
-      
+
       setup
       repo_drop = load_schemas
       generate_all(repo_drop)
-      
+
       elapsed = Time.now - start_time
       print_summary(elapsed)
     end
@@ -812,7 +812,7 @@ module DocGenerator
        entities_dir,
        types_dir,
        assets_dir].each { |dir| FileUtils.mkdir_p(dir) }
-      
+
       copy_assets if @config["assets"]
     end
 
@@ -826,14 +826,14 @@ module DocGenerator
           puts "  ✓ Loaded #{file}"
         end
       end
-      
+
       @stats[:schemas] = repo.schemas.size
       repo.to_liquid
     end
 
     def generate_all(repo_drop)
       puts "✍️  Generating documentation..."
-      
+
       generate_index(repo_drop)
       generate_schemas(repo_drop)
       generate_entities(repo_drop)
@@ -892,10 +892,10 @@ module DocGenerator
     def render_and_write(template_name, context, output_path)
       template = load_template(template_name)
       output = template.render(context)
-      
+
       full_path = File.join(@config["output"]["dir"], output_path)
       File.write(full_path, output)
-      
+
       @stats[:files] += 1
       puts "  ✓ #{output_path}"
     end
@@ -929,7 +929,7 @@ module DocGenerator
 
     def build_search_index(repo_drop)
       items = []
-      
+
       repo_drop.schemas.each do |schema|
         schema.entities.each do |entity|
           items << {
@@ -941,7 +941,7 @@ module DocGenerator
           }
         end
       end
-      
+
       { items: items }
     end
 

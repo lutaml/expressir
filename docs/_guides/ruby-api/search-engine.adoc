@@ -1,6 +1,6 @@
 ---
 title: Search Engine
-parent: Ruby API Overview
+parent: Ruby API
 grand_parent: Guides
 nav_order: 3
 ---

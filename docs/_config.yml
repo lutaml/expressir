@@ -107,7 +107,7 @@ asciidoctor:
     - experimental=true
 
 include:
-  - '*.adoc'
+  - '**/*.adoc'
 
 # Exclude from processing
 exclude:
@@ -117,9 +117,6 @@ exclude:
   - node_modules
   - vendor/*
   - Rakefile
-  - benchmarking.adoc
-  - ler-package.adoc
-  - liquid_drops.adoc
   - '*.md'
 
 # Enable code copy button

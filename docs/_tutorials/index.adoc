@@ -127,21 +127,21 @@ Where to go after completing the tutorial
 
 ==== Before Starting
 
-* link:../pages/getting-started.html[Getting Started] - Install and verify Expressir
-* link:../pages/express-language.html[EXPRESS Language] - Understanding EXPRESS syntax
-* link:../pages/data-model.html[Data Model] - Expressir's internal structure
+* link:../../getting-started.html[Getting Started] - Install and verify Expressir
+* link:../../express-language.html[EXPRESS Language] - Understanding EXPRESS syntax
+* link:../../data-model.html[Data Model] - Expressir's internal structure
 
 ==== While Learning
 
-* link:../guides/[Guides] - Detailed guides on specific topics
-* link:../references/[References] - Complete API documentation
+* link:../../guides/[Guides] - Detailed guides on specific topics
+* link:../../references/[References] - Complete API documentation
 * https://github.com/lutaml/expressir[GitHub Repository] - Source code and examples
 
 ==== After Completion
 
-* link:../guides/cli/[CLI Guides] - Master command-line tools
-* link:../guides/ruby-api/[Ruby API Guides] - Advanced programmatic usage
-* link:../guides/ler/[LER Guides] - Deep dive into LER packages
+* link:../../guides/cli/[CLI Guides] - Master command-line tools
+* link:../../guides/ruby-api/[Ruby API Guides] - Advanced programmatic usage
+* link:../../guides/ler/[LER Guides] - Deep dive into LER packages
 
 === Tutorial Conventions
 
@@ -195,7 +195,7 @@ File paths are shown relative to your working directory:
 **Questions or Problems**::
 * link:https://github.com/lutaml/expressir/issues[GitHub Issues] - Report problems
 * link:https://github.com/lutaml/expressir/discussions[GitHub Discussions] - Ask questions
-* link:../pages/getting-started.html#getting-help[Getting Help] - Support resources
+* link:../../getting-started.html#getting-help[Getting Help] - Support resources
 
 **Contributing**::
 Found an error or want to improve a tutorial?

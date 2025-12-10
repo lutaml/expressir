@@ -51,7 +51,7 @@ exclude = [
   "http://172\\.(1[6-9]|2[0-9]|3[01])\\..*",
 
   # Avoid checking certain external sites that may rate-limit
-  "https://www\.linkedin\\.com/.*",
+  "https://www\\.linkedin\\.com/.*",
   "https://twitter\\.com/.*",
   "https://x\\.com/.*",
 

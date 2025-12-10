@@ -9,10 +9,13 @@ nav_order: 3
 
 === Purpose
 
-The [`validate`](../../../lib/expressir/commands/validate.rb:1) command checks EXPRESS schemas for syntax errors and version string compliance. This ensures schemas are well-formed and properly versioned before deployment or further processing.
+The `validate load` command checks EXPRESS schemas for syntax errors and version
+string compliance. This ensures schemas are well-formed and properly versioned
+before deployment or further processing.
 
 === References
 
+* link:validate-ascii.html[Validate ASCII Content]
 * link:../../tutorials/parsing-your-first-schema.html[Tutorial: Parsing Your First Schema]
 * link:../../pages/express-language.html[EXPRESS Language Documentation]
 * link:format-schemas.html[Format Schemas]
@@ -22,6 +25,7 @@ The [`validate`](../../../lib/expressir/commands/validate.rb:1) command checks E
 Schema validation:: Checking that EXPRESS schema files can be successfully parsed and meet structural requirements
 Version string:: Required metadata in schema declarations identifying the schema version
 Batch validation:: Validating multiple schemas in a single operation
+Schema manifest:: YAML file containing schema definitions that can be validated
 Exit codes:: Command returns 0 for success, 1 for validation failures
 
 === Basic Usage
@@ -30,7 +34,7 @@ Exit codes:: Command returns 0 for success, 1 for validation failures
 
 [source,bash]
 ----
-expressir validate schema.exp
+expressir validate load schema.exp
 ----
 
 Output on success:
@@ -56,13 +60,24 @@ Missing version string: schema `example_schema` | schema.exp
 [source,bash]
 ----
 # Explicit files
-expressir validate schema1.exp schema2.exp schema3.exp
+expressir validate load schema1.exp schema2.exp schema3.exp
 
 # Using wildcards
-expressir validate schemas/*.exp
+expressir validate load schemas/*.exp
 
 # Recursive search
-expressir validate schemas/**/*.exp
+expressir validate load schemas/**/*.exp
+----
+
+==== Validate from Schema Manifest
+
+[source,bash]
+----
+# Validate all schemas defined in a manifest
+expressir validate load manifest.yaml
+
+# With verbose output
+expressir validate load manifest.yaml --verbose
 ----
 
 ==== CI/CD Usage
@@ -70,7 +85,7 @@ expressir validate schemas/**/*.exp
 [source,bash]
 ----
 # Exit code 0 on success, 1 on failure
-expressir validate schemas/*.exp
+expressir validate load schemas/*.exp
 if [ $? -eq 0 ]; then
   echo "✓ All schemas valid"
 else
@@ -100,7 +115,7 @@ fi
 
 [source,bash]
 ----
-expressir validate schema.exp --verbose
+expressir validate load schema.exp --verbose
 ----
 
 Provides additional output about the validation process, including schema names and structure information.
@@ -188,7 +203,7 @@ echo "Validating staged EXPRESS schemas..."
 
 # Validate each staged file
 for file in $STAGED_FILES; do
-  if ! expressir validate "$file"; then
+  if ! expressir validate load "$file"; then
     echo "❌ Validation failed for: $file"
     echo "Please fix validation errors before committing."
     exit 1
@@ -231,7 +246,7 @@ jobs:
       - name: Validate all schemas
         run: |
           echo "Validating EXPRESS schemas..."
-          if expressir validate schemas/*.exp; then
+          if expressir validate load schemas/*.exp; then
             echo "✓ All schemas valid"
           else
             echo "✗ Schema validation failed"
@@ -265,7 +280,7 @@ echo "" >> "$REPORT_FILE"
 
 # Run validation
 echo "Running validation..." | tee -a "$REPORT_FILE"
-if expressir validate "$SCHEMA_DIR"/*.exp >> "$REPORT_FILE" 2>&1; then
+if expressir validate load "$SCHEMA_DIR"/*.exp >> "$REPORT_FILE" 2>&1; then
   echo "✓ All schemas passed validation" | tee -a "$REPORT_FILE"
   exit 0
 else
@@ -287,10 +302,10 @@ MISSING_VERSION=0
 
 for file in schemas/*.exp; do
   echo "Checking: $file"
-  
-  OUTPUT=$(expressir validate "$file" 2>&1)
+
+  OUTPUT=$(expressir validate load "$file" 2>&1)
   STATUS=$?
-  
+
   if [ $STATUS -eq 0 ]; then
     echo "  ✓ Valid"
     ((VALID++))
@@ -327,7 +342,7 @@ fi
 vim my_schema.exp
 
 # 2. Validate
-expressir validate my_schema.exp
+expressir validate load my_schema.exp
 
 # 3. If valid, format
 expressir format my_schema.exp -o my_schema.exp
@@ -342,13 +357,13 @@ git commit -m "Add my_schema"
 [source,bash]
 ----
 # 1. Validate all schemas
-expressir validate schemas/*.exp
+expressir validate load schemas/*.exp
 
 # 2. Fix any errors
 # (edit files as needed)
 
 # 3. Re-validate
-expressir validate schemas/*.exp
+expressir validate load schemas/*.exp
 
 # 4. Proceed with deployment
 ./deploy.sh
@@ -464,7 +479,7 @@ Always validate schemas before version control operations
 +
 [source,bash]
 ----
-expressir validate schema.exp && git commit -m "Update schema"
+expressir validate load schema.exp && git commit -m "Update schema"
 ----
 
 **Automate Validation**::
@@ -473,7 +488,7 @@ Add validation to CI/CD pipelines
 [source,bash]
 ----
 # In CI script
-expressir validate schemas/*.exp || exit 1
+expressir validate load schemas/*.exp || exit 1
 ----
 
 **Use Exit Codes**::
@@ -481,7 +496,7 @@ Check validation results programmatically
 +
 [source,bash]
 ----
-if expressir validate schema.exp; then
+if expressir validate load schema.exp; then
   echo "Valid - proceeding"
 else
   echo "Invalid - stopping"
@@ -495,184 +510,18 @@ Ensure formatting didn't introduce errors
 [source,bash]
 ----
 expressir format schema.exp -o schema.exp
-expressir validate schema.exp
+expressir validate load schema.exp
 ----
 
 **Keep Versions Updated**::
 Maintain accurate version strings in all schemas
 
-=== Troubleshooting
 
-==== Validation Passes but Schema Doesn't Work
-
-**Problem**: Validation succeeds but schema fails in production
-
-**Possible Causes**:
-* Semantic errors not caught by syntax validation
-* Missing interface declarations
-* Circular dependencies
-* Reference resolution issues
-
-**Solution**: Use additional tools:
-[source,bash]
-----
-# Check documentation coverage
-expressir coverage schema.exp
-
-# Review references manually
-grep "USE FROM\|REFERENCE FROM" schema.exp
-----
-
-==== Large File Validation Hangs
-
-**Problem**: Validation takes too long on large schemas
-
-**Solutions**:
-* Validate files individually
-* Use --verbose to track progress
-* Consider splitting large schemas
-* Increase system resources
-
-==== Character Encoding Issues
-
-**Problem**: Validation fails with encoding errors
-
-**Solution**: Ensure UTF-8 encoding:
-[source,bash]
-----
-# Check file encoding
-file -I schema.exp
-
-# Convert if needed
-iconv -f ISO-8859-1 -t UTF-8 schema.exp > schema_utf8.exp
-----
-
-==== Permission Errors
-
-**Problem**: Cannot read schema files
-
-**Solution**: Check file permissions:
-[source,bash]
-----
-ls -la schema.exp
-chmod 644 schema.exp
-----
-
-=== Integration Examples
-
-==== Makefile Integration
-
-[source,makefile]
-----
-.PHONY: validate test
-
-validate:
-	@echo "Validating schemas..."
-	@expressir validate schemas/*.exp
-
-test: validate
-	@echo "Running tests..."
-	@bundle exec rspec
-
-all: validate test
-----
-
-==== Jenkins Pipeline
-
-[source,groovy]
-----
-pipeline {
-  agent any
-  stages {
-    stage('Validate') {
-      steps {
-        sh 'gem install expressir'
-        sh 'expressir validate schemas/*.exp'
-      }
-    }
-  }
-}
-----
-
-==== GitLab CI
-
-[source,yaml]
-----
-validate:
-  image: ruby:3.0
-  before_script:
-    - gem install expressir
-  script:
-    - expressir validate schemas/*.exp
-  only:
-    - merge_requests
-    - main
-----
-
-=== Advanced Usage
-
-==== Validate with Custom Checks
-
-[source,bash]
-----
-#!/bin/bash
-# Extended validation script
-
-# 1. Syntax validation
-if ! expressir validate schemas/*.exp; then
-  echo "❌ Syntax validation failed"
-  exit 1
-fi
-
-# 2. Coverage check
-if ! expressir coverage schemas/ --format json > coverage.json; then
-  echo "❌ Coverage check failed"
-  exit 1
-fi
-
-# 3. Check minimum coverage
-COVERAGE=$(jq '.overall.coverage_percentage' coverage.json)
-if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-  echo "❌ Coverage below 80%: ${COVERAGE}%"
-  exit 1
-fi
-
-echo "✓ All validation checks passed"
-----
-
-==== Parallel Validation
-
-[source,bash]
-----
-#!/bin/bash
-# Validate schemas in parallel
-
-find schemas -name "*.exp" | \
-  xargs -P 4 -I {} sh -c 'expressir validate "{}" || exit 255'
-----
-
-==== Validation with Notifications
-
-[source,bash]
-----
-#!/bin/bash
-# Validate and send notifications
-
-if expressir validate schemas/*.exp > validation.log 2>&1; then
-  # Send success notification
-  curl -X POST https://hooks.slack.com/... \
-    -d '{"text":"✓ Schema validation passed"}'
-else
-  # Send failure notification with log
-  curl -X POST https://hooks.slack.com/... \
-    -d "{\"text\":\"❌ Schema validation failed\",\"attachments\":[{\"text\":\"$(cat validation.log)\"}]}"
-  exit 1
-fi
-----
 
 === Next Steps
 
 **Related Commands**::
+* link:validate-ascii.html[Validate ASCII Content] - Check for non-ASCII characters
 * link:format-schemas.html[Format Schemas] - Pretty-print schemas
 * link:coverage-analysis.html[Coverage Analysis] - Check documentation
 
@@ -683,16 +532,3 @@ fi
 **Quality Assurance**::
 * link:benchmark-performance.html[Benchmark Performance] - Performance testing
 * link:../../tutorials/working-with-multiple-schemas.html[Working with Multiple Schemas]
-
-=== Summary
-
-The validate command:
-
-* ✅ Checks EXPRESS syntax correctness
-* ✅ Verifies version string presence
-* ✅ Supports batch validation
-* ✅ Provides clear error messages
-* ✅ Integrates with CI/CD pipelines
-* ✅ Returns proper exit codes for automation
-
-Use validation regularly to maintain schema quality and catch errors early in the development process.

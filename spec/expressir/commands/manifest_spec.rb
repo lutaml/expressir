@@ -70,7 +70,7 @@ RSpec.describe Expressir::Commands::Manifest do
           capture_stdout do
             command.validate(missing_files_manifest)
           end
-        end.to raise_error(SystemExit)
+        end.to raise_error(Thor::Error)
       end
     end
 
@@ -103,7 +103,7 @@ RSpec.describe Expressir::Commands::Manifest do
           end
           expect(output).to include("Reference Errors")
           expect(output).to include("nonexistent_schema")
-        end.to raise_error(SystemExit)
+        end.to raise_error(Thor::Error)
       end
 
       it "exits with code 0 when all checks pass" do
@@ -125,7 +125,7 @@ RSpec.describe Expressir::Commands::Manifest do
           capture_stdout do
             command.validate(unresolved_manifest)
           end
-        end.to raise_error(SystemExit)
+        end.to raise_error(Thor::Error)
       end
     end
 
@@ -158,9 +158,10 @@ RSpec.describe Expressir::Commands::Manifest do
       it "shows 'Checking referential integrity...' message when enabled" do
         command = described_class.new
         command.options = { "verbose" => true, "check_references" => true }
+        valid_manifest = "#{fixtures_dir}/manifest/valid_references_manifest.yaml"
 
         output = capture_stdout do
-          command.validate(manifest_path)
+          command.validate(valid_manifest)
         end
 
         expect(output).to include("Checking referential integrity")
@@ -177,7 +178,7 @@ RSpec.describe Expressir::Commands::Manifest do
           end
           expect(output).to include("Error")
           expect(output).to include("not found")
-        end.to raise_error(SystemExit)
+        end.to raise_error(Thor::Error)
       end
 
       it "exits with code 1" do
@@ -187,7 +188,7 @@ RSpec.describe Expressir::Commands::Manifest do
           capture_stdout do
             command.validate("nonexistent_manifest.yaml")
           end
-        end.to raise_error(SystemExit)
+        end.to raise_error(Thor::Error)
       end
     end
 
@@ -210,7 +211,7 @@ RSpec.describe Expressir::Commands::Manifest do
             command.validate(missing_files_manifest)
           end
           expect(output).to include("File Errors")
-        end.to raise_error(SystemExit)
+        end.to raise_error(Thor::Error)
       end
 
       it "displays path warnings in separate section" do
@@ -232,7 +233,7 @@ RSpec.describe Expressir::Commands::Manifest do
             command.validate(unresolved_manifest)
           end
           expect(output).to include("Reference Errors")
-        end.to raise_error(SystemExit)
+        end.to raise_error(Thor::Error)
       end
 
       it "shows error counts" do
@@ -243,7 +244,7 @@ RSpec.describe Expressir::Commands::Manifest do
             command.validate(missing_files_manifest)
           end
           expect(output).to match(/File Errors \(\d+\)/)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Thor::Error)
       end
 
       it "shows warning counts" do
@@ -335,7 +336,7 @@ RSpec.describe Expressir::Commands::Manifest do
           end
           expect(output).to include("Error")
           expect(output).to include("not found")
-        end.to raise_error(SystemExit)
+        end.to raise_error(Thor::Error)
       end
     end
 
@@ -349,7 +350,7 @@ RSpec.describe Expressir::Commands::Manifest do
           capture_stdout do
             command.create(root_schema)
           end
-        end.to raise_error(SystemExit)
+        end.to raise_error(Thor::Error)
       end
     end
   end

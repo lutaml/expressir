@@ -1,52 +1,85 @@
+# frozen_string_literal: true
+
+require "thor"
+
 module Expressir
   module Commands
-    class Validate < Base
-      def run(paths)
-        no_version = []
-        no_valid = []
+    # Thor subcommand for EXPRESS validation operations
+    class Validate < Thor
+      desc "load PATH_OR_MANIFEST",
+           "Validate EXPRESS schema loading and version strings"
+      long_desc <<~DESC
+        Validate EXPRESS schema(s) for parsing errors and version string presence.
 
-        paths.each do |path|
-          x = Pathname.new(path).realpath.relative_path_from(Dir.pwd)
-          say "Validating #{x}"
-          ret = validate_schema(path)
+        Accepts either:
+        - Individual EXPRESS file paths (*.exp)
+        - A Schema Manifest YAML file (*.yaml) containing schema definitions
 
-          if ret.nil?
-            no_valid << "Failed to parse: #{x}"
-            next
-          end
+        When using a Schema Manifest, all schemas in the manifest will be validated.
 
-          ret.each do |schema_id|
-            no_version << "Missing version string: schema `#{schema_id}` | #{x}"
-          end
-        end
+        Examples:
+          # Validate individual EXPRESS files
+          expressir validate load schema1.exp schema2.exp
 
-        print_validation_errors(:failed_to_parse, no_valid)
-        print_validation_errors(:missing_version_string, no_version)
+          # Validate schemas from a manifest
+          expressir validate load manifest.yaml
 
-        exit 1 unless [no_valid, no_version].all?(&:empty?)
-
-        say "Validation passed for all EXPRESS schemas."
+          # Validate with verbose output
+          expressir validate load manifest.yaml --verbose
+      DESC
+      method_option :verbose, type: :boolean, default: false,
+                              desc: "Show verbose output"
+      def load(*paths)
+        require_relative "validate_load"
+        ValidateLoad.new(options).run(paths)
       end
 
-      private
+      desc "ascii PATH_OR_MANIFEST",
+           "Validate EXPRESS files for ASCII-only content"
+      long_desc <<~DESC
+        Validate EXPRESS file(s) for non-ASCII characters and provide replacement suggestions.
 
-      def validate_schema(path)
-        repository = Expressir::Express::Parser.from_file(path)
-        repository.schemas.inject([]) do |acc, schema|
-          acc << schema.id unless schema.version&.value
-          acc
-        end
-      rescue StandardError
-        nil
-      end
+        Accepts either:
+        - Individual EXPRESS file path (*.exp)
+        - A directory path (with --recursive option)
+        - A Schema Manifest YAML file (*.yaml) containing schema definitions
 
-      def print_validation_errors(type, array)
-        return if array.empty?
+        When using a Schema Manifest, all schemas in the manifest will be validated.
 
-        say "#{'*' * 20} RESULTS: #{type.to_s.upcase.tr('_', ' ')} #{'*' * 20}"
-        array.each do |msg|
-          say msg
-        end
+        This command:
+        - Scans each line for non-ASCII characters
+        - Reports detailed information about each violation
+        - Provides specific replacement suggestions (AsciiMath or ISO 10303-11)
+        - Displays a summary table showing all violations
+        - Optionally outputs structured data in YAML format
+
+        Examples:
+          # Validate a single EXPRESS file
+          expressir validate ascii schema.exp
+
+          # Validate all EXPRESS files in a directory recursively
+          expressir validate ascii ../iso-10303/schemas -r
+
+          # Validate schemas from a manifest
+          expressir validate ascii manifest.yaml
+
+          # Output results in YAML format
+          expressir validate ascii manifest.yaml -y
+
+          # Include remarks in validation (default: false)
+          expressir validate ascii schema.exp --check-remarks
+      DESC
+      method_option :recursive, type: :boolean, default: false, aliases: "-r",
+                                desc: "Validate EXPRESS files under the specified path recursively"
+      method_option :yaml, type: :boolean, default: false, aliases: "-y",
+                           desc: "Output results in YAML format"
+      method_option :check_remarks, type: :boolean, default: false,
+                                    desc: "Include remarks in ASCII validation (default: false, remarks are excluded)"
+      method_option :verbose, type: :boolean, default: false,
+                              desc: "Show verbose output"
+      def ascii(path)
+        require_relative "validate_ascii"
+        ValidateAscii.new(options).run(path)
       end
     end
   end

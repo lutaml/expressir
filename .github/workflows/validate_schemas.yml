@@ -44,5 +44,5 @@ jobs:
 
       - name: Validate schemas ${{ matrix.test-group }}
         run: |
-          yq '.schemas[].path | sub("schemas", "iso-10303/schemas")' ${{ matrix.test-group }} | xargs bundle exec ./exe/expressir validate
+          yq '.schemas[].path | sub("schemas", "iso-10303/schemas")' ${{ matrix.test-group }} | xargs bundle exec ./exe/expressir validate load
 

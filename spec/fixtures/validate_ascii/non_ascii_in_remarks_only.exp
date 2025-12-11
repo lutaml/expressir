@@ -21,3 +21,10 @@ SCHEMA test_schema;
   END_TYPE;  -- Status with Korean: 상태
 
 END_SCHEMA; -- test_schema
+
+(*"test_schema.person"
+  This is a person entity with remarks containing Unicode characters:
+  - Japanese: 名前
+  - Korean: 상태
+  - Chinese: 名称
+*)

@@ -32,3 +32,10 @@ SCHEMA test_schema;
   END_FUNCTION;
 
 END_SCHEMA; -- test_schema
+
+(*"test_schema.product"
+  This is a product entity with remarks containing Unicode characters:
+  - Japanese: 製品
+  - Korean: 제품
+  - Chinese: 产品
+*)

@@ -52,6 +52,9 @@ exclude = [
   "https://twitter\\.com/.*",
   "https://x\\.com/.*",
 
+  # Self-referential documentation links (site under development)
+  "https://www\\.lutaml\\.org/expressir/.*",
+
   # External sites with broken or moved URLs
   "https://www\\.nist\\.gov/.*",
   "https://www\\.steptools\\.com/.*",

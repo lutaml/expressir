@@ -247,6 +247,100 @@ RSpec.describe Expressir::Express::Parser do
       expect(informal_proposition.class).to eq(Expressir::Model::Declarations::InformalPropositionRule)
       expect(informal_proposition.remark_items.first.remarks).to eq(["This is informal proposition"])
     end
+
+    it "preserves tail remarks on attribute lines (non_ascii_in_remarks_only.exp)" do |_example|
+      exp_file = Expressir.root_path.join("spec", "fixtures", "validate_ascii",
+                                          "non_ascii_in_remarks_only.exp")
+
+      repo = described_class.from_file(
+        exp_file,
+        root_path: Expressir.root_path,
+      )
+
+      schema = repo.schemas.first
+      expect(schema.id).to eq("test_schema")
+
+      # Check entity has correct attributes
+      entity = schema.entities.first
+      expect(entity.id).to eq("person")
+      expect(entity.attributes.length).to eq(2)
+
+      # Verify tail remarks are attached to attributes, not entity
+      name_attr = entity.attributes.find { |a| a.id == "name" }
+      expect(name_attr).not_to be_nil
+      expect(name_attr.untagged_remarks.length).to eq(1)
+      name_remark = name_attr.untagged_remarks.first
+      expect(name_remark).to be_a(Expressir::Model::RemarkInfo)
+      expect(name_remark.text).to eq("Name in Japanese: 名前")
+      expect(name_remark.format).to eq("tail")
+
+      age_attr = entity.attributes.find { |a| a.id == "age" }
+      expect(age_attr).not_to be_nil
+      expect(age_attr.untagged_remarks.length).to eq(1)
+      age_remark = age_attr.untagged_remarks.first
+      expect(age_remark).to be_a(Expressir::Model::RemarkInfo)
+      expect(age_remark.text).to eq("Age attribute with 中文 comment")
+      expect(age_remark.format).to eq("embedded")
+
+      # Entity should NOT have attribute tail remarks (they belong to attributes)
+      entity_remarks = entity.untagged_remarks || []
+      expect(entity_remarks.nil? || entity_remarks.empty?).to be true
+    end
+
+    it "preserves tail remarks on TYPE lines" do |_example|
+      exp_file = Expressir.root_path.join("spec", "fixtures", "validate_ascii",
+                                          "non_ascii_in_remarks_only.exp")
+
+      repo = described_class.from_file(
+        exp_file,
+        root_path: Expressir.root_path,
+      )
+
+      schema = repo.schemas.first
+      type_decl = schema.types.first
+
+      # END_TYPE remark should be attached to the Type, not Schema
+      expect(type_decl.untagged_remarks.length).to eq(1)
+      type_remark = type_decl.untagged_remarks.first
+
+      # Handle both RemarkInfo (from direct parsing) and String (from YAML deserialization)
+      if type_remark.is_a?(Expressir::Model::RemarkInfo)
+        expect(type_remark.text).to eq("Status with Korean: 상태")
+        expect(type_remark.format).to eq("tail")
+      else
+        expect(type_remark).to eq("Status with Korean: 상태")
+      end
+
+      # Schema should have preamble remarks + END_SCHEMA remark (4 total)
+      schema_remarks = schema.untagged_remarks || []
+      expect(schema_remarks.length).to eq(4)
+
+      # Check preamble remarks (handle both RemarkInfo and String)
+      preamble_remark1 = schema_remarks[0]
+      if preamble_remark1.is_a?(Expressir::Model::RemarkInfo)
+        expect(preamble_remark1.text).to eq("This schema demonstrates Unicode in remarks only")
+        expect(preamble_remark1.format).to eq("tail")
+      else
+        expect(preamble_remark1).to eq("This schema demonstrates Unicode in remarks only")
+      end
+
+      preamble_remark2 = schema_remarks[1]
+      if preamble_remark2.is_a?(Expressir::Model::RemarkInfo)
+        expect(preamble_remark2.text).to eq("Japanese: 日本語、中文、한글")
+        expect(preamble_remark2.format).to eq("tail")
+      else
+        expect(preamble_remark2).to eq("Japanese: 日本語、中文、한글")
+      end
+
+      # Check END_SCHEMA remark
+      end_remark = schema_remarks.last
+      if end_remark.is_a?(Expressir::Model::RemarkInfo)
+        expect(end_remark.text).to eq("test_schema")
+        expect(end_remark.format).to eq("tail")
+      else
+        expect(end_remark).to eq("test_schema")
+      end
+    end
   end
 
   describe ".from_files" do

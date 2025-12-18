@@ -30,6 +30,85 @@ Expressir consists of 3 parts:
 // ** OMG UML 2 for Eclipse (XMI 2.1)
 
 
+== Features
+
+=== Remark preservation
+
+Expressir fully preserves EXPRESS remarks (comments) during parsing and formatting, maintaining them in their original positions:
+
+==== Preamble remarks
+
+Remarks between a scope declaration and its first child are preserved as preamble remarks:
+
+[source,express]
+----
+SCHEMA example;
+  -- This is a preamble remark
+  -- It appears after SCHEMA but before declarations
+
+  ENTITY person;
+    -- Entity preamble remark
+    name : STRING;
+  END_ENTITY;
+
+END_SCHEMA;
+----
+
+==== Inline tail remarks
+
+Remarks on the same line as attribute or enumeration item declarations:
+
+[source,express]
+----
+ENTITY person;
+  name : STRING; -- Inline remark for name attribute
+  age : INTEGER; -- Inline remark for age attribute
+END_ENTITY;
+
+TYPE status = ENUMERATION OF
+  (active,   -- Active status
+   inactive, -- Inactive status
+   pending); -- Pending status
+END_TYPE;
+----
+
+==== END_* scope remarks
+
+Remarks on END_TYPE, END_ENTITY, END_SCHEMA, etc. lines:
+
+[source,express]
+----
+TYPE status = ENUMERATION OF
+  (active,
+   inactive);
+END_TYPE; -- Status enumeration type
+
+ENTITY person;
+  name : STRING;
+END_ENTITY; -- Person entity
+
+END_SCHEMA; -- schema_name
+----
+
+==== Unicode support
+
+All remark types support full Unicode content:
+
+[source,express]
+----
+SCHEMA test;
+  -- 日本語、中文、한글 in remarks
+
+  ENTITY person;
+    name : STRING; -- Name in Japanese: 名前
+  END_ENTITY;
+
+END_SCHEMA; -- test
+----
+
+For implementation details, see link:docs/ARCHITECTURE.md#remark-attachment-system[Remark Attachment System].
+
+
 == Installation
 
 Add this line to your application's `Gemfile`:
@@ -80,7 +159,7 @@ Commands:
   expressir clean PATH                         # Strip remarks and prettify EXPRESS schema at PATH
   expressir format PATH                        # pretty print EXPRESS schema located at PATH
   expressir help [COMMAND]                     # Describe available commands or one specific command
-  expressir validate *PATH                     # validate EXPRESS schema located at PATH
+  expressir validate load *PATH                # validate EXPRESS schema located at PATH
   expressir validate ascii PATH                # Validate EXPRESS files for ASCII-only content (excluding remarks)
   expressir coverage *PATH                     # List EXPRESS entities and check documentation coverage
   expressir version                            # Expressir Version
@@ -102,6 +181,251 @@ This command:
 . Parses the EXPRESS schema
 . Formats it with consistent indentation and spacing
 . Outputs the formatted schema to stdout
+
+=== Pretty print with ELF compliance
+
+The `PrettyFormatter` class provides ELF (EXPRESS Language Foundation) compliant
+pretty printing with configurable formatting options. This formatter follows the
+https://www.express-language-foundation.org/pretty-print-spec/[ELF Pretty Print specification].
+
+==== Using PrettyFormatter in Ruby
+
+[source,ruby]
+----
+# Basic usage - formats with default settings
+repository = Expressir::Express::Parser.from_file("schema.exp")
+formatter = Expressir::Express::PrettyFormatter.new
+formatted = formatter.format(repository)
+puts formatted
+----
+
+==== Configuration options
+
+The PrettyFormatter supports several configuration options to customize the output.
+
+[source,ruby]
+----
+formatter = Expressir::Express::PrettyFormatter.new(
+  indent: 4,                    # Spaces per indentation level (default: 4)
+  line_length: 80,              # Maximum line length (default: nil)
+  provenance: true,             # Include provenance info (default: true)
+  provenance_name: "MyTool",    # Tool name (default: "Expressir")
+  provenance_version: "1.0.0",  # Tool version (default: Expressir::VERSION)
+  no_remarks: false             # Suppress remarks (default: false)
+)
+----
+
+[options="header"]
+|===
+| Option | Type | Default | Description
+
+| `indent`
+| Integer
+| `4`
+| Number of spaces per indentation level
+
+| `line_length`
+| Integer or nil
+| `nil`
+| Maximum line length (not yet enforced)
+
+| `provenance`
+| Boolean
+| `true`
+| Include provenance information in output
+
+| `provenance_name`
+| String
+| `"Expressir"`
+| Tool name for provenance
+
+| `provenance_version`
+| String
+| `Expressir::VERSION`
+| Tool version for provenance
+
+| `no_remarks`
+| Boolean
+| `false`
+| Suppress remarks from source schema
+|===
+
+==== Environment variable configuration
+
+Configuration can be overridden using environment variables. Environment variables
+take precedence over defaults but are overridden by explicit options:
+
+[source,sh]
+----
+# Set environment variables
+export EXPRESSIR_INDENT=2
+export EXPRESSIR_LINE_LENGTH=100
+export EXPRESSIR_PROVENANCE=false
+export EXPRESSIR_PROVENANCE_NAME="CustomTool"
+export EXPRESSIR_PROVENANCE_VERSION="2.0.0"
+
+# These will be used unless overridden by options
+ruby my_formatter.rb
+----
+
+[options="header"]
+|===
+| Environment Variable | Description
+
+| `EXPRESSIR_INDENT`
+| Indentation width (spaces)
+
+| `EXPRESSIR_LINE_LENGTH`
+| Maximum line length
+
+| `EXPRESSIR_PROVENANCE`
+| Enable/disable provenance (`true`/`false`)
+
+| `EXPRESSIR_PROVENANCE_NAME`
+| Tool name for provenance
+
+| `EXPRESSIR_PROVENANCE_VERSION`
+| Tool version for provenance
+|===
+
+The configuration follows a MECE (Mutually Exclusive, Collectively Exhaustive)
+hierarchy: **Options > ENV > Defaults**
+
+==== Key features
+
+The PrettyFormatter provides several enhancements over the standard formatter:
+
+CONSTANT alignment:: Constants in CONSTANT blocks are aligned at both the colon
+and assignment operator positions for improved readability.
++
+[example]
+====
+[source]
+----
+CONSTANT
+  short_name   : INTEGER := 1;
+  longer_name  : STRING  := 'test';
+  x            : REAL    := 3.14;
+END_CONSTANT;
+----
+====
+
+Provenance information:: Automatically includes metadata about the formatting
+tool and parameters used, aiding in reproducibility.
++
+[example]
+====
+[source]
+----
+(*
+  Generated by: Expressir version 2.1.31
+  Format parameters: indent: 4
+*)
+----
+====
+
+Configurable indentation:: Supports custom indentation width (2, 4, 8 spaces, etc.)
+to match project coding standards.
+
+Preamble support:: Preserves and formats source-level remarks that appear before
+the first SCHEMA declaration.
+
+==== Comparison with standard Formatter
+
+[options="header"]
+|===
+| Feature | Formatter | PrettyFormatter
+
+| Indentation
+| 2 spaces (fixed)
+| Configurable (default: 4)
+
+| CONSTANT alignment
+| No
+| Yes (colons and assignments)
+
+| Provenance
+| No
+| Yes (configurable)
+
+| Preamble formatting
+| No
+| Yes
+
+| Line length enforcement
+| No
+| Planned (not yet implemented)
+
+| ELF compliant
+| No
+| Yes
+
+| Configuration via ENV
+| No
+| Yes
+|===
+
+==== Example usage
+
+.Formatting with custom settings
+[example]
+====
+[source,ruby]
+----
+# Parse schema
+repository = Expressir::Express::Parser.from_file("examples/ler/simple_schema.exp")
+
+# Format with custom indentation and provenance
+formatter = Expressir::Express::PrettyFormatter.new(
+  indent: 2,
+  provenance_name: "MyFormatter",
+  provenance_version: "1.0.0"
+)
+
+formatted = formatter.format(repository)
+
+# Save to file
+File.write("formatted_schema.exp", formatted)
+----
+====
+
+.Formatting without provenance
+[example]
+====
+[source,ruby]
+----
+# Format without provenance information
+formatter = Expressir::Express::PrettyFormatter.new(provenance: false)
+repository = Expressir::Express::Parser.from_file("schema.exp")
+formatted = formatter.format(repository)
+
+# Output is clean without metadata comments
+puts formatted
+----
+====
+
+.Round-trip formatting verification
+[example]
+====
+[source,ruby]
+----
+# Format a schema
+original = Expressir::Express::Parser.from_file("schema.exp")
+formatter = Expressir::Express::PrettyFormatter.new
+
+# Format once
+formatted1 = formatter.format(original)
+
+# Parse the formatted output
+File.write("temp.exp", formatted1)
+reparsed = Expressir::Express::Parser.from_file("temp.exp")
+
+# Format again - should be identical (stable formatting)
+formatted2 = formatter.format(reparsed)
+
+puts "Formatting is stable" if formatted1 == formatted2
+----
+====
 
 === Clean schema
 

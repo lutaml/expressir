@@ -1,4 +1,5 @@
 require "set"
+require_relative "visitor/remark_attacher"
 
 # reference type is not recognized
 # see note in A.1.5 Interpreted identifiers
@@ -85,6 +86,13 @@ module Expressir
         @include_source = include_source
 
         @attached_remark_tokens = Set.new
+        
+        # Create remark attacher with proc for getting source position
+        @remark_attacher = RemarkAttacher.new(
+          @source,
+          @attached_remark_tokens,
+          ->(ctx) { get_source_pos(ctx) }
+        )
 
         @visit_methods = private_methods.grep(/^visit_/).to_h do |name|
           rulename = name.to_s.sub(/^visit_/, "").gsub(/_([a-z])/) do
@@ -175,7 +183,7 @@ module Expressir
           end
         end
 
-        attach_remarks(ctx, node)
+        @remark_attacher.attach_remarks(ctx, node)
         node
       end
 
@@ -209,151 +217,9 @@ module Expressir
         end
       end
 
-      def node_find(node, path)
-        return nil if node.is_a?(String)
 
-        if node.is_a?(Enumerable)
-          node.find { |item| item.find(path) }
-        else
-          node.find(path)
-        end
-      end
 
-      def find_remark_target(node, path)
-        target_node = node_find(node, path)
 
-        return target_node if target_node
-
-        # check if path can create implicit remark item
-        # see https://github.com/lutaml/expressir/issues/78
-        rest, _, current_path = path.rpartition(".") # get last path part
-        path_prefix, _, current_path = current_path.rpartition(":")
-        parent_node = node_find(node, rest)
-        if parent_node&.class&.method_defined?(:remark_items)
-          remark_item = Model::Declarations::RemarkItem.new(
-            id: current_path,
-          )
-
-          if parent_node.class.method_defined?(:informal_propositions) && (
-            current_path.match(/^IP\d+$/) || path_prefix.match(/^IP\d+$/)
-          )
-            id = /^IP\d+$/.match?(current_path) ? current_path : path_prefix
-            parent_node.informal_propositions ||= []
-            informal_proposition = Model::Declarations::InformalPropositionRule.new(id: id)
-            informal_proposition.parent = parent_node
-            parent_node.informal_propositions << informal_proposition
-
-            # Reassign the informal proposition id to the remark item
-            remark_item.id = id
-            remark_item.parent = informal_proposition
-
-            informal_proposition.remark_items ||= []
-            informal_proposition.remark_items << remark_item
-          else
-            parent_node.remark_items ||= []
-            parent_node.remark_items << remark_item
-            remark_item.parent = parent_node
-          end
-          parent_node.reset_children_by_id
-          remark_item
-        end
-      end
-
-      def get_remarks(ctx, indent = "")
-        case ctx
-        when Ctx
-          ctx.values.sum([]) { |item| get_remarks(item, "#{indent}  ") }
-        when Array
-          ctx.sum([]) { |item| get_remarks(item, "#{indent}  ") }
-        else
-          if %i[tailRemark embeddedRemark].include?(ctx.name)
-            [get_source_pos(ctx)]
-          else
-            []
-          end
-        end
-      end
-
-      def attach_remarks(ctx, node)
-        remark_tokens = get_remarks ctx
-
-        # skip already attached remarks
-        remark_tokens = remark_tokens.reject do |x|
-          @attached_remark_tokens.include?(x)
-        end
-
-        # parse remarks, find remark targets
-        tagged_remark_tokens = []
-        untagged_remark_tokens = []
-
-        remark_tokens.each do |span|
-          text = @source[span[0]..(span[1] - 1)]
-          remark_type = if text.start_with?("--")
-                          :tail
-                        else
-                          :embedded
-                        end
-
-          if text.start_with?("--\"") && text.include?("\"")
-            # Tagged tail remark: --"tag" content
-            quote_end = text.index("\"", 3)
-            if quote_end
-              remark_target_path = text[3...quote_end]
-              remark_text = text[(quote_end + 1)..].strip.force_encoding("UTF-8")
-              remark_target = find_remark_target(node, remark_target_path)
-              if remark_target
-                tagged_remark_tokens << [span, remark_target, remark_text]
-              end
-            end
-          elsif text.start_with?("(*\"") && text.include?("\"")
-            # Tagged embedded remark: (*"tag" content *)
-            quote_end = text.index("\"", 3)
-            if quote_end
-              remark_target_path = text[3...quote_end]
-              remark_text = text[(quote_end + 1)...-2].strip.force_encoding("UTF-8")
-              remark_target = find_remark_target(node, remark_target_path)
-              if remark_target
-                tagged_remark_tokens << [span, remark_target, remark_text]
-              end
-            end
-          elsif text.match?(/^--IP\d+:/)
-            # Unquoted tagged tail remark: --IP1: content
-            remark_target_path = text[2..].strip
-            colon_end = text.index(":", 5)
-            remark_text = text[(colon_end + 1)...-2].strip.force_encoding("UTF-8")
-            remark_target = find_remark_target(node, remark_target_path)
-            if remark_target
-              tagged_remark_tokens << [span, remark_target, remark_text]
-            end
-          elsif text.start_with?("--")
-            # Untagged tail remark: -- content
-            untagged_text = text[2..].strip.force_encoding("UTF-8")
-            untagged_remark_tokens << [span, untagged_text, remark_type]
-          else
-            # Untagged embedded remark: (* content *)
-            untagged_text = text[2...-2].strip.force_encoding("UTF-8")
-            untagged_remark_tokens << [span, untagged_text, remark_type]
-          end
-        end
-
-        # Attach tagged remarks
-        tagged_remark_tokens.each do |span, remark_target, remark_text|
-          remark_target.remarks ||= []
-          remark_target.remarks << remark_text
-          @attached_remark_tokens << span
-        end
-
-        # Attach untagged remarks to the current node if it supports them
-        # All ModelElements support untagged remarks, but we may get Arrays here
-        if node.respond_to?(:untagged_remarks) && !untagged_remark_tokens.empty?
-          node.untagged_remarks ||= []
-          untagged_remark_tokens.each do |span, untagged_text, _remark_type|
-            # Handle both embedded and tail remarks
-            node.untagged_remarks << untagged_text
-            @attached_remark_tokens << span
-          end
-        end
-      end
 
       def visit_attribute_ref(ctx)
         ctx__attribute_id = ctx.attribute_id

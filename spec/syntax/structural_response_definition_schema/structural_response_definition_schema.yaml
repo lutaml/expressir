@@ -36,6 +36,8 @@ schemas:
     id: __schema_file
     remarks:
     - data/resource_docs/finite_element_analysis/resource.xml
+  untagged_remarks:
+  - structural_response_definition_schema
   file: spec/syntax/structural_response_definition_schema/structural_response_definition_schema.exp
   version:
     _class: Expressir::Model::Declarations::SchemaVersion

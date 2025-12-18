@@ -47,6 +47,7 @@ module Expressir
     autoload :HyperlinkFormatter, "expressir/express/hyperlink_formatter"
     autoload :ModelVisitor, "expressir/express/model_visitor"
     autoload :Parser, "expressir/express/parser"
+    autoload :PrettyFormatter, "expressir/express/pretty_formatter"
     autoload :ResolveReferencesModelVisitor,
              "expressir/express/resolve_references_model_visitor"
     autoload :SchemaHeadFormatter, "expressir/express/schema_head_formatter"
@@ -61,6 +62,7 @@ module Expressir
     autoload :Repository, "expressir/model/repository"
     autoload :RepositoryValidator, "expressir/model/repository_validator"
     autoload :DependencyResolver, "expressir/model/dependency_resolver"
+    autoload :RemarkInfo, "expressir/model/remark_info"
 
     module Indexes
       autoload :EntityIndex, "expressir/model/indexes/entity_index"

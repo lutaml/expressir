@@ -3,6 +3,8 @@ _class: Expressir::Model::Repository
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: Analysis_representation_arm
+  untagged_remarks:
+  - Analysis_representation_arm
   file: spec/syntax/without_ending_newline.exp
   interfaces:
   - _class: Expressir::Model::Declarations::Interface

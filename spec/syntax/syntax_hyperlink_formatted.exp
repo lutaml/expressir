@@ -17,12 +17,16 @@ REFERENCE FROM contract_schema
 REFERENCE FROM contract_schema
   (contract AS contract2);
 
+    -- interfaces
+    -- constants
+
+
 CONSTANT
   empty_constant : BOOLEAN := TRUE;
 END_CONSTANT;
 
 TYPE empty_type = BOOLEAN;
-END_TYPE;
+END_TYPE; -- types
 
 TYPE where_type = BOOLEAN;
 WHERE
@@ -417,7 +421,6 @@ WHERE
 END_RULE;
 
 RULE statement_rule FOR ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
-  ;
 WHERE
   TRUE;
 END_RULE;
@@ -694,7 +697,7 @@ END_PROCEDURE;
 
 PROCEDURE types;
   TYPE binary_type = BINARY;
-  END_TYPE;
+  END_TYPE; -- simple types
   TYPE binary_width_type = BINARY (3);
   END_TYPE;
   TYPE binary_width_fixed_type = BINARY (3) FIXED;
@@ -718,7 +721,7 @@ PROCEDURE types;
   TYPE string_width_fixed_type = STRING (3) FIXED;
   END_TYPE;
   TYPE array_type = ARRAY [1:9] OF STRING;
-  END_TYPE;
+  END_TYPE; -- aggregation types
   TYPE array_optional_type = ARRAY [1:9] OF OPTIONAL STRING;
   END_TYPE;
   TYPE array_unique_type = ARRAY [1:9] OF UNIQUE STRING;
@@ -741,18 +744,26 @@ PROCEDURE types;
   END_TYPE;
   TYPE set_bound_type = SET [1:9] OF STRING;
   END_TYPE;
-  TYPE select_type = SELECT;
+  TYPE select_type = SELECT
+    OF
+      ();
+  END_TYPE; -- constructed types
+  TYPE select_extensible_type = EXTENSIBLE SELECT
+    OF
+      ();
   END_TYPE;
-  TYPE select_extensible_type = EXTENSIBLE SELECT;
-  END_TYPE;
-  TYPE select_extensible_generic_entity_type = EXTENSIBLE GENERIC_ENTITY SELECT;
+  TYPE select_extensible_generic_entity_type = EXTENSIBLE GENERIC_ENTITY SELECT
+    OF
+      ();
   END_TYPE;
   TYPE select_item_type = SELECT
-    ({{{<<express:syntax_schema.empty_type,empty_type>>}}});
+    OF
+      ({{{<<express:syntax_schema.empty_type,empty_type>>}}});
   END_TYPE;
   TYPE select_multiple_item_type = SELECT
-    ({{{<<express:syntax_schema.empty_type,empty_type>>}}},
-     {{{<<express:syntax_schema.empty_type,empty_type>>}}});
+    OF
+      ({{{<<express:syntax_schema.empty_type,empty_type>>}}},
+      {{{<<express:syntax_schema.empty_type,empty_type>>}}});
   END_TYPE;
   TYPE select_based_on_type = SELECT BASED_ON select_type;
   END_TYPE;

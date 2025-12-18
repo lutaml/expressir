@@ -4,7 +4,9 @@ schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: syntax_schema
   untagged_remarks:
+  - interfaces
   - constants
+  - subtype constraints
   file: spec/syntax/syntax.exp
   version:
     _class: Expressir::Model::Declarations::SchemaVersion
@@ -607,8 +609,6 @@ schemas:
   subtype_constraints:
   - _class: Expressir::Model::Declarations::SubtypeConstraint
     id: empty_subtype_constraint
-    untagged_remarks:
-    - subtype constraints
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity

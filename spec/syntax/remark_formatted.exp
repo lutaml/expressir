@@ -58,17 +58,6 @@ RULE remark_rule FOR (remark_entity);
   LOCAL
     remark_variable : STRING;
   END_LOCAL;
-  ALIAS remark_alias FOR remark_variable;
-    ;
-  --"remark_alias" rule alias scope - rule alias
-  END_ALIAS;
-  REPEAT remark_repeat := 1 TO 9;
-    ;
-  --"remark_repeat" rule repeat scope - rule repeat
-  END_REPEAT;
-  remark_variable := QUERY(remark_query <* remark_variable | TRUE
-  --"remark_query" rule query scope - rule query
-  );
 WHERE
   WR1: TRUE;
 END_RULE;

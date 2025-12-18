@@ -18,6 +18,7 @@ module Expressir
       POLYMORPHIC_CLASS_MAP = {
         "Expressir::Model::Cache" => "Expressir::Model::Cache",
         "Expressir::Model::Repository" => "Expressir::Model::Repository",
+        "Expressir::Model::RemarkInfo" => "Expressir::Model::RemarkInfo",
         "Expressir::Model::DataTypes::Aggregate" => "Expressir::Model::DataTypes::Aggregate",
         "Expressir::Model::DataTypes::Array" => "Expressir::Model::DataTypes::Array",
         "Expressir::Model::DataTypes::Bag" => "Expressir::Model::DataTypes::Bag",
@@ -189,6 +190,32 @@ module Expressir
         f = formatter || Express::Formatter.new(no_remarks: no_remarks)
         f.no_remarks = no_remarks
         f.format(self)
+      end
+
+      # Add a remark to this element
+      # Supports both RemarkInfo objects and legacy strings
+      # @param remark_or_info [RemarkInfo, String] Remark to add
+      def add_remark(remark_or_info)
+        self.untagged_remarks ||= []
+
+        if remark_or_info.is_a?(RemarkInfo)
+          self.untagged_remarks << remark_or_info
+        elsif remark_or_info.is_a?(String)
+          # Backward compatibility: assume embedded format for strings
+          self.untagged_remarks << RemarkInfo.new(text: remark_or_info, format: 'embedded')
+        end
+      end
+
+      # Get all remarks as RemarkInfo objects
+      # Converts legacy string remarks to RemarkInfo for consistency
+      # @return [Array<RemarkInfo>] Array of RemarkInfo objects
+      def remark_infos
+        return [] unless respond_to?(:untagged_remarks)
+        return [] if untagged_remarks.nil?
+
+        (untagged_remarks || []).map do |r|
+          r.is_a?(RemarkInfo) ? r : RemarkInfo.new(text: r, format: 'embedded')
+        end
       end
 
       private

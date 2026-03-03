@@ -257,19 +257,17 @@ module Expressir
                 end,
              ].join
            else
-             double_indent = indent(indent(""))
-             item_indent = double_indent.length
+             indent_char = self.class.const_get(:INDENT_CHAR)
+             item_indent = indent_char * "(".length
              [
                "\n",
-               indent("OF"),
-               "\n",
-               indent(indent([
+               indent([
                  "(",
                  node.items.map do |x|
                    format(x)
-                 end.join(",\n#{indent_char * item_indent}"),
+                 end.join(",\n#{item_indent}"),
                  ")",
-               ].join)),
+               ].join),
              ].join
            end,
         ].join

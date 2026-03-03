@@ -10,7 +10,7 @@ module Expressir
         include Helpers
 
         def build_built_in_constant(ast_data)
-          id = extract_text(ast_data[:str])
+          id = extract_nested_text(ast_data)
           Expressir::Model::References::SimpleReference.new(id: id)
         end
 

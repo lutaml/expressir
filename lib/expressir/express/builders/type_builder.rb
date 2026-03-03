@@ -68,6 +68,22 @@ module Expressir
           build_aggregation_type(ast_data, Expressir::Model::DataTypes::Set)
         end
 
+        def build_general_set_type(ast_data)
+          build_general_aggregation_type(ast_data, Expressir::Model::DataTypes::Set)
+        end
+
+        def build_general_list_type(ast_data)
+          build_general_aggregation_type(ast_data, Expressir::Model::DataTypes::List)
+        end
+
+        def build_general_bag_type(ast_data)
+          build_general_aggregation_type(ast_data, Expressir::Model::DataTypes::Bag)
+        end
+
+        def build_general_array_type(ast_data)
+          build_general_aggregation_type(ast_data, Expressir::Model::DataTypes::Array)
+        end
+
         def build_aggregation_type(ast_data, type_class)
           bound_spec = ast_data[:bound_spec] || {}
           bound1 = Builder.build_optional(bound_spec[:bound1])
@@ -81,6 +97,21 @@ module Expressir
             bound2: bound2,
             optional: optional,
             unique: unique,
+            base_type: base_type,
+          )
+        end
+
+        # General aggregation types (used in parameter types)
+        # These use parameter_type instead of instantiable_type
+        def build_general_aggregation_type(ast_data, type_class)
+          bound_spec = ast_data[:bound_spec] || {}
+          bound1 = Builder.build_optional(bound_spec[:bound1])
+          bound2 = Builder.build_optional(bound_spec[:bound2])
+          base_type = Builder.build_optional(ast_data[:parameter_type])
+
+          type_class.new(
+            bound1: bound1,
+            bound2: bound2,
             base_type: base_type,
           )
         end
@@ -201,11 +232,10 @@ end
 Builder.register(:generic_type) { |_d| Expressir::Model::DataTypes::Generic.new }
 Builder.register(:generic_entity_type) { |_d| Expressir::Model::DataTypes::GenericEntity.new }
 Builder.register(:aggregate_type) { |_d| Expressir::Model::DataTypes::Aggregate.new }
-%i[general_set_type general_list_type general_bag_type
-   general_array_type].each do |type|
-  class_name = type.to_s.sub(/_type$/, "").sub("general_", "").capitalize
-  Builder.register(type) { |_d| Expressir::Model::DataTypes.const_get(class_name.to_sym).new }
-end
+Builder.register(:general_set_type) { |d| builder.build_general_set_type(d) }
+Builder.register(:general_list_type) { |d| builder.build_general_list_type(d) }
+Builder.register(:general_bag_type) { |d| builder.build_general_bag_type(d) }
+Builder.register(:general_array_type) { |d| builder.build_general_array_type(d) }
 
 Builder.register(:string_type) { |d| builder.build_string_type(d) }
 Builder.register(:binary_type) { |d| builder.build_binary_type(d) }

@@ -162,7 +162,7 @@ module Expressir
             # Strategy 1b: For paths with dots, try with scope path prefix first
             if target.nil? && tag.include?(".")
               # First, try building full path from containing scope
-              if containing_scope && is_function_rule_procedure?(containing_scope)
+              if containing_scope && function_rule_procedure?(containing_scope)
                 scope_path = build_scope_path(containing_scope)
                 if scope_path
                   full_path = "#{scope_path}.#{tag}"
@@ -193,7 +193,7 @@ module Expressir
 
                 # Only fall back to schema prefix if NOT inside a function/rule/procedure
                 # This prevents remarks inside scopes from attaching to schema-level items
-                if target.nil? && !is_function_rule_procedure?(containing_scope)
+                if target.nil? && !function_rule_procedure?(containing_scope)
                   schema_ids.each do |schema_id|
                     target = find_by_exact_path(model, "#{schema_id}.#{tag}")
                     break if target
@@ -211,7 +211,7 @@ module Expressir
             # Strategy 3: Create implicit item for qualified paths only
             if target.nil? && tag.include?(".")
               # Try with scope path first
-              if containing_scope && is_function_rule_procedure?(containing_scope)
+              if containing_scope && function_rule_procedure?(containing_scope)
                 scope_path = build_scope_path(containing_scope)
                 if scope_path
                   full_path = "#{scope_path}.#{tag}"
@@ -348,7 +348,7 @@ module Expressir
         nil
       end
 
-      def is_function_rule_procedure?(node)
+      def function_rule_procedure?(node)
         return false unless node
 
         node.is_a?(Model::Declarations::Function) ||
@@ -830,7 +830,7 @@ module Expressir
         untagged.each do |remark|
           next if @attached_spans.include?(remark[:position])
 
-          if is_end_scope_line?(remark[:line])
+          if end_scope_line?(remark[:line])
             matched_node = find_node_for_end_scope_remark(remark,
                                                           nodes_with_positions)
             if matched_node
@@ -850,7 +850,7 @@ module Expressir
         end
       end
 
-      def is_end_scope_line?(line_num)
+      def end_scope_line?(line_num)
         line = get_line_content(line_num)
         line =~ /END_(SCHEMA|ENTITY|TYPE|FUNCTION|PROCEDURE|RULE)/i
       end

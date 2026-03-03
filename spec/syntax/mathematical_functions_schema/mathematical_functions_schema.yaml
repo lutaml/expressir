@@ -965,6 +965,7 @@ schemas:
         id: closed
         base_path: mathematical_functions_schema.open_closed.closed
       - _class: Expressir::Model::References::SimpleReference
+        id: pi
       - _class: Expressir::Model::References::SimpleReference
         id: closed
         base_path: mathematical_functions_schema.open_closed.closed
@@ -1017,6 +1018,7 @@ schemas:
             value: '0.5'
         operand2:
           _class: Expressir::Model::References::SimpleReference
+          id: pi
       - _class: Expressir::Model::References::SimpleReference
         id: closed
         base_path: mathematical_functions_schema.open_closed.closed
@@ -1027,6 +1029,7 @@ schemas:
           value: '0.5'
         operand2:
           _class: Expressir::Model::References::SimpleReference
+          id: pi
       - _class: Expressir::Model::References::SimpleReference
         id: closed
         base_path: mathematical_functions_schema.open_closed.closed
@@ -1047,10 +1050,12 @@ schemas:
         operator: MINUS
         operand:
           _class: Expressir::Model::References::SimpleReference
+          id: pi
       - _class: Expressir::Model::References::SimpleReference
         id: open
         base_path: mathematical_functions_schema.open_closed.open
       - _class: Expressir::Model::References::SimpleReference
+        id: pi
       - _class: Expressir::Model::References::SimpleReference
         id: closed
         base_path: mathematical_functions_schema.open_closed.closed
@@ -1192,6 +1197,7 @@ schemas:
       id: nonnegativity
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
   - _class: Expressir::Model::Declarations::Type
     id: positive_integer
     remarks:
@@ -1205,6 +1211,7 @@ schemas:
       id: positivity
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
   - _class: Expressir::Model::Declarations::Type
     id: zero_or_one
     remarks:
@@ -1226,6 +1233,7 @@ schemas:
           operator: EQUAL
           operand1:
             _class: Expressir::Model::References::SimpleReference
+            id: SELF
           operand2:
             _class: Expressir::Model::Literals::Integer
             value: '0'
@@ -1234,6 +1242,7 @@ schemas:
           operator: EQUAL
           operand1:
             _class: Expressir::Model::References::SimpleReference
+            id: SELF
           operand2:
             _class: Expressir::Model::Literals::Integer
             value: '1'
@@ -1257,6 +1266,7 @@ schemas:
           operator: EQUAL
           operand1:
             _class: Expressir::Model::References::SimpleReference
+            id: SELF
           operand2:
             _class: Expressir::Model::Literals::Integer
             value: '1'
@@ -1265,6 +1275,7 @@ schemas:
           operator: EQUAL
           operand1:
             _class: Expressir::Model::References::SimpleReference
+            id: SELF
           operand2:
             _class: Expressir::Model::Literals::Integer
             value: '2'
@@ -1360,6 +1371,7 @@ schemas:
         value: '0'
       bound2:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"
       unique: false
       base_type:
         _class: Expressir::Model::References::SimpleReference
@@ -1405,6 +1417,7 @@ schemas:
                 base_path: mathematical_functions_schema.stripped_typeof
               parameters:
               - _class: Expressir::Model::References::SimpleReference
+                id: SELF
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -1413,6 +1426,7 @@ schemas:
             base_path: mathematical_functions_schema.expression_is_constant
           parameters:
           - _class: Expressir::Model::References::SimpleReference
+            id: SELF
   - _class: Expressir::Model::Declarations::Type
     id: maths_expression
     remarks:
@@ -2334,6 +2348,7 @@ schemas:
           base_path: mathematical_functions_schema.dotted_identifiers_syntax
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
   - _class: Expressir::Model::Declarations::Type
     id: express_identifier
     remarks:
@@ -2361,6 +2376,7 @@ schemas:
           base_path: mathematical_functions_schema.dot_count
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
   - _class: Expressir::Model::Declarations::Type
     id: product_space
     remarks:
@@ -2440,11 +2456,13 @@ schemas:
                 base_path: mathematical_functions_schema.stripped_typeof
               parameters:
               - _class: Expressir::Model::References::SimpleReference
+                id: SELF
         operand2:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
           operand1:
             _class: Expressir::Model::References::SimpleReference
+            id: SELF
           operand2:
             _class: Expressir::Model::References::SimpleReference
             id: es_reals
@@ -2471,6 +2489,15 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_variable
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -2499,6 +2526,7 @@ schemas:
                 id: vrbl
               operand2:
                 _class: Expressir::Model::References::SimpleReference
+                id: SELF
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR2
       remarks:
@@ -2753,6 +2781,7 @@ schemas:
             value: '2'
           operand2:
             _class: Expressir::Model::References::SimpleReference
+            id: PI
   - _class: Expressir::Model::Declarations::Entity
     id: maths_enum_literal
     remarks:
@@ -2789,6 +2818,14 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Real
   - _class: Expressir::Model::Declarations::Entity
     id: integer_tuple_literal
     remarks:
@@ -2806,6 +2843,14 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Integer
   - _class: Expressir::Model::Declarations::Entity
     id: atom_based_literal
     remarks:
@@ -2844,6 +2889,10 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
   - _class: Expressir::Model::Declarations::Entity
     id: maths_variable
     remarks:
@@ -2905,6 +2954,7 @@ schemas:
           base_path: mathematical_functions_schema.subspace_of_es
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
         - _class: Expressir::Model::References::SimpleReference
           id: es_reals
           base_path: mathematical_functions_schema.elementary_space_enumerators.es_reals
@@ -2927,6 +2977,7 @@ schemas:
           base_path: mathematical_functions_schema.subspace_of_es
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
         - _class: Expressir::Model::References::SimpleReference
           id: es_integers
           base_path: mathematical_functions_schema.elementary_space_enumerators.es_integers
@@ -2949,6 +3000,7 @@ schemas:
           base_path: mathematical_functions_schema.subspace_of_es
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
         - _class: Expressir::Model::References::SimpleReference
           id: es_booleans
           base_path: mathematical_functions_schema.elementary_space_enumerators.es_booleans
@@ -2971,6 +3023,7 @@ schemas:
           base_path: mathematical_functions_schema.subspace_of_es
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
         - _class: Expressir::Model::References::SimpleReference
           id: es_strings
           base_path: mathematical_functions_schema.elementary_space_enumerators.es_strings
@@ -3009,6 +3062,16 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_expression
+          base_path: mathematical_functions_schema.maths_expression
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: operands
       kind: DERIVED
@@ -3027,6 +3090,15 @@ schemas:
           id: operands
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_expression
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: ADDITION
@@ -3542,6 +3614,7 @@ schemas:
           operator: MINUS
           operand:
             _class: Expressir::Model::References::SimpleReference
+            id: PI
         operator1: LESS_THAN_OR_EQUAL
         item:
           _class: Expressir::Model::References::SimpleReference
@@ -3550,6 +3623,7 @@ schemas:
         operator2: LESS_THAN
         high:
           _class: Expressir::Model::References::SimpleReference
+          id: PI
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR3
       remarks:
@@ -3596,6 +3670,7 @@ schemas:
               value: '2.0'
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
         operand2:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -3640,6 +3715,7 @@ schemas:
                 value: '2.0'
               operand2:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
           operand2:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: EQUAL
@@ -3663,6 +3739,7 @@ schemas:
             operator: MINUS
             operand:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR6
       remarks:
@@ -3729,6 +3806,7 @@ schemas:
                 value: '2.0'
               operand2:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
         operand2:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -3762,6 +3840,10 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -3832,6 +3914,7 @@ schemas:
           base_path: mathematical_functions_schema.no_cyclic_space_reference
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
         - _class: Expressir::Model::Expressions::AggregateInitializer
   - _class: Expressir::Model::Declarations::Entity
     id: uniform_product_space
@@ -3891,6 +3974,7 @@ schemas:
           base_path: mathematical_functions_schema.no_cyclic_space_reference
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
         - _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR3
@@ -3921,6 +4005,10 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_space
+          base_path: mathematical_functions_schema.maths_space
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -3963,6 +4051,7 @@ schemas:
           base_path: mathematical_functions_schema.no_cyclic_space_reference
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
         - _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR3
@@ -4093,6 +4182,7 @@ schemas:
           base_path: mathematical_functions_schema.no_cyclic_space_reference
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
         - _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR3
@@ -4420,6 +4510,7 @@ schemas:
           base_path: mathematical_functions_schema.derive_function_domain
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: range
       remarks:
@@ -4446,6 +4537,7 @@ schemas:
           base_path: mathematical_functions_schema.derive_function_range
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
   - _class: Expressir::Model::Declarations::Entity
     id: finite_function
     remarks:
@@ -4461,6 +4553,24 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Set
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::List
+          bound1:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+          bound2:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+          base_type:
+            _class: Expressir::Model::References::SimpleReference
+            id: maths_value
+            base_path: mathematical_functions_schema.maths_value
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -4553,6 +4663,7 @@ schemas:
         - _class: Expressir::Model::Expressions::AggregateInitializer
           items:
           - _class: Expressir::Model::References::SimpleReference
+            id: SELF
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR2
       remarks:
@@ -4628,6 +4739,7 @@ schemas:
         - _class: Expressir::Model::Expressions::AggregateInitializer
           items:
           - _class: Expressir::Model::References::SimpleReference
+            id: SELF
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR2
       remarks:
@@ -4770,6 +4882,19 @@ schemas:
       - If positive, the output which is selected from the output of the *output_repack*
         operation to be the sole output of the repackaged function. If zero, the output
         is that resulting from *output_repack*.
+      - "--"
+      - "--"
+      - "--"
+      - "--"
+      - "--"
+      - "--"
+      untagged_remarks:
+      - "--"
+      - "--"
+      - "--"
+      - "--"
+      - "--"
+      - "--"
       kind: EXPLICIT
       type:
         _class: Expressir::Model::References::SimpleReference
@@ -5005,6 +5130,14 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Integer
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -5018,6 +5151,7 @@ schemas:
           base_path: mathematical_functions_schema.function_is_array
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR2
       remarks:
@@ -5069,6 +5203,16 @@ schemas:
           id: operands
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_function
+          base_path: mathematical_functions_schema.maths_function
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -5083,6 +5227,7 @@ schemas:
           base_path: mathematical_functions_schema.composable_sequence
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
   - _class: Expressir::Model::Declarations::Entity
     id: parallel_composed_function
     remarks:
@@ -5121,6 +5266,16 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_function
+          base_path: mathematical_functions_schema.maths_function
     - _class: Expressir::Model::Declarations::Attribute
       id: final_function
       remarks:
@@ -5148,6 +5303,15 @@ schemas:
           id: operands
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_expression
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -5183,6 +5347,7 @@ schemas:
         - _class: Expressir::Model::Expressions::AggregateInitializer
           items:
           - _class: Expressir::Model::References::SimpleReference
+            id: SELF
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR2
       remarks:
@@ -5421,15 +5586,6 @@ schemas:
       id: index_base
       remarks:
       - Indicator whether to start all subscript ranges from zero or from one.
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
-      - "--"
-      - "--"
       kind: EXPLICIT
       type:
         _class: Expressir::Model::References::SimpleReference
@@ -5442,6 +5598,16 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
   - _class: Expressir::Model::Declarations::Entity
     id: listed_real_data
     remarks:
@@ -5465,6 +5631,14 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: shape
       kind: DERIVED
@@ -5484,6 +5658,16 @@ schemas:
           id: shape
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
         items:
@@ -5529,9 +5713,22 @@ schemas:
       id: values
       remarks:
       - The list containing the output values of the function in order.
+      - "--"
+      - "--"
+      untagged_remarks:
+      - "--"
+      - "--"
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: shape
       kind: DERIVED
@@ -5551,6 +5748,16 @@ schemas:
           id: shape
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
         items:
@@ -5584,6 +5791,14 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Logical
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: shape
       kind: DERIVED
@@ -5603,6 +5818,16 @@ schemas:
           id: shape
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
         items:
@@ -5636,6 +5861,14 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::String
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: shape
       kind: DERIVED
@@ -5655,6 +5888,16 @@ schemas:
           id: shape
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
         items:
@@ -5686,9 +5929,22 @@ schemas:
       remarks:
       - The list containing the alternating real and imaginary parts of the output
         values of the function in order.
+      - "--"
+      - "--"
+      untagged_remarks:
+      - "--"
+      - "--"
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: shape
       kind: DERIVED
@@ -5708,6 +5964,16 @@ schemas:
           id: shape
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
         items:
@@ -5782,6 +6048,16 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
     - _class: Expressir::Model::Declarations::Attribute
       id: value_range
       remarks:
@@ -5811,6 +6087,16 @@ schemas:
           id: shape
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
         items:
@@ -5981,6 +6267,7 @@ schemas:
         base_path: mathematical_functions_schema.maths_function
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -6021,6 +6308,19 @@ schemas:
       This type of <<express:mathematical_functions_schema.linearized_table_function,linearized_table_function>> represents dense arrays of any dimension whose elements have been linearly ordered in one of two standard ways. A dense array is one whose structure supports an independent value for every subscript tuple in its domain. The two standard linear orderings for multi-dimensional arrays are described under the <<express:mathematical_functions_schema.ordering_type,ordering_type>> type declaration.
 
       The value associated with an input subscript tuple stem:[[j_1, j_2, ..., j_n\]] is computed as follows: Let stem:[L] be the function represented by the value of *SELF\linearized_table_function.source*, stem:[f] be the value of *SELF\linearized_table_function.first*, stem:[s_i] be the members of *SELF\explicit_table_function.shape*, and stem:[b] be the value of *SELF\explicit_table_function.index base*. Compute stem:[p_i] as follows: If *ordering* is *by_rows*, let stem:[p_i -= prod_(k>i)s_k]; otherwise, let stem:[p_i -= prod_(k<i)s_k]. The table value for stem:[[j_1, j_2, ..., j_n\]] is stem:[L(f + sum_(i=1)^n(j_i - b) * p_i)].
+    - "--"
+    - "--"
+    - "--"
+    - "--"
+    - "--"
+    - "--"
+    untagged_remarks:
+    - "--"
+    - "--"
+    - "--"
+    - "--"
+    - "--"
+    - "--"
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: linearized_table_function
@@ -6112,6 +6412,7 @@ schemas:
           base_path: mathematical_functions_schema.extremal_position_check
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
   - _class: Expressir::Model::Declarations::Entity
     id: regular_table_function
     remarks:
@@ -6143,6 +6444,14 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Integer
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -6227,6 +6536,19 @@ schemas:
         END_LOCAL;
         ----
         ====
+      - "--"
+      - "--"
+      - "--"
+      - "--"
+      - "--"
+      - "--"
+      untagged_remarks:
+      - "--"
+      - "--"
+      - "--"
+      - "--"
+      - "--"
+      - "--"
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -6235,6 +6557,7 @@ schemas:
           base_path: mathematical_functions_schema.extremal_position_check
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: self
   - _class: Expressir::Model::Declarations::Entity
     id: triangular_matrix
     remarks:
@@ -6286,6 +6609,7 @@ schemas:
           _class: Expressir::Model::References::SimpleReference
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR2
       remarks:
@@ -6301,6 +6625,7 @@ schemas:
           id: default_entry
           base_path: mathematical_functions_schema.triangular_matrix.default_entry
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
   - _class: Expressir::Model::Declarations::Entity
     id: strict_triangular_matrix
     remarks:
@@ -6411,12 +6736,14 @@ schemas:
           _class: Expressir::Model::References::SimpleReference
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR2
       remarks:
       - The number of rows shall be equal to the number of columns.
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR3
       remarks:
@@ -6452,6 +6779,7 @@ schemas:
                 base_path: mathematical_functions_schema.space_dimension
               parameters:
               - _class: Expressir::Model::References::SimpleReference
+                id: SELF
             operand2:
               _class: Expressir::Model::Literals::Integer
               value: '1'
@@ -6469,6 +6797,7 @@ schemas:
                 base_path: mathematical_functions_schema.factor1
               parameters:
               - _class: Expressir::Model::References::SimpleReference
+                id: SELF
             - _class: Expressir::Model::References::SimpleReference
               id: es_numbers
               base_path: mathematical_functions_schema.elementary_space_enumerators.es_numbers
@@ -6522,6 +6851,7 @@ schemas:
                 base_path: mathematical_functions_schema.space_dimension
               parameters:
               - _class: Expressir::Model::References::SimpleReference
+                id: SELF
             operand2:
               _class: Expressir::Model::Literals::Integer
               value: '1'
@@ -6539,6 +6869,7 @@ schemas:
                 base_path: mathematical_functions_schema.factor1
               parameters:
               - _class: Expressir::Model::References::SimpleReference
+                id: SELF
             - _class: Expressir::Model::References::SimpleReference
               id: es_complex_numbers
               base_path: mathematical_functions_schema.elementary_space_enumerators.es_complex_numbers
@@ -6599,6 +6930,7 @@ schemas:
             base_path: mathematical_functions_schema.factor1
           parameters:
           - _class: Expressir::Model::References::SimpleReference
+            id: SELF
   - _class: Expressir::Model::Declarations::Entity
     id: banded_matrix
     remarks:
@@ -6657,6 +6989,7 @@ schemas:
           _class: Expressir::Model::References::SimpleReference
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: self
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR2
       remarks:
@@ -6740,6 +7073,7 @@ schemas:
             base_path: mathematical_functions_schema.factor1
           parameters:
           - _class: Expressir::Model::References::SimpleReference
+            id: SELF
   - _class: Expressir::Model::Declarations::Entity
     id: basic_sparse_matrix
     remarks:
@@ -6776,6 +7110,16 @@ schemas:
           id: operands
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '3'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '3'
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_function
+          base_path: mathematical_functions_schema.maths_function
     - _class: Expressir::Model::Declarations::Attribute
       id: default_entry
       remarks:
@@ -6809,6 +7153,7 @@ schemas:
         base_path: mathematical_functions_schema.maths_function
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: loc
       remarks:
@@ -6823,6 +7168,7 @@ schemas:
         base_path: mathematical_functions_schema.maths_function
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: val
       remarks:
@@ -6835,6 +7181,7 @@ schemas:
         base_path: mathematical_functions_schema.maths_function
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -7061,6 +7408,7 @@ schemas:
         base_path: mathematical_functions_schema.maths_function
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -7181,6 +7529,7 @@ schemas:
         base_path: mathematical_functions_schema.maths_function
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -7291,6 +7640,14 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: order
       remarks:
@@ -7415,6 +7772,16 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: b_spline_basis
+          base_path: mathematical_functions_schema.b_spline_basis
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: coef
       remarks:
@@ -7428,6 +7795,7 @@ schemas:
         base_path: mathematical_functions_schema.maths_function
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -7602,6 +7970,7 @@ schemas:
         base_path: mathematical_functions_schema.maths_function
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -7750,6 +8119,16 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: input_selector
+          base_path: mathematical_functions_schema.input_selector
     - _class: Expressir::Model::Declarations::Attribute
       id: extension
       remarks:
@@ -7772,6 +8151,7 @@ schemas:
         base_path: mathematical_functions_schema.maths_function
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -7850,6 +8230,16 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_variable
+          base_path: mathematical_functions_schema.maths_variable
     - _class: Expressir::Model::Declarations::Attribute
       id: extension
       remarks:
@@ -7870,6 +8260,7 @@ schemas:
         id: generic_expression
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -8075,6 +8466,7 @@ schemas:
         base_path: mathematical_functions_schema.maths_function
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -8181,6 +8573,7 @@ schemas:
         id: generic_expression
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: variable_of_integration
       remarks:
@@ -8193,6 +8586,7 @@ schemas:
         base_path: mathematical_functions_schema.maths_variable
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: variables
       kind: DERIVED
@@ -8212,6 +8606,15 @@ schemas:
           id: variables
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_variable
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
         items:
@@ -8300,6 +8703,7 @@ schemas:
           base_path: mathematical_functions_schema.definite_integral_expr_check
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
         - _class: Expressir::Model::References::SimpleReference
           id: lower_limit_neg_infinity
           base_path: mathematical_functions_schema.definite_integral_expression.lower_limit_neg_infinity
@@ -8339,6 +8743,15 @@ schemas:
           id: variables
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_variable
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -8347,6 +8760,7 @@ schemas:
           base_path: mathematical_functions_schema.remove_first
         parameters:
         - _class: Expressir::Model::References::SimpleReference
+          id: SELF
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: expr
       remarks:
@@ -8358,6 +8772,7 @@ schemas:
         id: generic_expression
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -8395,6 +8810,7 @@ schemas:
           id: operand
           aggregate_source:
             _class: Expressir::Model::References::SimpleReference
+            id: SELF
           expression:
             _class: Expressir::Model::Expressions::UnaryExpression
             operator: NOT
@@ -8425,6 +8841,7 @@ schemas:
         id: generic_expression
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -8683,6 +9100,10 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -8822,6 +9243,10 @@ schemas:
       id: sv
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
     - _class: Expressir::Model::Declarations::Parameter
       id: es
       remarks:
@@ -8862,6 +9287,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
     - _class: Expressir::Model::Declarations::Variable
       id: ge
       type:
@@ -9345,6 +9772,7 @@ schemas:
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"
   - _class: Expressir::Model::Declarations::Function
     id: assoc_product_space
     remarks:
@@ -9374,6 +9802,8 @@ schemas:
       id: types1
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -9387,6 +9817,8 @@ schemas:
       id: types2
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -9400,14 +9832,14 @@ schemas:
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_space
+          base_path: mathematical_functions_schema.maths_space
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
       id: tspace
-      remarks:
-      - Identify type of first operand
-      untagged_remarks:
-      - Identify type of first operand
       type:
         _class: Expressir::Model::References::SimpleReference
         id: tuple_space
@@ -9499,6 +9931,7 @@ schemas:
           - _class: Expressir::Model::Statements::Return
             expression:
               _class: Expressir::Model::References::SimpleReference
+              id: "?"
         - _class: Expressir::Model::Statements::Assignment
           ref:
             _class: Expressir::Model::References::SimpleReference
@@ -9606,6 +10039,7 @@ schemas:
           - _class: Expressir::Model::Statements::Return
             expression:
               _class: Expressir::Model::References::SimpleReference
+              id: "?"
         - _class: Expressir::Model::Statements::Assignment
           ref:
             _class: Expressir::Model::References::SimpleReference
@@ -9946,6 +10380,7 @@ schemas:
             - _class: Expressir::Model::Statements::Return
               expression:
                 _class: Expressir::Model::References::SimpleReference
+                id: "?"
           else_statements:
           - _class: Expressir::Model::Statements::If
             expression:
@@ -9989,6 +10424,7 @@ schemas:
                 - _class: Expressir::Model::Statements::Return
                   expression:
                     _class: Expressir::Model::References::SimpleReference
+                    id: "?"
             - _class: Expressir::Model::Statements::Assignment
               ref:
                 _class: Expressir::Model::References::SimpleReference
@@ -10054,6 +10490,7 @@ schemas:
               - _class: Expressir::Model::Statements::Return
                 expression:
                   _class: Expressir::Model::References::SimpleReference
+                  id: "?"
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
@@ -10115,6 +10552,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::Assignment
       ref:
         _class: Expressir::Model::References::SimpleReference
@@ -10169,6 +10607,7 @@ schemas:
               base_path: mathematical_functions_schema.atan2.r
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
         else_statements:
         - _class: Expressir::Model::Statements::Assignment
           ref:
@@ -10184,6 +10623,7 @@ schemas:
               base_path: mathematical_functions_schema.atan2.r
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
@@ -10204,6 +10644,27 @@ schemas:
       id: lgcl
       remarks:
       - "(input) The logical value."
+      - Should be unreachable.
+      - Should be unreachable.
+      - Note that sp1 finite already handled.
+      - Note that sp2 finite already handled.
+      - Note that sp1 finite already handled.
+      - Note that sp2 finite already handled.
+      - Note sp1 finite already handled.
+      - Note sp2 finite already handled.
+      - Should be unreachable.
+      - Should be unreachable.
+      untagged_remarks:
+      - Should be unreachable.
+      - Should be unreachable.
+      - Note that sp1 finite already handled.
+      - Note that sp2 finite already handled.
+      - Note that sp1 finite already handled.
+      - Note that sp2 finite already handled.
+      - Note sp1 finite already handled.
+      - Note sp2 finite already handled.
+      - Should be unreachable.
+      - Should be unreachable.
       type:
         _class: Expressir::Model::DataTypes::Logical
     return_type:
@@ -10281,6 +10742,16 @@ schemas:
       - "(input) The shape of the basic sparse matrix."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
     - _class: Expressir::Model::Declarations::Parameter
       id: order
       remarks:
@@ -10437,6 +10908,16 @@ schemas:
       - "(input) The shape of the basic sparse matrix."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
     - _class: Expressir::Model::Declarations::Parameter
       id: order
       remarks:
@@ -10888,6 +11369,16 @@ schemas:
       - "(input) The list of B-spline bases."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: b_spline_basis
+          base_path: mathematical_functions_schema.b_spline_basis
     - _class: Expressir::Model::Declarations::Parameter
       id: coef
       remarks:
@@ -10903,6 +11394,10 @@ schemas:
       id: shape
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
     statements:
     - _class: Expressir::Model::Statements::If
       expression:
@@ -11053,6 +11548,8 @@ schemas:
       - "(input) The list of values to use in the comparison."
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::DataTypes::Generic
     - _class: Expressir::Model::Declarations::Parameter
       id: op
       remarks:
@@ -11323,6 +11820,8 @@ schemas:
       id: typenames
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -11596,6 +12095,7 @@ schemas:
               id: prgn1
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
           operand2:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: LESS_THAN
@@ -11604,6 +12104,7 @@ schemas:
               id: prgn2
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
         statements:
         - _class: Expressir::Model::Statements::Return
           expression:
@@ -11625,6 +12126,7 @@ schemas:
                 operator: MINUS
                 operand:
                   _class: Expressir::Model::References::SimpleReference
+                  id: PI
               - _class: Expressir::Model::References::SimpleReference
                 id: open
                 base_path: mathematical_functions_schema.open_closed.open
@@ -11641,6 +12143,7 @@ schemas:
                     value: '2.0'
                   operand2:
                     _class: Expressir::Model::References::SimpleReference
+                    id: PI
               - _class: Expressir::Model::References::SimpleReference
                 id: prgn1
       - _class: Expressir::Model::Statements::If
@@ -11655,6 +12158,7 @@ schemas:
               id: prgn2
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
           operand2:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: LESS_THAN
@@ -11663,6 +12167,7 @@ schemas:
               id: prgn1
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
         statements:
         - _class: Expressir::Model::Statements::Return
           expression:
@@ -11684,6 +12189,7 @@ schemas:
                 operator: MINUS
                 operand:
                   _class: Expressir::Model::References::SimpleReference
+                  id: PI
               - _class: Expressir::Model::References::SimpleReference
                 id: open
                 base_path: mathematical_functions_schema.open_closed.open
@@ -11700,6 +12206,7 @@ schemas:
                     value: '2.0'
                   operand2:
                     _class: Expressir::Model::References::SimpleReference
+                    id: PI
               - _class: Expressir::Model::References::SimpleReference
                 id: prgn2
       - _class: Expressir::Model::Statements::Return
@@ -12410,6 +12917,8 @@ schemas:
       id: types1
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -12424,6 +12933,8 @@ schemas:
       id: types2
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -12436,28 +12947,6 @@ schemas:
           base_path: mathematical_functions_schema.compatible_spaces.sp2
     - _class: Expressir::Model::Declarations::Variable
       id: lgcl
-      remarks:
-      - Should be unreachable.
-      - Should be unreachable.
-      - Note that sp1 finite already handled.
-      - Note that sp2 finite already handled.
-      - Note that sp1 finite already handled.
-      - Note that sp2 finite already handled.
-      - Note sp1 finite already handled.
-      - Note sp2 finite already handled.
-      - Should be unreachable.
-      - Should be unreachable.
-      untagged_remarks:
-      - Should be unreachable.
-      - Should be unreachable.
-      - Note that sp1 finite already handled.
-      - Note that sp2 finite already handled.
-      - Note that sp1 finite already handled.
-      - Note that sp2 finite already handled.
-      - Note sp1 finite already handled.
-      - Note sp2 finite already handled.
-      - Should be unreachable.
-      - Should be unreachable.
       type:
         _class: Expressir::Model::DataTypes::Logical
       expression:
@@ -14200,6 +14689,16 @@ schemas:
         instances to be checked for composability."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_function
+          base_path: mathematical_functions_schema.maths_function
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     statements:
@@ -14281,6 +14780,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -14461,6 +14962,7 @@ schemas:
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"
   - _class: Expressir::Model::Declarations::Function
     id: convert_to_maths_function
     remarks:
@@ -14589,6 +15091,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -14919,6 +15423,7 @@ schemas:
           - _class: Expressir::Model::Statements::Return
             expression:
               _class: Expressir::Model::References::SimpleReference
+              id: "?"
         - _class: Expressir::Model::Statements::ProcedureCall
           procedure:
             _class: Expressir::Model::References::SimpleReference
@@ -14945,6 +15450,7 @@ schemas:
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"
   - _class: Expressir::Model::Declarations::Function
     id: convert_to_operand
     remarks:
@@ -14980,6 +15486,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -15080,6 +15588,7 @@ schemas:
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"
   - _class: Expressir::Model::Declarations::Function
     id: convert_to_operands
     remarks:
@@ -15106,11 +15615,17 @@ schemas:
         _class: Expressir::Model::DataTypes::Aggregate
     return_type:
       _class: Expressir::Model::DataTypes::List
+      base_type:
+        _class: Expressir::Model::References::SimpleReference
+        id: generic_expression
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: operands
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_expression
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
@@ -15137,6 +15652,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::Repeat
       id: i
       bound1:
@@ -15211,11 +15727,6 @@ schemas:
       id: srcdom
       remarks:
       - "(input) The value of the *source_of_domain* attribute."
-      - Variables subject to a quantifier do not participate in this kind of
-      - substitution process.
-      untagged_remarks:
-      - Variables subject to a quantifier do not participate in this kind of
-      - substitution process.
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space_or_function
@@ -15226,6 +15737,10 @@ schemas:
       - "(input) The value of the *prep_functions* attribute."
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_function
+          base_path: mathematical_functions_schema.maths_function
     - _class: Expressir::Model::Declarations::Parameter
       id: finfun
       remarks:
@@ -15236,11 +15751,23 @@ schemas:
         base_path: mathematical_functions_schema.maths_function_select
     return_type:
       _class: Expressir::Model::DataTypes::List
+      bound1:
+        _class: Expressir::Model::Literals::Integer
+        value: '2'
+      bound2:
+        _class: Expressir::Model::References::SimpleReference
+        id: "?"
+      base_type:
+        _class: Expressir::Model::References::SimpleReference
+        id: generic_expression
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: operands
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_expression
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     statements:
@@ -15622,6 +16149,15 @@ schemas:
       - "(input) The list of operands for a proposed instance of <<express:mathematical_functions_schema.definite_integral_expression,definite_integral_expression>>."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_expression
     - _class: Expressir::Model::Declarations::Parameter
       id: lowerinf
       remarks:
@@ -16069,6 +16605,10 @@ schemas:
         id: factors
         type:
           _class: Expressir::Model::DataTypes::List
+          base_type:
+            _class: Expressir::Model::References::SimpleReference
+            id: maths_space
+            base_path: mathematical_functions_schema.maths_space
       statements:
       - _class: Expressir::Model::Statements::If
         expression:
@@ -16293,6 +16833,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -16621,6 +17163,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::Case
       expression:
         _class: Expressir::Model::References::SimpleReference
@@ -16770,43 +17313,6 @@ schemas:
       remarks:
       - "(input) The enumeration value from <<express:mathematical_functions_schema.elementary_function_enumerators,elementary_function_enumerators>>
         identifying the elementary function whose range space is to be constructed."
-      - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
-      - three lines ambiguous in those cases where an operand is simultaneously a
-        member
-      - of the base type and the aggregate type.
-      - REPEAT i := 1 TO SIZEOF (pairs);
-      - result := result + pairs[i][1];
-      - END_REPEAT;
-      - The next line unions an empty set and the desired list to get the desired
-        set.
-      - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
-      - three lines ambiguous in those cases where an operand is simultaneously a
-        member
-      - of the base type and the aggregate type.
-      - REPEAT i := 1 TO SIZEOF (pairs);
-      - result := result + pairs[i][2];
-      - END_REPEAT;
-      - The next line unions an empty set and the desired list to get the desired
-        set.
-      untagged_remarks:
-      - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
-      - three lines ambiguous in those cases where an operand is simultaneously a
-        member
-      - of the base type and the aggregate type.
-      - REPEAT i := 1 TO SIZEOF (pairs);
-      - result := result + pairs[i][1];
-      - END_REPEAT;
-      - The next line unions an empty set and the desired list to get the desired
-        set.
-      - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
-      - three lines ambiguous in those cases where an operand is simultaneously a
-        member
-      - of the base type and the aggregate type.
-      - REPEAT i := 1 TO SIZEOF (pairs);
-      - result := result + pairs[i][2];
-      - END_REPEAT;
-      - The next line unions an empty set and the desired list to get the desired
-        set.
       type:
         _class: Expressir::Model::References::SimpleReference
         id: elementary_function_enumerators
@@ -16832,6 +17338,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::Case
       expression:
         _class: Expressir::Model::References::SimpleReference
@@ -16982,6 +17489,24 @@ schemas:
       - "(input) The set of ordered pairs defining the function."
       type:
         _class: Expressir::Model::DataTypes::Set
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::List
+          bound1:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+          bound2:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+          base_type:
+            _class: Expressir::Model::References::SimpleReference
+            id: maths_value
+            base_path: mathematical_functions_schema.maths_value
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: tuple_space
@@ -16991,6 +17516,10 @@ schemas:
       id: result
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     statements:
@@ -17054,6 +17583,24 @@ schemas:
       - "(input) The set of ordered pairs defining the function."
       type:
         _class: Expressir::Model::DataTypes::Set
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::List
+          bound1:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+          bound2:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+          base_type:
+            _class: Expressir::Model::References::SimpleReference
+            id: maths_value
+            base_path: mathematical_functions_schema.maths_value
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: tuple_space
@@ -17061,8 +17608,50 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: result
+      remarks:
+      - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
+      - three lines ambiguous in those cases where an operand is simultaneously a
+        member
+      - of the base type and the aggregate type.
+      - REPEAT i := 1 TO SIZEOF (pairs);
+      - result := result + pairs[i][1];
+      - END_REPEAT;
+      - The next line unions an empty set and the desired list to get the desired
+        set.
+      - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
+      - three lines ambiguous in those cases where an operand is simultaneously a
+        member
+      - of the base type and the aggregate type.
+      - REPEAT i := 1 TO SIZEOF (pairs);
+      - result := result + pairs[i][2];
+      - END_REPEAT;
+      - The next line unions an empty set and the desired list to get the desired
+        set.
+      untagged_remarks:
+      - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
+      - three lines ambiguous in those cases where an operand is simultaneously a
+        member
+      - of the base type and the aggregate type.
+      - REPEAT i := 1 TO SIZEOF (pairs);
+      - result := result + pairs[i][1];
+      - END_REPEAT;
+      - The next line unions an empty set and the desired list to get the desired
+        set.
+      - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
+      - three lines ambiguous in those cases where an operand is simultaneously a
+        member
+      - of the base type and the aggregate type.
+      - REPEAT i := 1 TO SIZEOF (pairs);
+      - result := result + pairs[i][2];
+      - END_REPEAT;
+      - The next line unions an empty set and the desired list to get the desired
+        set.
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     statements:
@@ -17137,6 +17726,8 @@ schemas:
       id: typenames
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -17165,10 +17756,16 @@ schemas:
       id: shape
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
     - _class: Expressir::Model::Declarations::Variable
       id: sidxs
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::DataTypes::Integer
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
         items:
@@ -17184,6 +17781,10 @@ schemas:
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: finite_integer_interval
+          base_path: mathematical_functions_schema.finite_integer_interval
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
@@ -17394,6 +17995,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::If
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
@@ -18152,6 +18754,7 @@ schemas:
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"
   - _class: Expressir::Model::Declarations::Function
     id: derive_function_range
     remarks:
@@ -18182,6 +18785,8 @@ schemas:
       id: typenames
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -18801,6 +19406,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::If
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
@@ -19466,6 +20072,7 @@ schemas:
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"
   - _class: Expressir::Model::Declarations::Function
     id: domain_from
     remarks:
@@ -19497,6 +20104,8 @@ schemas:
       id: typenames
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -19530,6 +20139,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::If
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
@@ -19955,6 +20565,8 @@ schemas:
       id: typenames
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -19975,6 +20587,10 @@ schemas:
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_space
+          base_path: mathematical_functions_schema.maths_space
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
@@ -20190,6 +20806,9 @@ schemas:
       id: centre
       remarks:
       - "(input) The centre to be used for the enclosing region."
+      - Find equivalent direction in range -PI < a <= PI.
+      untagged_remarks:
+      - Find equivalent direction in range -PI < a <= PI.
       type:
         _class: Expressir::Model::References::SimpleReference
         id: complex_number_literal
@@ -20219,6 +20838,7 @@ schemas:
             base_path: mathematical_functions_schema.enclose_cregion_in_pregion.angle.a
           operand2:
             _class: Expressir::Model::References::SimpleReference
+            id: PI
         statements:
         - _class: Expressir::Model::Statements::Assignment
           ref:
@@ -20240,6 +20860,7 @@ schemas:
                 value: '2.0'
               operand2:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
       - _class: Expressir::Model::Statements::Repeat
         while_expression:
           _class: Expressir::Model::Expressions::BinaryExpression
@@ -20253,6 +20874,7 @@ schemas:
             operator: MINUS
             operand:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
         statements:
         - _class: Expressir::Model::Statements::Assignment
           ref:
@@ -20274,6 +20896,7 @@ schemas:
                 value: '2.0'
               operand2:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
@@ -20681,6 +21304,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::Assignment
       ref:
         _class: Expressir::Model::References::SimpleReference
@@ -20968,6 +21592,7 @@ schemas:
               value: '0.5'
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
         else_statements:
         - _class: Expressir::Model::Statements::If
           expression:
@@ -21001,6 +21626,7 @@ schemas:
                   value: '0.5'
               operand2:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
           else_statements:
           - _class: Expressir::Model::Statements::If
             expression:
@@ -21025,6 +21651,7 @@ schemas:
                 id: ab
               expression:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
             else_statements:
             - _class: Expressir::Model::Statements::Assignment
               ref:
@@ -21053,6 +21680,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::If
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
@@ -21534,6 +22162,7 @@ schemas:
                       value: '0.5'
                     operand2:
                       _class: Expressir::Model::References::SimpleReference
+                      id: PI
                   operand2:
                     _class: Expressir::Model::References::SimpleReference
                     id: ab
@@ -21574,6 +22203,7 @@ schemas:
                   value: '0.5'
               operand2:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
             - _class: Expressir::Model::Expressions::BinaryExpression
               operator: AND
               operand1:
@@ -21633,6 +22263,7 @@ schemas:
               value: '0.5'
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
           - _class: Expressir::Model::Expressions::BinaryExpression
             operator: AND
             operand1:
@@ -21904,6 +22535,7 @@ schemas:
                       value: '0.5'
                     operand2:
                       _class: Expressir::Model::References::SimpleReference
+                      id: PI
                   operand2:
                     _class: Expressir::Model::References::SimpleReference
                     id: ab
@@ -21930,6 +22562,7 @@ schemas:
                   operator: SUBTRACTION
                   operand1:
                     _class: Expressir::Model::References::SimpleReference
+                    id: PI
                   operand2:
                     _class: Expressir::Model::References::SimpleReference
                     id: ab
@@ -22015,6 +22648,7 @@ schemas:
           - _class: Expressir::Model::References::SimpleReference
             id: ab
           - _class: Expressir::Model::References::SimpleReference
+            id: PI
           - _class: Expressir::Model::Expressions::BinaryExpression
             operator: AND
             operand1:
@@ -22283,6 +22917,7 @@ schemas:
                     operator: MINUS
                     operand:
                       _class: Expressir::Model::References::SimpleReference
+                      id: PI
                   operand2:
                     _class: Expressir::Model::References::SimpleReference
                     id: ab
@@ -22318,6 +22953,7 @@ schemas:
                         value: '0.5'
                     operand2:
                       _class: Expressir::Model::References::SimpleReference
+                      id: PI
                   operand2:
                     _class: Expressir::Model::References::SimpleReference
                     id: ab
@@ -22355,6 +22991,7 @@ schemas:
                 value: '0.5'
               operand2:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
             - _class: Expressir::Model::Expressions::BinaryExpression
               operator: AND
               operand1:
@@ -22417,6 +23054,7 @@ schemas:
                 value: '0.5'
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
           - _class: Expressir::Model::Expressions::BinaryExpression
             operator: AND
             operand1:
@@ -22688,6 +23326,7 @@ schemas:
                       value: '0.5'
                     operand2:
                       _class: Expressir::Model::References::SimpleReference
+                      id: PI
                   operand2:
                     _class: Expressir::Model::References::SimpleReference
                     id: ab
@@ -22714,6 +23353,7 @@ schemas:
                   operator: SUBTRACTION
                   operand1:
                     _class: Expressir::Model::References::SimpleReference
+                    id: PI
                   operand2:
                     _class: Expressir::Model::References::SimpleReference
                     id: ab
@@ -22745,6 +23385,7 @@ schemas:
             - _class: Expressir::Model::References::SimpleReference
               id: ab
             - _class: Expressir::Model::References::SimpleReference
+              id: PI
             - _class: Expressir::Model::Expressions::BinaryExpression
               operator: AND
               operand1:
@@ -22859,6 +23500,7 @@ schemas:
             base_path: mathematical_functions_schema.enclose_cregion_in_pregion.amin
           operand2:
             _class: Expressir::Model::References::SimpleReference
+            id: PI
         statements:
         - _class: Expressir::Model::Statements::Assignment
           ref:
@@ -22870,6 +23512,7 @@ schemas:
             operator: MINUS
             operand:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
       - _class: Expressir::Model::Statements::Assignment
         ref:
           _class: Expressir::Model::References::SimpleReference
@@ -22924,6 +23567,7 @@ schemas:
                 value: '2.0'
               operand2:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
       else_statements:
       - _class: Expressir::Model::Statements::Assignment
         ref:
@@ -22935,6 +23579,7 @@ schemas:
           operator: MINUS
           operand:
             _class: Expressir::Model::References::SimpleReference
+            id: PI
       - _class: Expressir::Model::Statements::Assignment
         ref:
           _class: Expressir::Model::References::SimpleReference
@@ -22949,6 +23594,7 @@ schemas:
           base_path: mathematical_functions_schema.enclose_cregion_in_pregion.amax
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: PI
       - _class: Expressir::Model::Statements::Assignment
         ref:
           _class: Expressir::Model::References::SimpleReference
@@ -23180,6 +23826,7 @@ schemas:
                   value: '2.0'
                 operand2:
                   _class: Expressir::Model::References::SimpleReference
+                  id: PI
             operand2:
               _class: Expressir::Model::References::SimpleReference
               id: aitv
@@ -23204,6 +23851,7 @@ schemas:
                   value: '2.0'
                 operand2:
                   _class: Expressir::Model::References::SimpleReference
+                  id: PI
             operand2:
               _class: Expressir::Model::References::SimpleReference
               id: aitv
@@ -23414,6 +24062,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::Assignment
       ref:
         _class: Expressir::Model::References::SimpleReference
@@ -23454,6 +24103,7 @@ schemas:
         base_path: mathematical_functions_schema.enclose_pregion_in_cregion.nearest_good_direction
       parameters:
       - _class: Expressir::Model::References::SimpleReference
+        id: PI
       - _class: Expressir::Model::References::SimpleReference
         id: aitv
         base_path: mathematical_functions_schema.enclose_pregion_in_cregion.aitv
@@ -23820,6 +24470,7 @@ schemas:
             value: '0.5'
         operand2:
           _class: Expressir::Model::References::SimpleReference
+          id: PI
       - _class: Expressir::Model::References::SimpleReference
         id: aitv
         base_path: mathematical_functions_schema.enclose_pregion_in_cregion.aitv
@@ -24004,6 +24655,7 @@ schemas:
           value: '0.5'
         operand2:
           _class: Expressir::Model::References::SimpleReference
+          id: PI
       - _class: Expressir::Model::References::SimpleReference
         id: aitv
         base_path: mathematical_functions_schema.enclose_pregion_in_cregion.aitv
@@ -24204,6 +24856,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::If
       expression:
         _class: Expressir::Model::References::SimpleReference
@@ -24553,6 +25206,7 @@ schemas:
             base_path: mathematical_functions_schema.enclose_pregion_in_pregion.angle.a
           operand2:
             _class: Expressir::Model::References::SimpleReference
+            id: PI
         statements:
         - _class: Expressir::Model::Statements::Assignment
           ref:
@@ -24574,6 +25228,7 @@ schemas:
                 value: '2.0'
               operand2:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
       - _class: Expressir::Model::Statements::Repeat
         while_expression:
           _class: Expressir::Model::Expressions::BinaryExpression
@@ -24587,6 +25242,7 @@ schemas:
             operator: MINUS
             operand:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
         statements:
         - _class: Expressir::Model::Statements::Assignment
           ref:
@@ -24608,6 +25264,7 @@ schemas:
                 value: '2.0'
               operand2:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
@@ -24686,6 +25343,7 @@ schemas:
                   value: '2.0'
                 operand2:
                   _class: Expressir::Model::References::SimpleReference
+                  id: PI
             operator2: LESS_THAN
             high:
               _class: Expressir::Model::References::SimpleReference
@@ -24717,6 +25375,7 @@ schemas:
             id: amin
           operand2:
             _class: Expressir::Model::References::SimpleReference
+            id: PI
         statements:
         - _class: Expressir::Model::Statements::Assignment
           ref:
@@ -24727,6 +25386,7 @@ schemas:
             operator: MINUS
             operand:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
       - _class: Expressir::Model::Statements::Assignment
         ref:
           _class: Expressir::Model::References::SimpleReference
@@ -24769,6 +25429,7 @@ schemas:
                 value: '2.0'
               operand2:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
     - _class: Expressir::Model::Declarations::Procedure
       id: find_aminmax
       variables:
@@ -25256,6 +25917,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::Assignment
       ref:
         _class: Expressir::Model::References::SimpleReference
@@ -25473,6 +26135,7 @@ schemas:
               value: '2.0'
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
         statements:
         - _class: Expressir::Model::Statements::Assignment
           ref:
@@ -25622,6 +26285,7 @@ schemas:
                 id: amin
               operand2:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
             statements:
             - _class: Expressir::Model::Statements::Assignment
               ref:
@@ -25632,6 +26296,7 @@ schemas:
                 operator: MINUS
                 operand:
                   _class: Expressir::Model::References::SimpleReference
+                  id: PI
           - _class: Expressir::Model::Statements::Assignment
             ref:
               _class: Expressir::Model::References::SimpleReference
@@ -25687,6 +26352,7 @@ schemas:
                     value: '2.0'
                   operand2:
                     _class: Expressir::Model::References::SimpleReference
+                    id: PI
           - _class: Expressir::Model::Statements::Assignment
             ref:
               _class: Expressir::Model::References::SimpleReference
@@ -25754,6 +26420,7 @@ schemas:
                         value: '0.5'
                       operand2:
                         _class: Expressir::Model::References::SimpleReference
+                        id: PI
                 operand2:
                   _class: Expressir::Model::References::SimpleReference
                   id: a
@@ -25789,6 +26456,7 @@ schemas:
                         value: '0.5'
                       operand2:
                         _class: Expressir::Model::References::SimpleReference
+                        id: PI
                 operand2:
                   _class: Expressir::Model::References::SimpleReference
                   id: a
@@ -25836,6 +26504,7 @@ schemas:
                       value: '0.5'
                     operand2:
                       _class: Expressir::Model::References::SimpleReference
+                      id: PI
             - _class: Expressir::Model::Statements::Assignment
               ref:
                 _class: Expressir::Model::References::SimpleReference
@@ -25852,6 +26521,7 @@ schemas:
                   id: amin
                 operand2:
                   _class: Expressir::Model::References::SimpleReference
+                  id: PI
               statements:
               - _class: Expressir::Model::Statements::Assignment
                 ref:
@@ -25862,6 +26532,7 @@ schemas:
                   operator: MINUS
                   operand:
                     _class: Expressir::Model::References::SimpleReference
+                    id: PI
             - _class: Expressir::Model::Statements::Assignment
               ref:
                 _class: Expressir::Model::References::SimpleReference
@@ -25886,6 +26557,7 @@ schemas:
                       value: '0.5'
                     operand2:
                       _class: Expressir::Model::References::SimpleReference
+                      id: PI
             - _class: Expressir::Model::Statements::Assignment
               ref:
                 _class: Expressir::Model::References::SimpleReference
@@ -25922,6 +26594,7 @@ schemas:
                       value: '2.0'
                     operand2:
                       _class: Expressir::Model::References::SimpleReference
+                      id: PI
             - _class: Expressir::Model::Statements::Assignment
               ref:
                 _class: Expressir::Model::References::SimpleReference
@@ -26061,6 +26734,7 @@ schemas:
                     operator: MINUS
                     operand:
                       _class: Expressir::Model::References::SimpleReference
+                      id: PI
                 - _class: Expressir::Model::Statements::Assignment
                   ref:
                     _class: Expressir::Model::References::SimpleReference
@@ -26074,6 +26748,7 @@ schemas:
                     id: amax
                   expression:
                     _class: Expressir::Model::References::SimpleReference
+                    id: PI
                 - _class: Expressir::Model::Statements::Assignment
                   ref:
                     _class: Expressir::Model::References::SimpleReference
@@ -26117,6 +26792,7 @@ schemas:
                   operator: MINUS
                   operand:
                     _class: Expressir::Model::References::SimpleReference
+                    id: PI
               - _class: Expressir::Model::Statements::Assignment
                 ref:
                   _class: Expressir::Model::References::SimpleReference
@@ -26130,6 +26806,7 @@ schemas:
                   id: amax
                 expression:
                   _class: Expressir::Model::References::SimpleReference
+                  id: PI
               - _class: Expressir::Model::Statements::Assignment
                 ref:
                   _class: Expressir::Model::References::SimpleReference
@@ -28015,6 +28692,7 @@ schemas:
                       value: '2.0'
                     operand2:
                       _class: Expressir::Model::References::SimpleReference
+                      id: PI
             - _class: Expressir::Model::Statements::If
               expression:
                 _class: Expressir::Model::Expressions::BinaryExpression
@@ -28044,6 +28722,7 @@ schemas:
                       value: '2.0'
                     operand2:
                       _class: Expressir::Model::References::SimpleReference
+                      id: PI
             - _class: Expressir::Model::Statements::If
               expression:
                 _class: Expressir::Model::Expressions::BinaryExpression
@@ -28148,6 +28827,7 @@ schemas:
                       value: '2.0'
                     operand2:
                       _class: Expressir::Model::References::SimpleReference
+                      id: PI
                 operand2:
                   _class: Expressir::Model::Expressions::BinaryExpression
                   operator: AND
@@ -28171,6 +28851,7 @@ schemas:
                         value: '2.0'
                       operand2:
                         _class: Expressir::Model::References::SimpleReference
+                        id: PI
                   operand2:
                     _class: Expressir::Model::Expressions::BinaryExpression
                     operator: OR
@@ -28190,6 +28871,7 @@ schemas:
                   operator: MINUS
                   operand:
                     _class: Expressir::Model::References::SimpleReference
+                    id: PI
               - _class: Expressir::Model::Statements::Assignment
                 ref:
                   _class: Expressir::Model::References::SimpleReference
@@ -28203,6 +28885,7 @@ schemas:
                   id: amax
                 expression:
                   _class: Expressir::Model::References::SimpleReference
+                  id: PI
               - _class: Expressir::Model::Statements::Assignment
                 ref:
                   _class: Expressir::Model::References::SimpleReference
@@ -28321,6 +29004,7 @@ schemas:
         - _class: Expressir::Model::Statements::Return
           expression:
             _class: Expressir::Model::References::SimpleReference
+            id: "?"
       - _class: Expressir::Model::Statements::If
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
@@ -28342,6 +29026,7 @@ schemas:
               value: '2.0'
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
         statements:
         - _class: Expressir::Model::Statements::Assignment
           ref:
@@ -28381,6 +29066,7 @@ schemas:
             - _class: Expressir::Model::Statements::Return
               expression:
                 _class: Expressir::Model::References::SimpleReference
+                id: "?"
           - _class: Expressir::Model::Statements::Assignment
             ref:
               _class: Expressir::Model::References::SimpleReference
@@ -28459,6 +29145,7 @@ schemas:
               operator: MINUS
               operand:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
           - _class: Expressir::Model::Statements::Assignment
             ref:
               _class: Expressir::Model::References::SimpleReference
@@ -28472,6 +29159,7 @@ schemas:
               id: amax
             expression:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
           - _class: Expressir::Model::Statements::Assignment
             ref:
               _class: Expressir::Model::References::SimpleReference
@@ -29520,6 +30208,7 @@ schemas:
                     value: '2.0'
                   operand2:
                     _class: Expressir::Model::References::SimpleReference
+                    id: PI
           - _class: Expressir::Model::Statements::If
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
@@ -29549,6 +30238,7 @@ schemas:
                     value: '2.0'
                   operand2:
                     _class: Expressir::Model::References::SimpleReference
+                    id: PI
           - _class: Expressir::Model::Statements::If
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
@@ -29653,6 +30343,7 @@ schemas:
                     value: '2.0'
                   operand2:
                     _class: Expressir::Model::References::SimpleReference
+                    id: PI
               operand2:
                 _class: Expressir::Model::Expressions::BinaryExpression
                 operator: AND
@@ -29676,6 +30367,7 @@ schemas:
                       value: '2.0'
                     operand2:
                       _class: Expressir::Model::References::SimpleReference
+                      id: PI
                 operand2:
                   _class: Expressir::Model::Expressions::BinaryExpression
                   operator: OR
@@ -29695,6 +30387,7 @@ schemas:
                 operator: MINUS
                 operand:
                   _class: Expressir::Model::References::SimpleReference
+                  id: PI
             - _class: Expressir::Model::Statements::Assignment
               ref:
                 _class: Expressir::Model::References::SimpleReference
@@ -29708,6 +30401,7 @@ schemas:
                 id: amax
               expression:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
             - _class: Expressir::Model::Statements::Assignment
               ref:
                 _class: Expressir::Model::References::SimpleReference
@@ -29735,6 +30429,7 @@ schemas:
               - _class: Expressir::Model::Statements::Return
                 expression:
                   _class: Expressir::Model::References::SimpleReference
+                  id: "?"
             else_statements:
             - _class: Expressir::Model::Statements::Assignment
               ref:
@@ -30092,6 +30787,7 @@ schemas:
             value: '0.5'
           operand2:
             _class: Expressir::Model::References::SimpleReference
+            id: PI
       statements:
       - _class: Expressir::Model::Statements::If
         expression:
@@ -30460,6 +31156,7 @@ schemas:
               value: '0.5'
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
         statements:
         - _class: Expressir::Model::Statements::Return
           expression:
@@ -30814,6 +31511,7 @@ schemas:
             operator: MINUS
             operand:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
         statements:
         - _class: Expressir::Model::Statements::Return
           expression:
@@ -31174,6 +31872,7 @@ schemas:
                 value: '0.5'
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
         statements:
         - _class: Expressir::Model::Statements::Return
           expression:
@@ -31525,6 +32224,7 @@ schemas:
           id: arng
         operand2:
           _class: Expressir::Model::References::SimpleReference
+          id: PI
       statements:
       - _class: Expressir::Model::Statements::If
         expression:
@@ -31723,6 +32423,7 @@ schemas:
               value: '0.5'
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
         statements:
         - _class: Expressir::Model::Statements::Return
           expression:
@@ -31907,6 +32608,7 @@ schemas:
             operator: MINUS
             operand:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
         statements:
         - _class: Expressir::Model::Statements::Return
           expression:
@@ -32097,6 +32799,7 @@ schemas:
                 value: '0.5'
             operand2:
               _class: Expressir::Model::References::SimpleReference
+              id: PI
         statements:
         - _class: Expressir::Model::Statements::Return
           expression:
@@ -32432,6 +33135,8 @@ schemas:
       id: spc1types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -32446,6 +33151,8 @@ schemas:
       id: spc2types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -32477,10 +33184,18 @@ schemas:
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_space
+          base_path: mathematical_functions_schema.maths_space
     - _class: Expressir::Model::Declarations::Variable
       id: factors2
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_space
+          base_path: mathematical_functions_schema.maths_space
     - _class: Expressir::Model::Declarations::Variable
       id: cum2
       remarks:
@@ -34910,6 +35625,9 @@ schemas:
       id: tspace
       remarks:
       - "(input) The tuple space from which factor spaces are to be extracted."
+      - Identify type of first operand
+      untagged_remarks:
+      - Identify type of first operand
       type:
         _class: Expressir::Model::References::SimpleReference
         id: tuple_space
@@ -35026,6 +35744,10 @@ schemas:
       id: shape
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
     - _class: Expressir::Model::Declarations::Variable
       id: ndim
       type:
@@ -35036,12 +35758,16 @@ schemas:
       id: sublo
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::DataTypes::Integer
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
       id: subhi
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::DataTypes::Integer
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     statements:
@@ -35565,6 +36291,8 @@ schemas:
       id: typenames
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -35655,6 +36383,7 @@ schemas:
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"
   - _class: Expressir::Model::Declarations::Function
     id: factor_space
     remarks:
@@ -35691,6 +36420,8 @@ schemas:
       id: typenames
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -35740,6 +36471,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::If
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
@@ -35784,6 +36516,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::If
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
@@ -35844,6 +36577,7 @@ schemas:
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"
   - _class: Expressir::Model::Declarations::Function
     id: free_variables_of
     remarks:
@@ -35861,25 +36595,21 @@ schemas:
       id: expr
       remarks:
       - "(input) The expression from which the free variables are to be extracted."
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
-      - "--"
-      - "--"
       type:
         _class: Expressir::Model::References::SimpleReference
         id: generic_expression
     return_type:
       _class: Expressir::Model::DataTypes::Set
+      base_type:
+        _class: Expressir::Model::References::SimpleReference
+        id: generic_variable
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: typenames
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -35894,12 +36624,18 @@ schemas:
       id: result
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_variable
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
       id: exprs
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_expression
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     statements:
@@ -36216,6 +36952,16 @@ schemas:
       - "(input) The arguments to the function."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     variables:
@@ -36239,6 +36985,8 @@ schemas:
       id: domain_types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -37708,6 +38456,8 @@ schemas:
       id: typenames
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -38055,11 +38805,19 @@ schemas:
         base_path: mathematical_functions_schema.positive_integer
     return_type:
       _class: Expressir::Model::DataTypes::List
+      base_type:
+        _class: Expressir::Model::References::SimpleReference
+        id: maths_value
+        base_path: mathematical_functions_schema.maths_value
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: result
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
@@ -38158,6 +38916,15 @@ schemas:
         to be treated as function inputs."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_expression
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: abstracted_expression_function
@@ -38290,6 +39057,14 @@ schemas:
       - "(input) The knot sequence for the basis functions."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Real
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: b_spline_basis
@@ -38359,6 +39134,16 @@ schemas:
       - "(input) The list of B-spline bases for the function."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: b_spline_basis
+          base_path: mathematical_functions_schema.b_spline_basis
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: b_spline_function
@@ -38425,6 +39210,16 @@ schemas:
       - "(input) The shape of the matrix as a list of positive integers."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
     - _class: Expressir::Model::Declarations::Parameter
       id: source
       remarks:
@@ -38571,6 +39366,16 @@ schemas:
       - "(input) The shape of the matrix as a list of positive integers."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
     - _class: Expressir::Model::Declarations::Parameter
       id: operands
       remarks:
@@ -38578,6 +39383,16 @@ schemas:
         of the matrix."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '3'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '3'
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_function
+          base_path: mathematical_functions_schema.maths_function
     - _class: Expressir::Model::Declarations::Parameter
       id: default_entry
       remarks:
@@ -39066,6 +39881,15 @@ schemas:
         when their presence is indicated."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_expression
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: definite_integral_expression
@@ -39519,8 +40343,31 @@ schemas:
       id: pairs
       remarks:
       - "(input) The set of ordered pairs which defines the function."
+      - "--"
+      - "--"
+      untagged_remarks:
+      - "--"
+      - "--"
       type:
         _class: Expressir::Model::DataTypes::Set
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::List
+          bound1:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+          bound2:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+          base_type:
+            _class: Expressir::Model::References::SimpleReference
+            id: maths_value
+            base_path: mathematical_functions_schema.maths_value
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: finite_function
@@ -39740,6 +40587,10 @@ schemas:
       - "(input) The set of members of the space to be constructed."
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: finite_space
@@ -39809,6 +40660,16 @@ schemas:
       - "(input) The list of arguments to which the function is to be applied."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: function_application
@@ -40047,13 +40908,11 @@ schemas:
       - 2nd derived
       - 2nd derived
       - 2nd derived
-      - derived
       untagged_remarks:
       - 2nd derived
       - 2nd derived
       - 2nd derived
       - 2nd derived
-      - derived
       type:
         _class: Expressir::Model::DataTypes::Integer
     return_type:
@@ -40196,6 +41055,14 @@ schemas:
         parts of the complex numbers to return for successive input values."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Real
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: listed_complex_number_data
@@ -40290,6 +41157,16 @@ schemas:
       - "(input) The list of values to return for successive index values."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
     - _class: Expressir::Model::Declarations::Parameter
       id: value_range
       remarks:
@@ -40389,6 +41266,14 @@ schemas:
       - "(input) The list of values to return for successive index values."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Integer
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: listed_integer_data
@@ -40469,6 +41354,10 @@ schemas:
       - "(input) The factor spaces for the product space."
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_space
+          base_path: mathematical_functions_schema.maths_space
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: listed_product_space
@@ -40535,6 +41424,14 @@ schemas:
       - "(input) The list of values to return for successive index values."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Real
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: listed_real_data
@@ -40825,6 +41722,10 @@ schemas:
       - "(input) The value for which a literal is to be constructed."
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: maths_tuple_literal
@@ -40876,6 +41777,15 @@ schemas:
       - "(input) The operands which are to be multiplied."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_expression
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: mult_expression
@@ -40943,8 +41853,21 @@ schemas:
       id: prepfuncs
       remarks:
       - "(input) The list of values for the *prep_functions* attribute."
+      - derived
+      untagged_remarks:
+      - derived
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_function
+          base_path: mathematical_functions_schema.maths_function
     - _class: Expressir::Model::Declarations::Parameter
       id: finfunc
       remarks:
@@ -41041,6 +41964,16 @@ schemas:
       - "(input) The list of differentiation variables."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_variable
+          base_path: mathematical_functions_schema.maths_variable
     - _class: Expressir::Model::Declarations::Parameter
       id: extend
       remarks:
@@ -41116,6 +42049,16 @@ schemas:
       - "(input) The list of integers identifying the differentiation variables."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: input_selector
+          base_path: mathematical_functions_schema.input_selector
     - _class: Expressir::Model::Declarations::Parameter
       id: extend
       remarks:
@@ -41183,9 +42126,6 @@ schemas:
       id: centre
       remarks:
       - "(input) The centre of the polar region."
-      - Find equivalent direction in range -PI < a <= PI.
-      untagged_remarks:
-      - Find equivalent direction in range -PI < a <= PI.
       type:
         _class: Expressir::Model::References::SimpleReference
         id: complex_number_literal
@@ -41318,320 +42258,11 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.real_interval_from_min,real_interval_from_min>>
       given the necessary values for its explicit attributes.
-    - all_members_of_es
-    - any_space_satisfies
-    - assoc_product_space
-    - atan2
-    - bool
-    - check_sparse_index_domain;
-    - check_sparse_loc_range;
-    - check_sparse_index_to_loc
-    - compare_basis_and_coef
-    - compare_list_and_value
-    - compare_values
-    - compatible_complex_number_regions
-    - compatible_es_values
-    - compatible_intervals
-    - compatible_spaces
-    - composable_sequence
-    - convert_to_literal
-    - convert_to_maths_function
-    - convert_to_maths_value
-    - convert_to_operand
-    - convert_to_operands
-    - convert_to_operands_prcmfn
-    - definite_integral_check
-    - definite_integral_expr_check
-    - process_product_space
-    - derive_definite_integral_domain
-    - derive_elementary_function_domain
-    - derive_elementary_function_range
-    - derive_finite_function_domain
-    - derive_finite_function_range
-    - derive_function_domain
-    - derive_function_range
-    - domain_from
-    - dot_count
-    - dotted_identifiers_syntax
-    - drop_numeric_constraints
-    - enclose_cregion_in_pregion
-    - enclose_pregion_in_cregion
-    - enclose_pregion_in_pregion
-    - equal_cregion_pregion
-    - equal_maths_functions
-    - equal_maths_spaces
-    - mem_of_vs
-    - equal_maths_values
-    - es_subspace_of_es
-    - expression_is_constant
-    - extract_factors
-    - extremal_position_check
-    - factor1
-    - factor_space
-    - free_variables_of
-    - function_applicability
-    - function_is_1d_array
-    - function_is_1d_table
-    - function_is_2d_table
-    - function_is_array
-    - function_is_table
-    - has_values_space
-    - list_selected_components
-    - make_abstracted_expression_function
-    - make_atom_based_literal
-    - make_b_spline_basis
-    - make_b_spline_function
-    - make_banded_matrix
-    - make_basic_sparse_matrix
-    - make_binary_literal
-    - make_boolean_literal
-    - make_cartesian_complex_number_region
-    - make_complex_number_literal
-    - make_constant_function
-    - make_cos_expression
-    - make_definite_integral_expression
-    - make_definite_integral_function
-    - make_elementary_function
-    - make_elementary_space
-    - make_environment
-    - make_expression_denoted_function
-    - make_extended_tuple_space
-    - make_finite_function
-    - make_finite_integer_interval
-    - make_finite_real_interval
-    - make_finite_space
-    - make_function_application
-    - make_function_space
-    - make_general_linear_function
-    - make_int_literal
-    - make_integer_interval_from_min
-    - make_listed_complex_number_data
-    - make_listed_data
-    - make_listed_integer_data
-    - make_listed_product_space
-    - make_listed_real_data
-    - make_logical_literal
-    - make_maths_enum_literal
-    - make_maths_tuple_literal
-    - make_mult_expression
-    - make_parallel_composed_function
-    - make_partial_derivative_expression
-    - make_partial_derivative_function
-    - make_polar_complex_number_region
-    - make_rationalize_function
-    - make_real_interval_from_min
-    - make_real_interval_to_max
-    - make_real_literal
-    - make_regular_table_function
-    - make_reindexed_array_function
-    - make_repackaging_function
-    - make_selector_function
-    - make_series_composed_function
-    - make_sin_expression
-    - make_standard_table_function
-    - make_strict_triangular_matrix
-    - make_string_literal
-    - make_unary_minus_expression
-    - make_uniform_product_space
-    - max_exists
-    - max_included
-    - fedex
-    - member_of
-    - min_exists
-    - min_included
-    - no_cyclic_domain_reference
-    - no_cyclic_space_reference
-    - number_superspace_of
-    - one_tuples_of
-    - parallel_composed_function_composability_check
-    - parallel_composed_function_domain_check
-    - parse_express_identifier
-    - partial_derivative_check
-    - real_max
-    - real_min
-    - remove_first
-    - repackage
-    - shape_of_array
-    - local abbreviation for convert_to_maths_value function
-    - local abbreviation for make_complex_number_literal function
-    - good_t
-    - simplify_function_application
-    - restore_unary
-    - restore_binary
-    - restore_mulary
-    - make_number_literal;
-    - simplify_generic_expression
-    - simplify_maths_space
-    - simplify_maths_value
-    - singleton_member_of
-    - space_dimension
-    - space_is_continuum
-    - space_is_singleton
-    - stripped_typeof
-    - subspace_of
-    - subspace_of_es
-    - substitute
-    - values_space_of
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.real_interval_from_min,real_interval_from_min>>."
-    untagged_remarks:
-    - all_members_of_es
-    - any_space_satisfies
-    - assoc_product_space
-    - atan2
-    - bool
-    - check_sparse_index_domain;
-    - check_sparse_loc_range;
-    - check_sparse_index_to_loc
-    - compare_basis_and_coef
-    - compare_list_and_value
-    - compare_values
-    - compatible_complex_number_regions
-    - compatible_es_values
-    - compatible_intervals
-    - compatible_spaces
-    - composable_sequence
-    - convert_to_literal
-    - convert_to_maths_function
-    - convert_to_maths_value
-    - convert_to_operand
-    - convert_to_operands
-    - convert_to_operands_prcmfn
-    - definite_integral_check
-    - definite_integral_expr_check
-    - process_product_space
-    - derive_definite_integral_domain
-    - derive_elementary_function_domain
-    - derive_elementary_function_range
-    - derive_finite_function_domain
-    - derive_finite_function_range
-    - derive_function_domain
-    - derive_function_range
-    - domain_from
-    - dot_count
-    - dotted_identifiers_syntax
-    - drop_numeric_constraints
-    - enclose_cregion_in_pregion
-    - enclose_pregion_in_cregion
-    - enclose_pregion_in_pregion
-    - equal_cregion_pregion
-    - equal_maths_functions
-    - equal_maths_spaces
-    - mem_of_vs
-    - equal_maths_values
-    - es_subspace_of_es
-    - expression_is_constant
-    - extract_factors
-    - extremal_position_check
-    - factor1
-    - factor_space
-    - free_variables_of
-    - function_applicability
-    - function_is_1d_array
-    - function_is_1d_table
-    - function_is_2d_table
-    - function_is_array
-    - function_is_table
-    - has_values_space
-    - list_selected_components
-    - make_abstracted_expression_function
-    - make_atom_based_literal
-    - make_b_spline_basis
-    - make_b_spline_function
-    - make_banded_matrix
-    - make_basic_sparse_matrix
-    - make_binary_literal
-    - make_boolean_literal
-    - make_cartesian_complex_number_region
-    - make_complex_number_literal
-    - make_constant_function
-    - make_cos_expression
-    - make_definite_integral_expression
-    - make_definite_integral_function
-    - make_elementary_function
-    - make_elementary_space
-    - make_environment
-    - make_expression_denoted_function
-    - make_extended_tuple_space
-    - make_finite_function
-    - make_finite_integer_interval
-    - make_finite_real_interval
-    - make_finite_space
-    - make_function_application
-    - make_function_space
-    - make_general_linear_function
-    - make_int_literal
-    - make_integer_interval_from_min
-    - make_listed_complex_number_data
-    - make_listed_data
-    - make_listed_integer_data
-    - make_listed_product_space
-    - make_listed_real_data
-    - make_logical_literal
-    - make_maths_enum_literal
-    - make_maths_tuple_literal
-    - make_mult_expression
-    - make_parallel_composed_function
-    - make_partial_derivative_expression
-    - make_partial_derivative_function
-    - make_polar_complex_number_region
-    - make_rationalize_function
-    - make_real_interval_from_min
-    - make_real_interval_to_max
-    - make_real_literal
-    - make_regular_table_function
-    - make_reindexed_array_function
-    - make_repackaging_function
-    - make_selector_function
-    - make_series_composed_function
-    - make_sin_expression
-    - make_standard_table_function
-    - make_strict_triangular_matrix
-    - make_string_literal
-    - make_unary_minus_expression
-    - make_uniform_product_space
-    - max_exists
-    - max_included
-    - fedex
-    - member_of
-    - min_exists
-    - min_included
-    - no_cyclic_domain_reference
-    - no_cyclic_space_reference
-    - number_superspace_of
-    - one_tuples_of
-    - parallel_composed_function_composability_check
-    - parallel_composed_function_domain_check
-    - parse_express_identifier
-    - partial_derivative_check
-    - real_max
-    - real_min
-    - remove_first
-    - repackage
-    - shape_of_array
-    - local abbreviation for convert_to_maths_value function
-    - local abbreviation for make_complex_number_literal function
-    - good_t
-    - simplify_function_application
-    - restore_unary
-    - restore_binary
-    - restore_mulary
-    - make_number_literal;
-    - simplify_generic_expression
-    - simplify_maths_space
-    - simplify_maths_value
-    - singleton_member_of
-    - space_dimension
-    - space_is_continuum
-    - space_is_singleton
-    - stripped_typeof
-    - subspace_of
-    - subspace_of_es
-    - substitute
-    - values_space_of
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: min
@@ -41860,6 +42491,16 @@ schemas:
       - "(input) The list of numbers of subscripts in each indexing position."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
     - _class: Expressir::Model::Declarations::Parameter
       id: operand
       remarks:
@@ -41880,6 +42521,14 @@ schemas:
       - "(input) The list of position deltas in *operand* for each index."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Integer
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: regular_table_function
@@ -41975,6 +42624,14 @@ schemas:
       - "(input) The starting indices for the new array function."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Integer
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: reindexed_array_function
@@ -42055,19 +42712,6 @@ schemas:
       id: selected_output
       remarks:
       - "(input) The value for the *selected_output* attribute."
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
       type:
         _class: Expressir::Model::References::SimpleReference
         id: nonnegative_integer
@@ -42207,6 +42851,16 @@ schemas:
       - "(input) The list of functions to be composed, in order of application."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_function
+          base_path: mathematical_functions_schema.maths_function
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: series_composed_function
@@ -42335,6 +42989,16 @@ schemas:
       - "(input) The list of numbers of subscripts in each indexing position."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
     - _class: Expressir::Model::Declarations::Parameter
       id: operand
       remarks:
@@ -42354,31 +43018,6 @@ schemas:
       remarks:
       - "(input) The standard ordering ( *by_rows* or *by_columns* ) of the entries
         in the *operand* array function."
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
       type:
         _class: Expressir::Model::References::SimpleReference
         id: ordering_type
@@ -42478,6 +43117,16 @@ schemas:
       - "(input) The shape of the matrix as a list of positive integers."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
     - _class: Expressir::Model::Declarations::Parameter
       id: source
       remarks:
@@ -42850,6 +43499,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -42971,6 +43622,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -43135,6 +43788,316 @@ schemas:
     functions:
     - _class: Expressir::Model::Declarations::Function
       id: fedex
+      remarks:
+      - all_members_of_es
+      - any_space_satisfies
+      - assoc_product_space
+      - atan2
+      - bool
+      - check_sparse_index_domain;
+      - check_sparse_loc_range;
+      - check_sparse_index_to_loc
+      - compare_basis_and_coef
+      - compare_list_and_value
+      - compare_values
+      - compatible_complex_number_regions
+      - compatible_es_values
+      - compatible_intervals
+      - compatible_spaces
+      - composable_sequence
+      - convert_to_literal
+      - convert_to_maths_function
+      - convert_to_maths_value
+      - convert_to_operand
+      - convert_to_operands
+      - convert_to_operands_prcmfn
+      - definite_integral_check
+      - definite_integral_expr_check
+      - process_product_space
+      - derive_definite_integral_domain
+      - derive_elementary_function_domain
+      - derive_elementary_function_range
+      - derive_finite_function_domain
+      - derive_finite_function_range
+      - derive_function_domain
+      - derive_function_range
+      - domain_from
+      - dot_count
+      - dotted_identifiers_syntax
+      - drop_numeric_constraints
+      - enclose_cregion_in_pregion
+      - enclose_pregion_in_cregion
+      - enclose_pregion_in_pregion
+      - equal_cregion_pregion
+      - equal_maths_functions
+      - equal_maths_spaces
+      - mem_of_vs
+      - equal_maths_values
+      - es_subspace_of_es
+      - expression_is_constant
+      - extract_factors
+      - extremal_position_check
+      - factor1
+      - factor_space
+      - free_variables_of
+      - function_applicability
+      - function_is_1d_array
+      - function_is_1d_table
+      - function_is_2d_table
+      - function_is_array
+      - function_is_table
+      - has_values_space
+      - list_selected_components
+      - make_abstracted_expression_function
+      - make_atom_based_literal
+      - make_b_spline_basis
+      - make_b_spline_function
+      - make_banded_matrix
+      - make_basic_sparse_matrix
+      - make_binary_literal
+      - make_boolean_literal
+      - make_cartesian_complex_number_region
+      - make_complex_number_literal
+      - make_constant_function
+      - make_cos_expression
+      - make_definite_integral_expression
+      - make_definite_integral_function
+      - make_elementary_function
+      - make_elementary_space
+      - make_environment
+      - make_expression_denoted_function
+      - make_extended_tuple_space
+      - make_finite_function
+      - make_finite_integer_interval
+      - make_finite_real_interval
+      - make_finite_space
+      - make_function_application
+      - make_function_space
+      - make_general_linear_function
+      - make_int_literal
+      - make_integer_interval_from_min
+      - make_listed_complex_number_data
+      - make_listed_data
+      - make_listed_integer_data
+      - make_listed_product_space
+      - make_listed_real_data
+      - make_logical_literal
+      - make_maths_enum_literal
+      - make_maths_tuple_literal
+      - make_mult_expression
+      - make_parallel_composed_function
+      - make_partial_derivative_expression
+      - make_partial_derivative_function
+      - make_polar_complex_number_region
+      - make_rationalize_function
+      - make_real_interval_from_min
+      - make_real_interval_to_max
+      - make_real_literal
+      - make_regular_table_function
+      - make_reindexed_array_function
+      - make_repackaging_function
+      - make_selector_function
+      - make_series_composed_function
+      - make_sin_expression
+      - make_standard_table_function
+      - make_strict_triangular_matrix
+      - make_string_literal
+      - make_unary_minus_expression
+      - make_uniform_product_space
+      - max_exists
+      - max_included
+      - fedex
+      - member_of
+      - min_exists
+      - min_included
+      - no_cyclic_domain_reference
+      - no_cyclic_space_reference
+      - number_superspace_of
+      - one_tuples_of
+      - parallel_composed_function_composability_check
+      - parallel_composed_function_domain_check
+      - parse_express_identifier
+      - partial_derivative_check
+      - real_max
+      - real_min
+      - remove_first
+      - repackage
+      - shape_of_array
+      - local abbreviation for convert_to_maths_value function
+      - local abbreviation for make_complex_number_literal function
+      - good_t
+      - simplify_function_application
+      - restore_unary
+      - restore_binary
+      - restore_mulary
+      - make_number_literal;
+      - simplify_generic_expression
+      - simplify_maths_space
+      - simplify_maths_value
+      - singleton_member_of
+      - space_dimension
+      - space_is_continuum
+      - space_is_singleton
+      - stripped_typeof
+      - subspace_of
+      - subspace_of_es
+      - substitute
+      - values_space_of
+      untagged_remarks:
+      - all_members_of_es
+      - any_space_satisfies
+      - assoc_product_space
+      - atan2
+      - bool
+      - check_sparse_index_domain;
+      - check_sparse_loc_range;
+      - check_sparse_index_to_loc
+      - compare_basis_and_coef
+      - compare_list_and_value
+      - compare_values
+      - compatible_complex_number_regions
+      - compatible_es_values
+      - compatible_intervals
+      - compatible_spaces
+      - composable_sequence
+      - convert_to_literal
+      - convert_to_maths_function
+      - convert_to_maths_value
+      - convert_to_operand
+      - convert_to_operands
+      - convert_to_operands_prcmfn
+      - definite_integral_check
+      - definite_integral_expr_check
+      - process_product_space
+      - derive_definite_integral_domain
+      - derive_elementary_function_domain
+      - derive_elementary_function_range
+      - derive_finite_function_domain
+      - derive_finite_function_range
+      - derive_function_domain
+      - derive_function_range
+      - domain_from
+      - dot_count
+      - dotted_identifiers_syntax
+      - drop_numeric_constraints
+      - enclose_cregion_in_pregion
+      - enclose_pregion_in_cregion
+      - enclose_pregion_in_pregion
+      - equal_cregion_pregion
+      - equal_maths_functions
+      - equal_maths_spaces
+      - mem_of_vs
+      - equal_maths_values
+      - es_subspace_of_es
+      - expression_is_constant
+      - extract_factors
+      - extremal_position_check
+      - factor1
+      - factor_space
+      - free_variables_of
+      - function_applicability
+      - function_is_1d_array
+      - function_is_1d_table
+      - function_is_2d_table
+      - function_is_array
+      - function_is_table
+      - has_values_space
+      - list_selected_components
+      - make_abstracted_expression_function
+      - make_atom_based_literal
+      - make_b_spline_basis
+      - make_b_spline_function
+      - make_banded_matrix
+      - make_basic_sparse_matrix
+      - make_binary_literal
+      - make_boolean_literal
+      - make_cartesian_complex_number_region
+      - make_complex_number_literal
+      - make_constant_function
+      - make_cos_expression
+      - make_definite_integral_expression
+      - make_definite_integral_function
+      - make_elementary_function
+      - make_elementary_space
+      - make_environment
+      - make_expression_denoted_function
+      - make_extended_tuple_space
+      - make_finite_function
+      - make_finite_integer_interval
+      - make_finite_real_interval
+      - make_finite_space
+      - make_function_application
+      - make_function_space
+      - make_general_linear_function
+      - make_int_literal
+      - make_integer_interval_from_min
+      - make_listed_complex_number_data
+      - make_listed_data
+      - make_listed_integer_data
+      - make_listed_product_space
+      - make_listed_real_data
+      - make_logical_literal
+      - make_maths_enum_literal
+      - make_maths_tuple_literal
+      - make_mult_expression
+      - make_parallel_composed_function
+      - make_partial_derivative_expression
+      - make_partial_derivative_function
+      - make_polar_complex_number_region
+      - make_rationalize_function
+      - make_real_interval_from_min
+      - make_real_interval_to_max
+      - make_real_literal
+      - make_regular_table_function
+      - make_reindexed_array_function
+      - make_repackaging_function
+      - make_selector_function
+      - make_series_composed_function
+      - make_sin_expression
+      - make_standard_table_function
+      - make_strict_triangular_matrix
+      - make_string_literal
+      - make_unary_minus_expression
+      - make_uniform_product_space
+      - max_exists
+      - max_included
+      - fedex
+      - member_of
+      - min_exists
+      - min_included
+      - no_cyclic_domain_reference
+      - no_cyclic_space_reference
+      - number_superspace_of
+      - one_tuples_of
+      - parallel_composed_function_composability_check
+      - parallel_composed_function_domain_check
+      - parse_express_identifier
+      - partial_derivative_check
+      - real_max
+      - real_min
+      - remove_first
+      - repackage
+      - shape_of_array
+      - local abbreviation for convert_to_maths_value function
+      - local abbreviation for make_complex_number_literal function
+      - good_t
+      - simplify_function_application
+      - restore_unary
+      - restore_binary
+      - restore_mulary
+      - make_number_literal;
+      - simplify_generic_expression
+      - simplify_maths_space
+      - simplify_maths_value
+      - singleton_member_of
+      - space_dimension
+      - space_is_continuum
+      - space_is_singleton
+      - stripped_typeof
+      - subspace_of
+      - subspace_of_es
+      - substitute
+      - values_space_of
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: val
@@ -43179,6 +44142,8 @@ schemas:
       id: vtypes
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -43209,6 +44174,8 @@ schemas:
       id: stypes
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -43237,10 +44204,18 @@ schemas:
       id: smem
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
     - _class: Expressir::Model::Declarations::Variable
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_space
+          base_path: mathematical_functions_schema.maths_space
     statements:
     - _class: Expressir::Model::Statements::If
       expression:
@@ -44131,6 +45106,7 @@ schemas:
                     value: '2.0'
                   operand2:
                     _class: Expressir::Model::References::SimpleReference
+                    id: PI
               - _class: Expressir::Model::References::SimpleReference
                 id: s
                 base_path: mathematical_functions_schema.member_of.s
@@ -44786,6 +45762,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -44907,6 +45885,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -45065,6 +46045,10 @@ schemas:
         instances already referenced."
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_function
+          base_path: mathematical_functions_schema.maths_function
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     variables:
@@ -45072,6 +46056,8 @@ schemas:
       id: typenames
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -45323,6 +46309,10 @@ schemas:
       id: refs
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_space
+          base_path: mathematical_functions_schema.maths_space
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     variables:
@@ -45330,10 +46320,16 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
     - _class: Expressir::Model::Declarations::Variable
       id: refs_plus
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_space
+          base_path: mathematical_functions_schema.maths_space
     statements:
     - _class: Expressir::Model::Statements::If
       expression:
@@ -45624,6 +46620,8 @@ schemas:
       - "(input) The list of real values to be tested."
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::DataTypes::Real
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     statements:
@@ -45793,6 +46791,7 @@ schemas:
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"
   - _class: Expressir::Model::Declarations::Function
     id: number_tuple_subspace_check
     remarks:
@@ -45826,6 +46825,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -45840,6 +46841,10 @@ schemas:
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_space
+          base_path: mathematical_functions_schema.maths_space
     - _class: Expressir::Model::Declarations::Variable
       id: cum
       type:
@@ -46057,6 +47062,10 @@ schemas:
       - "(input) The list of functions whose ranges are to be used."
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_function
+          base_path: mathematical_functions_schema.maths_function
     - _class: Expressir::Model::Declarations::Parameter
       id: final
       remarks:
@@ -46168,6 +47177,10 @@ schemas:
         for compatibility with *comdom*."
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_function
+          base_path: mathematical_functions_schema.maths_function
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     statements:
@@ -46391,11 +47404,6 @@ schemas:
       id: domain
       remarks:
       - "(input) The domain of the function to be differentiated."
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
       type:
         _class: Expressir::Model::References::SimpleReference
         id: tuple_space
@@ -46408,6 +47416,16 @@ schemas:
         is to be performed."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: input_selector
+          base_path: mathematical_functions_schema.input_selector
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     variables:
@@ -46646,6 +47664,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -46754,6 +47774,7 @@ schemas:
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"
   - _class: Expressir::Model::Declarations::Function
     id: real_min
     remarks:
@@ -46783,6 +47804,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -46891,6 +47914,7 @@ schemas:
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"
   - _class: Expressir::Model::Declarations::Function
     id: regular_indexing
     remarks:
@@ -46910,6 +47934,8 @@ schemas:
       - "(input) The subscript tuple for which a single index is to be computed."
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Parameter
       id: base
       remarks:
@@ -46924,12 +47950,30 @@ schemas:
       - "(input) The shape of the table."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
     - _class: Expressir::Model::Declarations::Parameter
       id: inc
       remarks:
       - "(input) The increments associated with each subscript position."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Parameter
       id: first
       remarks:
@@ -47020,6 +48064,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::If
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
@@ -47066,6 +48111,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::Assignment
       ref:
         _class: Expressir::Model::References::SimpleReference
@@ -47119,6 +48165,7 @@ schemas:
         - _class: Expressir::Model::Statements::Return
           expression:
             _class: Expressir::Model::References::SimpleReference
+            id: "?"
       - _class: Expressir::Model::Statements::Assignment
         ref:
           _class: Expressir::Model::References::SimpleReference
@@ -47158,6 +48205,7 @@ schemas:
         - _class: Expressir::Model::Statements::Return
           expression:
             _class: Expressir::Model::References::SimpleReference
+            id: "?"
       - _class: Expressir::Model::Statements::Assignment
         ref:
           _class: Expressir::Model::References::SimpleReference
@@ -47203,13 +48251,19 @@ schemas:
       - "(input) The input list."
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::DataTypes::Generic
     return_type:
       _class: Expressir::Model::DataTypes::List
+      base_type:
+        _class: Expressir::Model::DataTypes::Generic
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: blist
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::DataTypes::Generic
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: alist
@@ -47311,6 +48365,10 @@ schemas:
         base_path: mathematical_functions_schema.maths_function
     return_type:
       _class: Expressir::Model::DataTypes::List
+      base_type:
+        _class: Expressir::Model::References::SimpleReference
+        id: positive_integer
+        base_path: mathematical_functions_schema.positive_integer
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: tspace
@@ -47328,6 +48386,10 @@ schemas:
       id: result
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: positive_integer
+          base_path: mathematical_functions_schema.positive_integer
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     statements:
@@ -47493,6 +48555,7 @@ schemas:
         - _class: Expressir::Model::Statements::Return
           expression:
             _class: Expressir::Model::References::SimpleReference
+            id: "?"
       - _class: Expressir::Model::Statements::ProcedureCall
         procedure:
           _class: Expressir::Model::References::SimpleReference
@@ -47605,6 +48668,10 @@ schemas:
         id: tpl
         type:
           _class: Expressir::Model::DataTypes::List
+          base_type:
+            _class: Expressir::Model::References::SimpleReference
+            id: maths_value
+            base_path: mathematical_functions_schema.maths_value
       statements:
       - _class: Expressir::Model::Statements::If
         expression:
@@ -47719,6 +48786,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -47746,6 +48815,10 @@ schemas:
       id: vlist
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
@@ -47757,6 +48830,24 @@ schemas:
       id: pairs
       type:
         _class: Expressir::Model::DataTypes::Set
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::DataTypes::List
+          bound1:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+          bound2:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+          base_type:
+            _class: Expressir::Model::References::SimpleReference
+            id: maths_value
+            base_path: mathematical_functions_schema.maths_value
     - _class: Expressir::Model::Declarations::Variable
       id: boo
       type:
@@ -47765,6 +48856,10 @@ schemas:
       id: mem
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     statements:
@@ -48237,6 +49332,15 @@ schemas:
       id: expr
       remarks:
       - "(input) The expression to be simplified."
+      - "--"
+      - "--"
+      - "--"
+      - "--"
+      untagged_remarks:
+      - "--"
+      - "--"
+      - "--"
+      - "--"
       type:
         _class: Expressir::Model::References::SimpleReference
         id: generic_expression
@@ -48321,6 +49425,9 @@ schemas:
         id: ops
         type:
           _class: Expressir::Model::DataTypes::List
+          base_type:
+            _class: Expressir::Model::References::SimpleReference
+            id: generic_expression
       return_type:
         _class: Expressir::Model::References::SimpleReference
         id: generic_expression
@@ -48393,6 +49500,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -48407,18 +49516,34 @@ schemas:
       id: vlist
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
       id: oplist
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_expression
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
       id: opnds
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_expression
     - _class: Expressir::Model::Declarations::Variable
       id: finfun
       type:
@@ -49679,6 +50804,7 @@ schemas:
                     - _class: Expressir::Model::Statements::Return
                       expression:
                         _class: Expressir::Model::References::SimpleReference
+                        id: "?"
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::Expressions::FunctionCall
@@ -52178,6 +53304,8 @@ schemas:
       id: stypes
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -52192,10 +53320,18 @@ schemas:
       id: sset
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
     - _class: Expressir::Model::Declarations::Variable
       id: zset
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
@@ -52221,10 +53357,18 @@ schemas:
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_space
+          base_path: mathematical_functions_schema.maths_space
     - _class: Expressir::Model::Declarations::Variable
       id: zfactors
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_space
+          base_path: mathematical_functions_schema.maths_space
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
@@ -52731,6 +53875,8 @@ schemas:
       id: vtypes
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -52745,10 +53891,18 @@ schemas:
       id: vlist
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
     - _class: Expressir::Model::Declarations::Variable
       id: nlist
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     statements:
@@ -52878,6 +54032,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -52925,6 +54081,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::If
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
@@ -52957,9 +54114,11 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"
   - _class: Expressir::Model::Declarations::Function
     id: space_dimension
     remarks:
@@ -52990,6 +54149,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -53084,6 +54245,7 @@ schemas:
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"
   - _class: Expressir::Model::Declarations::Function
     id: space_is_continuum
     remarks:
@@ -53111,6 +54273,8 @@ schemas:
       id: typenames
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -53123,6 +54287,10 @@ schemas:
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_space
+          base_path: mathematical_functions_schema.maths_space
     statements:
     - _class: Expressir::Model::Statements::If
       expression:
@@ -53322,6 +54490,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -53420,11 +54590,15 @@ schemas:
         _class: Expressir::Model::DataTypes::Generic
     return_type:
       _class: Expressir::Model::DataTypes::Set
+      base_type:
+        _class: Expressir::Model::DataTypes::String
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -53437,6 +54611,8 @@ schemas:
       id: stypes
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
@@ -53595,6 +54771,8 @@ schemas:
       id: types1
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -53609,6 +54787,8 @@ schemas:
       id: types2
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -54847,6 +56027,7 @@ schemas:
                 id: prgn2
               operand2:
                 _class: Expressir::Model::References::SimpleReference
+                id: PI
             statements:
             - _class: Expressir::Model::Statements::Assignment
               ref:
@@ -54864,6 +56045,7 @@ schemas:
                   operator: MINUS
                   operand:
                     _class: Expressir::Model::References::SimpleReference
+                    id: PI
                 - _class: Expressir::Model::References::SimpleReference
                   id: open
                   base_path: mathematical_functions_schema.open_closed.open
@@ -54880,6 +56062,7 @@ schemas:
                       value: '2.0'
                     operand2:
                       _class: Expressir::Model::References::SimpleReference
+                      id: PI
                 - _class: Expressir::Model::References::SimpleReference
                   id: prgn2
             - _class: Expressir::Model::Statements::Return
@@ -55621,6 +56804,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -55762,6 +56947,15 @@ schemas:
       - "(input) The list of variable to be replaced."
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_variable
     - _class: Expressir::Model::Declarations::Parameter
       id: vals
       remarks:
@@ -55769,6 +56963,16 @@ schemas:
         variables"
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_value
+          base_path: mathematical_functions_schema.maths_value
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: generic_expression
@@ -55777,6 +56981,8 @@ schemas:
       id: types
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -55791,10 +56997,16 @@ schemas:
       id: opnds
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_expression
     - _class: Expressir::Model::Declarations::Variable
       id: qvars
       type:
         _class: Expressir::Model::DataTypes::List
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: generic_variable
     - _class: Expressir::Model::Declarations::Variable
       id: srcdom
       type:
@@ -55803,8 +57015,24 @@ schemas:
         base_path: mathematical_functions_schema.maths_space_or_function
     - _class: Expressir::Model::Declarations::Variable
       id: prpfun
+      remarks:
+      - Variables subject to a quantifier do not participate in this kind of
+      - substitution process.
+      untagged_remarks:
+      - Variables subject to a quantifier do not participate in this kind of
+      - substitution process.
       type:
         _class: Expressir::Model::DataTypes::List
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::References::SimpleReference
+          id: "?"
+        base_type:
+          _class: Expressir::Model::References::SimpleReference
+          id: maths_function
+          base_path: mathematical_functions_schema.maths_function
     - _class: Expressir::Model::Declarations::Variable
       id: finfun
       type:
@@ -55836,6 +57064,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::If
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
@@ -56409,6 +57638,8 @@ schemas:
       id: typenames
       type:
         _class: Expressir::Model::DataTypes::Set
+        base_type:
+          _class: Expressir::Model::DataTypes::String
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -56680,6 +57911,7 @@ schemas:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::References::SimpleReference
+          id: "?"
     - _class: Expressir::Model::Statements::If
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
@@ -57186,3 +58418,4 @@ schemas:
     - _class: Expressir::Model::Statements::Return
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"

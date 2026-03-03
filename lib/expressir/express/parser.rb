@@ -1,11 +1,78 @@
-require "parslet"
+require_relative "parslet_compat"
 require_relative "error"
+require_relative "builder"
+require_relative "builders"
+require_relative "remark_attacher"
+require_relative "streaming_builder"
 
 module Expressir
   module Express
     class Parser
       class Parser < Parslet::Parser
         root(:syntax)
+
+        # Cache for native parser grammar (class-level)
+        @@cached_grammar_json = nil
+        @@cached_grammar_atom_id = nil
+
+        # Cache for parser instance (avoids ~7ms overhead of Parser.new)
+        @@cached_parser = nil
+        @@parser_mutex = Mutex.new
+
+        # Get cached parser instance (thread-safe)
+        # Reusing the parser avoids the overhead of reinitializing all rule definitions
+        def self.cached_parser
+          return @@cached_parser if @@cached_parser
+
+          @@parser_mutex.synchronize do
+            @@cached_parser ||= new
+          end
+        end
+
+        # Clear the cached parser (useful for testing or after grammar changes)
+        def self.clear_parser_cache
+          @@parser_mutex.synchronize do
+            @@cached_parser = nil
+          end
+        end
+
+        # Check if native parsing is available
+        def self.native_available?
+          return @native_available unless @native_available.nil?
+
+          @native_available = begin
+            require "parsanol/native"
+            Parsanol::Native.available?
+          rescue LoadError
+            false
+          end
+        end
+
+        # Get cached grammar JSON for native parsing
+        def self.cached_grammar_json
+          return @@cached_grammar_json if @@cached_grammar_json
+
+          parser = new
+          atom = parser.syntax
+
+          # Cache by atom object_id
+          if atom.object_id != @@cached_grammar_atom_id
+            @@cached_grammar_atom_id = atom.object_id
+            @@cached_grammar_json = Parsanol::Native.serialize_grammar(atom)
+          end
+
+          @@cached_grammar_json
+        end
+
+        # Parse using native engine (with caching)
+        def self.parse_native(source)
+          unless native_available?
+            raise LoadError, "Native parser not available"
+          end
+
+          # Use the public API that handles transformation
+          Parsanol::Native.parse_parslet_compatible(new.syntax, source)
+        end
 
         def cts(atom)
           spaces >> atom
@@ -610,15 +677,14 @@ module Expressir
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
           begin
-            ast = Parser.new.parse source
+            ast = Parser.cached_parser.parse source
           rescue Parslet::ParseFailed => e
             # Instead of just printing, raise a proper error with file context
             raise Error::SchemaParseFailure.new(schema_file, e)
           end
 
-          visitor = Expressir::Express::Visitor.new(source,
-                                                    include_source: include_source)
-          @repository = visitor.visit_ast ast, :top
+          @repository = Builder.build_with_remarks(ast, source: source,
+                                                        include_source: include_source)
 
           @repository.schemas.each do |schema|
             schema.file = schema_file
@@ -685,18 +751,38 @@ root_path: nil)
       # @param [String] content Express content as string
       # @param [Boolean] skip_references skip resolving references
       # @param [Boolean] include_source attach original source code to model elements
-      # @return [Model::Repository]
+      # @param [Boolean] use_native use native parser if available (default: false - AST format differs slightly)
+      # @param [Boolean] use_streaming use streaming builder for maximum performance (default: false)
+      # @param [Boolean] quick_parse use fast lexer-only parsing (returns structure hash, not model)
+      # @return [Model::Repository, Array<Hash>] Parsed repository or schema structure hash
       # @raise [SchemaParseFailure] if the content fails to parse
-      def self.from_exp(content, skip_references: nil, include_source: nil)
+      def self.from_exp(content, skip_references: nil, include_source: nil,
+use_native: false, use_streaming: false, quick_parse: false)
+        # Quick parse mode - just tokenize and scan for structure
+        if quick_parse
+          require_relative "lazy_parser"
+          return LazyParser.quick_parse(content)
+        end
+
+        # Streaming builder mode - uses Parsanol streaming callbacks
+        if use_streaming && Parser.native_available? && defined?(Parsanol::Native.parse_with_builder)
+          return from_exp_streaming(content, skip_references: skip_references,
+                                             include_source: include_source)
+        end
+
         begin
-          ast = Parser.new.parse content
-        rescue Parslet::ParseFailed => e
+          # Use cached parser instance for performance (avoids ~7ms Parser.new overhead)
+          ast = if use_native && Parser.native_available?
+                  Parser.parse_native(content)
+                else
+                  Parser.cached_parser.parse(content)
+                end
+        rescue Parslet::ParseFailed, StandardError => e
           raise Error::SchemaParseFailure.new("(from string)", e)
         end
 
-        visitor = Expressir::Express::Visitor.new(content,
-                                                  include_source: include_source)
-        repository = visitor.visit_ast ast, :top
+        repository = Builder.build_with_remarks(ast, source: content,
+                                                     include_source: include_source)
 
         repository.schemas.each do |schema|
           schema.file = nil
@@ -713,6 +799,42 @@ root_path: nil)
 
         repository
       end
+
+      # Parse using streaming builder (maximum performance)
+      # @param [String] content Express content as string
+      # @param [Boolean] skip_references skip resolving references
+      # @param [Boolean] include_source attach original source code to model elements
+      # @return [Model::Repository] Parsed repository
+      # @raise [SchemaParseFailure] if the content fails to parse
+      def self.from_exp_streaming(content, skip_references: nil,
+include_source: nil)
+        grammar_json = Parser.cached_grammar_json
+        builder = StreamingBuilder.new(source: content,
+                                       include_source: include_source)
+
+        begin
+          repository = Parsanol::Native.parse_with_builder(grammar_json,
+                                                           content, builder)
+        rescue StandardError => e
+          raise Error::SchemaParseFailure.new("(streaming)", e)
+        end
+
+        repository.schemas.each do |schema|
+          schema.file = nil
+          schema.file_basename = nil
+          schema.formatted = schema.to_s(no_remarks: true)
+        end
+
+        unless skip_references
+          Expressir::Benchmark.measure_references do
+            resolve_references_model_visitor = ResolveReferencesModelVisitor.new
+            resolve_references_model_visitor.visit(repository)
+          end
+        end
+
+        repository
+      end
+      private_class_method :from_exp_streaming
     end
   end
 end

@@ -245,7 +245,7 @@ RSpec.describe Expressir::Express::Parser do
       informal_proposition = entity.informal_propositions.first
       expect(informal_proposition.id).to eq("IP1")
       expect(informal_proposition.class).to eq(Expressir::Model::Declarations::InformalPropositionRule)
-      expect(informal_proposition.remark_items.first.remarks).to eq(["This is informal proposition"])
+      expect(informal_proposition.remark_items.first.remarks).to eq(["This is informal proposition 1"])
     end
 
     it "preserves tail remarks on attribute lines (non_ascii_in_remarks_only.exp)" do |_example|

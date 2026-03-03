@@ -219,6 +219,8 @@ module Expressir
           # not implemented yet
         when Model::ModelElement
           # not implemented yet
+        when Model::Literals::Logical
+          node.value
         when NilClass
           # not implemented yet
         else

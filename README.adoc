@@ -109,6 +109,53 @@ END_SCHEMA; -- test
 For implementation details, see link:docs/ARCHITECTURE.md#remark-attachment-system[Remark Attachment System].
 
 
+== Performance: Parsanol Integration
+
+Expressir uses the link:https://github.com/parsanol/parsanol-ruby[Parsanol] gem for high-performance parsing when available.
+
+=== Performance Comparison
+
+[cols="3,2,2,3"]
+|===
+| Mode | Time | Speedup | Notes
+
+| Ruby (Parslet) | 3036 ms | 1x (baseline) | Pure Ruby parsing
+| Native Batch (Parsanol) | 153 ms | 19.9x faster | AST via u64 array transfer
+| Native ZeroCopy (Parsanol) | 106 ms | 28.7x faster | Zero-copy with source positions
+|===
+
+=== Features
+
+When Parsanol is installed:
+
+* **18-44x faster parsing** - Rust native backend
+* **99.5% fewer allocations** - Arena-based AST construction
+* **Source position tracking** - Slice objects for error reporting
+* **Streaming Builder API** - Zero-allocation custom parsing
+
+=== Usage
+
+Expressir automatically uses Parsanol when available:
+
+[source,ruby]
+----
+# Automatically uses Parsanol if available, falls back to Parslet
+repo = Expressir::Express::Parser.from_file("geometry.exp")
+
+# Check if native parser is being used
+if Parsanol::Native.available?
+  puts "Using Parsanol (Rust parser)"
+end
+----
+
+For maximum performance, ensure the Parsanol gem is installed:
+
+[source,sh]
+----
+gem install parsanol
+----
+
+
 == Installation
 
 Add this line to your application's `Gemfile`:

@@ -24,14 +24,14 @@ module Expressir
 
     desc "format PATH", "pretty print EXPRESS schema located at PATH"
     method_option :profile, type: :string,
-                           desc: "Formatting profile: 'iso' (ISO/TC 184/SC 4) or 'elf' (ELF Pretty Print)",
-                           default: "iso"
+                            desc: "Formatting profile: 'iso' (ISO/TC 184/SC 4) or 'elf' (ELF Pretty Print)",
+                            default: "iso"
     method_option :indent, type: :numeric,
-                          desc: "Indentation width (ELF profile only)",
-                          default: 4
+                           desc: "Indentation width (ELF profile only)",
+                           default: 4
     method_option :provenance, type: :boolean,
-                              desc: "Include provenance information (ELF profile only)",
-                              default: true
+                               desc: "Include provenance information (ELF profile only)",
+                               default: true
     def format(path)
       Commands::Format.new(options).run(path)
     end

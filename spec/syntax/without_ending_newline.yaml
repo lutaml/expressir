@@ -3,7 +3,11 @@ _class: Expressir::Model::Repository
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: Analysis_representation_arm
+  remarks:
+  - ISO/TS 10303-1006
+  - Analysis_representation_arm
   untagged_remarks:
+  - ISO/TS 10303-1006
   - Analysis_representation_arm
   file: spec/syntax/without_ending_newline.exp
   interfaces:
@@ -15,8 +19,6 @@ schemas:
   entities:
   - _class: Expressir::Model::Declarations::Entity
     id: Analysis_model
-    untagged_remarks:
-    - ISO/TS 10303-1006
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: Representation

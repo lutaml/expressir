@@ -75,6 +75,7 @@ module Expressir
           remark.tail? ? " -- #{formatted_text}" : " (* #{formatted_text} *)"
         else
           return "" if remark.empty?
+
           " -- #{remark}"
         end
       end
@@ -98,6 +99,7 @@ module Expressir
           " -- #{formatted_text}"
         else
           return "" if remark.empty?
+
           # Legacy string format - assume it's a tail remark
           " -- #{remark}"
         end
@@ -120,17 +122,15 @@ module Expressir
           else
             "#{indent_str}(* #{text} *)"
           end
+        elsif remark.include?("\n")
+          lines = remark.split("\n")
+          [
+            "#{indent_str}(*",
+            *lines.map { |line| "#{indent_str}  #{line.strip}" },
+            "#{indent_str}*)",
+          ].join("\n")
         else
-          if remark.include?("\n")
-            lines = remark.split("\n")
-            [
-              "#{indent_str}(*",
-              *lines.map { |line| "#{indent_str}  #{line.strip}" },
-              "#{indent_str}*)",
-            ].join("\n")
-          else
-            "#{indent_str}-- #{remark}"
-          end
+          "#{indent_str}-- #{remark}"
         end
       end
 
@@ -142,11 +142,11 @@ module Expressir
         # For scope containers, exclude the last tail remark as it's the END_* remark
         # but keep all embedded remarks
         is_scope_container = node.is_a?(Model::Declarations::Schema) ||
-                             node.is_a?(Model::Declarations::Entity) ||
-                             node.is_a?(Model::Declarations::Type) ||
-                             node.is_a?(Model::Declarations::Function) ||
-                             node.is_a?(Model::Declarations::Procedure) ||
-                             node.is_a?(Model::Declarations::Rule)
+          node.is_a?(Model::Declarations::Entity) ||
+          node.is_a?(Model::Declarations::Type) ||
+          node.is_a?(Model::Declarations::Function) ||
+          node.is_a?(Model::Declarations::Procedure) ||
+          node.is_a?(Model::Declarations::Rule)
 
         preamble_remarks = node.untagged_remarks.select do |remark|
           if remark.is_a?(Model::RemarkInfo)
@@ -171,7 +171,9 @@ module Expressir
 
         return nil if preamble_remarks.empty?
 
-        preamble_remarks.map { |remark| format_preamble_remark(remark, indent_str) }.join("\n")
+        preamble_remarks.map do |remark|
+          format_preamble_remark(remark, indent_str)
+        end.join("\n")
       end
 
       def format_remarks(node)
@@ -187,13 +189,13 @@ module Expressir
 
         # Skip untagged remarks for nodes that handle them separately
         skip_untagged = node.is_a?(Model::Declarations::Attribute) ||
-                       node.is_a?(Model::DataTypes::EnumerationItem) ||
-                       node.is_a?(Model::Declarations::Schema) ||
-                       node.is_a?(Model::Declarations::Entity) ||
-                       node.is_a?(Model::Declarations::Type) ||
-                       node.is_a?(Model::Declarations::Function) ||
-                       node.is_a?(Model::Declarations::Procedure) ||
-                       node.is_a?(Model::Declarations::Rule)
+          node.is_a?(Model::DataTypes::EnumerationItem) ||
+          node.is_a?(Model::Declarations::Schema) ||
+          node.is_a?(Model::Declarations::Entity) ||
+          node.is_a?(Model::Declarations::Type) ||
+          node.is_a?(Model::Declarations::Function) ||
+          node.is_a?(Model::Declarations::Procedure) ||
+          node.is_a?(Model::Declarations::Rule)
 
         # Add untagged remarks only for nodes that don't handle them specially
         if !skip_untagged && node.respond_to?(:untagged_remarks) && !@no_remarks &&
@@ -219,7 +221,7 @@ module Expressir
           if !@no_remarks && node.respond_to?(:untagged_remarks) && !node.untagged_remarks.nil?
             node.untagged_remarks.compact.each do |remark|
               text = remark.is_a?(Model::RemarkInfo) ? remark.text : remark
-              schema_remarks[text] = remark unless text == "interfaces"  # Skip "interfaces"
+              schema_remarks[text] = remark unless text == "interfaces" # Skip "interfaces"
             end
           end
 
@@ -247,8 +249,8 @@ module Expressir
 
               # Add subtype constraints Schema remark after last entity, before first subtype constraint
               if entities_done && child.is_a?(Model::Declarations::SubtypeConstraint) && schema_remarks["subtype constraints"]
-                remarks.concat([format_untagged_remark(schema_remarks["subtype constraints"])])
-                schema_remarks.delete("subtype constraints")  # Only add once
+                remarks.push(format_untagged_remark(schema_remarks["subtype constraints"]))
+                schema_remarks.delete("subtype constraints") # Only add once
               end
 
               # Recursively collect from child
@@ -263,13 +265,13 @@ module Expressir
             Model::Declarations::Function,
             Model::Declarations::Procedure,
             Model::Declarations::Rule,
-            Model::Declarations::SubtypeConstraint
+            Model::Declarations::SubtypeConstraint,
           ]
 
           if !@no_remarks &&
-             node.respond_to?(:untagged_remarks) &&
-             !node.untagged_remarks.nil? &&
-             skip_untagged_types.any? { |type| node.is_a?(type) }
+              node.respond_to?(:untagged_remarks) &&
+              !node.untagged_remarks.nil? &&
+              skip_untagged_types.any? { |type| node.is_a?(type) }
 
             remarks.concat(node.untagged_remarks.compact.map do |remark|
               format_untagged_remark(remark)

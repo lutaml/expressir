@@ -137,7 +137,7 @@ module Expressir
       # @param [String] path
       # @return [ModelElement]
       def find(path)
-        return self if path.empty?
+        return self if path.nil? || path.empty?
 
         path_parts = path.safe_downcase.split(".").map do |current_path|
           _, _, current_path = current_path.rpartition(":") # ignore prefix
@@ -202,7 +202,8 @@ module Expressir
           self.untagged_remarks << remark_or_info
         elsif remark_or_info.is_a?(String)
           # Backward compatibility: assume embedded format for strings
-          self.untagged_remarks << RemarkInfo.new(text: remark_or_info, format: 'embedded')
+          self.untagged_remarks << RemarkInfo.new(text: remark_or_info,
+                                                  format: "embedded")
         end
       end
 
@@ -214,7 +215,7 @@ module Expressir
         return [] if untagged_remarks.nil?
 
         (untagged_remarks || []).map do |r|
-          r.is_a?(RemarkInfo) ? r : RemarkInfo.new(text: r, format: 'embedded')
+          r.is_a?(RemarkInfo) ? r : RemarkInfo.new(text: r, format: "embedded")
         end
       end
 

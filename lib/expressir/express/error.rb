@@ -15,7 +15,7 @@ module Expressir
         def initialize(filename, original_error)
           @filename = filename
           @original_error = original_error
-          @parse_failure_cause = original_error.parse_failure_cause
+          @parse_failure_cause = original_error.respond_to?(:parse_failure_cause) ? original_error.parse_failure_cause : nil
           super("Failed to parse schema in file '#{filename}': #{original_error.message}")
         end
       end
@@ -63,6 +63,18 @@ module Expressir
         def initialize(formatter, method = nil)
           method_msg = method ? " Missing method: #{method}" : " Missing required method."
           super("Formatter error in #{formatter}.#{method_msg}")
+        end
+      end
+
+      # Error raised when an unknown AST node type is encountered
+      class UnknownNodeTypeError < ExpressError
+        attr_reader :node_type
+
+        # Initialize a new UnknownNodeTypeError
+        # @param node_type [Symbol] The unknown node type
+        def initialize(node_type)
+          @node_type = node_type
+          super("Unknown AST node type: #{node_type}")
         end
       end
 

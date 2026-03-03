@@ -708,24 +708,19 @@ PROCEDURE types;
   TYPE set_bound_type = SET [1:9] OF STRING;
   END_TYPE;
   TYPE select_type = SELECT
-    OF
-      ();
+    ();
   END_TYPE;
   TYPE select_extensible_type = EXTENSIBLE SELECT
-    OF
-      ();
+    ();
   END_TYPE;
   TYPE select_extensible_generic_entity_type = EXTENSIBLE GENERIC_ENTITY SELECT
-    OF
-      ();
+    ();
   END_TYPE;
   TYPE select_item_type = SELECT
-    OF
-      (empty_type);
+    (empty_type);
   END_TYPE;
   TYPE select_multiple_item_type = SELECT
-    OF
-      (empty_type);
+    (empty_type);
   END_TYPE;
   TYPE select_based_on_type = SELECT BASED_ON select_type;
   END_TYPE;
@@ -780,10 +775,10 @@ PROCEDURE expressions;
     simple_string_expression : BOOLEAN := 'xxx';
     utf8_simple_string_expression : BOOLEAN := 'UTF8 test: Příliš žluťoučký kůň úpěl ďábelské ódy.';
     encoded_string_expression : BOOLEAN := "000000780000007800000078";
-    const_e_expression : BOOLEAN := ;
-    indeterminate_expression : BOOLEAN := ;
-    pi_expression : BOOLEAN := ;
-    self_expression : BOOLEAN := ;
+    const_e_expression : BOOLEAN := CONST_E;
+    indeterminate_expression : BOOLEAN := ?;
+    pi_expression : BOOLEAN := PI;
+    self_expression : BOOLEAN := SELF;
     abs_expression : BOOLEAN := (TRUE);
     acos_expression : BOOLEAN := (TRUE);
     asin_expression : BOOLEAN := (TRUE);

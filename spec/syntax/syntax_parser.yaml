@@ -2135,12 +2135,8 @@ schemas:
       id: encoded_string_expression
       remarks:
       - constant expressions
-      - function expressions
-      - operator expressions
       untagged_remarks:
       - constant expressions
-      - function expressions
-      - operator expressions
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2153,24 +2149,34 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: CONST_E
     - _class: Expressir::Model::Declarations::Variable
       id: indeterminate_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: "?"
     - _class: Expressir::Model::Declarations::Variable
       id: pi_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: PI
     - _class: Expressir::Model::Declarations::Variable
       id: self_expression
+      remarks:
+      - function expressions
+      - operator expressions
+      untagged_remarks:
+      - function expressions
+      - operator expressions
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::References::SimpleReference
+        id: SELF
     - _class: Expressir::Model::Declarations::Variable
       id: abs_expression
       type:

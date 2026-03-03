@@ -389,11 +389,11 @@ module Expressir
         if node.statements&.length&.positive?
           formatted_statements = node.statements.reject do |stmt|
             # Filter ALIAS/REPEAT with only Null statements
-            if (stmt.is_a?(Model::Statements::Alias) || stmt.is_a?(Model::Statements::Repeat))
-              stmt.statements&.all? { |s| s.is_a?(Model::Statements::Null) }
+            if stmt.is_a?(Model::Statements::Alias) || stmt.is_a?(Model::Statements::Repeat)
+              stmt.statements&.all?(Model::Statements::Null)
             # Filter query assignments (assignments with QueryExpression that exist only for remarks)
             elsif stmt.is_a?(Model::Statements::Assignment) &&
-                  stmt.expression.is_a?(Model::Expressions::QueryExpression)
+                stmt.expression.is_a?(Model::Expressions::QueryExpression)
               true
             # Filter Null statements
             elsif stmt.is_a?(Model::Statements::Null)
@@ -546,7 +546,6 @@ module Expressir
             "END_SCHEMA",
             ";",
           ].join,
-          *format_scope_remarks(node),
         ].join("\n")
       end
 

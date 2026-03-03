@@ -38,7 +38,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "lutaml-model"
   spec.add_dependency "moxml"
   spec.add_dependency "paint"
-  spec.add_dependency "parslet", "~> 2.0"
+  spec.add_dependency "parsanol", "~> 1.0"
   spec.add_dependency "ruby-progressbar", "~> 1.11"
   spec.add_dependency "rubyzip", "~> 2.3"
   spec.add_dependency "table_tennis"

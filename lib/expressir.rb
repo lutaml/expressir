@@ -41,6 +41,7 @@ module Expressir
 
   # Autoload for Express module classes
   module Express
+    autoload :Builder, "expressir/express/builder"
     autoload :Cache, "expressir/express/cache"
     autoload :Error, "expressir/express/error"
     autoload :Formatter, "expressir/express/formatter"
@@ -48,10 +49,11 @@ module Expressir
     autoload :ModelVisitor, "expressir/express/model_visitor"
     autoload :Parser, "expressir/express/parser"
     autoload :PrettyFormatter, "expressir/express/pretty_formatter"
+    autoload :RemarkAttacher, "expressir/express/remark_attacher"
     autoload :ResolveReferencesModelVisitor,
              "expressir/express/resolve_references_model_visitor"
     autoload :SchemaHeadFormatter, "expressir/express/schema_head_formatter"
-    autoload :Visitor, "expressir/express/visitor"
+    autoload :StreamingBuilder, "expressir/express/streaming_builder"
   end
 
   # Autoload for Model module classes

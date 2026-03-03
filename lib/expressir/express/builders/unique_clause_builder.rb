@@ -1,0 +1,22 @@
+# frozen_string_literal: true
+
+module Expressir
+  module Express
+    module Builders
+      # Builds unique_clause nodes.
+      class UniqueClauseBuilder
+        def call(ast_data)
+          rules_data = ast_data[:list_of_unique_rule] || ast_data[:unique_rule]
+          return [] unless rules_data
+
+          rules_data = [rules_data] if rules_data.is_a?(Hash)
+          rules_data.flatten.compact.filter_map do |rule|
+            Builder.build({ unique_rule: rule })
+          end
+        end
+      end
+    end
+  end
+end
+
+Builder.register(:unique_clause, Expressir::Express::Builders::UniqueClauseBuilder.new)

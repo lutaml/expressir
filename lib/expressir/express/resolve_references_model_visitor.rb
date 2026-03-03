@@ -13,6 +13,7 @@ module Expressir
 
       def visit_references_simple_reference(node)
         return if node.parent.is_a? Model::References::AttributeReference
+        return unless node.id # Skip if no id to resolve
 
         base_item = if node.parent.is_a? Model::Declarations::InterfaceItem
                       node.find("#{node.parent.parent.schema.id}.#{node.parent.ref.id}")

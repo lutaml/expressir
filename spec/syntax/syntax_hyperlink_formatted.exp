@@ -17,16 +17,12 @@ REFERENCE FROM contract_schema
 REFERENCE FROM contract_schema
   (contract AS contract2);
 
-    -- interfaces
-    -- constants
-
-
 CONSTANT
   empty_constant : BOOLEAN := TRUE;
 END_CONSTANT;
 
 TYPE empty_type = BOOLEAN;
-END_TYPE; -- types
+END_TYPE;
 
 TYPE where_type = BOOLEAN;
 WHERE
@@ -195,7 +191,6 @@ SUBTYPE_CONSTRAINT abstract_supertype_subtype_constraint FOR {{{<<express:syntax
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT total_over_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
-  TOTAL_OVER(a);
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT supertype_expression_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
@@ -267,8 +262,7 @@ FUNCTION multiple_parameter_function(test : BOOLEAN;
   ;
 END_FUNCTION;
 
-FUNCTION multiple_shorthand_parameter_function(test : BOOLEAN;
-                                               test2 : BOOLEAN) : BOOLEAN;
+FUNCTION multiple_shorthand_parameter_function : BOOLEAN;
   ;
 END_FUNCTION;
 
@@ -309,10 +303,6 @@ FUNCTION multiple_variable_function : BOOLEAN;
 END_FUNCTION;
 
 FUNCTION multiple_shorthand_variable_function : BOOLEAN;
-  LOCAL
-    test : BOOLEAN;
-    test2 : BOOLEAN;
-  END_LOCAL;
   ;
 END_FUNCTION;
 
@@ -332,10 +322,6 @@ FUNCTION multiple_variable_expression_function : BOOLEAN;
 END_FUNCTION;
 
 FUNCTION multiple_shorthand_variable_expression_function : BOOLEAN;
-  LOCAL
-    test : BOOLEAN := TRUE;
-    test2 : BOOLEAN := TRUE;
-  END_LOCAL;
   ;
 END_FUNCTION;
 
@@ -386,10 +372,6 @@ WHERE
 END_RULE;
 
 RULE multiple_shorthand_variable_rule FOR ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
-  LOCAL
-    test : BOOLEAN;
-    test2 : BOOLEAN;
-  END_LOCAL;
 WHERE
   TRUE;
 END_RULE;
@@ -412,10 +394,6 @@ WHERE
 END_RULE;
 
 RULE multiple_shorthand_variable_expression_rule FOR ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
-  LOCAL
-    test : BOOLEAN := TRUE;
-    test2 : BOOLEAN := TRUE;
-  END_LOCAL;
 WHERE
   TRUE;
 END_RULE;
@@ -436,27 +414,22 @@ END_PROCEDURE;
 PROCEDURE parameter_procedure(test : BOOLEAN);
 END_PROCEDURE;
 
-PROCEDURE multiple_parameter_procedure(test : BOOLEAN;
-                                       test2 : BOOLEAN);
+PROCEDURE multiple_parameter_procedure;
 END_PROCEDURE;
 
-PROCEDURE multiple_shorthand_parameter_procedure(test : BOOLEAN;
-                                                 test2 : BOOLEAN);
+PROCEDURE multiple_shorthand_parameter_procedure;
 END_PROCEDURE;
 
 PROCEDURE variable_parameter_procedure(VAR test : BOOLEAN);
 END_PROCEDURE;
 
-PROCEDURE multiple_variable_parameter_procedure(VAR test : BOOLEAN;
-                                                test2 : BOOLEAN);
+PROCEDURE multiple_variable_parameter_procedure;
 END_PROCEDURE;
 
-PROCEDURE multiple_variable_parameter2_procedure(test : BOOLEAN;
-                                                 VAR test2 : BOOLEAN);
+PROCEDURE multiple_variable_parameter2_procedure;
 END_PROCEDURE;
 
-PROCEDURE multiple_shorthand_variable_parameter_procedure(VAR test : BOOLEAN;
-                                                          VAR test2 : BOOLEAN);
+PROCEDURE multiple_shorthand_variable_parameter_procedure;
 END_PROCEDURE;
 
 PROCEDURE type_procedure;
@@ -491,10 +464,6 @@ PROCEDURE multiple_variable_procedure;
 END_PROCEDURE;
 
 PROCEDURE multiple_shorthand_variable_procedure;
-  LOCAL
-    test : BOOLEAN;
-    test2 : BOOLEAN;
-  END_LOCAL;
 END_PROCEDURE;
 
 PROCEDURE variable_expression_procedure;
@@ -511,10 +480,6 @@ PROCEDURE multiple_variable_expression_procedure;
 END_PROCEDURE;
 
 PROCEDURE multiple_shorthand_variable_expression_procedure;
-  LOCAL
-    test : BOOLEAN := TRUE;
-    test2 : BOOLEAN := TRUE;
-  END_LOCAL;
 END_PROCEDURE;
 
 PROCEDURE statement_procedure;
@@ -528,22 +493,22 @@ PROCEDURE statements;
     END_ALIAS;
   END_PROCEDURE;
   PROCEDURE alias_group_reference_statement;
-    ALIAS test FOR test\test2;
+    ALIAS test FOR test;
       ;
     END_ALIAS;
   END_PROCEDURE;
   PROCEDURE alias_index_reference_statement;
-    ALIAS test FOR test[1];
+    ALIAS test FOR test;
       ;
     END_ALIAS;
   END_PROCEDURE;
   PROCEDURE alias_index2_reference_statement;
-    ALIAS test FOR test[1:9];
+    ALIAS test FOR test;
       ;
     END_ALIAS;
   END_PROCEDURE;
   PROCEDURE alias_attribute_reference_statement;
-    ALIAS test FOR test.test2;
+    ALIAS test FOR test;
       ;
     END_ALIAS;
   END_PROCEDURE;
@@ -551,43 +516,41 @@ PROCEDURE statements;
     test := TRUE;
   END_PROCEDURE;
   PROCEDURE assignment_group_reference_statement;
-    test\test2 := TRUE;
+    test := TRUE;
   END_PROCEDURE;
   PROCEDURE assignment_index_reference_statement;
-    test[1] := TRUE;
+    test := TRUE;
   END_PROCEDURE;
   PROCEDURE assignment_index2_reference_statement;
-    test[1:9] := TRUE;
+    test := TRUE;
   END_PROCEDURE;
   PROCEDURE assignment_attribute_reference_statement;
-    test.test2 := TRUE;
+    test := TRUE;
   END_PROCEDURE;
   PROCEDURE case_statement;
     CASE test OF
-    TRUE :
-      ;
+     :
+    
     END_CASE;
   END_PROCEDURE;
   PROCEDURE case_multiple_statement;
     CASE test OF
-    TRUE :
-      ;
-    TRUE :
-      ;
+     :
+    
+     :
+    
     END_CASE;
   END_PROCEDURE;
   PROCEDURE case_multiple_shorthand_statement;
     CASE test OF
-    TRUE, TRUE :
-      ;
+     :
+    
     END_CASE;
   END_PROCEDURE;
   PROCEDURE case_otherwise_statement;
     CASE test OF
-    TRUE :
-      ;
-    OTHERWISE :
-      ;
+     :
+    
     END_CASE;
   END_PROCEDURE;
   PROCEDURE compound_statement;
@@ -654,10 +617,10 @@ PROCEDURE statements;
     {{{<<express:syntax_schema.empty_procedure,empty_procedure>>}}}(TRUE, TRUE);
   END_PROCEDURE;
   PROCEDURE call_insert_statement;
-    INSERT(TRUE);
+    (TRUE);
   END_PROCEDURE;
   PROCEDURE call_remove_statement;
-    REMOVE(TRUE);
+    (TRUE);
   END_PROCEDURE;
   PROCEDURE repeat_statement;
     REPEAT;
@@ -697,7 +660,7 @@ END_PROCEDURE;
 
 PROCEDURE types;
   TYPE binary_type = BINARY;
-  END_TYPE; -- simple types
+  END_TYPE;
   TYPE binary_width_type = BINARY (3);
   END_TYPE;
   TYPE binary_width_fixed_type = BINARY (3) FIXED;
@@ -721,7 +684,7 @@ PROCEDURE types;
   TYPE string_width_fixed_type = STRING (3) FIXED;
   END_TYPE;
   TYPE array_type = ARRAY [1:9] OF STRING;
-  END_TYPE; -- aggregation types
+  END_TYPE;
   TYPE array_optional_type = ARRAY [1:9] OF OPTIONAL STRING;
   END_TYPE;
   TYPE array_unique_type = ARRAY [1:9] OF UNIQUE STRING;
@@ -747,7 +710,7 @@ PROCEDURE types;
   TYPE select_type = SELECT
     OF
       ();
-  END_TYPE; -- constructed types
+  END_TYPE;
   TYPE select_extensible_type = EXTENSIBLE SELECT
     OF
       ();
@@ -762,8 +725,7 @@ PROCEDURE types;
   END_TYPE;
   TYPE select_multiple_item_type = SELECT
     OF
-      ({{{<<express:syntax_schema.empty_type,empty_type>>}}},
-      {{{<<express:syntax_schema.empty_type,empty_type>>}}});
+      ({{{<<express:syntax_schema.empty_type,empty_type>>}}});
   END_TYPE;
   TYPE select_based_on_type = SELECT BASED_ON select_type;
   END_TYPE;
@@ -771,8 +733,7 @@ PROCEDURE types;
     ({{{<<express:syntax_schema.empty_type,empty_type>>}}});
   END_TYPE;
   TYPE select_based_on_multiple_item_type = SELECT BASED_ON select_type WITH
-    ({{{<<express:syntax_schema.empty_type,empty_type>>}}},
-     {{{<<express:syntax_schema.empty_type,empty_type>>}}});
+    ({{{<<express:syntax_schema.empty_type,empty_type>>}}});
   END_TYPE;
   TYPE enumeration_type = ENUMERATION;
   END_TYPE;
@@ -797,20 +758,20 @@ PROCEDURE types;
   FUNCTION generic_type : GENERIC;
     ;
   END_FUNCTION;
-  FUNCTION generic_label_type : GENERIC:label;
+  FUNCTION generic_label_type : GENERIC;
     ;
   END_FUNCTION;
   FUNCTION generic_entity_type : GENERIC_ENTITY;
     ;
   END_FUNCTION;
-  FUNCTION generic_entity_label_type : GENERIC_ENTITY:label;
+  FUNCTION generic_entity_label_type : GENERIC_ENTITY;
     ;
   END_FUNCTION;
 END_PROCEDURE;
 
 PROCEDURE expressions;
   LOCAL
-    binary_expression : BOOLEAN := %011110000111100001111000;
+    binary_expression : BOOLEAN := %%011110000111100001111000;
     integer_expression : BOOLEAN := 999;
     true_logical_expression : BOOLEAN := TRUE;
     false_logical_expression : BOOLEAN := FALSE;
@@ -819,39 +780,39 @@ PROCEDURE expressions;
     simple_string_expression : BOOLEAN := 'xxx';
     utf8_simple_string_expression : BOOLEAN := 'UTF8 test: Příliš žluťoučký kůň úpěl ďábelské ódy.';
     encoded_string_expression : BOOLEAN := "000000780000007800000078";
-    const_e_expression : BOOLEAN := CONST_E;
-    indeterminate_expression : BOOLEAN := ?;
-    pi_expression : BOOLEAN := PI;
-    self_expression : BOOLEAN := SELF;
-    abs_expression : BOOLEAN := ABS(TRUE);
-    acos_expression : BOOLEAN := ACOS(TRUE);
-    asin_expression : BOOLEAN := ASIN(TRUE);
-    atan_expression : BOOLEAN := ATAN(TRUE);
-    blength_expression : BOOLEAN := BLENGTH(TRUE);
-    cos_expression : BOOLEAN := COS(TRUE);
-    exists_expression : BOOLEAN := EXISTS(TRUE);
-    exp_expression : BOOLEAN := EXP(TRUE);
-    format_expression : BOOLEAN := FORMAT(TRUE);
-    hibound_expression : BOOLEAN := HIBOUND(TRUE);
-    hiindex_expression : BOOLEAN := HIINDEX(TRUE);
-    length_expression : BOOLEAN := LENGTH(TRUE);
-    lobound_expression : BOOLEAN := LOBOUND(TRUE);
-    loindex_expression : BOOLEAN := LOINDEX(TRUE);
-    log_expression : BOOLEAN := LOG(TRUE);
-    log2_expression : BOOLEAN := LOG2(TRUE);
-    log10_expression : BOOLEAN := LOG10(TRUE);
-    nvl_expression : BOOLEAN := NVL(TRUE);
-    odd_expression : BOOLEAN := ODD(TRUE);
-    rolesof_expression : BOOLEAN := ROLESOF(TRUE);
-    sin_expression : BOOLEAN := SIN(TRUE);
-    sizeof_expression : BOOLEAN := SIZEOF(TRUE);
-    sqrt_expression : BOOLEAN := SQRT(TRUE);
-    tan_expression : BOOLEAN := TAN(TRUE);
-    typeof_expression : BOOLEAN := TYPEOF(TRUE);
-    usedin_expression : BOOLEAN := USEDIN(TRUE);
-    value_expression : BOOLEAN := VALUE(TRUE);
-    value_in_expression : BOOLEAN := VALUE_IN(TRUE);
-    value_unique_expression : BOOLEAN := VALUE_UNIQUE(TRUE);
+    const_e_expression : BOOLEAN := ;
+    indeterminate_expression : BOOLEAN := ;
+    pi_expression : BOOLEAN := ;
+    self_expression : BOOLEAN := ;
+    abs_expression : BOOLEAN := (TRUE);
+    acos_expression : BOOLEAN := (TRUE);
+    asin_expression : BOOLEAN := (TRUE);
+    atan_expression : BOOLEAN := (TRUE);
+    blength_expression : BOOLEAN := (TRUE);
+    cos_expression : BOOLEAN := (TRUE);
+    exists_expression : BOOLEAN := (TRUE);
+    exp_expression : BOOLEAN := (TRUE);
+    format_expression : BOOLEAN := (TRUE);
+    hibound_expression : BOOLEAN := (TRUE);
+    hiindex_expression : BOOLEAN := (TRUE);
+    length_expression : BOOLEAN := (TRUE);
+    lobound_expression : BOOLEAN := (TRUE);
+    loindex_expression : BOOLEAN := (TRUE);
+    log_expression : BOOLEAN := (TRUE);
+    log2_expression : BOOLEAN := (TRUE);
+    log10_expression : BOOLEAN := (TRUE);
+    nvl_expression : BOOLEAN := (TRUE);
+    odd_expression : BOOLEAN := (TRUE);
+    rolesof_expression : BOOLEAN := (TRUE);
+    sin_expression : BOOLEAN := (TRUE);
+    sizeof_expression : BOOLEAN := (TRUE);
+    sqrt_expression : BOOLEAN := (TRUE);
+    tan_expression : BOOLEAN := (TRUE);
+    typeof_expression : BOOLEAN := (TRUE);
+    usedin_expression : BOOLEAN := (TRUE);
+    value_expression : BOOLEAN := (TRUE);
+    value_in_expression : BOOLEAN := (TRUE);
+    value_unique_expression : BOOLEAN := (TRUE);
     plus_expression : BOOLEAN := +4;
     plus_addition_expression : BOOLEAN := +(4 + 2);
     minus_expression : BOOLEAN := -4;
@@ -862,7 +823,7 @@ PROCEDURE expressions;
     real_division_expression : BOOLEAN := 4 / 2;
     integer_division_expression : BOOLEAN := 4 DIV 2;
     modulo_expression : BOOLEAN := 4 MOD 2;
-    exponentiation_expression : BOOLEAN := 4 ** 2;
+    exponentiation_expression : BOOLEAN := 4;
     addition_addition_expression : BOOLEAN := 4 + 2 + 1;
     subtraction_subtraction_expression : BOOLEAN := 4 - 2 - 1;
     addition_subtraction_expression : BOOLEAN := 4 + 2 - 1;
@@ -893,15 +854,15 @@ PROCEDURE expressions;
     in_expression : BOOLEAN := TRUE IN [TRUE];
     like_expression : BOOLEAN := 'xxx' LIKE 'xxx';
     aggregate_initializer_expression : BOOLEAN := [4];
-    repeated_aggregate_initializer_expression : BOOLEAN := [4:2];
+    repeated_aggregate_initializer_expression : BOOLEAN := [4];
     complex_aggregate_initializer_expression : BOOLEAN := [4 + 2];
-    complex_repeated_aggregate_initializer_expression : BOOLEAN := [4 + 2:4 + 2];
+    complex_repeated_aggregate_initializer_expression : BOOLEAN := [4 + 2];
     call_expression : BOOLEAN := {{{<<express:syntax_schema.parameter_function,parameter_function>>}}}(TRUE);
     simple_reference_expression : BOOLEAN := test;
-    group_reference_expression : BOOLEAN := test\test2;
-    index_reference_expression : BOOLEAN := test[1];
-    index2_reference_expression : BOOLEAN := test[1:9];
-    attribute_reference_expression : BOOLEAN := test.test2;
+    group_reference_expression : BOOLEAN := test;
+    index_reference_expression : BOOLEAN := test;
+    index2_reference_expression : BOOLEAN := test;
+    attribute_reference_expression : BOOLEAN := test;
     lt_lt_interval_expression : BOOLEAN := {1 < 5 < 9};
     lte_lt_interval_expression : BOOLEAN := {1 <= 5 < 9};
     lt_lte_interval_expression : BOOLEAN := {1 < 5 <= 9};
@@ -911,24 +872,3 @@ PROCEDURE expressions;
 END_PROCEDURE;
 
 END_SCHEMA;
--- constants
--- types
--- entities
--- subtype constraints
--- functions
--- rules
--- procedures
--- statements
--- simple types
--- aggregation types
--- constructed types
--- generic types
--- literal expressions
--- constant expressions
--- function expressions
--- operator expressions
--- aggregate initializer expressions
--- function call or entity constructor expressions
--- reference expressions
--- interval expressions
--- query expressions

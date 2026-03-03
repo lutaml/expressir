@@ -12,7 +12,8 @@ module Expressir
         when "iso"
           format_with_iso_profile(repository)
         else
-          say "Error: Unknown profile '#{profile}'. Valid profiles are: 'iso', 'elf'", :red
+          say "Error: Unknown profile '#{profile}'. Valid profiles are: 'iso', 'elf'",
+              :red
           exit 1
         end
       end
@@ -22,7 +23,7 @@ module Expressir
       def format_with_elf_profile(repository)
         formatter_options = {
           indent: options[:indent] || 4,
-          provenance: options.fetch(:provenance, true)
+          provenance: options.fetch(:provenance, true),
         }
 
         formatter = Expressir::Express::PrettyFormatter.new(formatter_options)

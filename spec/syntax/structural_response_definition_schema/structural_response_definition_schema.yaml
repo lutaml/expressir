@@ -3,6 +3,11 @@ _class: Expressir::Model::Repository
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: structural_response_definition_schema
+  remarks:
+  - The subject of the *structural_response_definition_schema* is the definitional
+    aspects of a finite element analysis model that describe the structural response
+    of a product.
+  - structural_response_definition_schema
   remark_items:
   - _class: Expressir::Model::Declarations::RemarkItem
     id: __fund_cons
@@ -87,13 +92,6 @@ schemas:
       [[fig-fea-information-model-high-level]]
       .FEA information model high level relationships EXPRESS-G partial model
       image::images/fig-2.svg[]
-    remark_items:
-    - _class: Expressir::Model::Declarations::RemarkItem
-      id: structural_response_definition_schema
-      remarks:
-      - The subject of the *structural_response_definition_schema* is the definitional
-        aspects of a finite element analysis model that describe the structural response
-        of a product.
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: property_definition

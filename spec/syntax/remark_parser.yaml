@@ -169,6 +169,7 @@ schemas:
       _class: Expressir::Model::References::SimpleReference
       id: remark_entity
       base_path: remark_schema.remark_entity
+    abstract: false
   functions:
   - _class: Expressir::Model::Declarations::Function
     id: remark_function
@@ -261,11 +262,9 @@ schemas:
         remarks:
         - function query scope - function query
         aggregate_source:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: remark_variable
-            base_path: remark_schema.remark_function.remark_variable
+          _class: Expressir::Model::References::SimpleReference
+          id: remark_variable
+          base_path: remark_schema.remark_function.remark_variable
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -353,11 +352,9 @@ schemas:
         remarks:
         - rule query scope - rule query
         aggregate_source:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: remark_variable
-            base_path: remark_schema.remark_rule.remark_variable
+          _class: Expressir::Model::References::SimpleReference
+          id: remark_variable
+          base_path: remark_schema.remark_rule.remark_variable
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -479,11 +476,9 @@ schemas:
         remarks:
         - procedure query scope - procedure query
         aggregate_source:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: remark_variable
-            base_path: remark_schema.remark_procedure.remark_variable
+          _class: Expressir::Model::References::SimpleReference
+          id: remark_variable
+          base_path: remark_schema.remark_procedure.remark_variable
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'

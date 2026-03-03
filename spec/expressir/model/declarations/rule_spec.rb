@@ -199,11 +199,15 @@ RSpec.describe Expressir::Model::Declarations::Rule do
       )
     end
 
-    xit "establishes parent relationship with schema" do
+    before do
+      schema # Force schema creation to establish parent relationship
+    end
+
+    it "establishes parent relationship with schema" do
       expect(rule.parent).to eq schema
     end
 
-    xit "establishes parent relationships with children" do
+    it "establishes parent relationships with children" do
       expect(type.parent).to eq rule
       expect(entity.parent).to eq rule
       expect(subtype_constraint.parent).to eq rule

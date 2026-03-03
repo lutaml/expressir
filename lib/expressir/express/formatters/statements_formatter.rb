@@ -178,7 +178,7 @@ module Expressir
                ].join
              end,
             *if node.until_expression
-             [
+               [
                  " ",
                  "UNTIL",
                  " ",

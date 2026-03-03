@@ -88,9 +88,23 @@ RSpec.describe Expressir::Model::Declarations::Schema do
     )
   end
 
+  let(:source_type) do
+    Expressir::Model::Declarations::Type.new(
+      id: "source_type",
+      underlying_type: Expressir::Model::DataTypes::String.new,
+    )
+  end
+
+  let(:source_schema) do
+    described_class.new(
+      id: "source_schema",
+      types: [source_type],
+    )
+  end
+
   let(:repository) do
     Expressir::Model::Repository.new(
-      schemas: [schema],
+      schemas: [source_schema, schema],
     )
   end
 
@@ -147,9 +161,13 @@ RSpec.describe Expressir::Model::Declarations::Schema do
       schema.parent = repository
     end
 
-    xit "returns all child elements including interfaced items" do
+    it "returns all child elements including interfaced items" do
       children = schema.children
-      expect(children).to include(interface)
+      # children includes interfaced_items (resolved from interfaces)
+      # The interface references source_type renamed to renamed_type
+      interfaced_item = children.find { |c| c.is_a?(Expressir::Model::Declarations::InterfacedItem) && c.id == "renamed_type" }
+      expect(interfaced_item).not_to be_nil
+      expect(interfaced_item.base_item).to eq(source_type)
       expect(children).to include(constant)
       expect(children).to include(type)
       expect(children).to include(entity)

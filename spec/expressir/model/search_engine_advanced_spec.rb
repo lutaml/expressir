@@ -3,77 +3,82 @@
 require "spec_helper"
 
 RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
-  let(:schema1) { double(id: "schema1") }
-  let(:schema2) { double(id: "test_schema") }
+  let(:schema1) { double("Schema1") }
+  let(:schema2) { double("Schema2") }
 
-  let(:entity1) do
-    double(
-      id: "entity1",
-      path: "schema1.entity1",
-      parent: schema1,
-      attributes: [],
-      where_rules: [],
-      unique_rules: [],
-    )
-  end
+  let(:entity1) { double("Entity1") }
+  let(:entity2) { double("Entity2") }
 
-  let(:entity2) do
-    double(
-      id: "test_entity",
-      path: "test_schema.test_entity",
-      parent: schema2,
-      attributes: [],
-      where_rules: [],
-      unique_rules: [],
-    )
-  end
+  let(:attribute1) { double("Attribute1") }
+  let(:attribute2) { double("Attribute2") }
 
-  let(:attribute1) do
-    double(
-      id: "attr1",
-      path: "schema1.entity1.attr1",
-      parent: entity1,
-    )
-  end
-
-  let(:attribute2) do
-    double(
-      id: "test_attr",
-      path: "test_schema.test_entity.test_attr",
-      parent: entity2,
-    )
-  end
-
-  let(:repo) do
-    double(
-      schemas: [schema1, schema2],
-      entity_index: double(nil?: false),
-      type_index: double,
-    )
-  end
+  let(:repo) { double("Repository") }
 
   let(:engine) { described_class.new(repo) }
 
   before do
+    # Repository stubs
     allow(repo).to receive(:build_indexes)
+    allow(repo).to receive(:schemas).and_return([schema1, schema2])
+    allow(repo).to receive(:entity_index).and_return(double("EntityIndex", nil?: false))
+    allow(repo).to receive(:type_index).and_return(double("TypeIndex"))
+
+    # Schema1 stubs
+    allow(schema1).to receive(:id).and_return("schema1")
+    allow(schema1).to receive(:path).and_return("schema1")
+    allow(schema1).to receive(:parent).and_return(nil)
+    allow(schema1).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(true)
+    allow(schema1).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
     allow(schema1).to receive_messages(entities: [entity1], types: [],
                                        functions: [], procedures: [], rules: [], constants: [], interfaces: [])
+
+    # Schema2 stubs
+    allow(schema2).to receive(:id).and_return("test_schema")
+    allow(schema2).to receive(:path).and_return("test_schema")
+    allow(schema2).to receive(:parent).and_return(nil)
+    allow(schema2).to receive(:entities).and_return([])
+    allow(schema2).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(true)
+    allow(schema2).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
     allow(schema2).to receive_messages(entities: [entity2], types: [],
                                        functions: [], procedures: [], rules: [], constants: [], interfaces: [])
-    allow(entity1).to receive(:is_a?).with(Expressir::Model::Declarations::Schema).and_return(false)
-    allow(entity2).to receive(:is_a?).with(Expressir::Model::Declarations::Schema).and_return(false)
-    allow(schema1).to receive(:is_a?).with(Expressir::Model::Declarations::Schema).and_return(true)
-    allow(schema2).to receive(:is_a?).with(Expressir::Model::Declarations::Schema).and_return(true)
+
+    # Entity1 stubs
+    allow(entity1).to receive(:id).and_return("entity1")
+    allow(entity1).to receive(:path).and_return("schema1.entity1")
+    allow(entity1).to receive(:parent).and_return(schema1)
+    allow(entity1).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(false)
+    allow(entity1).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
     allow(entity1).to receive(:attributes).and_return([attribute1])
+    allow(entity1).to receive(:where_rules).and_return([])
+    allow(entity1).to receive(:unique_rules).and_return([])
+
+    # Entity2 stubs
+    allow(entity2).to receive(:id).and_return("test_entity")
+    allow(entity2).to receive(:path).and_return("test_schema.test_entity")
+    allow(entity2).to receive(:parent).and_return(schema2)
+    allow(entity2).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(false)
+    allow(entity2).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
     allow(entity2).to receive(:attributes).and_return([attribute2])
-    allow(attribute1).to receive(:is_a?).with(Expressir::Model::Declarations::DerivedAttribute).and_return(false)
-    allow(attribute1).to receive(:is_a?).with(Expressir::Model::Declarations::InverseAttribute).and_return(false)
-    allow(attribute2).to receive(:is_a?).with(Expressir::Model::Declarations::DerivedAttribute).and_return(false)
-    allow(attribute2).to receive(:is_a?).with(Expressir::Model::Declarations::InverseAttribute).and_return(false)
-    allow(attribute1).to receive(:is_a?).with(Expressir::Model::Declarations::Schema).and_return(false)
-    allow(attribute2).to receive(:is_a?).with(Expressir::Model::Declarations::Schema).and_return(false)
+    allow(entity2).to receive(:where_rules).and_return([])
+    allow(entity2).to receive(:unique_rules).and_return([])
+
+    # Attribute1 stubs
+    allow(attribute1).to receive(:id).and_return("attr1")
+    allow(attribute1).to receive(:path).and_return("schema1.entity1.attr1")
     allow(attribute1).to receive(:parent).and_return(entity1)
+    allow(attribute1).to receive(:is_a).with(Expressir::Model::Declarations::DerivedAttribute).and_return(false)
+    allow(attribute1).to receive(:is_a).with(Expressir::Model::Declarations::InverseAttribute).and_return(false)
+    allow(attribute1).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(false)
+    allow(attribute1).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
+
+    # Attribute2 stubs
+    allow(attribute2).to receive(:id).and_return("test_attr")
+    allow(attribute2).to receive(:path).and_return("test_schema.test_entity.test_attr")
     allow(attribute2).to receive(:parent).and_return(entity2)
+    allow(attribute2).to receive(:is_a).with(Expressir::Model::Declarations::DerivedAttribute).and_return(false)
+    allow(attribute2).to receive(:is_a).with(Expressir::Model::Declarations::InverseAttribute).and_return(false)
+    allow(attribute2).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(false)
+    allow(attribute2).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
   end
 
   describe "#search_with_depth" do

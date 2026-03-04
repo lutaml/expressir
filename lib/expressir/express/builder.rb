@@ -52,13 +52,11 @@ module Expressir
 
             # Always store source_offset for remark attachment (if source is available)
             # Only store source text when include_source is requested
-            if @source && result.respond_to?(:source=)
+            if @source && result.is_a?(Model::ModelElement)
               source_info = extract_source_info(node_data)
               if source_info
                 # Store offset for remark attachment (always needed)
-                if result.respond_to?(:source_offset=)
-                  result.source_offset = source_info[:offset]
-                end
+                result.source_offset = source_info[:offset]
                 # Store source text only when explicitly requested
                 if @include_source
                   result.source = source_info[:text]
@@ -71,7 +69,7 @@ module Expressir
             ast.map do |item|
               build(item)
             end
-          when Parslet::Slice
+          when Parsanol::Slice
             ast.to_s
           else
             ast
@@ -316,12 +314,12 @@ module Expressir
           return nil if depth > 10
 
           case data
-          when Parslet::Slice
+          when Parsanol::Slice
             data
           when Hash
             # Skip 'spaces' key which contains whitespace/comments before content
             # Look for 'str' key first as it usually contains the actual content
-            if data.key?(:str) && data[:str].is_a?(Parslet::Slice)
+            if data.key?(:str) && data[:str].is_a?(Parsanol::Slice)
               return data[:str]
             end
 
@@ -329,7 +327,7 @@ module Expressir
             data.each do |key, value|
               next if key == :spaces
 
-              return value if value.is_a?(Parslet::Slice)
+              return value if value.is_a?(Parsanol::Slice)
 
               result = find_slice(value, depth + 1)
               return result if result

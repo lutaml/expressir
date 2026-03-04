@@ -201,9 +201,9 @@ module Expressir
       def finish
         return nil unless @final_ast
 
-        # Convert Parsanol AST format to Parslet-compatible format
-        # Parsanol: {"key" => [{:a => ...}, {:b => ...}]}  (Array of single-key hashes)
-        # Parslet:  {:key => {:a => ..., :b => ...}}       (Hash with multiple keys)
+        # Convert Parsanol native AST format to Builder-compatible format
+        # Parsanol native: {"key" => [{:a => ...}, {:b => ...}]}  (Array of single-key hashes)
+        # Builder:  {:key => {:a => ..., :b => ...}}       (Hash with multiple keys)
         converted_ast = convert_ast_format(@final_ast)
 
         # Pass to the existing Builder
@@ -227,17 +227,17 @@ module Expressir
         result
       end
 
-      # Convert Parsanol AST format to Parslet-compatible format
+      # Convert Parsanol native AST format to Builder-compatible format
       #
-      # Parsanol represents:
+      # Parsanol native represents:
       # - Sequences as arrays of single-key hashes: [{:a => 1}, {:b => 2}, []]
       # - Strings as arrays of characters: {:str => ["a", "b", "c", nil]}
       # - Spaces as arrays of whitespace: {:spaces => [" ", "\\n"]}
       #
-      # Parslet represents:
+      # Builder expects:
       # - Sequences as hashes with multiple keys: {:a => 1, :b => 2}
-      # - Strings as Slice objects: {:str => "abc"@0}
-      # - Spaces as Slice objects: {:spaces => " "@0}
+      # - Strings as concatenated strings: {:str => "abc"}
+      # - Spaces as concatenated strings: {:spaces => " "}
       #
       # @param obj [Object] The AST node to convert
       # @return [Object] The converted AST

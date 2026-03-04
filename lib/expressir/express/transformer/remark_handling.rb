@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "parsanol"
 require "set"
 
 module Expressir
@@ -10,7 +11,7 @@ module Expressir
       extend self
 
       # Extract all remarks from the AST with their tags and source positions.
-      # @param ast [Hash] The AST from Parslet parser
+      # @param ast [Hash] The AST from Parsanol parser
       # @param source [String] The original source code
       # @return [Array<Hash>] Array of remark info hashes
       def extract_remarks(ast, source)
@@ -141,7 +142,7 @@ module Expressir
         case data
         when Hash
           data.each_value do |value|
-            return value if value.is_a?(Parslet::Slice)
+            return value if value.is_a?(Parsanol::Slice)
 
             result = find_slice(value, depth + 1)
             return result if result
@@ -165,7 +166,7 @@ module Expressir
 
       def find_by_path(model, path)
         return nil unless path
-        return nil unless model.respond_to?(:find)
+        return nil unless model.is_a?(Model::ModelElement)
 
         # Handle paths with colons (like "wr:WR1" for where rules)
         normalized_path = path.gsub(":", ".")
@@ -179,7 +180,7 @@ module Expressir
 
       def add_remark(node, text)
         return unless node
-        return unless node.respond_to?(:remarks)
+        return unless node.is_a?(Model::ModelElement)
 
         node.remarks ||= []
         node.remarks << text

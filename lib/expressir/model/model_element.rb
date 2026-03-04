@@ -212,7 +212,6 @@ module Expressir
       # Converts legacy string remarks to RemarkInfo for consistency
       # @return [Array<RemarkInfo>] Array of RemarkInfo objects
       def remark_infos
-        return [] unless respond_to?(:untagged_remarks)
         return [] if untagged_remarks.nil?
 
         (untagged_remarks || []).map do |r|

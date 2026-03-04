@@ -30,7 +30,7 @@ module Expressir
           end
 
           # Calculate objects per second
-          if result.respond_to?(:schemas)
+          if result.is_a?(Model::Repository)
             objects_per_second = calculate_objects_per_second(result)
             puts "Objects per second: #{objects_per_second}" if Expressir.configuration.benchmark_verbose?
           end
@@ -42,7 +42,7 @@ module Expressir
             result = yield
           end
 
-          if result.respond_to?(:schemas)
+          if result.is_a?(Model::Repository)
             objects_per_second = calculate_objects_per_second(result, time.real)
             output_benchmark_result(file, time.real, objects_per_second)
           else
@@ -157,7 +157,7 @@ module Expressir
           puts "Cache write time:  #{results[:cache_write_time].round(4)}s"
           puts "Cache read time:   #{results[:cache_read_time].round(4)}s"
 
-          if results[:repository].respond_to?(:schemas)
+          if results[:repository].is_a?(Model::Repository)
             objects = count_objects(results[:repository])
             puts "Total objects:     #{objects}"
             puts "Objects per second (parsing): #{(objects / results[:parsing_time]).round(2)}"
@@ -189,7 +189,7 @@ module Expressir
       # @param repository [Object] The repository object
       # @return [Integer] Number of objects
       def count_objects(repository)
-        return 0 unless repository.respond_to?(:schemas)
+        return 0 unless repository.is_a?(Model::Repository)
 
         count = repository.schemas.size
 
@@ -261,12 +261,12 @@ module Expressir
 
         # Try to count total objects and schemas
         results.each do |result|
-          if result.respond_to?(:schemas)
+          if result.is_a?(Model::Repository)
             schema_count += result.schemas.size
             total_objects += count_objects(result)
           elsif result.is_a?(Array)
             result.each do |r|
-              if r.respond_to?(:id)  # Likely a schema
+              if r.is_a?(Model::Declarations::Schema)
                 schema_count += 1
                 total_objects += 1   # Count the schema itself
               end

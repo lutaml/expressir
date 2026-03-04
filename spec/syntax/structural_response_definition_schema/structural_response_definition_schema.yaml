@@ -42,7 +42,8 @@ schemas:
     remarks:
     - data/resource_docs/finite_element_analysis/resource.xml
   untagged_remarks:
-  - structural_response_definition_schema
+  - text: structural_response_definition_schema
+    format: tail
   file: spec/syntax/structural_response_definition_schema/structural_response_definition_schema.exp
   version:
     _class: Expressir::Model::Declarations::SchemaVersion

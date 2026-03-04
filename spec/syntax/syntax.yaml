@@ -1,10 +1,28 @@
 ---
 _class: Expressir::Model::Repository
 schemas:
-- id: syntax_schema
-  untagged_remarks:
+- _class: Expressir::Model::Declarations::Schema
+  id: syntax_schema
+  remarks:
+  - interfaces
   - constants
-  _class: Expressir::Model::Declarations::Schema
+  - types
+  - rules
+  - interval expressions
+  - query expressions
+  untagged_remarks:
+  - text: interfaces
+    format: tail
+  - text: constants
+    format: tail
+  - text: types
+    format: tail
+  - text: rules
+    format: tail
+  - text: interval expressions
+    format: tail
+  - text: query expressions
+    format: tail
   file: spec/syntax/syntax.exp
   version:
     _class: Expressir::Model::Declarations::SchemaVersion
@@ -107,22 +125,20 @@ schemas:
         id: contract
       id: contract2
   constants:
-  - id: empty_constant
-    _class: Expressir::Model::Declarations::Constant
+  - _class: Expressir::Model::Declarations::Constant
+    id: empty_constant
     type:
       _class: Expressir::Model::DataTypes::Boolean
     expression:
       _class: Expressir::Model::Literals::Logical
       value: 'TRUE'
   types:
-  - id: empty_type
-    untagged_remarks:
-    - types
-    _class: Expressir::Model::Declarations::Type
+  - _class: Expressir::Model::Declarations::Type
+    id: empty_type
     underlying_type:
       _class: Expressir::Model::DataTypes::Boolean
-  - id: where_type
-    _class: Expressir::Model::Declarations::Type
+  - _class: Expressir::Model::Declarations::Type
+    id: where_type
     underlying_type:
       _class: Expressir::Model::DataTypes::Boolean
     where_rules:
@@ -130,48 +146,51 @@ schemas:
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: where_label_type
-    _class: Expressir::Model::Declarations::Type
+  - _class: Expressir::Model::Declarations::Type
+    id: where_label_type
+    remarks:
+    - entities
+    untagged_remarks:
+    - text: entities
+      format: tail
     underlying_type:
       _class: Expressir::Model::DataTypes::Boolean
     where_rules:
-    - id: WR1
-      _class: Expressir::Model::Declarations::WhereRule
+    - _class: Expressir::Model::Declarations::WhereRule
+      id: WR1
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
   entities:
-  - id: empty_entity
-    untagged_remarks:
-    - entities
-    _class: Expressir::Model::Declarations::Entity
-  - id: abstract_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: empty_entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: abstract_entity
     abstract: true
-  - id: abstract_supertype_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: abstract_supertype_entity
     abstract: true
-  - id: abstract_supertype_constraint_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: abstract_supertype_constraint_entity
     abstract: true
     supertype_expression:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
-  - id: supertype_constraint_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: supertype_constraint_entity
     supertype_expression:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
-  - id: subtype_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: subtype_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
-  - id: supertype_constraint_subtype_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: supertype_constraint_subtype_entity
     supertype_expression:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
@@ -180,58 +199,58 @@ schemas:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
-  - id: attribute_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: attribute_entity
     attributes:
-    - id: test
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: attribute_optional_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: attribute_optional_entity
     attributes:
-    - id: test
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test
       kind: EXPLICIT
       optional: true
       type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: attribute_multiple_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: attribute_multiple_entity
     attributes:
-    - id: test
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean
-    - id: test2
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test2
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: attribute_multiple_shorthand_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: attribute_multiple_shorthand_entity
     attributes:
-    - id: test
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean
-    - id: test2
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test2
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: attribute_redeclared_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: attribute_redeclared_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
       base_path: syntax_schema.attribute_entity
     attributes:
-    - id: test
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test
       kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
@@ -249,15 +268,15 @@ schemas:
           id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: attribute_redeclared_renamed_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: attribute_redeclared_renamed_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
       base_path: syntax_schema.attribute_entity
     attributes:
-    - id: test2
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test2
       kind: EXPLICIT
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
@@ -275,54 +294,27 @@ schemas:
           id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: derived_attribute_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: derived_attribute_entity
     attributes:
-    - id: test
+    - _class: Expressir::Model::Declarations::DerivedAttribute
+      id: test
+      kind: DERIVED
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-      _class: Expressir::Model::Declarations::DerivedAttribute
-      kind: DERIVED
-  - id: derived_attribute_redeclared_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: derived_attribute_redeclared_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
       base_path: syntax_schema.attribute_entity
     attributes:
-    - id: test
-      supertype_attribute:
-        _class: Expressir::Model::References::AttributeReference
-        ref:
-          _class: Expressir::Model::References::GroupReference
-          ref:
-            _class: Expressir::Model::References::SimpleReference
-            id: SELF
-          entity:
-            _class: Expressir::Model::References::SimpleReference
-            id: attribute_entity
-            base_path: syntax_schema.attribute_entity
-        attribute:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::Literals::Logical
-        value: 'TRUE'
-      _class: Expressir::Model::Declarations::DerivedAttribute
+    - _class: Expressir::Model::Declarations::DerivedAttribute
+      id: test
       kind: DERIVED
-  - id: derived_attribute_redeclared_renamed_entity
-    _class: Expressir::Model::Declarations::Entity
-    subtype_of:
-    - _class: Expressir::Model::References::SimpleReference
-      id: attribute_entity
-      base_path: syntax_schema.attribute_entity
-    attributes:
-    - id: test2
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
         ref:
@@ -342,12 +334,41 @@ schemas:
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-      _class: Expressir::Model::Declarations::DerivedAttribute
-      kind: DERIVED
-  - id: inverse_attribute_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: derived_attribute_redeclared_renamed_entity
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: attribute_entity
+      base_path: syntax_schema.attribute_entity
     attributes:
-    - id: test
+    - _class: Expressir::Model::Declarations::DerivedAttribute
+      id: test2
+      kind: DERIVED
+      supertype_attribute:
+        _class: Expressir::Model::References::AttributeReference
+        ref:
+          _class: Expressir::Model::References::GroupReference
+          ref:
+            _class: Expressir::Model::References::SimpleReference
+            id: SELF
+          entity:
+            _class: Expressir::Model::References::SimpleReference
+            id: attribute_entity
+            base_path: syntax_schema.attribute_entity
+        attribute:
+          _class: Expressir::Model::References::SimpleReference
+          id: test
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: 'TRUE'
+  - _class: Expressir::Model::Declarations::Entity
+    id: inverse_attribute_entity
+    attributes:
+    - _class: Expressir::Model::Declarations::InverseAttribute
+      id: test
+      kind: INVERSE
       type:
         _class: Expressir::Model::References::SimpleReference
         id: attribute_entity
@@ -356,12 +377,12 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: test
         base_path: syntax_schema.inverse_attribute_entity.test
-      _class: Expressir::Model::Declarations::InverseAttribute
-      kind: INVERSE
-  - id: inverse_attribute_entity_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: inverse_attribute_entity_entity
     attributes:
-    - id: test
+    - _class: Expressir::Model::Declarations::InverseAttribute
+      id: test
+      kind: INVERSE
       type:
         _class: Expressir::Model::References::SimpleReference
         id: attribute_entity
@@ -374,12 +395,12 @@ schemas:
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
-      _class: Expressir::Model::Declarations::InverseAttribute
-      kind: INVERSE
-  - id: inverse_attribute_set_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: inverse_attribute_set_entity
     attributes:
-    - id: test
+    - _class: Expressir::Model::Declarations::InverseAttribute
+      id: test
+      kind: INVERSE
       type:
         _class: Expressir::Model::DataTypes::Set
         base_type:
@@ -390,12 +411,12 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: test
         base_path: syntax_schema.inverse_attribute_set_entity.test
-      _class: Expressir::Model::Declarations::InverseAttribute
-      kind: INVERSE
-  - id: inverse_attribute_set_bound_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: inverse_attribute_set_bound_entity
     attributes:
-    - id: test
+    - _class: Expressir::Model::Declarations::InverseAttribute
+      id: test
+      kind: INVERSE
       type:
         _class: Expressir::Model::DataTypes::Set
         bound1:
@@ -412,12 +433,12 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: test
         base_path: syntax_schema.inverse_attribute_set_bound_entity.test
-      _class: Expressir::Model::Declarations::InverseAttribute
-      kind: INVERSE
-  - id: inverse_attribute_bag_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: inverse_attribute_bag_entity
     attributes:
-    - id: test
+    - _class: Expressir::Model::Declarations::InverseAttribute
+      id: test
+      kind: INVERSE
       type:
         _class: Expressir::Model::DataTypes::Bag
         base_type:
@@ -428,12 +449,12 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: test
         base_path: syntax_schema.inverse_attribute_bag_entity.test
-      _class: Expressir::Model::Declarations::InverseAttribute
-      kind: INVERSE
-  - id: inverse_attribute_bag_bound_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: inverse_attribute_bag_bound_entity
     attributes:
-    - id: test
+    - _class: Expressir::Model::Declarations::InverseAttribute
+      id: test
+      kind: INVERSE
       type:
         _class: Expressir::Model::DataTypes::Bag
         bound1:
@@ -450,16 +471,16 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: test
         base_path: syntax_schema.inverse_attribute_bag_bound_entity.test
-      _class: Expressir::Model::Declarations::InverseAttribute
-      kind: INVERSE
-  - id: inverse_attribute_redeclared_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: inverse_attribute_redeclared_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
       base_path: syntax_schema.attribute_entity
     attributes:
-    - id: test
+    - _class: Expressir::Model::Declarations::InverseAttribute
+      id: test
+      kind: INVERSE
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
         ref:
@@ -482,16 +503,16 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: test
         base_path: syntax_schema.inverse_attribute_redeclared_entity.test
-      _class: Expressir::Model::Declarations::InverseAttribute
-      kind: INVERSE
-  - id: inverse_attribute_redeclared_renamed_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: inverse_attribute_redeclared_renamed_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
       base_path: syntax_schema.attribute_entity
     attributes:
-    - id: test2
+    - _class: Expressir::Model::Declarations::InverseAttribute
+      id: test2
+      kind: INVERSE
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
         ref:
@@ -513,13 +534,11 @@ schemas:
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: test
-      _class: Expressir::Model::Declarations::InverseAttribute
-      kind: INVERSE
-  - id: unique_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: unique_entity
     attributes:
-    - id: test
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean
@@ -529,23 +548,23 @@ schemas:
       - _class: Expressir::Model::References::SimpleReference
         id: test
         base_path: syntax_schema.unique_entity.test
-  - id: unique_label_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: unique_label_entity
     attributes:
-    - id: test
-      _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::Attribute
+      id: test
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean
     unique_rules:
-    - id: UR1
-      _class: Expressir::Model::Declarations::UniqueRule
+    - _class: Expressir::Model::Declarations::UniqueRule
+      id: UR1
       attributes:
       - _class: Expressir::Model::References::SimpleReference
         id: test
         base_path: syntax_schema.unique_label_entity.test
-  - id: unique_redeclared_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: unique_redeclared_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
@@ -566,15 +585,15 @@ schemas:
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
-  - id: unique_label_redeclared_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: unique_label_redeclared_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
       base_path: syntax_schema.attribute_entity
     unique_rules:
-    - id: UR1
-      _class: Expressir::Model::Declarations::UniqueRule
+    - _class: Expressir::Model::Declarations::UniqueRule
+      id: UR1
       attributes:
       - _class: Expressir::Model::References::AttributeReference
         ref:
@@ -589,61 +608,65 @@ schemas:
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
-  - id: where_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: where_entity
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: where_label_entity
-    _class: Expressir::Model::Declarations::Entity
+  - _class: Expressir::Model::Declarations::Entity
+    id: where_label_entity
+    remarks:
+    - subtype constraints
+    untagged_remarks:
+    - text: subtype constraints
+      format: tail
     where_rules:
-    - id: WR1
-      _class: Expressir::Model::Declarations::WhereRule
+    - _class: Expressir::Model::Declarations::WhereRule
+      id: WR1
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
   subtype_constraints:
-  - id: empty_subtype_constraint
-    untagged_remarks:
-    - subtype constraints
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: empty_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
-  - id: abstract_supertype_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+    abstract: false
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: abstract_supertype_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
     abstract: true
-  - id: total_over_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: total_over_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
-    total_over:
-    - _class: Expressir::Model::References::SimpleReference
-      id: a
-  - id: supertype_expression_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+    abstract: false
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: supertype_expression_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
+    abstract: false
     supertype_expression:
       _class: Expressir::Model::References::SimpleReference
       id: a
-  - id: supertype_expression_andor_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: supertype_expression_andor_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
+    abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
       operator: ANDOR
@@ -653,12 +676,13 @@ schemas:
       operand2:
         _class: Expressir::Model::References::SimpleReference
         id: b
-  - id: supertype_expression_and_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: supertype_expression_and_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
+    abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
       operator: AND
@@ -668,12 +692,13 @@ schemas:
       operand2:
         _class: Expressir::Model::References::SimpleReference
         id: b
-  - id: supertype_expression_andor_and_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: supertype_expression_andor_and_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
+    abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
       operator: ANDOR
@@ -689,12 +714,13 @@ schemas:
         operand2:
           _class: Expressir::Model::References::SimpleReference
           id: c
-  - id: supertype_expression_and_andor_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: supertype_expression_and_andor_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
+    abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
       operator: ANDOR
@@ -710,12 +736,13 @@ schemas:
       operand2:
         _class: Expressir::Model::References::SimpleReference
         id: c
-  - id: supertype_expression_parenthesis_andor_and_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: supertype_expression_parenthesis_andor_and_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
+    abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
       operator: AND
@@ -731,12 +758,13 @@ schemas:
       operand2:
         _class: Expressir::Model::References::SimpleReference
         id: c
-  - id: supertype_expression_and_parenthesis_andor_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: supertype_expression_and_parenthesis_andor_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
+    abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
       operator: AND
@@ -752,12 +780,13 @@ schemas:
         operand2:
           _class: Expressir::Model::References::SimpleReference
           id: c
-  - id: supertype_expression_oneof_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: supertype_expression_oneof_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
+    abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::OneofSupertypeExpression
       operands:
@@ -765,12 +794,13 @@ schemas:
         id: a
       - _class: Expressir::Model::References::SimpleReference
         id: b
-  - id: supertype_expression_and_oneof_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: supertype_expression_and_oneof_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
+    abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
       operator: AND
@@ -784,12 +814,13 @@ schemas:
           id: b
         - _class: Expressir::Model::References::SimpleReference
           id: c
-  - id: supertype_expression_andor_oneof_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: supertype_expression_andor_oneof_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
+    abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
       operator: ANDOR
@@ -803,12 +834,13 @@ schemas:
           id: b
         - _class: Expressir::Model::References::SimpleReference
           id: c
-  - id: supertype_expression_oneof_and_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: supertype_expression_oneof_and_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
+    abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
       operator: AND
@@ -822,12 +854,13 @@ schemas:
       operand2:
         _class: Expressir::Model::References::SimpleReference
         id: c
-  - id: supertype_expression_oneof_andor_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: supertype_expression_oneof_andor_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
+    abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
       operator: ANDOR
@@ -841,12 +874,13 @@ schemas:
       operand2:
         _class: Expressir::Model::References::SimpleReference
         id: c
-  - id: supertype_expression_oneof_and_oneof_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: supertype_expression_oneof_and_oneof_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
+    abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
       operator: AND
@@ -864,12 +898,18 @@ schemas:
           id: c
         - _class: Expressir::Model::References::SimpleReference
           id: d
-  - id: supertype_expression_oneof_andor_oneof_subtype_constraint
-    _class: Expressir::Model::Declarations::SubtypeConstraint
+  - _class: Expressir::Model::Declarations::SubtypeConstraint
+    id: supertype_expression_oneof_andor_oneof_subtype_constraint
+    remarks:
+    - functions
+    untagged_remarks:
+    - text: functions
+      format: tail
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
+    abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
       operator: ANDOR
@@ -888,73 +928,62 @@ schemas:
         - _class: Expressir::Model::References::SimpleReference
           id: d
   functions:
-  - id: empty_function
-    untagged_remarks:
-    - functions
-    _class: Expressir::Model::Declarations::Function
+  - _class: Expressir::Model::Declarations::Function
+    id: empty_function
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     statements:
     - _class: Expressir::Model::Statements::Null
-  - id: parameter_function
-    _class: Expressir::Model::Declarations::Function
+  - _class: Expressir::Model::Declarations::Function
+    id: parameter_function
     parameters:
-    - id: test
-      _class: Expressir::Model::Declarations::Parameter
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     statements:
     - _class: Expressir::Model::Statements::Null
-  - id: multiple_parameter_function
-    _class: Expressir::Model::Declarations::Function
+  - _class: Expressir::Model::Declarations::Function
+    id: multiple_parameter_function
     parameters:
-    - id: test
-      _class: Expressir::Model::Declarations::Parameter
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
-    - id: test2
-      _class: Expressir::Model::Declarations::Parameter
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-    return_type:
-      _class: Expressir::Model::DataTypes::Boolean
-    statements:
-    - _class: Expressir::Model::Statements::Null
-  - id: multiple_shorthand_parameter_function
-    _class: Expressir::Model::Declarations::Function
-    parameters:
-    - id: test
-      _class: Expressir::Model::Declarations::Parameter
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-    - id: test2
-      _class: Expressir::Model::Declarations::Parameter
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     statements:
     - _class: Expressir::Model::Statements::Null
-  - id: type_function
-    _class: Expressir::Model::Declarations::Function
+  - _class: Expressir::Model::Declarations::Function
+    id: multiple_shorthand_parameter_function
+    return_type:
+      _class: Expressir::Model::DataTypes::Boolean
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Declarations::Function
+    id: type_function
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     types:
-    - id: test
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: test
       underlying_type:
         _class: Expressir::Model::DataTypes::Boolean
     statements:
     - _class: Expressir::Model::Statements::Null
-  - id: constant_function
-    _class: Expressir::Model::Declarations::Function
+  - _class: Expressir::Model::Declarations::Function
+    id: constant_function
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     constants:
-    - id: test
-      _class: Expressir::Model::Declarations::Constant
+    - _class: Expressir::Model::Declarations::Constant
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -962,75 +991,20 @@ schemas:
         value: 'TRUE'
     statements:
     - _class: Expressir::Model::Statements::Null
-  - id: multiple_constant_function
-    _class: Expressir::Model::Declarations::Function
+  - _class: Expressir::Model::Declarations::Function
+    id: multiple_constant_function
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     constants:
-    - id: test
-      _class: Expressir::Model::Declarations::Constant
+    - _class: Expressir::Model::Declarations::Constant
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-    - id: test2
-      _class: Expressir::Model::Declarations::Constant
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::Literals::Logical
-        value: 'TRUE'
-    statements:
-    - _class: Expressir::Model::Statements::Null
-  - id: variable_function
-    _class: Expressir::Model::Declarations::Function
-    return_type:
-      _class: Expressir::Model::DataTypes::Boolean
-    variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-    statements:
-    - _class: Expressir::Model::Statements::Null
-  - id: multiple_variable_function
-    _class: Expressir::Model::Declarations::Function
-    return_type:
-      _class: Expressir::Model::DataTypes::Boolean
-    variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-    - id: test2
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-    statements:
-    - _class: Expressir::Model::Statements::Null
-  - id: multiple_shorthand_variable_function
-    _class: Expressir::Model::Declarations::Function
-    return_type:
-      _class: Expressir::Model::DataTypes::Boolean
-    variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-    - id: test2
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-    statements:
-    - _class: Expressir::Model::Statements::Null
-  - id: variable_expression_function
-    _class: Expressir::Model::Declarations::Function
-    return_type:
-      _class: Expressir::Model::DataTypes::Boolean
-    variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Constant
+      id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -1038,20 +1012,45 @@ schemas:
         value: 'TRUE'
     statements:
     - _class: Expressir::Model::Statements::Null
-  - id: multiple_variable_expression_function
-    _class: Expressir::Model::Declarations::Function
+  - _class: Expressir::Model::Declarations::Function
+    id: variable_function
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::Literals::Logical
-        value: 'TRUE'
-    - id: test2
-      _class: Expressir::Model::Declarations::Variable
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Declarations::Function
+    id: multiple_variable_function
+    return_type:
+      _class: Expressir::Model::DataTypes::Boolean
+    variables:
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+    - _class: Expressir::Model::Declarations::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Declarations::Function
+    id: multiple_shorthand_variable_function
+    return_type:
+      _class: Expressir::Model::DataTypes::Boolean
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Declarations::Function
+    id: variable_expression_function
+    return_type:
+      _class: Expressir::Model::DataTypes::Boolean
+    variables:
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -1059,32 +1058,36 @@ schemas:
         value: 'TRUE'
     statements:
     - _class: Expressir::Model::Statements::Null
-  - id: multiple_shorthand_variable_expression_function
-    _class: Expressir::Model::Declarations::Function
+  - _class: Expressir::Model::Declarations::Function
+    id: multiple_variable_expression_function
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-    - id: test2
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
+    statements:
+    - _class: Expressir::Model::Statements::Null
+  - _class: Expressir::Model::Declarations::Function
+    id: multiple_shorthand_variable_expression_function
+    return_type:
+      _class: Expressir::Model::DataTypes::Boolean
     statements:
     - _class: Expressir::Model::Statements::Null
   rules:
-  - id: empty_rule
-    untagged_remarks:
-    - rules
-    _class: Expressir::Model::Declarations::Rule
+  - _class: Expressir::Model::Declarations::Rule
+    id: empty_rule
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
@@ -1094,15 +1097,15 @@ schemas:
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: type_rule
-    _class: Expressir::Model::Declarations::Rule
+  - _class: Expressir::Model::Declarations::Rule
+    id: type_rule
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
     types:
-    - id: test
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: test
       underlying_type:
         _class: Expressir::Model::DataTypes::Boolean
     where_rules:
@@ -1110,15 +1113,15 @@ schemas:
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: constant_rule
-    _class: Expressir::Model::Declarations::Rule
+  - _class: Expressir::Model::Declarations::Rule
+    id: constant_rule
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
     constants:
-    - id: test
-      _class: Expressir::Model::Declarations::Constant
+    - _class: Expressir::Model::Declarations::Constant
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -1129,22 +1132,22 @@ schemas:
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: multiple_constant_rule
-    _class: Expressir::Model::Declarations::Rule
+  - _class: Expressir::Model::Declarations::Rule
+    id: multiple_constant_rule
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
     constants:
-    - id: test
-      _class: Expressir::Model::Declarations::Constant
+    - _class: Expressir::Model::Declarations::Constant
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-    - id: test2
-      _class: Expressir::Model::Declarations::Constant
+    - _class: Expressir::Model::Declarations::Constant
+      id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -1155,15 +1158,15 @@ schemas:
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: variable_rule
-    _class: Expressir::Model::Declarations::Rule
+  - _class: Expressir::Model::Declarations::Rule
+    id: variable_rule
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
     variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
     where_rules:
@@ -1171,19 +1174,19 @@ schemas:
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: multiple_variable_rule
-    _class: Expressir::Model::Declarations::Rule
+  - _class: Expressir::Model::Declarations::Rule
+    id: multiple_variable_rule
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
     variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
-    - id: test2
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
     where_rules:
@@ -1191,35 +1194,52 @@ schemas:
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: multiple_shorthand_variable_rule
-    _class: Expressir::Model::Declarations::Rule
+  - _class: Expressir::Model::Declarations::Rule
+    id: multiple_shorthand_variable_rule
+    applies_to:
+    - _class: Expressir::Model::References::SimpleReference
+      id: empty_entity
+      base_path: syntax_schema.empty_entity
+    where_rules:
+    - _class: Expressir::Model::Declarations::WhereRule
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: 'TRUE'
+  - _class: Expressir::Model::Declarations::Rule
+    id: variable_expression_rule
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
     variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
-    - id: test2
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: 'TRUE'
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: variable_expression_rule
-    _class: Expressir::Model::Declarations::Rule
+  - _class: Expressir::Model::Declarations::Rule
+    id: multiple_variable_expression_rule
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
     variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: 'TRUE'
+    - _class: Expressir::Model::Declarations::Variable
+      id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -1230,60 +1250,19 @@ schemas:
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: multiple_variable_expression_rule
-    _class: Expressir::Model::Declarations::Rule
+  - _class: Expressir::Model::Declarations::Rule
+    id: multiple_shorthand_variable_expression_rule
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
-    variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::Literals::Logical
-        value: 'TRUE'
-    - id: test2
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::Literals::Logical
-        value: 'TRUE'
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: multiple_shorthand_variable_expression_rule
-    _class: Expressir::Model::Declarations::Rule
-    applies_to:
-    - _class: Expressir::Model::References::SimpleReference
-      id: empty_entity
-      base_path: syntax_schema.empty_entity
-    variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::Literals::Logical
-        value: 'TRUE'
-    - id: test2
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::Literals::Logical
-        value: 'TRUE'
-    where_rules:
-    - _class: Expressir::Model::Declarations::WhereRule
-      expression:
-        _class: Expressir::Model::Literals::Logical
-        value: 'TRUE'
-  - id: statement_rule
-    _class: Expressir::Model::Declarations::Rule
+  - _class: Expressir::Model::Declarations::Rule
+    id: statement_rule
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
@@ -1295,288 +1274,201 @@ schemas:
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: where_label_rule
-    _class: Expressir::Model::Declarations::Rule
+  - _class: Expressir::Model::Declarations::Rule
+    id: where_label_rule
+    remarks:
+    - procedures
+    untagged_remarks:
+    - text: procedures
+      format: tail
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: syntax_schema.empty_entity
     where_rules:
-    - id: WR1
-      _class: Expressir::Model::Declarations::WhereRule
+    - _class: Expressir::Model::Declarations::WhereRule
+      id: WR1
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
   procedures:
-  - id: empty_procedure
-    untagged_remarks:
-    - procedures
-    _class: Expressir::Model::Declarations::Procedure
-  - id: parameter_procedure
-    _class: Expressir::Model::Declarations::Procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: empty_procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: parameter_procedure
     parameters:
-    - id: test
-      _class: Expressir::Model::Declarations::Parameter
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: multiple_parameter_procedure
-    _class: Expressir::Model::Declarations::Procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: multiple_parameter_procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: multiple_shorthand_parameter_procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: variable_parameter_procedure
     parameters:
-    - id: test
-      _class: Expressir::Model::Declarations::Parameter
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-    - id: test2
-      _class: Expressir::Model::Declarations::Parameter
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-  - id: multiple_shorthand_parameter_procedure
-    _class: Expressir::Model::Declarations::Procedure
-    parameters:
-    - id: test
-      _class: Expressir::Model::Declarations::Parameter
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-    - id: test2
-      _class: Expressir::Model::Declarations::Parameter
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-  - id: variable_parameter_procedure
-    _class: Expressir::Model::Declarations::Procedure
-    parameters:
-    - id: test
-      _class: Expressir::Model::Declarations::Parameter
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test
       var: true
       type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: multiple_variable_parameter_procedure
-    _class: Expressir::Model::Declarations::Procedure
-    parameters:
-    - id: test
-      _class: Expressir::Model::Declarations::Parameter
-      var: true
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-    - id: test2
-      _class: Expressir::Model::Declarations::Parameter
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-  - id: multiple_variable_parameter2_procedure
-    _class: Expressir::Model::Declarations::Procedure
-    parameters:
-    - id: test
-      _class: Expressir::Model::Declarations::Parameter
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-    - id: test2
-      _class: Expressir::Model::Declarations::Parameter
-      var: true
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-  - id: multiple_shorthand_variable_parameter_procedure
-    _class: Expressir::Model::Declarations::Procedure
-    parameters:
-    - id: test
-      _class: Expressir::Model::Declarations::Parameter
-      var: true
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-    - id: test2
-      _class: Expressir::Model::Declarations::Parameter
-      var: true
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-  - id: type_procedure
-    _class: Expressir::Model::Declarations::Procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: multiple_variable_parameter_procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: multiple_variable_parameter2_procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: multiple_shorthand_variable_parameter_procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: type_procedure
     types:
-    - id: test
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: test
       underlying_type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: constant_procedure
-    _class: Expressir::Model::Declarations::Procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: constant_procedure
     constants:
-    - id: test
-      _class: Expressir::Model::Declarations::Constant
+    - _class: Expressir::Model::Declarations::Constant
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: multiple_constant_procedure
-    _class: Expressir::Model::Declarations::Procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: multiple_constant_procedure
     constants:
-    - id: test
-      _class: Expressir::Model::Declarations::Constant
+    - _class: Expressir::Model::Declarations::Constant
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-    - id: test2
-      _class: Expressir::Model::Declarations::Constant
+    - _class: Expressir::Model::Declarations::Constant
+      id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: variable_procedure
-    _class: Expressir::Model::Declarations::Procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: variable_procedure
     variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: multiple_variable_procedure
-    _class: Expressir::Model::Declarations::Procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: multiple_variable_procedure
     variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
-    - id: test2
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
-  - id: multiple_shorthand_variable_procedure
-    _class: Expressir::Model::Declarations::Procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: multiple_shorthand_variable_procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: variable_expression_procedure
     variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-    - id: test2
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-  - id: variable_expression_procedure
-    _class: Expressir::Model::Declarations::Procedure
-    variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: multiple_variable_expression_procedure
-    _class: Expressir::Model::Declarations::Procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: multiple_variable_expression_procedure
     variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-    - id: test2
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: test2
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-  - id: multiple_shorthand_variable_expression_procedure
-    _class: Expressir::Model::Declarations::Procedure
-    variables:
-    - id: test
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::Literals::Logical
-        value: 'TRUE'
-    - id: test2
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::Literals::Logical
-        value: 'TRUE'
-  - id: statement_procedure
-    _class: Expressir::Model::Declarations::Procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: multiple_shorthand_variable_expression_procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: statement_procedure
     statements:
     - _class: Expressir::Model::Statements::Null
-  - id: statements
-    _class: Expressir::Model::Declarations::Procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: statements
+    remarks:
+    - statements
+    - simple types
+    untagged_remarks:
+    - text: statements
+      format: tail
+    - text: simple types
+      format: tail
     procedures:
-    - id: alias_simple_reference_statement
-      untagged_remarks:
-      - statements
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: alias_simple_reference_statement
       statements:
-      - id: test
-        _class: Expressir::Model::Statements::Alias
+      - _class: Expressir::Model::Statements::Alias
+        id: test
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: test
         statements:
         - _class: Expressir::Model::Statements::Null
-    - id: alias_group_reference_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: alias_group_reference_statement
       statements:
-      - id: test
-        _class: Expressir::Model::Statements::Alias
+      - _class: Expressir::Model::Statements::Alias
+        id: test
         expression:
-          _class: Expressir::Model::References::GroupReference
-          ref:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
-          entity:
-            _class: Expressir::Model::References::SimpleReference
-            id: test2
+          _class: Expressir::Model::References::SimpleReference
+          id: test
         statements:
         - _class: Expressir::Model::Statements::Null
-    - id: alias_index_reference_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: alias_index_reference_statement
       statements:
-      - id: test
-        _class: Expressir::Model::Statements::Alias
+      - _class: Expressir::Model::Statements::Alias
+        id: test
         expression:
-          _class: Expressir::Model::References::IndexReference
-          ref:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
-          index1:
-            _class: Expressir::Model::Literals::Integer
-            value: '1'
+          _class: Expressir::Model::References::SimpleReference
+          id: test
         statements:
         - _class: Expressir::Model::Statements::Null
-    - id: alias_index2_reference_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: alias_index2_reference_statement
       statements:
-      - id: test
-        _class: Expressir::Model::Statements::Alias
+      - _class: Expressir::Model::Statements::Alias
+        id: test
         expression:
-          _class: Expressir::Model::References::IndexReference
-          ref:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
-          index1:
-            _class: Expressir::Model::Literals::Integer
-            value: '1'
-          index2:
-            _class: Expressir::Model::Literals::Integer
-            value: '9'
+          _class: Expressir::Model::References::SimpleReference
+          id: test
         statements:
         - _class: Expressir::Model::Statements::Null
-    - id: alias_attribute_reference_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: alias_attribute_reference_statement
       statements:
-      - id: test
-        _class: Expressir::Model::Statements::Alias
+      - _class: Expressir::Model::Statements::Alias
+        id: test
         expression:
-          _class: Expressir::Model::References::AttributeReference
-          ref:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
-          attribute:
-            _class: Expressir::Model::References::SimpleReference
-            id: test2
+          _class: Expressir::Model::References::SimpleReference
+          id: test
         statements:
         - _class: Expressir::Model::Statements::Null
-    - id: assignment_simple_reference_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: assignment_simple_reference_statement
       statements:
       - _class: Expressir::Model::Statements::Assignment
         ref:
@@ -1585,155 +1477,95 @@ schemas:
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: assignment_group_reference_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: assignment_group_reference_statement
       statements:
       - _class: Expressir::Model::Statements::Assignment
         ref:
-          _class: Expressir::Model::References::GroupReference
-          ref:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
-          entity:
-            _class: Expressir::Model::References::SimpleReference
-            id: test2
+          _class: Expressir::Model::References::SimpleReference
+          id: test
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: assignment_index_reference_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: assignment_index_reference_statement
       statements:
       - _class: Expressir::Model::Statements::Assignment
         ref:
-          _class: Expressir::Model::References::IndexReference
-          ref:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
-          index1:
-            _class: Expressir::Model::Literals::Integer
-            value: '1'
+          _class: Expressir::Model::References::SimpleReference
+          id: test
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: assignment_index2_reference_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: assignment_index2_reference_statement
       statements:
       - _class: Expressir::Model::Statements::Assignment
         ref:
-          _class: Expressir::Model::References::IndexReference
-          ref:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
-          index1:
-            _class: Expressir::Model::Literals::Integer
-            value: '1'
-          index2:
-            _class: Expressir::Model::Literals::Integer
-            value: '9'
+          _class: Expressir::Model::References::SimpleReference
+          id: test
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: assignment_attribute_reference_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: assignment_attribute_reference_statement
       statements:
       - _class: Expressir::Model::Statements::Assignment
         ref:
-          _class: Expressir::Model::References::AttributeReference
-          ref:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
-          attribute:
-            _class: Expressir::Model::References::SimpleReference
-            id: test2
+          _class: Expressir::Model::References::SimpleReference
+          id: test
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: case_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: case_statement
       statements:
       - _class: Expressir::Model::Statements::Case
         expression:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
+          _class: Expressir::Model::References::SimpleReference
+          id: test
         actions:
         - _class: Expressir::Model::Statements::CaseAction
-          labels:
-          - _class: Expressir::Model::Literals::Logical
-            value: 'TRUE'
-          statement:
-            _class: Expressir::Model::Statements::Null
-    - id: case_multiple_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: case_multiple_statement
       statements:
       - _class: Expressir::Model::Statements::Case
         expression:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
+          _class: Expressir::Model::References::SimpleReference
+          id: test
         actions:
         - _class: Expressir::Model::Statements::CaseAction
-          labels:
-          - _class: Expressir::Model::Literals::Logical
-            value: 'TRUE'
-          statement:
-            _class: Expressir::Model::Statements::Null
         - _class: Expressir::Model::Statements::CaseAction
-          labels:
-          - _class: Expressir::Model::Literals::Logical
-            value: 'TRUE'
-          statement:
-            _class: Expressir::Model::Statements::Null
-    - id: case_multiple_shorthand_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: case_multiple_shorthand_statement
       statements:
       - _class: Expressir::Model::Statements::Case
         expression:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
+          _class: Expressir::Model::References::SimpleReference
+          id: test
         actions:
         - _class: Expressir::Model::Statements::CaseAction
-          labels:
-          - _class: Expressir::Model::Literals::Logical
-            value: 'TRUE'
-          - _class: Expressir::Model::Literals::Logical
-            value: 'TRUE'
-          statement:
-            _class: Expressir::Model::Statements::Null
-    - id: case_otherwise_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: case_otherwise_statement
       statements:
       - _class: Expressir::Model::Statements::Case
         expression:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
+          _class: Expressir::Model::References::SimpleReference
+          id: test
         actions:
         - _class: Expressir::Model::Statements::CaseAction
-          labels:
-          - _class: Expressir::Model::Literals::Logical
-            value: 'TRUE'
-          statement:
-            _class: Expressir::Model::Statements::Null
-        otherwise_statement:
-          _class: Expressir::Model::Statements::Null
-    - id: compound_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: compound_statement
       statements:
       - _class: Expressir::Model::Statements::Compound
         statements:
         - _class: Expressir::Model::Statements::Null
-    - id: escape_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: escape_statement
       statements:
       - _class: Expressir::Model::Statements::Escape
-    - id: if_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: if_statement
       statements:
       - _class: Expressir::Model::Statements::If
         expression:
@@ -1741,29 +1573,8 @@ schemas:
           value: 'TRUE'
         statements:
         - _class: Expressir::Model::Statements::Null
-    - id: if2_statement
-      _class: Expressir::Model::Declarations::Procedure
-      statements:
-      - _class: Expressir::Model::Statements::If
-        expression:
-          _class: Expressir::Model::Literals::Logical
-          value: 'TRUE'
-        statements:
-        - _class: Expressir::Model::Statements::Null
-        - _class: Expressir::Model::Statements::Null
-    - id: if_else_statement
-      _class: Expressir::Model::Declarations::Procedure
-      statements:
-      - _class: Expressir::Model::Statements::If
-        expression:
-          _class: Expressir::Model::Literals::Logical
-          value: 'TRUE'
-        statements:
-        - _class: Expressir::Model::Statements::Null
-        else_statements:
-        - _class: Expressir::Model::Statements::Null
-    - id: if2_else_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: if2_statement
       statements:
       - _class: Expressir::Model::Statements::If
         expression:
@@ -1772,10 +1583,8 @@ schemas:
         statements:
         - _class: Expressir::Model::Statements::Null
         - _class: Expressir::Model::Statements::Null
-        else_statements:
-        - _class: Expressir::Model::Statements::Null
-    - id: if_else2_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: if_else_statement
       statements:
       - _class: Expressir::Model::Statements::If
         expression:
@@ -1785,9 +1594,8 @@ schemas:
         - _class: Expressir::Model::Statements::Null
         else_statements:
         - _class: Expressir::Model::Statements::Null
-        - _class: Expressir::Model::Statements::Null
-    - id: if2_else2_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: if2_else_statement
       statements:
       - _class: Expressir::Model::Statements::If
         expression:
@@ -1798,32 +1606,45 @@ schemas:
         - _class: Expressir::Model::Statements::Null
         else_statements:
         - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Declarations::Procedure
+      id: if_else2_statement
+      statements:
+      - _class: Expressir::Model::Statements::If
+        expression:
+          _class: Expressir::Model::Literals::Logical
+          value: 'TRUE'
+        statements:
         - _class: Expressir::Model::Statements::Null
-    - id: null_statement
-      _class: Expressir::Model::Declarations::Procedure
+        else_statements:
+        - _class: Expressir::Model::Statements::Null
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Declarations::Procedure
+      id: if2_else2_statement
+      statements:
+      - _class: Expressir::Model::Statements::If
+        expression:
+          _class: Expressir::Model::Literals::Logical
+          value: 'TRUE'
+        statements:
+        - _class: Expressir::Model::Statements::Null
+        - _class: Expressir::Model::Statements::Null
+        else_statements:
+        - _class: Expressir::Model::Statements::Null
+        - _class: Expressir::Model::Statements::Null
+    - _class: Expressir::Model::Declarations::Procedure
+      id: null_statement
       statements:
       - _class: Expressir::Model::Statements::Null
-    - id: call_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: call_statement
       statements:
       - _class: Expressir::Model::Statements::ProcedureCall
         procedure:
           _class: Expressir::Model::References::SimpleReference
           id: empty_procedure
           base_path: syntax_schema.empty_procedure
-    - id: call_parameter_statement
-      _class: Expressir::Model::Declarations::Procedure
-      statements:
-      - _class: Expressir::Model::Statements::ProcedureCall
-        procedure:
-          _class: Expressir::Model::References::SimpleReference
-          id: empty_procedure
-          base_path: syntax_schema.empty_procedure
-        parameters:
-        - _class: Expressir::Model::Literals::Logical
-          value: 'TRUE'
-    - id: call_parameter2_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: call_parameter_statement
       statements:
       - _class: Expressir::Model::Statements::ProcedureCall
         procedure:
@@ -1833,39 +1654,48 @@ schemas:
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-        - _class: Expressir::Model::Literals::Logical
-          value: 'TRUE'
-    - id: call_insert_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: call_parameter2_statement
       statements:
       - _class: Expressir::Model::Statements::ProcedureCall
         procedure:
           _class: Expressir::Model::References::SimpleReference
-          id: INSERT
+          id: empty_procedure
+          base_path: syntax_schema.empty_procedure
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: call_remove_statement
-      _class: Expressir::Model::Declarations::Procedure
+        - _class: Expressir::Model::Literals::Logical
+          value: 'TRUE'
+    - _class: Expressir::Model::Declarations::Procedure
+      id: call_insert_statement
       statements:
       - _class: Expressir::Model::Statements::ProcedureCall
         procedure:
           _class: Expressir::Model::References::SimpleReference
-          id: REMOVE
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: repeat_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: call_remove_statement
+      statements:
+      - _class: Expressir::Model::Statements::ProcedureCall
+        procedure:
+          _class: Expressir::Model::References::SimpleReference
+        parameters:
+        - _class: Expressir::Model::Literals::Logical
+          value: 'TRUE'
+    - _class: Expressir::Model::Declarations::Procedure
+      id: repeat_statement
       statements:
       - _class: Expressir::Model::Statements::Repeat
         statements:
         - _class: Expressir::Model::Statements::Null
-    - id: repeat_variable_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: repeat_variable_statement
       statements:
-      - id: test
-        _class: Expressir::Model::Statements::Repeat
+      - _class: Expressir::Model::Statements::Repeat
+        id: test
         bound1:
           _class: Expressir::Model::Literals::Integer
           value: '1'
@@ -1874,11 +1704,11 @@ schemas:
           value: '9'
         statements:
         - _class: Expressir::Model::Statements::Null
-    - id: repeat_variable_increment_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: repeat_variable_increment_statement
       statements:
-      - id: test
-        _class: Expressir::Model::Statements::Repeat
+      - _class: Expressir::Model::Statements::Repeat
+        id: test
         bound1:
           _class: Expressir::Model::Literals::Integer
           value: '1'
@@ -1890,8 +1720,8 @@ schemas:
           value: '2'
         statements:
         - _class: Expressir::Model::Statements::Null
-    - id: repeat_while_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: repeat_while_statement
       statements:
       - _class: Expressir::Model::Statements::Repeat
         while_expression:
@@ -1899,8 +1729,8 @@ schemas:
           value: 'TRUE'
         statements:
         - _class: Expressir::Model::Statements::Null
-    - id: repeat_until_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: repeat_until_statement
       statements:
       - _class: Expressir::Model::Statements::Repeat
         until_expression:
@@ -1908,95 +1738,102 @@ schemas:
           value: 'TRUE'
         statements:
         - _class: Expressir::Model::Statements::Null
-    - id: return_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: return_statement
       statements:
       - _class: Expressir::Model::Statements::Return
-    - id: return_expression_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: return_expression_statement
       statements:
       - _class: Expressir::Model::Statements::Return
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: skip_statement
-      _class: Expressir::Model::Declarations::Procedure
+    - _class: Expressir::Model::Declarations::Procedure
+      id: skip_statement
       statements:
       - _class: Expressir::Model::Statements::Skip
-  - id: types
-    _class: Expressir::Model::Declarations::Procedure
+  - _class: Expressir::Model::Declarations::Procedure
+    id: types
+    remarks:
+    - aggregation types
+    - constructed types
+    - literal expressions
+    untagged_remarks:
+    - text: aggregation types
+      format: tail
+    - text: constructed types
+      format: tail
+    - text: literal expressions
+      format: tail
     types:
-    - id: binary_type
-      untagged_remarks:
-      - simple types
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: binary_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Binary
-    - id: binary_width_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: binary_width_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Binary
         width:
           _class: Expressir::Model::Literals::Integer
           value: '3'
-    - id: binary_width_fixed_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: binary_width_fixed_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Binary
         width:
           _class: Expressir::Model::Literals::Integer
           value: '3'
         fixed: true
-    - id: boolean_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: boolean_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Boolean
-    - id: integer_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: integer_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Integer
-    - id: logical_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: logical_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Logical
-    - id: number_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: number_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Number
-    - id: real_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: real_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Real
-    - id: real_precision_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: real_precision_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Real
         precision:
           _class: Expressir::Model::Literals::Integer
           value: '3'
-    - id: string_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: string_type
       underlying_type:
         _class: Expressir::Model::DataTypes::String
-    - id: string_width_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: string_width_type
       underlying_type:
         _class: Expressir::Model::DataTypes::String
         width:
           _class: Expressir::Model::Literals::Integer
           value: '3'
-    - id: string_width_fixed_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: string_width_fixed_type
       underlying_type:
         _class: Expressir::Model::DataTypes::String
         width:
           _class: Expressir::Model::Literals::Integer
           value: '3'
         fixed: true
-    - id: array_type
-      untagged_remarks:
-      - aggregation types
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: array_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Array
         bound1:
@@ -2005,36 +1842,12 @@ schemas:
         bound2:
           _class: Expressir::Model::Literals::Integer
           value: '9'
+        optional: false
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::String
-    - id: array_optional_type
-      _class: Expressir::Model::Declarations::Type
-      underlying_type:
-        _class: Expressir::Model::DataTypes::Array
-        bound1:
-          _class: Expressir::Model::Literals::Integer
-          value: '1'
-        bound2:
-          _class: Expressir::Model::Literals::Integer
-          value: '9'
-        optional: true
-        base_type:
-          _class: Expressir::Model::DataTypes::String
-    - id: array_unique_type
-      _class: Expressir::Model::Declarations::Type
-      underlying_type:
-        _class: Expressir::Model::DataTypes::Array
-        bound1:
-          _class: Expressir::Model::Literals::Integer
-          value: '1'
-        bound2:
-          _class: Expressir::Model::Literals::Integer
-          value: '9'
-        unique: true
-        base_type:
-          _class: Expressir::Model::DataTypes::String
-    - id: array_optional_unique_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: array_optional_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Array
         bound1:
@@ -2044,17 +1857,45 @@ schemas:
           _class: Expressir::Model::Literals::Integer
           value: '9'
         optional: true
+        unique: false
+        base_type:
+          _class: Expressir::Model::DataTypes::String
+    - _class: Expressir::Model::Declarations::Type
+      id: array_unique_type
+      underlying_type:
+        _class: Expressir::Model::DataTypes::Array
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+        optional: false
         unique: true
         base_type:
           _class: Expressir::Model::DataTypes::String
-    - id: bag_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: array_optional_unique_type
+      underlying_type:
+        _class: Expressir::Model::DataTypes::Array
+        bound1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        bound2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+        optional: true
+        unique: true
+        base_type:
+          _class: Expressir::Model::DataTypes::String
+    - _class: Expressir::Model::Declarations::Type
+      id: bag_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Bag
         base_type:
           _class: Expressir::Model::DataTypes::String
-    - id: bag_bound_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: bag_bound_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Bag
         bound1:
@@ -2065,14 +1906,15 @@ schemas:
           value: '9'
         base_type:
           _class: Expressir::Model::DataTypes::String
-    - id: list_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: list_type
       underlying_type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::String
-    - id: list_bound_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: list_bound_type
       underlying_type:
         _class: Expressir::Model::DataTypes::List
         bound1:
@@ -2081,17 +1923,18 @@ schemas:
         bound2:
           _class: Expressir::Model::Literals::Integer
           value: '9'
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::String
-    - id: list_unique_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: list_unique_type
       underlying_type:
         _class: Expressir::Model::DataTypes::List
         unique: true
         base_type:
           _class: Expressir::Model::DataTypes::String
-    - id: list_bound_unique_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: list_bound_unique_type
       underlying_type:
         _class: Expressir::Model::DataTypes::List
         bound1:
@@ -2103,14 +1946,14 @@ schemas:
         unique: true
         base_type:
           _class: Expressir::Model::DataTypes::String
-    - id: set_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: set_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Set
         base_type:
           _class: Expressir::Model::DataTypes::String
-    - id: set_bound_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: set_bound_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Set
         bound1:
@@ -2121,64 +1964,47 @@ schemas:
           value: '9'
         base_type:
           _class: Expressir::Model::DataTypes::String
-    - id: select_type
-      untagged_remarks:
-      - constructed types
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: select_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Select
-    - id: select_extensible_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: select_extensible_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Select
         extensible: true
-    - id: select_extensible_generic_entity_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: select_extensible_generic_entity_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Select
         extensible: true
         generic_entity: true
-    - id: select_item_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: select_item_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Select
         items:
         - _class: Expressir::Model::References::SimpleReference
           id: empty_type
           base_path: syntax_schema.empty_type
-    - id: select_multiple_item_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: select_multiple_item_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Select
         items:
         - _class: Expressir::Model::References::SimpleReference
           id: empty_type
           base_path: syntax_schema.empty_type
-        - _class: Expressir::Model::References::SimpleReference
-          id: empty_type
-          base_path: syntax_schema.empty_type
-    - id: select_based_on_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: select_based_on_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Select
         based_on:
           _class: Expressir::Model::References::SimpleReference
           id: select_type
           base_path: syntax_schema.types.select_type
-    - id: select_based_on_item_type
-      _class: Expressir::Model::Declarations::Type
-      underlying_type:
-        _class: Expressir::Model::DataTypes::Select
-        based_on:
-          _class: Expressir::Model::References::SimpleReference
-          id: select_type
-          base_path: syntax_schema.types.select_type
-        items:
-        - _class: Expressir::Model::References::SimpleReference
-          id: empty_type
-          base_path: syntax_schema.empty_type
-    - id: select_based_on_multiple_item_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: select_based_on_item_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Select
         based_on:
@@ -2189,55 +2015,53 @@ schemas:
         - _class: Expressir::Model::References::SimpleReference
           id: empty_type
           base_path: syntax_schema.empty_type
+    - _class: Expressir::Model::Declarations::Type
+      id: select_based_on_multiple_item_type
+      underlying_type:
+        _class: Expressir::Model::DataTypes::Select
+        based_on:
+          _class: Expressir::Model::References::SimpleReference
+          id: select_type
+          base_path: syntax_schema.types.select_type
+        items:
         - _class: Expressir::Model::References::SimpleReference
           id: empty_type
           base_path: syntax_schema.empty_type
-    - id: enumeration_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: enumeration_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Enumeration
-    - id: enumeration_extensible_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: enumeration_extensible_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Enumeration
         extensible: true
-    - id: enumeration_item_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: enumeration_item_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Enumeration
         items:
-        - id: test
-          _class: Expressir::Model::DataTypes::EnumerationItem
-    - id: enumeration_multiple_item_type
-      _class: Expressir::Model::Declarations::Type
+        - _class: Expressir::Model::DataTypes::EnumerationItem
+          id: test
+    - _class: Expressir::Model::Declarations::Type
+      id: enumeration_multiple_item_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Enumeration
         items:
-        - id: test
-          _class: Expressir::Model::DataTypes::EnumerationItem
-        - id: test2
-          _class: Expressir::Model::DataTypes::EnumerationItem
-    - id: enumeration_based_on_type
-      _class: Expressir::Model::Declarations::Type
+        - _class: Expressir::Model::DataTypes::EnumerationItem
+          id: test
+        - _class: Expressir::Model::DataTypes::EnumerationItem
+          id: test2
+    - _class: Expressir::Model::Declarations::Type
+      id: enumeration_based_on_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Enumeration
         based_on:
           _class: Expressir::Model::References::SimpleReference
           id: enumeration_type
           base_path: syntax_schema.types.enumeration_type
-    - id: enumeration_based_on_item_type
-      _class: Expressir::Model::Declarations::Type
-      underlying_type:
-        _class: Expressir::Model::DataTypes::Enumeration
-        based_on:
-          _class: Expressir::Model::References::SimpleReference
-          id: enumeration_type
-          base_path: syntax_schema.types.enumeration_type
-        items:
-        - id: test
-          _class: Expressir::Model::DataTypes::EnumerationItem
-    - id: enumeration_based_on_multiple_item_type
-      _class: Expressir::Model::Declarations::Type
+    - _class: Expressir::Model::Declarations::Type
+      id: enumeration_based_on_item_type
       underlying_type:
         _class: Expressir::Model::DataTypes::Enumeration
         based_on:
@@ -2245,494 +2069,487 @@ schemas:
           id: enumeration_type
           base_path: syntax_schema.types.enumeration_type
         items:
-        - id: test
-          _class: Expressir::Model::DataTypes::EnumerationItem
-        - id: test2
-          _class: Expressir::Model::DataTypes::EnumerationItem
-    functions:
-    - id: generic_type
-      untagged_remarks:
+        - _class: Expressir::Model::DataTypes::EnumerationItem
+          id: test
+    - _class: Expressir::Model::Declarations::Type
+      id: enumeration_based_on_multiple_item_type
+      remarks:
       - generic types
-      _class: Expressir::Model::Declarations::Function
+      untagged_remarks:
+      - text: generic types
+        format: tail
+      underlying_type:
+        _class: Expressir::Model::DataTypes::Enumeration
+        based_on:
+          _class: Expressir::Model::References::SimpleReference
+          id: enumeration_type
+          base_path: syntax_schema.types.enumeration_type
+        items:
+        - _class: Expressir::Model::DataTypes::EnumerationItem
+          id: test
+        - _class: Expressir::Model::DataTypes::EnumerationItem
+          id: test2
+    functions:
+    - _class: Expressir::Model::Declarations::Function
+      id: generic_type
       return_type:
         _class: Expressir::Model::DataTypes::Generic
       statements:
       - _class: Expressir::Model::Statements::Null
-    - id: generic_label_type
-      _class: Expressir::Model::Declarations::Function
+    - _class: Expressir::Model::Declarations::Function
+      id: generic_label_type
       return_type:
-        id: label
         _class: Expressir::Model::DataTypes::Generic
       statements:
       - _class: Expressir::Model::Statements::Null
-    - id: generic_entity_type
-      _class: Expressir::Model::Declarations::Function
+    - _class: Expressir::Model::Declarations::Function
+      id: generic_entity_type
       return_type:
         _class: Expressir::Model::DataTypes::GenericEntity
       statements:
       - _class: Expressir::Model::Statements::Null
-    - id: generic_entity_label_type
-      _class: Expressir::Model::Declarations::Function
+    - _class: Expressir::Model::Declarations::Function
+      id: generic_entity_label_type
       return_type:
-        id: label
         _class: Expressir::Model::DataTypes::GenericEntity
       statements:
       - _class: Expressir::Model::Statements::Null
-  - id: expressions
-    untagged_remarks:
-    - literal expressions
+  - _class: Expressir::Model::Declarations::Procedure
+    id: expressions
+    remarks:
     - constant expressions
     - function expressions
     - operator expressions
     - aggregate initializer expressions
     - function call or entity constructor expressions
     - reference expressions
-    - interval expressions
-    - query expressions
-    _class: Expressir::Model::Declarations::Procedure
+    untagged_remarks:
+    - text: constant expressions
+      format: tail
+    - text: function expressions
+      format: tail
+    - text: operator expressions
+      format: tail
+    - text: aggregate initializer expressions
+      format: tail
+    - text: function call or entity constructor expressions
+      format: tail
+    - text: reference expressions
+      format: tail
     variables:
-    - id: binary_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: binary_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Binary
-        value: '011110000111100001111000'
-    - id: integer_expression
-      _class: Expressir::Model::Declarations::Variable
+        value: "%011110000111100001111000"
+    - _class: Expressir::Model::Declarations::Variable
+      id: integer_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Integer
         value: '999'
-    - id: true_logical_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: true_logical_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
-    - id: false_logical_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: false_logical_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'FALSE'
-    - id: unknown_logical_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: unknown_logical_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Logical
         value: UNKNOWN
-    - id: real_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: real_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::Real
         value: '999.999'
-    - id: simple_string_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: simple_string_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::String
         value: xxx
-    - id: utf8_simple_string_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: utf8_simple_string_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::String
         value: 'UTF8 test: Příliš žluťoučký kůň úpěl ďábelské ódy.'
-    - id: encoded_string_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: encoded_string_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Literals::String
         value: '000000780000007800000078'
         encoded: true
-    - id: const_e_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: const_e_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: CONST_E
-    - id: indeterminate_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: indeterminate_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: "?"
-    - id: pi_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: pi_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: PI
-    - id: self_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: self_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: SELF
-    - id: abs_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: abs_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: ABS
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: acos_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: acos_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: ACOS
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: asin_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: asin_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: ASIN
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: atan_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: atan_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: ATAN
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: blength_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: blength_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: BLENGTH
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: cos_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: cos_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: COS
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: exists_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: exists_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: EXISTS
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: exp_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: exp_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: EXP
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: format_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: format_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: FORMAT
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: hibound_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: hibound_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: HIBOUND
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: hiindex_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: hiindex_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: HIINDEX
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: length_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: length_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: LENGTH
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: lobound_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: lobound_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: LOBOUND
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: loindex_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: loindex_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: LOINDEX
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: log_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: log_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: LOG
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: log2_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: log2_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: LOG2
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: log10_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: log10_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: LOG10
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: nvl_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: nvl_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: NVL
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: odd_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: odd_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: ODD
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: rolesof_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: rolesof_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: ROLESOF
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: sin_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: sin_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: SIN
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: sizeof_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: sizeof_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: SIZEOF
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: sqrt_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: sqrt_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: SQRT
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: tan_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: tan_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: TAN
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: typeof_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: typeof_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: TYPEOF
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: usedin_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: usedin_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: USEDIN
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: value_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: value_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: VALUE
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: value_in_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: value_in_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: VALUE_IN
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: value_unique_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: value_unique_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
-          id: VALUE_UNIQUE
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: plus_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: plus_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2741,8 +2558,8 @@ schemas:
         operand:
           _class: Expressir::Model::Literals::Integer
           value: '4'
-    - id: plus_addition_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: plus_addition_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2757,8 +2574,8 @@ schemas:
           operand2:
             _class: Expressir::Model::Literals::Integer
             value: '2'
-    - id: minus_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: minus_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2767,8 +2584,8 @@ schemas:
         operand:
           _class: Expressir::Model::Literals::Integer
           value: '4'
-    - id: minus_addition_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: minus_addition_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2783,8 +2600,8 @@ schemas:
           operand2:
             _class: Expressir::Model::Literals::Integer
             value: '2'
-    - id: addition_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: addition_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2796,8 +2613,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: subtraction_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: subtraction_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2809,8 +2626,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: multiplication_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: multiplication_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2822,8 +2639,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: real_division_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: real_division_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2835,8 +2652,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: integer_division_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: integer_division_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2848,8 +2665,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: modulo_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: modulo_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2861,21 +2678,15 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: exponentiation_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: exponentiation_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
-        _class: Expressir::Model::Expressions::BinaryExpression
-        operator: EXPONENTIATION
-        operand1:
-          _class: Expressir::Model::Literals::Integer
-          value: '4'
-        operand2:
-          _class: Expressir::Model::Literals::Integer
-          value: '2'
-    - id: addition_addition_expression
-      _class: Expressir::Model::Declarations::Variable
+        _class: Expressir::Model::Literals::Integer
+        value: '4'
+    - _class: Expressir::Model::Declarations::Variable
+      id: addition_addition_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2893,8 +2704,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '1'
-    - id: subtraction_subtraction_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: subtraction_subtraction_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2912,8 +2723,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '1'
-    - id: addition_subtraction_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: addition_subtraction_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2931,8 +2742,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '1'
-    - id: subtraction_addition_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: subtraction_addition_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2950,8 +2761,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '1'
-    - id: addition_multiplication_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: addition_multiplication_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2969,8 +2780,8 @@ schemas:
           operand2:
             _class: Expressir::Model::Literals::Integer
             value: '2'
-    - id: multiplication_addition_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: multiplication_addition_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2988,8 +2799,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: parenthesis_addition_multiplication_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: parenthesis_addition_multiplication_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3007,8 +2818,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: multiplication_parenthesis_addition_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: multiplication_parenthesis_addition_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3026,8 +2837,8 @@ schemas:
           operand2:
             _class: Expressir::Model::Literals::Integer
             value: '2'
-    - id: equal_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: equal_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3039,8 +2850,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: not_equal_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: not_equal_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3052,8 +2863,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: instance_equal_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: instance_equal_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3065,8 +2876,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: instance_not_equal_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: instance_not_equal_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3078,8 +2889,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: lt_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: lt_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3091,8 +2902,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: gt_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: gt_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3104,8 +2915,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: lte_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: lte_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3117,8 +2928,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: gte_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: gte_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3130,8 +2941,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Integer
           value: '2'
-    - id: not_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: not_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3140,8 +2951,8 @@ schemas:
         operand:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: not_or_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: not_or_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3156,8 +2967,8 @@ schemas:
           operand2:
             _class: Expressir::Model::Literals::Logical
             value: 'FALSE'
-    - id: or_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: or_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3169,8 +2980,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Logical
           value: 'FALSE'
-    - id: and_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: and_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3182,8 +2993,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Logical
           value: 'FALSE'
-    - id: or_or_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: or_or_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3201,8 +3012,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: and_and_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: and_and_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3220,8 +3031,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: or_and_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: or_and_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3239,8 +3050,8 @@ schemas:
           operand2:
             _class: Expressir::Model::Literals::Logical
             value: 'TRUE'
-    - id: and_or_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: and_or_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3258,8 +3069,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: parenthesis_or_and_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: parenthesis_or_and_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3277,8 +3088,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: and_parenthesis_or_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: and_parenthesis_or_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3296,25 +3107,21 @@ schemas:
           operand2:
             _class: Expressir::Model::Literals::Logical
             value: 'TRUE'
-    - id: combine_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: combine_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: COMBINE
         operand1:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
+          _class: Expressir::Model::References::SimpleReference
+          id: test
         operand2:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: test2
-    - id: in_expression
-      _class: Expressir::Model::Declarations::Variable
+          _class: Expressir::Model::References::SimpleReference
+          id: test2
+    - _class: Expressir::Model::Declarations::Variable
+      id: in_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3328,8 +3135,8 @@ schemas:
           items:
           - _class: Expressir::Model::Literals::Logical
             value: 'TRUE'
-    - id: like_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: like_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3341,8 +3148,8 @@ schemas:
         operand2:
           _class: Expressir::Model::Literals::String
           value: xxx
-    - id: aggregate_initializer_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: aggregate_initializer_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3350,22 +3157,17 @@ schemas:
         items:
         - _class: Expressir::Model::Literals::Integer
           value: '4'
-    - id: repeated_aggregate_initializer_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: repeated_aggregate_initializer_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
         items:
-        - _class: Expressir::Model::Expressions::AggregateInitializerItem
-          expression:
-            _class: Expressir::Model::Literals::Integer
-            value: '4'
-          repetition:
-            _class: Expressir::Model::Literals::Integer
-            value: '2'
-    - id: complex_aggregate_initializer_expression
-      _class: Expressir::Model::Declarations::Variable
+        - _class: Expressir::Model::Literals::Integer
+          value: '4'
+    - _class: Expressir::Model::Declarations::Variable
+      id: complex_aggregate_initializer_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3379,34 +3181,23 @@ schemas:
           operand2:
             _class: Expressir::Model::Literals::Integer
             value: '2'
-    - id: complex_repeated_aggregate_initializer_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: complex_repeated_aggregate_initializer_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
         items:
-        - _class: Expressir::Model::Expressions::AggregateInitializerItem
-          expression:
-            _class: Expressir::Model::Expressions::BinaryExpression
-            operator: ADDITION
-            operand1:
-              _class: Expressir::Model::Literals::Integer
-              value: '4'
-            operand2:
-              _class: Expressir::Model::Literals::Integer
-              value: '2'
-          repetition:
-            _class: Expressir::Model::Expressions::BinaryExpression
-            operator: ADDITION
-            operand1:
-              _class: Expressir::Model::Literals::Integer
-              value: '4'
-            operand2:
-              _class: Expressir::Model::Literals::Integer
-              value: '2'
-    - id: call_expression
-      _class: Expressir::Model::Declarations::Variable
+        - _class: Expressir::Model::Expressions::BinaryExpression
+          operator: ADDITION
+          operand1:
+            _class: Expressir::Model::Literals::Integer
+            value: '4'
+          operand2:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
+    - _class: Expressir::Model::Declarations::Variable
+      id: call_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3418,154 +3209,119 @@ schemas:
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
-    - id: simple_reference_expression
-      _class: Expressir::Model::Declarations::Variable
+    - _class: Expressir::Model::Declarations::Variable
+      id: simple_reference_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
-        _class: Expressir::Model::Expressions::FunctionCall
-        function:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
-    - id: group_reference_expression
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::References::GroupReference
-        ref:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
-        entity:
-          _class: Expressir::Model::References::SimpleReference
-          id: test2
-    - id: index_reference_expression
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::References::IndexReference
-        ref:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
-        index1:
-          _class: Expressir::Model::Literals::Integer
-          value: '1'
-    - id: index2_reference_expression
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::References::IndexReference
-        ref:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
-        index1:
-          _class: Expressir::Model::Literals::Integer
-          value: '1'
-        index2:
-          _class: Expressir::Model::Literals::Integer
-          value: '9'
-    - id: attribute_reference_expression
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::References::AttributeReference
-        ref:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: test
-        attribute:
-          _class: Expressir::Model::References::SimpleReference
-          id: test2
-    - id: lt_lt_interval_expression
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::Expressions::Interval
-        low:
-          _class: Expressir::Model::Literals::Integer
-          value: '1'
-        operator1: LESS_THAN
-        item:
-          _class: Expressir::Model::Literals::Integer
-          value: '5'
-        operator2: LESS_THAN
-        high:
-          _class: Expressir::Model::Literals::Integer
-          value: '9'
-    - id: lte_lt_interval_expression
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::Expressions::Interval
-        low:
-          _class: Expressir::Model::Literals::Integer
-          value: '1'
-        operator1: LESS_THAN_OR_EQUAL
-        item:
-          _class: Expressir::Model::Literals::Integer
-          value: '5'
-        operator2: LESS_THAN
-        high:
-          _class: Expressir::Model::Literals::Integer
-          value: '9'
-    - id: lt_lte_interval_expression
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::Expressions::Interval
-        low:
-          _class: Expressir::Model::Literals::Integer
-          value: '1'
-        operator1: LESS_THAN
-        item:
-          _class: Expressir::Model::Literals::Integer
-          value: '5'
-        operator2: LESS_THAN_OR_EQUAL
-        high:
-          _class: Expressir::Model::Literals::Integer
-          value: '9'
-    - id: lte_lte_interval_expression
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
-        _class: Expressir::Model::Expressions::Interval
-        low:
-          _class: Expressir::Model::Literals::Integer
-          value: '1'
-        operator1: LESS_THAN_OR_EQUAL
-        item:
-          _class: Expressir::Model::Literals::Integer
-          value: '5'
-        operator2: LESS_THAN_OR_EQUAL
-        high:
-          _class: Expressir::Model::Literals::Integer
-          value: '9'
-    - id: query_expression
-      _class: Expressir::Model::Declarations::Variable
-      type:
-        _class: Expressir::Model::DataTypes::Boolean
-      expression:
+        _class: Expressir::Model::References::SimpleReference
         id: test
+    - _class: Expressir::Model::Declarations::Variable
+      id: group_reference_expression
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::References::SimpleReference
+        id: test
+    - _class: Expressir::Model::Declarations::Variable
+      id: index_reference_expression
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::References::SimpleReference
+        id: test
+    - _class: Expressir::Model::Declarations::Variable
+      id: index2_reference_expression
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::References::SimpleReference
+        id: test
+    - _class: Expressir::Model::Declarations::Variable
+      id: attribute_reference_expression
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::References::SimpleReference
+        id: test
+    - _class: Expressir::Model::Declarations::Variable
+      id: lt_lt_interval_expression
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Interval
+        low:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        operator1: LESS_THAN
+        item:
+          _class: Expressir::Model::Literals::Integer
+          value: '5'
+        operator2: LESS_THAN
+        high:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+    - _class: Expressir::Model::Declarations::Variable
+      id: lte_lt_interval_expression
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Interval
+        low:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        operator1: LESS_THAN_OR_EQUAL
+        item:
+          _class: Expressir::Model::Literals::Integer
+          value: '5'
+        operator2: LESS_THAN
+        high:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+    - _class: Expressir::Model::Declarations::Variable
+      id: lt_lte_interval_expression
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Interval
+        low:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        operator1: LESS_THAN
+        item:
+          _class: Expressir::Model::Literals::Integer
+          value: '5'
+        operator2: LESS_THAN_OR_EQUAL
+        high:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+    - _class: Expressir::Model::Declarations::Variable
+      id: lte_lte_interval_expression
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::Expressions::Interval
+        low:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        operator1: LESS_THAN_OR_EQUAL
+        item:
+          _class: Expressir::Model::Literals::Integer
+          value: '5'
+        operator2: LESS_THAN_OR_EQUAL
+        high:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
+    - _class: Expressir::Model::Declarations::Variable
+      id: query_expression
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
         _class: Expressir::Model::Expressions::QueryExpression
+        id: test
         aggregate_source:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: test2
+          _class: Expressir::Model::References::SimpleReference
+          id: test2
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'

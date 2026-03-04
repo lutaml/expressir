@@ -7,8 +7,10 @@ schemas:
   - ISO/TS 10303-1006
   - Analysis_representation_arm
   untagged_remarks:
-  - ISO/TS 10303-1006
-  - Analysis_representation_arm
+  - text: ISO/TS 10303-1006
+    format: tail
+  - text: Analysis_representation_arm
+    format: tail
   file: spec/syntax/without_ending_newline.exp
   interfaces:
   - _class: Expressir::Model::Declarations::Interface

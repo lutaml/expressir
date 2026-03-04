@@ -5,16 +5,8 @@ module Expressir
     # Can include optional tags for associating remarks with specific items
     class RemarkInfo < Lutaml::Model::Serializable
       attribute :text, :string
-      attribute :format, :string # 'tail' or 'embedded'
+      attribute :format, :string, default: "embedded" # 'tail' or 'embedded'
       attribute :tag, :string # optional remark tag like "entity.attr"
-
-      # Initialize a new RemarkInfo
-      # @param text [String] The remark text content
-      # @param format [String] The format type: 'tail' or 'embedded'
-      # @param tag [String, nil] Optional tag for associating remark with item
-      def initialize(text: nil, format: "embedded", tag: nil, **options)
-        super
-      end
 
       # Check if this is a tail remark
       # @return [Boolean] True if format is 'tail'

@@ -60,15 +60,19 @@ schemas:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
     informal_propositions:
-    - _class: Expressir::Model::Declarations::RemarkItem
+    - _class: Expressir::Model::Declarations::InformalPropositionRule
       id: IP1
       remarks:
-      - type scope - type informal proposition
       - type scope - type informal proposition, with prefix
       - schema scope - type informal proposition
       - schema scope - type informal proposition, with prefix
       - universal scope - type informal proposition
       - universal scope - type informal proposition, with prefix
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP1
+        remarks:
+        - type scope - type informal proposition
   entities:
   - _class: Expressir::Model::Declarations::Entity
     id: remark_entity
@@ -97,7 +101,7 @@ schemas:
       expression:
         _class: Expressir::Model::Literals::String
         value: xxx
-    - _class: Expressir::Model::Declarations::Attribute
+    - _class: Expressir::Model::Declarations::InverseAttribute
       id: remark_inverse_attribute
       remarks:
       - entity scope - entity inverse attribute
@@ -142,15 +146,19 @@ schemas:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
     informal_propositions:
-    - _class: Expressir::Model::Declarations::RemarkItem
+    - _class: Expressir::Model::Declarations::InformalPropositionRule
       id: IP1
       remarks:
-      - entity scope - entity informal proposition
       - entity scope - entity informal proposition, with prefix
       - schema scope - entity informal proposition
       - schema scope - entity informal proposition, with prefix
       - universal scope - entity informal proposition
       - universal scope - entity informal proposition, with prefix
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP1
+        remarks:
+        - entity scope - entity informal proposition
   subtype_constraints:
   - _class: Expressir::Model::Declarations::SubtypeConstraint
     id: remark_subtype_constraint
@@ -161,6 +169,7 @@ schemas:
       _class: Expressir::Model::References::SimpleReference
       id: remark_entity
       base_path: remark_schema.remark_entity
+    abstract: false
   functions:
   - _class: Expressir::Model::Declarations::Function
     id: remark_function
@@ -253,11 +262,9 @@ schemas:
         remarks:
         - function query scope - function query
         aggregate_source:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: remark_variable
-            base_path: remark_schema.remark_function.remark_variable
+          _class: Expressir::Model::References::SimpleReference
+          id: remark_variable
+          base_path: remark_schema.remark_function.remark_variable
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -345,11 +352,9 @@ schemas:
         remarks:
         - rule query scope - rule query
         aggregate_source:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: remark_variable
-            base_path: remark_schema.remark_rule.remark_variable
+          _class: Expressir::Model::References::SimpleReference
+          id: remark_variable
+          base_path: remark_schema.remark_rule.remark_variable
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -367,15 +372,19 @@ schemas:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
     informal_propositions:
-    - _class: Expressir::Model::Declarations::RemarkItem
+    - _class: Expressir::Model::Declarations::InformalPropositionRule
       id: IP1
       remarks:
-      - rule scope - rule informal proposition
       - rule scope - rule informal proposition, with prefix
       - schema scope - rule informal proposition
       - schema scope - rule informal proposition, with prefix
       - universal scope - rule informal proposition
       - universal scope - rule informal proposition, with prefix
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP1
+        remarks:
+        - rule scope - rule informal proposition
   procedures:
   - _class: Expressir::Model::Declarations::Procedure
     id: remark_procedure
@@ -467,11 +476,9 @@ schemas:
         remarks:
         - procedure query scope - procedure query
         aggregate_source:
-          _class: Expressir::Model::Expressions::FunctionCall
-          function:
-            _class: Expressir::Model::References::SimpleReference
-            id: remark_variable
-            base_path: remark_schema.remark_procedure.remark_variable
+          _class: Expressir::Model::References::SimpleReference
+          id: remark_variable
+          base_path: remark_schema.remark_procedure.remark_variable
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'

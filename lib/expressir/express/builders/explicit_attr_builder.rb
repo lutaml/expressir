@@ -38,6 +38,9 @@ module Expressir
               type: type,
             }
             attr_params[:optional] = true if optional
+            # Preserve source information from the intermediate object
+            attr_params[:source] = attr.source if attr.source
+            attr_params[:source_offset] = attr.source_offset if attr.source_offset
             Expressir::Model::Declarations::Attribute.new(**attr_params)
           end
         end

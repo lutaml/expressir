@@ -13,7 +13,8 @@ module Expressir
       attribute :_class, :string, default: -> { send(:name) },
                                   polymorphic_class: true
       attribute :source, :string
-      attribute :untagged_remarks, :string, collection: true
+      attribute :source_offset, :integer
+      attribute :untagged_remarks, RemarkInfo, collection: true
 
       POLYMORPHIC_CLASS_MAP = {
         "Expressir::Model::Cache" => "Expressir::Model::Cache",

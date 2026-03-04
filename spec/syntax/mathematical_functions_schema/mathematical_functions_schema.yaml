@@ -8,6 +8,73 @@ schemas:
     functions. The context for these mathematical functions is provided by other parts
     of ISO 10303 and the applications which use this schema. Only the unitless, purely
     mathematical aspects of mathematical functions are considered in this schema.
+  - ISO 13584-20
+  - ISO 13584-20
+  - ISO 10303-41
+  - ISO 10303-41
+  - ISO 10303-42
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - "--"
+  - The index function is evaluated at (base+shape[i]) when determining the
+  - upper search bound for entries of the last row or column, respectively.
   - mathematical_functions_schema
   remark_items:
   - _class: Expressir::Model::Declarations::RemarkItem
@@ -253,7 +320,142 @@ schemas:
     remarks:
     - data/resource_docs/mathematical_constructs/resource.xml
   untagged_remarks:
-  - mathematical_functions_schema
+  - text: ISO 13584-20
+    format: tail
+  - text: ISO 13584-20
+    format: tail
+  - text: ISO 10303-41
+    format: tail
+  - text: ISO 10303-41
+    format: tail
+  - text: ISO 10303-42
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: "--"
+    format: tail
+  - text: The index function is evaluated at (base+shape[i]) when determining the
+    format: tail
+  - text: upper search bound for entries of the last row or column, respectively.
+    format: tail
+  - text: mathematical_functions_schema
+    format: tail
   file: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp
   version:
     _class: Expressir::Model::Declarations::SchemaVersion
@@ -3147,11 +3349,6 @@ schemas:
 
         Two entity instances are constructed. The first creates an instance of <<express:iso13584_generic_expressions_schema.generic_variable,generic_variable>> representing a variable ranging over the real numbers and labeled 'stem:[y]'. The second creates an instance of <<express:iso13584_generic_expressions_schema.generic_expression,generic_expression>> representing the application of real-valued function stem:[text(atan2)] to the list of two arguments consisting of the variable stem:[y] and the constant 1.0.
         ====
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -4081,11 +4278,6 @@ schemas:
 
         Three constants representing the needed factor spaces are defined in the *mathematical_functions_schema* and used here to make one new instance representing the desired Cartesian product space.
         ====
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
       expression:
         _class: Expressir::Model::Expressions::UnaryExpression
         operator: NOT
@@ -4882,19 +5074,6 @@ schemas:
       - If positive, the output which is selected from the output of the *output_repack*
         operation to be the sole output of the repackaged function. If zero, the output
         is that resulting from *output_repack*.
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
       kind: EXPLICIT
       type:
         _class: Expressir::Model::References::SimpleReference
@@ -5505,23 +5684,6 @@ schemas:
         END_LOCAL;
         ----
         ====
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -5713,11 +5875,6 @@ schemas:
       id: values
       remarks:
       - The list containing the output values of the function in order.
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
@@ -5929,11 +6086,6 @@ schemas:
       remarks:
       - The list containing the alternating real and imaginary parts of the output
         values of the function in order.
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
@@ -6308,19 +6460,6 @@ schemas:
       This type of <<express:mathematical_functions_schema.linearized_table_function,linearized_table_function>> represents dense arrays of any dimension whose elements have been linearly ordered in one of two standard ways. A dense array is one whose structure supports an independent value for every subscript tuple in its domain. The two standard linear orderings for multi-dimensional arrays are described under the <<express:mathematical_functions_schema.ordering_type,ordering_type>> type declaration.
 
       The value associated with an input subscript tuple stem:[[j_1, j_2, ..., j_n\]] is computed as follows: Let stem:[L] be the function represented by the value of *SELF\linearized_table_function.source*, stem:[f] be the value of *SELF\linearized_table_function.first*, stem:[s_i] be the members of *SELF\explicit_table_function.shape*, and stem:[b] be the value of *SELF\explicit_table_function.index base*. Compute stem:[p_i] as follows: If *ordering* is *by_rows*, let stem:[p_i -= prod_(k>i)s_k]; otherwise, let stem:[p_i -= prod_(k<i)s_k]. The table value for stem:[[j_1, j_2, ..., j_n\]] is stem:[L(f + sum_(i=1)^n(j_i - b) * p_i)].
-    - "--"
-    - "--"
-    - "--"
-    - "--"
-    - "--"
-    - "--"
-    untagged_remarks:
-    - "--"
-    - "--"
-    - "--"
-    - "--"
-    - "--"
-    - "--"
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: linearized_table_function
@@ -6536,19 +6675,6 @@ schemas:
         END_LOCAL;
         ----
         ====
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      - "--"
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -6633,11 +6759,6 @@ schemas:
       represents triangular matrices with a constant main diagonal, which may be the
       same or different from the constant value *SELF\triangular_matrix.default_entry*
       used in the opposite triangle.
-    - "--"
-    - "--"
-    untagged_remarks:
-    - "--"
-    - "--"
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: triangular_matrix
@@ -6705,11 +6826,6 @@ schemas:
       - Indicates whether the values for the upper triangle or the lower triangle
         of the matrix are provided by the inherited *SELF\linearized_table_function.source*
         attribute.
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
       kind: EXPLICIT
       type:
         _class: Expressir::Model::References::SimpleReference
@@ -7215,11 +7331,6 @@ schemas:
       id: WR3
       remarks:
       - The value of *val* is a one-dimensional table function.
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -7536,11 +7647,6 @@ schemas:
       remarks:
       - The function providing the matrix of coefficients is a two-dimensional table
         function.
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -7899,11 +8005,6 @@ schemas:
         END_LOCAL;
         ----
         ====
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -9227,6 +9328,12 @@ schemas:
       This function determines whether all members of a list of *maths_values* are members of an elementary space identified by a value of <<express:mathematical_functions_schema.elementary_space_enumerators,elementary_space_enumerators>>.
 
       NOTE: This function is used by the <<express:mathematical_functions_schema.subspace_of_es,subspace_of_es>> function.
+    - all_members_of_es
+    - check_sparse_index_domain;
+    - process_product_space
+    - derive_elementary_function_domain
+    - derive_elementary_function_range
+    - repackage
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: lv
@@ -9238,6 +9345,19 @@ schemas:
       - "(output) A LOGICAL value which is TRUE if all members of the list can be
         determined to belong to the indicated elementary space, FALSE if at least
         one member can be determined not to belong, and UNKNOWN, otherwise."
+    untagged_remarks:
+    - text: all_members_of_es
+      format: tail
+    - text: check_sparse_index_domain;
+      format: tail
+    - text: process_product_space
+      format: tail
+    - text: derive_elementary_function_domain
+      format: tail
+    - text: derive_elementary_function_range
+      format: tail
+    - text: repackage
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: sv
@@ -9358,6 +9478,15 @@ schemas:
       - _class: Expressir::Model::Statements::CaseAction
     - _class: Expressir::Model::Statements::Repeat
       id: i
+      remarks:
+      - Must be a generic_expression which doesn't simplify and which is not a
+      - complex_number_literal, maths_space, or maths_function.
+      untagged_remarks:
+      - text: Must be a generic_expression which doesn't simplify and which is not
+          a
+        format: tail
+      - text: complex_number_literal, maths_space, or maths_function.
+        format: tail
       bound1:
         _class: Expressir::Model::Literals::Integer
         value: '1'
@@ -9612,12 +9741,19 @@ schemas:
       This function determines whether a pair consisting of a value of <<express:mathematical_functions_schema.space_constraint_type,space_constraint_type>> and a value of <<express:mathematical_functions_schema.maths_space,maths_space>> describe a constraint that is satisfied by all mathematical spaces.
 
       NOTE: This function is used in connection with <<express:mathematical_functions_schema.function_space,function_space>> instances.
+    - Should be unreachable.
+    - any_space_satisfies
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The BOOLEAN value indicating whether any mathematical space satisfies
         the implied constraint or not."
+    untagged_remarks:
+    - text: Should be unreachable.
+      format: tail
+    - text: any_space_satisfies
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: sc
@@ -9779,6 +9915,13 @@ schemas:
     - This function returns an instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
       representing the associative cartesian product of its two <<express:mathematical_functions_schema.tuple_space,tuple_space>>
       arguments.
+    - Identify type of first operand
+    - Identify type of second operand
+    - Construction for each combination of cases
+    - No subtype available to represent this cartesian product.
+    - Next line may assign indeterminate (?) to tspace.
+    - No subtype available to represent this cartesian product.
+    - assoc_product_space
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: sp1
@@ -9793,6 +9936,21 @@ schemas:
       remarks:
       - "(output) An instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
         representing the associative cartesian product of the two operands."
+    untagged_remarks:
+    - text: Identify type of first operand
+      format: tail
+    - text: Identify type of second operand
+      format: tail
+    - text: Construction for each combination of cases
+      format: tail
+    - text: No subtype available to represent this cartesian product.
+      format: tail
+    - text: Next line may assign indeterminate (?) to tspace.
+      format: tail
+    - text: No subtype available to represent this cartesian product.
+      format: tail
+    - text: assoc_product_space
+      format: tail
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: tuple_space
@@ -10503,6 +10661,7 @@ schemas:
       This function computes the direction angle to the point in the plane defined by its two real arguments. Values returned lie in the range stem:[-pi < r <= pi]. The direction angle is the signed radian measure of the angle between the positive x-axis and the ray emanating from the origin and passing through the point. Points on the positive y-axis have direction angle stem:[pi/2]. In accordance with tradition, the y-coordinate of the point is the first argument, and the x-coordinate is the second. This function returns the indeterminate value when the point is the origin.
 
       NOTE: This is the traditional "atan2" function. Unlike the traditional "atan" ("arc tangent" or "inverse tangent") function, it takes two arguments and distinguishes among all four quadrants. The argument order probably derived from thinking of it as an extension of "atan(y/x)". The EXPRESS *atan* function is a peculiar hybrid of the traditional "atan" and "atan2" functions.
+    - atan2
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: "y"
@@ -10516,6 +10675,9 @@ schemas:
       id: return
       remarks:
       - "(output) The direction angle to the point."
+    untagged_remarks:
+    - text: atan2
+      format: tail
     return_type:
       _class: Expressir::Model::DataTypes::Real
     variables:
@@ -10634,37 +10796,20 @@ schemas:
     remarks:
     - This function converts Express LOGICAL values into BOOLEAN values by turning
       any value which is not TRUE into FALSE.
+    - bool
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The boolean value TRUE when the input is TRUE and FALSE, otherwise."
+    untagged_remarks:
+    - text: bool
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: lgcl
       remarks:
       - "(input) The logical value."
-      - Should be unreachable.
-      - Should be unreachable.
-      - Note that sp1 finite already handled.
-      - Note that sp2 finite already handled.
-      - Note that sp1 finite already handled.
-      - Note that sp2 finite already handled.
-      - Note sp1 finite already handled.
-      - Note sp2 finite already handled.
-      - Should be unreachable.
-      - Should be unreachable.
-      untagged_remarks:
-      - Should be unreachable.
-      - Should be unreachable.
-      - Note that sp1 finite already handled.
-      - Note that sp2 finite already handled.
-      - Note that sp1 finite already handled.
-      - Note that sp2 finite already handled.
-      - Note sp1 finite already handled.
-      - Note sp2 finite already handled.
-      - Should be unreachable.
-      - Should be unreachable.
       type:
         _class: Expressir::Model::DataTypes::Logical
     return_type:
@@ -10713,12 +10858,23 @@ schemas:
     - This function verifies that the domain of the index function in an instance
       of <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>>
       is consistent with the other attributes.
+    - A consequence of WR1 of basic_sparse_matrix is that here we need only
+    - consider the case that mthspc is a finite integer interval and is the only
+    - factor space of idxdom.
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The boolean value indicating whether the domain of the index function
         is consistent with the other attributes."
+    untagged_remarks:
+    - text: A consequence of WR1 of basic_sparse_matrix is that here we need only
+      format: tail
+    - text: consider the case that mthspc is a finite integer interval and is the
+        only
+      format: tail
+    - text: factor space of idxdom.
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: idxdom
@@ -10879,12 +11035,16 @@ schemas:
     - This function verifies that the range of the location function in an instance
       of <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>>
       is consistent with the other attributes.
+    - check_sparse_loc_range;
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The boolean value indicating whether the range of the location function
         is consistent with the other attributes."
+    untagged_remarks:
+    - text: check_sparse_loc_range;
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: locrng
@@ -11104,6 +11264,7 @@ schemas:
       This function is used in WR5 in <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>> to verify the compatibility of two of its operands. The test is whether the integer range interval of the function used as the value of attribute *index* lies within the integer domain interval of the function used as the value of attribute *loc*, except perhaps at its maximum value. This function assumes automatic repackaging between integers and one-tuples of integers will be performed as needed in any evaluator for <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>>.
 
       NOTE: This rather special requirement follows from the evaluation algorithm for <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>>.
+    - check_sparse_index_to_loc
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: index_range
@@ -11120,6 +11281,9 @@ schemas:
       remarks:
       - "(output) A BOOLEAN value indicating whether the two spaces are suitable for
         these uses in an instance of <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>>."
+    untagged_remarks:
+    - text: check_sparse_index_to_loc
+      format: tail
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     variables:
@@ -11355,6 +11519,7 @@ schemas:
       table is at least as great as the number of B-spline bases and that the numbers
       of basis functions in each B-spline basis entity matches the numbers of subscripts
       in the corresponding dimension of the coefficient table.
+    - compare_basis_and_coef
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -11362,6 +11527,9 @@ schemas:
       - "(output) A BOOLEAN value which is TRUE if the numbers of basis functions
         in the input B-spline bases and the numbers of subscripts in the corresponding
         dimensions of the coefficient table all match."
+    untagged_remarks:
+    - text: compare_basis_and_coef
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: basis
@@ -11535,12 +11703,16 @@ schemas:
       This function compares a list and a value, and returns TRUE only if the comparison is TRUE between every list member and the given value. In every other case, the function returns FALSE.
 
       NOTE: This function is used by *selection_function* and *selection_insertion_function*.
+    - compare_list_and_value
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value which is TRUE if every member of the input list
         stands in the indicated relation to the given value *v*."
+    untagged_remarks:
+    - text: compare_list_and_value
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: lv
@@ -11662,12 +11834,22 @@ schemas:
     - This function compares two values in accordance with the indicated comparison
       operator, and returns TRUE only if the comparison is true. In every other case,
       the function returns FALSE.
+    - This algorithm assumes a comparison between "incompatible" types will
+    - produce the indeterminate value (or UNKNOWN?).
+    - compare_values
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value which is TRUE if the comparison between the values
         v1 and v2 indicated by op is true."
+    untagged_remarks:
+    - text: This algorithm assumes a comparison between "incompatible" types will
+      format: tail
+    - text: produce the indeterminate value (or UNKNOWN?).
+      format: tail
+    - text: compare_values
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: v1
@@ -11687,11 +11869,6 @@ schemas:
       id: v2
       remarks:
       - "(input) The second value to use in the comparison."
-      - This algorithm assumes a comparison between "incompatible" types will
-      - produce the indeterminate value (or UNKNOWN?).
-      untagged_remarks:
-      - This algorithm assumes a comparison between "incompatible" types will
-      - produce the indeterminate value (or UNKNOWN?).
       type:
         _class: Expressir::Model::DataTypes::Generic
     return_type:
@@ -11797,6 +11974,9 @@ schemas:
     remarks:
     - This function defines whether two instances of <<express:mathematical_functions_schema.maths_space,maths_space>>
       which happen to be complex number subsets are compatible or not. See <<express:mathematical_functions_schema.compatible_spaces,compatible_spaces>>.
+    - Make do with imperfect tests for remaining cases.
+    - Two polar regions with different centres
+    - compatible_complex_number_regions
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: sp1
@@ -11813,6 +11993,13 @@ schemas:
         (output) A BOOLEAN value of FALSE is returned if it is determined that the intersection of the two spaces is empty. Otherwise, TRUE is returned.
 
         NOTE: One can construct regions which the preceding function reports as compatible, but which, in fact, have empty intersection. This is acceptable. The consequence is merely that some valid instances have no practical use.
+    untagged_remarks:
+    - text: Make do with imperfect tests for remaining cases.
+      format: tail
+    - text: Two polar regions with different centres
+      format: tail
+    - text: compatible_complex_number_regions
+      format: tail
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     variables:
@@ -12412,6 +12599,8 @@ schemas:
       This function ascertains whether two <<express:mathematical_functions_schema.elementary_space_enumerators,elementary_space_enumerators>> values identify two compatible spaces. For the purposes of this document, the integers, the real numbers, and the complex numbers shall be treated as disjoint spaces whose union is the space of all numbers.
 
       NOTE: The Express language considers the `INTEGER` type to be a specialization of the `REAL` type. This is inconsistent with all programming languages and with most of mathematics. The normal mathematical relationship is that there is a natural isomorphism between the integers and a unique subset of the real numbers, but they are not identical. The usual conversions between integers and reals are applications of this isomorphism and its inverse.
+    - All other cases are incompatible
+    - compatible_es_values
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: esval1
@@ -12429,6 +12618,11 @@ schemas:
       - "(output) A BOOLEAN value of FALSE is returned if it is determined that the
         intersection of the spaces identified by the values is empty. Otherwise, TRUE
         is returned."
+    untagged_remarks:
+    - text: All other cases are incompatible
+      format: tail
+    - text: compatible_es_values
+      format: tail
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     statements:
@@ -12662,6 +12856,7 @@ schemas:
     - This function determines whether two instances of <<express:mathematical_functions_schema.maths_space,maths_space>>
       which happen to be both integer intervals or both real intervals are compatible
       or not. See <<express:mathematical_functions_schema.compatible_spaces,compatible_spaces>>.
+    - compatible_intervals
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: sp1
@@ -12676,6 +12871,9 @@ schemas:
       remarks:
       - "(output) A BOOLEAN value of FALSE is returned if it is determined that the
         intersection of the two spaces is empty. Otherwise, TRUE is returned."
+    untagged_remarks:
+    - text: compatible_intervals
+      format: tail
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     statements:
@@ -12896,6 +13094,8 @@ schemas:
       This function defines whether two instances of <<express:mathematical_functions_schema.maths_space,maths_space>> are compatible. Two spaces are regarded as compatible if it is not "obvious" that their intersection is empty.
 
       NOTE: As more and more subtypes of <<express:mathematical_functions_schema.maths_space,maths_space>> are added to this schema it will become more and more difficult to ascertain whether the intersection of two of them is empty. Since this function is used only to eliminate nonsensical instances, it is sufficient to rule out the obvious cases and permit the non-obvious cases to be valid as instances, although, perhaps, still useless as objects.
+    - Should be unreachable.
+    - compatible_spaces
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: sp1
@@ -12910,6 +13110,11 @@ schemas:
       remarks:
       - "(output) A BOOLEAN value of FALSE is returned if it is determined that the
         intersection of the two spaces is empty. Otherwise, TRUE is returned."
+    untagged_remarks:
+    - text: Should be unreachable.
+      format: tail
+    - text: compatible_spaces
+      format: tail
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     variables:
@@ -14676,11 +14881,15 @@ schemas:
       This function checks the suitability of forming a functional composition of a list of mathematical functions by verifying that the range of each one other than the last is compatible with the domain of the next one.
 
       NOTE: Two spaces are compatible if their intersection is not known to be empty. It does no harm to the schema if this test fails to detect some cases where the intersection is, in fact, empty. Such a function will have an actual domain which is empty, which will make it quite useless for any practical purpose. Erring in the other direction would prevent the exchange of functions which might have a practical use.
+    - composable_sequence
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value signifying whether the list is composable."
+    untagged_remarks:
+    - text: composable_sequence
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: operands
@@ -14753,21 +14962,25 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>>
       given a value of <<express:mathematical_functions_schema.maths_atom,maths_atom>>.
+    - Should be unreachable
+    - convert_to_literal
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of some subtype of <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>>
         representing the input value."
+    untagged_remarks:
+    - text: Should be unreachable
+      format: tail
+    - text: convert_to_literal
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: val
       remarks:
       - "(input) The <<express:mathematical_functions_schema.maths_atom,maths_atom>>
         value for which a literal is to be constructed."
-      - Should be unreachable
-      untagged_remarks:
-      - Should be unreachable
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_atom
@@ -14969,11 +15182,15 @@ schemas:
     - This function constructs a <<express:mathematical_functions_schema.maths_function,maths_function>>
       instance for any value of type <<express:mathematical_functions_schema.maths_function_select,maths_function_select>>
       which isn't already of that type.
+    - convert_to_maths_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) An equivalent instance of <<express:mathematical_functions_schema.maths_function,maths_function>>."
+    untagged_remarks:
+    - text: convert_to_maths_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: func
@@ -15070,11 +15287,15 @@ schemas:
     - This function returns a <<express:mathematical_functions_schema.maths_value,maths_value>>
       equivalent to any generic value which can be represented as a <<express:mathematical_functions_schema.maths_value,maths_value>>,
       and the indeterminate value, otherwise.
+    - convert_to_maths_value
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) An equivalent value of type <<express:mathematical_functions_schema.maths_value,maths_value>>."
+    untagged_remarks:
+    - text: convert_to_maths_value
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: val
@@ -15457,6 +15678,9 @@ schemas:
     - This function creates a generic expression corresponding to an arbitrary <<express:mathematical_functions_schema.maths_value,maths_value>>.
       This amounts to creating instances of <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>>
       for those values which are not already instances of <<express:iso13584_generic_expressions_schema.generic_expression,generic_expression>>.
+    - Use intermediate variables of appropriate declared types to help the compilers.
+    - Should be unreachable
+    - convert_to_operand
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: values
@@ -15467,13 +15691,16 @@ schemas:
       id: return
       remarks:
       - "(output) The list of generic expressions corresponding to the input."
+    untagged_remarks:
+    - text: Use intermediate variables of appropriate declared types to help the compilers.
+      format: tail
+    - text: Should be unreachable
+      format: tail
+    - text: convert_to_operand
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: val
-      remarks:
-      - Use intermediate variables of appropriate declared types to help the compilers.
-      untagged_remarks:
-      - Use intermediate variables of appropriate declared types to help the compilers.
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_value
@@ -15600,11 +15827,15 @@ schemas:
       appropriate literals, and those values which are already generic expressions
       are translated into themselves. The order of the operands in the list corresponds
       to the indexing order of the input aggregate.
+    - convert_to_operands
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The list of generic expressions corresponding to the input."
+    untagged_remarks:
+    - text: convert_to_operands
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: values
@@ -15717,11 +15948,15 @@ schemas:
     - This function constructs a value for the inherited *operands* attribute of an
       instance of <<express:mathematical_functions_schema.parallel_composed_function,parallel_composed_function>>
       from its explicit attributes.
+    - convert_to_operands_prcmfn
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The value to be used for the inherited *operands* attribute."
+    untagged_remarks:
+    - text: convert_to_operands_prcmfn
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: srcdom
@@ -15853,12 +16088,16 @@ schemas:
       interval, that, if the lower limit of integration is negative infinity, then
       the real interval is unbounded below, and that, if the upper limit of integration
       is positive infinity, then the real interval is unbounded above.
+    - definite_integral_check
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value indicating whether or not the four arguments are
         consistent with the existence of a mathematical integral."
+    untagged_remarks:
+    - text: definite_integral_check
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: domain
@@ -16136,12 +16375,16 @@ schemas:
       is TRUE, that the real interval is unbounded above if *upperinf* is TRUE, and
       that the values spaces of the third and fourth operands, when present, are compatible
       with the real interval.
+    - definite_integral_expr_check
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value indicating whether or not the three arguments are
         consistent with the existence of a mathematical integral."
+    untagged_remarks:
+    - text: definite_integral_expr_check
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: operands
@@ -16548,20 +16791,27 @@ schemas:
       of integration. The number of prefixed factors matches the number of finite
       bounds of the integral. The packaging is chosen to match that of the integrand
       function.
+    - 'Internal utility function:'
+    - Resume body of derive_definite_integral_domain function
+    - derive_definite_integral_domain
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The function domain of the input instance."
+    untagged_remarks:
+    - text: 'Internal utility function:'
+      format: tail
+    - text: Resume body of derive_definite_integral_domain function
+      format: tail
+    - text: derive_definite_integral_domain
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: igrl
       remarks:
       - "(input) The instance of <<express:mathematical_functions_schema.definite_integral_function,definite_integral_function>>
         whose domain is to be derived."
-      - 'Internal utility function:'
-      untagged_remarks:
-      - 'Internal utility function:'
       type:
         _class: Expressir::Model::References::SimpleReference
         id: definite_integral_function
@@ -17476,12 +17726,40 @@ schemas:
     - This function returns an instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
       representing the domain of the <<express:mathematical_functions_schema.finite_function,finite_function>>
       to whose *pairs* attribute it is applied.
+    - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
+    - three lines ambiguous in those cases where an operand is simultaneously a member
+    - of the base type and the aggregate type.
+    - REPEAT i := 1 TO SIZEOF (pairs);
+    - result := result + pairs[i][1];
+    - END_REPEAT;
+    - The next line unions an empty set and the desired list to get the desired set.
+    - derive_finite_function_domain
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) An instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
         representing the domain of the function."
+    untagged_remarks:
+    - text: An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the
+        following
+      format: tail
+    - text: three lines ambiguous in those cases where an operand is simultaneously
+        a member
+      format: tail
+    - text: of the base type and the aggregate type.
+      format: tail
+    - text: REPEAT i := 1 TO SIZEOF (pairs);
+      format: tail
+    - text: result := result + pairs[i][1];
+      format: tail
+    - text: END_REPEAT;
+      format: tail
+    - text: The next line unions an empty set and the desired list to get the desired
+        set.
+      format: tail
+    - text: derive_finite_function_domain
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: pairs
@@ -17570,12 +17848,40 @@ schemas:
     - This function returns an instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
       representing the range of the <<express:mathematical_functions_schema.finite_function,finite_function>>
       to whose *pairs* attribute it is applied.
+    - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
+    - three lines ambiguous in those cases where an operand is simultaneously a member
+    - of the base type and the aggregate type.
+    - REPEAT i := 1 TO SIZEOF (pairs);
+    - result := result + pairs[i][2];
+    - END_REPEAT;
+    - The next line unions an empty set and the desired list to get the desired set.
+    - derive_finite_function_range
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) An instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
         representing the range of the function."
+    untagged_remarks:
+    - text: An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the
+        following
+      format: tail
+    - text: three lines ambiguous in those cases where an operand is simultaneously
+        a member
+      format: tail
+    - text: of the base type and the aggregate type.
+      format: tail
+    - text: REPEAT i := 1 TO SIZEOF (pairs);
+      format: tail
+    - text: result := result + pairs[i][2];
+      format: tail
+    - text: END_REPEAT;
+      format: tail
+    - text: The next line unions an empty set and the desired list to get the desired
+        set.
+      format: tail
+    - text: derive_finite_function_range
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: pairs
@@ -17608,44 +17914,6 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: result
-      remarks:
-      - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
-      - three lines ambiguous in those cases where an operand is simultaneously a
-        member
-      - of the base type and the aggregate type.
-      - REPEAT i := 1 TO SIZEOF (pairs);
-      - result := result + pairs[i][1];
-      - END_REPEAT;
-      - The next line unions an empty set and the desired list to get the desired
-        set.
-      - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
-      - three lines ambiguous in those cases where an operand is simultaneously a
-        member
-      - of the base type and the aggregate type.
-      - REPEAT i := 1 TO SIZEOF (pairs);
-      - result := result + pairs[i][2];
-      - END_REPEAT;
-      - The next line unions an empty set and the desired list to get the desired
-        set.
-      untagged_remarks:
-      - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
-      - three lines ambiguous in those cases where an operand is simultaneously a
-        member
-      - of the base type and the aggregate type.
-      - REPEAT i := 1 TO SIZEOF (pairs);
-      - result := result + pairs[i][1];
-      - END_REPEAT;
-      - The next line unions an empty set and the desired list to get the desired
-        set.
-      - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
-      - three lines ambiguous in those cases where an operand is simultaneously a
-        member
-      - of the base type and the aggregate type.
-      - REPEAT i := 1 TO SIZEOF (pairs);
-      - result := result + pairs[i][2];
-      - END_REPEAT;
-      - The next line unions an empty set and the desired list to get the desired
-        set.
       type:
         _class: Expressir::Model::DataTypes::Set
         base_type:
@@ -17702,12 +17970,22 @@ schemas:
     - This function returns an instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
       representing the domain of the <<express:mathematical_functions_schema.maths_function,maths_function>>
       to which it is applied.
+    - Unreachable, as no other subtypes of maths_function are permissible without
+    - first modifying this function to account for them.
+    - derive_function_domain
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) An instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
         representing the domain of the function."
+    untagged_remarks:
+    - text: Unreachable, as no other subtypes of maths_function are permissible without
+      format: tail
+    - text: first modifying this function to account for them.
+      format: tail
+    - text: derive_function_domain
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: func
@@ -17789,10 +18067,6 @@ schemas:
         _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
       id: is_uniform
-      remarks:
-      - Unreachable, as there is no other possible value for input_repack.
-      untagged_remarks:
-      - Unreachable, as there is no other possible value for input_repack.
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -18761,12 +19035,22 @@ schemas:
     - This function returns an instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
       representing the range of the <<express:mathematical_functions_schema.maths_function,maths_function>>
       to which it is applied.
+    - Unreachable, as no other subtypes of maths_function are permissible without
+    - first modifying this function to account for them.
+    - derive_function_range
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) An instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
         representing the range of the function."
+    untagged_remarks:
+    - text: Unreachable, as no other subtypes of maths_function are permissible without
+      format: tail
+    - text: first modifying this function to account for them.
+      format: tail
+    - text: derive_function_range
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: func
@@ -18813,16 +19097,6 @@ schemas:
         - _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
       id: temp
-      remarks:
-      - Unreachable, as no other subtypes of explicit_table_function are permissible
-      - without first modifying this function to account for them.
-      - Unreachable, as no other subtypes of maths_function are permissible without
-      - first modifying this function to account for them.
-      untagged_remarks:
-      - Unreachable, as no other subtypes of explicit_table_function are permissible
-      - without first modifying this function to account for them.
-      - Unreachable, as no other subtypes of maths_function are permissible without
-      - first modifying this function to account for them.
       type:
         _class: Expressir::Model::DataTypes::Integer
       expression:
@@ -20081,11 +20355,15 @@ schemas:
       <<express:mathematical_functions_schema.selector_function,selector_function>>
       and <<express:mathematical_functions_schema.parallel_composed_function,parallel_composed_function>>
       instances.
+    - domain_from
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The domain indicated by the source."
+    untagged_remarks:
+    - text: domain_from
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: ref
@@ -20268,11 +20546,15 @@ schemas:
     remarks:
     - This function scans its input string and returns the number of '.' characters
       which it contains.
+    - dot_count
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The number of dot characters in the input string."
+    untagged_remarks:
+    - text: dot_count
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: str
@@ -20344,12 +20626,16 @@ schemas:
       identifier or qualified identifier. That is, whether or not it is syntactically
       a sequence of one or more EXPRESS identifiers separated by periods (also known
       as full stops).
+    - dotted_identifiers_syntax
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value which is TRUE if the input string value is syntactically
         a sequence of identifiers separated by periods."
+    untagged_remarks:
+    - text: dotted_identifiers_syntax
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: str
@@ -20541,12 +20827,16 @@ schemas:
       This function returns a maths space corresponding in structure and component type to its input space, but with any numeric space component replaced by its corresponding unconstrained elementary space. This process is carried out recursively on the components of spaces which are tuple spaces.
 
       NOTE: This function is used to derive the function range for instances of <<express:mathematical_functions_schema.partial_derivative_function,partial_derivative_function>> and <<express:mathematical_functions_schema.definite_integral_function,definite_integral_function>>.
+    - drop_numeric_constraints
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The tuple space corresponding to *spc* with its numeric constraints
         removed."
+    untagged_remarks:
+    - text: drop_numeric_constraints
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
@@ -20787,12 +21077,41 @@ schemas:
       This function constructs the smallest instance of <<express:mathematical_functions_schema.polar_complex_number_region,polar_complex_number_region>> with given centre which contains a given instance of <<express:mathematical_functions_schema.cartesian_complex_number_region,cartesian_complex_number_region>>, if such an instance exists. It returns the indeterminate value if no such instance exists.
 
       NOTE: The indeterminate value is returned if either input is indeterminate or both the given centre is inside the given region and also the given region has infinite extent.
+    - Find equivalent direction in range -PI < a <= PI.
+    - Include direction in minmax collection
+    - Include distance in max collection
+    - Include distance in min collection
+    - Extract elementary input information
+    - Identify base direction with respect to which all relevant directions lie
+    - within +/- 0.5*PI, or that the centre lies properly inside crgn.
+    - Identify any closest point on a side but not a corner.
+    - enclose_cregion_in_pregion
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The smallest polar complex region with the given centre enclosing
         the input region, if any such region exists."
+    untagged_remarks:
+    - text: Find equivalent direction in range -PI < a <= PI.
+      format: tail
+    - text: Include direction in minmax collection
+      format: tail
+    - text: Include distance in max collection
+      format: tail
+    - text: Include distance in min collection
+      format: tail
+    - text: Extract elementary input information
+      format: tail
+    - text: Identify base direction with respect to which all relevant directions
+        lie
+      format: tail
+    - text: within +/- 0.5*PI, or that the centre lies properly inside crgn.
+      format: tail
+    - text: Identify any closest point on a side but not a corner.
+      format: tail
+    - text: enclose_cregion_in_pregion
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: crgn
@@ -20806,9 +21125,6 @@ schemas:
       id: centre
       remarks:
       - "(input) The centre to be used for the enclosing region."
-      - Find equivalent direction in range -PI < a <= PI.
-      untagged_remarks:
-      - Find equivalent direction in range -PI < a <= PI.
       type:
         _class: Expressir::Model::References::SimpleReference
         id: complex_number_literal
@@ -20820,6 +21136,11 @@ schemas:
     functions:
     - _class: Expressir::Model::Declarations::Function
       id: angle
+      remarks:
+      - Determine whether a real is strictly within a real interval
+      untagged_remarks:
+      - text: Determine whether a real is strictly within a real interval
+        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: a
@@ -20911,10 +21232,6 @@ schemas:
           _class: Expressir::Model::DataTypes::Real
       - _class: Expressir::Model::Declarations::Parameter
         id: zitv
-        remarks:
-        - Include direction in minmax collection
-        untagged_remarks:
-        - Include direction in minmax collection
         type:
           _class: Expressir::Model::References::SimpleReference
           id: real_interval
@@ -23758,12 +24075,37 @@ schemas:
       This function constructs the smallest instance of <<express:mathematical_functions_schema.cartesian_complex_number_region,cartesian_complex_number_region>> which contains a given instance of <<express:mathematical_functions_schema.polar_complex_number_region,polar_complex_number_region>>, if such an instance exists. It returns the indeterminate value if no such instance exists.
 
       NOTE: The indeterminate value is returned if the input is indeterminate or the input region extends arbitrarily far in all four cartesian directions.
+    - Extract elementary input data
+    - Determine xmin data
+    - Determine xmax data
+    - Determine ymin data
+    - Determine ymax data
+    - Construct result
+    - Construct real_constraint
+    - enclose_pregion_in_cregion
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The smallest cartesian complex region enclosing the input region,
         if any such region exists."
+    untagged_remarks:
+    - text: Extract elementary input data
+      format: tail
+    - text: Determine xmin data
+      format: tail
+    - text: Determine xmax data
+      format: tail
+    - text: Determine ymin data
+      format: tail
+    - text: Determine ymax data
+      format: tail
+    - text: Construct result
+      format: tail
+    - text: Construct real_constraint
+      format: tail
+    - text: enclose_pregion_in_cregion
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: prgn
@@ -24034,12 +24376,6 @@ schemas:
         base_path: mathematical_functions_schema.finite_real_interval
     - _class: Expressir::Model::Declarations::Variable
       id: a_in
-      remarks:
-      - Extract elementary input data
-      - Determine xmin data
-      untagged_remarks:
-      - Extract elementary input data
-      - Determine xmin data
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -25158,12 +25494,53 @@ schemas:
       This function constructs the smallest instance of <<express:mathematical_functions_schema.polar_complex_number_region,polar_complex_number_region>> with given centre which contains a given instance of <<express:mathematical_functions_schema.polar_complex_number_region,polar_complex_number_region>>, if such an instance exists. It returns the indeterminate value if no such instance exists.
 
       NOTE: The indeterminate value is returned if either input is indeterminate or both the given centre is inside the given region and also the given region has infinite extent.
+    - Find equivalent direction in range -PI < a <= PI.
+    - Determine whether a direction is strictly within a direction interval
+    - Find min and max and related inclusion booleans among four candidates,
+    - using a base direction chosen to ensure the algebraic comparisons are valid.
+    - Extract elementary input information
+    - Analyse cases by existence of max distance and direction limits
+    - Find amin and amax
+    - reference direction
+    - Using base direction midway in prgn, compute all directions using
+    - values which ensure a3 < a2 and a0 < a1 algebraically.
+    - Cannot see out
+    - No pregion exists.  (Would require whole plane.)
+    - enclose_pregion_in_pregion
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The smallest polar complex region with the given centre enclosing
         the input region, if any such region exists."
+    untagged_remarks:
+    - text: Find equivalent direction in range -PI < a <= PI.
+      format: tail
+    - text: Determine whether a direction is strictly within a direction interval
+      format: tail
+    - text: Find min and max and related inclusion booleans among four candidates,
+      format: tail
+    - text: using a base direction chosen to ensure the algebraic comparisons are
+        valid.
+      format: tail
+    - text: Extract elementary input information
+      format: tail
+    - text: Analyse cases by existence of max distance and direction limits
+      format: tail
+    - text: Find amin and amax
+      format: tail
+    - text: reference direction
+      format: tail
+    - text: Using base direction midway in prgn, compute all directions using
+      format: tail
+    - text: values which ensure a3 < a2 and a0 < a1 algebraically.
+      format: tail
+    - text: Cannot see out
+      format: tail
+    - text: No pregion exists.  (Would require whole plane.)
+      format: tail
+    - text: enclose_pregion_in_pregion
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: prgn
@@ -25188,6 +25565,11 @@ schemas:
     functions:
     - _class: Expressir::Model::Declarations::Function
       id: angle
+      remarks:
+      - Find proper limits for direction interval
+      untagged_remarks:
+      - text: Find proper limits for direction interval
+        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: a
@@ -30578,6 +30960,7 @@ schemas:
       This function tests whether or not an instance of <<express:mathematical_functions_schema.cartesian_complex_number_region,cartesian_complex_number_region>> describes the same subspace of the complex numbers as an instance of <<express:mathematical_functions_schema.polar_complex_number_region,polar_complex_number_region>>.
 
       NOTE: The only cases where two such instances can be the same is if they describe quadrants or half spaces whose boundaries parallel the axes.
+    - equal_cregion_pregion
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -30585,6 +30968,9 @@ schemas:
       - "(output) *TRUE* if the complex number regions are the same, *FALSE* if the
         regions are known to be different, or *UNKNOWN* if it is not easily decidable
         from the information at hand."
+    untagged_remarks:
+    - text: equal_cregion_pregion
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: crgn
@@ -30607,24 +30993,6 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: c_in
-      remarks:
-      - quadrant to upper right
-      - quadrant to upper left
-      - quadrant to lower left
-      - quadrant to lower right
-      - upper half space
-      - left half space
-      - lower half space
-      - right half space
-      untagged_remarks:
-      - quadrant to upper right
-      - quadrant to upper left
-      - quadrant to lower left
-      - quadrant to lower right
-      - upper half space
-      - left half space
-      - lower half space
-      - right half space
       type:
         _class: Expressir::Model::DataTypes::Boolean
     statements:
@@ -32983,6 +33351,8 @@ schemas:
       This function performs a value equality test on the mathematical objects represented by the two <<express:mathematical_functions_schema.maths_function,maths_function>> arguments. The value *UNKNOWN* is returned if the information available is insufficient to decide.
 
       NOTE: This function is most likely to be decisive if the inputs have already been simplified by function *simplify_maths_functions*.
+    - A lot of further analysis is possible, but not required.
+    - equal_maths_functions
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: fun1
@@ -32998,15 +33368,16 @@ schemas:
       - "(output) *TRUE* if the mathematical objects represented are the same, *FALSE*
         if the objects are known to be different, or *UNKNOWN* if it is not easily
         decidable from the information at hand."
+    untagged_remarks:
+    - text: A lot of further analysis is possible, but not required.
+      format: tail
+    - text: equal_maths_functions
+      format: tail
     return_type:
       _class: Expressir::Model::DataTypes::Logical
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: cum
-      remarks:
-      - A lot of further analysis is possible, but not required.
-      untagged_remarks:
-      - A lot of further analysis is possible, but not required.
       type:
         _class: Expressir::Model::DataTypes::Logical
     statements:
@@ -33113,6 +33484,8 @@ schemas:
       This function performs a value equality test on the mathematical objects represented by the two <<express:mathematical_functions_schema.maths_space,maths_space>> arguments. The value *UNKNOWN* is returned if the information available is insufficient to decide.
 
       NOTE: This function is most likely to be decisive if the inputs have already been simplified by function <<express:mathematical_functions_schema.simplify_maths_space,simplify_maths_spaces>>.
+    - Consider cases where it is not yet certain that spc1 <> spc2.
+    - equal_maths_spaces
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: spc1
@@ -33128,6 +33501,11 @@ schemas:
       - "(output) *TRUE* if the mathematical objects represented are the same, *FALSE*
         if the objects are known to be different, or *UNKNOWN* if it is not easily
         decidable from the information at hand."
+    untagged_remarks:
+    - text: Consider cases where it is not yet certain that spc1 <> spc2.
+      format: tail
+    - text: equal_maths_spaces
+      format: tail
     return_type:
       _class: Expressir::Model::DataTypes::Logical
     variables:
@@ -33198,14 +33576,6 @@ schemas:
           base_path: mathematical_functions_schema.maths_space
     - _class: Expressir::Model::Declarations::Variable
       id: cum2
-      remarks:
-      - Consider cases where it is not yet certain that spc1 <> spc2.
-      - Members may have different but equivalent representations and in
-      - different orders.  May also have disguised repeats in same set of members.
-      untagged_remarks:
-      - Consider cases where it is not yet certain that spc1 <> spc2.
-      - Members may have different but equivalent representations and in
-      - different orders.  May also have disguised repeats in same set of members.
       type:
         _class: Expressir::Model::DataTypes::Logical
     statements:
@@ -34555,6 +34925,7 @@ schemas:
       This function performs a value equality test on the mathematical objects represented by the two <<express:mathematical_functions_schema.maths_value,maths_value>> arguments. The value *UNKNOWN* is returned if the information available is insufficient to decide.
 
       NOTE: This function is most likely to be decisive if the inputs have already been simplified by function <<express:mathematical_functions_schema.simplify_maths_value,simplify_maths_value>>.
+    - equal_maths_values
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: val1
@@ -34570,11 +34941,19 @@ schemas:
       - "(output) *TRUE* if the mathematical objects represented are the same, *FALSE*
         if the objects are known to be different, or *UNKNOWN* if it is not easily
         decidable from the information at hand."
+    untagged_remarks:
+    - text: equal_maths_values
+      format: tail
     return_type:
       _class: Expressir::Model::DataTypes::Logical
     functions:
     - _class: Expressir::Model::Declarations::Function
       id: mem_of_vs
+      remarks:
+      - mem_of_vs
+      untagged_remarks:
+      - text: mem_of_vs
+        format: tail
       return_type:
         _class: Expressir::Model::DataTypes::Logical
       statements:
@@ -35376,6 +35755,7 @@ schemas:
     remarks:
     - This function determines whether an elsementary space is a subspace of another
       elementary space, both identified by values of <<express:mathematical_functions_schema.elementary_space_enumerators,elementary_space_enumerators>>.
+    - es_subspace_of_es
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: es1
@@ -35390,6 +35770,9 @@ schemas:
       remarks:
       - "(output) A BOOLEAN value which is TRUE if the first space is a subspace of
         the second space, and FALSE, otherwise."
+    untagged_remarks:
+    - text: es_subspace_of_es
+      format: tail
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     statements:
@@ -35558,11 +35941,15 @@ schemas:
     - This function determines whether an instance of <<express:iso13584_generic_expressions_schema.generic_expression,generic_expression>>
       is a constant expression, that is, denotes a single object. A constant expression
       is identified by the fact that it contains no free variables.
+    - expression_is_constant
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The BOOLEAN indication of whether or not the expression is constant."
+    untagged_remarks:
+    - text: expression_is_constant
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: expr
@@ -35606,6 +35993,7 @@ schemas:
     remarks:
     - This function forms a tuple space from a sequence of consecutive factors of
       another tuple space.
+    - extract_factors
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: m
@@ -35620,14 +36008,14 @@ schemas:
       remarks:
       - "(output) The tuple space formed by taking the *m* th to *n* th factors from
         *tspace*."
+    untagged_remarks:
+    - text: extract_factors
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: tspace
       remarks:
       - "(input) The tuple space from which factor spaces are to be extracted."
-      - Identify type of first operand
-      untagged_remarks:
-      - Identify type of first operand
       type:
         _class: Expressir::Model::References::SimpleReference
         id: tuple_space
@@ -35697,6 +36085,7 @@ schemas:
       and <<express:mathematical_functions_schema.regular_table_function,regular_table_function>>
       lie wihin the domain of the simple array function which actually supplies the
       values.
+    - extremal_position_check
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -35704,6 +36093,9 @@ schemas:
       - "(output) A BOOLEAN value which is TRUE if the extremal possible positions
         computed for a standard or regular table function lie within the domain of
         the associated values function."
+    untagged_remarks:
+    - text: extremal_position_check
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: fun
@@ -36268,11 +36660,24 @@ schemas:
     id: factor1
     remarks:
     - This function returns the first factor space of a tuple space.
+    - This path could return the indeterminate value if the list is empty.
+    - This is the correct result for this case.
+    - Should not be reachable.
+    - factor1
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The first factor space of the input tuple space."
+    untagged_remarks:
+    - text: This path could return the indeterminate value if the list is empty.
+      format: tail
+    - text: This is the correct result for this case.
+      format: tail
+    - text: Should not be reachable.
+      format: tail
+    - text: factor1
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: tspace
@@ -36389,11 +36794,18 @@ schemas:
     remarks:
     - This function returns the selected factor space of a tuple space. If the selection
       index is out of range, the indeterminate value (?) is returned
+    - Should not be reachable.
+    - factor_space
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The selected factor space of the input tuple space."
+    untagged_remarks:
+    - text: Should not be reachable.
+      format: tail
+    - text: factor_space
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: tspace
@@ -36585,11 +36997,21 @@ schemas:
       instance. It is similar to the *iso13584_generic_expressions_schema.used_variables*
       function except that variables bound by instances of <<express:mathematical_functions_schema.quantifier_expression,quantifier_expression>>
       are removed.
+    - In this case the subtype shall not contain any variable (see IP1 in
+    - generic_expression).
+    - free_variables_of
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The set of free variables in the expression."
+    untagged_remarks:
+    - text: In this case the subtype shall not contain any variable (see IP1 in
+      format: tail
+    - text: generic_expression).
+      format: tail
+    - text: free_variables_of
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: expr
@@ -36930,6 +37352,7 @@ schemas:
       This function verifies that the domain space of a function and the arguments to which the function are being applied are compatible. This means that the number of arguments is suitable and that the value space of each expression being supplied as an argument is not known to have empty intersection with the corresponding factor space of the function domain.
 
       NOTE: Observe that satisfying the function applicability test does not guarantee that the actual arguments are in the function domain. The purpose of this test is to rule out the obviously ridiculous cases.
+    - function_applicability
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -36937,6 +37360,9 @@ schemas:
       - "(output) A BOOLEAN value of FALSE is returned if the domain is known to be
         incompatible with the argument list in number or component space. Otherwise,
         TRUE is returned."
+    untagged_remarks:
+    - text: function_applicability
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: func
@@ -37011,10 +37437,6 @@ schemas:
           base_path: mathematical_functions_schema.function_applicability.arguments
     - _class: Expressir::Model::Declarations::Variable
       id: arg
-      remarks:
-      - Should be unreachable
-      untagged_remarks:
-      - Should be unreachable
       type:
         _class: Expressir::Model::References::SimpleReference
         id: generic_expression
@@ -37200,12 +37622,16 @@ schemas:
       This function determines whether or not its argument is a one-dimensional array function. That is, whether the sole input to *func* is an integer from a finite integer interval or a one-tuple of integers from a finite integer interval.
 
       NOTE: The acceptance of these two options reflects an assumption of automatic repackaging as needed in the uses of the argument.
+    - function_is_1d_array
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value which is TRUE if the input is a one-dimensional
         array function, and FALSE, otherwise."
+    untagged_remarks:
+    - text: function_is_1d_array
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: func
@@ -37378,12 +37804,16 @@ schemas:
       This function determines whether or not its argument is a one-dimensional table function. That is, whether the sole input to *func* is an integer from a finite integer interval starting at zero or one, or a one-tuple of integers from a finite integer interval starting at zero or one.
 
       NOTE: The acceptance of these two options reflects an assumption of automatic repackaging as needed in the uses of the argument.
+    - function_is_1d_table
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value which is TRUE if the input is a one-dimensional
         table function, and FALSE, otherwise."
+    untagged_remarks:
+    - text: function_is_1d_table
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: func
@@ -37596,12 +38026,16 @@ schemas:
     - This function determines whether or not its argument is a two-dimensional table
       function. That is, whether the sole input to *func* is a pair of integers from
       a two-dimensional subscript space.
+    - function_is_2d_table
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value which is TRUE if the input is a two-dimensional
         table function, and FALSE, otherwise."
+    untagged_remarks:
+    - text: function_is_2d_table
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: func
@@ -37883,11 +38317,15 @@ schemas:
       This function determines whether an instance of <<express:mathematical_functions_schema.maths_function,maths_function>> is an array function. In other words, it determines whether the input to the function is a fixed number of integers whose tuple belongs to a subscript space, or a single object which is a tuple of integers from a subscript space. A subscript space is a finite cartesian product of finite integer intervals all of which start at zero or all of which start at one.
 
       NOTE: Acceptance of both types of input packaging implies that any necessary repackaging is done automatically where these functions are used.
+    - function_is_array
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value which is TRUE if the function is an array function."
+    untagged_remarks:
+    - text: function_is_array
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: func
@@ -38107,11 +38545,15 @@ schemas:
       This function determines whether an instance of <<express:mathematical_functions_schema.maths_function,maths_function>> is a table function. In other words, it determines whether the input to the function is a fixed number of integers whose tuple belongs to a subscript space, or a single object which is a tuple of integers from a subscript space. A subscript space is a finite cartesian product of finite integer intervals all of which start at zero or all of which start at one.
 
       NOTE: Acceptance of both types of input packaging implies that any necessary repackaging is done automatically where these functions are used.
+    - function_is_table
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value which is TRUE if the function is a table function."
+    untagged_remarks:
+    - text: function_is_table
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: func
@@ -38435,12 +38877,16 @@ schemas:
       instance is one which the *mathematical_functions_schema* can work with. In
       particular, it identifies the expressions for which the function <<express:mathematical_functions_schema.values_space_of,values_space_of>>
       can produce an output.
+    - has_values_space
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The BOOLEAN indication of whether or not the expression is recognized
         as a mathematical expression."
+    untagged_remarks:
+    - text: has_values_space
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: expr
@@ -38782,11 +39228,15 @@ schemas:
       This function constructs the list of selected components from an aggregate of <<express:mathematical_functions_schema.maths_tuple,maths_tuple>>.
 
       NOTE: This function is used in derivations and rules associated with the <<express:mathematical_functions_schema.finite_function,finite_function>> entity type.
+    - list_selected_components
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed list of selected components."
+    untagged_remarks:
+    - text: list_selected_components
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: aggr
@@ -38902,11 +39352,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.abstracted_expression_function,abstracted_expression_function>>
       given the necessary values for its explicit attributes.
+    - make_abstracted_expression_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of type <<express:mathematical_functions_schema.abstracted_expression_function,abstracted_expression_function>>."
+    untagged_remarks:
+    - text: make_abstracted_expression_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: operands
@@ -38984,11 +39438,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.atom_based_literal,atom_based_literal>>
       given the necessary values for its explicit attributes.
+    - make_atom_based_literal
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.atom_based_literal,atom_based_literal>>."
+    untagged_remarks:
+    - text: make_atom_based_literal
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: lit_value
@@ -39037,11 +39495,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.b_spline_basis,b_spline_basis>>
       given the necessary values for its explicit attributes.
+    - make_b_spline_basis
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.b_spline_basis,b_spline_basis>>."
+    untagged_remarks:
+    - text: make_b_spline_basis
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: degree
@@ -39114,11 +39576,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.b_spline_function,b_spline_function>>
       given the necessary values for its explicit attributes.
+    - make_b_spline_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.b_spline_function,b_spline_function>>."
+    untagged_remarks:
+    - text: make_b_spline_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: coef
@@ -39190,11 +39656,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.banded_matrix,banded_matrix>>
       given the necessary values for its explicit attributes.
+    - make_banded_matrix
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.banded_matrix,banded_matrix>>."
+    untagged_remarks:
+    - text: make_banded_matrix
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: index_base
@@ -39346,11 +39816,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>>
       given the necessary values for its explicit attributes.
+    - make_basic_sparse_matrix
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>>."
+    untagged_remarks:
+    - text: make_basic_sparse_matrix
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: index_base
@@ -39474,11 +39948,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.binary_literal,binary_literal>>
       given the necessary values for its explicit attributes.
+    - make_binary_literal
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.binary_literal,binary_literal>>."
+    untagged_remarks:
+    - text: make_binary_literal
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: lit_value
@@ -39525,11 +40003,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:iso13584_expressions_schema.boolean_literal,boolean_literal>>
       given the necessary values for its explicit attributes.
+    - make_boolean_literal
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:iso13584_expressions_schema.boolean_literal,boolean_literal>>."
+    untagged_remarks:
+    - text: make_boolean_literal
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: lit_value
@@ -39592,11 +40074,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.cartesian_complex_number_region,cartesian_complex_number_region>>
       given the necessary values for its explicit attributes.
+    - make_cartesian_complex_number_region
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.cartesian_complex_number_region,cartesian_complex_number_region>>."
+    untagged_remarks:
+    - text: make_cartesian_complex_number_region
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: real_constraint
@@ -39663,6 +40149,7 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.complex_number_literal,complex_number_literal>>
       given the necessary values for its explicit attributes.
+    - make_complex_number_literal
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: rpart
@@ -39676,6 +40163,9 @@ schemas:
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.complex_number_literal,complex_number_literal>>."
+    untagged_remarks:
+    - text: make_complex_number_literal
+      format: tail
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: complex_number_literal
@@ -39718,11 +40208,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.constant_function,constant_function>>
       given the necessary values for its explicit attributes.
+    - make_constant_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.constant_function,constant_function>>."
+    untagged_remarks:
+    - text: make_constant_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: sole_value
@@ -39789,11 +40283,15 @@ schemas:
     remarks:
     - This function constructs an instance of *cos_expression* given the necessary
       values for its explicit attributes.
+    - make_cos_expression
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of *cos_expression*."
+    untagged_remarks:
+    - text: make_cos_expression
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: operand
@@ -39857,6 +40355,7 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.definite_integral_expression,definite_integral_expression>>
       given the necessary values for its explicit attributes.
+    - make_definite_integral_expression
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: loinf
@@ -39872,6 +40371,9 @@ schemas:
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.definite_integral_expression,definite_integral_expression>>."
+    untagged_remarks:
+    - text: make_definite_integral_expression
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: operands
@@ -39947,6 +40449,7 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.definite_integral_function,definite_integral_function>>
       given the necessary values for its explicit attributes.
+    - make_definite_integral_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: loinf
@@ -39962,20 +40465,14 @@ schemas:
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.definite_integral_function,definite_integral_function>>."
+    untagged_remarks:
+    - text: make_definite_integral_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: integrand
       remarks:
       - "(input) The function to be integrated."
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
-      - "--"
-      - "--"
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_function
@@ -40040,11 +40537,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.elementary_function,elementary_function>>
       given the necessary values for its explicit attributes.
+    - make_elementary_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.elementary_function,elementary_function>>."
+    untagged_remarks:
+    - text: make_elementary_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: func_id
@@ -40100,11 +40601,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.elementary_space,elementary_space>>
       given the necessary values for its explicit attributes.
+    - make_elementary_space
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.elementary_space,elementary_space>>."
+    untagged_remarks:
+    - text: make_elementary_space
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: space_id
@@ -40160,6 +40665,7 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:iso13584_generic_expressions_schema.environment,environment>>
       given the necessary values for its explicit attributes.
+    - make_environment
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: src_of_domn
@@ -40169,6 +40675,9 @@ schemas:
       id: return
       remarks:
       - "(output) The constructed entity instance of <<express:iso13584_generic_expressions_schema.environment,environment>>."
+    untagged_remarks:
+    - text: make_environment
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: varbl
@@ -40204,6 +40713,7 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.expression_denoted_function,expression_denoted_function>>
       given the necessary values for its explicit attributes.
+    - make_expression_denoted_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: functions
@@ -40215,6 +40725,9 @@ schemas:
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.expression_denoted_function,expression_denoted_function>>."
+    untagged_remarks:
+    - text: make_expression_denoted_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: expression
@@ -40261,11 +40774,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.extended_tuple_space,extended_tuple_space>>
       given the necessary values for its explicit attributes.
+    - make_extended_tuple_space
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.extended_tuple_space,extended_tuple_space>>."
+    untagged_remarks:
+    - text: make_extended_tuple_space
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: base
@@ -40333,21 +40850,20 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.finite_function,finite_function>>
       given the necessary values for its explicit attributes.
+    - make_finite_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.finite_function,finite_function>>."
+    untagged_remarks:
+    - text: make_finite_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: pairs
       remarks:
       - "(input) The set of ordered pairs which defines the function."
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
       type:
         _class: Expressir::Model::DataTypes::Set
         bound1:
@@ -40414,11 +40930,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.finite_integer_interval,finite_integer_interval>>
       given the necessary values for its explicit attributes.
+    - make_finite_integer_interval
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.finite_integer_interval,finite_integer_interval>>."
+    untagged_remarks:
+    - text: make_finite_integer_interval
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: min
@@ -40481,11 +41001,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.finite_real_interval,finite_real_interval>>
       given the necessary values for its explicit attributes.
+    - make_finite_real_interval
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.real_interval_from_min,real_interval_from_min>>."
+    untagged_remarks:
+    - text: make_finite_real_interval
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: min
@@ -40513,9 +41037,6 @@ schemas:
       remarks:
       - "(input) The indicator for whether the interval is closed or open at the upper
         end."
-      - Extract elementary input information
-      untagged_remarks:
-      - Extract elementary input information
       type:
         _class: Expressir::Model::References::SimpleReference
         id: open_closed
@@ -40575,11 +41096,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.finite_space,finite_space>>
       given the necessary values for its explicit attributes.
+    - make_finite_space
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.finite_space,finite_space>>."
+    untagged_remarks:
+    - text: make_finite_space
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: members
@@ -40637,19 +41162,20 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.function_application,function_application>>
       given the necessary values for its explicit attributes.
+    - make_function_application
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.function_application,function_application>>."
+    untagged_remarks:
+    - text: make_function_application
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: afunction
       remarks:
       - "(input) The function to be applied."
-      - derived
-      untagged_remarks:
-      - derived
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_function_select
@@ -40731,11 +41257,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.function_space,function_space>>
       given the necessary values for its explicit attributes.
+    - make_function_space
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.function_space,function_space>>."
+    untagged_remarks:
+    - text: make_function_space
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: domain_constraint
@@ -40826,11 +41356,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.general_linear_function,general_linear_function>>
       given the necessary values for its explicit attributes.
+    - make_general_linear_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.general_linear_function,general_linear_function>>."
+    untagged_remarks:
+    - text: make_general_linear_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: mat
@@ -40894,25 +41428,20 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:iso13584_expressions_schema.int_literal,int_literal>>
       given the necessary values for its explicit attributes.
+    - make_int_literal
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:iso13584_expressions_schema.int_literal,int_literal>>."
+    untagged_remarks:
+    - text: make_int_literal
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: lit_value
       remarks:
       - "(input) The value for which a literal is to be constructed."
-      - 2nd derived
-      - 2nd derived
-      - 2nd derived
-      - 2nd derived
-      untagged_remarks:
-      - 2nd derived
-      - 2nd derived
-      - 2nd derived
-      - 2nd derived
       type:
         _class: Expressir::Model::DataTypes::Integer
     return_type:
@@ -40976,11 +41505,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.integer_interval_from_min,integer_interval_from_min>>
       given the necessary values for its explicit attributes.
+    - make_integer_interval_from_min
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.integer_interval_from_min,integer_interval_from_min>>."
+    untagged_remarks:
+    - text: make_integer_interval_from_min
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: min
@@ -41034,11 +41567,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.listed_complex_number_data,listed_complex_number_data>>
       given the necessary values for its explicit attributes.
+    - make_listed_complex_number_data
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.listed_complex_number_data,listed_complex_number_data>>."
+    untagged_remarks:
+    - text: make_listed_complex_number_data
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: index_base
@@ -41137,11 +41674,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.listed_data,listed_data>>
       given the necessary values for its explicit attributes.
+    - make_listed_data
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.listed_data,listed_data>>."
+    untagged_remarks:
+    - text: make_listed_data
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: index_base
@@ -41246,11 +41787,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.listed_integer_data,listed_integer_data>>
       given the necessary values for its explicit attributes.
+    - make_listed_integer_data
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.listed_integer_data,listed_integer_data>>."
+    untagged_remarks:
+    - text: make_listed_integer_data
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: index_base
@@ -41342,11 +41887,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.listed_product_space,listed_product_space>>
       given the necessary values for its explicit attributes.
+    - make_listed_product_space
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.listed_product_space,listed_product_space>>."
+    untagged_remarks:
+    - text: make_listed_product_space
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: factors
@@ -41404,11 +41953,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.listed_real_data,listed_real_data>>
       given the necessary values for its explicit attributes.
+    - make_listed_real_data
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.listed_real_data,listed_real_data>>."
+    untagged_remarks:
+    - text: make_listed_real_data
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: index_base
@@ -41500,11 +42053,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.logical_literal,logical_literal>>
       given the necessary values for its explicit attributes.
+    - make_logical_literal
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.logical_literal,logical_literal>>."
+    untagged_remarks:
+    - text: make_logical_literal
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: lit_value
@@ -41551,11 +42108,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.maths_enum_literal,maths_enum_literal>>
       given the necessary values for its explicit attributes.
+    - make_maths_enum_literal
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.maths_enum_literal,maths_enum_literal>>."
+    untagged_remarks:
+    - text: make_maths_enum_literal
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: lit_value
@@ -41710,11 +42271,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.maths_tuple_literal,maths_tuple_literal>>
       given the necessary values for its explicit attributes.
+    - make_maths_tuple_literal
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.maths_tuple_literal,maths_tuple_literal>>."
+    untagged_remarks:
+    - text: make_maths_tuple_literal
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: lit_value
@@ -41765,11 +42330,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:iso13584_expressions_schema.mult_expression,mult_expression>>
       given the necessary values for its explicit attributes.
+    - make_mult_expression
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:iso13584_expressions_schema.mult_expression,mult_expression>>."
+    untagged_remarks:
+    - text: make_mult_expression
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: operands
@@ -41835,11 +42404,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.parallel_composed_function,parallel_composed_function>>
       given the necessary values for its explicit attributes.
+    - make_parallel_composed_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.parallel_composed_function,parallel_composed_function>>."
+    untagged_remarks:
+    - text: make_parallel_composed_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: srcdom
@@ -41853,9 +42426,6 @@ schemas:
       id: prepfuncs
       remarks:
       - "(input) The list of values for the *prep_functions* attribute."
-      - derived
-      untagged_remarks:
-      - derived
       type:
         _class: Expressir::Model::DataTypes::List
         bound1:
@@ -41940,21 +42510,20 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.partial_derivative_expression,partial_derivative_expression>>
       given the necessary values for its explicit attributes.
+    - make_partial_derivative_expression
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.partial_derivative_expression,partial_derivative_expression>>."
+    untagged_remarks:
+    - text: make_partial_derivative_expression
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: derivand
       remarks:
       - "(input) The expression to be differentiated."
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
       type:
         _class: Expressir::Model::References::SimpleReference
         id: generic_expression
@@ -42024,21 +42593,20 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.partial_derivative_function,partial_derivative_function>>
       given the necessary values for its explicit attributes.
+    - make_partial_derivative_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.partial_derivative_function,partial_derivative_function>>."
+    untagged_remarks:
+    - text: make_partial_derivative_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: derivand
       remarks:
       - "(input) The function to be differentiated."
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_function
@@ -42116,11 +42684,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.polar_complex_number_region,polar_complex_number_region>>
       given the necessary values for its explicit attributes.
+    - make_polar_complex_number_region
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.polar_complex_number_region,polar_complex_number_region>>."
+    untagged_remarks:
+    - text: make_polar_complex_number_region
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: centre
@@ -42198,22 +42770,21 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.rationalize_function,rationalize_function>>
       given the necessary values for its explicit attributes.
+    - make_rationalize_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.rationalize_function,rationalize_function>>."
+    untagged_remarks:
+    - text: make_rationalize_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: fun
       remarks:
       - "(input) The tuple-producing function whose components are used to form the
         rational function."
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_function
@@ -42258,11 +42829,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.real_interval_from_min,real_interval_from_min>>
       given the necessary values for its explicit attributes.
+    - make_real_interval_from_min
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.real_interval_from_min,real_interval_from_min>>."
+    untagged_remarks:
+    - text: make_real_interval_from_min
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: min
@@ -42328,11 +42903,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.real_interval_to_max,real_interval_to_max>>
       given the necessary values for its explicit attributes.
+    - make_real_interval_to_max
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.real_interval_to_max,real_interval_to_max>>."
+    untagged_remarks:
+    - text: make_real_interval_to_max
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: max
@@ -42398,11 +42977,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:iso13584_expressions_schema.real_literal,real_literal>>
       given the necessary values for its explicit attributes.
+    - make_real_literal
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:iso13584_expressions_schema.real_literal,real_literal>>."
+    untagged_remarks:
+    - text: make_real_literal
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: lit_value
@@ -42471,11 +43054,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.regular_table_function,regular_table_function>>
       given the necessary values for its explicit attributes.
+    - make_regular_table_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.regular_table_function,regular_table_function>>."
+    untagged_remarks:
+    - text: make_regular_table_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: index_base
@@ -42604,11 +43191,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.reindexed_array_function,reindexed_array_function>>
       given the necessary values for its explicit attributes.
+    - make_reindexed_array_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.reindexed_array_function,reindexed_array_function>>."
+    untagged_remarks:
+    - text: make_reindexed_array_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: func
@@ -42678,11 +43269,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.repackaging_function,repackaging_function>>
       given the necessary values for its explicit attributes.
+    - make_repackaging_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.repackaging_function,repackaging_function>>."
+    untagged_remarks:
+    - text: make_repackaging_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: operand
@@ -42768,11 +43363,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.selector_function,selector_function>>
       given the necessary values for its explicit attributes.
+    - make_selector_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.selector_function,selector_function>>."
+    untagged_remarks:
+    - text: make_selector_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: selector
@@ -42839,11 +43438,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.series_composed_function,series_composed_function>>
       given the necessary values for its explicit attributes.
+    - make_series_composed_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.series_composed_function,series_composed_function>>."
+    untagged_remarks:
+    - text: make_series_composed_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: functions
@@ -42901,11 +43504,15 @@ schemas:
     remarks:
     - This function constructs an instance of *sin_expression* given the necessary
       values for its explicit attributes.
+    - make_sin_expression
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of *sin_expression*."
+    untagged_remarks:
+    - text: make_sin_expression
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: operand
@@ -42969,11 +43576,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.standard_table_function,standard_table_function>>
       given the necessary values for its explicit attributes.
+    - make_standard_table_function
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.standard_table_function,standard_table_function>>."
+    untagged_remarks:
+    - text: make_standard_table_function
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: index_base
@@ -43097,11 +43708,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.strict_triangular_matrix,strict_triangular_matrix>>
       given the necessary values for its explicit attributes.
+    - make_strict_triangular_matrix
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.strict_triangular_matrix,strict_triangular_matrix>>."
+    untagged_remarks:
+    - text: make_strict_triangular_matrix
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: index_base
@@ -43267,19 +43882,20 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:iso13584_expressions_schema.string_literal,string_literal>>
       given the necessary values for its explicit attributes.
+    - make_string_literal
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:iso13584_expressions_schema.string_literal,string_literal>>."
+    untagged_remarks:
+    - text: make_string_literal
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: lit_value
       remarks:
       - "(input) The value for which a literal is to be constructed."
-      - Trivial function introduced to avoid NIST Fedex compiler error
-      untagged_remarks:
-      - Trivial function introduced to avoid NIST Fedex compiler error
       type:
         _class: Expressir::Model::DataTypes::String
     return_type:
@@ -43337,11 +43953,15 @@ schemas:
     remarks:
     - This function constructs an instance of *unary_minus_expression* given the necessary
       values for its explicit attributes.
+    - make_unary_minus_expression
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of *unary_minus_expression*."
+    untagged_remarks:
+    - text: make_unary_minus_expression
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: operand
@@ -43405,11 +44025,15 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:mathematical_functions_schema.uniform_product_space,uniform_product_space>>
       given the necessary values for its explicit attributes.
+    - make_uniform_product_space
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed complex entity instance of <<express:mathematical_functions_schema.uniform_product_space,uniform_product_space>>."
+    untagged_remarks:
+    - text: make_uniform_product_space
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: base
@@ -43477,12 +44101,16 @@ schemas:
     - This function reports whether or not a maximum value exists for an interval.
       If applied to an instance of <<express:mathematical_functions_schema.maths_space,maths_space>>
       which is not an interval, FALSE is returned.
+    - max_exists
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value which is TRUE if the space is an interval which
         has an upper bound."
+    untagged_remarks:
+    - text: max_exists
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
@@ -43600,12 +44228,16 @@ schemas:
     - This function reports whether or not the least upper bound for an interval is
       a member of the interval. If applied to an instance of <<express:mathematical_functions_schema.maths_space,maths_space>>
       which is not an interval, or if the interval has no upper bound, FALSE is returned.
+    - max_included
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value which is TRUE if the space is an interval which
         includes its least upper bound."
+    untagged_remarks:
+    - text: max_included
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
@@ -43761,6 +44393,9 @@ schemas:
       This function attempts to determine whether a given mathematical value is a member of a given mathematical space. Where the information accessible to this function is not sufficient to determine the matter, UNKNOWN is returned.
 
       NOTE: The EXPRESS code below introduces and uses the trivial function *fedex* solely to avoid an error in the NIST Fedex compiler. Although technically unnecessary, the extra code is correct and should have no detectable consequences.
+    - Trivial function introduced to avoid NIST Fedex compiler error
+    - Should be unreachable
+    - member_of
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -43768,6 +44403,13 @@ schemas:
       - "(output) A LOGICAL value which is TRUE if the value can be determined to
         be a member of the space, FALSE if the value can be determined not to be a
         member of the space, and UNKNOWN, otherwise."
+    untagged_remarks:
+    - text: Trivial function introduced to avoid NIST Fedex compiler error
+      format: tail
+    - text: Should be unreachable
+      format: tail
+    - text: member_of
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: val
@@ -43789,315 +44431,10 @@ schemas:
     - _class: Expressir::Model::Declarations::Function
       id: fedex
       remarks:
-      - all_members_of_es
-      - any_space_satisfies
-      - assoc_product_space
-      - atan2
-      - bool
-      - check_sparse_index_domain;
-      - check_sparse_loc_range;
-      - check_sparse_index_to_loc
-      - compare_basis_and_coef
-      - compare_list_and_value
-      - compare_values
-      - compatible_complex_number_regions
-      - compatible_es_values
-      - compatible_intervals
-      - compatible_spaces
-      - composable_sequence
-      - convert_to_literal
-      - convert_to_maths_function
-      - convert_to_maths_value
-      - convert_to_operand
-      - convert_to_operands
-      - convert_to_operands_prcmfn
-      - definite_integral_check
-      - definite_integral_expr_check
-      - process_product_space
-      - derive_definite_integral_domain
-      - derive_elementary_function_domain
-      - derive_elementary_function_range
-      - derive_finite_function_domain
-      - derive_finite_function_range
-      - derive_function_domain
-      - derive_function_range
-      - domain_from
-      - dot_count
-      - dotted_identifiers_syntax
-      - drop_numeric_constraints
-      - enclose_cregion_in_pregion
-      - enclose_pregion_in_cregion
-      - enclose_pregion_in_pregion
-      - equal_cregion_pregion
-      - equal_maths_functions
-      - equal_maths_spaces
-      - mem_of_vs
-      - equal_maths_values
-      - es_subspace_of_es
-      - expression_is_constant
-      - extract_factors
-      - extremal_position_check
-      - factor1
-      - factor_space
-      - free_variables_of
-      - function_applicability
-      - function_is_1d_array
-      - function_is_1d_table
-      - function_is_2d_table
-      - function_is_array
-      - function_is_table
-      - has_values_space
-      - list_selected_components
-      - make_abstracted_expression_function
-      - make_atom_based_literal
-      - make_b_spline_basis
-      - make_b_spline_function
-      - make_banded_matrix
-      - make_basic_sparse_matrix
-      - make_binary_literal
-      - make_boolean_literal
-      - make_cartesian_complex_number_region
-      - make_complex_number_literal
-      - make_constant_function
-      - make_cos_expression
-      - make_definite_integral_expression
-      - make_definite_integral_function
-      - make_elementary_function
-      - make_elementary_space
-      - make_environment
-      - make_expression_denoted_function
-      - make_extended_tuple_space
-      - make_finite_function
-      - make_finite_integer_interval
-      - make_finite_real_interval
-      - make_finite_space
-      - make_function_application
-      - make_function_space
-      - make_general_linear_function
-      - make_int_literal
-      - make_integer_interval_from_min
-      - make_listed_complex_number_data
-      - make_listed_data
-      - make_listed_integer_data
-      - make_listed_product_space
-      - make_listed_real_data
-      - make_logical_literal
-      - make_maths_enum_literal
-      - make_maths_tuple_literal
-      - make_mult_expression
-      - make_parallel_composed_function
-      - make_partial_derivative_expression
-      - make_partial_derivative_function
-      - make_polar_complex_number_region
-      - make_rationalize_function
-      - make_real_interval_from_min
-      - make_real_interval_to_max
-      - make_real_literal
-      - make_regular_table_function
-      - make_reindexed_array_function
-      - make_repackaging_function
-      - make_selector_function
-      - make_series_composed_function
-      - make_sin_expression
-      - make_standard_table_function
-      - make_strict_triangular_matrix
-      - make_string_literal
-      - make_unary_minus_expression
-      - make_uniform_product_space
-      - max_exists
-      - max_included
       - fedex
-      - member_of
-      - min_exists
-      - min_included
-      - no_cyclic_domain_reference
-      - no_cyclic_space_reference
-      - number_superspace_of
-      - one_tuples_of
-      - parallel_composed_function_composability_check
-      - parallel_composed_function_domain_check
-      - parse_express_identifier
-      - partial_derivative_check
-      - real_max
-      - real_min
-      - remove_first
-      - repackage
-      - shape_of_array
-      - local abbreviation for convert_to_maths_value function
-      - local abbreviation for make_complex_number_literal function
-      - good_t
-      - simplify_function_application
-      - restore_unary
-      - restore_binary
-      - restore_mulary
-      - make_number_literal;
-      - simplify_generic_expression
-      - simplify_maths_space
-      - simplify_maths_value
-      - singleton_member_of
-      - space_dimension
-      - space_is_continuum
-      - space_is_singleton
-      - stripped_typeof
-      - subspace_of
-      - subspace_of_es
-      - substitute
-      - values_space_of
       untagged_remarks:
-      - all_members_of_es
-      - any_space_satisfies
-      - assoc_product_space
-      - atan2
-      - bool
-      - check_sparse_index_domain;
-      - check_sparse_loc_range;
-      - check_sparse_index_to_loc
-      - compare_basis_and_coef
-      - compare_list_and_value
-      - compare_values
-      - compatible_complex_number_regions
-      - compatible_es_values
-      - compatible_intervals
-      - compatible_spaces
-      - composable_sequence
-      - convert_to_literal
-      - convert_to_maths_function
-      - convert_to_maths_value
-      - convert_to_operand
-      - convert_to_operands
-      - convert_to_operands_prcmfn
-      - definite_integral_check
-      - definite_integral_expr_check
-      - process_product_space
-      - derive_definite_integral_domain
-      - derive_elementary_function_domain
-      - derive_elementary_function_range
-      - derive_finite_function_domain
-      - derive_finite_function_range
-      - derive_function_domain
-      - derive_function_range
-      - domain_from
-      - dot_count
-      - dotted_identifiers_syntax
-      - drop_numeric_constraints
-      - enclose_cregion_in_pregion
-      - enclose_pregion_in_cregion
-      - enclose_pregion_in_pregion
-      - equal_cregion_pregion
-      - equal_maths_functions
-      - equal_maths_spaces
-      - mem_of_vs
-      - equal_maths_values
-      - es_subspace_of_es
-      - expression_is_constant
-      - extract_factors
-      - extremal_position_check
-      - factor1
-      - factor_space
-      - free_variables_of
-      - function_applicability
-      - function_is_1d_array
-      - function_is_1d_table
-      - function_is_2d_table
-      - function_is_array
-      - function_is_table
-      - has_values_space
-      - list_selected_components
-      - make_abstracted_expression_function
-      - make_atom_based_literal
-      - make_b_spline_basis
-      - make_b_spline_function
-      - make_banded_matrix
-      - make_basic_sparse_matrix
-      - make_binary_literal
-      - make_boolean_literal
-      - make_cartesian_complex_number_region
-      - make_complex_number_literal
-      - make_constant_function
-      - make_cos_expression
-      - make_definite_integral_expression
-      - make_definite_integral_function
-      - make_elementary_function
-      - make_elementary_space
-      - make_environment
-      - make_expression_denoted_function
-      - make_extended_tuple_space
-      - make_finite_function
-      - make_finite_integer_interval
-      - make_finite_real_interval
-      - make_finite_space
-      - make_function_application
-      - make_function_space
-      - make_general_linear_function
-      - make_int_literal
-      - make_integer_interval_from_min
-      - make_listed_complex_number_data
-      - make_listed_data
-      - make_listed_integer_data
-      - make_listed_product_space
-      - make_listed_real_data
-      - make_logical_literal
-      - make_maths_enum_literal
-      - make_maths_tuple_literal
-      - make_mult_expression
-      - make_parallel_composed_function
-      - make_partial_derivative_expression
-      - make_partial_derivative_function
-      - make_polar_complex_number_region
-      - make_rationalize_function
-      - make_real_interval_from_min
-      - make_real_interval_to_max
-      - make_real_literal
-      - make_regular_table_function
-      - make_reindexed_array_function
-      - make_repackaging_function
-      - make_selector_function
-      - make_series_composed_function
-      - make_sin_expression
-      - make_standard_table_function
-      - make_strict_triangular_matrix
-      - make_string_literal
-      - make_unary_minus_expression
-      - make_uniform_product_space
-      - max_exists
-      - max_included
-      - fedex
-      - member_of
-      - min_exists
-      - min_included
-      - no_cyclic_domain_reference
-      - no_cyclic_space_reference
-      - number_superspace_of
-      - one_tuples_of
-      - parallel_composed_function_composability_check
-      - parallel_composed_function_domain_check
-      - parse_express_identifier
-      - partial_derivative_check
-      - real_max
-      - real_min
-      - remove_first
-      - repackage
-      - shape_of_array
-      - local abbreviation for convert_to_maths_value function
-      - local abbreviation for make_complex_number_literal function
-      - good_t
-      - simplify_function_application
-      - restore_unary
-      - restore_binary
-      - restore_mulary
-      - make_number_literal;
-      - simplify_generic_expression
-      - simplify_maths_space
-      - simplify_maths_value
-      - singleton_member_of
-      - space_dimension
-      - space_is_continuum
-      - space_is_singleton
-      - stripped_typeof
-      - subspace_of
-      - subspace_of_es
-      - substitute
-      - values_space_of
+      - text: fedex
+        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: val
@@ -45256,6 +45593,11 @@ schemas:
               value: 'TRUE'
           - _class: Expressir::Model::Statements::Repeat
             id: i
+            remarks:
+            - See note above for explanation of fedex()
+            untagged_remarks:
+            - text: See note above for explanation of fedex()
+              format: tail
             bound1:
               _class: Expressir::Model::Literals::Integer
               value: '1'
@@ -45376,6 +45718,11 @@ schemas:
               value: 'TRUE'
           - _class: Expressir::Model::Statements::Repeat
             id: i
+            remarks:
+            - See note above for explanation of fedex()
+            untagged_remarks:
+            - text: See note above for explanation of fedex()
+              format: tail
             bound1:
               _class: Expressir::Model::Literals::Integer
               value: '1'
@@ -45506,6 +45853,14 @@ schemas:
               value: 'TRUE'
           - _class: Expressir::Model::Statements::Repeat
             id: i
+            remarks:
+            - cum := cum AND member_of (fedex (v, i), factor_space (sspc, i));
+            - See note above for explanation of fedex()
+            untagged_remarks:
+            - text: cum := cum AND member_of (fedex (v, i), factor_space (sspc, i));
+              format: tail
+            - text: See note above for explanation of fedex()
+              format: tail
             bound1:
               _class: Expressir::Model::Literals::Integer
               value: '1'
@@ -45740,12 +46095,16 @@ schemas:
     - This function reports whether or not a minimum value exists for an interval.
       If applied to an instance of <<express:mathematical_functions_schema.maths_space,maths_space>>
       which is not an interval, FALSE is returned.
+    - min_exists
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value which is TRUE if the space is an interval which
         has an lower bound."
+    untagged_remarks:
+    - text: min_exists
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
@@ -45863,12 +46222,16 @@ schemas:
     - This function reports whether or not the greatest lower bound for an interval
       is a member of the interval. If applied to an instance of <<express:mathematical_functions_schema.maths_space,maths_space>>
       which is not an interval, or if the interval has no lower bound, FALSE is returned.
+    - min_included
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value which is TRUE if the space is an interval which
         includes its greatest lower bound."
+    untagged_remarks:
+    - text: min_included
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
@@ -46024,11 +46387,15 @@ schemas:
       This function verifies that the chain of references leading to a source for the domain of certain instances of <<express:mathematical_functions_schema.maths_function,maths_function>> terminates and does not lead to an endless loop.
 
       NOTE: In normal use, the second argument is initialized with the singleton set of the function whose *source_of_domain* attribute is to be checked. The presence of the second argument enables implementation by recursion.
+    - no_cyclic_domain_reference
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value indicating whether the domain reference is proper."
+    untagged_remarks:
+    - text: no_cyclic_domain_reference
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: ref
@@ -46290,12 +46657,19 @@ schemas:
       This function returns true if the graph of <<express:mathematical_functions_schema.maths_space,maths_space>> references generated from its input <<express:mathematical_functions_schema.maths_space,maths_space>> contains no cycles and no members of its second argument.
 
       NOTE: In normal use, the second argument is initialized with the empty set. The presence of the second argument enables its implementation by recursion.
+    - spc contains no references to other spaces
+    - no_cyclic_space_reference
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value which is TRUE if the graph of space references reachable
         from the input has no cycles."
+    untagged_remarks:
+    - text: spc contains no references to other spaces
+      format: tail
+    - text: no_cyclic_space_reference
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
@@ -46686,6 +47060,7 @@ schemas:
       If the members of the mathematical space are not numbers, the indeterminate
       value is returned. The elementary space of all numbers is only returned for
       a finite space containing more than one kind of number among its members.
+    - number_superspace_of
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -46693,6 +47068,9 @@ schemas:
       - "(output) The elementary space of all numbers of the same type as the members
         of the input space, or, if the members are not all numbers, the indeterminate
         value (?)."
+    untagged_remarks:
+    - text: number_superspace_of
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
@@ -47010,11 +47388,15 @@ schemas:
     remarks:
     - This function constructs the space of all one-tuples of elements from any given
       space.
+    - one_tuples_of
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The space of one-tuples of elements from the given space."
+    untagged_remarks:
+    - text: one_tuples_of
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
@@ -47048,6 +47430,7 @@ schemas:
     - This function determines whether or not the associative Cartesian product of
       the ranges of the functions listed in its second argument is compatible with
       the domain of the function in its third argument.
+    - parallel_composed_function_composability_check
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -47055,6 +47438,9 @@ schemas:
       - "(output) The BOOLEAN value signifying whether the associative Cartesian product
         of the ranges of functions in *funcs* are compatible with the domain of *final*
         or not."
+    untagged_remarks:
+    - text: parallel_composed_function_composability_check
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: funcs
@@ -47155,12 +47541,16 @@ schemas:
     remarks:
     - This function determines whether or not all the domains of the list of functions
       in its second argument are compatible with its first argument.
+    - parallel_composed_function_domain_check
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The BOOLEAN value signifying whether all the domains of the functions
         in funcs are compatible with the value of *comdom* or not."
+    untagged_remarks:
+    - text: parallel_composed_function_domain_check
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: comdom
@@ -47234,11 +47624,15 @@ schemas:
       a null string, or begins with a letter and contains only letters, digits and
       underscores. If the starting position is beyond the end of the string, or does
       not contain a letter, the starting position is returned.
+    - parse_express_identifier
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The next string position which cannot belong to an EXPRESS identifier."
+    untagged_remarks:
+    - text: parse_express_identifier
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: s
@@ -47393,12 +47787,16 @@ schemas:
       function. Specifically, it verifies that the members of *d_vars* correspond
       to components of *domain* and that those components are subspaces of the reals
       or the complex numbers.
+    - partial_derivative_check
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value indicating whether or not the inputs permit a meaningful
         partial derivative function."
+    untagged_remarks:
+    - text: partial_derivative_check
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: domain
@@ -47642,12 +48040,16 @@ schemas:
       applied to an instance of <<express:mathematical_functions_schema.maths_space,maths_space>>
       which is not an interval, or if the interval has no upper bound, the indeterminate
       value is returned.
+    - real_max
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The least upper bound as a real number, if one exists. Otherwise,
         the indeterminate value is returned."
+    untagged_remarks:
+    - text: real_max
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
@@ -47782,12 +48184,16 @@ schemas:
       If applied to an instance of <<express:mathematical_functions_schema.maths_space,maths_space>>
       which is not an interval, or if the interval has no lower bound, the indeterminate
       value is returned.
+    - real_min
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The greatest lower bound as a real number, if one exists. Otherwise,
         the indeterminate value is returned."
+    untagged_remarks:
+    - text: real_min
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
@@ -48239,11 +48645,15 @@ schemas:
     remarks:
     - This function takes any list and returns a copy with the first element, if any,
       removed.
+    - remove_first
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A copy of the input list with the first element removed."
+    untagged_remarks:
+    - text: remove_first
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: alist
@@ -48348,12 +48758,16 @@ schemas:
     - This function returns a tuple of positive integers reflecting the numbers of
       subscripts in each indexing position for an array function. If the function
       is not an array function, the indeterminate value is returned.
+    - shape_of_array
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The tuple of positive integers describing the shape of the array
         function."
+    untagged_remarks:
+    - text: shape_of_array
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: func
@@ -48586,12 +49000,16 @@ schemas:
       expression to obtain a simpler <<express:mathematical_functions_schema.maths_value,maths_value>>.
       When no simpler expression can be identified, the input expression may be returned
       unchanged.
+    - simplify_function_application
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A <<express:mathematical_functions_schema.maths_value,maths_value>>
         denoting the same mathematical object as the input expression."
+    untagged_remarks:
+    - text: simplify_function_application
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: expr
@@ -48608,6 +49026,11 @@ schemas:
     functions:
     - _class: Expressir::Model::Declarations::Function
       id: ctmv
+      remarks:
+      - local abbreviation for convert_to_maths_value function
+      untagged_remarks:
+      - text: local abbreviation for convert_to_maths_value function
+        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: x
@@ -48631,6 +49054,11 @@ schemas:
             base_path: mathematical_functions_schema.simplify_function_application.ctmv.x
     - _class: Expressir::Model::Declarations::Function
       id: makec
+      remarks:
+      - local abbreviation for make_complex_number_literal function
+      untagged_remarks:
+      - text: local abbreviation for make_complex_number_literal function
+        format: tail
       return_type:
         _class: Expressir::Model::References::SimpleReference
         id: complex_number_literal
@@ -48650,6 +49078,11 @@ schemas:
             id: "y"
     - _class: Expressir::Model::Declarations::Function
       id: good_t
+      remarks:
+      - good_t
+      untagged_remarks:
+      - text: good_t
+        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: v
@@ -48750,7 +49183,8 @@ schemas:
       remarks:
       - parts
       untagged_remarks:
-      - parts
+      - text: parts
+        format: tail
       statements:
       - _class: Expressir::Model::Statements::Assignment
         ref:
@@ -49321,26 +49755,47 @@ schemas:
       to obtain a simpler <<express:mathematical_functions_schema.maths_value,maths_value>>.
       When no simpler expression can be identified, the input expression is returned
       unchanged.
+    - Unwrap the elementary kinds of literals
+    - Simplify one special class of literals
+    - Simplify one special kind of expression
+    - Separate and simplify the operands
+    - Simplify the one kind of maths_function which derives its operands.
+    - Simplify individual kinds of expressions.  It is not necessary to cover all
+      cases.
+    - No special simplification defined, return same with simplified operands.
+    - Should be unreachable, but for safety, return unsimplified expression.
+    - simplify_generic_expression
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A <<express:mathematical_functions_schema.maths_value,maths_value>>
         denoting the same mathematical object as the input expression."
+    untagged_remarks:
+    - text: Unwrap the elementary kinds of literals
+      format: tail
+    - text: Simplify one special class of literals
+      format: tail
+    - text: Simplify one special kind of expression
+      format: tail
+    - text: Separate and simplify the operands
+      format: tail
+    - text: Simplify the one kind of maths_function which derives its operands.
+      format: tail
+    - text: Simplify individual kinds of expressions.  It is not necessary to cover
+        all cases.
+      format: tail
+    - text: No special simplification defined, return same with simplified operands.
+      format: tail
+    - text: Should be unreachable, but for safety, return unsimplified expression.
+      format: tail
+    - text: simplify_generic_expression
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: expr
       remarks:
       - "(input) The expression to be simplified."
-      - "--"
-      - "--"
-      - "--"
-      - "--"
-      untagged_remarks:
-      - "--"
-      - "--"
-      - "--"
-      - "--"
       type:
         _class: Expressir::Model::References::SimpleReference
         id: generic_expression
@@ -49351,6 +49806,11 @@ schemas:
     functions:
     - _class: Expressir::Model::Declarations::Function
       id: restore_unary
+      remarks:
+      - restore_unary
+      untagged_remarks:
+      - text: restore_unary
+        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: expr
@@ -49382,6 +49842,11 @@ schemas:
           base_path: mathematical_functions_schema.simplify_generic_expression.restore_unary.expr
     - _class: Expressir::Model::Declarations::Function
       id: restore_binary
+      remarks:
+      - restore_binary
+      untagged_remarks:
+      - text: restore_binary
+        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: expr
@@ -49415,6 +49880,11 @@ schemas:
           base_path: mathematical_functions_schema.simplify_generic_expression.restore_binary.expr
     - _class: Expressir::Model::Declarations::Function
       id: restore_mulary
+      remarks:
+      - restore_mulary
+      untagged_remarks:
+      - text: restore_mulary
+        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: expr
@@ -49448,6 +49918,11 @@ schemas:
           base_path: mathematical_functions_schema.simplify_generic_expression.restore_mulary.expr
     - _class: Expressir::Model::Declarations::Function
       id: make_number_literal
+      remarks:
+      - make_number_literal;
+      untagged_remarks:
+      - text: make_number_literal;
+        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: nmb
@@ -49560,14 +50035,6 @@ schemas:
         _class: Expressir::Model::DataTypes::String
     - _class: Expressir::Model::Declarations::Variable
       id: nmb
-      remarks:
-      - Unwrap the elementary kinds of literals
-      - No simpler expression available
-      - Simplify one special class of literals
-      untagged_remarks:
-      - Unwrap the elementary kinds of literals
-      - No simpler expression available
-      - Simplify one special class of literals
       type:
         _class: Expressir::Model::DataTypes::Number
     statements:
@@ -53279,6 +53746,7 @@ schemas:
       case, an instance of <<express:mathematical_functions_schema.maths_space,maths_space>>
       is returned which denotes the same mathematical space as that denoted by the
       input.
+    - simplify_maths_space
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -53286,6 +53754,9 @@ schemas:
       - "(output) A <<express:mathematical_functions_schema.maths_space,maths_space>>
         denoting the same mathematical object as the input space, but possibly with
         a simpler structure."
+    untagged_remarks:
+    - text: simplify_maths_space
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
@@ -53849,6 +54320,7 @@ schemas:
       expressions. In any case, a <<express:mathematical_functions_schema.maths_value,maths_value>>
       is returned which denotes the same mathematical value as that denoted by the
       input.
+    - simplify_maths_value
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -53856,6 +54328,9 @@ schemas:
       - "(output) A <<express:mathematical_functions_schema.maths_value,maths_value>>
         denoting the same mathematical object as the input value, but possibly with
         a simpler structure."
+    untagged_remarks:
+    - text: simplify_maths_value
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: val
@@ -54009,11 +54484,15 @@ schemas:
     remarks:
     - This function returns the single member of a mathematical space which has only
       one member. Otherwise, it returns the indeterminate value.
+    - singleton_member_of
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The sole member of *spc*, or else the indeterminate value."
+    untagged_remarks:
+    - text: singleton_member_of
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
@@ -54126,11 +54605,18 @@ schemas:
       This function returns the dimension of a tuple space. In the case of a <<express:mathematical_functions_schema.product_space,product_space>>, the dimension is the number of factors in the cartesian product, which is equivalent to the length of its members. In the case of an <<express:mathematical_functions_schema.extended_tuple_space,extended_tuple_space>>, the dimension is the minimum length of any of its members.
 
       NOTE: An <<express:mathematical_functions_schema.extended_tuple_space,extended_tuple_space>> has no upper limit on the length of its members.
+    - Should be unreachable
+    - space_dimension
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The dimension of the tuple space."
+    untagged_remarks:
+    - text: Should be unreachable
+      format: tail
+    - text: space_dimension
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: tspace
@@ -54252,11 +54738,15 @@ schemas:
     - This function determines whether or not a space is a continuum, that is, whether
       or not the space is a subspace of the reals, a subspace of the complex numbers,
       or a cartesian product of spaces which are continua.
+    - space_is_continuum
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value indicating whether or not the space is a continuum."
+    untagged_remarks:
+    - text: space_is_continuum
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: space
@@ -54468,12 +54958,16 @@ schemas:
     remarks:
     - This function determines whether or not its argument represents a mathematical
       space with a single member or not.
+    - space_is_singleton
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The BOOLEAN value indicating whether the space has a single member
         or not."
+    untagged_remarks:
+    - text: space_is_singleton
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
@@ -54575,12 +55069,16 @@ schemas:
     - This function takes the set of strings produced by the *TYPEOF* function from
       its generic argument and strips *schema_prefix* from each string which begins
       with that substring.
+    - stripped_typeof
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The set of strings corresponding to *TYPEOF(arg)*, but with any
         prefixed copies of *schema_prefix* removed."
+    untagged_remarks:
+    - text: stripped_typeof
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: arg
@@ -54717,6 +55215,8 @@ schemas:
     - This function attempts to determine whether a given mathematical space is a
       subspace of another mathematical space. Where the information accessible to
       this function is not sufficient to determine the matter, UNKNOWN is returned.
+    - Should be unreachable
+    - subspace_of
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: space1
@@ -54732,6 +55232,11 @@ schemas:
       - "(output) A LOGICAL value which is TRUE if the first space can be determined
         to be  a subspace of the second space, FALSE if the first space can be determined
         not to be a subspace of the second space, and UNKNOWN, otherwise."
+    untagged_remarks:
+    - text: Should be unreachable
+      format: tail
+    - text: subspace_of
+      format: tail
     return_type:
       _class: Expressir::Model::DataTypes::Logical
     variables:
@@ -54801,12 +55306,6 @@ schemas:
           base_path: mathematical_functions_schema.subspace_of.spc2
     - _class: Expressir::Model::Declarations::Variable
       id: es_val
-      remarks:
-      - Note that the cases (spc2=the_generics) and (spc1=spc2) have been handled.
-      - Should be unreachable.
-      untagged_remarks:
-      - Note that the cases (spc2=the_generics) and (spc1=spc2) have been handled.
-      - Should be unreachable.
       type:
         _class: Expressir::Model::References::SimpleReference
         id: elementary_space_enumerators
@@ -56772,6 +57271,7 @@ schemas:
     remarks:
     - This function determins whether a <<express:mathematical_functions_schema.maths_space,maths_space>>
       is a subspace of an elementary space identified by a value of <<express:mathematical_functions_schema.elementary_space_enumerators,elementary_space_enumerators>>.
+    - subspace_of_es
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -56779,6 +57279,9 @@ schemas:
       - "(output) A LOGICAL value which is TRUE if the space can be determined to
         be a subspace of the elementary space, FALSE if the space can be determined
         not to be a subspace of the elementary space, and UNKNOWN, otherwise."
+    untagged_remarks:
+    - text: subspace_of_es
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
@@ -56928,11 +57431,33 @@ schemas:
       This function constructs an expression by substituting values for variables in a given expression. The list of values is substituted for the corresponding variables simultaneously.
 
       NOTE: Since the substitution occurs simultaneously, it is possible, for example, to substitute values stem:[y] and stem:[x] for variables stem:[x] and stem:[y] in the expression stem:[2x(y - x)] and get stem:[2y(x - y)].
+    - This technique will not work on subtypes of unary_generic_expression
+    - which derive their operands from other attributes!
+    - This technique will not work on subtypes of binary_generic_expression
+    - which derive their operands from other attributes!
+    - This technique will not work on subtypes of multiple_arity_generic_
+    - expression which derive their operands from other attributes!
+    - substitute
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The expression created by carrying out the substitutions."
+    untagged_remarks:
+    - text: This technique will not work on subtypes of unary_generic_expression
+      format: tail
+    - text: which derive their operands from other attributes!
+      format: tail
+    - text: This technique will not work on subtypes of binary_generic_expression
+      format: tail
+    - text: which derive their operands from other attributes!
+      format: tail
+    - text: This technique will not work on subtypes of multiple_arity_generic_
+      format: tail
+    - text: expression which derive their operands from other attributes!
+      format: tail
+    - text: substitute
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: expr
@@ -57015,12 +57540,6 @@ schemas:
         base_path: mathematical_functions_schema.maths_space_or_function
     - _class: Expressir::Model::Declarations::Variable
       id: prpfun
-      remarks:
-      - Variables subject to a quantifier do not participate in this kind of
-      - substitution process.
-      untagged_remarks:
-      - Variables subject to a quantifier do not participate in this kind of
-      - substitution process.
       type:
         _class: Expressir::Model::DataTypes::List
         bound1:
@@ -57597,11 +58116,21 @@ schemas:
       Analogously to the range space of a function, the values space of an expression is only a space containing all the possible values. It may contain many values which are not actual values of the expression for any assignment of values to free variables.
 
       NOTE: The _actual_ value space of an expression is impractical to ascertain in general. The purpose of this function is that it gives an equivalent of "type" information for mathematical expressions.
+    - When it becomes possible, the subtypes should be analysed and
+    - more finely defined spaces returned.
+    - values_space_of
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A space containing all possible values of the expression."
+    untagged_remarks:
+    - text: When it becomes possible, the subtypes should be analysed and
+      format: tail
+    - text: more finely defined spaces returned.
+      format: tail
+    - text: values_space_of
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: expr
@@ -57617,18 +58146,6 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: e_prefix
-      remarks:
-      - unknown subtype of expression
-      - This case cannot occur in this version of the schema.
-      - When it becomes possible, the subtypes should be analysed and
-      - more finely defined spaces returned.
-      - not recognized as a mathematical expression
-      untagged_remarks:
-      - unknown subtype of expression
-      - This case cannot occur in this version of the schema.
-      - When it becomes possible, the subtypes should be analysed and
-      - more finely defined spaces returned.
-      - not recognized as a mathematical expression
       type:
         _class: Expressir::Model::DataTypes::String
       expression:

@@ -17,6 +17,13 @@ REFERENCE FROM contract_schema
 REFERENCE FROM contract_schema
   (contract AS contract2);
 
+    -- interfaces
+    -- constants
+    -- types
+    -- rules
+    -- interval expressions
+
+
 CONSTANT
   empty_constant : BOOLEAN := TRUE;
 END_CONSTANT;
@@ -32,7 +39,7 @@ END_TYPE;
 TYPE where_label_type = BOOLEAN;
 WHERE
   WR1: TRUE;
-END_TYPE;
+END_TYPE; -- entities
 
 ENTITY empty_entity;
 END_ENTITY;
@@ -749,7 +756,7 @@ PROCEDURE types;
   TYPE enumeration_based_on_multiple_item_type = ENUMERATION BASED_ON enumeration_type WITH
     (test,
      test2);
-  END_TYPE;
+  END_TYPE; -- generic types
   FUNCTION generic_type : GENERIC;
     ;
   END_FUNCTION;

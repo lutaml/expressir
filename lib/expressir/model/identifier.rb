@@ -6,7 +6,7 @@ module Expressir
         mod.attribute :remarks, :string, collection: true
         mod.attribute :remark_items,
                       ::Expressir::Model::Declarations::RemarkItem, collection: true
-        mod.attribute :untagged_remarks, :string, collection: true
+        mod.attribute :untagged_remarks, ::Expressir::Model::RemarkInfo, collection: true
 
         mod.key_value do
           map "id", to: :id

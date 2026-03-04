@@ -31,8 +31,10 @@ module Expressir
         def build(ast, source: nil, include_source: nil)
           return nil unless ast
 
-          @source = source
-          @include_source = include_source
+          # Only set instance variables on first call (when they're provided)
+          # Recursive calls pass nil which shouldn't override the saved values
+          @source = source unless source.nil?
+          @include_source = include_source unless include_source.nil?
 
           # Optimized: Hash is 90%+ of cases, check it first
           case ast
@@ -48,15 +50,26 @@ module Expressir
 
             result = builder.call(snake_data)
 
-            if @include_source && result.respond_to?(:source=)
+            # Always store source_offset for remark attachment (if source is available)
+            # Only store source text when include_source is requested
+            if @source && result.respond_to?(:source=)
               source_info = extract_source_info(node_data)
-              result.source = source_info if source_info
+              if source_info
+                # Store offset for remark attachment (always needed)
+                if result.respond_to?(:source_offset=)
+                  result.source_offset = source_info[:offset]
+                end
+                # Store source text only when explicitly requested
+                if @include_source
+                  result.source = source_info[:text]
+                end
+              end
             end
 
             result
           when Array
             ast.map do |item|
-              build(item, source: source, include_source: include_source)
+              build(item)
             end
           when Parslet::Slice
             ast.to_s
@@ -67,7 +80,12 @@ module Expressir
 
         # Build with remark attachment
         def build_with_remarks(ast, source: nil, include_source: nil)
-          result = build(ast, source: source, include_source: include_source)
+          # Reset instance variables at the start of a top-level build
+          # This ensures state from previous parses is cleared
+          @source = source
+          @include_source = include_source
+
+          result = build(ast)
 
           if source && result
             attacher = RemarkAttacher.new(source)
@@ -288,7 +306,10 @@ module Expressir
           slice = find_slice(data)
           return nil unless slice
 
-          @source[slice.offset...(slice.offset + slice.length)]&.strip
+          {
+            text: @source[slice.offset...(slice.offset + slice.length)]&.strip,
+            offset: slice.offset,
+          }
         end
 
         def find_slice(data, depth = 0)
@@ -298,7 +319,16 @@ module Expressir
           when Parslet::Slice
             data
           when Hash
-            data.each_value do |value|
+            # Skip 'spaces' key which contains whitespace/comments before content
+            # Look for 'str' key first as it usually contains the actual content
+            if data.key?(:str) && data[:str].is_a?(Parslet::Slice)
+              return data[:str]
+            end
+
+            # Then look in other keys, skipping 'spaces'
+            data.each do |key, value|
+              next if key == :spaces
+
               return value if value.is_a?(Parslet::Slice)
 
               result = find_slice(value, depth + 1)

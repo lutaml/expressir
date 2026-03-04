@@ -13,6 +13,84 @@ module Expressir
     # 2. Proximity-based matching for simple tags
     # 3. NOT creating spurious schema-level items for ambiguous tags
     class RemarkAttacher
+      # Types that support informal propositions
+      INFORMAL_PROPOSITION_TYPES = [
+        Model::Declarations::Entity,
+        Model::Declarations::Rule,
+        Model::Declarations::Type,
+        Model::Declarations::InformalPropositionRule,
+      ].freeze
+
+      # Types that support remark items (have remark_items attribute)
+      # These are types where we can create RemarkItem children
+      REMARK_ITEM_TYPES = [
+        Model::Declarations::Schema,
+        Model::Declarations::Entity,
+        Model::Declarations::Type,
+        Model::Declarations::Rule,
+        Model::Declarations::Function,
+        Model::Declarations::Procedure,
+        Model::Declarations::InformalPropositionRule,
+        Model::Declarations::WhereRule,
+        Model::Declarations::UniqueRule,
+        # Attribute types (all include Identifier which provides remark_items)
+        Model::Declarations::Attribute,
+        Model::Declarations::DerivedAttribute,
+        Model::Declarations::InverseAttribute,
+      ].freeze
+
+      # Types that support where rules
+      WHERE_RULE_TYPES = [
+        Model::Declarations::Entity,
+        Model::Declarations::Type,
+        Model::Declarations::Rule,
+        Model::Declarations::Function,
+        Model::Declarations::Procedure,
+      ].freeze
+
+      # Scope container types (can contain other declarations)
+      SCOPE_CONTAINER_TYPES = [
+        Model::Declarations::Schema,
+        Model::Declarations::Function,
+        Model::Declarations::Procedure,
+        Model::Declarations::Rule,
+        Model::Declarations::Entity,
+        Model::Declarations::Type,
+      ].freeze
+
+      # Types that support remarks (have Identifier module or define remarks directly)
+      REMARKS_SUPPORT_TYPES = [
+        # Declaration types with Identifier module
+        Model::Declarations::Schema,
+        Model::Declarations::Entity,
+        Model::Declarations::Type,
+        Model::Declarations::Function,
+        Model::Declarations::Procedure,
+        Model::Declarations::Rule,
+        Model::Declarations::Constant,
+        Model::Declarations::Attribute,
+        Model::Declarations::InverseAttribute,
+        Model::Declarations::DerivedAttribute,
+        Model::Declarations::WhereRule,
+        Model::Declarations::UniqueRule,
+        Model::Declarations::InformalPropositionRule,
+        Model::Declarations::SubtypeConstraint,
+        Model::Declarations::Parameter,
+        Model::Declarations::Variable,
+        # Statement types with Identifier module
+        Model::Statements::Alias,
+        Model::Statements::Repeat,
+        # Expression types with Identifier module
+        Model::Expressions::QueryExpression,
+        # Data types with Identifier module
+        Model::DataTypes::Aggregate,
+        Model::DataTypes::EnumerationItem,
+        Model::DataTypes::Generic,
+        Model::DataTypes::GenericEntity,
+        # Types with remarks attribute defined directly (not via Identifier)
+        Model::Declarations::RemarkItem,
+      ].freeze
+
       def initialize(source)
         @source = source
         @attached_spans = Set.new
@@ -32,18 +110,20 @@ module Expressir
 
       def extract_all_remarks
         remarks = []
-        position = 0
+        byte_position = 0
 
         @source.each_line.with_index do |line, line_idx|
-          if (dash_idx = line.index("--"))
-            remark_text = line[(dash_idx + 2)..].strip
+          line_bytesize = line.bytesize
+          line_bytes = line.b # Get byte string for indexing
+          if (dash_byte_idx = line_bytes.index("--"))
+            remark_text = line.byteslice((dash_byte_idx + 2)..).strip
 
             # Check for special patterns like --IP1: content (informal proposition)
             if remark_text.match?(/^IP\d+:\s*(.*)$/)
               tag = remark_text[/^(IP\d+):/, 1]
               content = remark_text[/^IP\d+:\s*(.*)$/, 1]
               remarks << {
-                position: position + dash_idx,
+                position: byte_position + dash_byte_idx,
                 line: line_idx + 1,
                 text: content,
                 tag: tag,
@@ -52,7 +132,7 @@ module Expressir
             else
               tag, content = parse_tagged_remark(remark_text)
               remarks << {
-                position: position + dash_idx,
+                position: byte_position + dash_byte_idx,
                 line: line_idx + 1,
                 text: content || remark_text,
                 tag: tag,
@@ -60,7 +140,7 @@ module Expressir
               }
             end
           end
-          position += line.length
+          byte_position += line_bytesize
         end
 
         extract_embedded_remarks(remarks)
@@ -70,12 +150,13 @@ module Expressir
       end
 
       def extract_embedded_remarks(remarks)
+        source_bytes = @source.b
         start_pos = 0
-        while (start_idx = @source.index("(*", start_pos))
-          end_idx = @source.index("*)", start_idx + 2)
+        while (start_idx = source_bytes.index("(*", start_pos))
+          end_idx = source_bytes.index("*)", start_idx + 2)
           break unless end_idx
 
-          content = @source[(start_idx + 2)...end_idx]
+          content = @source.byteslice((start_idx + 2)...end_idx)
           line_num = get_line_number(start_idx)
 
           tag, text = parse_tagged_embedded_remark(content)
@@ -112,16 +193,18 @@ module Expressir
       def get_line_number(position)
         return 1 if position.nil? || position.zero?
 
-        @line_cache[position] ||= @source[0...position].count("\n") + 1
+        @line_cache[position] ||= @source.byteslice(0...position).count("\n") + 1
       end
 
       def attach_tagged_remarks(model, remarks)
-        schema_ids = model.respond_to?(:schemas) ? model.schemas.filter_map(&:id) : []
+        schema_ids = repository?(model) ? model.schemas.filter_map(&:id) : []
 
         # Collect nodes with positions for finding containing scopes
         nodes_with_positions = []
         collect_nodes_with_positions(model, nodes_with_positions)
-        nodes_with_positions.sort_by! { |n| n[:position] || Float::INFINITY }
+        # Use stable sort to ensure deterministic ordering across Ruby versions
+        # When positions are equal, preserve original order using index as tie-breaker
+        nodes_with_positions.sort_by!.with_index { |n, i| [n[:position] || Float::INFINITY, i] }
 
         remarks.select do |r|
           r[:tag]
@@ -186,7 +269,7 @@ module Expressir
                 target = find_node_in_scope(containing_scope, tag)
 
                 # Special handling for remarks inside WHERE clauses
-                if target.nil? && containing_scope.respond_to?(:where_rules)
+                if target.nil? && supports_where_rules?(containing_scope)
                   target = find_target_in_where_clause(containing_scope, tag,
                                                        remark[:line])
                 end
@@ -248,39 +331,32 @@ module Expressir
         %i[constants types variables parameters statements
            attributes derived_attributes inverse_attributes
            where_rules unique_rules informal_propositions].each do |attr|
-          next unless scope.respond_to?(attr)
-
-          collection = scope.send(attr)
+          collection = safe_get_collection(scope, attr)
           next unless collection
 
           collection.each do |item|
-            next unless item.respond_to?(:id)
             return item if item.id == tag
+          rescue NoMethodError
+            next
           end
         end
 
         # Search inside types for enumeration items
-        if scope.respond_to?(:types)
-          scope.types&.each do |type|
-            result = find_enumeration_item_in_type(type, tag)
-            return result if result
-          end
+        types = safe_get_collection(scope, :types)
+        types&.each do |type|
+          result = find_enumeration_item_in_type(type, tag)
+          return result if result
         end
 
         # Search inside statements for nested items (alias, repeat, query)
-        if scope.respond_to?(:statements)
-          scope.statements&.each do |stmt|
-            result = find_node_in_statement(stmt, tag)
-            return result if result
-          end
-        end
+        statements = safe_get_collection(scope, :statements)
+        statements&.each do |stmt|
+          result = find_node_in_statement(stmt, tag)
+          return result if result
 
-        # Search inside expressions for QueryExpression (nested in assignments, etc.)
-        if scope.respond_to?(:statements)
-          scope.statements&.each do |stmt|
-            result = find_query_in_expression(stmt, tag)
-            return result if result
-          end
+          # Search inside expressions for QueryExpression (nested in assignments, etc.)
+          result = find_query_in_expression(stmt, tag)
+          return result if result
         end
 
         nil
@@ -289,15 +365,14 @@ module Expressir
       def find_enumeration_item_in_type(type, tag)
         return nil unless type
 
-        # Check if type has enumeration_items method
-        if type.respond_to?(:enumeration_items)
+        # Check if type is a Type declaration with enumeration
+        if type.is_a?(Model::Declarations::Type)
+          # Check enumeration_items on the type itself
           type.enumeration_items&.each do |item|
             return item if item.id == tag
           end
-        end
 
-        # Also check underlying_type if it's an enumeration
-        if type.respond_to?(:underlying_type) && type.underlying_type
+          # Also check underlying_type if it's an enumeration
           ut = type.underlying_type
           if ut.is_a?(Model::DataTypes::Enumeration) && ut.items
             ut.items.each do |item|
@@ -323,9 +398,7 @@ module Expressir
         # Recursively search expression attributes
         %i[expression operand left right condition aggregate
            query_expression repeat_control].each do |attr|
-          next unless node.respond_to?(attr)
-
-          child = node.send(attr)
+          child = safe_send(node, attr)
           next unless child
 
           result = find_query_in_expression(child, tag, visited)
@@ -334,9 +407,7 @@ module Expressir
 
         # Search in arrays
         %i[expressions operands parameters arguments].each do |attr|
-          next unless node.respond_to?(attr)
-
-          children = node.send(attr)
+          children = safe_send(node, attr)
           next unless children.is_a?(Array)
 
           children.each do |child|
@@ -370,22 +441,16 @@ module Expressir
         return nil unless collection_attr
 
         # First try to find in containing scope
-        if containing_scope.respond_to?(collection_attr)
-          collection = containing_scope.send(collection_attr)
-          if collection
-            found = collection.find { |item| item.id == id }
-            return found if found
-          end
+        collection = safe_get_collection(containing_scope, collection_attr)
+        if collection
+          found = collection.find { |item| item.is_a?(Model::ModelElement) && item.id == id }
+          return found if found
         end
 
         # Fallback: try to find by full path
         schema_ids.each do |schema_id|
           full_path = "#{schema_id}.#{tag.tr(':', '.')}"
-          found = begin
-            model.find(full_path)
-          rescue StandardError
-            nil
-          end
+          found = safe_find(model, full_path)
           return found if found
         end
 
@@ -394,7 +459,7 @@ module Expressir
 
       # Find target for remarks inside WHERE clauses
       def find_target_in_where_clause(scope, tag, remark_line)
-        return nil unless scope.respond_to?(:where_rules)
+        return nil unless supports_where_rules?(scope)
 
         where_rules = scope.where_rules
         return nil unless where_rules&.any?
@@ -442,23 +507,16 @@ module Expressir
         return text_based_scope if text_based_scope
 
         # Fallback to position-based detection
+        # Exclude Repository and Cache as they are not semantic scopes
         containing_nodes = nodes_with_positions.select do |n|
-          n[:line] && n[:end_line] && remark_line >= n[:line] && remark_line <= n[:end_line]
+          n[:line] && n[:end_line] && remark_line >= n[:line] && remark_line <= n[:end_line] &&
+            !repository?(n[:node]) && !cache?(n[:node])
         end
 
         # Return the innermost scope container (function, procedure, rule, entity, type)
-        scope_classes = [
-          Model::Declarations::Function,
-          Model::Declarations::Procedure,
-          Model::Declarations::Rule,
-          Model::Declarations::Entity,
-          Model::Declarations::Type,
-          Model::Declarations::Schema,
-        ]
-
         containing_nodes.reverse_each do |n|
           node = n[:node]
-          scope_classes.each do |scope_class|
+          SCOPE_CONTAINER_TYPES.each do |scope_class|
             return node if node.is_a?(scope_class)
           end
         end
@@ -569,23 +627,33 @@ module Expressir
         current = node
 
         while current
-          if current.respond_to?(:id) && current.id
+          if current.is_a?(Model::ModelElement) && current.id
             parts.unshift(current.id)
           end
 
           # Stop at schema level
           break if current.is_a?(Model::Declarations::Schema)
 
-          current = current.respond_to?(:parent) ? current.parent : nil
+          current = current.parent
         end
 
         parts.empty? ? nil : parts.join(".")
       end
 
       def find_containing_scope_for_ip(remark_line, nodes_with_positions)
+        # First try text-based detection (more reliable when source tracking is broken)
+        # This handles cases where node end_line doesn't include trailing remarks
+        text_based_scope = find_scope_by_text_search(remark_line)
+        if text_based_scope && supports_informal_propositions?(text_based_scope)
+          return text_based_scope
+        end
+
+        # Fallback to position-based detection
         # Find nodes that contain this remark line
+        # Exclude Repository and Cache as they are not semantic scopes
         containing_nodes = nodes_with_positions.select do |n|
-          n[:line] && n[:end_line] && remark_line >= n[:line] && remark_line <= n[:end_line]
+          n[:line] && n[:end_line] && remark_line >= n[:line] && remark_line <= n[:end_line] &&
+            !repository?(n[:node]) && !cache?(n[:node])
         end
 
         # Find the innermost node that supports informal propositions
@@ -593,14 +661,11 @@ module Expressir
         if containing_nodes.any?
           containing_nodes.reverse_each do |n|
             node = n[:node]
-            if (node.is_a?(Model::Declarations::Entity) ||
-                node.is_a?(Model::Declarations::Rule) ||
-                node.is_a?(Model::Declarations::Type)) && node.class.method_defined?(:informal_propositions)
+            if supports_informal_propositions?(node)
               return node
             end
 
             # Fallback to schema
-            node = n[:node]
             return node if node.is_a?(Model::Declarations::Schema)
           end
         end
@@ -691,33 +756,31 @@ module Expressir
       end
 
       def find_by_exact_path(model, path)
-        return nil unless path && model.respond_to?(:find)
+        return nil unless path && repository?(model)
 
         # Try original path
-        result = model.find(path)
+        result = safe_find(model, path)
         return result if result
 
         # Try with colon converted to dot
         normalized = path.tr(":", ".")
-        normalized == path ? nil : model.find(normalized)
-      rescue StandardError
-        nil
+        normalized == path ? nil : safe_find(model, normalized)
       end
 
       def create_implicit_remark_item_at_schema(model, item_id, schema_id)
-        return nil unless model.respond_to?(:find)
+        return nil unless repository?(model)
 
-        schema = model.find(schema_id)
-        return nil unless schema
+        schema = safe_find(model, schema_id)
+        return nil unless schema.is_a?(Model::Declarations::Schema)
 
         # Handle informal propositions (IP\d+ pattern) - only if schema supports it
         # Note: Schema doesn't have informal_propositions, so this will create a remark_item instead
-        if item_id.match?(/^IP\d+$/) && schema.respond_to?(:informal_propositions)
+        if item_id.match?(/^IP\d+$/) && supports_informal_propositions?(schema)
           return create_or_find_informal_proposition(schema, item_id)
         end
 
         # Handle remark items
-        return nil unless schema.respond_to?(:remark_items)
+        return nil unless supports_remark_items?(schema)
 
         existing = schema.remark_items&.find { |ri| ri.id == item_id }
         return existing if existing
@@ -726,7 +789,7 @@ module Expressir
       end
 
       def create_implicit_remark_item(model, path, schema_ids = [])
-        return nil unless model.respond_to?(:find)
+        return nil unless repository?(model)
 
         # Normalize path (handle "ip:IP1" format)
         clean_path = normalize_path(path)
@@ -738,20 +801,12 @@ module Expressir
           parent_path = parts[0...i].join(".")
           item_id = parts[i]
 
-          parent = begin
-            model.find(parent_path)
-          rescue StandardError
-            nil
-          end
+          parent = safe_find(model, parent_path)
 
           # Try with schema prefix if not found
           if parent.nil? && schema_ids.any?
             schema_ids.each do |schema_id|
-              parent = begin
-                model.find("#{schema_id}.#{parent_path}")
-              rescue StandardError
-                nil
-              end
+              parent = safe_find(model, "#{schema_id}.#{parent_path}")
               break if parent
             end
           end
@@ -768,19 +823,17 @@ module Expressir
         return path unless path.include?(":")
 
         path_part, _, item_suffix = path.rpartition(":")
-        if path_part.include?(".")
-        end
         "#{path_part}.#{item_suffix}"
       end
 
       def create_item_at_parent(parent, item_id)
         # Handle informal propositions
-        if item_id.match?(/^IP\d+$/) && parent.respond_to?(:informal_propositions)
+        if item_id.match?(/^IP\d+$/) && supports_informal_propositions?(parent)
           return create_or_find_informal_proposition(parent, item_id)
         end
 
         # Handle remark items
-        return nil unless parent.respond_to?(:remark_items)
+        return nil unless supports_remark_items?(parent)
 
         existing = parent.remark_items&.find { |ri| ri.id == item_id }
         return existing if existing
@@ -789,6 +842,9 @@ module Expressir
       end
 
       def create_or_find_informal_proposition(parent, id)
+        # Only Entity, Rule, Type, and InformalPropositionRule have informal_propositions
+        return nil unless supports_informal_propositions?(parent)
+
         existing = parent.informal_propositions&.find { |ip| ip.id == id }
         return existing if existing
 
@@ -796,7 +852,7 @@ module Expressir
         ip.parent = parent
         parent.informal_propositions ||= []
         parent.informal_propositions << ip
-        parent.reset_children_by_id if parent.respond_to?(:reset_children_by_id)
+        safe_reset_children_by_id(parent)
 
         # Also create a RemarkItem inside the InformalPropositionRule
         # This is the expected structure for informal proposition remarks
@@ -804,7 +860,7 @@ module Expressir
         remark_item.parent = ip
         ip.remark_items ||= []
         ip.remark_items << remark_item
-        ip.reset_children_by_id if ip.respond_to?(:reset_children_by_id)
+        safe_reset_children_by_id(ip)
 
         # Return the remark_item so remarks are added to it
         remark_item
@@ -815,7 +871,7 @@ module Expressir
         item.parent = parent
         parent.remark_items ||= []
         parent.remark_items << item
-        parent.reset_children_by_id if parent.respond_to?(:reset_children_by_id)
+        safe_reset_children_by_id(parent)
         item
       end
 
@@ -825,7 +881,8 @@ module Expressir
 
         nodes_with_positions = []
         collect_nodes_with_positions(model, nodes_with_positions)
-        nodes_with_positions.sort_by! { |n| n[:position] || Float::INFINITY }
+        # Use stable sort to preserve original order for equal keys
+        nodes_with_positions.sort_by!.with_index { |n, i| [n[:position] || Float::INFINITY, i] }
 
         untagged.each do |remark|
           next if @attached_spans.include?(remark[:position])
@@ -891,18 +948,24 @@ module Expressir
 
       def add_remark(node, text, format: "tail", tag: nil)
         return unless node
+        return unless node.is_a?(Model::ModelElement)
 
-        if node.respond_to?(:remarks)
+        # Only add remarks to nodes that support them
+        if supports_remarks?(node)
           node.remarks ||= []
           node.remarks << text
-        end
 
-        if tag.nil? && node.respond_to?(:untagged_remarks)
-          remark_info = Model::RemarkInfo.new(text: text, format: format,
-                                              tag: tag)
-          node.untagged_remarks ||= []
-          node.untagged_remarks << remark_info
+          if tag.nil?
+            remark_info = Model::RemarkInfo.new(text: text, format: format,
+                                                tag: tag)
+            node.untagged_remarks ||= []
+            node.untagged_remarks << remark_info
+          end
         end
+      end
+
+      def supports_remarks?(obj)
+        REMARKS_SUPPORT_TYPES.any? { |t| obj.is_a?(t) }
       end
 
       def collect_nodes_with_positions(node, result, visited = Set.new)
@@ -911,17 +974,27 @@ module Expressir
 
         visited.add(node.object_id)
 
-        if node.respond_to?(:source) && node.source
-          pos = @source.index(node.source)
-          if pos
+        if node.is_a?(Model::ModelElement) && node.source
+          # Use stored source_offset from parser
+          # The parser always provides this via Slice#offset
+          if node.source_offset
+            pos = node.source_offset
             line = get_line_number(pos)
+            source_end_line = get_line_number(pos + node.source.length)
+
+            # For container nodes, use the maximum end_line from children
+            # This is needed because source.length only covers the declaration, not the body
+            children_end_line = calculate_children_end_line(node)
+            end_line = [source_end_line, children_end_line].compact.max || source_end_line
+
             result << {
               node: node,
               position: pos,
               line: line,
-              end_line: get_line_number(pos + node.source.length),
+              end_line: end_line,
             }
           else
+            # No source_offset available - should not happen if parser provides Slice
             result << { node: node, position: nil, line: nil, end_line: nil }
           end
         else
@@ -931,21 +1004,51 @@ module Expressir
         collect_children(node, result, visited)
       end
 
-      def collect_children(node, result, visited)
-        if node.respond_to?(:children)
-          node.children&.each do |child|
-            collect_nodes_with_positions(child, result, visited)
+      # Calculate the end line from all children of a node
+      # This is needed for container nodes like schemas, entities, etc.
+      # where source.length only covers the declaration, not the body
+      def calculate_children_end_line(node)
+        children_end_lines = []
+
+        # Check standard children attribute
+        children = safe_get_collection(node, :children)
+        children&.each do |child|
+          if child.is_a?(Model::ModelElement) && child.source_offset && child.source
+            child_end_line = get_line_number(child.source_offset + child.source.length)
+            children_end_lines << child_end_line
           end
+        end
+
+        # Check specific child collections
+        %i[schemas types entities functions procedures rules constants
+           attributes derived_attributes inverse_attributes
+           where_rules unique_rules informal_propositions
+           parameters variables statements items remark_items].each do |attr|
+          collection = safe_get_collection(node, attr)
+          collection&.each do |child|
+            if child.is_a?(Model::ModelElement) && child.source_offset && child.source
+              child_end_line = get_line_number(child.source_offset + child.source.length)
+              children_end_lines << child_end_line
+            end
+          end
+        end
+
+        children_end_lines.max
+      end
+
+      def collect_children(node, result, visited)
+        children = safe_get_collection(node, :children)
+        children&.each do |child|
+          collect_nodes_with_positions(child, result, visited)
         end
 
         %i[schemas types entities functions procedures rules constants
            attributes derived_attributes inverse_attributes
            where_rules unique_rules informal_propositions
            parameters variables statements items remark_items].each do |attr|
-          if node.respond_to?(attr)
-            node.send(attr)&.each do |item|
-              collect_nodes_with_positions(item, result, visited)
-            end
+          collection = safe_get_collection(node, attr)
+          collection&.each do |item|
+            collect_nodes_with_positions(item, result, visited)
           end
         end
       end
@@ -953,13 +1056,99 @@ module Expressir
       def find_nearest_node(remark, nodes)
         remark_line = remark[:line]
 
-        same_line = nodes.select do |n|
-          n[:line] == remark_line || n[:end_line] == remark_line
+        # For tail remarks, prefer nodes that START on the same line
+        # This handles cases like: "attr : STRING; -- tail remark"
+        # Exclude Repository and Cache as they are not semantic scopes
+        same_start_line = nodes.select do |n|
+          n[:line] == remark_line &&
+            !repository?(n[:node]) && !cache?(n[:node])
         end
-        return same_line.first[:node] if same_line.any?
+        return same_start_line.last[:node] if same_start_line.any?
 
-        before = nodes.select { |n| n[:end_line] && n[:end_line] < remark_line }
-        before.max_by { |n| n[:end_line] }[:node] if before.any?
+        # Also check nodes that END on the same line
+        same_end_line = nodes.select do |n|
+          n[:end_line] == remark_line &&
+            !repository?(n[:node]) && !cache?(n[:node])
+        end
+        return same_end_line.last[:node] if same_end_line.any?
+
+        # Find the node that CONTAINS this remark line
+        # This handles preamble remarks and embedded remarks
+        # Exclude Repository and Cache as they are not semantic scopes
+        containing = nodes.select do |n|
+          n[:line] && n[:end_line] && n[:line] <= remark_line && n[:end_line] >= remark_line &&
+            !repository?(n[:node]) && !cache?(n[:node])
+        end
+
+        if containing.any?
+          # Return the most specific (smallest) containing node
+          # Sort by span size and return the smallest
+          containing.min_by { |n| n[:end_line] - n[:line] }[:node]
+        else
+          # Fallback: find the last node that ends before this line
+          before = nodes.select do |n|
+            n[:end_line] && n[:end_line] < remark_line &&
+              !repository?(n[:node]) && !cache?(n[:node])
+          end
+          before.max_by { |n| n[:end_line] }[:node] if before.any?
+        end
+      end
+
+      # Type checking helper methods
+
+      def repository?(obj)
+        obj.is_a?(Model::Repository)
+      end
+
+      def cache?(obj)
+        obj.is_a?(Model::Cache)
+      end
+
+      def supports_informal_propositions?(obj)
+        INFORMAL_PROPOSITION_TYPES.any? { |t| obj.is_a?(t) }
+      end
+
+      def supports_remark_items?(obj)
+        REMARK_ITEM_TYPES.any? { |t| obj.is_a?(t) }
+      end
+
+      def supports_where_rules?(obj)
+        WHERE_RULE_TYPES.any? { |t| obj.is_a?(t) }
+      end
+
+      # Safe accessor methods that return nil instead of NoMethodError
+
+      def safe_send(obj, method)
+        return nil unless obj
+
+        obj.send(method)
+      rescue NoMethodError
+        nil
+      end
+
+      def safe_get_collection(obj, attr)
+        return nil unless obj
+
+        collection = obj.send(attr)
+        collection if collection.is_a?(Array)
+      rescue NoMethodError
+        nil
+      end
+
+      def safe_find(model, path)
+        return nil unless model
+
+        model.find(path)
+      rescue StandardError
+        nil
+      end
+
+      def safe_reset_children_by_id(obj)
+        return unless obj
+
+        obj.reset_children_by_id
+      rescue NoMethodError
+        nil
       end
     end
   end

@@ -3,6 +3,26 @@ _class: Expressir::Model::Repository
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: syntax_schema
+  remarks:
+  - interfaces
+  - constants
+  - types
+  - rules
+  - interval expressions
+  - query expressions
+  untagged_remarks:
+  - text: interfaces
+    format: tail
+  - text: constants
+    format: tail
+  - text: types
+    format: tail
+  - text: rules
+    format: tail
+  - text: interval expressions
+    format: tail
+  - text: query expressions
+    format: tail
   file: spec/syntax/syntax.exp
   version:
     _class: Expressir::Model::Declarations::SchemaVersion
@@ -107,10 +127,6 @@ schemas:
   constants:
   - _class: Expressir::Model::Declarations::Constant
     id: empty_constant
-    remarks:
-    - types
-    untagged_remarks:
-    - types
     type:
       _class: Expressir::Model::DataTypes::Boolean
     expression:
@@ -132,15 +148,16 @@ schemas:
         value: 'TRUE'
   - _class: Expressir::Model::Declarations::Type
     id: where_label_type
+    remarks:
+    - entities
+    untagged_remarks:
+    - text: entities
+      format: tail
     underlying_type:
       _class: Expressir::Model::DataTypes::Boolean
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
-      remarks:
-      - entities
-      untagged_remarks:
-      - entities
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
@@ -577,16 +594,6 @@ schemas:
     unique_rules:
     - _class: Expressir::Model::Declarations::UniqueRule
       id: UR1
-      remarks:
-      - subtype constraints
-      - functions
-      - rules
-      - procedures
-      untagged_remarks:
-      - subtype constraints
-      - functions
-      - rules
-      - procedures
       attributes:
       - _class: Expressir::Model::References::AttributeReference
         ref:
@@ -610,6 +617,11 @@ schemas:
         value: 'TRUE'
   - _class: Expressir::Model::Declarations::Entity
     id: where_label_entity
+    remarks:
+    - subtype constraints
+    untagged_remarks:
+    - text: subtype constraints
+      format: tail
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -888,6 +900,11 @@ schemas:
           id: d
   - _class: Expressir::Model::Declarations::SubtypeConstraint
     id: supertype_expression_oneof_andor_oneof_subtype_constraint
+    remarks:
+    - functions
+    untagged_remarks:
+    - text: functions
+      format: tail
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
@@ -1259,6 +1276,11 @@ schemas:
         value: 'TRUE'
   - _class: Expressir::Model::Declarations::Rule
     id: where_label_rule
+    remarks:
+    - procedures
+    untagged_remarks:
+    - text: procedures
+      format: tail
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
@@ -1288,10 +1310,6 @@ schemas:
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: test
-      remarks:
-      - statements
-      untagged_remarks:
-      - statements
       var: true
       type:
         _class: Expressir::Model::DataTypes::Boolean
@@ -1390,6 +1408,14 @@ schemas:
     - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Procedure
     id: statements
+    remarks:
+    - statements
+    - simple types
+    untagged_remarks:
+    - text: statements
+      format: tail
+    - text: simple types
+      format: tail
     procedures:
     - _class: Expressir::Model::Declarations::Procedure
       id: alias_simple_reference_statement
@@ -1729,6 +1755,17 @@ schemas:
       - _class: Expressir::Model::Statements::Skip
   - _class: Expressir::Model::Declarations::Procedure
     id: types
+    remarks:
+    - aggregation types
+    - constructed types
+    - literal expressions
+    untagged_remarks:
+    - text: aggregation types
+      format: tail
+    - text: constructed types
+      format: tail
+    - text: literal expressions
+      format: tail
     types:
     - _class: Expressir::Model::Declarations::Type
       id: binary_type
@@ -2036,6 +2073,11 @@ schemas:
           id: test
     - _class: Expressir::Model::Declarations::Type
       id: enumeration_based_on_multiple_item_type
+      remarks:
+      - generic types
+      untagged_remarks:
+      - text: generic types
+        format: tail
       underlying_type:
         _class: Expressir::Model::DataTypes::Enumeration
         based_on:
@@ -2074,6 +2116,26 @@ schemas:
       - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Procedure
     id: expressions
+    remarks:
+    - constant expressions
+    - function expressions
+    - operator expressions
+    - aggregate initializer expressions
+    - function call or entity constructor expressions
+    - reference expressions
+    untagged_remarks:
+    - text: constant expressions
+      format: tail
+    - text: function expressions
+      format: tail
+    - text: operator expressions
+      format: tail
+    - text: aggregate initializer expressions
+      format: tail
+    - text: function call or entity constructor expressions
+      format: tail
+    - text: reference expressions
+      format: tail
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: binary_expression
@@ -2133,10 +2195,6 @@ schemas:
         value: 'UTF8 test: Příliš žluťoučký kůň úpěl ďábelské ódy.'
     - _class: Expressir::Model::Declarations::Variable
       id: encoded_string_expression
-      remarks:
-      - constant expressions
-      untagged_remarks:
-      - constant expressions
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -2166,12 +2224,6 @@ schemas:
         id: PI
     - _class: Expressir::Model::Declarations::Variable
       id: self_expression
-      remarks:
-      - function expressions
-      - operator expressions
-      untagged_remarks:
-      - function expressions
-      - operator expressions
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3085,10 +3137,6 @@ schemas:
             value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: like_expression
-      remarks:
-      - aggregate initializer expressions
-      untagged_remarks:
-      - aggregate initializer expressions
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3120,10 +3168,6 @@ schemas:
           value: '4'
     - _class: Expressir::Model::Declarations::Variable
       id: complex_aggregate_initializer_expression
-      remarks:
-      - function call or entity constructor expressions
-      untagged_remarks:
-      - function call or entity constructor expressions
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3154,10 +3198,6 @@ schemas:
             value: '2'
     - _class: Expressir::Model::Declarations::Variable
       id: call_expression
-      remarks:
-      - reference expressions
-      untagged_remarks:
-      - reference expressions
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3171,10 +3211,6 @@ schemas:
           value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: simple_reference_expression
-      remarks:
-      - interval expressions
-      untagged_remarks:
-      - interval expressions
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -3261,10 +3297,6 @@ schemas:
           value: '9'
     - _class: Expressir::Model::Declarations::Variable
       id: lte_lte_interval_expression
-      remarks:
-      - query expressions
-      untagged_remarks:
-      - query expressions
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:

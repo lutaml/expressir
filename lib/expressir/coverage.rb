@@ -281,18 +281,18 @@ module Expressir
     # @param entity [Expressir::Model::ModelElement] The entity to check
     # @return [Boolean] True if the entity has documentation
     def self.entity_documented?(entity)
-      # Check for direct remarks
-      if entity.respond_to?(:remarks) && entity.remarks && !entity.remarks.empty?
+      # Check for direct remarks (types with Identifier module have remarks)
+      if entity.is_a?(Model::ModelElement) && entity.remarks && !entity.remarks.empty?
         return true
       end
 
-      # Check for remark_items
-      if entity.respond_to?(:remark_items) && entity.remark_items && !entity.remark_items.empty?
+      # Check for remark_items (types with Identifier module have remark_items)
+      if entity.is_a?(Model::ModelElement) && entity.remark_items && !entity.remark_items.empty?
         return true
       end
 
       # For schema entities, check if there's a remark_item with their ID
-      if entity.parent.respond_to?(:remark_items) && entity.parent.remark_items
+      if entity.parent.is_a?(Model::ModelElement) && entity.parent.remark_items
         entity_id = entity.id.to_s.downcase
         entity.parent.remark_items.any? do |item|
           item.id.to_s.downcase == entity_id || item.id.to_s.downcase.include?("#{entity_id}.")
@@ -321,7 +321,7 @@ module Expressir
       end
 
       # Filter out any nil elements and ensure all have IDs
-      entities = entities.compact.select { |e| e.respond_to?(:id) && e.id }
+      entities = entities.compact.select { |e| e.is_a?(Model::ModelElement) && e.id }
 
       # Filter out skipped entity types
       apply_exclusions(entities, skip_types)
@@ -380,7 +380,7 @@ module Expressir
 
       when Expressir::Model::Declarations::Type
         # Type nested entities
-        if container.respond_to?(:enumeration_items) && container.enumeration_items
+        if container.enumeration_items
           entities.concat(container.enumeration_items)
         end
 
@@ -535,7 +535,7 @@ module Expressir
     # @param type_entity [Expressir::Model::Declarations::Type] The TYPE entity
     # @return [String] The subtype name (e.g., "SELECT", "ENUMERATION")
     def self.get_type_subtype(type_entity)
-      return nil unless type_entity.respond_to?(:underlying_type) && type_entity.underlying_type
+      return nil unless type_entity.is_a?(Model::Declarations::Type) && type_entity.underlying_type
 
       # Get the class name of the underlying type
       underlying_class = type_entity.underlying_type.class.name
@@ -555,7 +555,7 @@ module Expressir
     # @param function_entity [Expressir::Model::Declarations::Function] The function entity to check
     # @return [Boolean] True if the function is nested within another function, rule, or procedure
     def self.inner_function?(function_entity)
-      return false unless function_entity.respond_to?(:parent) && function_entity.parent
+      return false unless function_entity.is_a?(Model::Declarations::Function) && function_entity.parent
 
       # Check if the parent is a function, rule, or procedure (not a schema)
       parent = function_entity.parent

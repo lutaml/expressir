@@ -1,4 +1,4 @@
-require_relative "parslet_compat"
+require "parsanol"
 require_relative "error"
 require_relative "builder"
 require_relative "builders"
@@ -8,7 +8,7 @@ require_relative "streaming_builder"
 module Expressir
   module Express
     class Parser
-      class Parser < Parslet::Parser
+      class Parser < Parsanol::Parser
         root(:syntax)
 
         # Cache for native parser grammar (class-level)
@@ -678,7 +678,7 @@ module Expressir
 
           begin
             ast = Parser.cached_parser.parse source
-          rescue Parslet::ParseFailed => e
+          rescue Parsanol::ParseFailed => e
             # Instead of just printing, raise a proper error with file context
             raise Error::SchemaParseFailure.new(schema_file, e)
           end
@@ -777,7 +777,7 @@ use_native: false, use_streaming: false, quick_parse: false)
                 else
                   Parser.cached_parser.parse(content)
                 end
-        rescue Parslet::ParseFailed, StandardError => e
+        rescue Parsanol::ParseFailed, StandardError => e
           raise Error::SchemaParseFailure.new("(from string)", e)
         end
 

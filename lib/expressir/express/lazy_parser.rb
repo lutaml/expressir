@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "parslet_compat"
+require "parsanol"
 require "parsanol/native"
 
 module Expressir
@@ -22,8 +22,8 @@ module Expressir
       # @param source [String] EXPRESS source code
       # @return [Array<Hash>] Array of tokens with location info
       def self.tokenize(source)
-        if defined?(Parslet::Native) && Parslet::Native.respond_to?(:tokenize_express)
-          Parslet::Native.tokenize_express(source)
+        if defined?(Parsanol::Native) && Parsanol::Native.method_defined?(:tokenize_express)
+          Parsanol::Native.tokenize_express(source)
         else
           raise "Native lexer not available"
         end

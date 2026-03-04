@@ -6,11 +6,14 @@ module Expressir
       # Shared helper methods for all builders.
       # Included as a module to avoid duplication.
       module Helpers
-        # Extract text from Parslet::Slice or return as-is
+        # Extract text from Parsanol::Slice or return as-is
         def extract_text(val)
           return nil unless val
-          return val.to_s if val.respond_to?(:to_str)
+          # Handle String, Symbol, and objects with to_str (duck typing via class check)
+          return val.to_s if val.is_a?(String)
           return val.to_s if val.is_a?(Symbol)
+          # Handle Parsanol Slice objects - they respond to to_s but not to_str
+          return val.to_s if val.class.name&.include?("Slice")
 
           if val.is_a?(Hash)
             str = val[:str]
@@ -29,8 +32,10 @@ module Expressir
         # Recursively extract text from nested structures
         def extract_nested_text(data)
           return nil unless data
-          return data.to_s if data.respond_to?(:to_str)
+          return data.to_s if data.is_a?(String)
           return data.to_s if data.is_a?(Symbol)
+          # Handle Parsanol Slice objects
+          return data.to_s if data.class.name&.include?("Slice")
 
           if data.is_a?(Hash)
             str = data[:str]

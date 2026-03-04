@@ -93,7 +93,7 @@ module Expressir
       # @return [String] Tail remark or empty string
       def format_inline_tail_remark(node)
         return "" if @no_remarks
-        return "" unless node.respond_to?(:untagged_remarks)
+        return "" unless node.is_a?(Model::ModelElement)
         return "" if node.untagged_remarks.nil? || node.untagged_remarks.empty?
 
         # Get first untagged remark
@@ -308,7 +308,7 @@ module Expressir
         result = []
 
         # Add preamble if source has remarks
-        if node.respond_to?(:source_remarks)
+        if node.is_a?(Model::Repository) && node.source_remarks
           result.concat(format_preamble(node.source_remarks))
         end
 

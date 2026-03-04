@@ -61,7 +61,7 @@ module Expressir
 
       def format_inline_tail_remark(node)
         return "" if @no_remarks
-        return "" unless node.respond_to?(:untagged_remarks)
+        return "" unless node.is_a?(Model::ModelElement)
         return "" if node.untagged_remarks.nil? || node.untagged_remarks.empty?
 
         remark = node.untagged_remarks.first
@@ -82,7 +82,7 @@ module Expressir
 
       def format_end_scope_remark(node)
         return "" if @no_remarks
-        return "" unless node.respond_to?(:untagged_remarks)
+        return "" unless node.is_a?(Model::ModelElement)
         return "" if node.untagged_remarks.nil? || node.untagged_remarks.empty?
 
         remark = node.untagged_remarks.last
@@ -136,7 +136,7 @@ module Expressir
 
       def format_preamble_remarks(node, indent_str = "")
         return nil if @no_remarks
-        return nil unless node.respond_to?(:untagged_remarks)
+        return nil unless node.is_a?(Model::ModelElement)
         return nil if node.untagged_remarks.nil? || node.untagged_remarks.empty?
 
         # For scope containers, exclude the last tail remark as it's the END_* remark
@@ -198,7 +198,7 @@ module Expressir
           node.is_a?(Model::Declarations::Rule)
 
         # Add untagged remarks only for nodes that don't handle them specially
-        if !skip_untagged && node.respond_to?(:untagged_remarks) && !@no_remarks &&
+        if !skip_untagged && node.is_a?(Model::ModelElement) && !@no_remarks &&
             !node.untagged_remarks.nil?
           remarks.concat(node.untagged_remarks.map do |remark|
             format_untagged_remark(remark)
@@ -218,7 +218,7 @@ module Expressir
         if node.is_a?(Model::Declarations::Schema)
           # Schema's own remarks that need to be in specific positions
           schema_remarks = {}
-          if !@no_remarks && node.respond_to?(:untagged_remarks) && !node.untagged_remarks.nil?
+          if !@no_remarks && node.is_a?(Model::ModelElement) && !node.untagged_remarks.nil?
             node.untagged_remarks.compact.each do |remark|
               text = remark.is_a?(Model::RemarkInfo) ? remark.text : remark
               schema_remarks[text] = remark unless text == "interfaces" # Skip "interfaces"
@@ -230,7 +230,7 @@ module Expressir
           remarks.concat(schema_remarks["constants"] ? [format_untagged_remark(schema_remarks["constants"])] : [])
 
           # Collect from children grouped by type
-          if node.respond_to?(:children) && node.children
+          if node.is_a?(Model::ModelElement) && node.children
             types_done = false
             entities_done = false
 
@@ -269,7 +269,7 @@ module Expressir
           ]
 
           if !@no_remarks &&
-              node.respond_to?(:untagged_remarks) &&
+              node.is_a?(Model::ModelElement) &&
               !node.untagged_remarks.nil? &&
               skip_untagged_types.any? { |type| node.is_a?(type) }
 
@@ -279,7 +279,7 @@ module Expressir
           end
 
           # Then recursively collect from children
-          if node.respond_to?(:children) && node.children
+          if node.is_a?(Model::ModelElement) && node.children
             node.children.select do |child|
               !child.is_a?(Model::DataTypes::EnumerationItem) || node.is_a?(Model::Declarations::Type)
             end.each do |child|

@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+require "parsanol"
+
 module Expressir
   module Express
     # Module containing all Express-related errors
@@ -11,11 +15,11 @@ module Expressir
 
         # Initialize a new SchemaParseFailure error
         # @param filename [String] The name of the file that failed to parse
-        # @param original_error [Parslet::ParseFailed] The original parsing error
+        # @param original_error [Parsanol::ParseFailed] The original parsing error
         def initialize(filename, original_error)
           @filename = filename
           @original_error = original_error
-          @parse_failure_cause = original_error.respond_to?(:parse_failure_cause) ? original_error.parse_failure_cause : nil
+          @parse_failure_cause = original_error.is_a?(Parsanol::ParseFailed) ? original_error.parse_failure_cause : nil
           super("Failed to parse schema in file '#{filename}': #{original_error.message}")
         end
       end

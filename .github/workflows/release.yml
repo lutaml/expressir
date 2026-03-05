@@ -4,6 +4,7 @@ permissions:
   contents: write
   packages: write
   pull-requests: write
+  id-token: write
 
 on:
   workflow_dispatch:
@@ -20,6 +21,11 @@ on:
 jobs:
   release:
     uses: metanorma/ci/.github/workflows/rubygems-release.yml@main
+    permissions:
+      id-token: write
+      contents: write
+      packages: write
+      pull-requests: write
     with:
       next_version: ${{ github.event.inputs.next_version }}
       release_command: rake release

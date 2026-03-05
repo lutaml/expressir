@@ -70,12 +70,13 @@ jobs:
   deploy:
     # Only deploy on push to main/master, not on PRs
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    
+
     needs: build
-    
+
     permissions:
       pages: write
       id-token: write
+      contents: write
     
     environment:
       name: github-pages

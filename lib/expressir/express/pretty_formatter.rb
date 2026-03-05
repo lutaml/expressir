@@ -308,8 +308,14 @@ module Expressir
         result = []
 
         # Add preamble if source has remarks
-        if node.is_a?(Model::Repository) && node.source_remarks
-          result.concat(format_preamble(node.source_remarks))
+        # Use begin/rescue for duck typing (RBS-safe)
+        source_remarks = begin
+          node.source_remarks if node.is_a?(Model::Repository)
+        rescue NoMethodError
+          nil
+        end
+        if source_remarks
+          result.concat(format_preamble(source_remarks))
         end
 
         # Add provenance

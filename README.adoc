@@ -119,7 +119,7 @@ Expressir uses the link:https://github.com/parsanol/parsanol-ruby[Parsanol] gem 
 |===
 | Mode | Time | Speedup | Notes
 
-| Ruby (Parslet) | 3036 ms | 1x (baseline) | Pure Ruby parsing
+| Ruby (Parsanol) | 3036 ms | 1x (baseline) | Pure Ruby parsing
 | Native Batch (Parsanol) | 153 ms | 19.9x faster | AST via u64 array transfer
 | Native ZeroCopy (Parsanol) | 106 ms | 28.7x faster | Zero-copy with source positions
 |===
@@ -139,7 +139,7 @@ Expressir automatically uses Parsanol when available:
 
 [source,ruby]
 ----
-# Automatically uses Parsanol if available, falls back to Parslet
+# Automatically uses Parsanol native parser when available
 repo = Expressir::Express::Parser.from_file("geometry.exp")
 
 # Check if native parser is being used

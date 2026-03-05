@@ -70,8 +70,8 @@ module Expressir
             raise LoadError, "Native parser not available"
           end
 
-          # Use the public API that handles transformation
-          Parsanol::Native.parse_parslet_compatible(new.syntax, source)
+          # Use Parsanol 2.0 API - parse returns Slice objects with position info
+          new.parse(source, mode: :native)
         end
 
         def cts(atom)
@@ -753,17 +753,10 @@ root_path: nil)
       # @param [Boolean] include_source attach original source code to model elements
       # @param [Boolean] use_native use native parser if available (default: false - AST format differs slightly)
       # @param [Boolean] use_streaming use streaming builder for maximum performance (default: false)
-      # @param [Boolean] quick_parse use fast lexer-only parsing (returns structure hash, not model)
-      # @return [Model::Repository, Array<Hash>] Parsed repository or schema structure hash
+      # @return [Model::Repository] Parsed repository
       # @raise [SchemaParseFailure] if the content fails to parse
       def self.from_exp(content, skip_references: nil, include_source: nil,
-use_native: false, use_streaming: false, quick_parse: false)
-        # Quick parse mode - just tokenize and scan for structure
-        if quick_parse
-          require_relative "lazy_parser"
-          return LazyParser.quick_parse(content)
-        end
-
+                         use_native: false, use_streaming: false)
         # Streaming builder mode - uses Parsanol streaming callbacks
         if use_streaming && Parser.native_available? && defined?(Parsanol::Native.parse_with_builder)
           return from_exp_streaming(content, skip_references: skip_references,

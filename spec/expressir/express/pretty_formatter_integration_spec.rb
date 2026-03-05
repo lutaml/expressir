@@ -1,4 +1,5 @@
 require "spec_helper"
+require "tempfile"
 
 RSpec.describe Expressir::Express::PrettyFormatter do
   describe "Integration tests with real schemas" do

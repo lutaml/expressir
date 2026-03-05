@@ -250,7 +250,7 @@ end
 The exception provides:
 
 `filename`:: The file that failed to parse
-`parse_failure_cause`:: The underlying Parslet parse error
+`parse_failure_cause`:: The underlying Parsanol parse error
 `message`:: Human-readable error description
 
 === Other common errors

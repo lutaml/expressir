@@ -38,8 +38,8 @@ Expressir uses a multi-stage parsing pipeline:
          │
          ▼
    ┌──────────┐
-   │  Parslet │ (PEG parser)
-   │  Grammar │
+   │  Parsanol │ (PEG parser)
+   │  Grammar  │
    └────┬─────┘
         │
         ▼
@@ -71,16 +71,11 @@ Expressir uses a multi-stage parsing pipeline:
 └────────────────────┘
 ----
 
-==== Backend: Parslet vs Parsanol
+==== Backend: Parsanol
 
-Expressir supports two parser backends:
+Expressir uses the **Parsanol** parser backend:
 
-**Parslet (Pure Ruby)**::
-* Original Ruby PEG parser
-* 100% Ruby implementation
-* Easier debugging
-
-**Parsanol (Native Rust)**::
+**Parsanol (High-Performance Rust)**::
 * High-performance Rust backend
 * 18-44x faster parsing
 * 99.5% fewer allocations
@@ -91,11 +86,11 @@ Expressir automatically uses Parsanol when available:
 
 [source,ruby]
 ----
-# Automatically uses Parsanol if available, falls back to Parslet
+# Automatically uses native Rust parser (Parsanol)
 repo = Expressir::Express::Parser.from_file("geometry.exp")
 
-# Force use of native parser (requires Parsanol)
-if Parsanol::Native.available?
+# Check if native parser is available
+if defined?(Parsanol::Native) && Parsanol::Native.available?
   # Using Rust parser - 20-30x faster
 end
 ----
@@ -104,7 +99,7 @@ See the link:https://github.com/parsanol/parsanol-ruby[Parsanol documentation] f
 
 ==== Stage 1: Lexical Analysis and Parsing
 
-Expressir uses **Parslet**, a Parsing Expression Grammar (PEG) parser for Ruby:
+Expressir uses **Parsanol**, a high-performance Parsing Expression Grammar (PEG) parser:
 
 [source,ruby]
 ----
@@ -118,7 +113,7 @@ rule(:entityHead) do
 end
 ----
 
-**Parslet advantages**:
+**Parsanol advantages**:
 
 * **Pure Ruby**: No external dependencies
 * **Composable rules**: Complex grammars from simple parts
@@ -708,7 +703,7 @@ link:../guides/cli/benchmark-performance.html[Benchmark and optimize]
 
 === Bibliography
 
-* https://github.com/kschiess/parslet[Parslet] - PEG parser for Ruby
+* https://github.com/parsanon/parsanon-ruby[Parsanol] - High-performance PEG parser for Ruby
 * https://en.wikipedia.org/wiki/Parsing_expression_grammar[PEG on Wikipedia] - Understanding PEG parsers
 * link:express-language.html[EXPRESS Language] - Understanding what is being parsed
 * link:data-model.html[Data Model] - Understanding the parsing result

@@ -306,7 +306,7 @@ RSpec.describe Expressir::Express::PrettyFormatter do
     end
 
     it "includes preamble when source_remarks present" do
-      allow(repository).to receive(:respond_to?).with(:source_remarks).and_return(true)
+      allow(repository).to receive(:is_a?).with(Expressir::Model::Repository).and_return(true)
       allow(repository).to receive(:source_remarks).and_return(["Test preamble"])
 
       result = formatter.send(:format_repository, repository)

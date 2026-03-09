@@ -14,7 +14,7 @@ module Expressir
         else
           say "Error: Unknown profile '#{profile}'. Valid profiles are: 'iso', 'elf'",
               :red
-          exit 1
+          abort
         end
       end
 

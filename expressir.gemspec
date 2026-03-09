@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   end
 
   spec.add_dependency "base64"
+  spec.add_dependency "benchmark"
   spec.add_dependency "benchmark-ips"
   spec.add_dependency "csv"
   spec.add_dependency "liquid"

@@ -354,8 +354,7 @@ RSpec.describe Expressir::Commands::Package, "#tree" do
       end
 
       it "returns ANY for nil type" do
-        require "ostruct"
-        element = OpenStruct.new(type: nil)
+        element = Struct.new(:type).new(nil)
         expect(command.send(:extract_type_info, element)).to eq("ANY")
       end
     end

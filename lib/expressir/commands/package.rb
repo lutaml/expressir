@@ -103,7 +103,7 @@ module Expressir
                          unless File.exist?(options[:manifest])
                            say "Error: Manifest file not found: #{options[:manifest]}",
                                :red
-                           exit 1
+                           abort
                          end
 
                          # Override output if not provided
@@ -112,7 +112,7 @@ module Expressir
                            say "Error: OUTPUT path is required", :red
                            say "Usage: expressir package build --manifest MANIFEST.yaml OUTPUT.ler",
                                :yellow
-                           exit 1
+                           abort
                          end
 
                          # Build repository
@@ -146,7 +146,7 @@ module Expressir
                              file_errors.each do |e|
                                say "  - #{e[:message]}", :red
                              end
-                             exit 1
+                             abort
                            end
 
                            # Check referential integrity
@@ -163,7 +163,7 @@ module Expressir
                              say "This package may be incomplete or inconsistent.",
                                  :red
                              say "To build anyway, use: --skip-verify", :yellow
-                             exit 1
+                             abort
                            end
 
                            say "✓ Manifest verified", :green
@@ -201,7 +201,7 @@ module Expressir
                          unless errors.empty?
                            say "Error: Manifest validation failed", :red
                            errors.each { |e| say "  - #{e}", :red }
-                           exit 1
+                           abort
                          end
 
                          if options[:verbose] && warnings.any?
@@ -218,14 +218,14 @@ module Expressir
                                :red
                            say "Usage: expressir package build ROOT_SCHEMA OUTPUT.ler",
                                :yellow
-                           exit 1
+                           abort
                          end
 
                          unless output
                            say "Error: OUTPUT path is required", :red
                            say "Usage: expressir package build ROOT_SCHEMA OUTPUT.ler",
                                :yellow
-                           exit 1
+                           abort
                          end
 
                          say "Building LER package from #{root_schema}..." if options[:verbose]
@@ -300,7 +300,7 @@ module Expressir
                     :red
               end
             end
-            exit 1
+            abort
           end
           say "  ✓ Validation passed" if options[:verbose]
         end
@@ -314,7 +314,7 @@ module Expressir
       rescue StandardError => e
         say "Error building package: #{e.message}", :red
         say e.backtrace.join("\n") if options[:verbose]
-        exit 1
+        abort
       end
 
       desc "info PACKAGE", "Display package metadata and statistics"
@@ -351,7 +351,7 @@ module Expressir
         end
       rescue StandardError => e
         say "Error reading package info: #{e.message}", :red
-        exit 1
+        abort
       end
 
       desc "validate PACKAGE", "Validate package structure and integrity"
@@ -412,10 +412,10 @@ module Expressir
           output_text_validation(validation)
         end
 
-        exit 1 unless validation[:valid?]
+        abort unless validation[:valid?]
       rescue StandardError => e
         say "Error validating package: #{e.message}", :red
-        exit 1
+        abort
       end
 
       desc "extract PACKAGE", "Extract package contents to directory"
@@ -442,7 +442,7 @@ module Expressir
           say "Error: output directory is required", :red
           say "Usage: expressir package extract PACKAGE --output OUTPUT_DIR",
               :yellow
-          exit 1
+          abort
         end
 
         output_dir = options[:output]
@@ -462,7 +462,7 @@ module Expressir
         end.size}", :green
       rescue StandardError => e
         say "Error extracting package: #{e.message}", :red
-        exit 1
+        abort
       end
 
       desc "list PACKAGE", "List all elements of a specific type"
@@ -524,7 +524,7 @@ module Expressir
         end
       rescue StandardError => e
         say "Error listing elements: #{e.message}", :red
-        exit 1
+        abort
       end
 
       desc "search PACKAGE PATTERN", "Search for elements matching a pattern"
@@ -604,7 +604,7 @@ module Expressir
         end
       rescue StandardError => e
         say "Error searching: #{e.message}", :red
-        exit 1
+        abort
       end
       desc "tree PACKAGE", "Display hierarchical tree view of package contents"
       long_desc <<~DESC
@@ -671,7 +671,7 @@ module Expressir
         end
       rescue StandardError => e
         say "Error displaying tree: #{e.message}", :red
-        exit 1
+        abort
       end
 
       private
@@ -695,7 +695,7 @@ module Expressir
       def load_package(package_path)
         unless File.exist?(package_path)
           say "Package file not found: #{package_path}", :red
-          exit 1
+          abort
         end
 
         Expressir::Model::Repository.from_package(package_path)

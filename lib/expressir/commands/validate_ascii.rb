@@ -560,7 +560,7 @@ module Expressir
       def validate_from_manifest(manifest_path)
         unless File.exist?(manifest_path)
           say "Error: Manifest file not found: #{manifest_path}", :red
-          exit 1
+          abort
         end
 
         say "Loading manifest: #{manifest_path}..." if options[:verbose]
@@ -575,7 +575,7 @@ module Expressir
 
         if exp_files.empty?
           say "Error: No valid schema paths found in manifest", :red
-          exit 1
+          abort
         end
 
         say "Validating #{exp_files.size} schema(s) from manifest for ASCII compliance..." if options[:verbose]

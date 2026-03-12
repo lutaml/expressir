@@ -21,9 +21,9 @@ RSpec.configure do |config|
 
   config.around do |ex|
     ex.run
-  rescue SystemExit => e
-    puts "Got SystemExit: #{e.inspect}."
+  rescue Expressir::Error => e
+    puts "Got Expressir::Error: #{e.inspect}."
     puts e.backtrace if e.backtrace
-    # raise
+    raise
   end
 end

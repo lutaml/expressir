@@ -1,4 +1,5 @@
 require_relative "expressir/version"
+require_relative "expressir/errors"
 require_relative "expressir/cli"
 require_relative "expressir/config"
 require_relative "expressir/benchmark"
@@ -28,9 +29,6 @@ else
 end
 
 module Expressir
-  class Error < StandardError; end
-  class InvalidSchemaManifestError < Error; end
-
   def self.root
     File.dirname(__dir__)
   end

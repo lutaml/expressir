@@ -12,9 +12,11 @@ module Expressir
         when "iso"
           format_with_iso_profile(repository)
         else
-          say "Error: Unknown profile '#{profile}'. Valid profiles are: 'iso', 'elf'",
-              :red
-          abort
+          raise Expressir::InvalidOptionError.new(
+            "profile",
+            profile,
+            valid_options: ["iso", "elf"]
+          )
         end
       end
 

@@ -309,7 +309,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.extract("test.ler")
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::MissingRequiredArgumentError)
       end
 
       it "handles corrupted ZIP file" do
@@ -320,7 +320,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.extract(corrupted_package_path)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageExtractError)
       end
 
       it "handles ZIP with missing entries" do
@@ -349,7 +349,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.info(corrupted_package_path)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageReadError)
       end
 
       it "handles package with corrupted metadata" do
@@ -364,7 +364,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.info(corrupted_package_path)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageReadError)
       end
     end
 
@@ -386,7 +386,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.validate(corrupted_package_path)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageValidationError)
       end
     end
   end
@@ -625,7 +625,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.build("nonexistent.exp", test_output)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageBuildError)
 
         # Restore the constant if it existed
         if original_resolver
@@ -652,7 +652,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.build("test.exp", test_output)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::SchemaValidationError)
       end
     end
   end

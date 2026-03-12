@@ -90,7 +90,7 @@ RSpec.describe Expressir::Commands::Package do
         command = described_class.new
         expect do
           command.build("nonexistent.exp", test_output)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageBuildError)
       end
     end
   end
@@ -223,7 +223,7 @@ RSpec.describe Expressir::Commands::Package do
     context "when package does not exist" do
       it "exits with error" do
         command = described_class.new
-        expect { command.info("nonexistent.ler") }.to raise_error(SystemExit)
+        expect { command.info("nonexistent.ler") }.to raise_error(Expressir::PackageNotFoundError)
       end
     end
   end
@@ -257,7 +257,7 @@ RSpec.describe Expressir::Commands::Package do
         command = described_class.new
         expect do
           command.validate("nonexistent.ler")
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageNotFoundError)
       end
     end
   end
@@ -276,14 +276,14 @@ RSpec.describe Expressir::Commands::Package do
     context "when package does not exist" do
       it "exits with error" do
         command = described_class.new("output" => extract_dir)
-        expect { command.extract("nonexistent.ler") }.to raise_error(SystemExit)
+        expect { command.extract("nonexistent.ler") }.to raise_error(Expressir::PackageExtractError)
       end
     end
 
     context "when output option is not provided" do
       it "requires output directory" do
         command = described_class.new
-        expect { command.extract("test.ler") }.to raise_error(SystemExit)
+        expect { command.extract("test.ler") }.to raise_error(Expressir::MissingRequiredArgumentError)
       end
     end
   end
@@ -420,7 +420,7 @@ RSpec.describe Expressir::Commands::Package do
     context "when package does not exist" do
       it "exits with error" do
         command = described_class.new
-        expect { command.list("nonexistent.ler") }.to raise_error(SystemExit)
+        expect { command.list("nonexistent.ler") }.to raise_error(Expressir::PackageNotFoundError)
       end
     end
   end
@@ -542,7 +542,7 @@ RSpec.describe Expressir::Commands::Package do
         command = described_class.new
         expect do
           command.search("nonexistent.ler", "action")
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageNotFoundError)
       end
     end
   end

@@ -377,7 +377,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.validate(missing_files_package)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageValidationError)
       end
 
       it "handles corrupted marshal data" do
@@ -385,7 +385,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.validate(corrupted_package)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageValidationError)
       end
 
       it "handles malformed YAML metadata" do
@@ -393,7 +393,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.info(malformed_yaml_package)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageReadError)
       end
 
       it "provides appropriate error messages for validation failures" do
@@ -403,7 +403,7 @@ RSpec.describe Expressir::Commands::Package,
         expect do
           capture_stderr do
             command.validate(missing_files_package)
-          rescue SystemExit
+          rescue Expressir::Error
             # Expected
           end
         end.not_to raise_error(NoMethodError)
@@ -431,7 +431,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.extract(invalid_package)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageExtractError)
       end
     end
 
@@ -442,7 +442,7 @@ RSpec.describe Expressir::Commands::Package,
         expect do
           command.build("non/existent/schema.exp",
                         File.join(temp_dir, "output.ler"))
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageBuildError)
       end
 
       it "handles invalid output paths" do
@@ -450,7 +450,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.build("spec/syntax/single.exp", "/invalid/path/output.ler")
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageBuildError)
       end
     end
   end

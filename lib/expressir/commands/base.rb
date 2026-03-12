@@ -17,15 +17,8 @@ module Expressir
         end
       end
 
-      def exit_with_error(message, exit_code = 1)
-        say message
-        # In test mode, raise an exception instead of exiting
-        # This makes it easier to test error cases
-        if defined?(@test_mode) && @test_mode
-          raise message # Just raise the message as an exception
-        else
-          exit exit_code
-        end
+      def exit_with_error(message, _exit_code = 1)
+        raise Expressir::CommandError.new(message)
       end
     end
   end

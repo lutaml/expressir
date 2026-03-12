@@ -16,8 +16,7 @@ module Expressir
 
       def validate_from_manifest(manifest_path)
         unless File.exist?(manifest_path)
-          say "Error: Manifest file not found: #{manifest_path}", :red
-          abort
+          raise Expressir::ManifestNotFoundError.new(manifest_path)
         end
 
         say "Loading manifest: #{manifest_path}..." if options[:verbose]
@@ -29,8 +28,7 @@ module Expressir
         paths = manifest.schemas.map(&:path).reject { |p| p.nil? || p.empty? }
 
         if paths.empty?
-          say "Error: No valid schema paths found in manifest", :red
-          abort
+          raise Expressir::NoValidSchemaPathsError.new("No valid schema paths found in manifest")
         end
 
         say "Validating #{paths.size} schema(s) from manifest..." if options[:verbose]
@@ -60,7 +58,12 @@ module Expressir
         print_validation_errors(:failed_to_parse, no_valid)
         print_validation_errors(:missing_version_string, no_version)
 
-        abort unless [no_valid, no_version].all?(&:empty?)
+        unless [no_valid, no_version].all?(&:empty?)
+          raise Expressir::SchemaValidationError.new(
+            "Schema validation failed",
+            errors: no_valid + no_version
+          )
+        end
 
         say "Validation passed for all EXPRESS schemas."
       end

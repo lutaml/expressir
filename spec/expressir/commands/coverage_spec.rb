@@ -352,7 +352,7 @@ RSpec.describe Expressir::Commands::Coverage do
     it "handles non-existent files gracefully" do
       expect do
         command.run(["non_existent_file.exp"])
-      end.to raise_error(SystemExit)
+      end.to raise_error(Expressir::CommandError)
     end
 
     it "handles invalid file formats gracefully" do
@@ -363,7 +363,7 @@ RSpec.describe Expressir::Commands::Coverage do
       begin
         expect do
           command.run([invalid_file])
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::CommandError)
       ensure
         FileUtils.rm_f(invalid_file)
       end

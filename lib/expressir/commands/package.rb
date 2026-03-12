@@ -101,18 +101,16 @@ module Expressir
         schema_files = if options[:manifest]
                          # Manifest-based mode
                          unless File.exist?(options[:manifest])
-                           say "Error: Manifest file not found: #{options[:manifest]}",
-                               :red
-                           abort
+                           raise Expressir::ManifestNotFoundError.new(options[:manifest])
                          end
 
                          # Override output if not provided
                          output ||= root_schema
                          unless output
-                           say "Error: OUTPUT path is required", :red
-                           say "Usage: expressir package build --manifest MANIFEST.yaml OUTPUT.ler",
-                               :yellow
-                           abort
+                           raise Expressir::MissingRequiredArgumentError.new(
+                             "OUTPUT path is required",
+                             usage_hint: "expressir package build --manifest MANIFEST.yaml OUTPUT.ler"
+                           )
                          end
 
                          # Build repository
@@ -141,29 +139,19 @@ module Expressir
                            # Check file existence
                            file_errors = validator.validate_file_existence
                            unless file_errors.empty?
-                             say "✗ Manifest validation failed", :red
-                             say ""
-                             file_errors.each do |e|
-                               say "  - #{e[:message]}", :red
-                             end
-                             abort
+                             raise Expressir::ManifestValidationError.new(
+                               "Manifest validation failed",
+                               errors: file_errors.map { |e| e[:message] }
+                             )
                            end
 
                            # Check referential integrity
                            reference_errors = validator.validate_referential_integrity
                            unless reference_errors.empty?
-                             say "✗ Manifest has unresolved dependencies", :red
-                             say ""
-                             say "The following schema references cannot be resolved:",
-                                 :red
-                             reference_errors.each do |e|
-                               say "  - #{e[:message]}", :red
-                             end
-                             say ""
-                             say "This package may be incomplete or inconsistent.",
-                                 :red
-                             say "To build anyway, use: --skip-verify", :yellow
-                             abort
+                             raise Expressir::ReferentialIntegrityError.new(
+                               reference_errors,
+                               message: "Manifest has unresolved dependencies"
+                             )
                            end
 
                            say "✓ Manifest verified", :green
@@ -199,9 +187,10 @@ module Expressir
                          end
 
                          unless errors.empty?
-                           say "Error: Manifest validation failed", :red
-                           errors.each { |e| say "  - #{e}", :red }
-                           abort
+                           raise Expressir::ManifestValidationError.new(
+                             "Manifest validation failed",
+                             errors: errors
+                           )
                          end
 
                          if options[:verbose] && warnings.any?
@@ -214,18 +203,17 @@ module Expressir
                        else
                          # Auto-resolution mode
                          unless root_schema
-                           say "Error: ROOT_SCHEMA is required when not using --manifest",
-                               :red
-                           say "Usage: expressir package build ROOT_SCHEMA OUTPUT.ler",
-                               :yellow
-                           abort
+                           raise Expressir::MissingRequiredArgumentError.new(
+                             "ROOT_SCHEMA is required when not using --manifest",
+                             usage_hint: "expressir package build ROOT_SCHEMA OUTPUT.ler"
+                           )
                          end
 
                          unless output
-                           say "Error: OUTPUT path is required", :red
-                           say "Usage: expressir package build ROOT_SCHEMA OUTPUT.ler",
-                               :yellow
-                           abort
+                           raise Expressir::MissingRequiredArgumentError.new(
+                             "OUTPUT path is required",
+                             usage_hint: "expressir package build ROOT_SCHEMA OUTPUT.ler"
+                           )
                          end
 
                          say "Building LER package from #{root_schema}..." if options[:verbose]
@@ -272,35 +260,21 @@ module Expressir
           say "Validating repository..." if options[:verbose]
           validation = repo.validate
           unless validation[:valid?]
-            say "✗ Repository validation failed", :red
-            say ""
-            errors = validation[:errors] || []
-            say "Validation errors (#{errors.size}):", :red
-            errors.each_with_index do |e, i|
-              error_msg = if e.is_a?(Hash)
-                            # Format hash errors properly
-                            msg = e[:message] || "Unknown error"
-                            type = e[:type] ? "[#{e[:type]}] " : ""
-                            "#{type}#{msg}"
-                          else
-                            # Fallback for string errors
-                            e.to_s
-                          end
-              say "  #{i + 1}. #{error_msg}", :red
-              if e.is_a?(Hash) && e[:schema]
-                say "     Schema: #{e[:schema]}",
-                    :red
+            raise Expressir::SchemaValidationError.new(
+              "Repository validation failed",
+              errors: (validation[:errors] || []).map do |e|
+                if e.is_a?(Hash)
+                  msg = e[:message] || "Unknown error"
+                  type = e[:type] ? "[#{e[:type]}] " : ""
+                  schema = e[:schema] ? " (schema: #{e[:schema]})" : ""
+                  ref = e[:referenced_schema] ? " (referenced: #{e[:referenced_schema]})" : ""
+                  iface = e[:interface_type] ? " (interface: #{e[:interface_type]})" : ""
+                  "#{type}#{msg}#{schema}#{ref}#{iface}"
+                else
+                  e.to_s
+                end
               end
-              if e.is_a?(Hash) && e[:referenced_schema]
-                say "     Referenced: #{e[:referenced_schema]}",
-                    :red
-              end
-              if e.is_a?(Hash) && e[:interface_type]
-                say "     Interface: #{e[:interface_type]}",
-                    :red
-              end
-            end
-            abort
+            )
           end
           say "  ✓ Validation passed" if options[:verbose]
         end
@@ -311,10 +285,13 @@ module Expressir
 
         say "✓ Package created: #{output}", :green
         say "  Schemas: #{repo.schemas.size}", :green if options[:verbose]
+      rescue Expressir::Error
+        raise # Re-raise Expressir errors
       rescue StandardError => e
-        say "Error building package: #{e.message}", :red
-        say e.backtrace.join("\n") if options[:verbose]
-        abort
+        raise Expressir::PackageBuildError.new(
+          "Error building package: #{e.message}",
+          command_name: "package build"
+        )
       end
 
       desc "info PACKAGE", "Display package metadata and statistics"
@@ -349,9 +326,13 @@ module Expressir
         else
           output_text_info(metadata, repo)
         end
+      rescue Expressir::Error
+        raise # Re-raise Expressir errors
       rescue StandardError => e
-        say "Error reading package info: #{e.message}", :red
-        abort
+        raise Expressir::PackageReadError.new(
+          "Error reading package info: #{e.message}",
+          command_name: "package info"
+        )
       end
 
       desc "validate PACKAGE", "Validate package structure and integrity"
@@ -412,10 +393,19 @@ module Expressir
           output_text_validation(validation)
         end
 
-        abort unless validation[:valid?]
+        unless validation[:valid?]
+          raise Expressir::PackageValidationError.new(
+            "Package validation failed",
+            errors: validation[:errors] || []
+          )
+        end
+      rescue Expressir::Error
+        raise # Re-raise Expressir errors
       rescue StandardError => e
-        say "Error validating package: #{e.message}", :red
-        abort
+        raise Expressir::PackageValidationError.new(
+          "Error validating package: #{e.message}",
+          command_name: "package validate"
+        )
       end
 
       desc "extract PACKAGE", "Extract package contents to directory"
@@ -439,10 +429,10 @@ module Expressir
         require "fileutils"
 
         unless options[:output]
-          say "Error: output directory is required", :red
-          say "Usage: expressir package extract PACKAGE --output OUTPUT_DIR",
-              :yellow
-          abort
+          raise Expressir::MissingRequiredArgumentError.new(
+            "output directory is required",
+            usage_hint: "expressir package extract PACKAGE --output OUTPUT_DIR"
+          )
         end
 
         output_dir = options[:output]
@@ -460,9 +450,13 @@ module Expressir
         say "  Files extracted: #{Dir.glob(File.join(output_dir, '**', '*')).select do |f|
           File.file?(f)
         end.size}", :green
+      rescue Expressir::Error
+        raise # Re-raise Expressir errors
       rescue StandardError => e
-        say "Error extracting package: #{e.message}", :red
-        abort
+        raise Expressir::PackageExtractError.new(
+          "Error extracting package: #{e.message}",
+          command_name: "package extract"
+        )
       end
 
       desc "list PACKAGE", "List all elements of a specific type"
@@ -522,9 +516,13 @@ module Expressir
           output_text_list(results, options[:type], options[:schema],
                            options[:category])
         end
+      rescue Expressir::Error
+        raise # Re-raise Expressir errors
       rescue StandardError => e
-        say "Error listing elements: #{e.message}", :red
-        abort
+        raise Expressir::PackageListError.new(
+          "Error listing elements: #{e.message}",
+          command_name: "package list"
+        )
       end
 
       desc "search PACKAGE PATTERN", "Search for elements matching a pattern"
@@ -602,9 +600,13 @@ module Expressir
         else
           output_text_search_results(results, pattern)
         end
+      rescue Expressir::Error
+        raise # Re-raise Expressir errors
       rescue StandardError => e
-        say "Error searching: #{e.message}", :red
-        abort
+        raise Expressir::PackageSearchError.new(
+          "Error searching: #{e.message}",
+          command_name: "package search"
+        )
       end
       desc "tree PACKAGE", "Display hierarchical tree view of package contents"
       long_desc <<~DESC
@@ -669,9 +671,13 @@ module Expressir
           is_last_schema = idx == schemas.size - 1
           display_schema_tree(schema, is_last_schema, "", 1)
         end
+      rescue Expressir::Error
+        raise # Re-raise Expressir errors
       rescue StandardError => e
-        say "Error displaying tree: #{e.message}", :red
-        abort
+        raise Expressir::PackageTreeError.new(
+          "Error displaying tree: #{e.message}",
+          command_name: "package tree"
+        )
       end
 
       private
@@ -694,8 +700,7 @@ module Expressir
       # @return [Model::Repository] Loaded repository
       def load_package(package_path)
         unless File.exist?(package_path)
-          say "Package file not found: #{package_path}", :red
-          abort
+          raise Expressir::PackageNotFoundError.new(package_path)
         end
 
         Expressir::Model::Repository.from_package(package_path)

@@ -42,7 +42,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.info(test_package)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageReadError)
       end
 
       it "handles missing manifest gracefully" do
@@ -50,7 +50,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.list(test_package)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageListError)
       end
     end
 
@@ -79,7 +79,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.info(test_package)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageReadError)
       end
     end
   end
@@ -163,7 +163,7 @@ RSpec.describe Expressir::Commands::Package,
 
       expect do
         command.info(test_package)
-      end.to raise_error(SystemExit)
+      end.to raise_error(Expressir::PackageNotFoundError)
     end
   end
 
@@ -435,7 +435,7 @@ RSpec.describe Expressir::Commands::Package,
 
         expect do
           command.info(test_package)
-        end.to raise_error(SystemExit)
+        end.to raise_error(Expressir::PackageReadError)
 
         # Restore permissions for cleanup
         begin

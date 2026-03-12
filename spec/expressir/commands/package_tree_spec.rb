@@ -191,9 +191,9 @@ RSpec.describe Expressir::Commands::Package, "#tree" do
     end
 
     context "when package does not exist" do
-      it "exits with error" do
+      it "raises PackageNotFoundError" do
         command = described_class.new
-        expect { command.tree("nonexistent.ler") }.to raise_error(SystemExit)
+        expect { command.tree("nonexistent.ler") }.to raise_error(Expressir::PackageNotFoundError)
       end
     end
 
@@ -354,7 +354,10 @@ RSpec.describe Expressir::Commands::Package, "#tree" do
       end
 
       it "returns ANY for nil type" do
-        element = Struct.new(:type).new(nil)
+        element = Expressir::Model::Declarations::Attribute.new(
+          id: "test_attr",
+          type: nil,
+        )
         expect(command.send(:extract_type_info, element)).to eq("ANY")
       end
     end

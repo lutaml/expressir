@@ -4,8 +4,6 @@ require "thor"
 require "json"
 require "yaml"
 require "pathname"
-require_relative "base"
-require_relative "../model/search_engine"
 
 module Expressir
   module Commands
@@ -94,10 +92,6 @@ module Expressir
       option :verbose, type: :boolean, default: false,
                        desc: "Enable verbose output"
       def build(root_schema = nil, output = nil)
-        require_relative "../model/dependency_resolver"
-        require_relative "../model/repository"
-        require_relative "../schema_manifest"
-
         schema_files = if options[:manifest]
                          # Manifest-based mode
                          unless File.exist?(options[:manifest])
@@ -109,7 +103,7 @@ module Expressir
                          unless output
                            raise Expressir::MissingRequiredArgumentError.new(
                              "OUTPUT path is required",
-                             usage_hint: "expressir package build --manifest MANIFEST.yaml OUTPUT.ler"
+                             usage_hint: "expressir package build --manifest MANIFEST.yaml OUTPUT.ler",
                            )
                          end
 
@@ -130,7 +124,6 @@ module Expressir
                            say ""
                          else
                            say "Verifying manifest integrity..."
-                           require_relative "../manifest/validator"
 
                            validator = Expressir::Manifest::Validator.new(
                              manifest, options.merge(verbose: true)
@@ -141,7 +134,7 @@ module Expressir
                            unless file_errors.empty?
                              raise Expressir::ManifestValidationError.new(
                                "Manifest validation failed",
-                               errors: file_errors.map { |e| e[:message] }
+                               errors: file_errors.map { |e| e[:message] },
                              )
                            end
 
@@ -150,7 +143,7 @@ module Expressir
                            unless reference_errors.empty?
                              raise Expressir::ReferentialIntegrityError.new(
                                reference_errors,
-                               message: "Manifest has unresolved dependencies"
+                               message: "Manifest has unresolved dependencies",
                              )
                            end
 
@@ -189,7 +182,7 @@ module Expressir
                          unless errors.empty?
                            raise Expressir::ManifestValidationError.new(
                              "Manifest validation failed",
-                             errors: errors
+                             errors: errors,
                            )
                          end
 
@@ -205,14 +198,14 @@ module Expressir
                          unless root_schema
                            raise Expressir::MissingRequiredArgumentError.new(
                              "ROOT_SCHEMA is required when not using --manifest",
-                             usage_hint: "expressir package build ROOT_SCHEMA OUTPUT.ler"
+                             usage_hint: "expressir package build ROOT_SCHEMA OUTPUT.ler",
                            )
                          end
 
                          unless output
                            raise Expressir::MissingRequiredArgumentError.new(
                              "OUTPUT path is required",
-                             usage_hint: "expressir package build ROOT_SCHEMA OUTPUT.ler"
+                             usage_hint: "expressir package build ROOT_SCHEMA OUTPUT.ler",
                            )
                          end
 
@@ -273,7 +266,7 @@ module Expressir
                 else
                   e.to_s
                 end
-              end
+              end,
             )
           end
           say "  ✓ Validation passed" if options[:verbose]
@@ -290,7 +283,7 @@ module Expressir
       rescue StandardError => e
         raise Expressir::PackageBuildError.new(
           "Error building package: #{e.message}",
-          command_name: "package build"
+          command_name: "package build",
         )
       end
 
@@ -312,9 +305,6 @@ module Expressir
                       enum: ["text", "json", "yaml"],
                       desc: "Output format"
       def info(package_path)
-        require_relative "../model/repository"
-        require_relative "../package/reader"
-
         repo = load_package(package_path)
         metadata = load_package_metadata(package_path)
 
@@ -331,7 +321,7 @@ module Expressir
       rescue StandardError => e
         raise Expressir::PackageReadError.new(
           "Error reading package info: #{e.message}",
-          command_name: "package info"
+          command_name: "package info",
         )
       end
 
@@ -377,8 +367,6 @@ module Expressir
                       enum: ["text", "json", "yaml"],
                       desc: "Output format"
       def validate(package_path)
-        require_relative "../model/repository"
-
         repo = load_package(package_path)
         validation = repo.validate(
           strict: options[:strict],
@@ -396,7 +384,7 @@ module Expressir
         unless validation[:valid?]
           raise Expressir::PackageValidationError.new(
             "Package validation failed",
-            errors: validation[:errors] || []
+            errors: validation[:errors] || [],
           )
         end
       rescue Expressir::Error
@@ -404,7 +392,7 @@ module Expressir
       rescue StandardError => e
         raise Expressir::PackageValidationError.new(
           "Error validating package: #{e.message}",
-          command_name: "package validate"
+          command_name: "package validate",
         )
       end
 
@@ -431,7 +419,7 @@ module Expressir
         unless options[:output]
           raise Expressir::MissingRequiredArgumentError.new(
             "output directory is required",
-            usage_hint: "expressir package extract PACKAGE --output OUTPUT_DIR"
+            usage_hint: "expressir package extract PACKAGE --output OUTPUT_DIR",
           )
         end
 
@@ -455,7 +443,7 @@ module Expressir
       rescue StandardError => e
         raise Expressir::PackageExtractError.new(
           "Error extracting package: #{e.message}",
-          command_name: "package extract"
+          command_name: "package extract",
         )
       end
 
@@ -521,7 +509,7 @@ module Expressir
       rescue StandardError => e
         raise Expressir::PackageListError.new(
           "Error listing elements: #{e.message}",
-          command_name: "package list"
+          command_name: "package list",
         )
       end
 
@@ -605,7 +593,7 @@ module Expressir
       rescue StandardError => e
         raise Expressir::PackageSearchError.new(
           "Error searching: #{e.message}",
-          command_name: "package search"
+          command_name: "package search",
         )
       end
       desc "tree PACKAGE", "Display hierarchical tree view of package contents"
@@ -676,7 +664,7 @@ module Expressir
       rescue StandardError => e
         raise Expressir::PackageTreeError.new(
           "Error displaying tree: #{e.message}",
-          command_name: "package tree"
+          command_name: "package tree",
         )
       end
 
@@ -711,7 +699,6 @@ module Expressir
       # @return [Package::Metadata] Package metadata
       def load_package_metadata(package_path)
         require "zip"
-        require_relative "../package/metadata"
 
         Zip::File.open(package_path) do |zip|
           entry = zip.find_entry("metadata.yaml")

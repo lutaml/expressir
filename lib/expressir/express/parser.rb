@@ -1,9 +1,4 @@
 require "parsanol"
-require_relative "error"
-require_relative "builder"
-require_relative "builders"
-require_relative "remark_attacher"
-require_relative "streaming_builder"
 
 module Expressir
   module Express
@@ -218,7 +213,7 @@ module Expressir
           (attributeDecl >> op_colon >> parameterType >> op_decl >> expression >> op_delim).as(:derivedAttr)
         end
         rule(:digit) { match["0-9"] }
-        rule(:digits) { (digit >> digit.repeat) }
+        rule(:digits) { digit >> digit.repeat }
         rule(:domainRule) do
           ((ruleLabelId >> op_colon).maybe >> expression).as(:domainRule)
         end
@@ -228,7 +223,7 @@ module Expressir
         rule(:embeddedRemark) do
           (str("(*") >> (str("*)").absent? >> (embeddedRemark | any)).repeat >> str("*)")).as(:embeddedRemark)
         end
-        rule(:encodedCharacter) { (octet >> octet >> octet >> octet) }
+        rule(:encodedCharacter) { octet >> octet >> octet >> octet }
         rule(:encodedStringLiteral) do
           cts((str('"') >> encodedCharacter.repeat(1) >> str('"')).as(:str)).as(:encodedStringLiteral)
         end

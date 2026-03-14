@@ -1,10 +1,9 @@
-# frozen_string_literal: true
-
+# lib/expressir/changes.rb
 module Expressir
-  # Module for EXPRESS schema change tracking and management
   module Changes
+    autoload :SchemaChange, "#{__dir__}/changes/schema_change"
+    autoload :VersionChange, "#{__dir__}/changes/version_change"
+    autoload :ItemChange, "#{__dir__}/changes/item_change"
+    autoload :MappingChange, "#{__dir__}/changes/mapping_change"
   end
 end
-
-require_relative "changes/schema_change"
-require_relative "changes/mapping_change"

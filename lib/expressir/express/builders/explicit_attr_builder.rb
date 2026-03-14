@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds explicit_attr nodes.
       class ExplicitAttrBuilder
-        include Helpers
-
         def call(ast_data)
           list_data = ast_data[:list_of_attribute_decl]
           attr_decl_data = if list_data.is_a?(Hash)
@@ -40,7 +36,10 @@ module Expressir
             attr_params[:optional] = true if optional
             # Preserve source information from the intermediate object
             attr_params[:source] = attr.source if attr.source
-            attr_params[:source_offset] = attr.source_offset if attr.source_offset
+            if attr.source_offset
+              attr_params[:source_offset] =
+                attr.source_offset
+            end
             Expressir::Model::Declarations::Attribute.new(**attr_params)
           end
         end
@@ -48,5 +47,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:explicit_attr, Expressir::Express::Builders::ExplicitAttrBuilder.new)

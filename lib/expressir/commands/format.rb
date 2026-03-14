@@ -15,7 +15,7 @@ module Expressir
           raise Expressir::InvalidOptionError.new(
             "profile",
             profile,
-            valid_options: ["iso", "elf"]
+            valid_options: ["iso", "elf"],
           )
         end
       end

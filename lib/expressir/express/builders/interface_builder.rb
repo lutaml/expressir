@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds interface specification nodes (use/reference clauses).
       class InterfaceBuilder
-        include Helpers
-
         def build_interface_specification(ast_data)
           ast_data = ast_data[:interface_specification] if ast_data[:interface_specification]
           if ast_data[:reference_clause]
@@ -153,19 +149,3 @@ module Expressir
     end
   end
 end
-
-builder = Expressir::Express::Builders::InterfaceBuilder.new
-
-Builder.register(:interface_specification) do |d|
-  builder.build_interface_specification(d)
-end
-Builder.register(:use_clause) { |d| builder.build_use_clause(d) }
-Builder.register(:reference_clause) { |d| builder.build_reference_clause(d) }
-Builder.register(:named_type_or_rename) do |d|
-  builder.build_named_type_or_rename(d)
-end
-Builder.register(:resource_or_rename) do |d|
-  builder.build_resource_or_rename(d)
-end
-Builder.register(:resource_ref) { |d| builder.build_resource_ref(d) }
-Builder.register(:rename_id) { |d| builder.build_rename_id(d) }

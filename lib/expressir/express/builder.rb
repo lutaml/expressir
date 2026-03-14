@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "error"
-
 module Expressir
   module Express
     # Builder registry for AST node type handlers.
@@ -345,6 +343,3 @@ module Expressir
     end
   end
 end
-
-# Top-level alias for convenience in builder files
-Builder = Expressir::Express::Builder

@@ -57,6 +57,4 @@ module Expressir
       @benchmark_enabled && @benchmark_parallel
     end
   end
-
-  extend Config
 end

@@ -61,7 +61,7 @@ module Expressir
         unless [no_valid, no_version].all?(&:empty?)
           raise Expressir::SchemaValidationError.new(
             "Schema validation failed",
-            errors: no_valid + no_version
+            errors: no_valid + no_version,
           )
         end
 

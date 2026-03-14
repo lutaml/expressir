@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "zip"
-require_relative "metadata"
 
 module Expressir
   module Package

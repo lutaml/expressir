@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds schema_decl nodes into Schema objects.
       class SchemaDeclBuilder
-        include Helpers
-
         def call(ast_data)
           id = Builder.build_optional(ast_data[:schema_id])
           version = if ast_data[:schema_version_id]
@@ -26,12 +22,12 @@ module Expressir
             declarations = Builder.build_children(body_decls) if body_decls
           end
 
-          types = declarations.select { |x| x.is_a?(Expressir::Model::Declarations::Type) }
-          entities = declarations.select { |x| x.is_a?(Expressir::Model::Declarations::Entity) }
-          subtype_constraints = declarations.select { |x| x.is_a?(Expressir::Model::Declarations::SubtypeConstraint) }
-          functions = declarations.select { |x| x.is_a?(Expressir::Model::Declarations::Function) }
-          rules = declarations.select { |x| x.is_a?(Expressir::Model::Declarations::Rule) }
-          procedures = declarations.select { |x| x.is_a?(Expressir::Model::Declarations::Procedure) }
+          types = declarations.grep(Expressir::Model::Declarations::Type)
+          entities = declarations.grep(Expressir::Model::Declarations::Entity)
+          subtype_constraints = declarations.grep(Expressir::Model::Declarations::SubtypeConstraint)
+          functions = declarations.grep(Expressir::Model::Declarations::Function)
+          rules = declarations.grep(Expressir::Model::Declarations::Rule)
+          procedures = declarations.grep(Expressir::Model::Declarations::Procedure)
 
           Expressir::Model::Declarations::Schema.new(
             id: id,
@@ -58,5 +54,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:schema_decl, Expressir::Express::Builders::SchemaDeclBuilder.new)

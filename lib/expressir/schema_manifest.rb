@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require "lutaml/model"
-require_relative "schema_manifest_entry"
 
 module Expressir
   class SchemaManifest < Lutaml::Model::Serializable
-    attribute :schemas, SchemaManifestEntry, collection: true,
-                                             initialize_empty: true
+    attribute :schemas, "Expressir::SchemaManifestEntry",
+              collection: true,
+              initialize_empty: true
     attribute :path, Lutaml::Model::Type::String
     attr_accessor :output_path
 

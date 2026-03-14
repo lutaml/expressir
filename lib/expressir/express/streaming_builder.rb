@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "error"
-require_relative "builder"
-
 module Expressir
   module Express
     # Streaming builder that receives parse events from Parsanol native parser.

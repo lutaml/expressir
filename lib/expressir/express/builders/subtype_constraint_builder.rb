@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds subtype constraint and supertype expression nodes.
       class SubtypeConstraintBuilder
-        include Helpers
-
         def build_subtype_constraint_decl(ast_data)
           head = ast_data[:subtype_constraint_head]
           body = ast_data[:subtype_constraint_body]
@@ -165,24 +161,4 @@ module Expressir
       end
     end
   end
-end
-
-builder = Expressir::Express::Builders::SubtypeConstraintBuilder.new
-
-Builder.register(:subtype_constraint_decl) do |d|
-  builder.build_subtype_constraint_decl(d)
-end
-Builder.register(:total_over) { |d| builder.build_total_over(d) }
-Builder.register(:supertype_expression) do |d|
-  builder.build_supertype_expression(d)
-end
-Builder.register(:supertype_factor) { |d| builder.build_supertype_factor(d) }
-Builder.register(:supertype_term) { |d| builder.build_supertype_term(d) }
-Builder.register(:one_of) { |d| builder.build_one_of(d) }
-Builder.register(:supertype_rule) { |d| builder.build_supertype_rule(d) }
-Builder.register(:subtype_constraint) do |d|
-  builder.build_subtype_constraint(d)
-end
-Builder.register(:subtype_declaration) do |d|
-  builder.build_subtype_declaration(d)
 end

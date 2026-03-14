@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds procedure declaration nodes.
       class ProcedureDeclBuilder
-        include Helpers
-
         def call(ast_data)
           head = ast_data[:procedure_head]
           algorithm_head = ast_data[:algorithm_head]
@@ -22,11 +18,11 @@ module Expressir
             declarations = Builder.build_children(algorithm_head[:declaration])
           end
 
-          types = declarations.select { |x| x.is_a?(Expressir::Model::Declarations::Type) }
-          entities = declarations.select { |x| x.is_a?(Expressir::Model::Declarations::Entity) }
-          subtype_constraints = declarations.select { |x| x.is_a?(Expressir::Model::Declarations::SubtypeConstraint) }
-          functions = declarations.select { |x| x.is_a?(Expressir::Model::Declarations::Function) }
-          procedures = declarations.select { |x| x.is_a?(Expressir::Model::Declarations::Procedure) }
+          types = declarations.grep(Expressir::Model::Declarations::Type)
+          entities = declarations.grep(Expressir::Model::Declarations::Entity)
+          subtype_constraints = declarations.grep(Expressir::Model::Declarations::SubtypeConstraint)
+          functions = declarations.grep(Expressir::Model::Declarations::Function)
+          procedures = declarations.grep(Expressir::Model::Declarations::Procedure)
           constants = build_constant_decl(algorithm_head[:constant_decl]) if algorithm_head.is_a?(Hash) && algorithm_head[:constant_decl]
           variables = build_local_decl(algorithm_head[:local_decl]) if algorithm_head.is_a?(Hash) && algorithm_head[:local_decl]
           statements = Builder.build_children(stmts)
@@ -76,5 +72,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:procedure_decl, Expressir::Express::Builders::ProcedureDeclBuilder.new)

@@ -1,20 +1,6 @@
 require "thor"
 require "yaml"
 
-require_relative "commands/base"
-require_relative "commands/format"
-require_relative "commands/clean"
-require_relative "commands/benchmark"
-require_relative "commands/benchmark_cache"
-require_relative "commands/validate"
-require_relative "commands/validate_load"
-require_relative "commands/validate_ascii"
-require_relative "commands/coverage"
-require_relative "commands/changes"
-require_relative "commands/version"
-require_relative "commands/package"
-require_relative "commands/manifest"
-
 module Expressir
   class Cli < Thor
     # Exit with error code on command failures
@@ -33,14 +19,14 @@ module Expressir
                                desc: "Include provenance information (ELF profile only)",
                                default: true
     def format(path)
-      Commands::Format.new(options).run(path)
+      Expressir::Commands::Format.new(options).run(path)
     end
 
     desc "clean PATH", "Strip remarks and prettify EXPRESS schema at PATH"
     method_option :output, type: :string,
                            desc: "Output file path (defaults to stdout)"
     def clean(path)
-      Commands::Clean.new(options).run(path)
+      Expressir::Commands::Clean.new(options).run(path)
     end
 
     desc "benchmark FILE_OR_YAML",
@@ -52,7 +38,7 @@ module Expressir
     method_option :format, type: :string,
                            desc: "Output format (json, csv, default)"
     def benchmark(path)
-      Commands::Benchmark.new(options).run(path)
+      Expressir::Commands::Benchmark.new(options).run(path)
     end
 
     desc "benchmark-cache FILE_OR_YAML", "Benchmark schema loading with caching"
@@ -65,11 +51,11 @@ module Expressir
     method_option :cache_path, type: :string,
                                desc: "Path to store the cache file"
     def benchmark_cache(path)
-      Commands::BenchmarkCache.new(options).run(path)
+      Expressir::Commands::BenchmarkCache.new(options).run(path)
     end
 
     desc "validate SUBCOMMAND", "EXPRESS schema validation commands"
-    subcommand "validate", Commands::Validate
+    subcommand "validate", Expressir::Commands::Validate
 
     desc "coverage *PATH",
          "List EXPRESS entities and check documentation coverage"
@@ -82,21 +68,21 @@ module Expressir
     method_option :ignore_files, type: :string,
                                  desc: "Path to YAML file containing array of files to ignore from overall coverage calculation"
     def coverage(*paths)
-      Commands::Coverage.new(options).run(paths)
+      Expressir::Commands::Coverage.new(options).run(paths)
     end
 
     desc "changes SUBCOMMAND", "Commands for EXPRESS Changes files"
-    subcommand "changes", Commands::Changes
+    subcommand "changes", Expressir::Commands::Changes
 
     desc "manifest SUBCOMMAND", "Schema manifest management commands"
-    subcommand "manifest", Commands::Manifest
+    subcommand "manifest", Expressir::Commands::Manifest
 
     desc "package SUBCOMMAND", "LER package management commands"
-    subcommand "package", Commands::Package
+    subcommand "package", Expressir::Commands::Package
 
     desc "version", "Expressir Version"
     def version
-      Commands::Version.new(options).run
+      Expressir::Commands::Version.new(options).run
     end
   end
 end

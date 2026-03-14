@@ -237,9 +237,7 @@ RSpec.describe Expressir::Model::Declarations::Schema do
 
     it "includes interfaced items in children" do
       children = schema.children
-      interfaced_items = children.select do |c|
-        c.is_a?(Expressir::Model::Declarations::InterfacedItem)
-      end
+      interfaced_items = children.grep(Expressir::Model::Declarations::InterfacedItem)
       expect(interfaced_items.size).to eq 1
       expect(interfaced_items.first.id).to eq "renamed_type"
     end

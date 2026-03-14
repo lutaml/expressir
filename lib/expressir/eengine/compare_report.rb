@@ -7,11 +7,6 @@ Lutaml::Model::Config.configure do |config|
   config.xml_adapter = Lutaml::Model::XmlAdapter::NokogiriAdapter
 end
 
-require_relative "changes_section"
-require_relative "modified_object"
-require_relative "arm_compare_report"
-require_relative "mim_compare_report"
-
 module Expressir
   module Eengine
     # Represents an Eengine comparison XML report

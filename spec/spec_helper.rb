@@ -22,8 +22,12 @@ RSpec.configure do |config|
   config.around do |ex|
     ex.run
   rescue Expressir::Error => e
+    # rubocop:disable all
     puts "Got Expressir::Error: #{e.inspect}."
-    puts e.backtrace if e.backtrace
+    if e.backtrace
+      puts e.backtrace
+    end
+    # rubocop:enable all
     raise
   end
 end

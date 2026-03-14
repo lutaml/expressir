@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "base"
-
 module Expressir
   module Commands
     # Command to validate and normalize EXPRESS Changes YAML files

@@ -12,5 +12,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:inverse_clause, Expressir::Express::Builders::InverseClauseBuilder.new)

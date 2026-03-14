@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds expression nodes (binary, unary, query, interval, etc.).
       class ExpressionBuilder
-        include Helpers
+        include ::Expressir::Express::Builders::Helpers
 
         # Expression
         def build_expression(ast_data)
@@ -397,57 +395,3 @@ module Expressir
     end
   end
 end
-
-builder = Expressir::Express::Builders::ExpressionBuilder.new
-
-Builder.register(:expression) { |d| builder.build_expression(d) }
-Builder.register(:logical_expression) do |d|
-  builder.build_logical_expression(d)
-end
-Builder.register(:numeric_expression) do |d|
-  builder.build_numeric_expression(d)
-end
-Builder.register(:simple_expression) { |d| builder.build_simple_expression(d) }
-Builder.register(:term) { |d| builder.build_term(d) }
-Builder.register(:factor) { |d| builder.build_factor(d) }
-Builder.register(:simple_factor) { |d| builder.build_simple_factor(d) }
-Builder.register(:simple_factor_expression) do |d|
-  builder.build_simple_factor_expression(d)
-end
-Builder.register(:simple_factor_unary_expression) do |d|
-  builder.build_simple_factor_unary_expression(d)
-end
-Builder.register(:constant_factor) { |d| builder.build_constant_factor(d) }
-Builder.register(:primary) { |d| builder.build_primary(d) }
-Builder.register(:qualifiable_factor) do |d|
-  builder.build_qualifiable_factor(d, nil)
-end
-Builder.register(:population) { |d| builder.build_population(d, nil) }
-Builder.register(:qualifier) { |d| builder.build_qualifier(d) }
-Builder.register(:rel_op_extended) { |d| builder.build_rel_op_extended(d) }
-Builder.register(:function_call) { |d| builder.build_function_call(d) }
-Builder.register(:actual_parameter_list) do |d|
-  builder.build_actual_parameter_list(d)
-end
-Builder.register(:parameter) { |d| builder.build_parameter(d) }
-Builder.register(:entity_constructor) do |d|
-  builder.build_entity_constructor(d)
-end
-Builder.register(:query_expression) { |d| builder.build_query_expression(d) }
-Builder.register(:aggregate_source) { |d| builder.build_aggregate_source(d) }
-Builder.register(:aggregate_initializer) do |d|
-  builder.build_aggregate_initializer(d)
-end
-Builder.register(:element) { |d| builder.build_element(d) }
-Builder.register(:repetition) { |d| builder.build_repetition(d) }
-Builder.register(:interval) { |d| builder.build_interval(d) }
-Builder.register(:interval_low) { |d| builder.build_interval_low(d) }
-Builder.register(:interval_high) { |d| builder.build_interval_high(d) }
-Builder.register(:interval_item) { |d| builder.build_interval_item(d) }
-Builder.register(:interval_op) { |d| builder.send(:extract_interval_op, d) }
-
-# Operators
-Builder.register(:add_like_op) { |d| builder.send(:extract_operator, d) }
-Builder.register(:mul_like_op) { |d| builder.send(:extract_operator, d) }
-Builder.register(:unary_op) { |d| builder.send(:extract_unary_op, d) }
-Builder.register(:rel_op) { |d| builder.send(:extract_rel_op, d) }

@@ -31,8 +31,7 @@ module Expressir
       # @param remarks [Array<Hash>] The extracted remarks
       def attach_remarks(model, remarks)
         # Group remarks by their tag
-        tagged_remarks = remarks.select { |r| r[:tag] }
-        untagged_remarks = remarks.reject { |r| r[:tag] }
+        tagged_remarks, untagged_remarks = remarks.partition { |r| r[:tag] }
 
         # Process tagged remarks
         tagged_remarks.each do |remark|

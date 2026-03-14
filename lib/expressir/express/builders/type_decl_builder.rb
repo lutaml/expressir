@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds type_decl nodes.
       class TypeDeclBuilder
-        include Helpers
-
         def call(ast_data)
           id = Builder.build_optional(ast_data[:type_id])
           underlying_type = Builder.build_optional(ast_data[:underlying_type])
@@ -28,5 +24,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:type_decl, Expressir::Express::Builders::TypeDeclBuilder.new)

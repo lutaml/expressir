@@ -352,9 +352,7 @@ module Expressir
         return [] unless schemas
 
         entities = collect_from_schemas(schemas, :entities)
-        entities.flat_map { |e| e.attributes || [] }.select do |attr|
-          attr.is_a?(Declarations::DerivedAttribute)
-        end
+        entities.flat_map { |e| e.attributes || [] }.grep(Declarations::DerivedAttribute)
       end
 
       # Collect inverse attributes from entities
@@ -365,9 +363,7 @@ module Expressir
         return [] unless schemas
 
         entities = collect_from_schemas(schemas, :entities)
-        entities.flat_map { |e| e.attributes || [] }.select do |attr|
-          attr.is_a?(Declarations::InverseAttribute)
-        end
+        entities.flat_map { |e| e.attributes || [] }.grep(Declarations::InverseAttribute)
       end
 
       # Collect parameters from functions and procedures
@@ -497,11 +493,9 @@ module Expressir
             end
 
             # For mock objects, check if parent is nil and has id (likely a schema)
-            if !current.respond_to?(:parent) || current.parent.nil?
-              # This might be a schema - check if it has an id
-              if current.respond_to?(:id) && current.id
-                return current
-              end
+            # This might be a schema - check if it has an id
+            if (!current.respond_to?(:parent) || current.parent.nil?) && current.respond_to?(:id) && current.id
+              return current
             end
           rescue StandardError
             # Ignore errors from type checking

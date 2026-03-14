@@ -7,8 +7,7 @@ TEST_VERSION = "0.0.0".freeze
 
 RSpec.describe Expressir::Express::Cache do
   describe ".to_file" do
-    it "exports an object" do |example|
-      print "\n[#{example.description}] "
+    it "exports an object" do |_example|
       temp_file = Tempfile.new
 
       repository = Expressir::Model::Repository.new
@@ -28,16 +27,14 @@ RSpec.describe Expressir::Express::Cache do
   end
 
   describe ".from_file" do
-    it "throws an exception if the cache file does not exist" do |example|
-      print "\n[#{example.description}] "
+    it "throws an exception if the cache file does not exist" do |_example|
       expect do
         described_class.from_file("non-existing-file",
                                   test_overwrite_version: TEST_VERSION)
       end.to raise_error(Errno::ENOENT)
     end
 
-    it "loads a cache file" do |example|
-      print "\n[#{example.description}] "
+    it "loads a cache file" do |_example|
       temp_file = Tempfile.new
 
       repository = Expressir::Model::Repository.new
@@ -56,8 +53,7 @@ RSpec.describe Expressir::Express::Cache do
       end
     end
 
-    it "fails parsing a cache from a different Expressir version" do |example|
-      print "\n[#{example.description}] "
+    it "fails parsing a cache from a different Expressir version" do |_example|
       temp_file = Tempfile.new
 
       repository = Expressir::Model::Repository.new

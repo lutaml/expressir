@@ -41,5 +41,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:inverse_attr, Expressir::Express::Builders::InverseAttrBuilder.new)

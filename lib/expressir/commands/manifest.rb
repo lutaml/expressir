@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "thor"
-require_relative "../schema_manifest"
-require_relative "../model/dependency_resolver"
 
 module Expressir
   module Commands
@@ -124,7 +122,6 @@ module Expressir
         File.write(opts[:output], manifest.to_yaml)
 
         # Use validator for consistent warnings (DRY - single source of truth)
-        require_relative "../manifest/validator"
         validator = Expressir::Manifest::Validator.new(manifest, opts)
         path_warnings = validator.validate_path_completeness
 
@@ -241,7 +238,6 @@ module Expressir
         end
 
         # Create resolver and resolve paths
-        require_relative "../manifest/resolver"
         resolver = Expressir::Manifest::Resolver.new(manifest, resolver_options)
 
         say "Attempting to resolve paths..." if options[:verbose]
@@ -252,7 +248,6 @@ module Expressir
         File.write(options[:output], resolved_manifest.to_yaml)
 
         # Display statistics based on RESOLVED manifest (like manifest create)
-        require_relative "../manifest/validator"
         validator = Expressir::Manifest::Validator.new(resolved_manifest,
                                                        options)
         path_warnings = validator.validate_path_completeness
@@ -323,7 +318,6 @@ module Expressir
         manifest = Expressir::SchemaManifest.from_file(manifest_path)
 
         # Create validator - SINGLE SOURCE OF TRUTH
-        require_relative "../manifest/validator"
         validator = Expressir::Manifest::Validator.new(manifest, opts)
 
         # Run validations using validator (NO INLINE LOGIC)
@@ -352,7 +346,6 @@ module Expressir
       # @param schema_path [String] Path to the schema file
       # @return [String] The schema name declared in the file
       def extract_schema_name(schema_path)
-        require_relative "../express/parser"
         repo = Expressir::Express::Parser.from_file(schema_path)
         schema = repo.schemas.first
         schema&.id || File.basename(schema_path, ".*")

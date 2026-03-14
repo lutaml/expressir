@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "interface_validator"
-
 module Expressir
   module Model
     # Validator for repository consistency checks

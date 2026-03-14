@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds statement nodes (assignment, if, case, repeat, etc.).
       class StatementBuilder
-        include Helpers
+        include ::Expressir::Express::Builders::Helpers
 
         # stmt - choice dispatcher
         def build_stmt(ast_data)
@@ -222,29 +220,3 @@ module Expressir
     end
   end
 end
-
-builder = Expressir::Express::Builders::StatementBuilder.new
-
-Builder.register(:stmt) { |d| builder.build_stmt(d) }
-Builder.register(:assignment_stmt) { |d| builder.build_assignment_stmt(d) }
-Builder.register(:alias_stmt) { |d| builder.build_alias_stmt(d) }
-Builder.register(:if_stmt) { |d| builder.build_if_stmt(d) }
-Builder.register(:case_stmt) { |d| builder.build_case_stmt(d) }
-Builder.register(:selector) { |d| builder.build_selector(d) }
-Builder.register(:case_action) { |d| builder.build_case_action(d) }
-Builder.register(:case_label) { |d| builder.build_case_label(d) }
-Builder.register(:compound_stmt) { |d| builder.build_compound_stmt(d) }
-Builder.register(:repeat_stmt) { |d| builder.build_repeat_stmt(d) }
-Builder.register(:increment_control) { |d| builder.build_increment_control(d) }
-Builder.register(:increment) { |d| builder.build_increment(d) }
-Builder.register(:while_control) { |d| builder.build_while_control(d) }
-Builder.register(:until_control) { |d| builder.build_until_control(d) }
-Builder.register(:return_stmt) { |d| builder.build_return_stmt(d) }
-Builder.register(:escape_stmt) { |d| builder.build_escape_stmt(d) }
-Builder.register(:skip_stmt) { |d| builder.build_skip_stmt(d) }
-Builder.register(:null_stmt) { |d| builder.build_null_stmt(d) }
-Builder.register(:procedure_call_stmt) do |d|
-  builder.build_procedure_call_stmt(d)
-end
-Builder.register(:type_label) { |d| builder.build_type_label(d) }
-Builder.register(:type_label_ref) { |d| builder.build_type_label_ref(d) }

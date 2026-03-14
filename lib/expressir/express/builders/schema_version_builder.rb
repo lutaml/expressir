@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds schema_version_id nodes into SchemaVersion objects.
       class SchemaVersionBuilder
-        include Helpers
-
         def call(ast_data)
           string_val = Builder.build_optional(ast_data[:string_literal])
           value = string_val.is_a?(Expressir::Model::Literals::String) ? string_val.value : string_val.to_s
@@ -36,5 +32,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:schema_version_id, Expressir::Express::Builders::SchemaVersionBuilder.new)

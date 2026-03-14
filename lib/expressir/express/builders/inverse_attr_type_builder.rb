@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds inverse_attr_type nodes.
       class InverseAttrTypeBuilder
-        include Helpers
-
         def call(ast_data)
           bound_spec = ast_data[:bound_spec] || {}
           bound1 = Builder.build_optional(bound_spec[:bound1])
@@ -32,5 +28,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:inverse_attr_type, Expressir::Express::Builders::InverseAttrTypeBuilder.new)

@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds literal nodes (integer, real, binary, logical, string).
       class LiteralBuilder
-        include Helpers
+        include ::Expressir::Express::Builders::Helpers
 
         # Integer literal
         def build_integer(ast_data)
@@ -93,15 +91,3 @@ module Expressir
     end
   end
 end
-
-builder = Expressir::Express::Builders::LiteralBuilder.new
-Builder.register(:integer_literal) { |d| builder.build_integer(d) }
-Builder.register(:real_literal) { |d| builder.build_real(d) }
-Builder.register(:binary_literal) { |d| builder.build_binary(d) }
-Builder.register(:logical_literal) { |d| builder.build_logical(d) }
-Builder.register(:string_literal) { |d| builder.build_string(d) }
-Builder.register(:simple_string_literal) { |d| builder.build_simple_string(d) }
-Builder.register(:encoded_string_literal) do |d|
-  builder.build_encoded_string(d)
-end
-Builder.register(:literal, builder)

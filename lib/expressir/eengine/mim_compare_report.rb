@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "lutaml/model"
-require_relative "changes_section"
-require_relative "modified_object"
 
 module Expressir
   module Eengine

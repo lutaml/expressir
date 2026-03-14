@@ -19,62 +19,48 @@ RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
   before do
     # Repository stubs
     allow(repo).to receive(:build_indexes)
-    allow(repo).to receive(:schemas).and_return([schema1, schema2])
-    allow(repo).to receive(:entity_index).and_return(double("EntityIndex", nil?: false))
-    allow(repo).to receive(:type_index).and_return(double("TypeIndex"))
+    allow(repo).to receive_messages(schemas: [schema1, schema2], entity_index: double("EntityIndex",
+                                                                                      nil?: false), type_index: double("TypeIndex"))
 
     # Schema1 stubs
-    allow(schema1).to receive(:id).and_return("schema1")
-    allow(schema1).to receive(:path).and_return("schema1")
-    allow(schema1).to receive(:parent).and_return(nil)
+    allow(schema1).to receive_messages(id: "schema1", path: "schema1",
+                                       parent: nil)
     allow(schema1).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(true)
     allow(schema1).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
     allow(schema1).to receive_messages(entities: [entity1], types: [],
                                        functions: [], procedures: [], rules: [], constants: [], interfaces: [])
 
     # Schema2 stubs
-    allow(schema2).to receive(:id).and_return("test_schema")
-    allow(schema2).to receive(:path).and_return("test_schema")
-    allow(schema2).to receive(:parent).and_return(nil)
-    allow(schema2).to receive(:entities).and_return([])
+    allow(schema2).to receive_messages(id: "test_schema", path: "test_schema",
+                                       parent: nil, entities: [])
     allow(schema2).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(true)
     allow(schema2).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
     allow(schema2).to receive_messages(entities: [entity2], types: [],
                                        functions: [], procedures: [], rules: [], constants: [], interfaces: [])
 
     # Entity1 stubs
-    allow(entity1).to receive(:id).and_return("entity1")
-    allow(entity1).to receive(:path).and_return("schema1.entity1")
-    allow(entity1).to receive(:parent).and_return(schema1)
     allow(entity1).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(false)
     allow(entity1).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
-    allow(entity1).to receive(:attributes).and_return([attribute1])
-    allow(entity1).to receive(:where_rules).and_return([])
-    allow(entity1).to receive(:unique_rules).and_return([])
+    allow(entity1).to receive_messages(id: "entity1", path: "schema1.entity1",
+                                       parent: schema1, attributes: [attribute1], where_rules: [], unique_rules: [])
 
     # Entity2 stubs
-    allow(entity2).to receive(:id).and_return("test_entity")
-    allow(entity2).to receive(:path).and_return("test_schema.test_entity")
-    allow(entity2).to receive(:parent).and_return(schema2)
     allow(entity2).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(false)
     allow(entity2).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
-    allow(entity2).to receive(:attributes).and_return([attribute2])
-    allow(entity2).to receive(:where_rules).and_return([])
-    allow(entity2).to receive(:unique_rules).and_return([])
+    allow(entity2).to receive_messages(id: "test_entity",
+                                       path: "test_schema.test_entity", parent: schema2, attributes: [attribute2], where_rules: [], unique_rules: [])
 
     # Attribute1 stubs
-    allow(attribute1).to receive(:id).and_return("attr1")
-    allow(attribute1).to receive(:path).and_return("schema1.entity1.attr1")
-    allow(attribute1).to receive(:parent).and_return(entity1)
+    allow(attribute1).to receive_messages(id: "attr1",
+                                          path: "schema1.entity1.attr1", parent: entity1)
     allow(attribute1).to receive(:is_a).with(Expressir::Model::Declarations::DerivedAttribute).and_return(false)
     allow(attribute1).to receive(:is_a).with(Expressir::Model::Declarations::InverseAttribute).and_return(false)
     allow(attribute1).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(false)
     allow(attribute1).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
 
     # Attribute2 stubs
-    allow(attribute2).to receive(:id).and_return("test_attr")
-    allow(attribute2).to receive(:path).and_return("test_schema.test_entity.test_attr")
-    allow(attribute2).to receive(:parent).and_return(entity2)
+    allow(attribute2).to receive_messages(id: "test_attr",
+                                          path: "test_schema.test_entity.test_attr", parent: entity2)
     allow(attribute2).to receive(:is_a).with(Expressir::Model::Declarations::DerivedAttribute).and_return(false)
     allow(attribute2).to receive(:is_a).with(Expressir::Model::Declarations::InverseAttribute).and_return(false)
     allow(attribute2).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(false)
@@ -188,8 +174,9 @@ RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
     it "ranks schema-level results higher" do
       results = engine.search_ranked(pattern: "schema")
 
-      schema_results = results.select { |r| r[:type] == "schema" }
-      non_schema_results = results.reject { |r| r[:type] == "schema" }
+      schema_results, non_schema_results = results.partition do |r|
+        r[:type] == "schema"
+      end
 
       if schema_results.any? && non_schema_results.any?
         avg_schema_score = schema_results.sum do |r|

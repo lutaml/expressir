@@ -16,7 +16,6 @@ module Expressir
       method_option :verbose, type: :boolean,
                               desc: "Show verbose output"
       def validate(path)
-        require_relative "changes_validate"
         ChangesValidate.new(options).run(path)
       end
 
@@ -27,7 +26,6 @@ module Expressir
       method_option :verbose, type: :boolean,
                               desc: "Show verbose output"
       def import_eengine(input_xml, schema_name, version)
-        require_relative "changes_import_eengine"
         ChangesImportEengine.call(input_xml, options[:output], schema_name,
                                   version, **options)
       end

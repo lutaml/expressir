@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
@@ -20,5 +18,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:declaration, Expressir::Express::Builders::DeclarationBuilder.new)

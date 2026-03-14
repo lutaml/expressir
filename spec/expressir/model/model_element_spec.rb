@@ -5,32 +5,28 @@ require_relative "../../../lib/expressir/express/cache"
 
 RSpec.describe Expressir::Model::ModelElement do
   describe ".from_yaml/.to_yaml round trip" do
-    it "round-trips single schema YAML correctly" do |example|
-      print "\n[#{example.description}] "
+    it "round-trips single schema YAML correctly" do |_example|
       yaml_file = Expressir.root_path.join("spec", "syntax", "single.yaml")
       expected_result = File.read(yaml_file)
       result = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
       expect(result.to_yaml).to be_yaml_equivalent_to(expected_result)
     end
 
-    it "round-trips multiple schema YAML correctly" do |example|
-      print "\n[#{example.description}] "
+    it "round-trips multiple schema YAML correctly" do |_example|
       yaml_file = Expressir.root_path.join("spec", "syntax", "multiple.yaml")
       expected_result = File.read(yaml_file)
       result = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
       expect(result.to_yaml).to be_yaml_equivalent_to(expected_result)
     end
 
-    it "round-trips syntax schema YAML correctly" do |example|
-      print "\n[#{example.description}] "
+    it "round-trips syntax schema YAML correctly" do |_example|
       yaml_file = Expressir.root_path.join("spec", "syntax", "syntax.yaml")
       expected_result = File.read(yaml_file)
       result = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
       expect(result.to_yaml).to be_yaml_equivalent_to(expected_result)
     end
 
-    it "round-trips remark schema YAML correctly" do |example|
-      print "\n[#{example.description}] "
+    it "round-trips remark schema YAML correctly" do |_example|
       yaml_file = Expressir.root_path.join("spec", "syntax", "remark.yaml")
       expected_result = File.read(yaml_file)
       result = Expressir::Model::Repository.from_yaml(File.read(yaml_file))
@@ -39,8 +35,7 @@ RSpec.describe Expressir::Model::ModelElement do
   end
 
   describe ".find" do
-    it "finds an object (single.exp)" do |example|
-      print "\n[#{example.description}] "
+    it "finds an object (single.exp)" do |_example|
       exp_file = Expressir.root_path.join("spec", "syntax", "single.exp")
 
       repo = Expressir::Express::Parser.from_file(exp_file,
@@ -84,8 +79,7 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(first_child.source).to eq(formatted_child_text.strip)
     end
 
-    it "finds an object (multiple.exp)" do |example|
-      print "\n[#{example.description}] "
+    it "finds an object (multiple.exp)" do |_example|
       exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
 
       repo = Expressir::Express::Parser.from_file(exp_file)
@@ -107,8 +101,7 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(repo.schemas[3].find("attribute_entity")).to be_instance_of(Expressir::Model::Declarations::Entity)
     end
 
-    it "finds an object (syntax.exp)" do |example|
-      print "\n[#{example.description}] "
+    it "finds an object (syntax.exp)" do |_example|
       exp_file = Expressir.root_path.join("spec", "syntax", "syntax.exp")
 
       repo = Expressir::Express::Parser.from_file(exp_file)
@@ -144,8 +137,7 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(schema.source).to eq(formatted_schema_head.strip)
     end
 
-    it "finds an object (remark.exp)" do |example|
-      print "\n[#{example.description}] "
+    it "finds an object (remark.exp)" do |_example|
       exp_file = Expressir.root_path.join("spec", "syntax", "remark.exp")
 
       repo = Expressir::Express::Parser.from_file(exp_file)

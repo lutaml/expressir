@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds constant and local variable nodes.
       class ConstantBuilder
-        include Helpers
-
         def build_constant_decl(ast_data)
           Builder.build_children(ast_data[:constant_body])
         end
@@ -101,15 +97,4 @@ module Expressir
       end
     end
   end
-end
-
-builder = Expressir::Express::Builders::ConstantBuilder.new
-
-Builder.register(:constant_decl) { |d| builder.build_constant_decl(d) }
-Builder.register(:constant_body) { |d| builder.build_constant_body(d) }
-Builder.register(:local_decl) { |d| builder.build_local_decl(d) }
-Builder.register(:local_variable) { |d| builder.build_local_variable(d) }
-Builder.register(:formal_parameter) { |d| builder.build_formal_parameter(d) }
-Builder.register(:procedure_head_parameter) do |d|
-  builder.build_procedure_head_parameter(d)
 end

@@ -30,7 +30,6 @@ module Expressir
       method_option :verbose, type: :boolean, default: false,
                               desc: "Show verbose output"
       def load(*paths)
-        require_relative "validate_load"
         ValidateLoad.new(options).run(paths)
       end
 
@@ -78,7 +77,6 @@ module Expressir
       method_option :verbose, type: :boolean, default: false,
                               desc: "Show verbose output"
       def ascii(path)
-        require_relative "validate_ascii"
         ValidateAscii.new(options).run(path)
       end
     end

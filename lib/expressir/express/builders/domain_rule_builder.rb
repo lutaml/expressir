@@ -17,5 +17,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:domain_rule, Expressir::Express::Builders::DomainRuleBuilder.new)

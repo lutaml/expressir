@@ -24,5 +24,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:derived_attr, Expressir::Express::Builders::DerivedAttrBuilder.new)

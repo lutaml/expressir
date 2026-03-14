@@ -2,7 +2,6 @@
 
 require "zip"
 require "time"
-require_relative "metadata"
 
 module Expressir
   module Package

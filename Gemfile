@@ -2,10 +2,10 @@
 
 source "https://rubygems.org"
 
-# Specify your gem's dependencies in reeper.gemspec
 gemspec
 
 gem "canon"
+gem "irb"
 gem "lutaml-model", github: "lutaml/lutaml-model", branch: "main"
 gem "openssl", "~> 3.0"
 gem "rake"

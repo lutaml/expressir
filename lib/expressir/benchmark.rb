@@ -268,7 +268,7 @@ module Expressir
             result.each do |r|
               if r.is_a?(Model::Declarations::Schema)
                 schema_count += 1
-                total_objects += 1   # Count the schema itself
+                total_objects += 1 # Count the schema itself
               end
             end
           end

@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds built-in constant, function, and procedure reference nodes.
       class BuiltInBuilder
-        include Helpers
+        include ::Expressir::Express::Builders::Helpers
 
         def build_built_in_constant(ast_data)
           id = extract_nested_text(ast_data)
@@ -73,16 +71,3 @@ module Expressir
     end
   end
 end
-
-builder = Expressir::Express::Builders::BuiltInBuilder.new
-
-Builder.register(:built_in_constant) { |d| builder.build_built_in_constant(d) }
-Builder.register(:built_in_function) { |d| builder.build_built_in_function(d) }
-Builder.register(:built_in_procedure) do |d|
-  builder.build_built_in_procedure(d)
-end
-Builder.register(:general_ref) { |d| builder.build_general_ref(d) }
-Builder.register(:named_types) { |d| builder.build_named_types(d) }
-Builder.register(:item) { |d| builder.build_item(d) }
-Builder.register(:procedure_ref) { |d| builder.build_procedure_ref(d) }
-Builder.register(:schema_ref) { |d| builder.build_schema_ref(d) }

@@ -70,12 +70,8 @@ RSpec.describe Expressir::Coverage do
       entities = described_class.find_entities(repository)
 
       # Should find parameters and variables within functions
-      parameters = entities.select do |e|
-        e.is_a?(Expressir::Model::Declarations::Parameter)
-      end
-      variables = entities.select do |e|
-        e.is_a?(Expressir::Model::Declarations::Variable)
-      end
+      parameters = entities.grep(Expressir::Model::Declarations::Parameter)
+      variables = entities.grep(Expressir::Model::Declarations::Variable)
 
       expect(parameters).not_to be_empty
       expect(variables).not_to be_empty
@@ -85,15 +81,9 @@ RSpec.describe Expressir::Coverage do
       entities = described_class.find_entities(repository)
 
       # Should find attributes, unique rules, where rules within entities
-      attributes = entities.select do |e|
-        e.is_a?(Expressir::Model::Declarations::Attribute)
-      end
-      where_rules = entities.select do |e|
-        e.is_a?(Expressir::Model::Declarations::WhereRule)
-      end
-      unique_rules = entities.select do |e|
-        e.is_a?(Expressir::Model::Declarations::UniqueRule)
-      end
+      attributes = entities.grep(Expressir::Model::Declarations::Attribute)
+      where_rules = entities.grep(Expressir::Model::Declarations::WhereRule)
+      unique_rules = entities.grep(Expressir::Model::Declarations::UniqueRule)
 
       expect(attributes).not_to be_empty
       expect(where_rules).not_to be_empty
@@ -104,9 +94,7 @@ RSpec.describe Expressir::Coverage do
       entities = described_class.find_entities(repository)
 
       # Should find enumeration items within enumeration types
-      enum_items = entities.select do |e|
-        e.is_a?(Expressir::Model::DataTypes::EnumerationItem)
-      end
+      enum_items = entities.grep(Expressir::Model::DataTypes::EnumerationItem)
 
       expect(enum_items).not_to be_empty
     end
@@ -208,12 +196,8 @@ RSpec.describe Expressir::Coverage do
                                                            exclusions)
 
       # Should exclude inner functions but keep top-level functions
-      all_functions = all_entities.select do |e|
-        e.is_a?(Expressir::Model::Declarations::Function)
-      end
-      filtered_functions = filtered_entities.select do |e|
-        e.is_a?(Expressir::Model::Declarations::Function)
-      end
+      all_functions = all_entities.grep(Expressir::Model::Declarations::Function)
+      filtered_functions = filtered_entities.grep(Expressir::Model::Declarations::Function)
 
       # Should have fewer functions after filtering
       expect(filtered_functions.size).to be < all_functions.size
@@ -244,9 +228,7 @@ RSpec.describe Expressir::Coverage do
       expect(filtered_entities.any?(Expressir::Model::Declarations::Variable)).to be false
 
       # Should exclude inner functions but keep top-level functions
-      filtered_functions = filtered_entities.select do |e|
-        e.is_a?(Expressir::Model::Declarations::Function)
-      end
+      filtered_functions = filtered_entities.grep(Expressir::Model::Declarations::Function)
       top_level_function_names = filtered_functions.map(&:id).map(&:to_s)
       expect(top_level_function_names).to include("top_level_function")
       expect(top_level_function_names).to include("another_top_level_function")

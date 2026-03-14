@@ -80,7 +80,8 @@ module Expressir
   class ReferentialIntegrityError < ValidationError
     attr_reader :unresolved_references
 
-    def initialize(unresolved_references, message: "Referential integrity check failed")
+    def initialize(unresolved_references,
+message: "Referential integrity check failed")
       @unresolved_references = unresolved_references
       super(message)
     end
@@ -88,7 +89,7 @@ module Expressir
 
   class NoValidSchemaPathsError < ValidationError
     def initialize(message = "No valid schema paths found")
-      super(message)
+      super
     end
   end
 

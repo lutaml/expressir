@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds entity_decl nodes into Entity objects.
       class EntityDeclBuilder
-        include Helpers
-
         def call(ast_data)
           entity_head = ast_data[:entity_head]
           entity_body = ast_data[:entity_body]
@@ -104,5 +100,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:entity_decl, Expressir::Express::Builders::EntityDeclBuilder.new)

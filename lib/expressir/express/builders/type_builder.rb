@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds data type nodes (enumeration, select, array, bag, list, set, etc.).
       class TypeBuilder
-        include Helpers
+        include ::Expressir::Express::Builders::Helpers
 
         # Simple types
         {
@@ -222,43 +220,3 @@ module Expressir
     end
   end
 end
-
-builder = Expressir::Express::Builders::TypeBuilder.new
-
-# Simple types
-%i[boolean_type integer_type logical_type number_type].each do |type|
-  Builder.register(type) { |d| builder.send(:"build_#{type}", d) }
-end
-Builder.register(:generic_type) { |_d| Expressir::Model::DataTypes::Generic.new }
-Builder.register(:generic_entity_type) { |_d| Expressir::Model::DataTypes::GenericEntity.new }
-Builder.register(:aggregate_type) { |_d| Expressir::Model::DataTypes::Aggregate.new }
-Builder.register(:general_set_type) { |d| builder.build_general_set_type(d) }
-Builder.register(:general_list_type) { |d| builder.build_general_list_type(d) }
-Builder.register(:general_bag_type) { |d| builder.build_general_bag_type(d) }
-Builder.register(:general_array_type) { |d| builder.build_general_array_type(d) }
-
-Builder.register(:string_type) { |d| builder.build_string_type(d) }
-Builder.register(:binary_type) { |d| builder.build_binary_type(d) }
-Builder.register(:real_type) { |d| builder.build_real_type(d) }
-Builder.register(:array_type) { |d| builder.build_array_type(d) }
-Builder.register(:bag_type) { |d| builder.build_bag_type(d) }
-Builder.register(:list_type) { |d| builder.build_list_type(d) }
-Builder.register(:set_type) { |d| builder.build_set_type(d) }
-Builder.register(:enumeration_type) { |d| builder.build_enumeration_type(d) }
-Builder.register(:enumeration_item) { |d| builder.build_enumeration_item(d) }
-Builder.register(:select_type) { |d| builder.build_select_type(d) }
-
-# Type wrappers
-%i[concrete_types simple_types aggregation_types constructed_types
-   generalized_types named_types instantiable_type parameter_type
-   underlying_type general_aggregation_types].each do |type|
-  Builder.register(type) { |d| builder.build_type_wrapper(d) }
-end
-
-# Bound handlers
-Builder.register(:bound1) { |d| Builder.build_optional(d[:numeric_expression]) }
-Builder.register(:bound2) { |d| Builder.build_optional(d[:numeric_expression]) }
-Builder.register(:width_spec) do |d|
-  { width: Builder.build_optional(d[:width]), fixed: !d[:t_fixed].nil? }
-end
-Builder.register(:width) { |d| Builder.build_optional(d[:numeric_expression]) }

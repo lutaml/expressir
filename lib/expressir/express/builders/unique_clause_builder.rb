@@ -18,5 +18,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:unique_clause, Expressir::Express::Builders::UniqueClauseBuilder.new)

@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds attribute_decl nodes.
       class AttributeDeclBuilder
-        include Helpers
-
         def call(ast_data)
           id = Builder.build_optional(ast_data[:attribute_id])
           supertype_attribute = nil
@@ -34,5 +30,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:attribute_decl, Expressir::Express::Builders::AttributeDeclBuilder.new)

@@ -5,39 +5,51 @@
 # Each builder class registers itself with Builder.register.
 
 # Ensure Expressir module and autoloads are set up first
-require_relative "../../expressir"
+module Expressir
+  module Express
+    module Builders
+      autoload :Helpers, "#{__dir__}/builders/helpers"
 
-require_relative "builders/helpers"
-require_relative "builders/token_builder"
-require_relative "builders/simple_id_builder"
-require_relative "builders/syntax_builder"
-require_relative "builders/schema_version_builder"
-require_relative "builders/declaration_builder"
-require_relative "builders/schema_body_decl_builder"
-require_relative "builders/schema_decl_builder"
-require_relative "builders/entity_decl_builder"
-require_relative "builders/explicit_attr_builder"
-require_relative "builders/attribute_decl_builder"
-require_relative "builders/derive_clause_builder"
-require_relative "builders/derived_attr_builder"
-require_relative "builders/inverse_clause_builder"
-require_relative "builders/inverse_attr_builder"
-require_relative "builders/inverse_attr_type_builder"
-require_relative "builders/unique_clause_builder"
-require_relative "builders/unique_rule_builder"
-require_relative "builders/where_clause_builder"
-require_relative "builders/domain_rule_builder"
-require_relative "builders/reference_builder"
-require_relative "builders/literal_builder"
-require_relative "builders/type_decl_builder"
-require_relative "builders/type_builder"
-require_relative "builders/expression_builder"
-require_relative "builders/statement_builder"
-require_relative "builders/function_decl_builder"
-require_relative "builders/procedure_decl_builder"
-require_relative "builders/rule_decl_builder"
-require_relative "builders/subtype_constraint_builder"
-require_relative "builders/interface_builder"
-require_relative "builders/constant_builder"
-require_relative "builders/qualifier_builder"
-require_relative "builders/built_in_builder"
+      autoload :TokenBuilder, "#{__dir__}/builders/token_builder"
+      autoload :SimpleIdBuilder, "#{__dir__}/builders/simple_id_builder"
+      autoload :SyntaxBuilder, "#{__dir__}/builders/syntax_builder"
+      autoload :SchemaVersionBuilder,
+               "#{__dir__}/builders/schema_version_builder"
+      autoload :DeclarationBuilder, "#{__dir__}/builders/declaration_builder"
+      autoload :SchemaBodyDeclBuilder,
+               "#{__dir__}/builders/schema_body_decl_builder"
+      autoload :SchemaDeclBuilder, "#{__dir__}/builders/schema_decl_builder"
+      autoload :EntityDeclBuilder, "#{__dir__}/builders/entity_decl_builder"
+      autoload :ExplicitAttrBuilder, "#{__dir__}/builders/explicit_attr_builder"
+      autoload :AttributeDeclBuilder,
+               "#{__dir__}/builders/attribute_decl_builder"
+      autoload :DeriveClauseBuilder, "#{__dir__}/builders/derive_clause_builder"
+      autoload :DerivedAttrBuilder, "#{__dir__}/builders/derived_attr_builder"
+      autoload :InverseClauseBuilder,
+               "#{__dir__}/builders/inverse_clause_builder"
+      autoload :InverseAttrBuilder, "#{__dir__}/builders/inverse_attr_builder"
+      autoload :InverseAttrTypeBuilder,
+               "#{__dir__}/builders/inverse_attr_type_builder"
+      autoload :UniqueClauseBuilder, "#{__dir__}/builders/unique_clause_builder"
+      autoload :UniqueRuleBuilder, "#{__dir__}/builders/unique_rule_builder"
+      autoload :WhereClauseBuilder, "#{__dir__}/builders/where_clause_builder"
+      autoload :DomainRuleBuilder, "#{__dir__}/builders/domain_rule_builder"
+      autoload :ReferenceBuilder, "#{__dir__}/builders/reference_builder"
+      autoload :LiteralBuilder, "#{__dir__}/builders/literal_builder"
+      autoload :TypeDeclBuilder, "#{__dir__}/builders/type_decl_builder"
+      autoload :TypeBuilder, "#{__dir__}/builders/type_builder"
+      autoload :ExpressionBuilder, "#{__dir__}/builders/expression_builder"
+      autoload :StatementBuilder, "#{__dir__}/builders/statement_builder"
+      autoload :FunctionDeclBuilder, "#{__dir__}/builders/function_decl_builder"
+      autoload :ProcedureDeclBuilder,
+               "#{__dir__}/builders/procedure_decl_builder"
+      autoload :RuleDeclBuilder, "#{__dir__}/builders/rule_decl_builder"
+      autoload :SubtypeConstraintBuilder,
+               "#{__dir__}/builders/subtype_constraint_builder"
+      autoload :InterfaceBuilder, "#{__dir__}/builders/interface_builder"
+      autoload :ConstantBuilder, "#{__dir__}/builders/constant_builder"
+      autoload :QualifierBuilder, "#{__dir__}/builders/qualifier_builder"
+      autoload :BuiltInBuilder, "#{__dir__}/builders/built_in_builder"
+    end
+  end
+end

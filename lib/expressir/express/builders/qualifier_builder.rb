@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
       # Builds qualifier nodes (attribute, group, index qualifiers).
       class QualifierBuilder
-        include Helpers
-
         def build_redeclared_attribute(ast_data)
           qualified_attr = ast_data[:qualified_attribute]
           if qualified_attr.is_a?(Hash)
@@ -102,27 +98,4 @@ module Expressir
       end
     end
   end
-end
-
-builder = Expressir::Express::Builders::QualifierBuilder.new
-
-Builder.register(:redeclared_attribute) do |d|
-  builder.build_redeclared_attribute(d)
-end
-Builder.register(:referenced_attribute) do |d|
-  builder.build_referenced_attribute(d)
-end
-Builder.register(:qualified_attribute) do |d|
-  builder.build_qualified_attribute(d)
-end
-Builder.register(:group_qualifier) { |d| builder.build_group_qualifier(d) }
-Builder.register(:attribute_qualifier) do |d|
-  builder.build_attribute_qualifier(d)
-end
-Builder.register(:index_qualifier) { |d| builder.build_index_qualifier(d) }
-Builder.register(:index1) { |d| builder.build_index1(d) }
-Builder.register(:index2) { |d| builder.build_index2(d) }
-Builder.register(:index) { |d| builder.build_index(d) }
-Builder.register(:enumeration_reference) do |d|
-  builder.build_enumeration_reference(d)
 end

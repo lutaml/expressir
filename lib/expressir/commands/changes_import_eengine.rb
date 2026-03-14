@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "base"
-require_relative "../eengine/compare_report"
-
 module Expressir
   module Commands
     # Command to import eengine comparison XML to EXPRESS Changes YAML

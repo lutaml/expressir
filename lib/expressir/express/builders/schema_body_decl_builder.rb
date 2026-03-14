@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "helpers"
-
 module Expressir
   module Express
     module Builders
@@ -18,5 +16,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:schema_body_declaration, Expressir::Express::Builders::SchemaBodyDeclBuilder.new)

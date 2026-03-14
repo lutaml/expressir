@@ -1,25 +1,15 @@
-require_relative "formatters/remark_item_formatter"
-require_relative "formatters/remark_formatter"
-require_relative "formatters/literals_formatter"
-require_relative "formatters/references_formatter"
-require_relative "formatters/supertype_expressions_formatter"
-require_relative "formatters/statements_formatter"
-require_relative "formatters/expressions_formatter"
-require_relative "formatters/data_types_formatter"
-require_relative "formatters/declarations_formatter"
-
 module Expressir
   module Express
     class Formatter
-      include RemarkItemFormatter
-      include RemarkFormatter
-      include LiteralsFormatter
-      include ReferencesFormatter
-      include SupertypeExpressionsFormatter
-      include StatementsFormatter
-      include ExpressionsFormatter
-      include DataTypesFormatter
-      include DeclarationsFormatter
+      include Formatters::RemarkItemFormatter
+      include Formatters::RemarkFormatter
+      include Formatters::LiteralsFormatter
+      include Formatters::ReferencesFormatter
+      include Formatters::SupertypeExpressionsFormatter
+      include Formatters::StatementsFormatter
+      include Formatters::ExpressionsFormatter
+      include Formatters::DataTypesFormatter
+      include Formatters::DeclarationsFormatter
 
       INDENT_CHAR = " ".freeze
       INDENT_WIDTH = 2

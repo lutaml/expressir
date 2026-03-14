@@ -985,7 +985,8 @@ module Expressir
             # For container nodes, use the maximum end_line from children
             # This is needed because source.length only covers the declaration, not the body
             children_end_line = calculate_children_end_line(node)
-            end_line = [source_end_line, children_end_line].compact.max || source_end_line
+            end_line = [source_end_line,
+                        children_end_line].compact.max || source_end_line
 
             result << {
               node: node,

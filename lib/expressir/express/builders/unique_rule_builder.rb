@@ -32,5 +32,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:unique_rule, Expressir::Express::Builders::UniqueRuleBuilder.new)

@@ -1,5 +1,3 @@
-require_relative "formatter"
-
 module Expressir
   module Express
     # Pretty formatter for EXPRESS schemas following ELF specification

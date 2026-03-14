@@ -12,5 +12,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:derive_clause, Expressir::Express::Builders::DeriveClauseBuilder.new)

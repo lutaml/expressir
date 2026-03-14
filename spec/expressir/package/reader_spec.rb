@@ -17,7 +17,12 @@ RSpec.describe Expressir::Package::Reader do
   end
 
   let(:package_path) do
-    File.join(Dir.tmpdir, "test_package_#{Time.now.to_i}.ler")
+    # Use Tempfile.create for cross-platform compatibility (especially Windows)
+    # Tempfile.create properly handles file permissions on Windows
+    file = Tempfile.create(["test_package_", ".ler"])
+    path = file.path
+    file.close
+    path
   end
   let(:builder) { Expressir::Package::Builder.new }
   let(:reader) { described_class.new }

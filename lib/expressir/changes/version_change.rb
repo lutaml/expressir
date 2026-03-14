@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "lutaml/model"
-require_relative "item_change"
-require_relative "mapping_change"
 
 module Expressir
   module Changes

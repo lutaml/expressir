@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../model/dependency_resolver"
-
 module Expressir
   module Manifest
     # Resolves schema paths in manifests using pattern-based path discovery
@@ -131,7 +129,6 @@ module Expressir
       # @param schema_path [String] Path to the schema file
       # @return [String] The schema name declared in the file
       def extract_schema_name(schema_path)
-        require_relative "../express/parser"
         repo = Expressir::Express::Parser.from_file(schema_path)
         schema = repo.schemas.first
         schema&.id || File.basename(schema_path, ".*")

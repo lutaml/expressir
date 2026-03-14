@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../schema_manifest"
-require_relative "../schema_manifest_entry"
-
 module Expressir
   module Model
     # Multi-schema global scope with enhanced repository features
@@ -261,7 +258,6 @@ module Expressir
       # @param package_path [String] Path to .ler package file
       # @return [Repository] Loaded repository
       def self.from_package(package_path)
-        require_relative "../package/reader"
         Package::Reader.load(package_path)
       end
 
@@ -276,7 +272,6 @@ module Expressir
       # @option options [String] :serialization_format ('marshal') Serialization format
       # @return [String] Path to created package
       def export_to_package(output_path, options = {})
-        require_relative "../package/builder"
         builder = Package::Builder.new
         builder.build(self, output_path, options)
       end

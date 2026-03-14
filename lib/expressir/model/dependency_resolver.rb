@@ -50,8 +50,6 @@ module Expressir
       # @param schema_path [String] Path to schema file
       # @return [Array<Hash>] List of interfaces with :kind, :schema_name
       def extract_interfaces(schema_path)
-        require_relative "../express/parser"
-
         interfaces = []
 
         # Parse the schema file properly

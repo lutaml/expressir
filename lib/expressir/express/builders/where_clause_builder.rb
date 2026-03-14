@@ -18,5 +18,3 @@ module Expressir
     end
   end
 end
-
-Builder.register(:where_clause, Expressir::Express::Builders::WhereClauseBuilder.new)

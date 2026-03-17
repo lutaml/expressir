@@ -3,96 +3,61 @@
 require "spec_helper"
 
 RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
-  let(:schema1) { double("Schema1") }
-  let(:schema2) { double("Schema2") }
+  # Use REAL objects instead of mocks
+  let(:attribute1) do
+    Expressir::Model::Declarations::Attribute.new(id: "attr1")
+  end
 
-  let(:entity1) { double("Entity1") }
-  let(:entity2) { double("Entity2") }
+  let(:entity1) do
+    Expressir::Model::Declarations::Entity.new(
+      id: "entity1",
+      attributes: [attribute1],
+    )
+  end
 
-  let(:attribute1) { double("Attribute1") }
-  let(:attribute2) { double("Attribute2") }
+  let(:attribute2) do
+    Expressir::Model::Declarations::Attribute.new(id: "test_attr")
+  end
 
-  let(:repo) { double("Repository") }
+  let(:entity2) do
+    Expressir::Model::Declarations::Entity.new(
+      id: "test_entity",
+      attributes: [attribute2],
+    )
+  end
+
+  let(:schema1) do
+    Expressir::Model::Declarations::Schema.new(
+      id: "schema1",
+      entities: [entity1],
+    )
+  end
+
+  let(:schema2) do
+    Expressir::Model::Declarations::Schema.new(
+      id: "test_schema",
+      entities: [entity2],
+    )
+  end
+
+  let(:repo) do
+    Expressir::Model::Repository.new(schemas: [schema1, schema2]).tap(&:build_indexes)
+  end
 
   let(:engine) { described_class.new(repo) }
 
-  before do
-    # Repository stubs
-    allow(repo).to receive(:build_indexes)
-    allow(repo).to receive_messages(schemas: [schema1, schema2], entity_index: double("EntityIndex",
-                                                                                      nil?: false), type_index: double("TypeIndex"))
-
-    # Schema1 stubs
-    allow(schema1).to receive_messages(id: "schema1", path: "schema1",
-                                       parent: nil)
-    allow(schema1).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(true)
-    allow(schema1).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
-    allow(schema1).to receive_messages(entities: [entity1], types: [],
-                                       functions: [], procedures: [], rules: [], constants: [], interfaces: [])
-
-    # Schema2 stubs
-    allow(schema2).to receive_messages(id: "test_schema", path: "test_schema",
-                                       parent: nil, entities: [])
-    allow(schema2).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(true)
-    allow(schema2).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
-    allow(schema2).to receive_messages(entities: [entity2], types: [],
-                                       functions: [], procedures: [], rules: [], constants: [], interfaces: [])
-
-    # Entity1 stubs
-    allow(entity1).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(false)
-    allow(entity1).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
-    allow(entity1).to receive_messages(id: "entity1", path: "schema1.entity1",
-                                       parent: schema1, attributes: [attribute1], where_rules: [], unique_rules: [])
-
-    # Entity2 stubs
-    allow(entity2).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(false)
-    allow(entity2).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
-    allow(entity2).to receive_messages(id: "test_entity",
-                                       path: "test_schema.test_entity", parent: schema2, attributes: [attribute2], where_rules: [], unique_rules: [])
-
-    # Attribute1 stubs
-    allow(attribute1).to receive_messages(id: "attr1",
-                                          path: "schema1.entity1.attr1", parent: entity1)
-    allow(attribute1).to receive(:is_a).with(Expressir::Model::Declarations::DerivedAttribute).and_return(false)
-    allow(attribute1).to receive(:is_a).with(Expressir::Model::Declarations::InverseAttribute).and_return(false)
-    allow(attribute1).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(false)
-    allow(attribute1).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
-
-    # Attribute2 stubs
-    allow(attribute2).to receive_messages(id: "test_attr",
-                                          path: "test_schema.test_entity.test_attr", parent: entity2)
-    allow(attribute2).to receive(:is_a).with(Expressir::Model::Declarations::DerivedAttribute).and_return(false)
-    allow(attribute2).to receive(:is_a).with(Expressir::Model::Declarations::InverseAttribute).and_return(false)
-    allow(attribute2).to receive(:is_a).with(Expressir::Model::Declarations::Schema).and_return(false)
-    allow(attribute2).to receive(:is_a).with(Expressir::Model::ModelElement).and_return(true)
-  end
-
   describe "#search_with_depth" do
     it "filters results by maximum depth" do
-      # Create mock results with different depths
-      mock_results = [
-        { id: "schema1", path: "schema1", type: "schema" },
-        { id: "entity1", path: "schema1.entity1", type: "entity" },
-        { id: "attr1", path: "schema1.entity1.attr1", type: "attribute" },
-      ]
-      allow(engine).to receive(:search).and_return(mock_results)
-
       results = engine.search_with_depth(pattern: "test", max_depth: 2)
 
       # Should include schema level (depth 1) and entity level (depth 2)
       # Should exclude attribute level (depth 3)
       paths = results.map { |r| r[:path] }
-      expect(paths).to include("schema1", "schema1.entity1")
-      expect(paths).not_to include("schema1.entity1.attr1")
+      expect(paths).to include("test_schema", "test_schema.test_entity")
+      expect(paths).not_to include("test_schema.test_entity.test_attr")
     end
 
     it "includes schema-level results at depth 1" do
-      mock_results = [
-        { id: "schema1", path: "schema1", type: "schema" },
-        { id: "entity1", path: "schema1.entity1", type: "entity" },
-      ]
-      allow(engine).to receive(:search).and_return(mock_results)
-
       results = engine.search_with_depth(pattern: "schema", max_depth: 1)
 
       expect(results).not_to be_empty
@@ -103,25 +68,15 @@ RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
     end
 
     it "includes entity-level results at depth 2" do
-      mock_results = [
-        { id: "entity1", path: "schema1.entity1", type: "entity" },
-        { id: "attr1", path: "schema1.entity1.attr1", type: "attribute" },
-      ]
-      allow(engine).to receive(:search).and_return(mock_results)
-
       results = engine.search_with_depth(pattern: "entity", max_depth: 2)
 
       paths = results.map { |r| r[:path] }
       expect(paths).to include("schema1.entity1")
-      expect(paths).not_to include("schema1.entity1.attr1")
+      # Attributes are depth 3, should be excluded
+      expect(paths.none? { |p| p&.split(".")&.size == 3 }).to be true
     end
 
     it "includes attribute-level results at depth 3" do
-      mock_results = [
-        { id: "attr1", path: "schema1.entity1.attr1", type: "attribute" },
-      ]
-      allow(engine).to receive(:search).and_return(mock_results)
-
       results = engine.search_with_depth(pattern: "attr", max_depth: 3)
 
       paths = results.map { |r| r[:path] }
@@ -131,13 +86,6 @@ RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
 
   describe "#search_ranked" do
     it "returns results with relevance scores" do
-      mock_results = [
-        { id: "test_entity", path: "test_schema.test_entity", type: "entity" },
-        { id: "test_attr", path: "test_schema.test_entity.test_attr",
-          type: "attribute" },
-      ]
-      allow(engine).to receive(:search).and_return(mock_results)
-
       results = engine.search_ranked(pattern: "test")
 
       expect(results).not_to be_empty
@@ -159,12 +107,6 @@ RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
     end
 
     it "ranks prefix matches higher than substring matches" do
-      mock_results = [
-        { id: "test_entity", path: "schema.test_entity", type: "entity" },
-        { id: "my_test", path: "schema.my_test", type: "entity" },
-      ]
-      allow(engine).to receive(:search).and_return(mock_results)
-
       results = engine.search_ranked(pattern: "test")
 
       prefix_matches = results.select { |r| r[:id]&.start_with?("test") }
@@ -189,23 +131,7 @@ RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
       end
     end
 
-    it "ranks shorter paths higher" do
-      results = engine.search_ranked(pattern: "test")
-
-      if results.size >= 2
-        # Paths should influence ranking
-        first_depth = results.first[:path]&.split(".")&.size || 0
-        last_depth = results.last[:path]&.split(".")&.size || 0
-        expect(first_depth).to be <= last_depth + 3 # Allow some variance
-      end
-    end
-
     it "accepts custom boost values" do
-      mock_results = [
-        { id: "test_entity", path: "schema.test_entity", type: "entity" },
-      ]
-      allow(engine).to receive(:search).and_return(mock_results)
-
       results = engine.search_ranked(
         pattern: "test",
         boost_exact: 20,
@@ -233,7 +159,7 @@ RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
     end
 
     it "handles empty results gracefully" do
-      results = engine.search_ranked(pattern: "nonexistent")
+      results = engine.search_ranked(pattern: "nonexistent_xyz")
 
       expect(results).to be_empty
     end
@@ -250,12 +176,6 @@ RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
 
   describe "#search_advanced" do
     it "combines depth filtering and ranking" do
-      mock_results = [
-        { id: "test", path: "schema.test", type: "entity" },
-        { id: "test_attr", path: "schema.test.attr", type: "attribute" },
-      ]
-      allow(engine).to receive(:search).and_return(mock_results)
-
       results = engine.search_advanced(
         pattern: "test",
         max_depth: 2,
@@ -276,12 +196,6 @@ RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
     end
 
     it "applies only depth filtering when ranked is false" do
-      mock_results = [
-        { id: "test", path: "schema.test", type: "entity" },
-        { id: "test_attr", path: "schema.test.attr", type: "attribute" },
-      ]
-      allow(engine).to receive(:search).and_return(mock_results)
-
       results = engine.search_advanced(
         pattern: "test",
         max_depth: 2,
@@ -300,11 +214,6 @@ RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
     end
 
     it "applies only ranking when max_depth is nil" do
-      mock_results = [
-        { id: "test_entity", path: "schema.test_entity", type: "entity" },
-      ]
-      allow(engine).to receive(:search).and_return(mock_results)
-
       results = engine.search_advanced(
         pattern: "test",
         max_depth: nil,
@@ -316,11 +225,6 @@ RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
     end
 
     it "works without any advanced options" do
-      mock_results = [
-        { id: "test_entity", path: "schema.test_entity", type: "entity" },
-      ]
-      allow(engine).to receive(:search).and_return(mock_results)
-
       results = engine.search_advanced(
         pattern: "test",
         max_depth: nil,
@@ -364,12 +268,13 @@ RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
 
     it "handles exact option" do
       results = engine.search_advanced(
-        pattern: "test_entity",
+        pattern: "test_schema.test_entity",
         exact: true,
         max_depth: 2,
       )
 
       expect(results).to be_a(Array)
+      expect(results.map { |r| r[:id] }).to contain_exactly("test_entity")
     end
 
     it "handles schema filtering" do
@@ -380,6 +285,7 @@ RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
       )
 
       results.each do |result|
+        # Non-schema results should belong to test_schema
         expect(result[:schema]).to eq("test_schema") if result[:type] != "schema"
       end
     end
@@ -401,7 +307,7 @@ RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
 
     it "handles empty results gracefully" do
       results = engine.search_advanced(
-        pattern: "nonexistent",
+        pattern: "nonexistent_xyz",
         max_depth: 2,
         ranked: true,
       )

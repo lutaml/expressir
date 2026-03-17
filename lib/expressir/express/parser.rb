@@ -662,7 +662,7 @@ module Expressir
       # @param [String] file Express file path
       # @param [Boolean] skip_references skip resolving references
       # @param [Boolean] include_source attach original source code to model elements
-      # @return [Model::Repository]
+      # @return [Model::ExpFile] ExpFile containing parsed schemas
       # @raise [SchemaParseFailure] if the schema file fails to parse
       def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil) # rubocop:disable Metrics/AbcSize
         Expressir::Benchmark.measure_file(file) do
@@ -678,10 +678,12 @@ module Expressir
             raise Error::SchemaParseFailure.new(schema_file, e)
           end
 
-          @repository = Builder.build_with_remarks(ast, source: source,
+          @exp_file = Builder.build_with_remarks(ast, source: source,
                                                         include_source: include_source)
 
-          @repository.schemas.each do |schema|
+          # Set file path on the ExpFile and propagate to schemas
+          @exp_file.path = schema_file
+          @exp_file.schemas.each do |schema|
             schema.file = schema_file
             schema.file_basename = File.basename(schema_file, ".exp")
             schema.formatted = schema.to_s(no_remarks: true)
@@ -690,11 +692,11 @@ module Expressir
           unless skip_references
             Expressir::Benchmark.measure_references do
               @resolve_references_model_visitor = ResolveReferencesModelVisitor.new
-              @resolve_references_model_visitor.visit(@repository)
+              @resolve_references_model_visitor.visit(@exp_file)
             end
           end
 
-          @repository
+          @exp_file
         end
       end
 
@@ -706,19 +708,16 @@ module Expressir
       # @yieldparam filename [String] Name of the file being processed
       # @yieldparam schemas [Array, nil] Array of parsed schemas (nil if parsing failed)
       # @yieldparam error [Exception, nil] Error that occurred (nil if parsing succeeded)
-      # @return [Model::Repository]
-      def self.from_files(files, skip_references: nil, include_source: nil,
-root_path: nil)
-        all_schemas = []
+      # @return [Model::Repository] Repository containing all parsed ExpFiles
+      def self.from_files(files, skip_references: nil, include_source: nil, root_path: nil)
+        all_exp_files = []
 
         files.each do |file|
-          repository = from_file(file, skip_references: true,
-                                       root_path: root_path)
-          file_schemas = repository.schemas
-          all_schemas.concat(file_schemas)
+          exp_file = from_file(file, skip_references: true, root_path: root_path)
+          all_exp_files << exp_file
 
           # Call the progress block if provided
-          yield(file, file_schemas, nil) if block_given?
+          yield(file, exp_file&.schemas, nil) if block_given?
         rescue StandardError => e
           # Call the progress block with the error if provided
           yield(file, nil, e) if block_given?
@@ -728,9 +727,7 @@ root_path: nil)
           raise unless e.is_a?(Error::SchemaParseFailure)
         end
 
-        @repository = Model::Repository.new(
-          schemas: all_schemas,
-        )
+        @repository = Model::Repository.new(files: all_exp_files)
 
         unless skip_references
           Expressir::Benchmark.measure_references do
@@ -748,7 +745,7 @@ root_path: nil)
       # @param [Boolean] include_source attach original source code to model elements
       # @param [Boolean] use_native use native parser if available (default: false - AST format differs slightly)
       # @param [Boolean] use_streaming use streaming builder for maximum performance (default: false)
-      # @return [Model::Repository] Parsed repository
+      # @return [Model::ExpFile] Parsed ExpFile
       # @raise [SchemaParseFailure] if the content fails to parse
       def self.from_exp(content, skip_references: nil, include_source: nil,
                          use_native: false, use_streaming: false)
@@ -769,10 +766,10 @@ root_path: nil)
           raise Error::SchemaParseFailure.new("(from string)", e)
         end
 
-        repository = Builder.build_with_remarks(ast, source: content,
-                                                     include_source: include_source)
+        exp_file = Builder.build_with_remarks(ast, source: content,
+                                                   include_source: include_source)
 
-        repository.schemas.each do |schema|
+        exp_file.schemas.each do |schema|
           schema.file = nil
           schema.file_basename = nil
           schema.formatted = schema.to_s(no_remarks: true)
@@ -781,33 +778,32 @@ root_path: nil)
         unless skip_references
           Expressir::Benchmark.measure_references do
             resolve_references_model_visitor = ResolveReferencesModelVisitor.new
-            resolve_references_model_visitor.visit(repository)
+            resolve_references_model_visitor.visit(exp_file)
           end
         end
 
-        repository
+        exp_file
       end
 
       # Parse using streaming builder (maximum performance)
       # @param [String] content Express content as string
       # @param [Boolean] skip_references skip resolving references
       # @param [Boolean] include_source attach original source code to model elements
-      # @return [Model::Repository] Parsed repository
+      # @return [Model::ExpFile] Parsed ExpFile
       # @raise [SchemaParseFailure] if the content fails to parse
-      def self.from_exp_streaming(content, skip_references: nil,
-include_source: nil)
+      def self.from_exp_streaming(content, skip_references: nil, include_source: nil)
         grammar_json = Parser.cached_grammar_json
         builder = StreamingBuilder.new(source: content,
                                        include_source: include_source)
 
         begin
-          repository = Parsanol::Native.parse_with_builder(grammar_json,
+          exp_file = Parsanol::Native.parse_with_builder(grammar_json,
                                                            content, builder)
         rescue StandardError => e
           raise Error::SchemaParseFailure.new("(streaming)", e)
         end
 
-        repository.schemas.each do |schema|
+        exp_file.schemas.each do |schema|
           schema.file = nil
           schema.file_basename = nil
           schema.formatted = schema.to_s(no_remarks: true)
@@ -816,11 +812,11 @@ include_source: nil)
         unless skip_references
           Expressir::Benchmark.measure_references do
             resolve_references_model_visitor = ResolveReferencesModelVisitor.new
-            resolve_references_model_visitor.visit(repository)
+            resolve_references_model_visitor.visit(exp_file)
           end
         end
 
-        repository
+        exp_file
       end
       private_class_method :from_exp_streaming
     end

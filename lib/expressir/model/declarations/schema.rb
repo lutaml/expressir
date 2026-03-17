@@ -5,6 +5,7 @@ module Expressir
       # - section 9.3 Schema
       class Schema < ModelElement
         include Identifier
+        include ScopeContainer
 
         attribute :file, :string
         attribute :version, SchemaVersion

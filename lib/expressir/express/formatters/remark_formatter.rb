@@ -36,27 +36,19 @@ module Expressir
         end
 
         def format_untagged_remark(remark)
-          if remark.is_a?(Model::RemarkInfo)
-            text = remark.text
-            return "" if text.nil? || text.empty?
+          return "" unless remark.is_a?(Model::RemarkInfo)
 
-            formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
+          text = remark.text
+          return "" if text.nil? || text.empty?
 
-            if remark.tail?
-              "-- #{formatted_text}"
-            elsif text.include?("\n")
-              ["(*", formatted_text, "*)"].join("\n")
-            else
-              "(* #{formatted_text} *)"
-            end
+          formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
+
+          if remark.tail?
+            "-- #{formatted_text}"
+          elsif text.include?("\n")
+            ["(*", formatted_text, "*)"].join("\n")
           else
-            return "" if remark.nil? || remark.empty?
-
-            if remark.include?("\n")
-              ["(*", remark, "*)"].join("\n")
-            else
-              "-- #{remark}"
-            end
+            "(* #{formatted_text} *)"
           end
         end
 
@@ -66,19 +58,13 @@ module Expressir
           return "" if node.untagged_remarks.nil? || node.untagged_remarks.empty?
 
           remark = node.untagged_remarks.first
-          return "" if remark.nil?
+          return "" unless remark.is_a?(Model::RemarkInfo)
 
-          if remark.is_a?(Model::RemarkInfo)
-            text = remark.text
-            return "" if text.nil? || text.empty?
+          text = remark.text
+          return "" if text.nil? || text.empty?
 
-            formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
-            remark.tail? ? " -- #{formatted_text}" : " (* #{formatted_text} *)"
-          else
-            return "" if remark.empty?
-
-            " -- #{remark}"
-          end
+          formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
+          remark.tail? ? " -- #{formatted_text}" : " (* #{formatted_text} *)"
         end
 
         def format_end_scope_remark(node)
@@ -87,51 +73,35 @@ module Expressir
           return "" if node.untagged_remarks.nil? || node.untagged_remarks.empty?
 
           remark = node.untagged_remarks.last
-          return "" if remark.nil?
+          return "" unless remark.is_a?(Model::RemarkInfo)
 
-          if remark.is_a?(Model::RemarkInfo)
-            text = remark.text
-            return "" if text.nil? || text.empty?
+          text = remark.text
+          return "" if text.nil? || text.empty?
 
-            # Only output if it's a tail remark (END_* scope remarks are always tail)
-            return "" unless remark.tail?
+          # Only output if it's a tail remark (END_* scope remarks are always tail)
+          return "" unless remark.tail?
 
-            formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
-            " -- #{formatted_text}"
-          else
-            return "" if remark.empty?
-
-            # Legacy string format - assume it's a tail remark
-            " -- #{remark}"
-          end
+          formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
+          " -- #{formatted_text}"
         end
 
         def format_preamble_remark(remark, indent_str = "")
-          if remark.is_a?(Model::RemarkInfo)
-            text = remark.text
-            text = "\"#{remark.tag}\" #{text}" if remark.tagged?
+          return "" unless remark.is_a?(Model::RemarkInfo)
 
-            if remark.tail?
-              "#{indent_str}-- #{text}"
-            elsif text.include?("\n")
-              lines = text.split("\n")
-              [
-                "#{indent_str}(*",
-                *lines.map { |line| "#{indent_str}  #{line.strip}" },
-                "#{indent_str}*)",
-              ].join("\n")
-            else
-              "#{indent_str}(* #{text} *)"
-            end
-          elsif remark.include?("\n")
-            lines = remark.split("\n")
+          text = remark.text
+          text = "\"#{remark.tag}\" #{text}" if remark.tagged?
+
+          if remark.tail?
+            "#{indent_str}-- #{text}"
+          elsif text.include?("\n")
+            lines = text.split("\n")
             [
               "#{indent_str}(*",
               *lines.map { |line| "#{indent_str}  #{line.strip}" },
               "#{indent_str}*)",
             ].join("\n")
           else
-            "#{indent_str}-- #{remark}"
+            "#{indent_str}(* #{text} *)"
           end
         end
 
@@ -150,24 +120,15 @@ module Expressir
             node.is_a?(Model::Declarations::Rule)
 
           preamble_remarks = node.untagged_remarks.select do |remark|
-            if remark.is_a?(Model::RemarkInfo)
-              !remark.text.nil? && !remark.text.empty?
-            else
-              !remark.nil? && !remark.empty?
-            end
+            remark.is_a?(Model::RemarkInfo) && !remark.text.nil? && !remark.text.empty?
           end
 
           # For scope containers: exclude last remark ONLY if it's a tail remark (END_* remark)
           # Keep all embedded remarks
           if is_scope_container && preamble_remarks.length > 1
             last_remark = preamble_remarks.last
-            if last_remark.is_a?(Model::RemarkInfo)
-              # Only exclude if it's a tail remark
-              preamble_remarks = preamble_remarks[0..-2] if last_remark.tail?
-            else
-              # Legacy string format - assume it's a tail remark
-              preamble_remarks = preamble_remarks[0..-2]
-            end
+            # Only exclude if it's a tail remark
+            preamble_remarks = preamble_remarks[0..-2] if last_remark.tail?
           end
 
           return nil if preamble_remarks.empty?
@@ -221,7 +182,9 @@ module Expressir
             schema_remarks = {}
             if !@no_remarks && node.is_a?(Model::ModelElement) && !node.untagged_remarks.nil?
               node.untagged_remarks.compact.each do |remark|
-                text = remark.is_a?(Model::RemarkInfo) ? remark.text : remark
+                next unless remark.is_a?(Model::RemarkInfo)
+
+                text = remark.text
                 schema_remarks[text] = remark unless text == "interfaces" # Skip "interfaces"
               end
             end
@@ -274,7 +237,9 @@ module Expressir
                 !node.untagged_remarks.nil? &&
                 skip_untagged_types.any? { |type| node.is_a?(type) }
 
-              remarks.concat(node.untagged_remarks.compact.map do |remark|
+              remarks.concat(node.untagged_remarks.compact.select do |remark|
+                remark.is_a?(Model::RemarkInfo)
+              end.map do |remark|
                 format_untagged_remark(remark)
               end)
             end

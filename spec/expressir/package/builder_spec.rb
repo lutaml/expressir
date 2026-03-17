@@ -14,7 +14,7 @@ RSpec.describe Expressir::Package::Builder do
         id: "test_schema",
         file: nil,
       )
-      repo.schemas << schema
+      repo.add_schema(schema)
     end
   end
 

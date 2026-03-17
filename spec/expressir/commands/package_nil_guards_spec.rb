@@ -102,24 +102,18 @@ RSpec.describe Expressir::Commands::Package,
 
     context "output_text_info method" do
       it "handles nil metadata gracefully" do
-        nil_metadata = double("Metadata",
-                              name: nil,
-                              version: nil,
-                              description: nil,
-                              created_at: nil,
-                              created_by: nil,
-                              express_mode: nil,
-                              resolution_mode: nil,
-                              serialization_format: nil)
+        nil_metadata = Expressir::Package::Metadata.new(
+          name: nil,
+          version: nil,
+          description: nil,
+          created_at: nil,
+          created_by: nil,
+          express_mode: nil,
+          resolution_mode: nil,
+          serialization_format: nil,
+        )
 
-        empty_repo = double("Repository", statistics: {
-                              total_schemas: 0,
-                              total_entities: 0,
-                              total_types: 0,
-                              total_functions: 0,
-                              total_rules: 0,
-                              total_procedures: 0,
-                            })
+        empty_repo = Expressir::Model::Repository.new(schemas: [])
 
         expect do
           capture_stdout do
@@ -129,24 +123,18 @@ RSpec.describe Expressir::Commands::Package,
       end
 
       it "handles empty string metadata gracefully" do
-        empty_metadata = double("Metadata",
-                                name: "",
-                                version: "",
-                                description: "",
-                                created_at: "",
-                                created_by: "",
-                                express_mode: "",
-                                resolution_mode: "",
-                                serialization_format: "")
+        empty_metadata = Expressir::Package::Metadata.new(
+          name: "",
+          version: "",
+          description: "",
+          created_at: "",
+          created_by: "",
+          express_mode: "",
+          resolution_mode: "",
+          serialization_format: "",
+        )
 
-        empty_repo = double("Repository", statistics: {
-                              total_schemas: 0,
-                              total_entities: 0,
-                              total_types: 0,
-                              total_functions: 0,
-                              total_rules: 0,
-                              total_procedures: 0,
-                            })
+        empty_repo = Expressir::Model::Repository.new(schemas: [])
 
         expect do
           output = capture_stdout do
@@ -159,27 +147,28 @@ RSpec.describe Expressir::Commands::Package,
       end
 
       it "correctly identifies non-empty descriptions" do
-        valid_metadata = double("Metadata",
-                                name: "Valid Package",
-                                version: "1.0.0",
-                                description: "Valid description",
-                                created_at: "2023-01-01",
-                                created_by: "test_user",
-                                express_mode: "include_all",
-                                resolution_mode: "resolved",
-                                serialization_format: "marshal")
+        valid_metadata = Expressir::Package::Metadata.new(
+          name: "Valid Package",
+          version: "1.0.0",
+          description: "Valid description",
+          created_at: "2023-01-01",
+          created_by: "test_user",
+          express_mode: "include_all",
+          resolution_mode: "resolved",
+          serialization_format: "marshal",
+        )
 
-        empty_repo = double("Repository", statistics: {
-                              total_schemas: 1,
-                              total_entities: 5,
-                              total_types: 3,
-                              total_functions: 2,
-                              total_rules: 1,
-                              total_procedures: 0,
-                            })
+        schema = Expressir::Model::Declarations::Schema.new(
+          id: "test_schema",
+          entities: Array.new(5) { |i| Expressir::Model::Declarations::Entity.new(id: "entity#{i}") },
+          types: Array.new(3) { |i| Expressir::Model::Declarations::Type.new(id: "type#{i}") },
+          functions: Array.new(2) { |i| Expressir::Model::Declarations::Function.new(id: "func#{i}") },
+          rules: [Expressir::Model::Declarations::Rule.new(id: "rule1")],
+        )
+        repo = Expressir::Model::Repository.new(schemas: [schema])
 
         output = capture_stdout do
-          command.send(:output_text_info, valid_metadata, empty_repo)
+          command.send(:output_text_info, valid_metadata, repo)
         end
 
         expect(output).to include("Name:        Valid Package")
@@ -191,13 +180,13 @@ RSpec.describe Expressir::Commands::Package,
 
     context "output_json_info method" do
       it "handles nil metadata in JSON output" do
-        nil_metadata = double("Metadata", to_h: {
-                                name: nil,
-                                version: nil,
-                                description: nil,
-                              })
+        nil_metadata = Expressir::Package::Metadata.new(
+          name: nil,
+          version: nil,
+          description: nil,
+        )
 
-        empty_repo = double("Repository", statistics: { total_schemas: 0 })
+        empty_repo = Expressir::Model::Repository.new(schemas: [])
 
         output = capture_stdout do
           command.send(:output_json_info, nil_metadata, empty_repo)
@@ -210,13 +199,13 @@ RSpec.describe Expressir::Commands::Package,
 
     context "output_yaml_info method" do
       it "handles nil metadata in YAML output" do
-        nil_metadata = double("Metadata", to_h: {
-                                name: nil,
-                                version: nil,
-                                description: nil,
-                              })
+        nil_metadata = Expressir::Package::Metadata.new(
+          name: nil,
+          version: nil,
+          description: nil,
+        )
 
-        empty_repo = double("Repository", statistics: { total_schemas: 0 })
+        empty_repo = Expressir::Model::Repository.new(schemas: [])
 
         output = capture_stdout do
           command.send(:output_yaml_info, nil_metadata, empty_repo)
@@ -348,30 +337,36 @@ RSpec.describe Expressir::Commands::Package,
 
     context "build_counts_text method" do
       it "handles schema with nil entity collection" do
-        schema = double("Schema",
-                        entities: nil,
-                        types: [],
-                        functions: [])
+        schema = Expressir::Model::Declarations::Schema.new(
+          id: "test_schema",
+          entities: nil,
+          types: [],
+          functions: [],
+        )
 
         result = command.send(:build_counts_text, schema)
         expect(result).to eq("")
       end
 
       it "handles schema with all nil collections" do
-        schema = double("Schema",
-                        entities: nil,
-                        types: nil,
-                        functions: nil)
+        schema = Expressir::Model::Declarations::Schema.new(
+          id: "test_schema",
+          entities: nil,
+          types: nil,
+          functions: nil,
+        )
 
         result = command.send(:build_counts_text, schema)
         expect(result).to eq("")
       end
 
       it "handles mixed nil and empty collections" do
-        schema = double("Schema",
-                        entities: nil, # nil
-                        types: [], # empty array
-                        functions: [double]) # non-empty array
+        schema = Expressir::Model::Declarations::Schema.new(
+          id: "test_schema",
+          entities: nil, # nil
+          types: [], # empty array
+          functions: [Expressir::Model::Declarations::Function.new(id: "func1")], # non-empty array
+        )
 
         expect do
           result = command.send(:build_counts_text, schema)
@@ -382,7 +377,10 @@ RSpec.describe Expressir::Commands::Package,
 
     context "extract_type_info method" do
       it "handles element with nil type" do
-        element = double("Element", type: nil)
+        element = Expressir::Model::Declarations::Attribute.new(
+          id: "test_attr",
+          type: nil,
+        )
 
         result = command.send(:extract_type_info, element)
         expect(result).to eq("ANY")

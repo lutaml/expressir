@@ -70,7 +70,7 @@ procedures: [], constants: [], rules: [], interfaces: [])
       functions: ["validate_id"],
       constants: ["MAX_LENGTH"],
     )
-    repo.schemas << schema1
+    repo.add_schema(schema1)
 
     # Schema 2: extended_schema that uses base_schema
     use_interface = create_use_from("base_schema",
@@ -80,7 +80,7 @@ procedures: [], constants: [], rules: [], interfaces: [])
       entities: ["employee", "department"],
       interfaces: [use_interface],
     )
-    repo.schemas << schema2
+    repo.add_schema(schema2)
 
     # Schema 3: reference_schema that references base_schema
     ref_interface = create_reference_from("base_schema",
@@ -90,7 +90,7 @@ procedures: [], constants: [], rules: [], interfaces: [])
       entities: ["company"],
       interfaces: [ref_interface],
     )
-    repo.schemas << schema3
+    repo.add_schema(schema3)
 
     repo.build_indexes
     repo
@@ -147,7 +147,7 @@ procedures: [], constants: [], rules: [], interfaces: [])
         repo = Expressir::Model::Repository.new
         use_interface = create_use_from("non_existent_schema", [["item1", nil]])
         schema = create_schema(id: "test_schema", interfaces: [use_interface])
-        repo.schemas << schema
+        repo.add_schema(schema)
         repo.build_indexes
         repo
       end
@@ -189,13 +189,13 @@ procedures: [], constants: [], rules: [], interfaces: [])
       let(:invalid_repo) do
         repo = Expressir::Model::Repository.new
         base = create_schema(id: "base", entities: ["entity1"])
-        repo.schemas << base
+        repo.add_schema(base)
 
         use_interface = create_use_from("base",
                                         [["entity1", nil],
                                          ["non_existent", nil]])
         schema = create_schema(id: "test_schema", interfaces: [use_interface])
-        repo.schemas << schema
+        repo.add_schema(schema)
         repo.build_indexes
         repo
       end
@@ -231,11 +231,11 @@ procedures: [], constants: [], rules: [], interfaces: [])
       let(:empty_use_repo) do
         repo = Expressir::Model::Repository.new
         base = create_schema(id: "base", entities: ["entity1"])
-        repo.schemas << base
+        repo.add_schema(base)
 
         use_interface = create_use_from("base", [])
         schema = create_schema(id: "test_schema", interfaces: [use_interface])
-        repo.schemas << schema
+        repo.add_schema(schema)
         repo.build_indexes
         repo
       end
@@ -265,11 +265,11 @@ procedures: [], constants: [], rules: [], interfaces: [])
       let(:empty_ref_repo) do
         repo = Expressir::Model::Repository.new
         base = create_schema(id: "base", entities: ["entity1"])
-        repo.schemas << base
+        repo.add_schema(base)
 
         ref_interface = create_reference_from("base", [])
         schema = create_schema(id: "test_schema", interfaces: [ref_interface])
-        repo.schemas << schema
+        repo.add_schema(schema)
         repo.build_indexes
         repo
       end
@@ -329,13 +329,13 @@ procedures: [], constants: [], rules: [], interfaces: [])
       let(:duplicate_repo) do
         repo = Expressir::Model::Repository.new
         base = create_schema(id: "base", entities: ["entity1", "entity2"])
-        repo.schemas << base
+        repo.add_schema(base)
 
         use_interface = create_use_from("base",
                                         [["entity1", "item"],
                                          ["entity2", "item"]])
         schema = create_schema(id: "test_schema", interfaces: [use_interface])
-        repo.schemas << schema
+        repo.add_schema(schema)
         repo.build_indexes
         repo
       end
@@ -370,13 +370,13 @@ procedures: [], constants: [], rules: [], interfaces: [])
         repo = Expressir::Model::Repository.new
         # Create a base schema to reference
         base = create_schema(id: "other_schema", entities: ["entity1"])
-        repo.schemas << base
+        repo.add_schema(base)
 
         # Create a schema that references itself (with items to avoid empty warning)
         use_interface = create_use_from("test_schema", [["entity1", nil]])
         schema = create_schema(id: "test_schema", entities: ["entity1"],
                                interfaces: [use_interface])
-        repo.schemas << schema
+        repo.add_schema(schema)
         repo.build_indexes
         repo
       end
@@ -418,7 +418,7 @@ procedures: [], constants: [], rules: [], interfaces: [])
       let(:complex_repo) do
         repo = Expressir::Model::Repository.new
         base = create_schema(id: "base", entities: ["entity1"])
-        repo.schemas << base
+        repo.add_schema(base)
 
         use_interface1 = create_use_from("base",
                                          [["entity1", nil],
@@ -428,7 +428,7 @@ procedures: [], constants: [], rules: [], interfaces: [])
                                interfaces: [
                                  use_interface1, use_interface2
                                ])
-        repo.schemas << schema
+        repo.add_schema(schema)
         repo.build_indexes
         repo
       end
@@ -478,11 +478,11 @@ procedures: [], constants: [], rules: [], interfaces: [])
     let(:case_repo) do
       repo = Expressir::Model::Repository.new
       base = create_schema(id: "BASE_SCHEMA", entities: ["MyEntity"])
-      repo.schemas << base
+      repo.add_schema(base)
 
       use_interface = create_use_from("base_schema", [["myentity", nil]])
       schema = create_schema(id: "test_schema", interfaces: [use_interface])
-      repo.schemas << schema
+      repo.add_schema(schema)
       repo.build_indexes
       repo
     end
@@ -512,7 +512,7 @@ procedures: [], constants: [], rules: [], interfaces: [])
         constants: ["MY_CONSTANT"],
         rules: ["my_rule"],
       )
-      repo.schemas << base
+      repo.add_schema(base)
 
       use_interface = create_use_from("base", [
                                         ["my_entity", nil],
@@ -523,7 +523,7 @@ procedures: [], constants: [], rules: [], interfaces: [])
                                         ["my_rule", nil],
                                       ])
       schema = create_schema(id: "test_schema", interfaces: [use_interface])
-      repo.schemas << schema
+      repo.add_schema(schema)
       repo.build_indexes
       repo
     end
@@ -571,7 +571,7 @@ procedures: [], constants: [], rules: [], interfaces: [])
       repo = Expressir::Model::Repository.new
       use_interface = create_use_from("missing", [])
       schema = create_schema(id: "test", interfaces: [use_interface])
-      repo.schemas << schema
+      repo.add_schema(schema)
       repo.build_indexes
       repo
     end
@@ -616,7 +616,7 @@ procedures: [], constants: [], rules: [], interfaces: [])
       invalid_repo = Expressir::Model::Repository.new
       use_interface = create_use_from("missing", [])
       schema = create_schema(id: "test", interfaces: [use_interface])
-      invalid_repo.schemas << schema
+      invalid_repo.add_schema(schema)
       invalid_repo.build_indexes
       invalid_validator = described_class.new(invalid_repo)
 

@@ -3,118 +3,71 @@
 require "spec_helper"
 
 RSpec.describe Expressir::Model::Repository, "statistics methods" do
-  let(:entity1) { double(id: "entity1") }
-  let(:entity2) { double(id: "entity2") }
-  let(:type1) { double(id: "type1") }
-  let(:type2) { double(id: "type2") }
-  let(:function1) { double(id: "function1") }
-  let(:rule1) { double(id: "rule1") }
-  let(:procedure1) { double(id: "procedure1") }
-  let(:constant1) { double(id: "constant1") }
+  # Use REAL objects instead of mocks
+  let(:entity1) { Expressir::Model::Declarations::Entity.new(id: "entity1") }
+  let(:entity2) { Expressir::Model::Declarations::Entity.new(id: "entity2") }
+  let(:type1) { Expressir::Model::Declarations::Type.new(id: "type1") }
+  let(:type2) { Expressir::Model::Declarations::Type.new(id: "type2") }
+  let(:function1) { Expressir::Model::Declarations::Function.new(id: "function1") }
+  let(:rule1) { Expressir::Model::Declarations::Rule.new(id: "rule1") }
+  let(:procedure1) { Expressir::Model::Declarations::Procedure.new(id: "procedure1") }
+  let(:constant1) { Expressir::Model::Declarations::Constant.new(id: "constant1") }
 
   let(:interface_use) do
-    instance_double(
-      Expressir::Model::Declarations::Interface,
+    Expressir::Model::Declarations::Interface.new(
       kind: Expressir::Model::Declarations::Interface::USE,
-      schema: double(id: "referenced_schema"),
+      schema: Expressir::Model::Declarations::Schema.new(id: "referenced_schema"),
     )
   end
 
   let(:interface_reference) do
-    instance_double(
-      Expressir::Model::Declarations::Interface,
+    Expressir::Model::Declarations::Interface.new(
       kind: Expressir::Model::Declarations::Interface::REFERENCE,
-      schema: double(id: "target_schema"),
+      schema: Expressir::Model::Declarations::Schema.new(id: "target_schema"),
     )
   end
 
   let(:schema_with_entities) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
+    Expressir::Model::Declarations::Schema.new(
       id: "schema_entities",
       entities: [entity1, entity2],
-      types: nil,
-      functions: nil,
-      rules: nil,
-      procedures: nil,
-      constants: nil,
-      interfaces: nil,
     )
   end
 
   let(:schema_with_types) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
+    Expressir::Model::Declarations::Schema.new(
       id: "schema_types",
-      entities: nil,
       types: [type1, type2],
-      functions: nil,
-      rules: nil,
-      procedures: nil,
-      constants: nil,
-      interfaces: nil,
     )
   end
 
   let(:schema_with_functions) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
+    Expressir::Model::Declarations::Schema.new(
       id: "schema_functions",
-      entities: nil,
-      types: nil,
       functions: [function1],
-      rules: nil,
-      procedures: nil,
-      constants: nil,
-      interfaces: nil,
     )
   end
 
   let(:schema_with_rules) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
+    Expressir::Model::Declarations::Schema.new(
       id: "schema_rules",
-      entities: nil,
-      types: nil,
-      functions: nil,
       rules: [rule1],
-      procedures: nil,
-      constants: nil,
-      interfaces: nil,
     )
   end
 
   let(:schema_interface_only) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
+    Expressir::Model::Declarations::Schema.new(
       id: "schema_interfaces",
-      entities: nil,
-      types: nil,
-      functions: nil,
-      rules: nil,
-      procedures: nil,
-      constants: nil,
       interfaces: [interface_use],
     )
   end
 
   let(:empty_schema) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
-      id: "empty_schema",
-      entities: nil,
-      types: nil,
-      functions: nil,
-      rules: nil,
-      procedures: nil,
-      constants: nil,
-      interfaces: nil,
-    )
+    Expressir::Model::Declarations::Schema.new(id: "empty_schema")
   end
 
   let(:complex_schema) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
+    Expressir::Model::Declarations::Schema.new(
       id: "complex_schema",
       entities: [entity1, entity2],
       types: [type1, type2],
@@ -127,15 +80,8 @@ RSpec.describe Expressir::Model::Repository, "statistics methods" do
   end
 
   let(:schema_with_interfaces) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
+    Expressir::Model::Declarations::Schema.new(
       id: "schema_deps",
-      entities: nil,
-      types: nil,
-      functions: nil,
-      rules: nil,
-      procedures: nil,
-      constants: nil,
       interfaces: [interface_use, interface_reference],
     )
   end
@@ -231,15 +177,9 @@ RSpec.describe Expressir::Model::Repository, "statistics methods" do
 
     it "limits results to specified number" do
       schemas = Array.new(15) do |i|
-        instance_double(
-          Expressir::Model::Declarations::Schema,
+        Expressir::Model::Declarations::Schema.new(
           id: "schema#{i}",
-          entities: [entity1],
-          types: nil,
-          functions: nil,
-          rules: nil,
-          procedures: nil,
-          constants: nil,
+          entities: [Expressir::Model::Declarations::Entity.new(id: "entity#{i}")],
         )
       end
       repo = described_class.new(schemas: schemas)
@@ -340,16 +280,9 @@ RSpec.describe Expressir::Model::Repository, "statistics methods" do
 
     it "limits results to specified number" do
       schemas = Array.new(15) do |i|
-        instance_double(
-          Expressir::Model::Declarations::Schema,
+        Expressir::Model::Declarations::Schema.new(
           id: "schema#{i}",
-          entities: [entity1],
-          types: nil,
-          functions: nil,
-          rules: nil,
-          procedures: nil,
-          constants: nil,
-          interfaces: nil,
+          entities: [Expressir::Model::Declarations::Entity.new(id: "entity#{i}")],
         )
       end
       repo = described_class.new(schemas: schemas)
@@ -426,21 +359,14 @@ RSpec.describe Expressir::Model::Repository, "statistics methods" do
     it "limits most_referenced to top 10" do
       # Create 15 schemas that reference 15 different schemas
       schemas = Array.new(15) do |i|
-        interface = instance_double(
-          Expressir::Model::Declarations::Interface,
-          kind: Expressir::Model::Declarations::Interface::USE,
-          schema: double(id: "ref_schema#{i}"),
-        )
-        instance_double(
-          Expressir::Model::Declarations::Schema,
+        Expressir::Model::Declarations::Schema.new(
           id: "schema#{i}",
-          entities: nil,
-          types: nil,
-          functions: nil,
-          rules: nil,
-          procedures: nil,
-          constants: nil,
-          interfaces: [interface],
+          interfaces: [
+            Expressir::Model::Declarations::Interface.new(
+              kind: Expressir::Model::Declarations::Interface::USE,
+              schema: Expressir::Model::Declarations::Schema.new(id: "ref_schema#{i}"),
+            ),
+          ],
         )
       end
       repo = described_class.new(schemas: schemas)
@@ -453,21 +379,14 @@ RSpec.describe Expressir::Model::Repository, "statistics methods" do
     it "limits most_dependent to top 10" do
       # Create 15 schemas with interfaces
       schemas = Array.new(15) do |i|
-        interface = instance_double(
-          Expressir::Model::Declarations::Interface,
-          kind: Expressir::Model::Declarations::Interface::USE,
-          schema: double(id: "ref_schema"),
-        )
-        instance_double(
-          Expressir::Model::Declarations::Schema,
+        Expressir::Model::Declarations::Schema.new(
           id: "schema#{i}",
-          entities: nil,
-          types: nil,
-          functions: nil,
-          rules: nil,
-          procedures: nil,
-          constants: nil,
-          interfaces: [interface],
+          interfaces: [
+            Expressir::Model::Declarations::Interface.new(
+              kind: Expressir::Model::Declarations::Interface::USE,
+              schema: Expressir::Model::Declarations::Schema.new(id: "ref_schema"),
+            ),
+          ],
         )
       end
       repo = described_class.new(schemas: schemas)
@@ -498,20 +417,12 @@ RSpec.describe Expressir::Model::Repository, "statistics methods" do
     end
 
     it "handles interfaces with nil schema" do
-      nil_schema_interface = instance_double(
-        Expressir::Model::Declarations::Interface,
+      nil_schema_interface = Expressir::Model::Declarations::Interface.new(
         kind: Expressir::Model::Declarations::Interface::USE,
         schema: nil,
       )
-      schema = instance_double(
-        Expressir::Model::Declarations::Schema,
+      schema = Expressir::Model::Declarations::Schema.new(
         id: "test_schema",
-        entities: nil,
-        types: nil,
-        functions: nil,
-        rules: nil,
-        procedures: nil,
-        constants: nil,
         interfaces: [nil_schema_interface],
       )
       repo = described_class.new(schemas: [schema])

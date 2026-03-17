@@ -110,7 +110,4 @@ message: "Referential integrity check failed")
   class PackageListError < CommandError; end
   class PackageSearchError < CommandError; end
   class PackageTreeError < CommandError; end
-
-  # Backward compatibility - alias the old name to the new class
-  InvalidSchemaManifestError = ManifestValidationError
 end

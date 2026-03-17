@@ -50,7 +50,7 @@ RSpec.describe "LER Package Round-trip Integration", :integration do
         # Step 2: Parse and build repository
         repo = Expressir::Model::Repository.new
         parsed = Expressir::Express::Parser.from_file(schema_file)
-        parsed.schemas.each { |schema| repo.schemas << schema }
+        parsed.schemas.each { |schema| repo.add_schema(schema) }
         repo.resolve_all_references
 
         expect(repo.schemas.size).to eq(1)
@@ -191,7 +191,7 @@ RSpec.describe "LER Package Round-trip Integration", :integration do
           # Build repository
           repo = Expressir::Model::Repository.new
           parsed = Expressir::Express::Parser.from_file(schema_file)
-          parsed.schemas.each { |schema| repo.schemas << schema }
+          parsed.schemas.each { |schema| repo.add_schema(schema) }
 
           # Export with specific format
           package_path = File.join(dir, "test_#{format}.ler")
@@ -223,7 +223,7 @@ RSpec.describe "LER Package Round-trip Integration", :integration do
 
         repo = Expressir::Model::Repository.new
         parsed = Expressir::Express::Parser.from_file(schema_file)
-        parsed.schemas.each { |schema| repo.schemas << schema }
+        parsed.schemas.each { |schema| repo.add_schema(schema) }
 
         original_stats = repo.statistics
 
@@ -293,7 +293,7 @@ RSpec.describe "LER Package Round-trip Integration", :integration do
         # Build original repository
         repo = Expressir::Model::Repository.new
         parsed = Expressir::Express::Parser.from_file(schema_file)
-        parsed.schemas.each { |schema| repo.schemas << schema }
+        parsed.schemas.each { |schema| repo.add_schema(schema) }
         repo.build_indexes
 
         original_entity_count = repo.entity_index.count

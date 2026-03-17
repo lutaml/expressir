@@ -123,7 +123,7 @@ module Expressir
             schema.instance_variable_set(:@rules, nil)
 
             repo = Expressir::Model::Repository.new
-            repo.schemas << schema
+            repo.add_schema(schema)
 
             zip.get_output_stream("repository.marshal") do |s|
               s.write(Marshal.dump(repo))
@@ -162,7 +162,7 @@ module Expressir
             schema.entities = [entity]
 
             repo = Expressir::Model::Repository.new
-            repo.schemas << schema
+            repo.add_schema(schema)
 
             zip.get_output_stream("repository.marshal") do |s|
               s.write(Marshal.dump(repo))
@@ -247,7 +247,7 @@ module Expressir
             schema.functions = []
 
             repo = Expressir::Model::Repository.new
-            repo.schemas << schema
+            repo.add_schema(schema)
             repo.build_indexes
 
             zip.get_output_stream("repository.marshal") do |s|
@@ -291,7 +291,7 @@ module Expressir
             schema.functions = []
 
             repo = Expressir::Model::Repository.new
-            repo.schemas << schema
+            repo.add_schema(schema)
 
             zip.get_output_stream("repository.marshal") do |s|
               s.write(Marshal.dump(repo))

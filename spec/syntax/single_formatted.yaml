@@ -1,36 +1,19 @@
 ---
-_class: Expressir::Model::Repository
+_class: Expressir::Model::ExpFile
+path: spec/syntax/single_formatted.exp
 schemas:
 - _class: Expressir::Model::Declarations::Schema
-  file: spec/syntax/single.exp
   id: single_schema
+  file: spec/syntax/single_formatted.exp
   version:
     _class: Expressir::Model::Declarations::SchemaVersion
     value: version
   entities:
   - _class: Expressir::Model::Declarations::Entity
     id: empty_entity
-    source: |-
-      ENTITY empty_entity;
-      END_ENTITY;
   - _class: Expressir::Model::Declarations::Entity
     id: subtype_empty_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: single_schema.empty_entity
-    source: |-
-      ENTITY subtype_empty_entity
-        SUBTYPE OF (empty_entity);
-      END_ENTITY;
-  source: |-
-    SCHEMA single_schema 'version';
-
-    ENTITY empty_entity;
-    END_ENTITY;
-
-    ENTITY subtype_empty_entity
-      SUBTYPE OF (empty_entity);
-    END_ENTITY;
-
-    END_SCHEMA;
+      base_path: spec/syntax/single_formatted.exp.single_schema.empty_entity

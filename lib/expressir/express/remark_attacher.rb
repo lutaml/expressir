@@ -13,84 +13,6 @@ module Expressir
     # 2. Proximity-based matching for simple tags
     # 3. NOT creating spurious schema-level items for ambiguous tags
     class RemarkAttacher
-      # Types that support informal propositions
-      INFORMAL_PROPOSITION_TYPES = [
-        Model::Declarations::Entity,
-        Model::Declarations::Rule,
-        Model::Declarations::Type,
-        Model::Declarations::InformalPropositionRule,
-      ].freeze
-
-      # Types that support remark items (have remark_items attribute)
-      # These are types where we can create RemarkItem children
-      REMARK_ITEM_TYPES = [
-        Model::Declarations::Schema,
-        Model::Declarations::Entity,
-        Model::Declarations::Type,
-        Model::Declarations::Rule,
-        Model::Declarations::Function,
-        Model::Declarations::Procedure,
-        Model::Declarations::InformalPropositionRule,
-        Model::Declarations::WhereRule,
-        Model::Declarations::UniqueRule,
-        # Attribute types (all include Identifier which provides remark_items)
-        Model::Declarations::Attribute,
-        Model::Declarations::DerivedAttribute,
-        Model::Declarations::InverseAttribute,
-      ].freeze
-
-      # Types that support where rules
-      WHERE_RULE_TYPES = [
-        Model::Declarations::Entity,
-        Model::Declarations::Type,
-        Model::Declarations::Rule,
-        Model::Declarations::Function,
-        Model::Declarations::Procedure,
-      ].freeze
-
-      # Scope container types (can contain other declarations)
-      SCOPE_CONTAINER_TYPES = [
-        Model::Declarations::Schema,
-        Model::Declarations::Function,
-        Model::Declarations::Procedure,
-        Model::Declarations::Rule,
-        Model::Declarations::Entity,
-        Model::Declarations::Type,
-      ].freeze
-
-      # Types that support remarks (have Identifier module or define remarks directly)
-      REMARKS_SUPPORT_TYPES = [
-        # Declaration types with Identifier module
-        Model::Declarations::Schema,
-        Model::Declarations::Entity,
-        Model::Declarations::Type,
-        Model::Declarations::Function,
-        Model::Declarations::Procedure,
-        Model::Declarations::Rule,
-        Model::Declarations::Constant,
-        Model::Declarations::Attribute,
-        Model::Declarations::InverseAttribute,
-        Model::Declarations::DerivedAttribute,
-        Model::Declarations::WhereRule,
-        Model::Declarations::UniqueRule,
-        Model::Declarations::InformalPropositionRule,
-        Model::Declarations::SubtypeConstraint,
-        Model::Declarations::Parameter,
-        Model::Declarations::Variable,
-        # Statement types with Identifier module
-        Model::Statements::Alias,
-        Model::Statements::Repeat,
-        # Expression types with Identifier module
-        Model::Expressions::QueryExpression,
-        # Data types with Identifier module
-        Model::DataTypes::Aggregate,
-        Model::DataTypes::EnumerationItem,
-        Model::DataTypes::Generic,
-        Model::DataTypes::GenericEntity,
-        # Types with remarks attribute defined directly (not via Identifier)
-        Model::Declarations::RemarkItem,
-      ].freeze
-
       def initialize(source)
         @source = source
         @attached_spans = Set.new
@@ -196,8 +118,17 @@ module Expressir
         @line_cache[position] ||= @source.byteslice(0...position).count("\n") + 1
       end
 
+      alias get_line_number_from_offset get_line_number
+
       def attach_tagged_remarks(model, remarks)
-        schema_ids = repository?(model) ? model.schemas.filter_map(&:id) : []
+        # Get schema IDs from either Repository (files array), Repository (schemas array), or ExpFile
+        schema_ids = if repository?(model)
+                        model.schemas.filter_map(&:id)
+                      elsif exp_file?(model)
+                        model.schemas.filter_map(&:id)
+                      else
+                        []
+                        end
 
         # Collect nodes with positions for finding containing scopes
         nodes_with_positions = []
@@ -516,9 +447,7 @@ module Expressir
         # Return the innermost scope container (function, procedure, rule, entity, type)
         containing_nodes.reverse_each do |n|
           node = n[:node]
-          SCOPE_CONTAINER_TYPES.each do |scope_class|
-            return node if node.is_a?(scope_class)
-          end
+          return node if node.is_a?(Model::ScopeContainer)
         end
 
         nil
@@ -756,7 +685,10 @@ module Expressir
       end
 
       def find_by_exact_path(model, path)
-        return nil unless path && repository?(model)
+        return nil unless path
+
+        # Only Repository and ExpFile support path-based find
+        return nil unless repository?(model) || exp_file?(model)
 
         # Try original path
         result = safe_find(model, path)
@@ -768,7 +700,8 @@ module Expressir
       end
 
       def create_implicit_remark_item_at_schema(model, item_id, schema_id)
-        return nil unless repository?(model)
+        # Only Repository and ExpFile support schema lookup
+        return nil unless repository?(model) || exp_file?(model)
 
         schema = safe_find(model, schema_id)
         return nil unless schema.is_a?(Model::Declarations::Schema)
@@ -789,7 +722,7 @@ module Expressir
       end
 
       def create_implicit_remark_item(model, path, schema_ids = [])
-        return nil unless repository?(model)
+        return nil unless repository?(model) || exp_file?(model)
 
         # Normalize path (handle "ip:IP1" format)
         clean_path = normalize_path(path)
@@ -952,20 +885,29 @@ module Expressir
 
         # Only add remarks to nodes that support them
         if supports_remarks?(node)
-          node.remarks ||= []
-          node.remarks << text
+          # Always add to remarks attribute (for types that have it)
+          if node.respond_to?(:remarks) && node.respond_to?(:remarks=)
+            node.remarks ||= []
+            node.remarks << text
+          end
 
           if tag.nil?
-            remark_info = Model::RemarkInfo.new(text: text, format: format,
-                                                tag: tag)
+            # Untagged remark: store in untagged_remarks
+            remark_info = Model::RemarkInfo.new(text: text, format: format)
             node.untagged_remarks ||= []
             node.untagged_remarks << remark_info
           end
         end
       end
 
+      # All ModelElement subclasses have untagged_remarks from ModelElement
       def supports_remarks?(obj)
-        REMARKS_SUPPORT_TYPES.any? { |t| obj.is_a?(t) }
+        obj.is_a?(Model::ModelElement)
+      end
+
+      # Types that include HasRemarkItems can have remark_items
+      def supports_remark_items?(obj)
+        obj.is_a?(Model::HasRemarkItems)
       end
 
       def collect_nodes_with_positions(node, result, visited = Set.new)
@@ -1076,13 +1018,23 @@ module Expressir
         # Find the node that CONTAINS this remark line
         # This handles preamble remarks and embedded remarks
         # Exclude Repository and Cache as they are not semantic scopes
+        # But include ExpFile for file-level preamble remarks
         containing = nodes.select do |n|
           n[:line] && n[:end_line] && n[:line] <= remark_line && n[:end_line] >= remark_line &&
             !repository?(n[:node]) && !cache?(n[:node])
         end
 
         if containing.any?
-          # Return the most specific (smallest) containing node
+          # Prefer ExpFile for preamble remarks (before first schema)
+          # Otherwise return the most specific (smallest) containing node
+          exp_file_node = containing.find { |n| exp_file?(n[:node]) }
+          # If this is a preamble remark (before first schema line), use ExpFile
+          if exp_file_node
+            first_schema_line = exp_file_node[:node].schemas&.first&.source_offset
+            if first_schema_line && remark_line < get_line_number(first_schema_line)
+              return exp_file_node[:node]
+            end
+          end
           # Sort by span size and return the smallest
           containing.min_by { |n| n[:end_line] - n[:line] }[:node]
         else
@@ -1101,20 +1053,20 @@ module Expressir
         obj.is_a?(Model::Repository)
       end
 
+      def exp_file?(obj)
+        obj.is_a?(Model::ExpFile)
+      end
+
       def cache?(obj)
         obj.is_a?(Model::Cache)
       end
 
       def supports_informal_propositions?(obj)
-        INFORMAL_PROPOSITION_TYPES.any? { |t| obj.is_a?(t) }
-      end
-
-      def supports_remark_items?(obj)
-        REMARK_ITEM_TYPES.any? { |t| obj.is_a?(t) }
+        obj.is_a?(Model::HasInformalPropositions)
       end
 
       def supports_where_rules?(obj)
-        WHERE_RULE_TYPES.any? { |t| obj.is_a?(t) }
+        obj.is_a?(Model::HasWhereRules)
       end
 
       # Safe accessor methods that return nil instead of NoMethodError

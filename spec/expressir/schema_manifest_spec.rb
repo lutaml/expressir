@@ -33,7 +33,7 @@ RSpec.describe Expressir::SchemaManifest do
       it "raises an error for non-existent file" do
         expect do
           described_class.from_file("non_existent.yml")
-        end.to raise_error(Expressir::InvalidSchemaManifestError)
+        end.to raise_error(Expressir::ManifestValidationError)
       end
     end
   end

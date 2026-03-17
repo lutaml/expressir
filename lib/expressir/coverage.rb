@@ -304,16 +304,23 @@ module Expressir
     end
 
     # Find all entities in a schema or repository
-    # @param schema_or_repo [Expressir::Model::Declarations::Schema, Expressir::Model::Repository] The schema or repository to analyze
+    # @param schema_or_repo [Expressir::Model::Declarations::Schema, Expressir::Model::Repository, Expressir::Model::ExpFile] The schema, repository, or file to analyze
     # @param skip_types [Array<String>] Array of entity type names to skip from coverage
     # @return [Array<Expressir::Model::ModelElement>] Array of entities
     def self.find_entities(schema_or_repo, skip_types = [])
       entities = []
 
-      # Handle both repository and schema inputs
+      # Handle repository, exp_file, and schema inputs
       if schema_or_repo.is_a?(Expressir::Model::Repository)
-        # If it's a repository, process all schemas
-        schema_or_repo.schemas.each do |schema|
+        # If it's a repository, process all files
+        schema_or_repo.files&.each do |file|
+          file.schemas&.each do |schema|
+            entities.concat(find_entities_in_schema(schema))
+          end
+        end
+      elsif schema_or_repo.is_a?(Expressir::Model::ExpFile)
+        # If it's an ExpFile, process all schemas in the file
+        schema_or_repo.schemas&.each do |schema|
           entities.concat(find_entities_in_schema(schema))
         end
       else

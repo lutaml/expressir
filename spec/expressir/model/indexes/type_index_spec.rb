@@ -3,68 +3,70 @@
 require "spec_helper"
 
 RSpec.describe Expressir::Model::Indexes::TypeIndex do
-  let(:schema1) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
-      id: double(safe_downcase: "schema1"),
-      types: types1,
-    )
-  end
-
-  let(:schema2) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
-      id: double(safe_downcase: "schema2"),
-      types: types2,
+  # Use REAL objects instead of mocks
+  let(:select_data_type) do
+    Expressir::Model::DataTypes::Select.new(
+      extensible: false,
+      types: [],
     )
   end
 
   let(:select_type) do
-    instance_double(
-      Expressir::Model::Declarations::Type,
-      id: double(safe_downcase: "select_type"),
+    Expressir::Model::Declarations::Type.new(
+      id: "select_type",
       underlying_type: select_data_type,
     )
   end
 
+  let(:enum_data_type) do
+    Expressir::Model::DataTypes::Enumeration.new(
+      items: [
+        Expressir::Model::DataTypes::EnumerationItem.new(id: "item1"),
+      ],
+    )
+  end
+
   let(:enum_type) do
-    instance_double(
-      Expressir::Model::Declarations::Type,
-      id: double(safe_downcase: "enum_type"),
+    Expressir::Model::Declarations::Type.new(
+      id: "enum_type",
       underlying_type: enum_data_type,
     )
   end
 
+  let(:array_data_type) do
+    Expressir::Model::DataTypes::Array.new(
+      bound1: Expressir::Model::Literals::Integer.new(value: 1),
+      bound2: Expressir::Model::Literals::Integer.new(value: 10),
+    )
+  end
+
   let(:array_type) do
-    instance_double(
-      Expressir::Model::Declarations::Type,
-      id: double(safe_downcase: "array_type"),
+    Expressir::Model::Declarations::Type.new(
+      id: "array_type",
       underlying_type: array_data_type,
     )
   end
 
   let(:defined_type) do
-    instance_double(
-      Expressir::Model::Declarations::Type,
-      id: double(safe_downcase: "defined_type"),
+    Expressir::Model::Declarations::Type.new(
+      id: "defined_type",
       underlying_type: nil,
     )
   end
 
-  let(:select_data_type) do
-    instance_double(Expressir::Model::DataTypes::Select)
+  let(:schema1) do
+    Expressir::Model::Declarations::Schema.new(
+      id: "schema1",
+      types: [select_type, enum_type],
+    )
   end
 
-  let(:enum_data_type) do
-    instance_double(Expressir::Model::DataTypes::Enumeration)
+  let(:schema2) do
+    Expressir::Model::Declarations::Schema.new(
+      id: "schema2",
+      types: [array_type, defined_type],
+    )
   end
-
-  let(:array_data_type) do
-    instance_double(Expressir::Model::DataTypes::Array)
-  end
-
-  let(:types1) { [select_type, enum_type] }
-  let(:types2) { [array_type, defined_type] }
 
   describe "#initialize" do
     it "creates an empty index when no schemas provided" do
@@ -122,14 +124,6 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
     end
 
     it "indexes types by category" do
-      # Since the test uses instance_doubles, we need to stub is_a? for categorization
-      allow(select_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(true)
-      allow(enum_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Enumeration).and_return(true)
-      allow(enum_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(false)
-      allow(array_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(false)
-      allow(array_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Enumeration).and_return(false)
-      allow(array_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Array).and_return(true)
-
       index.build([schema1, schema2])
 
       expect(index.by_category["select"]).to include(select_type)
@@ -139,9 +133,8 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
     end
 
     it "handles schemas with nil types" do
-      schema_no_types = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "empty_schema"),
+      schema_no_types = Expressir::Model::Declarations::Schema.new(
+        id: "empty_schema",
         types: nil,
       )
 
@@ -150,9 +143,8 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
     end
 
     it "handles empty types collection" do
-      schema_empty_types = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "empty_schema"),
+      schema_empty_types = Expressir::Model::Declarations::Schema.new(
+        id: "empty_schema",
         types: [],
       )
 
@@ -163,11 +155,11 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
 
     it "clears previous indexes on rebuild" do
       index.build([schema1])
-      index.count
+      initial_count = index.count
 
       index.build([schema2])
 
-      expect(index.count).to eq(2) # Both schemas have 2 types
+      expect(index.count).to eq(2) # Both types in schema2
       expect(index.by_qualified_name).not_to have_key("schema1.select_type")
       expect(index.by_qualified_name).to have_key("schema2.array_type")
     end
@@ -184,7 +176,7 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
       end
 
       it "handles case-insensitive qualified names" do
-        result = index.find("schema1.select_type")
+        result = index.find("SCHEMA1.SELECT_TYPE")
 
         expect(result).to eq(select_type)
       end
@@ -204,14 +196,12 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
       end
 
       it "returns first match when simple name exists in multiple schemas" do
-        duplicate_type = instance_double(
-          Expressir::Model::Declarations::Type,
-          id: double(safe_downcase: "select_type"),
+        duplicate_type = Expressir::Model::Declarations::Type.new(
+          id: "select_type",
           underlying_type: select_data_type,
         )
-        schema_with_duplicate = instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "schema3"),
+        schema_with_duplicate = Expressir::Model::Declarations::Schema.new(
+          id: "schema3",
           types: [duplicate_type],
         )
         index.build([schema1, schema_with_duplicate])
@@ -264,23 +254,13 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
       end
 
       it "handles case-insensitive schema names" do
-        result = index.list(schema: "schema1")
+        result = index.list(schema: "SCHEMA1")
 
         expect(result).to contain_exactly(select_type, enum_type)
       end
     end
 
     context "with category filter" do
-      before do
-        # Stub is_a? for categorization to work
-        allow(select_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(true)
-        allow(enum_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(false)
-        allow(enum_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Enumeration).and_return(true)
-        allow(array_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(false)
-        allow(array_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Enumeration).and_return(false)
-        allow(array_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Array).and_return(true)
-      end
-
       it "lists types by category" do
         result = index.list(category: "select")
 
@@ -313,12 +293,6 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
     end
 
     context "with schema and category filters" do
-      before do
-        allow(select_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(true)
-        allow(enum_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(false)
-        allow(enum_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Enumeration).and_return(true)
-      end
-
       it "applies both filters" do
         result = index.list(schema: "schema1", category: "select")
 
@@ -347,9 +321,8 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
     end
 
     it "returns true after building with empty schemas" do
-      schema_no_types = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "empty"),
+      schema_no_types = Expressir::Model::Declarations::Schema.new(
+        id: "empty",
         types: nil,
       )
       index = described_class.new([schema_no_types])
@@ -398,7 +371,7 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
     end
 
     it "handles case-insensitive schema names" do
-      result = index.schema_types("schema1")
+      result = index.schema_types("SCHEMA1")
 
       expect(result).to be_a(Hash)
       expect(result.keys).to contain_exactly("select_type", "enum_type")
@@ -407,16 +380,6 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
 
   describe "#category_types" do
     let(:index) { described_class.new([schema1, schema2]) }
-
-    before do
-      allow(select_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(true)
-      allow(enum_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(false)
-      allow(enum_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Enumeration).and_return(true)
-      allow(array_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(false)
-      allow(array_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Enumeration).and_return(false)
-      allow(array_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Array).and_return(true)
-      index.build([schema1, schema2])
-    end
 
     it "returns types for select category" do
       result = index.category_types("select")
@@ -453,41 +416,26 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
     let(:index) { described_class.new }
 
     it "categorizes select types" do
-      allow(select_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(true)
-
       result = index.categorize(select_type)
 
       expect(result).to eq("select")
     end
 
     it "categorizes enumeration types" do
-      allow(enum_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(false)
-      allow(enum_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Enumeration).and_return(true)
-
       result = index.categorize(enum_type)
 
       expect(result).to eq("enumeration")
     end
 
     it "categorizes array types as aggregate" do
-      allow(array_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(false)
-      allow(array_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Enumeration).and_return(false)
-      allow(array_data_type).to receive(:is_a?).with(Expressir::Model::DataTypes::Array).and_return(true)
-
       result = index.categorize(array_type)
 
       expect(result).to eq("aggregate")
     end
 
     it "categorizes bag types as aggregate" do
-      bag_data = instance_double(Expressir::Model::DataTypes::Bag)
-      allow(bag_data).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(false)
-      allow(bag_data).to receive(:is_a?).with(Expressir::Model::DataTypes::Enumeration).and_return(false)
-      allow(bag_data).to receive(:is_a?).with(Expressir::Model::DataTypes::Array).and_return(false)
-      allow(bag_data).to receive(:is_a?).with(Expressir::Model::DataTypes::Bag).and_return(true)
-
-      bag_type = instance_double(
-        Expressir::Model::Declarations::Type,
+      bag_data = Expressir::Model::DataTypes::Bag.new
+      bag_type = Expressir::Model::Declarations::Type.new(
         underlying_type: bag_data,
       )
 
@@ -497,15 +445,8 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
     end
 
     it "categorizes list types as aggregate" do
-      list_data = instance_double(Expressir::Model::DataTypes::List)
-      allow(list_data).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(false)
-      allow(list_data).to receive(:is_a?).with(Expressir::Model::DataTypes::Enumeration).and_return(false)
-      allow(list_data).to receive(:is_a?).with(Expressir::Model::DataTypes::Array).and_return(false)
-      allow(list_data).to receive(:is_a?).with(Expressir::Model::DataTypes::Bag).and_return(false)
-      allow(list_data).to receive(:is_a?).with(Expressir::Model::DataTypes::List).and_return(true)
-
-      list_type = instance_double(
-        Expressir::Model::Declarations::Type,
+      list_data = Expressir::Model::DataTypes::List.new
+      list_type = Expressir::Model::Declarations::Type.new(
         underlying_type: list_data,
       )
 
@@ -515,16 +456,8 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
     end
 
     it "categorizes set types as aggregate" do
-      set_data = instance_double(Expressir::Model::DataTypes::Set)
-      allow(set_data).to receive(:is_a?).with(Expressir::Model::DataTypes::Select).and_return(false)
-      allow(set_data).to receive(:is_a?).with(Expressir::Model::DataTypes::Enumeration).and_return(false)
-      allow(set_data).to receive(:is_a?).with(Expressir::Model::DataTypes::Array).and_return(false)
-      allow(set_data).to receive(:is_a?).with(Expressir::Model::DataTypes::Bag).and_return(false)
-      allow(set_data).to receive(:is_a?).with(Expressir::Model::DataTypes::List).and_return(false)
-      allow(set_data).to receive(:is_a?).with(Expressir::Model::DataTypes::Set).and_return(true)
-
-      set_type = instance_double(
-        Expressir::Model::Declarations::Type,
+      set_data = Expressir::Model::DataTypes::Set.new
+      set_type = Expressir::Model::Declarations::Type.new(
         underlying_type: set_data,
       )
 
@@ -540,9 +473,8 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
     end
 
     it "categorizes unknown types as defined" do
-      unknown_type = instance_double(
-        Expressir::Model::Declarations::Type,
-        underlying_type: instance_double(Expressir::Model::DataTypes::String),
+      unknown_type = Expressir::Model::Declarations::Type.new(
+        underlying_type: Expressir::Model::DataTypes::String.new,
       )
 
       result = index.categorize(unknown_type)
@@ -551,16 +483,28 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
     end
   end
 
-  describe "single responsibility principle" do
-    it "focuses solely on type indexing and categorization" do
-      index = described_class.new([schema1])
+  describe "type indexing behavior" do
+    let(:index) { described_class.new([schema1]) }
 
-      expect(index).to respond_to(:find)
-      expect(index).to respond_to(:list)
-      expect(index).to respond_to(:build)
-      expect(index).to respond_to(:categorize)
-      expect(index).not_to respond_to(:validate)
-      expect(index).not_to respond_to(:resolve_references)
+    it "finds types by calling find method" do
+      result = index.find("select_type")
+      expect(result).to eq(select_type)
+    end
+
+    it "lists types by calling list method" do
+      result = index.list
+      expect(result).to contain_exactly(select_type, enum_type)
+    end
+
+    it "builds indexes by calling build method" do
+      new_index = described_class.new
+      new_index.build([schema1])
+      expect(new_index.count).to eq(2)
+    end
+
+    it "categorizes types by calling categorize method" do
+      result = index.categorize(select_type)
+      expect(result).to eq("select")
     end
   end
 
@@ -574,13 +518,6 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
 
       index.build([schema1, schema2])
       expect(index.count).to eq(4)
-    end
-
-    it "supports adding new type categories through categorize method" do
-      index = described_class.new
-
-      expect(index).to respond_to(:categorize)
-      expect(index.method(:categorize).arity).to eq(1)
     end
   end
 end

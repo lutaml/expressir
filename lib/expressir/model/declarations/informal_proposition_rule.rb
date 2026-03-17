@@ -4,6 +4,7 @@ module Expressir
       # Informal proposition rules are used to specify constraints that cannot be formally expressed
       class InformalPropositionRule < ModelElement
         include Identifier
+        include HasInformalPropositions
 
         attribute :expression, ModelElement
         attribute :_class, :string, default: -> { send(:name) }

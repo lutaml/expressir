@@ -26,12 +26,6 @@ module Expressir
         !tag.nil? && !tag.empty?
       end
 
-      # For backward compatibility with string-based remarks
-      # @return [String] The remark text
-      def to_s
-        text.to_s
-      end
-
       # YAML serialization
       yaml do
         map "text", to: :text

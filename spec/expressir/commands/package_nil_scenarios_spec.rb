@@ -397,20 +397,24 @@ RSpec.describe Expressir::Commands::Package,
     describe "helper methods with nil inputs" do
       describe "#build_counts_text" do
         it "handles schema with nil collections" do
-          schema = double("Schema",
-                          entities: nil,
-                          types: nil,
-                          functions: nil)
+          schema = Expressir::Model::Declarations::Schema.new(
+            id: "test_schema",
+            entities: nil,
+            types: nil,
+            functions: nil,
+          )
 
           result = command.send(:build_counts_text, schema)
           expect(result).to eq("")
         end
 
         it "handles schema with empty collections" do
-          schema = double("Schema",
-                          entities: [],
-                          types: [],
-                          functions: [])
+          schema = Expressir::Model::Declarations::Schema.new(
+            id: "test_schema",
+            entities: [],
+            types: [],
+            functions: [],
+          )
 
           result = command.send(:build_counts_text, schema)
           expect(result).to eq("")
@@ -419,7 +423,10 @@ RSpec.describe Expressir::Commands::Package,
 
       describe "#extract_type_info" do
         it "handles element with nil type" do
-          element = double("Element", type: nil)
+          element = Expressir::Model::Declarations::Attribute.new(
+            id: "test_attr",
+            type: nil,
+          )
 
           result = command.send(:extract_type_info, element)
           expect(result).to eq("ANY")
@@ -428,12 +435,14 @@ RSpec.describe Expressir::Commands::Package,
 
       describe "#collect_schema_children" do
         it "handles schema with nil collections" do
-          schema = double("Schema",
-                          entities: nil,
-                          types: nil,
-                          functions: nil,
-                          procedures: nil,
-                          rules: nil)
+          schema = Expressir::Model::Declarations::Schema.new(
+            id: "test_schema",
+            entities: nil,
+            types: nil,
+            functions: nil,
+            procedures: nil,
+            rules: nil,
+          )
 
           allow(command).to receive(:should_include_type?).and_return(true)
 
@@ -444,10 +453,12 @@ RSpec.describe Expressir::Commands::Package,
 
       describe "#display_entity_children" do
         it "handles entity with nil attributes" do
-          entity = double("Entity",
-                          attributes: nil,
-                          derived_attributes: nil,
-                          inverse_attributes: nil)
+          entity = Expressir::Model::Declarations::Entity.new(
+            id: "test_entity",
+            attributes: nil,
+            derived_attributes: nil,
+            inverse_attributes: nil,
+          )
 
           allow(command).to receive(:should_include_type?).and_return(true)
 
@@ -482,16 +493,19 @@ RSpec.describe Expressir::Commands::Package,
     end
 
     it "handles search with nil element paths" do
-      # Create element with nil path
-      element = double("Element",
-                       path: nil,
-                       id: "test_element",
-                       respond_to?: true)
+      # Create an Alias statement which naturally returns nil for path
+      element = Expressir::Model::Statements::Alias.new(
+        id: "test_alias",
+        expression: nil,
+        statements: [],
+      )
+
+      expect(element.path).to be_nil
 
       pattern_parts = { normalized: "test", parts: ["test"] }
 
       result = search_engine.send(:matches_pattern?,
-                                  element, pattern_parts, "entity",
+                                  element, pattern_parts, "alias",
                                   case_sensitive: false, regex: false, exact: false)
 
       expect(result).to be false
@@ -636,22 +650,22 @@ RSpec.describe Expressir::Commands::Package,
       it "handles validation errors gracefully" do
         skip "Dependency resolver not yet implemented" unless defined?(Expressir::Model::DependencyResolver)
 
-        # Mock a repository that fails validation
-        mock_repo = double("Repository")
-        allow(mock_repo).to receive(:validate).and_return({
-                                                            valid?: false,
-                                                            errors: ["Test validation error"],
-                                                          })
+        # Create a temp EXPRESS file to parse
+        temp_exp_file = File.join(temp_dir, "test.exp")
+        File.write(temp_exp_file, "SCHEMA test_schema; END_SCHEMA;")
 
-        allow(Expressir::Model::DependencyResolver).to receive(:new).and_return(
-          double("Resolver", resolve_dependencies: ["test.exp"]),
-        )
-        allow(Expressir::Model::Repository).to receive(:from_files).and_return(mock_repo)
+        # Create a repository that will fail validation
+        repo = Expressir::Model::Repository.new(schemas: [])
+        allow(Expressir::Model::Repository).to receive(:from_files).and_return(repo)
+        allow(repo).to receive(:validate).and_return({
+                                                       valid?: false,
+                                                       errors: ["Test validation error"],
+                                                     })
 
         command = described_class.new("validate" => true)
 
         expect do
-          command.build("test.exp", test_output)
+          command.build(temp_exp_file, test_output)
         end.to raise_error(Expressir::SchemaValidationError)
       end
     end

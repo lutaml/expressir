@@ -118,20 +118,50 @@ module Expressir
       # @param format [String] Serialization format
       # @return [void]
       def add_serialized_repository(zip, repository, format)
+        # Normalize repository - ensure all schemas are in files for serialization
+        normalized_repo = normalize_repository(repository)
+
         case format
         when "marshal"
           zip.get_output_stream("repository.marshal") do |stream|
-            stream.write(Marshal.dump(repository))
+            stream.write(Marshal.dump(normalized_repo))
           end
         when "json"
           zip.get_output_stream("repository.json") do |stream|
-            stream.write(repository.to_json)
+            stream.write(normalized_repo.to_json)
           end
         when "yaml"
           zip.get_output_stream("repository.yaml") do |stream|
-            stream.write(repository.to_yaml)
+            stream.write(normalized_repo.to_yaml)
           end
         end
+      end
+
+      # Normalize repository for serialization
+      # Ensures all schemas are in files (not in @_schemas)
+      # @param repository [Model::Repository] Repository to normalize
+      # @return [Model::Repository] Normalized repository
+      def normalize_repository(repository)
+        # Create a new repository with proper file structure
+        normalized = Model::Repository.new(base_dir: repository.base_dir)
+
+        # Copy existing files
+        repository.files&.each do |file|
+          normalized.files << file
+        end
+
+        # Get schemas that are not already in files
+        file_schema_ids = normalized.files.flat_map(&:schemas).compact.map(&:id)
+        direct_schemas = repository.schemas.reject { |s| file_schema_ids.include?(s.id) }
+
+        # Create an ExpFile for direct schemas
+        if direct_schemas.any?
+          exp_file = Model::ExpFile.new(path: "direct_schemas.exp")
+          exp_file.schemas = direct_schemas
+          normalized.files << exp_file
+        end
+
+        normalized
       end
 
       # Add EXPRESS files to package

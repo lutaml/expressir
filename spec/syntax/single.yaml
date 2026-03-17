@@ -1,5 +1,6 @@
 ---
-_class: Expressir::Model::Repository
+_class: Expressir::Model::ExpFile
+path: spec/syntax/single.exp
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: single_schema
@@ -15,4 +16,4 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: single_schema.empty_entity
+      base_path: spec/syntax/single.exp.single_schema.empty_entity

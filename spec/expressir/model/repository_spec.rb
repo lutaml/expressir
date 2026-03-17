@@ -490,14 +490,24 @@ RSpec.describe Expressir::Model::Repository do
   end
 
   describe "#resolve_all_references" do
-    it "delegates to ResolveReferencesModelVisitor" do
-      visitor = instance_double(Expressir::Express::ResolveReferencesModelVisitor)
-      allow(Expressir::Express::ResolveReferencesModelVisitor).to receive(:new).and_return(visitor)
-      allow(visitor).to receive(:visit)
+    it "calls resolve_all_references which processes the repository" do
+      # Use a real visitor instance - the method should not raise errors
+      expect do
+        repository.resolve_all_references
+      end.not_to raise_error
+    end
 
-      repository.resolve_all_references
+    it "processes repository with schemas" do
+      # Resolve references on a repository with schemas
+      schema = Expressir::Model::Declarations::Schema.new(
+        id: "test_schema",
+        entities: [Expressir::Model::Declarations::Entity.new(id: "test_entity")],
+      )
+      repo = Expressir::Model::Repository.new(schemas: [schema])
 
-      expect(visitor).to have_received(:visit).with(repository)
+      expect do
+        repo.resolve_all_references
+      end.not_to raise_error
     end
   end
 

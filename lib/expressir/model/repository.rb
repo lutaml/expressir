@@ -4,10 +4,18 @@ module Expressir
   module Model
     # Multi-schema global scope with enhanced repository features
     # Focuses on schema management and delegates indexing/validation to specialized classes
+    #
+    # A Repository contains multiple ExpFile instances (one per parsed .exp file).
+    #
+    # Structure:
+    #   Repository
+    #   └── files: [ExpFile, ...]
+    #       └── ExpFile (path: "a.exp")
+    #           ├── untagged_remarks: [...]  # file-level preamble
+    #           └── schemas: [SchemaA]
     class Repository < ModelElement
-      attribute :schemas, Expressir::Model::Declarations::Schema,
-                collection: true,
-                initialize_empty: true
+      # Internal storage for schemas (used for direct manipulation)
+      attribute :files, ExpFile, collection: true, initialize_empty: true
       attribute :_class, :string, default: -> { send(:name) }
 
       # Base directory for schema files
@@ -16,20 +24,49 @@ module Expressir
       # Index instances (lazy-loaded)
       attr_reader :entity_index, :type_index, :reference_index
 
+      # Internal schema storage for direct manipulation
+      attr_reader :_schemas
+
       key_value do
         map "_class", to: :_class, render_default: true
-        map "schemas", to: :schemas
+        map "files", to: :files
       end
 
-      def initialize(*args, base_dir: nil, **kwargs)
+      def initialize(*args, base_dir: nil, schemas: nil, **kwargs)
         super(*args, **kwargs)
         @base_dir = base_dir
         @entity_index = nil
         @type_index = nil
         @reference_index = nil
+        @_schemas = []
+
+        # Support direct schemas initialization
+        if schemas
+          schemas.each { |schema| @_schemas << schema }
+        end
       end
 
-      # @return [Array<Declaration>]
+      # Get all schemas (from both files and direct storage)
+      # @return [Array<Declarations::Schema>]
+      def schemas
+        file_schemas = files&.flat_map(&:schemas)&.compact || []
+        file_schemas + @_schemas
+      end
+
+      # Alias for schemas
+      # @return [Array<Declarations::Schema>]
+      def all_schemas
+        schemas
+      end
+
+      # Add a schema to the repository
+      # @param schema [Declarations::Schema] Schema to add
+      def add_schema(schema)
+        return unless schema
+        @_schemas << schema
+      end
+
+      # @return [Array<Declarations::Schema>]
       def children
         schemas
       end
@@ -37,9 +74,10 @@ module Expressir
       # Build indexes for entities, types, and references
       # @return [void]
       def build_indexes
-        @entity_index = Indexes::EntityIndex.new(schemas)
-        @type_index = Indexes::TypeIndex.new(schemas)
-        @reference_index = Indexes::ReferenceIndex.new(schemas)
+        target_schemas = all_schemas
+        @entity_index = Indexes::EntityIndex.new(target_schemas)
+        @type_index = Indexes::TypeIndex.new(target_schemas)
+        @reference_index = Indexes::ReferenceIndex.new(target_schemas)
       end
 
       # Find entity by qualified name
@@ -101,7 +139,7 @@ module Expressir
       # @return [Hash] Validation results with :valid?, :errors, :warnings
       def validate(strict: false)
         ensure_indexes_built
-        validator = RepositoryValidator.new(schemas, @reference_index)
+        validator = RepositoryValidator.new(all_schemas, @reference_index)
         validator.validate(strict: strict)
       end
 
@@ -112,7 +150,7 @@ module Expressir
         ensure_indexes_built
 
         stats = {
-          total_schemas: schemas.size,
+          total_schemas: all_schemas.size,
           total_entities: count_entities,
           total_types: count_types,
           total_functions: count_functions,
@@ -138,15 +176,16 @@ module Expressir
       # Group schemas by category based on their contents
       # @return [Hash] Hash with category keys and schema arrays
       def schemas_by_category
+        target_schemas = all_schemas
         {
-          with_entities: schemas.select { |s| s.entities&.any? },
-          with_types: schemas.select { |s| s.types&.any? },
-          with_functions: schemas.select { |s| s.functions&.any? },
-          with_rules: schemas.select { |s| s.rules&.any? },
-          interface_only: schemas.select do |s|
+          with_entities: target_schemas.select { |s| s.entities&.any? },
+          with_types: target_schemas.select { |s| s.types&.any? },
+          with_functions: target_schemas.select { |s| s.functions&.any? },
+          with_rules: target_schemas.select { |s| s.rules&.any? },
+          interface_only: target_schemas.select do |s|
             s.interfaces&.any? && !s.entities&.any? && !s.types&.any?
           end,
-          empty: schemas.select do |s|
+          empty: target_schemas.select do |s|
             !s.entities&.any? && !s.types&.any? && !s.functions&.any?
           end,
         }
@@ -156,7 +195,7 @@ module Expressir
       # @param limit [Integer] Maximum number of schemas to return
       # @return [Array<Hash>] Array of hashes with :schema and :total_elements
       def largest_schemas(limit = 10)
-        schemas.map do |s|
+        all_schemas.map do |s|
           {
             schema: s,
             total_elements: count_schema_elements(s),
@@ -183,7 +222,7 @@ module Expressir
       # @param limit [Integer] Maximum number of schemas to return
       # @return [Array<Hash>] Array of hashes with :schema and :complexity
       def schemas_by_complexity(limit = 10)
-        schemas.map { |s| { schema: s, complexity: schema_complexity(s) } }
+        all_schemas.map { |s| { schema: s, complexity: schema_complexity(s) } }
           .sort_by { |item| -item[:complexity] }
           .take(limit)
       end
@@ -202,7 +241,7 @@ module Expressir
         reference_counts = Hash.new(0)
         dependency_counts = Hash.new(0)
 
-        schemas.each do |schema|
+        all_schemas.each do |schema|
           next unless schema.interfaces&.any?
 
           stats[:total_interfaces] += schema.interfaces.size
@@ -229,7 +268,7 @@ module Expressir
       # @return [SchemaManifest] Manifest describing all schemas
       def to_manifest
         manifest = Expressir::SchemaManifest.new
-        schemas.each do |schema|
+        all_schemas.each do |schema|
           manifest.schemas << Expressir::SchemaManifestEntry.new(
             id: schema.id,
             path: schema.file || "#{schema.id}.exp",
@@ -247,7 +286,9 @@ module Expressir
 
         file_paths.each do |path|
           parsed = Expressir::Express::Parser.from_file(path)
-          parsed&.schemas&.each { |schema| repo.schemas << schema }
+          next unless parsed
+
+          repo.files << parsed if parsed.is_a?(ExpFile)
         end
 
         repo.resolve_all_references
@@ -320,7 +361,7 @@ module Expressir
       # @return [Hash<String, Integer>] Entity counts per schema
       def entities_by_schema_counts
         counts = {}
-        schemas.each do |schema|
+        all_schemas.each do |schema|
           counts[schema.id] = schema.entities&.size || 0
         end
         counts
@@ -336,7 +377,7 @@ module Expressir
           defined: 0,
         }
 
-        schemas.each do |schema|
+        all_schemas.each do |schema|
           next unless schema.types
 
           schema.types.each do |type|
@@ -357,7 +398,7 @@ module Expressir
           reference_from: 0,
         }
 
-        schemas.each do |schema|
+        all_schemas.each do |schema|
           next unless schema.interfaces
 
           schema.interfaces.each do |interface|
@@ -378,7 +419,7 @@ module Expressir
       def count_entities
         return @entity_index.count if @entity_index && !@entity_index.empty?
 
-        schemas.sum { |schema| schema.entities&.size || 0 }
+        all_schemas.sum { |schema| schema.entities&.size || 0 }
       end
 
       # Count total types across all schemas
@@ -387,25 +428,25 @@ module Expressir
       def count_types
         return @type_index.count if @type_index && !@type_index.empty?
 
-        schemas.sum { |schema| schema.types&.size || 0 }
+        all_schemas.sum { |schema| schema.types&.size || 0 }
       end
 
       # Count total functions across all schemas
       # @return [Integer] Total function count
       def count_functions
-        schemas.sum { |schema| schema.functions&.size || 0 }
+        all_schemas.sum { |schema| schema.functions&.size || 0 }
       end
 
       # Count total rules across all schemas
       # @return [Integer] Total rule count
       def count_rules
-        schemas.sum { |schema| schema.rules&.size || 0 }
+        all_schemas.sum { |schema| schema.rules&.size || 0 }
       end
 
       # Count total procedures across all schemas
       # @return [Integer] Total procedure count
       def count_procedures
-        schemas.sum { |schema| schema.procedures&.size || 0 }
+        all_schemas.sum { |schema| schema.procedures&.size || 0 }
       end
     end
   end

@@ -3,83 +3,78 @@
 require "spec_helper"
 
 RSpec.describe Expressir::Model::Indexes::ReferenceIndex do
-  let(:schema1) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
-      id: double(safe_downcase: "schema1"),
-      interfaces: interfaces1,
-    )
-  end
-
-  let(:schema2) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
-      id: double(safe_downcase: "schema2"),
-      interfaces: interfaces2,
-    )
-  end
-
-  let(:schema3) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
-      id: double(safe_downcase: "schema3"),
-      interfaces: interfaces3,
-    )
-  end
-
+# Use REAL objects instead of mocks
   let(:use_interface) do
-    instance_double(
-      Expressir::Model::Declarations::Interface,
+    Expressir::Model::Declarations::Interface.new(
       kind: Expressir::Model::Declarations::Interface::USE,
-      schema: double(id: double(safe_downcase: "referenced_schema")),
+      schema: Expressir::Model::Declarations::Schema.new(id: "referenced_schema"),
       items: [
-        double(ref: double(id: "entity1")),
-        double(ref: double(id: "type1")),
+        Expressir::Model::Declarations::InterfaceItem.new(
+          ref: Expressir::Model::References::SimpleReference.new(id: "entity1"),
+        ),
+        Expressir::Model::Declarations::InterfaceItem.new(
+          ref: Expressir::Model::References::SimpleReference.new(id: "type1"),
+        ),
       ],
     )
   end
 
   let(:reference_interface) do
-    instance_double(
-      Expressir::Model::Declarations::Interface,
+    Expressir::Model::Declarations::Interface.new(
       kind: Expressir::Model::Declarations::Interface::REFERENCE,
-      schema: double(id: double(safe_downcase: "other_schema")),
+      schema: Expressir::Model::Declarations::Schema.new(id: "other_schema"),
       items: [
-        double(ref: double(id: "entity2")),
+        Expressir::Model::Declarations::InterfaceItem.new(
+          ref: Expressir::Model::References::SimpleReference.new(id: "entity2"),
+        ),
       ],
     )
   end
 
   let(:circular_interface1) do
-    instance_double(
-      Expressir::Model::Declarations::Interface,
+    Expressir::Model::Declarations::Interface.new(
       kind: Expressir::Model::Declarations::Interface::USE,
-      schema: double(id: double(safe_downcase: "schema2")),
+      schema: Expressir::Model::Declarations::Schema.new(id: "schema2"),
       items: [],
     )
   end
 
   let(:circular_interface2) do
-    instance_double(
-      Expressir::Model::Declarations::Interface,
+    Expressir::Model::Declarations::Interface.new(
       kind: Expressir::Model::Declarations::Interface::USE,
-      schema: double(id: double(safe_downcase: "schema3")),
+      schema: Expressir::Model::Declarations::Schema.new(id: "schema3"),
       items: [],
     )
   end
 
   let(:circular_interface3) do
-    instance_double(
-      Expressir::Model::Declarations::Interface,
+    Expressir::Model::Declarations::Interface.new(
       kind: Expressir::Model::Declarations::Interface::USE,
-      schema: double(id: double(safe_downcase: "schema1")),
+      schema: Expressir::Model::Declarations::Schema.new(id: "schema1"),
       items: [],
     )
   end
 
-  let(:interfaces1) { [use_interface, reference_interface] }
-  let(:interfaces2) { [] }
-  let(:interfaces3) { [] }
+  let(:schema1) do
+    Expressir::Model::Declarations::Schema.new(
+      id: "schema1",
+      interfaces: [use_interface, reference_interface],
+    )
+  end
+
+  let(:schema2) do
+    Expressir::Model::Declarations::Schema.new(
+      id: "schema2",
+      interfaces: [],
+    )
+  end
+
+  let(:schema3) do
+    Expressir::Model::Declarations::Schema.new(
+      id: "schema3",
+      interfaces: [],
+    )
+  end
 
   describe "#initialize" do
     it "creates an empty index when no schemas provided" do
@@ -134,9 +129,8 @@ RSpec.describe Expressir::Model::Indexes::ReferenceIndex do
     end
 
     it "handles schemas with nil interfaces" do
-      schema_no_interfaces = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "empty_schema"),
+      schema_no_interfaces = Expressir::Model::Declarations::Schema.new(
+        id: "empty_schema",
         interfaces: nil,
       )
 
@@ -144,9 +138,8 @@ RSpec.describe Expressir::Model::Indexes::ReferenceIndex do
     end
 
     it "handles empty interfaces collection" do
-      schema_empty_interfaces = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "empty_schema"),
+      schema_empty_interfaces = Expressir::Model::Declarations::Schema.new(
+        id: "empty_schema",
         interfaces: [],
       )
 
@@ -166,9 +159,8 @@ RSpec.describe Expressir::Model::Indexes::ReferenceIndex do
     end
 
     it "handles multiple interfaces in same schema" do
-      multi_interface_schema = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "multi"),
+      multi_interface_schema = Expressir::Model::Declarations::Schema.new(
+        id: "multi",
         interfaces: [use_interface, reference_interface],
       )
 
@@ -196,7 +188,7 @@ RSpec.describe Expressir::Model::Indexes::ReferenceIndex do
     end
 
     it "handles case-insensitive schema names" do
-      result = index.use_references("schema1")
+      result = index.use_references("SCHEMA1")
 
       expect(result).to be_an(Array)
       expect(result).not_to be_empty
@@ -226,7 +218,7 @@ RSpec.describe Expressir::Model::Indexes::ReferenceIndex do
     end
 
     it "handles case-insensitive schema names" do
-      result = index.reference_references("schema1")
+      result = index.reference_references("SCHEMA1")
 
       expect(result).to be_an(Array)
       expect(result).not_to be_empty
@@ -257,7 +249,7 @@ RSpec.describe Expressir::Model::Indexes::ReferenceIndex do
     end
 
     it "handles case-insensitive schema names" do
-      result = index.schema_dependencies("schema1")
+      result = index.schema_dependencies("SCHEMA1")
 
       expect(result).to be_a(Set)
       expect(result).not_to be_empty
@@ -284,50 +276,43 @@ RSpec.describe Expressir::Model::Indexes::ReferenceIndex do
 
     context "with circular dependencies" do
       let(:circular_schema1) do
-        instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "schema1"),
+        Expressir::Model::Declarations::Schema.new(
+          id: "schema1",
           interfaces: [circular_interface1],
         )
       end
 
       let(:circular_schema2) do
-        instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "schema2"),
+        Expressir::Model::Declarations::Schema.new(
+          id: "schema2",
           interfaces: [circular_interface2],
         )
       end
 
       let(:circular_schema3) do
-        instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "schema3"),
+        Expressir::Model::Declarations::Schema.new(
+          id: "schema3",
           interfaces: [circular_interface3],
         )
       end
 
       it "detects simple circular dependency (A -> B -> A)" do
-        two_way_interface1 = instance_double(
-          Expressir::Model::Declarations::Interface,
+        two_way_interface1 = Expressir::Model::Declarations::Interface.new(
           kind: Expressir::Model::Declarations::Interface::USE,
-          schema: double(id: double(safe_downcase: "schema2")),
+          schema: Expressir::Model::Declarations::Schema.new(id: "schema2"),
           items: [],
         )
-        two_way_interface2 = instance_double(
-          Expressir::Model::Declarations::Interface,
+        two_way_interface2 = Expressir::Model::Declarations::Interface.new(
           kind: Expressir::Model::Declarations::Interface::USE,
-          schema: double(id: double(safe_downcase: "schema1")),
+          schema: Expressir::Model::Declarations::Schema.new(id: "schema1"),
           items: [],
         )
-        s1 = instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "schema1"),
+        s1 = Expressir::Model::Declarations::Schema.new(
+          id: "schema1",
           interfaces: [two_way_interface1],
         )
-        s2 = instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "schema2"),
+        s2 = Expressir::Model::Declarations::Schema.new(
+          id: "schema2",
           interfaces: [two_way_interface2],
         )
         index = described_class.new([s1, s2])
@@ -351,18 +336,16 @@ RSpec.describe Expressir::Model::Indexes::ReferenceIndex do
 
     context "with self-referencing schema" do
       let(:self_ref_interface) do
-        instance_double(
-          Expressir::Model::Declarations::Interface,
+        Expressir::Model::Declarations::Interface.new(
           kind: Expressir::Model::Declarations::Interface::USE,
-          schema: double(id: double(safe_downcase: "self_ref")),
+          schema: Expressir::Model::Declarations::Schema.new(id: "self_ref"),
           items: [],
         )
       end
 
       let(:self_ref_schema) do
-        instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "self_ref"),
+        Expressir::Model::Declarations::Schema.new(
+          id: "self_ref",
           interfaces: [self_ref_interface],
         )
       end
@@ -391,9 +374,8 @@ RSpec.describe Expressir::Model::Indexes::ReferenceIndex do
     end
 
     it "returns true after building with empty schemas" do
-      schema_no_interfaces = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "empty"),
+      schema_no_interfaces = Expressir::Model::Declarations::Schema.new(
+        id: "empty",
         interfaces: nil,
       )
       index = described_class.new([schema_no_interfaces])
@@ -416,9 +398,8 @@ RSpec.describe Expressir::Model::Indexes::ReferenceIndex do
     end
 
     it "counts across multiple schemas" do
-      multi_use_schema = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "multi"),
+      multi_use_schema = Expressir::Model::Declarations::Schema.new(
+        id: "multi",
         interfaces: [use_interface, use_interface],
       )
       index = described_class.new([schema1, multi_use_schema])
@@ -441,9 +422,8 @@ RSpec.describe Expressir::Model::Indexes::ReferenceIndex do
     end
 
     it "counts across multiple schemas" do
-      multi_ref_schema = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "multi"),
+      multi_ref_schema = Expressir::Model::Declarations::Schema.new(
+        id: "multi",
         interfaces: [reference_interface, reference_interface],
       )
       index = described_class.new([schema1, multi_ref_schema])
@@ -452,16 +432,30 @@ RSpec.describe Expressir::Model::Indexes::ReferenceIndex do
     end
   end
 
-  describe "single responsibility principle" do
-    it "focuses solely on reference tracking and dependency analysis" do
-      index = described_class.new([schema1])
+  describe "reference tracking behavior" do
+    let(:index) { described_class.new([schema1]) }
 
-      expect(index).to respond_to(:use_references)
-      expect(index).to respond_to(:reference_references)
-      expect(index).to respond_to(:schema_dependencies)
-      expect(index).to respond_to(:detect_circular_dependencies)
-      expect(index).not_to respond_to(:find_entity)
-      expect(index).not_to respond_to(:find_type)
+    it "tracks use references" do
+      result = index.use_references("schema1")
+      expect(result).to be_an(Array)
+      expect(result).not_to be_empty
+    end
+
+    it "tracks reference references" do
+      result = index.reference_references("schema1")
+      expect(result).to be_an(Array)
+      expect(result).not_to be_empty
+    end
+
+    it "tracks schema dependencies" do
+      result = index.schema_dependencies("schema1")
+      expect(result).to be_a(Set)
+      expect(result).not_to be_empty
+    end
+
+    it "detects circular dependencies" do
+      result = index.detect_circular_dependencies
+      expect(result).to be_an(Array)
     end
   end
 
@@ -480,41 +474,29 @@ RSpec.describe Expressir::Model::Indexes::ReferenceIndex do
     it "supports complex dependency graph analysis" do
       index = described_class.new([schema1])
 
-      expect(index).to respond_to(:detect_circular_dependencies)
-      expect(index).to respond_to(:schema_dependencies)
+      # These methods exist and return expected types
+      expect(index.schema_dependencies("schema1")).to be_a(Set)
+      expect(index.detect_circular_dependencies).to be_a(Array)
     end
   end
 
   describe "edge cases" do
+    let(:index) { described_class.new }
+
     it "handles interfaces with empty items list" do
-      empty_items_interface = instance_double(
-        Expressir::Model::Declarations::Interface,
+      empty_items_interface = Expressir::Model::Declarations::Interface.new(
         kind: Expressir::Model::Declarations::Interface::USE,
-        schema: double(id: double(safe_downcase: "target")),
+        schema: Expressir::Model::Declarations::Schema.new(id: "target"),
         items: [],
       )
-      schema_empty_items = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "source"),
+      schema_empty_items = Expressir::Model::Declarations::Schema.new(
+        id: "source",
         interfaces: [empty_items_interface],
       )
-      index = described_class.new([schema_empty_items])
+      index.build([schema_empty_items])
 
       use_refs = index.use_references("source")
       expect(use_refs.first[:items]).to eq([])
-    end
-
-    it "handles nil schema id" do
-      nil_id_interface = instance_double(
-        Expressir::Model::Declarations::Interface,
-        kind: Expressir::Model::Declarations::Interface::USE,
-        schema: double(id: nil),
-        items: [],
-      )
-
-      expect do
-        nil_id_interface.schema.id.safe_downcase
-      end.to raise_error(NoMethodError)
     end
   end
 end

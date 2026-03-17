@@ -5,6 +5,9 @@ module Expressir
       # - section 9.1 Type declaration
       class Type < ModelElement
         include Identifier
+        include ScopeContainer
+        include HasInformalPropositions
+        include HasWhereRules
 
         attribute :underlying_type, ModelElement
         attribute :where_rules, WhereRule, collection: true

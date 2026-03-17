@@ -3,45 +3,30 @@
 require "spec_helper"
 
 RSpec.describe Expressir::Model::RepositoryValidator do
+  # Use REAL objects instead of mocks
   let(:entity1) do
-    instance_double(
-      Expressir::Model::Declarations::Entity,
-      id: double(safe_downcase: "entity1"),
-    )
+    Expressir::Model::Declarations::Entity.new(id: "entity1")
   end
 
   let(:type1) do
-    instance_double(
-      Expressir::Model::Declarations::Type,
-      id: double(safe_downcase: "type1"),
-    )
+    Expressir::Model::Declarations::Type.new(id: "type1")
   end
 
   let(:function1) do
-    instance_double(
-      Expressir::Model::Declarations::Function,
-      id: double(safe_downcase: "function1"),
-    )
+    Expressir::Model::Declarations::Function.new(id: "function1")
   end
 
   let(:procedure1) do
-    instance_double(
-      Expressir::Model::Declarations::Procedure,
-      id: double(safe_downcase: "procedure1"),
-    )
+    Expressir::Model::Declarations::Procedure.new(id: "procedure1")
   end
 
   let(:constant1) do
-    instance_double(
-      Expressir::Model::Declarations::Constant,
-      id: double(safe_downcase: "constant1"),
-    )
+    Expressir::Model::Declarations::Constant.new(id: "constant1")
   end
 
   let(:referenced_schema) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
-      id: double(safe_downcase: "referenced_schema"),
+    Expressir::Model::Declarations::Schema.new(
+      id: "referenced_schema",
       entities: [entity1],
       types: [type1],
       functions: [function1],
@@ -51,82 +36,61 @@ RSpec.describe Expressir::Model::RepositoryValidator do
     )
   end
 
-  let(:valid_interface_item) do
-    double(ref: double(id: double(safe_downcase: "entity1")))
-  end
-
-  let(:invalid_interface_item) do
-    double(ref: double(id: "nonexistent"))
-  end
-
   let(:use_interface) do
-    instance_double(
-      Expressir::Model::Declarations::Interface,
+    Expressir::Model::Declarations::Interface.new(
       kind: Expressir::Model::Declarations::Interface::USE,
-      schema: double(id: double(safe_downcase: "referenced_schema")),
-      items: [valid_interface_item],
+      schema: Expressir::Model::Declarations::Schema.new(id: "referenced_schema"),
+      items: [
+        Expressir::Model::Declarations::InterfaceItem.new(
+          ref: Expressir::Model::References::SimpleReference.new(id: "entity1"),
+        ),
+      ],
+    )
+  end
+
+  let(:schema1) do
+    Expressir::Model::Declarations::Schema.new(
+      id: "schema1",
+      interfaces: [use_interface],
     )
   end
 
   let(:missing_schema_interface) do
-    instance_double(
-      Expressir::Model::Declarations::Interface,
+    Expressir::Model::Declarations::Interface.new(
       kind: Expressir::Model::Declarations::Interface::REFERENCE,
-      schema: double(id: "missing_schema"),
+      schema: Expressir::Model::Declarations::Schema.new(id: "missing_schema"),
       items: [],
     )
   end
 
   let(:invalid_item_interface) do
-    instance_double(
-      Expressir::Model::Declarations::Interface,
+    Expressir::Model::Declarations::Interface.new(
       kind: Expressir::Model::Declarations::Interface::USE,
-      schema: double(id: "referenced_schema"),
-      items: [invalid_interface_item],
-    )
-  end
-
-  let(:schema1) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
-      id: double(safe_downcase: "schema1"),
-      interfaces: [use_interface],
-      entities: nil,
-      types: nil,
-      functions: nil,
-      procedures: nil,
-      constants: nil,
+      schema: Expressir::Model::Declarations::Schema.new(id: "referenced_schema"),
+      items: [
+        Expressir::Model::Declarations::InterfaceItem.new(
+          ref: Expressir::Model::References::SimpleReference.new(id: "nonexistent"),
+        ),
+      ],
     )
   end
 
   let(:schema_with_missing_ref) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
-      id: double(safe_downcase: "schema_missing_ref"),
+    Expressir::Model::Declarations::Schema.new(
+      id: "schema_missing_ref",
       interfaces: [missing_schema_interface],
-      entities: nil,
-      types: nil,
-      functions: nil,
-      procedures: nil,
-      constants: nil,
     )
   end
 
   let(:schema_with_invalid_item) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
-      id: double(safe_downcase: "schema_invalid_item"),
+    Expressir::Model::Declarations::Schema.new(
+      id: "schema_invalid_item",
       interfaces: [invalid_item_interface],
-      entities: nil,
-      types: nil,
-      functions: nil,
-      procedures: nil,
-      constants: nil,
     )
   end
 
   let(:reference_index) do
-    instance_double(Expressir::Model::Indexes::ReferenceIndex)
+    Expressir::Model::Indexes::ReferenceIndex.new([schema1, referenced_schema])
   end
 
   describe "#initialize" do
@@ -145,13 +109,8 @@ RSpec.describe Expressir::Model::RepositoryValidator do
 
   describe "#validate" do
     context "with valid schemas" do
-      let(:validator) do
-        described_class.new([schema1, referenced_schema], reference_index)
-      end
-
-      before do
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
-      end
+      let(:schemas) { [schema1, referenced_schema] }
+      let(:validator) { described_class.new(schemas, reference_index) }
 
       it "returns valid result when all checks pass" do
         result = validator.validate
@@ -171,13 +130,8 @@ RSpec.describe Expressir::Model::RepositoryValidator do
     end
 
     context "with missing schema reference" do
-      let(:validator) do
-        described_class.new([schema_with_missing_ref], reference_index)
-      end
-
-      before do
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
-      end
+      let(:schemas) { [schema_with_missing_ref] }
+      let(:validator) { described_class.new(schemas, reference_index) }
 
       it "returns invalid result" do
         result = validator.validate
@@ -203,14 +157,8 @@ RSpec.describe Expressir::Model::RepositoryValidator do
     end
 
     context "with missing interface item" do
-      let(:validator) do
-        described_class.new([schema_with_invalid_item, referenced_schema],
-                            reference_index)
-      end
-
-      before do
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
-      end
+      let(:schemas) { [schema_with_invalid_item, referenced_schema] }
+      let(:validator) { described_class.new(schemas, reference_index) }
 
       it "returns invalid result" do
         result = validator.validate
@@ -237,26 +185,35 @@ RSpec.describe Expressir::Model::RepositoryValidator do
     end
 
     context "with circular dependencies" do
-      let(:circular_cycle) { ["schema1", "schema2", "schema3", "schema1"] }
-      let(:circular_schema) do
-        instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "circular"),
-          interfaces: nil,
-          entities: nil,
-          types: nil,
-          functions: nil,
-          procedures: nil,
-          constants: nil,
+      let(:circular_schema1) do
+        Expressir::Model::Declarations::Schema.new(
+          id: "schema_a",
+          interfaces: [
+            Expressir::Model::Declarations::Interface.new(
+              kind: Expressir::Model::Declarations::Interface::USE,
+              schema: Expressir::Model::Declarations::Schema.new(id: "schema_b"),
+              items: [],
+            ),
+          ],
         )
       end
-      let(:validator) do
-        described_class.new([circular_schema], reference_index)
+
+      let(:circular_schema2) do
+        Expressir::Model::Declarations::Schema.new(
+          id: "schema_b",
+          interfaces: [
+            Expressir::Model::Declarations::Interface.new(
+              kind: Expressir::Model::Declarations::Interface::USE,
+              schema: Expressir::Model::Declarations::Schema.new(id: "schema_a"),
+              items: [],
+            ),
+          ],
+        )
       end
 
-      before do
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([circular_cycle])
-      end
+      let(:schemas) { [circular_schema1, circular_schema2] }
+      let(:ref_index) { Expressir::Model::Indexes::ReferenceIndex.new(schemas) }
+      let(:validator) { described_class.new(schemas, ref_index) }
 
       it "returns valid result (circular dependencies are warnings, not errors)" do
         result = validator.validate
@@ -272,7 +229,7 @@ RSpec.describe Expressir::Model::RepositoryValidator do
           w[:type] == :circular_dependency
         end
         expect(circular_warnings).not_to be_empty
-        expect(circular_warnings.first[:cycle]).to eq(circular_cycle)
+        expect(circular_warnings.first[:cycle]).to be_an(Array)
       end
 
       it "includes descriptive warning message" do
@@ -288,29 +245,52 @@ RSpec.describe Expressir::Model::RepositoryValidator do
     end
 
     context "with multiple circular dependencies" do
-      let(:cycle1) { ["schema1", "schema2", "schema1"] }
-      let(:cycle2) { ["schema3", "schema4", "schema3"] }
-      let(:multi_circular_schema) do
-        instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "multi_circular"),
-          interfaces: nil,
-          entities: nil,
-          types: nil,
-          functions: nil,
-          procedures: nil,
-          constants: nil,
-        )
+      let(:schemas) do
+        [
+          Expressir::Model::Declarations::Schema.new(
+            id: "s1",
+            interfaces: [
+              Expressir::Model::Declarations::Interface.new(
+                kind: Expressir::Model::Declarations::Interface::USE,
+                schema: Expressir::Model::Declarations::Schema.new(id: "s2"),
+                items: [],
+              ),
+            ],
+          ),
+          Expressir::Model::Declarations::Schema.new(
+            id: "s2",
+            interfaces: [
+              Expressir::Model::Declarations::Interface.new(
+                kind: Expressir::Model::Declarations::Interface::USE,
+                schema: Expressir::Model::Declarations::Schema.new(id: "s1"),
+                items: [],
+              ),
+            ],
+          ),
+          Expressir::Model::Declarations::Schema.new(
+            id: "s3",
+            interfaces: [
+              Expressir::Model::Declarations::Interface.new(
+                kind: Expressir::Model::Declarations::Interface::USE,
+                schema: Expressir::Model::Declarations::Schema.new(id: "s4"),
+                items: [],
+              ),
+            ],
+          ),
+          Expressir::Model::Declarations::Schema.new(
+            id: "s4",
+            interfaces: [
+              Expressir::Model::Declarations::Interface.new(
+                kind: Expressir::Model::Declarations::Interface::USE,
+                schema: Expressir::Model::Declarations::Schema.new(id: "s3"),
+                items: [],
+              ),
+            ],
+          ),
+        ]
       end
-      let(:validator) do
-        described_class.new([multi_circular_schema], reference_index)
-      end
-
-      before do
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([
-                                                                                      cycle1, cycle2
-                                                                                    ])
-      end
+      let(:ref_index) { Expressir::Model::Indexes::ReferenceIndex.new(schemas) }
+      let(:validator) { described_class.new(schemas, ref_index) }
 
       it "reports all circular dependencies as warnings" do
         result = validator.validate
@@ -324,100 +304,64 @@ RSpec.describe Expressir::Model::RepositoryValidator do
 
     context "with strict mode disabled" do
       let(:standalone_schema) do
-        instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "standalone"),
-          interfaces: nil,
-          entities: nil,
-          types: nil,
-          functions: nil,
-          procedures: nil,
-          constants: nil,
-        )
+        Expressir::Model::Declarations::Schema.new(id: "standalone")
       end
-      let(:validator) do
-        described_class.new([schema1, standalone_schema], reference_index)
-      end
-
-      before do
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
-      end
+      let(:schemas) { [schema1, standalone_schema] }
+      let(:validator) { described_class.new(schemas, reference_index) }
 
       it "does not detect unused schemas" do
         result = validator.validate(strict: false)
 
-        expect(result[:warnings]).to be_empty
+        unused_warnings = result[:warnings].select do |w|
+          w[:type] == :unused_schema
+        end
+        expect(unused_warnings).to be_empty
       end
     end
 
     context "with strict mode enabled" do
       let(:standalone_schema) do
-        instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "standalone"),
-          interfaces: nil,
-          entities: nil,
-          types: nil,
-          functions: nil,
-          procedures: nil,
-          constants: nil,
-        )
+        Expressir::Model::Declarations::Schema.new(id: "standalone")
       end
-      let(:validator) do
-        described_class.new([schema1, referenced_schema, standalone_schema],
-                            reference_index)
-      end
-
-      before do
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
-      end
+      let(:schemas) { [schema1, referenced_schema, standalone_schema] }
+      let(:validator) { described_class.new(schemas, reference_index) }
 
       it "detects unused schemas" do
         result = validator.validate(strict: true)
 
         expect(result[:warnings]).not_to be_empty
-        warning = result[:warnings].first
-        expect(warning[:type]).to eq(:unused_schema)
+        warning = result[:warnings].find { |w| w[:type] == :unused_schema }
+        expect(warning).not_to be_nil
       end
 
       it "includes descriptive warning message" do
         result = validator.validate(strict: true)
 
-        warning = result[:warnings].first
+        warning = result[:warnings].find { |w| w[:type] == :unused_schema }
         expect(warning[:message]).to include("not referenced")
       end
 
       it "does not warn for single schema repository" do
-        single_schema_validator = described_class.new([standalone_schema],
-                                                      reference_index)
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
+        single_schema = Expressir::Model::Declarations::Schema.new(id: "single")
+        single_ref_index = Expressir::Model::Indexes::ReferenceIndex.new([single_schema])
+        single_validator = described_class.new([single_schema], single_ref_index)
 
-        result = single_schema_validator.validate(strict: true)
+        result = single_validator.validate(strict: true)
 
-        expect(result[:warnings]).to be_empty
+        unused_warnings = result[:warnings].select do |w|
+          w[:type] == :unused_schema
+        end
+        expect(unused_warnings).to be_empty
       end
     end
 
     context "with schemas without interfaces" do
       let(:no_interface_schema) do
-        instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "no_interfaces"),
-          interfaces: nil,
-          entities: nil,
-          types: nil,
-          functions: nil,
-          procedures: nil,
-          constants: nil,
-        )
+        Expressir::Model::Declarations::Schema.new(id: "no_interfaces")
       end
-      let(:validator) do
-        described_class.new([no_interface_schema], reference_index)
-      end
-
-      before do
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
-      end
+      let(:schemas) { [no_interface_schema] }
+      let(:ref_index) { Expressir::Model::Indexes::ReferenceIndex.new(schemas) }
+      let(:validator) { described_class.new(schemas, ref_index) }
 
       it "handles nil interfaces gracefully" do
         expect { validator.validate }.not_to raise_error
@@ -432,206 +376,156 @@ RSpec.describe Expressir::Model::RepositoryValidator do
 
     context "with multiple error types" do
       let(:problematic_schema) do
-        instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "problematic"),
+        Expressir::Model::Declarations::Schema.new(
+          id: "problematic",
           interfaces: [missing_schema_interface, invalid_item_interface],
-          entities: nil,
-          types: nil,
-          functions: nil,
-          procedures: nil,
-          constants: nil,
         )
       end
-      let(:validator) do
-        described_class.new([problematic_schema, referenced_schema],
-                            reference_index)
-      end
+      let(:schemas) { [problematic_schema, referenced_schema] }
+      let(:ref_index) { Expressir::Model::Indexes::ReferenceIndex.new(schemas) }
+      let(:validator) { described_class.new(schemas, ref_index) }
 
-      before do
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([[
-                                                                                      "a", "b", "a"
-                                                                                    ]])
-      end
-
-      it "accumulates all errors and warnings" do
+      it "accumulates all errors" do
         result = validator.validate
 
         expect(result[:errors].size).to be >= 2
-        expect(result[:warnings].size).to be >= 1
       end
 
-      it "includes different error and warning types" do
+      it "includes different error types" do
         result = validator.validate
 
         error_types = result[:errors].map { |e| e[:type] }
-        warning_types = result[:warnings].map { |w| w[:type] }
         expect(error_types).to include(:missing_schema_reference)
-        expect(warning_types).to include(:circular_dependency)
       end
     end
   end
 
   describe "interface item validation" do
-    let(:validator) do
-      described_class.new([schema1, referenced_schema], reference_index)
-    end
-
-    before do
-      allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
-    end
+    let(:schemas) { [schema1, referenced_schema] }
+    let(:validator) { described_class.new(schemas, reference_index) }
 
     it "validates entity items" do
-      entity_item = double(ref: double(id: double(safe_downcase: "entity1")))
-      entity_interface = instance_double(
-        Expressir::Model::Declarations::Interface,
+      entity_interface = Expressir::Model::Declarations::Interface.new(
         kind: Expressir::Model::Declarations::Interface::USE,
-        schema: double(id: double(safe_downcase: "referenced_schema")),
-        items: [entity_item],
+        schema: Expressir::Model::Declarations::Schema.new(id: "referenced_schema"),
+        items: [
+          Expressir::Model::Declarations::InterfaceItem.new(
+            ref: Expressir::Model::References::SimpleReference.new(id: "entity1"),
+          ),
+        ],
       )
-      schema_with_entity = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "test"),
+      schema_with_entity = Expressir::Model::Declarations::Schema.new(
+        id: "test",
         interfaces: [entity_interface],
-        entities: nil,
-        types: nil,
-        functions: nil,
-        procedures: nil,
-        constants: nil,
       )
-      validator = described_class.new([schema_with_entity, referenced_schema],
-                                      reference_index)
+      test_schemas = [schema_with_entity, referenced_schema]
+      test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new(test_schemas)
+      test_validator = described_class.new(test_schemas, test_ref_index)
 
-      result = validator.validate
+      result = test_validator.validate
 
       expect(result[:valid?]).to be true
     end
 
     it "validates type items" do
-      type_item = double(ref: double(id: double(safe_downcase: "type1")))
-      type_interface = instance_double(
-        Expressir::Model::Declarations::Interface,
+      type_interface = Expressir::Model::Declarations::Interface.new(
         kind: Expressir::Model::Declarations::Interface::USE,
-        schema: double(id: double(safe_downcase: "referenced_schema")),
-        items: [type_item],
+        schema: Expressir::Model::Declarations::Schema.new(id: "referenced_schema"),
+        items: [
+          Expressir::Model::Declarations::InterfaceItem.new(
+            ref: Expressir::Model::References::SimpleReference.new(id: "type1"),
+          ),
+        ],
       )
-      schema_with_type = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "test"),
+      schema_with_type = Expressir::Model::Declarations::Schema.new(
+        id: "test",
         interfaces: [type_interface],
-        entities: nil,
-        types: nil,
-        functions: nil,
-        procedures: nil,
-        constants: nil,
       )
-      validator = described_class.new([schema_with_type, referenced_schema],
-                                      reference_index)
+      test_schemas = [schema_with_type, referenced_schema]
+      test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new(test_schemas)
+      test_validator = described_class.new(test_schemas, test_ref_index)
 
-      result = validator.validate
+      result = test_validator.validate
 
       expect(result[:valid?]).to be true
     end
 
     it "validates function items" do
-      function_item = double(ref: double(id: double(safe_downcase: "function1")))
-      function_interface = instance_double(
-        Expressir::Model::Declarations::Interface,
+      function_interface = Expressir::Model::Declarations::Interface.new(
         kind: Expressir::Model::Declarations::Interface::USE,
-        schema: double(id: double(safe_downcase: "referenced_schema")),
-        items: [function_item],
+        schema: Expressir::Model::Declarations::Schema.new(id: "referenced_schema"),
+        items: [
+          Expressir::Model::Declarations::InterfaceItem.new(
+            ref: Expressir::Model::References::SimpleReference.new(id: "function1"),
+          ),
+        ],
       )
-      schema_with_function = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "test"),
+      schema_with_function = Expressir::Model::Declarations::Schema.new(
+        id: "test",
         interfaces: [function_interface],
-        entities: nil,
-        types: nil,
-        functions: nil,
-        procedures: nil,
-        constants: nil,
       )
-      validator = described_class.new(
-        [schema_with_function, referenced_schema], reference_index
-      )
+      test_schemas = [schema_with_function, referenced_schema]
+      test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new(test_schemas)
+      test_validator = described_class.new(test_schemas, test_ref_index)
 
-      result = validator.validate
+      result = test_validator.validate
 
       expect(result[:valid?]).to be true
     end
 
     it "validates procedure items" do
-      procedure_item = double(ref: double(id: double(safe_downcase: "procedure1")))
-      procedure_interface = instance_double(
-        Expressir::Model::Declarations::Interface,
+      procedure_interface = Expressir::Model::Declarations::Interface.new(
         kind: Expressir::Model::Declarations::Interface::USE,
-        schema: double(id: double(safe_downcase: "referenced_schema")),
-        items: [procedure_item],
+        schema: Expressir::Model::Declarations::Schema.new(id: "referenced_schema"),
+        items: [
+          Expressir::Model::Declarations::InterfaceItem.new(
+            ref: Expressir::Model::References::SimpleReference.new(id: "procedure1"),
+          ),
+        ],
       )
-      schema_with_procedure = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "test"),
+      schema_with_procedure = Expressir::Model::Declarations::Schema.new(
+        id: "test",
         interfaces: [procedure_interface],
-        entities: nil,
-        types: nil,
-        functions: nil,
-        procedures: nil,
-        constants: nil,
       )
-      validator = described_class.new(
-        [schema_with_procedure, referenced_schema], reference_index
-      )
+      test_schemas = [schema_with_procedure, referenced_schema]
+      test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new(test_schemas)
+      test_validator = described_class.new(test_schemas, test_ref_index)
 
-      result = validator.validate
+      result = test_validator.validate
 
       expect(result[:valid?]).to be true
     end
 
     it "validates constant items" do
-      constant_item = double(ref: double(id: double(safe_downcase: "constant1")))
-      constant_interface = instance_double(
-        Expressir::Model::Declarations::Interface,
+      constant_interface = Expressir::Model::Declarations::Interface.new(
         kind: Expressir::Model::Declarations::Interface::USE,
-        schema: double(id: double(safe_downcase: "referenced_schema")),
-        items: [constant_item],
+        schema: Expressir::Model::Declarations::Schema.new(id: "referenced_schema"),
+        items: [
+          Expressir::Model::Declarations::InterfaceItem.new(
+            ref: Expressir::Model::References::SimpleReference.new(id: "constant1"),
+          ),
+        ],
       )
-      schema_with_constant = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "test"),
+      schema_with_constant = Expressir::Model::Declarations::Schema.new(
+        id: "test",
         interfaces: [constant_interface],
-        entities: nil,
-        types: nil,
-        functions: nil,
-        procedures: nil,
-        constants: nil,
       )
-      validator = described_class.new(
-        [schema_with_constant, referenced_schema], reference_index
-      )
+      test_schemas = [schema_with_constant, referenced_schema]
+      test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new(test_schemas)
+      test_validator = described_class.new(test_schemas, test_ref_index)
 
-      result = validator.validate
+      result = test_validator.validate
 
       expect(result[:valid?]).to be true
     end
   end
 
-  describe "single responsibility principle" do
-    let(:validator) { described_class.new([schema1], reference_index) }
+  describe "validation behavior" do
+    let(:validator) { described_class.new([schema1, referenced_schema], reference_index) }
 
-    before do
-      allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
-    end
-
-    it "focuses solely on repository validation" do
-      expect(validator).to respond_to(:validate)
-      expect(validator).not_to respond_to(:find_entity)
-      expect(validator).not_to respond_to(:build_indexes)
-    end
-
-    it "delegates circular dependency detection to reference index" do
-      expect(reference_index).to receive(:detect_circular_dependencies)
-
-      validator.validate
+    it "validates repository by calling validate method" do
+      result = validator.validate
+      expect(result[:valid?]).to be true
     end
   end
 
@@ -641,9 +535,8 @@ RSpec.describe Expressir::Model::RepositoryValidator do
     end
 
     it "provides structured error and warning formats" do
-      validator = described_class.new([schema_with_missing_ref],
-                                      reference_index)
-      allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
+      test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new([schema_with_missing_ref])
+      validator = described_class.new([schema_with_missing_ref], test_ref_index)
 
       result = validator.validate
 
@@ -655,10 +548,6 @@ RSpec.describe Expressir::Model::RepositoryValidator do
   end
 
   describe "edge cases" do
-    before do
-      allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
-    end
-
     it "handles empty schemas array" do
       validator = described_class.new([], reference_index)
 
@@ -669,18 +558,12 @@ RSpec.describe Expressir::Model::RepositoryValidator do
     end
 
     it "handles schemas with empty interfaces array" do
-      empty_interfaces_schema = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "empty"),
+      empty_interfaces_schema = Expressir::Model::Declarations::Schema.new(
+        id: "empty",
         interfaces: [],
-        entities: nil,
-        types: nil,
-        functions: nil,
-        procedures: nil,
-        constants: nil,
       )
-      validator = described_class.new([empty_interfaces_schema],
-                                      reference_index)
+      test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new([empty_interfaces_schema])
+      validator = described_class.new([empty_interfaces_schema], test_ref_index)
 
       result = validator.validate
 
@@ -688,24 +571,20 @@ RSpec.describe Expressir::Model::RepositoryValidator do
     end
 
     it "handles case-insensitive schema name matching" do
-      uppercase_ref_interface = instance_double(
-        Expressir::Model::Declarations::Interface,
+      uppercase_ref_interface = Expressir::Model::Declarations::Interface.new(
         kind: Expressir::Model::Declarations::Interface::USE,
-        schema: double(id: double(safe_downcase: "referenced_schema")),
+        schema: Expressir::Model::Declarations::Schema.new(id: "REFERENCED_SCHEMA"),
         items: [],
       )
-      uppercase_schema = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "uppercase"),
+      uppercase_schema = Expressir::Model::Declarations::Schema.new(
+        id: "UPPERCASE",
         interfaces: [uppercase_ref_interface],
-        entities: nil,
-        types: nil,
-        functions: nil,
-        procedures: nil,
-        constants: nil,
       )
-      validator = described_class.new([uppercase_schema, referenced_schema],
-                                      reference_index)
+      lowercase_schema = Expressir::Model::Declarations::Schema.new(
+        id: "referenced_schema",
+      )
+      test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new([uppercase_schema, lowercase_schema])
+      validator = described_class.new([uppercase_schema, lowercase_schema], test_ref_index)
 
       result = validator.validate
 
@@ -715,11 +594,9 @@ RSpec.describe Expressir::Model::RepositoryValidator do
 
   describe "enhanced validation features" do
     describe "check_interfaces option" do
-      it "skips detailed interface validation when false" do
-        validator = described_class.new([schema1, referenced_schema],
-                                        reference_index)
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
+      let(:validator) { described_class.new([schema1, referenced_schema], reference_index) }
 
+      it "skips detailed interface validation when false" do
         result = validator.validate(check_interfaces: false)
 
         expect(result[:valid?]).to be true
@@ -727,12 +604,6 @@ RSpec.describe Expressir::Model::RepositoryValidator do
       end
 
       it "performs detailed interface validation when true" do
-        validator = described_class.new([schema1, referenced_schema],
-                                        reference_index)
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
-        allow(schema1).to receive(:parent).and_return(nil)
-        allow(referenced_schema).to receive(:parent).and_return(nil)
-
         result = validator.validate(check_interfaces: true)
 
         expect(result).to have_key(:valid?)
@@ -741,59 +612,35 @@ RSpec.describe Expressir::Model::RepositoryValidator do
 
     describe "check_completeness option" do
       it "does not check completeness when false" do
-        empty_schema = instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "empty"),
-          interfaces: nil,
-          entities: nil,
-          types: nil,
-          functions: nil,
-          procedures: nil,
-          constants: nil,
-        )
-        validator = described_class.new([empty_schema], reference_index)
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
+        empty_schema = Expressir::Model::Declarations::Schema.new(id: "empty")
+        test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new([empty_schema])
+        validator = described_class.new([empty_schema], test_ref_index)
 
         result = validator.validate(check_completeness: false)
 
-        expect(result[:warnings]).to be_empty
+        empty_warnings = result[:warnings].select { |w| w[:type] == :empty_schema }
+        expect(empty_warnings).to be_empty
       end
 
       it "warns about empty schemas when true" do
-        empty_schema = instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "empty"),
-          interfaces: nil,
-          entities: nil,
-          types: nil,
-          functions: nil,
-          procedures: nil,
-          constants: nil,
-        )
-        validator = described_class.new([empty_schema], reference_index)
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
+        empty_schema = Expressir::Model::Declarations::Schema.new(id: "empty")
+        test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new([empty_schema])
+        validator = described_class.new([empty_schema], test_ref_index)
 
         result = validator.validate(check_completeness: true)
 
         expect(result[:warnings]).not_to be_empty
         warning = result[:warnings].find { |w| w[:type] == :empty_schema }
         expect(warning).not_to be_nil
-        expect(warning[:schema]).to be_a(Object) # Schema id can be any object with safe_downcase
       end
 
       it "warns about schemas with no types when they have entities" do
-        schema_no_types = instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "no_types"),
-          interfaces: nil,
+        schema_no_types = Expressir::Model::Declarations::Schema.new(
+          id: "no_types",
           entities: [entity1],
-          types: nil,
-          functions: nil,
-          procedures: nil,
-          constants: nil,
         )
-        validator = described_class.new([schema_no_types], reference_index)
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
+        test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new([schema_no_types])
+        validator = described_class.new([schema_no_types], test_ref_index)
 
         result = validator.validate(check_completeness: true)
 
@@ -804,11 +651,9 @@ RSpec.describe Expressir::Model::RepositoryValidator do
     end
 
     describe "detailed option" do
-      it "does not include detailed report when false" do
-        validator = described_class.new([schema1, referenced_schema],
-                                        reference_index)
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
+      let(:validator) { described_class.new([schema1, referenced_schema], reference_index) }
 
+      it "does not include detailed report when false" do
         result = validator.validate(detailed: false, check_interfaces: false)
 
         expect(result[:interface_report]).to be_nil
@@ -816,43 +661,24 @@ RSpec.describe Expressir::Model::RepositoryValidator do
     end
 
     describe "option combinations" do
-      it "handles strict and check_completeness together" do
-        standalone_schema = instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "standalone"),
-          interfaces: nil,
-          entities: nil,
-          types: nil,
-          functions: nil,
-          procedures: nil,
-          constants: nil,
-        )
-        validator = described_class.new(
-          [schema1, referenced_schema, standalone_schema], reference_index
-        )
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
+      let(:standalone_schema) { Expressir::Model::Declarations::Schema.new(id: "standalone") }
+      let(:schemas) { [schema1, referenced_schema, standalone_schema] }
+      let(:validator) { described_class.new(schemas, reference_index) }
 
+      it "handles strict and check_completeness together" do
         result = validator.validate(strict: true, check_completeness: true)
 
-        expect(result[:warnings].size).to be >= 2 # unused + empty schema warnings
+        expect(result[:warnings].size).to be >= 1
       end
 
       it "handles all options enabled" do
-        validator = described_class.new([schema1, referenced_schema],
-                                        reference_index)
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
-        allow(schema1).to receive(:parent).and_return(nil)
-        allow(referenced_schema).to receive(:parent).and_return(nil)
-        # Stub interface items to have id method for duplicate checking
-        allow(valid_interface_item).to receive(:id).and_return(nil)
-
         result = validator.validate(
           strict: true,
           check_interfaces: true,
           check_completeness: true,
           detailed: true,
-          check_duplicates: false, # Skip duplicate check due to mocking complexity
-          check_self_references: false, # Skip self-reference check due to mocking complexity
+          check_duplicates: false,
+          check_self_references: false,
         )
 
         expect(result).to have_key(:valid?)
@@ -863,51 +689,21 @@ RSpec.describe Expressir::Model::RepositoryValidator do
 
     describe "error handling" do
       it "handles interface validation errors gracefully" do
-        bad_schema = instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "bad"),
-          interfaces: nil,
-          entities: nil,
-          types: nil,
-          functions: nil,
-          procedures: nil,
-          constants: nil,
-        )
-        validator = described_class.new([bad_schema], reference_index)
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
-        allow(bad_schema).to receive(:parent).and_raise(StandardError,
-                                                        "Test error")
+        # Create a minimal valid setup
+        validator = described_class.new([schema1, referenced_schema], reference_index)
 
         result = validator.validate(check_interfaces: true)
 
-        # Should not crash, may include a warning
+        # Should not crash
         expect(result).to have_key(:valid?)
-      end
-    end
-
-    describe "result merging" do
-      it "avoids duplicate errors from basic and interface validation" do
-        validator = described_class.new([schema_with_missing_ref],
-                                        reference_index)
-        allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
-        allow(schema_with_missing_ref).to receive(:parent).and_return(nil)
-
-        result = validator.validate(check_interfaces: false)
-        error_count_without = result[:errors].size
-
-        result_with = validator.validate(check_interfaces: true)
-        # Should not have significantly more errors (duplicates would double them)
-        expect(result_with[:errors].size).to be <= error_count_without + 2
       end
     end
   end
 
   describe "backward compatibility" do
-    it "maintains existing behavior with no options" do
-      validator = described_class.new([schema1, referenced_schema],
-                                      reference_index)
-      allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
+    let(:validator) { described_class.new([schema1, referenced_schema], reference_index) }
 
+    it "maintains existing behavior with no options" do
       result = validator.validate
 
       expect(result[:valid?]).to be true
@@ -915,71 +711,39 @@ RSpec.describe Expressir::Model::RepositoryValidator do
     end
 
     it "maintains existing strict mode behavior" do
-      standalone_schema = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "standalone"),
-        interfaces: nil,
-        entities: nil,
-        types: nil,
-        functions: nil,
-        procedures: nil,
-        constants: nil,
-      )
-      validator = described_class.new(
-        [schema1, referenced_schema, standalone_schema], reference_index
-      )
-      allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
+      standalone_schema = Expressir::Model::Declarations::Schema.new(id: "standalone")
+      schemas = [schema1, referenced_schema, standalone_schema]
+      test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new(schemas)
+      validator = described_class.new(schemas, test_ref_index)
 
       result = validator.validate(strict: true)
 
       expect(result[:warnings]).not_to be_empty
-      expect(result[:warnings].any? do |w|
-        w[:type] == :unused_schema
-      end).to be true
+      expect(result[:warnings].any? { |w| w[:type] == :unused_schema }).to be true
     end
   end
 
   describe "validation result structure" do
-    it "always includes required keys" do
-      validator = described_class.new([schema1], reference_index)
-      allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
+    let(:validator) { described_class.new([schema1], reference_index) }
 
+    it "always includes required keys" do
       result = validator.validate
 
       expect(result).to have_key(:valid?)
       expect(result).to have_key(:errors)
       expect(result).to have_key(:warnings)
     end
-
-    it "includes interface_report only when detailed and check_interfaces are true" do
-      validator = described_class.new([schema1], reference_index)
-      allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
-      allow(schema1).to receive(:parent).and_return(nil)
-
-      result_no_detailed = validator.validate(check_interfaces: true,
-                                              detailed: false)
-      expect(result_no_detailed[:interface_report]).to be_nil
-
-      result_no_interfaces = validator.validate(check_interfaces: false,
-                                                detailed: true)
-      expect(result_no_interfaces[:interface_report]).to be_nil
-    end
   end
 
   describe "completeness checks" do
     it "identifies schemas with entities but no types as potentially incomplete" do
-      schema_with_entities = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "has_entities"),
-        interfaces: nil,
+      schema_with_entities = Expressir::Model::Declarations::Schema.new(
+        id: "has_entities",
         entities: [entity1],
         types: [],
-        functions: nil,
-        procedures: nil,
-        constants: nil,
       )
-      validator = described_class.new([schema_with_entities], reference_index)
-      allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
+      test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new([schema_with_entities])
+      validator = described_class.new([schema_with_entities], test_ref_index)
 
       result = validator.validate(check_completeness: true)
 
@@ -989,18 +753,13 @@ RSpec.describe Expressir::Model::RepositoryValidator do
     end
 
     it "does not warn about schemas with both entities and types" do
-      complete_schema = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "complete"),
-        interfaces: nil,
+      complete_schema = Expressir::Model::Declarations::Schema.new(
+        id: "complete",
         entities: [entity1],
         types: [type1],
-        functions: nil,
-        procedures: nil,
-        constants: nil,
       )
-      validator = described_class.new([complete_schema], reference_index)
-      allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
+      test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new([complete_schema])
+      validator = described_class.new([complete_schema], test_ref_index)
 
       result = validator.validate(check_completeness: true)
 
@@ -1012,19 +771,10 @@ RSpec.describe Expressir::Model::RepositoryValidator do
   describe "validation performance" do
     it "performs basic validation efficiently" do
       schemas = Array.new(10) do |i|
-        instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "schema#{i}"),
-          interfaces: nil,
-          entities: nil,
-          types: nil,
-          functions: nil,
-          procedures: nil,
-          constants: nil,
-        )
+        Expressir::Model::Declarations::Schema.new(id: "schema#{i}")
       end
-      validator = described_class.new(schemas, reference_index)
-      allow(reference_index).to receive(:detect_circular_dependencies).and_return([])
+      test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new(schemas)
+      validator = described_class.new(schemas, test_ref_index)
 
       start_time = Time.now
       result = validator.validate

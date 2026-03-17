@@ -1,5 +1,6 @@
 ---
-_class: Expressir::Model::Repository
+_class: Expressir::Model::ExpFile
+path: spec/syntax/syntax.exp
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: syntax_schema
@@ -8,8 +9,6 @@ schemas:
   - constants
   - types
   - rules
-  - interval expressions
-  - query expressions
   untagged_remarks:
   - text: interfaces
     format: tail
@@ -18,10 +17,6 @@ schemas:
   - text: types
     format: tail
   - text: rules
-    format: tail
-  - text: interval expressions
-    format: tail
-  - text: query expressions
     format: tail
   file: spec/syntax/syntax.exp
   version:
@@ -176,29 +171,29 @@ schemas:
     supertype_expression:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
   - _class: Expressir::Model::Declarations::Entity
     id: supertype_constraint_entity
     supertype_expression:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
   - _class: Expressir::Model::Declarations::Entity
     id: subtype_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
   - _class: Expressir::Model::Declarations::Entity
     id: supertype_constraint_subtype_entity
     supertype_expression:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
   - _class: Expressir::Model::Declarations::Entity
     id: attribute_entity
     attributes:
@@ -247,7 +242,7 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
-      base_path: syntax_schema.attribute_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: test
@@ -262,7 +257,7 @@ schemas:
           entity:
             _class: Expressir::Model::References::SimpleReference
             id: attribute_entity
-            base_path: syntax_schema.attribute_entity
+            base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
@@ -273,7 +268,7 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
-      base_path: syntax_schema.attribute_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: test2
@@ -288,7 +283,7 @@ schemas:
           entity:
             _class: Expressir::Model::References::SimpleReference
             id: attribute_entity
-            base_path: syntax_schema.attribute_entity
+            base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
@@ -310,7 +305,7 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
-      base_path: syntax_schema.attribute_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
     attributes:
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: test
@@ -325,7 +320,7 @@ schemas:
           entity:
             _class: Expressir::Model::References::SimpleReference
             id: attribute_entity
-            base_path: syntax_schema.attribute_entity
+            base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
@@ -339,7 +334,7 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
-      base_path: syntax_schema.attribute_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
     attributes:
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: test2
@@ -354,7 +349,7 @@ schemas:
           entity:
             _class: Expressir::Model::References::SimpleReference
             id: attribute_entity
-            base_path: syntax_schema.attribute_entity
+            base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
@@ -372,11 +367,11 @@ schemas:
       type:
         _class: Expressir::Model::References::SimpleReference
         id: attribute_entity
-        base_path: syntax_schema.attribute_entity
+        base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: test
-        base_path: syntax_schema.inverse_attribute_entity.test
+        base_path: spec/syntax/syntax.exp.syntax_schema.inverse_attribute_entity.test
   - _class: Expressir::Model::Declarations::Entity
     id: inverse_attribute_entity_entity
     attributes:
@@ -386,7 +381,7 @@ schemas:
       type:
         _class: Expressir::Model::References::SimpleReference
         id: attribute_entity
-        base_path: syntax_schema.attribute_entity
+        base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
       expression:
         _class: Expressir::Model::References::AttributeReference
         ref:
@@ -406,11 +401,11 @@ schemas:
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: attribute_entity
-          base_path: syntax_schema.attribute_entity
+          base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: test
-        base_path: syntax_schema.inverse_attribute_set_entity.test
+        base_path: spec/syntax/syntax.exp.syntax_schema.inverse_attribute_set_entity.test
   - _class: Expressir::Model::Declarations::Entity
     id: inverse_attribute_set_bound_entity
     attributes:
@@ -428,11 +423,11 @@ schemas:
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: attribute_entity
-          base_path: syntax_schema.attribute_entity
+          base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: test
-        base_path: syntax_schema.inverse_attribute_set_bound_entity.test
+        base_path: spec/syntax/syntax.exp.syntax_schema.inverse_attribute_set_bound_entity.test
   - _class: Expressir::Model::Declarations::Entity
     id: inverse_attribute_bag_entity
     attributes:
@@ -444,11 +439,11 @@ schemas:
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: attribute_entity
-          base_path: syntax_schema.attribute_entity
+          base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: test
-        base_path: syntax_schema.inverse_attribute_bag_entity.test
+        base_path: spec/syntax/syntax.exp.syntax_schema.inverse_attribute_bag_entity.test
   - _class: Expressir::Model::Declarations::Entity
     id: inverse_attribute_bag_bound_entity
     attributes:
@@ -466,17 +461,17 @@ schemas:
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: attribute_entity
-          base_path: syntax_schema.attribute_entity
+          base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: test
-        base_path: syntax_schema.inverse_attribute_bag_bound_entity.test
+        base_path: spec/syntax/syntax.exp.syntax_schema.inverse_attribute_bag_bound_entity.test
   - _class: Expressir::Model::Declarations::Entity
     id: inverse_attribute_redeclared_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
-      base_path: syntax_schema.attribute_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
     attributes:
     - _class: Expressir::Model::Declarations::InverseAttribute
       id: test
@@ -491,24 +486,24 @@ schemas:
           entity:
             _class: Expressir::Model::References::SimpleReference
             id: attribute_entity
-            base_path: syntax_schema.attribute_entity
+            base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
       type:
         _class: Expressir::Model::References::SimpleReference
         id: attribute_entity
-        base_path: syntax_schema.attribute_entity
+        base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: test
-        base_path: syntax_schema.inverse_attribute_redeclared_entity.test
+        base_path: spec/syntax/syntax.exp.syntax_schema.inverse_attribute_redeclared_entity.test
   - _class: Expressir::Model::Declarations::Entity
     id: inverse_attribute_redeclared_renamed_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
-      base_path: syntax_schema.attribute_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
     attributes:
     - _class: Expressir::Model::Declarations::InverseAttribute
       id: test2
@@ -523,14 +518,14 @@ schemas:
           entity:
             _class: Expressir::Model::References::SimpleReference
             id: attribute_entity
-            base_path: syntax_schema.attribute_entity
+            base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
       type:
         _class: Expressir::Model::References::SimpleReference
         id: attribute_entity
-        base_path: syntax_schema.attribute_entity
+        base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: test
@@ -547,7 +542,7 @@ schemas:
       attributes:
       - _class: Expressir::Model::References::SimpleReference
         id: test
-        base_path: syntax_schema.unique_entity.test
+        base_path: spec/syntax/syntax.exp.syntax_schema.unique_entity.test
   - _class: Expressir::Model::Declarations::Entity
     id: unique_label_entity
     attributes:
@@ -562,13 +557,13 @@ schemas:
       attributes:
       - _class: Expressir::Model::References::SimpleReference
         id: test
-        base_path: syntax_schema.unique_label_entity.test
+        base_path: spec/syntax/syntax.exp.syntax_schema.unique_label_entity.test
   - _class: Expressir::Model::Declarations::Entity
     id: unique_redeclared_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
-      base_path: syntax_schema.attribute_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
     unique_rules:
     - _class: Expressir::Model::Declarations::UniqueRule
       attributes:
@@ -581,7 +576,7 @@ schemas:
           entity:
             _class: Expressir::Model::References::SimpleReference
             id: attribute_entity
-            base_path: syntax_schema.attribute_entity
+            base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
@@ -590,7 +585,7 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
-      base_path: syntax_schema.attribute_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
     unique_rules:
     - _class: Expressir::Model::Declarations::UniqueRule
       id: UR1
@@ -604,7 +599,7 @@ schemas:
           entity:
             _class: Expressir::Model::References::SimpleReference
             id: attribute_entity
-            base_path: syntax_schema.attribute_entity
+            base_path: spec/syntax/syntax.exp.syntax_schema.attribute_entity
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
@@ -634,28 +629,28 @@ schemas:
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
   - _class: Expressir::Model::Declarations::SubtypeConstraint
     id: abstract_supertype_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: true
   - _class: Expressir::Model::Declarations::SubtypeConstraint
     id: total_over_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
   - _class: Expressir::Model::Declarations::SubtypeConstraint
     id: supertype_expression_subtype_constraint
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
     supertype_expression:
       _class: Expressir::Model::References::SimpleReference
@@ -665,7 +660,7 @@ schemas:
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
@@ -681,7 +676,7 @@ schemas:
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
@@ -697,7 +692,7 @@ schemas:
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
@@ -719,7 +714,7 @@ schemas:
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
@@ -741,7 +736,7 @@ schemas:
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
@@ -763,7 +758,7 @@ schemas:
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
@@ -785,7 +780,7 @@ schemas:
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::OneofSupertypeExpression
@@ -799,7 +794,7 @@ schemas:
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
@@ -819,7 +814,7 @@ schemas:
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
@@ -839,7 +834,7 @@ schemas:
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
@@ -859,7 +854,7 @@ schemas:
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
@@ -879,7 +874,7 @@ schemas:
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
@@ -908,7 +903,7 @@ schemas:
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
     supertype_expression:
       _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
@@ -1091,7 +1086,7 @@ schemas:
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
@@ -1102,7 +1097,7 @@ schemas:
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     types:
     - _class: Expressir::Model::Declarations::Type
       id: test
@@ -1118,7 +1113,7 @@ schemas:
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     constants:
     - _class: Expressir::Model::Declarations::Constant
       id: test
@@ -1137,7 +1132,7 @@ schemas:
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     constants:
     - _class: Expressir::Model::Declarations::Constant
       id: test
@@ -1163,7 +1158,7 @@ schemas:
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: test
@@ -1179,7 +1174,7 @@ schemas:
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: test
@@ -1199,7 +1194,7 @@ schemas:
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
@@ -1210,7 +1205,7 @@ schemas:
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: test
@@ -1229,7 +1224,7 @@ schemas:
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: test
@@ -1255,7 +1250,7 @@ schemas:
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
@@ -1266,7 +1261,7 @@ schemas:
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     statements:
     - _class: Expressir::Model::Statements::Null
     where_rules:
@@ -1284,7 +1279,7 @@ schemas:
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: syntax_schema.empty_entity
+      base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -1642,7 +1637,7 @@ schemas:
         procedure:
           _class: Expressir::Model::References::SimpleReference
           id: empty_procedure
-          base_path: syntax_schema.empty_procedure
+          base_path: spec/syntax/syntax.exp.syntax_schema.empty_procedure
     - _class: Expressir::Model::Declarations::Procedure
       id: call_parameter_statement
       statements:
@@ -1650,7 +1645,7 @@ schemas:
         procedure:
           _class: Expressir::Model::References::SimpleReference
           id: empty_procedure
-          base_path: syntax_schema.empty_procedure
+          base_path: spec/syntax/syntax.exp.syntax_schema.empty_procedure
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -1661,7 +1656,7 @@ schemas:
         procedure:
           _class: Expressir::Model::References::SimpleReference
           id: empty_procedure
-          base_path: syntax_schema.empty_procedure
+          base_path: spec/syntax/syntax.exp.syntax_schema.empty_procedure
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -1986,7 +1981,7 @@ schemas:
         items:
         - _class: Expressir::Model::References::SimpleReference
           id: empty_type
-          base_path: syntax_schema.empty_type
+          base_path: spec/syntax/syntax.exp.syntax_schema.empty_type
     - _class: Expressir::Model::Declarations::Type
       id: select_multiple_item_type
       underlying_type:
@@ -1994,7 +1989,7 @@ schemas:
         items:
         - _class: Expressir::Model::References::SimpleReference
           id: empty_type
-          base_path: syntax_schema.empty_type
+          base_path: spec/syntax/syntax.exp.syntax_schema.empty_type
     - _class: Expressir::Model::Declarations::Type
       id: select_based_on_type
       underlying_type:
@@ -2002,7 +1997,7 @@ schemas:
         based_on:
           _class: Expressir::Model::References::SimpleReference
           id: select_type
-          base_path: syntax_schema.types.select_type
+          base_path: spec/syntax/syntax.exp.syntax_schema.types.select_type
     - _class: Expressir::Model::Declarations::Type
       id: select_based_on_item_type
       underlying_type:
@@ -2010,11 +2005,11 @@ schemas:
         based_on:
           _class: Expressir::Model::References::SimpleReference
           id: select_type
-          base_path: syntax_schema.types.select_type
+          base_path: spec/syntax/syntax.exp.syntax_schema.types.select_type
         items:
         - _class: Expressir::Model::References::SimpleReference
           id: empty_type
-          base_path: syntax_schema.empty_type
+          base_path: spec/syntax/syntax.exp.syntax_schema.empty_type
     - _class: Expressir::Model::Declarations::Type
       id: select_based_on_multiple_item_type
       underlying_type:
@@ -2022,11 +2017,11 @@ schemas:
         based_on:
           _class: Expressir::Model::References::SimpleReference
           id: select_type
-          base_path: syntax_schema.types.select_type
+          base_path: spec/syntax/syntax.exp.syntax_schema.types.select_type
         items:
         - _class: Expressir::Model::References::SimpleReference
           id: empty_type
-          base_path: syntax_schema.empty_type
+          base_path: spec/syntax/syntax.exp.syntax_schema.empty_type
     - _class: Expressir::Model::Declarations::Type
       id: enumeration_type
       underlying_type:
@@ -2059,7 +2054,7 @@ schemas:
         based_on:
           _class: Expressir::Model::References::SimpleReference
           id: enumeration_type
-          base_path: syntax_schema.types.enumeration_type
+          base_path: spec/syntax/syntax.exp.syntax_schema.types.enumeration_type
     - _class: Expressir::Model::Declarations::Type
       id: enumeration_based_on_item_type
       underlying_type:
@@ -2067,7 +2062,7 @@ schemas:
         based_on:
           _class: Expressir::Model::References::SimpleReference
           id: enumeration_type
-          base_path: syntax_schema.types.enumeration_type
+          base_path: spec/syntax/syntax.exp.syntax_schema.types.enumeration_type
         items:
         - _class: Expressir::Model::DataTypes::EnumerationItem
           id: test
@@ -2083,7 +2078,7 @@ schemas:
         based_on:
           _class: Expressir::Model::References::SimpleReference
           id: enumeration_type
-          base_path: syntax_schema.types.enumeration_type
+          base_path: spec/syntax/syntax.exp.syntax_schema.types.enumeration_type
         items:
         - _class: Expressir::Model::DataTypes::EnumerationItem
           id: test
@@ -3205,7 +3200,7 @@ schemas:
         function:
           _class: Expressir::Model::References::SimpleReference
           id: parameter_function
-          base_path: syntax_schema.parameter_function
+          base_path: spec/syntax/syntax.exp.syntax_schema.parameter_function
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'

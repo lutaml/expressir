@@ -5,6 +5,8 @@ module Expressir
       # - section 9.5.2 Procedure
       class Procedure < ModelElement
         include Identifier
+        include ScopeContainer
+        include HasWhereRules
 
         attribute :parameters, Parameter, collection: true
         attribute :types, ModelElement, collection: true

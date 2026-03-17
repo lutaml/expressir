@@ -62,7 +62,7 @@ RSpec.describe Expressir::Express::PrettyFormatter do
 
           # Should be able to parse the formatted output
           reparsed = Expressir::Express::Parser.from_file(temp_file.path)
-          expect(reparsed).to be_a(Expressir::Model::Repository)
+          expect(reparsed).to be_a(Expressir::Model::ExpFile)
           expect(reparsed.schemas.length).to eq(1)
           expect(reparsed.schemas.first.id).to eq("simple_example")
         ensure
@@ -140,7 +140,7 @@ RSpec.describe Expressir::Express::PrettyFormatter do
           temp_file.close
 
           reparsed = Expressir::Express::Parser.from_file(temp_file.path)
-          expect(reparsed).to be_a(Expressir::Model::Repository)
+          expect(reparsed).to be_a(Expressir::Model::ExpFile)
           expect(reparsed.schemas.length).to eq(1)
           expect(reparsed.schemas.first.id).to eq("game_management_schema")
         ensure
@@ -326,7 +326,7 @@ RSpec.describe Expressir::Express::PrettyFormatter do
             temp_file.close
 
             reparsed = Expressir::Express::Parser.from_file(temp_file.path)
-            expect(reparsed).to be_a(Expressir::Model::Repository)
+            expect(reparsed).to be_a(Expressir::Model::ExpFile)
             expect(reparsed.schemas.first.id).to eq("simple_example")
           ensure
             temp_file.unlink

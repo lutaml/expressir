@@ -135,16 +135,25 @@ When Parsanol is installed:
 
 === Usage
 
-Expressir automatically uses Parsanol when available:
+Expressir automatically uses Parsanol (Rust parser) when available for better performance:
 
 [source,ruby]
 ----
-# Automatically uses Parsanol native parser when available
-repo = Expressir::Express::Parser.from_file("geometry.exp")
+# Parse a single file - returns ExpFile
+exp_file = Expressir::Express::Parser.from_file("geometry.exp")
+schema = exp_file.schemas.first
+puts "Schema: #{schema.id}"
 
 # Check if native parser is being used
 if Parsanol::Native.available?
   puts "Using Parsanol (Rust parser)"
+end
+
+# Parse multiple files - returns Repository
+files = ["schema1.exp", "schema2.exp"]
+repo = Expressir::Express::Parser.from_files(files)
+repo.schemas.each do |s|
+  puts "Schema: #{s.id}"
 end
 ----
 
@@ -240,9 +249,15 @@ https://www.express-language-foundation.org/pretty-print-spec/[ELF Pretty Print 
 [source,ruby]
 ----
 # Basic usage - formats with default settings
-repository = Expressir::Express::Parser.from_file("schema.exp")
+# Parser.from_file returns an ExpFile
+exp_file = Expressir::Express::Parser.from_file("schema.exp")
 formatter = Expressir::Express::PrettyFormatter.new
-formatted = formatter.format(repository)
+formatted = formatter.format(exp_file)
+puts formatted
+
+# The formatter also accepts Repository objects
+repo = Expressir::Express::Parser.from_files(["schema1.exp", "schema2.exp"])
+formatted = formatter.format(repo)
 puts formatted
 ----
 
@@ -1319,15 +1334,19 @@ The library provides two main methods for parsing EXPRESS files.
 
 ==== Parsing a single file
 
-Use the `from_file` method to parse a single EXPRESS schema file:
+Use the `from_file` method to parse a single EXPRESS schema file.
+This returns an `ExpFile` object containing the parsed schemas:
 
 [source,ruby]
 ----
-# Parse a single file
-repository = Expressir::Express::Parser.from_file("path/to/schema.exp")
+# Parse a single file - returns ExpFile
+exp_file = Expressir::Express::Parser.from_file("path/to/schema.exp")
+
+# Access schemas from the file
+schema = exp_file.schemas.first
 
 # With options
-repository = Expressir::Express::Parser.from_file(
+exp_file = Expressir::Express::Parser.from_file(
   "path/to/schema.exp",
   skip_references: false,  # Set to true to skip resolving references
   include_source: true,    # Set to true to include original source in the model
@@ -1342,7 +1361,7 @@ error:
 [source,ruby]
 ----
 begin
-  repository = Expressir::Express::Parser.from_file("path/to/schema.exp")
+  exp_file = Expressir::Express::Parser.from_file("path/to/schema.exp")
 rescue Expressir::Express::Error::SchemaParseFailure => e
   puts "Failed to parse schema: #{e.message}"
   puts "Filename: #{e.filename}"
@@ -1352,13 +1371,19 @@ end
 
 ==== Parsing multiple files
 
-Use the `from_files` method to parse multiple EXPRESS schema files:
+Use the `from_files` method to parse multiple EXPRESS schema files.
+This returns a `Repository` object containing all parsed files:
 
 [source,ruby]
 ----
-# Parse multiple files
+# Parse multiple files - returns Repository
 files = ["schema1.exp", "schema2.exp", "schema3.exp"]
 repository = Expressir::Express::Parser.from_files(files)
+
+# Access all schemas across all files
+repository.schemas.each do |schema|
+  puts "Schema: #{schema.id}"
+end
 ----
 
 You can provide a block to track loading progress and handle errors:
@@ -1407,7 +1432,12 @@ Example:
 
 [source,ruby]
 ----
-repo = Expressir::Express::Parser.from_file("path/to/file.exp")
+# Single file (ExpFile)
+exp_file = Expressir::Express::Parser.from_file("path/to/file.exp")
+file_drop = exp_file.to_liquid
+
+# Multiple files (Repository)
+repo = Expressir::Express::Parser.from_files(["file1.exp", "file2.exp"])
 repo_drop = repo.to_liquid
 ----
 
@@ -1438,10 +1468,15 @@ and `Expressir::Liquid::Declarations::SchemaDrop` has same attribute `file`.
 
 [source,ruby]
 ----
-repo = Expressir::Express::Parser.from_file("path/to/file.exp")
-repo_drop = repo.to_liquid
-schema = repo_drop.schemas.first
+# Parse file (returns ExpFile)
+exp_file = Expressir::Express::Parser.from_file("path/to/file.exp")
+file_drop = exp_file.to_liquid
+schema = file_drop.schemas.first
 schema.file = "path/to/file.exp"
+
+# Or parse multiple files (returns Repository)
+repo = Expressir::Express::Parser.from_files(["file1.exp", "file2.exp"])
+repo_drop = repo.to_liquid
 ----
 
 === Documentation coverage analysis
@@ -1454,9 +1489,13 @@ analyze and report on documentation coverage of EXPRESS schemas.
 # Create a coverage report from a file
 report = Expressir::Coverage::Report.from_file("path/to/schema.exp")
 
+# Or create a report from an ExpFile
+exp_file = Expressir::Express::Parser.from_file("path/to/schema.exp")
+report = Expressir::Coverage::Report.from_exp_file(exp_file)
+
 # Or create a report from a repository
-repository = Expressir::Express::Parser.from_file("path/to/schema.exp")
-report = Expressir::Coverage::Report.from_repository(repository)
+repo = Expressir::Express::Parser.from_files(["schema1.exp", "schema2.exp"])
+report = Expressir::Coverage::Report.from_repository(repo)
 
 # Access overall statistics
 puts "Overall coverage: #{report.coverage_percentage}%"

@@ -3,45 +3,32 @@
 require "spec_helper"
 
 RSpec.describe Expressir::Model::Indexes::EntityIndex do
+  # Use REAL objects instead of mocks
+  let(:entity1) do
+    Expressir::Model::Declarations::Entity.new(id: "entity1")
+  end
+
+  let(:entity2) do
+    Expressir::Model::Declarations::Entity.new(id: "entity2")
+  end
+
+  let(:entity3) do
+    Expressir::Model::Declarations::Entity.new(id: "entity3")
+  end
+
   let(:schema1) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
-      id: double(safe_downcase: "schema1"),
-      entities: entities1,
+    Expressir::Model::Declarations::Schema.new(
+      id: "schema1",
+      entities: [entity1, entity2],
     )
   end
 
   let(:schema2) do
-    instance_double(
-      Expressir::Model::Declarations::Schema,
-      id: double(safe_downcase: "schema2"),
-      entities: entities2,
+    Expressir::Model::Declarations::Schema.new(
+      id: "schema2",
+      entities: [entity3],
     )
   end
-
-  let(:entity1) do
-    instance_double(
-      Expressir::Model::Declarations::Entity,
-      id: double(safe_downcase: "entity1"),
-    )
-  end
-
-  let(:entity2) do
-    instance_double(
-      Expressir::Model::Declarations::Entity,
-      id: double(safe_downcase: "entity2"),
-    )
-  end
-
-  let(:entity3) do
-    instance_double(
-      Expressir::Model::Declarations::Entity,
-      id: double(safe_downcase: "entity3"),
-    )
-  end
-
-  let(:entities1) { [entity1, entity2] }
-  let(:entities2) { [entity3] }
 
   describe "#initialize" do
     it "creates an empty index when no schemas provided" do
@@ -97,9 +84,8 @@ RSpec.describe Expressir::Model::Indexes::EntityIndex do
     end
 
     it "handles schemas with nil entities" do
-      schema_no_entities = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "empty_schema"),
+      schema_no_entities = Expressir::Model::Declarations::Schema.new(
+        id: "empty_schema",
         entities: nil,
       )
 
@@ -108,9 +94,8 @@ RSpec.describe Expressir::Model::Indexes::EntityIndex do
     end
 
     it "handles empty entities collection" do
-      schema_empty_entities = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "empty_schema"),
+      schema_empty_entities = Expressir::Model::Declarations::Schema.new(
+        id: "empty_schema",
         entities: [],
       )
 
@@ -142,8 +127,7 @@ RSpec.describe Expressir::Model::Indexes::EntityIndex do
       end
 
       it "handles case-insensitive qualified names" do
-        # String already has safe_downcase method via extension
-        result = index.find("schema1.entity1")
+        result = index.find("SCHEMA1.ENTITY1")
 
         expect(result).to eq(entity1)
       end
@@ -163,13 +147,9 @@ RSpec.describe Expressir::Model::Indexes::EntityIndex do
       end
 
       it "returns first match when simple name exists in multiple schemas" do
-        duplicate_entity = instance_double(
-          Expressir::Model::Declarations::Entity,
-          id: double(safe_downcase: "entity1"),
-        )
-        schema_with_duplicate = instance_double(
-          Expressir::Model::Declarations::Schema,
-          id: double(safe_downcase: "schema3"),
+        duplicate_entity = Expressir::Model::Declarations::Entity.new(id: "entity1")
+        schema_with_duplicate = Expressir::Model::Declarations::Schema.new(
+          id: "schema3",
           entities: [duplicate_entity],
         )
         index.build([schema1, schema_with_duplicate])
@@ -221,7 +201,7 @@ RSpec.describe Expressir::Model::Indexes::EntityIndex do
       end
 
       it "handles case-insensitive schema names" do
-        result = index.list(schema: "schema1")
+        result = index.list(schema: "SCHEMA1")
 
         expect(result).to contain_exactly(entity1, entity2)
       end
@@ -242,9 +222,8 @@ RSpec.describe Expressir::Model::Indexes::EntityIndex do
     end
 
     it "returns true after building with empty schemas" do
-      schema_no_entities = instance_double(
-        Expressir::Model::Declarations::Schema,
-        id: double(safe_downcase: "empty"),
+      schema_no_entities = Expressir::Model::Declarations::Schema.new(
+        id: "empty",
         entities: nil,
       )
       index = described_class.new([schema_no_entities])
@@ -293,22 +272,30 @@ RSpec.describe Expressir::Model::Indexes::EntityIndex do
     end
 
     it "handles case-insensitive schema names" do
-      result = index.schema_entities("schema1")
+      result = index.schema_entities("SCHEMA1")
 
       expect(result).to be_a(Hash)
       expect(result.keys).to contain_exactly("entity1", "entity2")
     end
   end
 
-  describe "single responsibility principle" do
-    it "focuses solely on entity indexing" do
-      index = described_class.new([schema1])
+  describe "entity indexing behavior" do
+    let(:index) { described_class.new([schema1]) }
 
-      expect(index).to respond_to(:find)
-      expect(index).to respond_to(:list)
-      expect(index).to respond_to(:build)
-      expect(index).not_to respond_to(:validate)
-      expect(index).not_to respond_to(:resolve_references)
+    it "finds entities by calling find method" do
+      result = index.find("entity1")
+      expect(result).to eq(entity1)
+    end
+
+    it "lists entities by calling list method" do
+      result = index.list
+      expect(result).to contain_exactly(entity1, entity2)
+    end
+
+    it "builds indexes by calling build method" do
+      new_index = described_class.new
+      new_index.build([schema1])
+      expect(new_index.count).to eq(2)
     end
   end
 

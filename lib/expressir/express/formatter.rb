@@ -69,6 +69,8 @@ module Expressir
         case node
         when Model::Repository
           format_repository(node)
+        when Model::ExpFile
+          format_exp_file(node)
         when Model::Declarations::Attribute
           format_declarations_attribute(node)
         when Model::Declarations::Constant
@@ -222,6 +224,12 @@ module Expressir
       private
 
       def format_repository(node)
+        # Format each file in the repository
+        result = node.files&.map { |f| format(f) }&.join("\n\n")
+        result ? "#{result}\n" : ""
+      end
+
+      def format_exp_file(node)
         result = node.schemas&.map { |x| format(x) }&.join("\n\n")
         result ? "#{result}\n" : ""
       end

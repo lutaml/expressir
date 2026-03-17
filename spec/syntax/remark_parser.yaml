@@ -1,5 +1,6 @@
 ---
-_class: Expressir::Model::Repository
+_class: Expressir::Model::ExpFile
+path: spec/syntax/remark.exp
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: remark_schema
@@ -111,11 +112,11 @@ schemas:
       type:
         _class: Expressir::Model::References::SimpleReference
         id: remark_entity
-        base_path: remark_schema.remark_entity
+        base_path: spec/syntax/remark.exp.remark_schema.remark_entity
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: remark_attribute
-        base_path: remark_schema.remark_entity.remark_attribute
+        base_path: spec/syntax/remark.exp.remark_schema.remark_entity.remark_attribute
     unique_rules:
     - _class: Expressir::Model::Declarations::UniqueRule
       id: UR1
@@ -126,7 +127,7 @@ schemas:
       attributes:
       - _class: Expressir::Model::References::SimpleReference
         id: remark_attribute
-        base_path: remark_schema.remark_entity.remark_attribute
+        base_path: spec/syntax/remark.exp.remark_schema.remark_entity.remark_attribute
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -168,7 +169,7 @@ schemas:
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: remark_entity
-      base_path: remark_schema.remark_entity
+      base_path: spec/syntax/remark.exp.remark_schema.remark_entity
     abstract: false
   functions:
   - _class: Expressir::Model::Declarations::Function
@@ -236,7 +237,7 @@ schemas:
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: remark_variable
-        base_path: remark_schema.remark_function.remark_variable
+        base_path: spec/syntax/remark.exp.remark_schema.remark_function.remark_variable
       statements:
       - _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Statements::Repeat
@@ -255,7 +256,7 @@ schemas:
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: remark_variable
-        base_path: remark_schema.remark_function.remark_variable
+        base_path: spec/syntax/remark.exp.remark_schema.remark_function.remark_variable
       expression:
         _class: Expressir::Model::Expressions::QueryExpression
         id: remark_query
@@ -264,7 +265,7 @@ schemas:
         aggregate_source:
           _class: Expressir::Model::References::SimpleReference
           id: remark_variable
-          base_path: remark_schema.remark_function.remark_variable
+          base_path: spec/syntax/remark.exp.remark_schema.remark_function.remark_variable
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -277,7 +278,7 @@ schemas:
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: remark_entity
-      base_path: remark_schema.remark_entity
+      base_path: spec/syntax/remark.exp.remark_schema.remark_entity
     types:
     - _class: Expressir::Model::Declarations::Type
       id: remark_type
@@ -326,7 +327,7 @@ schemas:
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: remark_variable
-        base_path: remark_schema.remark_rule.remark_variable
+        base_path: spec/syntax/remark.exp.remark_schema.remark_rule.remark_variable
       statements:
       - _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Statements::Repeat
@@ -345,7 +346,7 @@ schemas:
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: remark_variable
-        base_path: remark_schema.remark_rule.remark_variable
+        base_path: spec/syntax/remark.exp.remark_schema.remark_rule.remark_variable
       expression:
         _class: Expressir::Model::Expressions::QueryExpression
         id: remark_query
@@ -354,7 +355,7 @@ schemas:
         aggregate_source:
           _class: Expressir::Model::References::SimpleReference
           id: remark_variable
-          base_path: remark_schema.remark_rule.remark_variable
+          base_path: spec/syntax/remark.exp.remark_schema.remark_rule.remark_variable
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -450,7 +451,7 @@ schemas:
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: remark_variable
-        base_path: remark_schema.remark_procedure.remark_variable
+        base_path: spec/syntax/remark.exp.remark_schema.remark_procedure.remark_variable
       statements:
       - _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Statements::Repeat
@@ -469,7 +470,7 @@ schemas:
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: remark_variable
-        base_path: remark_schema.remark_procedure.remark_variable
+        base_path: spec/syntax/remark.exp.remark_schema.remark_procedure.remark_variable
       expression:
         _class: Expressir::Model::Expressions::QueryExpression
         id: remark_query
@@ -478,7 +479,7 @@ schemas:
         aggregate_source:
           _class: Expressir::Model::References::SimpleReference
           id: remark_variable
-          base_path: remark_schema.remark_procedure.remark_variable
+          base_path: spec/syntax/remark.exp.remark_schema.remark_procedure.remark_variable
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'

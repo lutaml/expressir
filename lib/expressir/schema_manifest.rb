@@ -28,7 +28,7 @@ module Expressir
         x.set_initial_path(path)
       end
     rescue StandardError => e
-      raise InvalidSchemaManifestError,
+      raise ManifestValidationError,
             "Invalid schema manifest format: #{e.message}"
     end
 

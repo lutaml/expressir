@@ -96,8 +96,5 @@ module Expressir
         end
       end
     end
-
-    # For backward compatibility
-    CacheVersionMismatchError = Error::CacheVersionMismatchError
   end
 end

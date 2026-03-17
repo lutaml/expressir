@@ -20,8 +20,6 @@ REFERENCE FROM contract_schema
     -- interfaces
     -- constants
     -- types
-    -- rules
-    -- interval expressions
 
 
 CONSTANT
@@ -53,20 +51,20 @@ ENTITY abstract_supertype_entity
 END_ENTITY;
 
 ENTITY abstract_supertype_constraint_entity
-  ABSTRACT SUPERTYPE OF ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+  ABSTRACT SUPERTYPE OF (empty_entity);
 END_ENTITY;
 
 ENTITY supertype_constraint_entity
-  SUPERTYPE OF ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+  SUPERTYPE OF (empty_entity);
 END_ENTITY;
 
 ENTITY subtype_entity
-  SUBTYPE OF ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+  SUBTYPE OF (empty_entity);
 END_ENTITY;
 
 ENTITY supertype_constraint_subtype_entity
-  SUPERTYPE OF ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}})
-  SUBTYPE OF ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+  SUPERTYPE OF (empty_entity)
+  SUBTYPE OF (empty_entity);
 END_ENTITY;
 
 ENTITY attribute_entity;
@@ -88,13 +86,13 @@ ENTITY attribute_multiple_shorthand_entity;
 END_ENTITY;
 
 ENTITY attribute_redeclared_entity
-  SUBTYPE OF ({{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}});
-  SELF\{{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}}.test : BOOLEAN;
+  SUBTYPE OF (attribute_entity);
+  SELF\attribute_entity.test : BOOLEAN;
 END_ENTITY;
 
 ENTITY attribute_redeclared_renamed_entity
-  SUBTYPE OF ({{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}});
-  SELF\{{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}}.test RENAMED test2 : BOOLEAN;
+  SUBTYPE OF (attribute_entity);
+  SELF\attribute_entity.test RENAMED test2 : BOOLEAN;
 END_ENTITY;
 
 ENTITY derived_attribute_entity;
@@ -103,57 +101,57 @@ DERIVE
 END_ENTITY;
 
 ENTITY derived_attribute_redeclared_entity
-  SUBTYPE OF ({{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}});
+  SUBTYPE OF (attribute_entity);
 DERIVE
-  SELF\{{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}}.test : BOOLEAN := TRUE;
+  SELF\attribute_entity.test : BOOLEAN := TRUE;
 END_ENTITY;
 
 ENTITY derived_attribute_redeclared_renamed_entity
-  SUBTYPE OF ({{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}});
+  SUBTYPE OF (attribute_entity);
 DERIVE
-  SELF\{{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}}.test RENAMED test2 : BOOLEAN := TRUE;
+  SELF\attribute_entity.test RENAMED test2 : BOOLEAN := TRUE;
 END_ENTITY;
 
 ENTITY inverse_attribute_entity;
 INVERSE
-  test : {{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}} FOR test;
+  test : attribute_entity FOR test;
 END_ENTITY;
 
 ENTITY inverse_attribute_entity_entity;
 INVERSE
-  test : {{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}} FOR attribute_entity.test;
+  test : attribute_entity FOR attribute_entity.test;
 END_ENTITY;
 
 ENTITY inverse_attribute_set_entity;
 INVERSE
-  test : SET OF {{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}} FOR test;
+  test : SET OF attribute_entity FOR test;
 END_ENTITY;
 
 ENTITY inverse_attribute_set_bound_entity;
 INVERSE
-  test : SET [1:9] OF {{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}} FOR test;
+  test : SET [1:9] OF attribute_entity FOR test;
 END_ENTITY;
 
 ENTITY inverse_attribute_bag_entity;
 INVERSE
-  test : BAG OF {{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}} FOR test;
+  test : BAG OF attribute_entity FOR test;
 END_ENTITY;
 
 ENTITY inverse_attribute_bag_bound_entity;
 INVERSE
-  test : BAG [1:9] OF {{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}} FOR test;
+  test : BAG [1:9] OF attribute_entity FOR test;
 END_ENTITY;
 
 ENTITY inverse_attribute_redeclared_entity
-  SUBTYPE OF ({{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}});
+  SUBTYPE OF (attribute_entity);
 INVERSE
-  SELF\{{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}}.test : {{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}} FOR test;
+  SELF\attribute_entity.test : attribute_entity FOR test;
 END_ENTITY;
 
 ENTITY inverse_attribute_redeclared_renamed_entity
-  SUBTYPE OF ({{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}});
+  SUBTYPE OF (attribute_entity);
 INVERSE
-  SELF\{{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}}.test RENAMED test2 : {{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}} FOR test;
+  SELF\attribute_entity.test RENAMED test2 : attribute_entity FOR test;
 END_ENTITY;
 
 ENTITY unique_entity;
@@ -169,15 +167,15 @@ UNIQUE
 END_ENTITY;
 
 ENTITY unique_redeclared_entity
-  SUBTYPE OF ({{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}});
+  SUBTYPE OF (attribute_entity);
 UNIQUE
-  SELF\{{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}}.test;
+  SELF\attribute_entity.test;
 END_ENTITY;
 
 ENTITY unique_label_redeclared_entity
-  SUBTYPE OF ({{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}});
+  SUBTYPE OF (attribute_entity);
 UNIQUE
-  UR1: SELF\{{{<<express:syntax_schema.attribute_entity,attribute_entity>>}}}.test;
+  UR1: SELF\attribute_entity.test;
 END_ENTITY;
 
 ENTITY where_entity;
@@ -190,69 +188,69 @@ WHERE
   WR1: TRUE;
 END_ENTITY;
 
-SUBTYPE_CONSTRAINT empty_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT empty_subtype_constraint FOR empty_entity;
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT abstract_supertype_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT abstract_supertype_subtype_constraint FOR empty_entity;
   ABSTRACT SUPERTYPE;
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT total_over_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT total_over_subtype_constraint FOR empty_entity;
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT supertype_expression_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT supertype_expression_subtype_constraint FOR empty_entity;
   a;
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT supertype_expression_andor_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT supertype_expression_andor_subtype_constraint FOR empty_entity;
   a ANDOR b;
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT supertype_expression_and_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT supertype_expression_and_subtype_constraint FOR empty_entity;
   a AND b;
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT supertype_expression_andor_and_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT supertype_expression_andor_and_subtype_constraint FOR empty_entity;
   a ANDOR b AND c;
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT supertype_expression_and_andor_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT supertype_expression_and_andor_subtype_constraint FOR empty_entity;
   a AND b ANDOR c;
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT supertype_expression_parenthesis_andor_and_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT supertype_expression_parenthesis_andor_and_subtype_constraint FOR empty_entity;
   (a ANDOR b) AND c;
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT supertype_expression_and_parenthesis_andor_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT supertype_expression_and_parenthesis_andor_subtype_constraint FOR empty_entity;
   a AND (b ANDOR c);
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT supertype_expression_oneof_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT supertype_expression_oneof_subtype_constraint FOR empty_entity;
   ONEOF(a, b);
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT supertype_expression_and_oneof_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT supertype_expression_and_oneof_subtype_constraint FOR empty_entity;
   a AND ONEOF(b, c);
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT supertype_expression_andor_oneof_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT supertype_expression_andor_oneof_subtype_constraint FOR empty_entity;
   a ANDOR ONEOF(b, c);
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT supertype_expression_oneof_and_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT supertype_expression_oneof_and_subtype_constraint FOR empty_entity;
   ONEOF(a, b) AND c;
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT supertype_expression_oneof_andor_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT supertype_expression_oneof_andor_subtype_constraint FOR empty_entity;
   ONEOF(a, b) ANDOR c;
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT supertype_expression_oneof_and_oneof_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT supertype_expression_oneof_and_oneof_subtype_constraint FOR empty_entity;
   ONEOF(a, b) AND ONEOF(c, d);
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT supertype_expression_oneof_andor_oneof_subtype_constraint FOR {{{<<express:syntax_schema.empty_entity,empty_entity>>}}};
+SUBTYPE_CONSTRAINT supertype_expression_oneof_andor_oneof_subtype_constraint FOR empty_entity;
   ONEOF(a, b) ANDOR ONEOF(c, d);
 END_SUBTYPE_CONSTRAINT;
 
@@ -332,19 +330,19 @@ FUNCTION multiple_shorthand_variable_expression_function : BOOLEAN;
   ;
 END_FUNCTION;
 
-RULE empty_rule FOR ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+RULE empty_rule FOR (empty_entity);
 WHERE
   TRUE;
 END_RULE;
 
-RULE type_rule FOR ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+RULE type_rule FOR (empty_entity);
   TYPE test = BOOLEAN;
   END_TYPE;
 WHERE
   TRUE;
 END_RULE;
 
-RULE constant_rule FOR ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+RULE constant_rule FOR (empty_entity);
   CONSTANT
     test : BOOLEAN := TRUE;
   END_CONSTANT;
@@ -352,7 +350,7 @@ WHERE
   TRUE;
 END_RULE;
 
-RULE multiple_constant_rule FOR ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+RULE multiple_constant_rule FOR (empty_entity);
   CONSTANT
     test : BOOLEAN := TRUE;
     test2 : BOOLEAN := TRUE;
@@ -361,7 +359,7 @@ WHERE
   TRUE;
 END_RULE;
 
-RULE variable_rule FOR ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+RULE variable_rule FOR (empty_entity);
   LOCAL
     test : BOOLEAN;
   END_LOCAL;
@@ -369,7 +367,7 @@ WHERE
   TRUE;
 END_RULE;
 
-RULE multiple_variable_rule FOR ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+RULE multiple_variable_rule FOR (empty_entity);
   LOCAL
     test : BOOLEAN;
     test2 : BOOLEAN;
@@ -378,12 +376,12 @@ WHERE
   TRUE;
 END_RULE;
 
-RULE multiple_shorthand_variable_rule FOR ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+RULE multiple_shorthand_variable_rule FOR (empty_entity);
 WHERE
   TRUE;
 END_RULE;
 
-RULE variable_expression_rule FOR ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+RULE variable_expression_rule FOR (empty_entity);
   LOCAL
     test : BOOLEAN := TRUE;
   END_LOCAL;
@@ -391,7 +389,7 @@ WHERE
   TRUE;
 END_RULE;
 
-RULE multiple_variable_expression_rule FOR ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+RULE multiple_variable_expression_rule FOR (empty_entity);
   LOCAL
     test : BOOLEAN := TRUE;
     test2 : BOOLEAN := TRUE;
@@ -400,17 +398,17 @@ WHERE
   TRUE;
 END_RULE;
 
-RULE multiple_shorthand_variable_expression_rule FOR ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+RULE multiple_shorthand_variable_expression_rule FOR (empty_entity);
 WHERE
   TRUE;
 END_RULE;
 
-RULE statement_rule FOR ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+RULE statement_rule FOR (empty_entity);
 WHERE
   TRUE;
 END_RULE;
 
-RULE where_label_rule FOR ({{{<<express:syntax_schema.empty_entity,empty_entity>>}}});
+RULE where_label_rule FOR (empty_entity);
 WHERE
   WR1: TRUE;
 END_RULE;
@@ -615,13 +613,13 @@ PROCEDURE statements;
     ;
   END_PROCEDURE;
   PROCEDURE call_statement;
-    {{{<<express:syntax_schema.empty_procedure,empty_procedure>>}}};
+    empty_procedure;
   END_PROCEDURE;
   PROCEDURE call_parameter_statement;
-    {{{<<express:syntax_schema.empty_procedure,empty_procedure>>}}}(TRUE);
+    empty_procedure(TRUE);
   END_PROCEDURE;
   PROCEDURE call_parameter2_statement;
-    {{{<<express:syntax_schema.empty_procedure,empty_procedure>>}}}(TRUE, TRUE);
+    empty_procedure(TRUE, TRUE);
   END_PROCEDURE;
   PROCEDURE call_insert_statement;
     (TRUE);
@@ -724,18 +722,18 @@ PROCEDURE types;
     ();
   END_TYPE;
   TYPE select_item_type = SELECT
-    ({{{<<express:syntax_schema.empty_type,empty_type>>}}});
+    (empty_type);
   END_TYPE;
   TYPE select_multiple_item_type = SELECT
-    ({{{<<express:syntax_schema.empty_type,empty_type>>}}});
+    (empty_type);
   END_TYPE;
   TYPE select_based_on_type = SELECT BASED_ON select_type;
   END_TYPE;
   TYPE select_based_on_item_type = SELECT BASED_ON select_type WITH
-    ({{{<<express:syntax_schema.empty_type,empty_type>>}}});
+    (empty_type);
   END_TYPE;
   TYPE select_based_on_multiple_item_type = SELECT BASED_ON select_type WITH
-    ({{{<<express:syntax_schema.empty_type,empty_type>>}}});
+    (empty_type);
   END_TYPE;
   TYPE enumeration_type = ENUMERATION;
   END_TYPE;
@@ -859,7 +857,7 @@ PROCEDURE expressions;
     repeated_aggregate_initializer_expression : BOOLEAN := [4];
     complex_aggregate_initializer_expression : BOOLEAN := [4 + 2];
     complex_repeated_aggregate_initializer_expression : BOOLEAN := [4 + 2];
-    call_expression : BOOLEAN := {{{<<express:syntax_schema.parameter_function,parameter_function>>}}}(TRUE);
+    call_expression : BOOLEAN := parameter_function(TRUE);
     simple_reference_expression : BOOLEAN := test;
     group_reference_expression : BOOLEAN := test;
     index_reference_expression : BOOLEAN := test;

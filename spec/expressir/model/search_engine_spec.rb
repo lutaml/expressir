@@ -42,7 +42,7 @@ RSpec.describe Expressir::Model::SearchEngine do
 
     schema1.functions = [func1]
 
-    repo.schemas << schema1
+    repo.add_schema(schema1)
 
     # Create test schema 2
     schema2 = Expressir::Model::Declarations::Schema.new(id: "other_schema")
@@ -51,7 +51,7 @@ RSpec.describe Expressir::Model::SearchEngine do
     entity3.parent = schema2
     schema2.entities = [entity3]
 
-    repo.schemas << schema2
+    repo.add_schema(schema2)
 
     repo.build_indexes
     repo

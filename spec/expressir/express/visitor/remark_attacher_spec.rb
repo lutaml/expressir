@@ -117,11 +117,11 @@ RSpec.describe Expressir::Express::RemarkAttacher do
         END_SCHEMA;
       EXP
 
-      repo = Expressir::Express::Parser.from_exp(source)
-      schema = repo.schemas.first
+      exp_file = Expressir::Express::Parser.from_exp(source)
 
-      # Remarks should be attached
-      expect(schema.untagged_remarks).not_to be_empty
+      # File-level preamble remarks should be attached to ExpFile
+      expect(exp_file).to be_a(Expressir::Model::ExpFile)
+      expect(exp_file.untagged_remarks).not_to be_empty
     end
   end
 end

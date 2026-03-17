@@ -222,7 +222,7 @@ RSpec.describe Expressir::Model::Declarations::Schema do
     end
 
     before do
-      repository.schemas << source_schema
+      repository.add_schema(source_schema)
       schema.parent = repository
       source_schema.parent = repository
     end

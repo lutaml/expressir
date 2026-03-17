@@ -18,6 +18,7 @@ module Expressir
 
       POLYMORPHIC_CLASS_MAP = {
         "Expressir::Model::Cache" => "Expressir::Model::Cache",
+        "Expressir::Model::ExpFile" => "Expressir::Model::ExpFile",
         "Expressir::Model::Repository" => "Expressir::Model::Repository",
         "Expressir::Model::RemarkInfo" => "Expressir::Model::RemarkInfo",
         "Expressir::Model::DataTypes::Aggregate" => "Expressir::Model::DataTypes::Aggregate",
@@ -194,29 +195,20 @@ module Expressir
       end
 
       # Add a remark to this element
-      # Supports both RemarkInfo objects and legacy strings
-      # @param remark_or_info [RemarkInfo, String] Remark to add
-      def add_remark(remark_or_info)
+      # @param remark_info [RemarkInfo] Remark to add
+      def add_remark(remark_info)
         self.untagged_remarks ||= []
+        return unless remark_info.is_a?(RemarkInfo)
 
-        if remark_or_info.is_a?(RemarkInfo)
-          self.untagged_remarks << remark_or_info
-        elsif remark_or_info.is_a?(String)
-          # Backward compatibility: assume embedded format for strings
-          self.untagged_remarks << RemarkInfo.new(text: remark_or_info,
-                                                  format: "embedded")
-        end
+        self.untagged_remarks << remark_info
       end
 
       # Get all remarks as RemarkInfo objects
-      # Converts legacy string remarks to RemarkInfo for consistency
       # @return [Array<RemarkInfo>] Array of RemarkInfo objects
       def remark_infos
         return [] if untagged_remarks.nil?
 
-        (untagged_remarks || []).map do |r|
-          r.is_a?(RemarkInfo) ? r : RemarkInfo.new(text: r, format: "embedded")
-        end
+        untagged_remarks.select { |r| r.is_a?(RemarkInfo) }
       end
 
       private

@@ -1,8 +1,13 @@
 # lib/expressir/model.rb
+
+# Load marker modules for type checking
+require_relative "model/concerns"
+
 module Expressir
   module Model
     autoload :ModelElement, "#{__dir__}/model/model_element"
     autoload :Cache, "#{__dir__}/model/cache"
+    autoload :ExpFile, "#{__dir__}/model/exp_file"
     autoload :Identifier, "#{__dir__}/model/identifier"
     autoload :Repository, "#{__dir__}/model/repository"
     autoload :RepositoryValidator, "#{__dir__}/model/repository_validator"

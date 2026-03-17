@@ -5,6 +5,9 @@ module Expressir
       # - section 9.6 Rule
       class Rule < ModelElement
         include Identifier
+        include ScopeContainer
+        include HasInformalPropositions
+        include HasWhereRules
 
         attribute :applies_to, ModelElement, collection: true
         attribute :types, ModelElement, collection: true

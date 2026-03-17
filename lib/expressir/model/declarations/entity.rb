@@ -5,6 +5,9 @@ module Expressir
       # - section 9.2 Entity declaration
       class Entity < ModelElement
         include Identifier
+        include ScopeContainer
+        include HasInformalPropositions
+        include HasWhereRules
 
         attribute :abstract, :boolean
         attribute :supertype_expression, ModelElement

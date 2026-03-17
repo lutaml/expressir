@@ -103,7 +103,7 @@ RSpec.describe Expressir::Commands::Package do
       repo = Expressir::Model::Repository.new
       schema = Expressir::Model::Declarations::Schema.new(id: "test_schema",
                                                           file: nil)
-      repo.schemas << schema
+      repo.add_schema(schema)
 
       Zip::File.open(test_package, Zip::File::CREATE) do |zip|
         metadata = Expressir::Package::Metadata.new(
@@ -304,7 +304,7 @@ RSpec.describe Expressir::Commands::Package do
       schema.types = []
       schema.functions = []
 
-      repo.schemas << schema
+      repo.add_schema(schema)
       repo.build_indexes
 
       Zip::File.open(list_test_package, Zip::File::CREATE) do |zip|
@@ -440,7 +440,7 @@ RSpec.describe Expressir::Commands::Package do
       entity.parent = schema # Set parent for path resolution
       schema.entities = [entity]
 
-      repo.schemas << schema
+      repo.add_schema(schema)
       repo.build_indexes
 
       Zip::File.open(search_test_package, Zip::File::CREATE) do |zip|

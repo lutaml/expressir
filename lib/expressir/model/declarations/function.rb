@@ -5,6 +5,8 @@ module Expressir
       # - section 9.5.1 Function
       class Function < ModelElement
         include Identifier
+        include ScopeContainer
+        include HasWhereRules
 
         attribute :parameters, Parameter, collection: true
         attribute :return_type, ModelElement

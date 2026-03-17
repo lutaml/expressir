@@ -484,29 +484,11 @@ module Expressir
       def find_parent_schema(element)
         current = element
         while current
-          # Duck typing - check if this looks like a schema
-          # A schema has no parent or is explicitly a Schema type
-          begin
-            # First check using is_a? for real objects
-            if current.is_a?(Declarations::Schema)
-              return current
-            end
-
-            # For mock objects, check if parent is nil and has id (likely a schema)
-            # This might be a schema - check if it has an id
-            if (!current.respond_to?(:parent) || current.parent.nil?) && current.respond_to?(:id) && current.id
-              return current
-            end
-          rescue StandardError
-            # Ignore errors from type checking
-          end
-
-          current = begin
-            current.parent
-          rescue StandardError
-            nil
-          end
+          return current if current.is_a?(Declarations::Schema)
+          current = current.parent
         end
+      rescue StandardError
+        # Handle objects that don't fully implement the interface
         nil
       end
 

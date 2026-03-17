@@ -1,14 +1,12 @@
 ---
-_class: Expressir::Model::Repository
+_class: Expressir::Model::ExpFile
+path: spec/syntax/without_ending_newline.exp
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: Analysis_representation_arm
   remarks:
-  - ISO/TS 10303-1006
   - Analysis_representation_arm
   untagged_remarks:
-  - text: ISO/TS 10303-1006
-    format: tail
   - text: Analysis_representation_arm
     format: tail
   file: spec/syntax/without_ending_newline.exp
@@ -44,7 +42,7 @@ schemas:
       type:
         _class: Expressir::Model::References::SimpleReference
         id: Analysis_representation_context
-        base_path: Analysis_representation_arm.Analysis_representation_context
+        base_path: spec/syntax/without_ending_newline.exp.Analysis_representation_arm.Analysis_representation_context
   - _class: Expressir::Model::Declarations::Entity
     id: Analysis_representation_context
     subtype_of:

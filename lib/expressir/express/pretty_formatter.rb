@@ -98,22 +98,16 @@ module Expressir
         remark = node.untagged_remarks.first
         return "" if remark.nil?
 
-        # Handle both RemarkInfo and String
-        if remark.is_a?(Model::RemarkInfo)
-          text = remark.text
-          return "" if text.nil? || text.empty?
+        return "" unless remark.is_a?(Model::RemarkInfo)
 
-          # Include tag if present
-          formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
+        text = remark.text
+        return "" if text.nil? || text.empty?
 
-          # Use format from RemarkInfo
-          remark.tail? ? " -- #{formatted_text}" : " (* #{formatted_text} *)"
-        else
-          # Legacy string - default to tail format
-          return "" if remark.empty?
+        # Include tag if present
+        formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
 
-          " -- #{remark}"
-        end
+        # Use format from RemarkInfo
+        remark.tail? ? " -- #{formatted_text}" : " (* #{formatted_text} *)"
       end
 
       # Override to preserve tail remarks on attributes
@@ -252,33 +246,27 @@ module Expressir
       end
 
       # Format a single preamble remark
-      # @param remark [String, RemarkInfo] Remark text or RemarkInfo object
+      # @param remark [RemarkInfo] RemarkInfo object
       # @param indent_str [String] Indentation to use (optional)
       # @return [String] Formatted remark
       def format_preamble_remark(remark, _indent_str = "")
-        # Handle both String (legacy) and RemarkInfo
-        if remark.is_a?(Model::RemarkInfo)
-          text = remark.text
+        return "" unless remark.is_a?(Model::RemarkInfo)
 
-          # Include tag if present
-          text = "\"#{remark.tag}\" #{text}" if remark.tagged?
+        text = remark.text
+        return "" if text.nil? || text.empty?
 
-          # Use format from RemarkInfo
-          if remark.tail?
-            "-- #{text}"
-          elsif text.include?("\n")
-            # Embedded remark - always use embedded format for preamble
-            ["(*", text,
-             "*)"].join("\n")
-          else
-            "(* #{text} *)"
-          end
-        elsif remark.include?("\n")
-          # Legacy string handling
-          ["(*", remark,
+        # Include tag if present
+        text = "\"#{remark.tag}\" #{text}" if remark.tagged?
+
+        # Use format from RemarkInfo
+        if remark.tail?
+          "-- #{text}"
+        elsif text.include?("\n")
+          # Embedded remark - always use embedded format for preamble
+          ["(*", text,
            "*)"].join("\n")
         else
-          "(* #{remark} *)"
+          "(* #{text} *)"
         end
       end
 
@@ -305,18 +293,53 @@ module Expressir
       def format_repository(node)
         result = []
 
-        # Add preamble if source has remarks
-        # Use begin/rescue for duck typing (RBS-safe)
-        source_remarks = begin
-          node.source_remarks if node.is_a?(Model::Repository)
-        rescue NoMethodError
-          nil
-        end
-        if source_remarks
-          result.concat(format_preamble(source_remarks))
+        # Format files if present
+        node.files&.each do |exp_file|
+          file_output = format_exp_file(exp_file)
+          result << file_output if file_output && !file_output.empty?
         end
 
-        # Add provenance
+        # Handle schemas directly added to repository (not via files)
+        direct_schemas = node.schemas.select do |s|
+          # Schema is direct if it's not in any file
+          node.files.nil? || node.files.none? { |f| f.schemas&.include?(s) }
+        end
+
+        if direct_schemas.any?
+          # Add preamble if repository has untagged remarks
+          if node.untagged_remarks && !node.untagged_remarks.empty?
+            result.concat(format_preamble(node.untagged_remarks))
+          end
+
+          # Add provenance
+          provenance = format_provenance
+          result << provenance if provenance
+          result << "" if provenance
+
+          # Add schemas
+          schemas_output = direct_schemas.map { |x| format(x) }.join("\n\n")
+          result << schemas_output if schemas_output
+        elsif result.empty?
+          # Empty repository - just add provenance
+          provenance = format_provenance
+          result << provenance if provenance
+        end
+
+        result.any? ? "#{result.join("\n")}\n" : ""
+      end
+
+      # Format ExpFile with file-level preamble
+      # @param node [Model::ExpFile] ExpFile node
+      # @return [String] Formatted file
+      def format_exp_file(node)
+        result = []
+
+        # Add file-level preamble if present
+        if node.untagged_remarks && !node.untagged_remarks.empty?
+          result.concat(format_preamble(node.untagged_remarks))
+        end
+
+        # Add provenance (only for first file or single file)
         provenance = format_provenance
         result << provenance if provenance
         result << "" if provenance
@@ -325,7 +348,7 @@ module Expressir
         schemas = node.schemas&.map { |x| format(x) }&.join("\n\n")
         result << schemas if schemas
 
-        "#{result.join("\n")}\n"
+        result.empty? ? "" : "#{result.join("\n")}\n"
       end
 
       # Format a block of constants with aligned colons and assignments

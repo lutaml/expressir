@@ -20,8 +20,6 @@ REFERENCE FROM contract_schema
     -- interfaces
     -- constants
     -- types
-    -- rules
-    -- interval expressions
 
 
 CONSTANT

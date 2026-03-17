@@ -94,7 +94,7 @@ RSpec.describe Expressir::Commands::Package,
               id: "schema_#{i}",
               file: nil,
             )
-            repo.schemas << schema
+            repo.add_schema(schema)
           end
           repo.build_indexes
         end
@@ -359,7 +359,7 @@ RSpec.describe Expressir::Commands::Package,
           id: "test_schema",
           file: nil,
         )
-        repo.schemas << schema
+        repo.add_schema(schema)
         repo.build_indexes
       end
     end
@@ -476,7 +476,7 @@ RSpec.describe Expressir::Commands::Package,
           schema.procedures = []
           schema.rules = []
 
-          repo.schemas << schema
+          repo.add_schema(schema)
           repo.build_indexes
         end
       end

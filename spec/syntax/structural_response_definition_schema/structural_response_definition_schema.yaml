@@ -1,5 +1,6 @@
 ---
-_class: Expressir::Model::Repository
+_class: Expressir::Model::ExpFile
+path: spec/syntax/structural_response_definition_schema/structural_response_definition_schema.exp
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: structural_response_definition_schema

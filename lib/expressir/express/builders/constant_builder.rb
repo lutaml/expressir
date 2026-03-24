@@ -19,7 +19,7 @@ module Expressir
         end
 
         def build_local_decl(ast_data)
-          Builder.build_children(ast_data[:local_variable]).flatten.compact
+          Builder.build_children(ast_data[:local_variable])
         end
 
         def build_local_variable(ast_data)
@@ -75,11 +75,11 @@ module Expressir
           formal_param_data = ast_data[:formal_parameter]
           params = if formal_param_data.is_a?(Hash)
                      result = Builder.build({ formal_parameter: formal_param_data })
-                     [result].flatten.compact
+                     Builder.ensure_array(result)
                    elsif formal_param_data.is_a?(Array)
-                     formal_param_data.map do |fp|
+                     formal_param_data.flat_map do |fp|
                        Builder.build({ formal_parameter: fp })
-                     end.flatten.compact
+                     end.compact
                    else
                      []
                    end

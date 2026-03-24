@@ -10,7 +10,7 @@ module Expressir
         attribute :kind, :string, values: %w[USE REFERENCE]
         attribute :schema, ModelElement
         attribute :items, InterfaceItem, collection: true
-        attribute :_class, :string, default: -> { send(:name) }
+        attribute :_class, :string, default: -> { self.class.name }
 
         key_value do
           map "_class", to: :_class, render_default: true

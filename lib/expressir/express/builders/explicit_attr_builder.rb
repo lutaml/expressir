@@ -16,7 +16,7 @@ module Expressir
                            else
                              ast_data[:attribute_decl]
                            end
-          attr_decls = [attr_decl_data].flatten.compact
+          attr_decls = Builder.ensure_array(attr_decl_data)
           optional = !ast_data[:t_optional].nil?
           type = Builder.build_optional(ast_data[:parameter_type])
 

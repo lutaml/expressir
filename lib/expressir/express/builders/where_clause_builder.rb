@@ -10,7 +10,7 @@ module Expressir
           return [] unless rules_data
 
           rules_data = [rules_data] if rules_data.is_a?(Hash)
-          rules_data.flatten.compact.filter_map do |rule|
+          Builder.ensure_array(rules_data).filter_map do |rule|
             Builder.build({ domain_rule: rule })
           end
         end

@@ -126,7 +126,7 @@ module Expressir
             if items_data
               items_data = items_data[:enumeration_item] if items_data.is_a?(Hash) && items_data[:enumeration_item]
               items_data = [items_data] unless items_data.is_a?(Array)
-              items = items_data.flatten.compact.filter_map do |item|
+              items = items_data.filter_map do |item|
                 actual_item = item.is_a?(Hash) ? (item[:enumeration_item] || item) : item
                 Builder.build({ enumeration_item: actual_item })
               end
@@ -142,7 +142,7 @@ module Expressir
               if items_data
                 items_data = items_data[:enumeration_item] if items_data.is_a?(Hash) && items_data[:enumeration_item]
                 items_data = [items_data] unless items_data.is_a?(Array)
-                items = items_data.flatten.compact.filter_map do |item|
+                items = items_data.filter_map do |item|
                   actual_item = item.is_a?(Hash) ? (item[:enumeration_item] || item) : item
                   Builder.build({ enumeration_item: actual_item })
                 end

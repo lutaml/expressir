@@ -117,21 +117,19 @@ Expressir uses the link:https://github.com/parsanol/parsanol-ruby[Parsanol] gem 
 
 [cols="3,2,2,3"]
 |===
-| Mode | Time | Speedup | Notes
+| Mode | Time (179K lines) | Speedup | Notes
 
-| Ruby (Parsanol) | 3036 ms | 1x (baseline) | Pure Ruby parsing
-| Native Batch (Parsanol) | 153 ms | 19.9x faster | AST via u64 array transfer
-| Native ZeroCopy (Parsanol) | 106 ms | 28.7x faster | Zero-copy with source positions
+| Ruby (Parslet) | 507 s | 1x (baseline) | Pure Ruby parsing
+| Native (Parsanol) | 29 s | 17x faster | Rust parser with AST transformation
 |===
 
 === Features
 
 When Parsanol is installed:
 
-* **18-44x faster parsing** - Rust native backend
-* **99.5% fewer allocations** - Arena-based AST construction
-* **Source position tracking** - Slice objects for error reporting
-* **Streaming Builder API** - Zero-allocation custom parsing
+* **17x faster parsing** - Rust native backend
+* **Lazy line/column** - Zero overhead for position info
+* **Batch FFI** - Efficient u64 array transfer across language boundary
 
 === Usage
 

@@ -33,7 +33,7 @@ module Expressir
             id: id,
             version: version,
             interfaces: interfaces.compact,
-            constants: [constants].flatten.compact,
+            constants: [constants].flatten,
             types: types,
             entities: entities,
             subtype_constraints: subtype_constraints,

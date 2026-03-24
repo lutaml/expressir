@@ -39,7 +39,7 @@ module Expressir
           expression = Builder.build_optional(ast_data[:expression])
 
           if ast_data[:qualifier]
-            [ast_data[:qualifier]].flatten.compact.each do |qual|
+            Builder.ensure_array(ast_data[:qualifier]).each do |qual|
               qual_result = Builder.build({ qualifier: qual })
               ref = apply_qualifier(ref, qual_result)
             end
@@ -55,7 +55,7 @@ module Expressir
           statements = Builder.build_children(ast_data[:stmt])
 
           if ast_data[:qualifier] && expression
-            [ast_data[:qualifier]].flatten.compact.each do |qual|
+            Builder.ensure_array(ast_data[:qualifier]).each do |qual|
               qual_result = Builder.build({ qualifier: qual })
               expression = apply_qualifier(expression, qual_result)
             end
@@ -200,7 +200,7 @@ module Expressir
 
           Expressir::Model::Statements::ProcedureCall.new(
             procedure: proc_ref,
-            parameters: [params].flatten.compact,
+            parameters: Builder.ensure_array(params),
           )
         end
 

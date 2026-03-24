@@ -6,7 +6,7 @@ module Expressir
       class CaseAction < ModelElement
         attribute :labels, ModelElement, collection: true
         attribute :statement, ModelElement
-        attribute :_class, :string, default: -> { send(:name) }
+        attribute :_class, :string, default: -> { self.class.name }
 
         key_value do
           map "_class", to: :_class, render_default: true

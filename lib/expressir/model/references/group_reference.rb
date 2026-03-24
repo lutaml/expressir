@@ -6,7 +6,7 @@ module Expressir
       class GroupReference < ModelElement
         attribute :ref, ModelElement
         attribute :entity, ModelElement
-        attribute :_class, :string, default: -> { send(:name) }
+        attribute :_class, :string, default: -> { self.class.name }
 
         key_value do
           map "_class", to: :_class, render_default: true

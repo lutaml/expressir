@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "lutaml/model"
 
 module Expressir
   module Eengine
@@ -12,7 +11,7 @@ module Expressir
       attribute :description, :string
 
       xml do
-        root "modified.object"
+        element "modified.object"
         map_attribute "type", to: :type
         map_attribute "name", to: :name
         map_attribute "interfaced.items", to: :interfaced_items

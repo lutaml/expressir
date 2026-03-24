@@ -108,20 +108,40 @@ module Expressir
           build(ast)
         end
 
+        # Normalize a value to an Array for iteration.
+        # Handles: nil → [], Parsanol::Slice → [], Array → Array, other → [other]
+        def ensure_array(value)
+          return [] if value.nil?
+          return [] if value.is_a?(Parsanol::Slice)
+          value.is_a?(Array) ? value : [value]
+        end
+
         # Build children (array of AST nodes)
         # Optimized to avoid intermediate array allocations
         def build_children(ast_array)
-          return [] unless ast_array
+          return [] if ast_array.nil?
+
+          # Handle Parsanol::Slice (including empty Slices from native parser)
+          # Convert to empty Array to match Ruby parser behavior
+          # Native parser returns empty slices where Ruby parser returns empty arrays
+          if ast_array.is_a?(Parsanol::Slice)
+            return []
+          end
 
           # Handle single element (common case)
           unless ast_array.is_a?(Array)
-            return ast_array.nil? ? [] : [build(ast_array)].compact
+            return [build(ast_array)].compact
           end
 
           # Build result in single pass, avoiding flatten/compact/map chain
           result = []
           ast_array.each do |item|
             next if item.nil?
+
+            # Empty Slices from native parser should be treated as empty arrays
+            if item.is_a?(Parsanol::Slice)
+              next
+            end
 
             case item
             when Array

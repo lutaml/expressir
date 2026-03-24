@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-require "lutaml/model"
 
 module Expressir
   class SchemaManifestEntry < Lutaml::Model::Serializable
-    attribute :id, Lutaml::Model::Type::String
-    attribute :path, Lutaml::Model::Type::String
-    # attribute :schemas_only, Lutaml::Model::Type::Boolean
+    attribute :id, :string
+    attribute :path, :string
+    # attribute :schemas_only, :boolean
 
     # container_path is a copy of Expressir::SchemaManifest.path,
     # used to resolve the path of each schema within

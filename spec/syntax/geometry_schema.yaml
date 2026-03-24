@@ -4,6 +4,8 @@ path: spec/syntax/geometry_schema.exp
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: geometry_schema
+  remarks:
+  - geometry_schema
   untagged_remarks:
   - text: geometry_schema
     format: tail
@@ -71,6 +73,15 @@ schemas:
           id: length_measure
   - _class: Expressir::Model::Declarations::Entity
     id: spherical_point
+    remarks:
+    - A **spherical_point** is a type of <<express:geometry_schema.cartesian_point,cartesian_point>>
+      which uses a spherical polar coordinate system, centred at the origin of the
+      corresponding Cartesian coordinate system, to define its location.
+    remark_items:
+    - _class: Expressir::Model::Declarations::RemarkItem
+      id: wr
+      remarks:
+      - This is a note for WR1.
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: cartesian_point
@@ -78,24 +89,48 @@ schemas:
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: r
+      remarks:
+      - the distance from the point to the z axis;
       kind: EXPLICIT
       type:
         _class: Expressir::Model::References::SimpleReference
         id: length_measure
     - _class: Expressir::Model::Declarations::Attribute
       id: theta
+      remarks:
+      - the angle stem:[theta] between the z axis and the line joining the origin
+        to the point;
       kind: EXPLICIT
       type:
         _class: Expressir::Model::References::SimpleReference
         id: plane_angle_measure
     - _class: Expressir::Model::Declarations::Attribute
       id: phi
+      remarks:
+      - the angle stem:[phi] measured from the x axis to the projection onto the xy
+        plane of the line from the origin to the point.
       kind: EXPLICIT
       type:
         _class: Expressir::Model::References::SimpleReference
         id: plane_angle_measure
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: coordinates
+      remarks:
+      - the rectangular cartesian coordinates of this point;
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: __figure
+        remarks:
+        - |-
+          [[figure-geometry_schema-Geomfig2]]
+          .Spherical point attributes
+          ====
+          image::Geomfig2.gif[]
+          ====
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: __note
+        remarks:
+        - See <<figure-geometry_schema-Geomfig2>> for an illustration of the attributes.
       kind: DERIVED
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
@@ -153,6 +188,8 @@ schemas:
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
+      remarks:
+      - The radius **r** shall be greater than, or equal to zero.
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: r
@@ -160,11 +197,19 @@ schemas:
     informal_propositions:
     - _class: Expressir::Model::Declarations::InformalPropositionRule
       id: IP1
+      remarks:
+      - The value of **theta** shall lie in the range stem:[0 le theta le 180 "P{degree}"].
       remark_items:
       - _class: Expressir::Model::Declarations::RemarkItem
         id: IP1
+        remarks:
+        - This is informal proposition 1
     - _class: Expressir::Model::Declarations::InformalPropositionRule
       id: IP2
+      remarks:
+      - The value of **phi** shall lie in the range stem:[0 le phi < 360 "P{degree}"].
       remark_items:
       - _class: Expressir::Model::Declarations::RemarkItem
         id: IP2
+        remarks:
+        - This is informal proposition 2

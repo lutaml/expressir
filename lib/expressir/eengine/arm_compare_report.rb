@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "lutaml/model"
 
 module Expressir
   module Eengine
@@ -11,7 +10,7 @@ module Expressir
       attribute :deletions, ChangesSection
 
       xml do
-        root "arm.changes"
+        element "arm.changes"
         map_element "arm.modifications", to: :modifications
         map_element "arm.additions", to: :additions
         map_element "arm.deletions", to: :deletions

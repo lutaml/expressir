@@ -18,6 +18,8 @@ module Expressir
         @attached_spans = Set.new
         @line_cache = {}
         @model = nil
+        @source_lines = nil # cached @source.lines
+        @scope_map = nil # cached scope at each line number
       end
 
       def attach(model)
@@ -112,6 +114,10 @@ module Expressir
         end
       end
 
+      def source_lines
+        @source_lines ||= @source.lines
+      end
+
       def get_line_number(position)
         return 1 if position.nil? || position.zero?
 
@@ -121,51 +127,50 @@ module Expressir
       alias get_line_number_from_offset get_line_number
 
       def attach_tagged_remarks(model, remarks)
-        # Get schema IDs from either Repository (files array), Repository (schemas array), or ExpFile
-        schema_ids = if repository?(model)
-                        model.schemas.filter_map(&:id)
-                      elsif exp_file?(model)
-                        model.schemas.filter_map(&:id)
-                      else
-                        []
-                        end
+        tagged = remarks.select { |r| r[:tag] }
+        return if tagged.empty?
 
-        # Collect nodes with positions for finding containing scopes
+        @model = model
+
+        # Build scope map ONCE: O(file_lines) scan instead of O(n*file_lines) for n remarks
+        # This is the key optimization that makes scope lookup O(1) per remark
+        @scope_map ||= build_scope_map
+
+        # Collect nodes with positions for position-based fallback
         nodes_with_positions = []
         collect_nodes_with_positions(model, nodes_with_positions)
         # Use stable sort to ensure deterministic ordering across Ruby versions
-        # When positions are equal, preserve original order using index as tie-breaker
         nodes_with_positions.sort_by!.with_index { |n, i| [n[:position] || Float::INFINITY, i] }
 
-        remarks.select do |r|
-          r[:tag]
-        end.sort_by { |r| r[:position] }.each do |remark|
+        tagged.sort_by { |r| r[:position] }.each do |remark|
           next if @attached_spans.include?(remark[:position])
 
           tag = remark[:tag]
           target = nil
 
+          # Find containing scope using pre-computed scope map (O(1))
+          # Falls back to position-based lookup if scope map doesn't have the line
+          containing_scope = find_containing_scope_by_name(remark[:line])
+          containing_scope ||= find_containing_scope_position(remark[:line],
+                                                              nodes_with_positions)
+
           # Check if this is an informal proposition tag (IP\d+)
           if tag.match?(/^IP\d+$/)
-            # Find the containing scope (entity, type, rule) that supports informal propositions
-            target = find_containing_scope_for_ip(remark[:line],
-                                                  nodes_with_positions)
-            if target
-              # Create or find the informal proposition
-              target = create_or_find_informal_proposition(target, tag)
+            scope = containing_scope
+            if scope.nil?
+              scope = find_scope_by_source_text(remark[:line])
+            end
+            if scope && supports_informal_propositions?(scope)
+              target = create_or_find_informal_proposition(scope, tag)
             end
           end
 
           # Standard path-based lookup
           if target.nil?
-            # Find containing scope for scope-aware path resolution
-            containing_scope = find_containing_scope(remark[:line],
-                                                     nodes_with_positions)
-
             # Handle prefixed tags like wr:WR1, ip:IP1, ur:UR1
             if tag.include?(":") && !tag.include?(".")
               target = handle_prefixed_tag(tag, containing_scope, model,
-                                           schema_ids)
+                                           get_schema_ids(model))
             end
 
             # Strategy 1: Try exact path lookup
@@ -186,6 +191,7 @@ module Expressir
 
               # Then try schema prefix
               if target.nil?
+                schema_ids = get_schema_ids(model)
                 schema_ids.each do |schema_id|
                   target = find_by_exact_path(model, "#{schema_id}.#{tag}")
                   break if target
@@ -206,8 +212,8 @@ module Expressir
                 end
 
                 # Only fall back to schema prefix if NOT inside a function/rule/procedure
-                # This prevents remarks inside scopes from attaching to schema-level items
                 if target.nil? && !function_rule_procedure?(containing_scope)
+                  schema_ids = get_schema_ids(model)
                   schema_ids.each do |schema_id|
                     target = find_by_exact_path(model, "#{schema_id}.#{tag}")
                     break if target
@@ -215,6 +221,7 @@ module Expressir
                 end
               else
                 # No containing scope, try with schema prefix
+                schema_ids = get_schema_ids(model)
                 schema_ids.each do |schema_id|
                   target = find_by_exact_path(model, "#{schema_id}.#{tag}")
                   break if target
@@ -230,19 +237,22 @@ module Expressir
                 if scope_path
                   full_path = "#{scope_path}.#{tag}"
                   target = create_implicit_remark_item(model, full_path,
-                                                       schema_ids)
+                                                       get_schema_ids(model))
                 end
               end
               # Fall back to schema prefix
               if target.nil?
-                target = create_implicit_remark_item(model, tag, schema_ids)
+                target = create_implicit_remark_item(model, tag, get_schema_ids(model))
               end
             end
 
             # Strategy 4: For simple tags at schema level, create implicit item
-            if target.nil? && !tag.include?(".") && schema_ids.any?
-              target = create_implicit_remark_item_at_schema(model, tag,
-                                                             schema_ids.first)
+            if target.nil? && !tag.include?(".")
+              schema_ids = get_schema_ids(model)
+              if schema_ids.any?
+                target = create_implicit_remark_item_at_schema(model, tag,
+                                                               schema_ids.first)
+              end
             end
           end
 
@@ -252,6 +262,112 @@ module Expressir
             @attached_spans << remark[:position]
           end
         end
+      end
+
+      # Position-based fallback for finding containing scope.
+      # Used when scope map lookup returns nil (e.g., for remarks at lines
+      # outside any declared scope's end_line, or for non-scope-containers).
+      def find_containing_scope_position(remark_line, nodes_with_positions)
+        containing_nodes = nodes_with_positions.select do |n|
+          n[:line] && n[:end_line] && remark_line >= n[:line] && remark_line <= n[:end_line] &&
+            !repository?(n[:node]) && !cache?(n[:node])
+        end
+
+        containing_nodes.reverse_each do |n|
+          node = n[:node]
+          return node if node.is_a?(Model::ScopeContainer)
+        end
+
+        nil
+      end
+      # Done once per RemarkAttacher instance (O(file_lines)).
+      # Each find_containing_scope call then becomes O(1).
+      def build_scope_map
+        lines = source_lines
+        scope_map = {}
+        return scope_map if lines.empty?
+
+        # Track nested scopes by scanning all lines once
+        scope_stack = [] # array of {type:, name:, line:}
+
+        lines.each_with_index do |line, idx|
+          line_num = idx + 1
+
+          # Check for START keywords first
+          if line =~ /^\s*SCHEMA\s+(\w+)/i
+            scope_stack << { type: :schema, name: $1, line: line_num }
+          end
+
+          if line =~ /^\s*FUNCTION\s+(\w+)/i
+            scope_stack << { type: :function, name: $1, line: line_num }
+          end
+
+          if line =~ /^\s*PROCEDURE\s+(\w+)/i
+            scope_stack << { type: :procedure, name: $1, line: line_num }
+          end
+
+          if line =~ /^\s*RULE\s+(\w+)/i
+            scope_stack << { type: :rule, name: $1, line: line_num }
+          end
+
+          if line =~ /^\s*ENTITY\s+(\w+)/i
+            scope_stack << { type: :entity, name: $1, line: line_num }
+          end
+
+          if line =~ /^\s*TYPE\s+(\w+)/i
+            scope_stack << { type: :type, name: $1, line: line_num }
+          end
+
+          # Check for END keywords (inline closures on same line handled here)
+          if (line =~ /END_TYPE/i) && (scope_stack.last&.dig(:type) == :type)
+            scope_stack.pop
+          end
+          if (line =~ /END_FUNCTION/i) && (scope_stack.last&.dig(:type) == :function)
+            scope_stack.pop
+          end
+          if (line =~ /END_PROCEDURE/i) && (scope_stack.last&.dig(:type) == :procedure)
+            scope_stack.pop
+          end
+          if (line =~ /END_RULE/i) && (scope_stack.last&.dig(:type) == :rule)
+            scope_stack.pop
+          end
+          if (line =~ /END_ENTITY/i) && (scope_stack.last&.dig(:type) == :entity)
+            scope_stack.pop
+          end
+          if (line =~ /END_SCHEMA/i) && (scope_stack.last&.dig(:type) == :schema)
+            scope_stack.pop
+          end
+
+          # Record the innermost scope for this line
+          scope_map[line_num] = scope_stack.last&.dig(:name)
+        end
+
+        scope_map
+      end
+
+      # O(1) scope lookup using pre-computed scope map
+      def find_containing_scope_by_name(remark_line)
+        return nil unless @scope_map
+
+        scope_name = @scope_map[remark_line]
+        return nil unless scope_name
+
+        # Find the model node for this scope
+        return nil unless @model
+
+        @model.schemas.each do |schema|
+          return schema if schema.id == scope_name
+
+          %i[functions procedures rules entities types].each do |decl_type|
+            collection = schema.send(decl_type)
+            next unless collection.is_a?(Array)
+
+            found = collection.find { |n| n.id == scope_name }
+            return found if found
+          end
+        end
+
+        nil
       end
 
       def find_node_in_scope(scope, tag)
@@ -396,7 +512,7 @@ module Expressir
         return nil unless where_rules&.any?
 
         # Search source text for WHERE clause containing this remark
-        lines = @source.lines
+        lines = source_lines
 
         where_rules.each do |wr|
           next unless wr.id
@@ -433,28 +549,16 @@ module Expressir
       end
 
       def find_containing_scope(remark_line, nodes_with_positions)
-        # First try text-based detection (more reliable when source tracking is broken)
-        text_based_scope = find_scope_by_text_search(remark_line)
-        return text_based_scope if text_based_scope
+        # First try scope map (O(1) once built)
+        scope = find_containing_scope_by_name(remark_line)
+        return scope if scope
 
         # Fallback to position-based detection
-        # Exclude Repository and Cache as they are not semantic scopes
-        containing_nodes = nodes_with_positions.select do |n|
-          n[:line] && n[:end_line] && remark_line >= n[:line] && remark_line <= n[:end_line] &&
-            !repository?(n[:node]) && !cache?(n[:node])
-        end
-
-        # Return the innermost scope container (function, procedure, rule, entity, type)
-        containing_nodes.reverse_each do |n|
-          node = n[:node]
-          return node if node.is_a?(Model::ScopeContainer)
-        end
-
-        nil
+        find_containing_scope_position(remark_line, nodes_with_positions)
       end
 
       def find_scope_by_text_search(remark_line)
-        lines = @source.lines
+        lines = source_lines
         return nil if remark_line < 1 || remark_line > lines.length
 
         # Track nested scopes by searching backwards from remark_line
@@ -570,23 +674,19 @@ module Expressir
       end
 
       def find_containing_scope_for_ip(remark_line, nodes_with_positions)
-        # First try text-based detection (more reliable when source tracking is broken)
-        # This handles cases where node end_line doesn't include trailing remarks
-        text_based_scope = find_scope_by_text_search(remark_line)
-        if text_based_scope && supports_informal_propositions?(text_based_scope)
-          return text_based_scope
+        # First try scope map (O(1))
+        scope = find_containing_scope_by_name(remark_line)
+        if scope && supports_informal_propositions?(scope)
+          return scope
         end
 
         # Fallback to position-based detection
-        # Find nodes that contain this remark line
-        # Exclude Repository and Cache as they are not semantic scopes
         containing_nodes = nodes_with_positions.select do |n|
           n[:line] && n[:end_line] && remark_line >= n[:line] && remark_line <= n[:end_line] &&
             !repository?(n[:node]) && !cache?(n[:node])
         end
 
         # Find the innermost node that supports informal propositions
-        # Priority: Entity, Rule, Type, Schema
         if containing_nodes.any?
           containing_nodes.reverse_each do |n|
             node = n[:node]
@@ -605,7 +705,7 @@ module Expressir
 
       def find_scope_by_source_text(remark_line)
         # Search backwards from remark_line for containing scope
-        lines = @source.lines
+        lines = source_lines
 
         # Find the entity/type/rule that contains this line
         entity_start = nil
@@ -846,7 +946,7 @@ module Expressir
       end
 
       def get_line_content(line_num)
-        lines = @source.lines
+        lines = source_lines
         return "" if line_num < 1 || line_num > lines.length
 
         lines[line_num - 1]
@@ -1048,6 +1148,16 @@ module Expressir
       end
 
       # Type checking helper methods
+
+      def get_schema_ids(model)
+        if repository?(model)
+          model.schemas.filter_map(&:id)
+        elsif exp_file?(model)
+          model.schemas.filter_map(&:id)
+        else
+          []
+        end
+      end
 
       def repository?(obj)
         obj.is_a?(Model::Repository)

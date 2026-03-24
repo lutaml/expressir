@@ -21,7 +21,7 @@ module Expressir
           if body.is_a?(Hash)
             abstract = !body[:abstract_supertype].nil?
             if body[:total_over].is_a?(Hash)
-              total_over = Builder.build_children([body[:total_over][:entity_ref]].flatten.compact)
+              total_over = Builder.build_children(Builder.ensure_array(body[:total_over][:entity_ref]))
             end
             # Wrap supertype_expression in its node type so Builder.build dispatches correctly
             supertype_expression = if body[:supertype_expression]
@@ -51,10 +51,10 @@ module Expressir
           # Handle both formats:
           # - With item wrapper: {item: {operator: {...}, supertype_factor: {...}}}
           # - Without item wrapper: {operator: {...}, supertype_factor: {...}}
-          factors = [base_factor] + (ast_data[:rhs] || []).filter_map do |r|
+          factors = [base_factor] + Builder.ensure_array(ast_data[:rhs]).filter_map do |r|
             r[:item]&.dig(:supertype_factor) || r[:supertype_factor]
           end
-          operators = (ast_data[:rhs] || []).map do |r|
+          operators = Builder.ensure_array(ast_data[:rhs]).map do |r|
             (r[:item]&.dig(:operator) || r[:operator])&.values&.first
           end
 
@@ -79,10 +79,10 @@ module Expressir
           # Handle both formats:
           # - With item wrapper: {item: {operator: {...}, supertype_term: {...}}}
           # - Without item wrapper: {operator: {...}, supertype_term: {...}}
-          terms = [base_term] + (ast_data[:rhs] || []).filter_map do |r|
+          terms = [base_term] + Builder.ensure_array(ast_data[:rhs]).filter_map do |r|
             r[:item]&.dig(:supertype_term) || r[:supertype_term]
           end
-          operators = (ast_data[:rhs] || []).map do |r|
+          operators = Builder.ensure_array(ast_data[:rhs]).map do |r|
             (r[:item]&.dig(:operator) || r[:operator])&.values&.first
           end
 
@@ -156,7 +156,7 @@ module Expressir
 
         def build_subtype_declaration(ast_data)
           refs = ast_data[:entity_ref] || ast_data[:list_of_entity_ref]&.dig(:entity_ref)
-          Builder.build_children([refs].flatten.compact)
+          Builder.build_children(Builder.ensure_array(refs))
         end
       end
     end

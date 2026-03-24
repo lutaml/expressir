@@ -4,6 +4,11 @@ path: spec/syntax/syntax.exp
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: syntax_schema
+  remarks:
+  - interfaces
+  - constants
+  - types
+  - rules
   untagged_remarks:
   - text: interfaces
     format: tail
@@ -138,6 +143,8 @@ schemas:
         value: 'TRUE'
   - _class: Expressir::Model::Declarations::Type
     id: where_label_type
+    remarks:
+    - entities
     untagged_remarks:
     - text: entities
       format: tail
@@ -605,6 +612,8 @@ schemas:
         value: 'TRUE'
   - _class: Expressir::Model::Declarations::Entity
     id: where_label_entity
+    remarks:
+    - subtype constraints
     untagged_remarks:
     - text: subtype constraints
       format: tail
@@ -886,6 +895,8 @@ schemas:
           id: d
   - _class: Expressir::Model::Declarations::SubtypeConstraint
     id: supertype_expression_oneof_andor_oneof_subtype_constraint
+    remarks:
+    - functions
     untagged_remarks:
     - text: functions
       format: tail
@@ -1260,6 +1271,8 @@ schemas:
         value: 'TRUE'
   - _class: Expressir::Model::Declarations::Rule
     id: where_label_rule
+    remarks:
+    - procedures
     untagged_remarks:
     - text: procedures
       format: tail
@@ -1390,6 +1403,9 @@ schemas:
     - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Procedure
     id: statements
+    remarks:
+    - statements
+    - simple types
     untagged_remarks:
     - text: statements
       format: tail
@@ -1734,6 +1750,10 @@ schemas:
       - _class: Expressir::Model::Statements::Skip
   - _class: Expressir::Model::Declarations::Procedure
     id: types
+    remarks:
+    - aggregation types
+    - constructed types
+    - literal expressions
     untagged_remarks:
     - text: aggregation types
       format: tail
@@ -2048,6 +2068,8 @@ schemas:
           id: test
     - _class: Expressir::Model::Declarations::Type
       id: enumeration_based_on_multiple_item_type
+      remarks:
+      - generic types
       untagged_remarks:
       - text: generic types
         format: tail
@@ -2089,6 +2111,13 @@ schemas:
       - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Procedure
     id: expressions
+    remarks:
+    - constant expressions
+    - function expressions
+    - operator expressions
+    - aggregate initializer expressions
+    - function call or entity constructor expressions
+    - reference expressions
     untagged_remarks:
     - text: constant expressions
       format: tail

@@ -1,12 +1,5 @@
 # frozen_string_literal: true
 
-require "lutaml/model"
-
-Lutaml::Model::Config.configure do |config|
-  require "lutaml/model/xml_adapter/nokogiri_adapter"
-  config.xml_adapter = Lutaml::Model::XmlAdapter::NokogiriAdapter
-end
-
 module Expressir
   module Eengine
     # Represents an Eengine comparison XML report
@@ -17,7 +10,7 @@ module Expressir
       attribute :deletions, ChangesSection
 
       xml do
-        root "schema.changes"
+        element "schema.changes"
         map_element "schema.modifications", to: :modifications
         map_element "schema.additions", to: :additions
         map_element "schema.deletions", to: :deletions

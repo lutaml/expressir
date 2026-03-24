@@ -4,6 +4,9 @@ source "https://rubygems.org"
 
 gemspec
 
+# Use released parsanol for native extension
+gem "parsanol", "~> 1.3.5"
+
 gem "canon"
 gem "irb"
 gem "lutaml-model", github: "lutaml/lutaml-model", branch: "main"

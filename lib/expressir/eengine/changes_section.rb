@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "lutaml/model"
 
 module Expressir
   module Eengine
@@ -10,7 +9,7 @@ module Expressir
       attribute :modified_objects, ModifiedObject, collection: true
 
       xml do
-        root "changes.section"
+        element "changes.section"
         map_element "modified.object", to: :modified_objects
       end
     end

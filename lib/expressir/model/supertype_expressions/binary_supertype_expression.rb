@@ -11,7 +11,7 @@ module Expressir
         attribute :operator, :string, values: %w[AND ANDOR]
         attribute :operand1, ModelElement
         attribute :operand2, ModelElement
-        attribute :_class, :string, default: -> { send(:name) }
+        attribute :_class, :string, default: -> { self.class.name }
 
         key_value do
           map "_class", to: :_class, render_default: true

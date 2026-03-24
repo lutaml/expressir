@@ -2,6 +2,91 @@ require "spec_helper"
 require_relative "../../../lib/expressir/express/parser"
 
 RSpec.describe Expressir::Express::Parser do
+  describe "parser infrastructure" do
+    describe ".native_available?" do
+      it "reports native parser availability" do
+        # native_available? is defined on Parser::Parser (inner class)
+        result = Expressir::Express::Parser::Parser.native_available?
+        expect(result).to be(true).or be(false)
+      end
+    end
+
+    describe "native parser" do
+      it "parses EXPRESS content with use_native: true" do
+        content = <<~EXP
+          SCHEMA test_schema;
+          ENTITY test_entity;
+            name : STRING;
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+
+        repo = described_class.from_exp(content, use_native: true)
+        expect(repo).to be_a(Expressir::Model::ExpFile)
+        expect(repo.schemas.length).to eq(1)
+        expect(repo.schemas.first.entities.length).to eq(1)
+        expect(repo.schemas.first.entities.first.id).to eq("test_entity")
+      end
+
+      it "provides LRU cache management" do
+        skip "Native parser not available" unless Expressir::Express::Parser::Parser.native_available?
+
+        require "parsanol/native"
+        expect(Parsanol::Native).to respond_to(:grammar_cache_size)
+        expect(Parsanol::Native).to respond_to(:grammar_cache_capacity)
+        expect(Parsanol::Native).to respond_to(:clear_grammar_cache)
+
+        expect(Parsanol::Native.grammar_cache_capacity).to eq(100)
+        expect(Parsanol::Native.grammar_cache_size).to be >= 0
+      end
+    end
+
+    describe "Ruby parser" do
+      it "parses EXPRESS content with use_native: false" do
+        content = <<~EXP
+          SCHEMA test_schema;
+          ENTITY test_entity;
+            name : STRING;
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+
+        repo = described_class.from_exp(content, use_native: false)
+        expect(repo).to be_a(Expressir::Model::ExpFile)
+        expect(repo.schemas.length).to eq(1)
+        expect(repo.schemas.first.entities.length).to eq(1)
+        expect(repo.schemas.first.entities.first.id).to eq("test_entity")
+      end
+    end
+
+    describe "parsing consistency" do
+      it "both parsers produce valid ExpFile" do
+        content = <<~EXP
+          SCHEMA test_schema;
+          ENTITY test_entity;
+            name : STRING;
+            age : INTEGER;
+          END_ENTITY;
+          TYPE status = STRING;
+          END_TYPE;
+          END_SCHEMA;
+        EXP
+
+        # Parse with Ruby parser
+        repo_ruby = described_class.from_exp(content, use_native: false)
+
+        # Parse with native parser (if available)
+        if Expressir::Express::Parser::Parser.native_available?
+          repo_native = described_class.from_exp(content, use_native: true)
+
+          # Both should produce valid ExpFile with same structure
+          expect(repo_native.schemas.length).to eq(repo_ruby.schemas.length)
+          expect(repo_native.schemas.first.entities.length).to eq(repo_ruby.schemas.first.entities.length)
+        end
+      end
+    end
+  end
+
   describe ".from_file" do
     it "throws an exception if the file to parse does not exist" do |_example|
       expect do

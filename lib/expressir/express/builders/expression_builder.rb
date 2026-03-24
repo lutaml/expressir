@@ -41,14 +41,24 @@ module Expressir
           return nil unless ast_data[:term]
 
           term = Builder.build_term(ast_data[:term])
-          rhs = ast_data[:rhs] || []
+          rhs = ast_data[:rhs]
 
-          return term if rhs.empty?
+          return term if rhs.nil? || (rhs.respond_to?(:empty?) && rhs.empty?)
+
+          # Handle both formats:
+          # - Ruby parser: rhs is Array of {:item => {...}} hashes
+          # - Native parser: rhs might be a Hash (merged) or Array
+          rhs_array = rhs.is_a?(Array) ? rhs : [rhs]
 
           operands = [term]
           operators = []
 
-          rhs.each do |r|
+          rhs_array.each do |r|
+            # Handle Hash.each yielding [key, value] arrays
+            r = r.last if r.is_a?(Array) && r.length == 2
+
+            next unless r.is_a?(Hash)
+
             item = r[:item] || r
             op_data = item[:operator]
             operators << extract_operator(op_data[:add_like_op]) if op_data
@@ -65,14 +75,24 @@ module Expressir
           return nil unless ast_data[:factor]
 
           factor = Builder.build_factor(ast_data[:factor])
-          rhs = ast_data[:rhs] || []
+          rhs = ast_data[:rhs]
 
-          return factor if rhs.empty?
+          return factor if rhs.nil? || (rhs.respond_to?(:empty?) && rhs.empty?)
+
+          # Handle both formats:
+          # - Ruby parser: rhs is Array of {:item => {...}} hashes
+          # - Native parser: rhs might be a Hash (merged) or Array
+          rhs_array = rhs.is_a?(Array) ? rhs : [rhs]
 
           operands = [factor]
           operators = []
 
-          rhs.each do |r|
+          rhs_array.each do |r|
+            # Handle Hash.each yielding [key, value] arrays
+            r = r.last if r.is_a?(Array) && r.length == 2
+
+            next unless r.is_a?(Hash)
+
             item = r[:item] || r
             op_data = item[:multiplication_like_op] || item[:mul_like_op]
             operators << extract_operator(op_data) if op_data
@@ -190,7 +210,7 @@ module Expressir
 
           return ref unless qualifiers
 
-          [qualifiers].flatten.compact.each do |qual|
+          Builder.ensure_array(qualifiers).each do |qual|
             qual_result = Builder.build_node(:qualifier, qual)
             ref = apply_qualifier(ref, qual_result)
           end
@@ -201,7 +221,7 @@ module Expressir
           ref = Builder.build_node(:entity_ref, ast_data[:entity_ref])
           return ref unless qualifiers
 
-          [qualifiers].flatten.compact.each do |qual|
+          Builder.ensure_array(qualifiers).each do |qual|
             qual_result = Builder.build_node(:qualifier, qual)
             ref = apply_qualifier(ref, qual_result)
           end
@@ -265,7 +285,7 @@ module Expressir
           else
             Expressir::Model::Expressions::FunctionCall.new(
               function: func_ref,
-              parameters: [params].flatten.compact,
+              parameters: params,
             )
           end
         end
@@ -305,7 +325,7 @@ module Expressir
 
           Expressir::Model::Expressions::FunctionCall.new(
             function: entity_ref,
-            parameters: [params].flatten.compact,
+            parameters: params,
           )
         end
 

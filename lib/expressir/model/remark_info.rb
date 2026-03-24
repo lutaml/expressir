@@ -35,7 +35,7 @@ module Expressir
 
       # XML serialization
       xml do
-        root "remark_info"
+        element "remark_info"
         map_element "text", to: :text
         map_element "format", to: :format
         map_element "tag", to: :tag

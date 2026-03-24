@@ -24,8 +24,16 @@ module Expressir
           subtype_constraints = declarations.grep(Expressir::Model::Declarations::SubtypeConstraint)
           functions = declarations.grep(Expressir::Model::Declarations::Function)
           procedures = declarations.grep(Expressir::Model::Declarations::Procedure)
-          constants = build_constant_decl(algorithm_head[:constant_decl]) if algorithm_head.is_a?(Hash) && algorithm_head[:constant_decl]
-          variables = build_local_decl(algorithm_head[:local_decl]) if algorithm_head.is_a?(Hash) && algorithm_head[:local_decl]
+          constants = if algorithm_head.is_a?(Hash) && algorithm_head[:constant_decl]
+                       build_constant_decl(algorithm_head[:constant_decl])
+                     else
+                       []
+                     end
+          variables = if algorithm_head.is_a?(Hash) && algorithm_head[:local_decl]
+                       build_local_decl(algorithm_head[:local_decl])
+                     else
+                       []
+                     end
           statements = Builder.build_children(stmts)
 
           Expressir::Model::Declarations::Function.new(
@@ -37,8 +45,8 @@ module Expressir
             subtype_constraints: subtype_constraints,
             functions: functions,
             procedures: procedures,
-            constants: [constants].flatten.compact,
-            variables: [variables].flatten.compact,
+            constants: constants,
+            variables: variables,
             statements: statements.compact,
           )
         end
@@ -58,9 +66,9 @@ module Expressir
           end
 
           parameters = []
-          params_data.flatten.compact.each do |param|
+          Builder.ensure_array(params_data).each do |param|
             result = Builder.build({ formal_parameter: param })
-            parameters.concat([result].flatten.compact) if result
+            parameters.concat(Builder.ensure_array(result)) if result
           end
           parameters
         end
@@ -70,7 +78,7 @@ module Expressir
         end
 
         def build_local_decl(data)
-          Builder.build_children(data[:local_variable]).flatten.compact
+          Builder.build_children(data[:local_variable])
         end
       end
     end

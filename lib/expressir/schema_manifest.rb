@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
-require "lutaml/model"
 
 module Expressir
   class SchemaManifest < Lutaml::Model::Serializable
     attribute :schemas, "Expressir::SchemaManifestEntry",
               collection: true,
               initialize_empty: true
-    attribute :path, Lutaml::Model::Type::String
+    attribute :path, :string
     attr_accessor :output_path
 
     def initialize(**args)

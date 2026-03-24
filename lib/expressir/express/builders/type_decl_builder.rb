@@ -17,7 +17,7 @@ module Expressir
           Expressir::Model::Declarations::Type.new(
             id: id,
             underlying_type: underlying_type,
-            where_rules: [where_rules].flatten.compact,
+            where_rules: [where_rules].flatten,
           )
         end
       end

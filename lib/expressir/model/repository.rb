@@ -16,7 +16,7 @@ module Expressir
     class Repository < ModelElement
       # Internal storage for schemas (used for direct manipulation)
       attribute :files, ExpFile, collection: true, initialize_empty: true
-      attribute :_class, :string, default: -> { send(:name) }
+      attribute :_class, :string, default: -> { self.class.name }
 
       # Base directory for schema files
       attr_accessor :base_dir

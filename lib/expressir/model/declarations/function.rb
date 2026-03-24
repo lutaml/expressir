@@ -18,7 +18,7 @@ module Expressir
         attribute :constants, Constant, collection: true
         attribute :variables, Variable, collection: true
         attribute :statements, ModelElement, collection: true
-        attribute :_class, :string, default: -> { send(:name) }
+        attribute :_class, :string, default: -> { self.class.name }
 
         key_value do
           map "_class", to: :_class, render_default: true

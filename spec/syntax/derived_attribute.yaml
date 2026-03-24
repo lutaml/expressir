@@ -74,6 +74,18 @@ schemas:
         id: plane_angle_measure
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: coordinates
+      remarks:
+      - the rectangular cartesian coordinates of this point;
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: __figure
+        remarks:
+        - |-
+          [[figure-geometry_schema-Geomfig2]]
+          .Spherical point attributes
+          ====
+          image::Geomfig2.gif[]
+          ====
       kind: DERIVED
       supertype_attribute:
         _class: Expressir::Model::References::AttributeReference
@@ -141,8 +153,12 @@ schemas:
       remark_items:
       - _class: Expressir::Model::Declarations::RemarkItem
         id: IP1
+        remarks:
+        - ''
     - _class: Expressir::Model::Declarations::InformalPropositionRule
       id: IP2
       remark_items:
       - _class: Expressir::Model::Declarations::RemarkItem
         id: IP2
+        remarks:
+        - ''

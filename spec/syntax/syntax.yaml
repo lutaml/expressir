@@ -1266,6 +1266,11 @@ schemas:
     - _class: Expressir::Model::Statements::Null
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
+      remarks:
+      - schema
+      untagged_remarks:
+      - text: schema
+        format: tail
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
@@ -1668,6 +1673,7 @@ schemas:
       - _class: Expressir::Model::Statements::ProcedureCall
         procedure:
           _class: Expressir::Model::References::SimpleReference
+          id: INSERT
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -1677,6 +1683,7 @@ schemas:
       - _class: Expressir::Model::Statements::ProcedureCall
         procedure:
           _class: Expressir::Model::References::SimpleReference
+          id: REMOVE
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -1990,6 +1997,9 @@ schemas:
         - _class: Expressir::Model::References::SimpleReference
           id: empty_type
           base_path: spec/syntax/syntax.exp.syntax_schema.empty_type
+        - _class: Expressir::Model::References::SimpleReference
+          id: empty_type
+          base_path: spec/syntax/syntax.exp.syntax_schema.empty_type
     - _class: Expressir::Model::Declarations::Type
       id: select_based_on_type
       underlying_type:
@@ -2019,6 +2029,9 @@ schemas:
           id: select_type
           base_path: spec/syntax/syntax.exp.syntax_schema.types.select_type
         items:
+        - _class: Expressir::Model::References::SimpleReference
+          id: empty_type
+          base_path: spec/syntax/syntax.exp.syntax_schema.empty_type
         - _class: Expressir::Model::References::SimpleReference
           id: empty_type
           base_path: spec/syntax/syntax.exp.syntax_schema.empty_type
@@ -2118,6 +2131,7 @@ schemas:
     - aggregate initializer expressions
     - function call or entity constructor expressions
     - reference expressions
+    - interval expressions
     untagged_remarks:
     - text: constant expressions
       format: tail
@@ -2130,6 +2144,8 @@ schemas:
     - text: function call or entity constructor expressions
       format: tail
     - text: reference expressions
+      format: tail
+    - text: interval expressions
       format: tail
     variables:
     - _class: Expressir::Model::Declarations::Variable
@@ -2232,6 +2248,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: ABS
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2243,6 +2260,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: ACOS
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2254,6 +2272,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: ASIN
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2265,6 +2284,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: ATAN
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2276,6 +2296,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: BLENGTH
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2287,6 +2308,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: COS
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2298,6 +2320,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: EXISTS
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2309,6 +2332,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: EXP
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2320,6 +2344,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: FORMAT
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2331,6 +2356,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: HIBOUND
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2342,6 +2368,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: HIINDEX
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2353,6 +2380,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: LENGTH
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2364,6 +2392,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: LOBOUND
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2375,6 +2404,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: LOINDEX
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2386,6 +2416,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: LOG
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2397,6 +2428,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: LOG2
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2408,6 +2440,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: LOG10
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2419,6 +2452,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: NVL
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2430,6 +2464,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: ODD
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2441,6 +2476,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: ROLESOF
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2452,6 +2488,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: SIN
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2463,6 +2500,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: SIZEOF
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2474,6 +2512,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: SQRT
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2485,6 +2524,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: TAN
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2496,6 +2536,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: TYPEOF
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2507,6 +2548,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: USEDIN
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2518,6 +2560,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: VALUE
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2529,6 +2572,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: VALUE_IN
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -2540,6 +2584,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: VALUE_UNIQUE
         parameters:
         - _class: Expressir::Model::Literals::Logical
           value: 'TRUE'

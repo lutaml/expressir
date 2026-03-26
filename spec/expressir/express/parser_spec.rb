@@ -84,6 +84,29 @@ RSpec.describe Expressir::Express::Parser do
           expect(repo_native.schemas.first.entities.length).to eq(repo_ruby.schemas.first.entities.length)
         end
       end
+
+      it "both parsers handle multi-item USE clauses consistently" do
+        content = <<~EXP
+          SCHEMA test_schema;
+          USE FROM contract_schema (contract, contract2);
+          END_SCHEMA;
+        EXP
+
+        # Parse with Ruby parser
+        repo_ruby = described_class.from_exp(content, use_native: false)
+
+        # Parse with native parser (if available)
+        if Expressir::Express::Parser::Parser.native_available?
+          repo_native = described_class.from_exp(content, use_native: true)
+
+          ruby_interface = repo_ruby.schemas.first.interfaces.first
+          native_interface = repo_native.schemas.first.interfaces.first
+
+          # Both should have the same number of interface items
+          expect(native_interface.items.length).to eq(ruby_interface.items.length),
+                                                   "Native parser produced #{native_interface.items.length} items, expected #{ruby_interface.items.length}"
+        end
+      end
     end
   end
 

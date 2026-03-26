@@ -26,6 +26,21 @@ module Expressir
         # @param source [String, nil] The original source code
         # @param include_source [Boolean, nil] Whether to include source
         # @return [Model::ModelElement] The built model object
+        # Operator tokens that return nil (separators, punctuation)
+        # When these appear as the first key in a multi-key hash, they should be
+        # skipped in favor of the content key. This handles grammar patterns like
+        # `element >> (op_comma >> element).repeat` which produce
+        # {:op_comma => ..., :element => {...}}.
+        OPERATOR_TOKENS = Set.new(%i[
+                                    op_comma op_colon op_decl op_delim op_leftparen op_rightparen
+                                    op_leftbracket op_rightbracket op_left_curly_brace op_right_curly_brace
+                                    op_period op_pipe op_double_backslash op_double_pipe op_double_asterisk
+                                    op_asterisk op_slash op_plus op_minus op_less_equal op_greater_equal
+                                    op_less_greater op_less_than op_greater_than op_equals
+                                    op_colon_less_greater_colon op_colon_equals_colon
+                                    op_query_begin op_query_end op_question_mark
+                                  ]).freeze
+
         def build(ast, source: nil, include_source: nil)
           return nil unless ast
 
@@ -44,25 +59,40 @@ module Expressir
             snake_data = fast_convert_keys(node_data)
 
             builder = @register[handler_key]
-            raise Error::UnknownNodeTypeError, node_type unless builder
+            if builder
+              result = builder.call(snake_data)
 
-            result = builder.call(snake_data)
+              # Fast path: single-key hash or non-nil result
+              if !result.nil? || ast.keys.length <= 1
+                attach_source_info(result, node_data)
+                return result
+              end
 
-            # Always store source_offset for remark attachment (if source is available)
-            # Only store source text when include_source is requested
-            if @source && result.is_a?(Model::ModelElement)
-              source_info = extract_source_info(node_data)
-              if source_info
-                # Store offset for remark attachment (always needed)
-                result.source_offset = source_info[:offset]
-                # Store source text only when explicitly requested
-                if @include_source
-                  result.source = source_info[:text]
+              # Slow path: operator token returned nil in multi-key hash.
+              # Try other keys for actual content. This handles
+              # {:op_comma => ..., :element => {...}} where the first key
+              # is an operator separator rather than a content key.
+              if OPERATOR_TOKENS.include?(handler_key)
+                ast.each_key do |key|
+                  next if key == node_type
+                  h_key = cached_snake_case(key)
+                  h_builder = @register[h_key]
+                  next unless h_builder
+
+                  n_data = ast[key]
+                  s_data = fast_convert_keys(n_data)
+                  result = h_builder.call(s_data)
+
+                  unless result.nil?
+                    attach_source_info(result, n_data)
+                    return result
+                  end
                 end
               end
+            else
+              raise Error::UnknownNodeTypeError, node_type
             end
-
-            result
+            nil
           when Array
             ast.map do |item|
               build(item)
@@ -121,9 +151,8 @@ module Expressir
         def build_children(ast_array)
           return [] if ast_array.nil?
 
-          # Handle Parsanol::Slice (including empty Slices from native parser)
-          # Convert to empty Array to match Ruby parser behavior
-          # Native parser returns empty slices where Ruby parser returns empty arrays
+          # Handle Parsanol::Slice (empty Slices from optional rules)
+          # Convert to empty Array
           if ast_array.is_a?(Parsanol::Slice)
             return []
           end
@@ -138,7 +167,7 @@ module Expressir
           ast_array.each do |item|
             next if item.nil?
 
-            # Empty Slices from native parser should be treated as empty arrays
+            # Empty Slices from optional rules should be treated as empty arrays
             if item.is_a?(Parsanol::Slice)
               next
             end
@@ -326,6 +355,16 @@ module Expressir
             text: @source[slice.offset...(slice.offset + slice.length)]&.strip,
             offset: slice.offset,
           }
+        end
+
+        def attach_source_info(result, data)
+          return unless @source && result.is_a?(Model::ModelElement)
+
+          source_info = extract_source_info(data)
+          return unless source_info
+
+          result.source_offset = source_info[:offset]
+          result.source = source_info[:text] if @include_source
         end
 
         def find_slice(data, depth = 0)

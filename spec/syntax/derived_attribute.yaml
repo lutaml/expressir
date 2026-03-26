@@ -128,6 +128,7 @@ schemas:
               _class: Expressir::Model::Expressions::FunctionCall
               function:
                 _class: Expressir::Model::References::SimpleReference
+                id: sin
               parameters:
               - _class: Expressir::Model::References::SimpleReference
                 id: theta
@@ -136,10 +137,53 @@ schemas:
             _class: Expressir::Model::Expressions::FunctionCall
             function:
               _class: Expressir::Model::References::SimpleReference
+              id: cos
             parameters:
             - _class: Expressir::Model::References::SimpleReference
               id: phi
               base_path: spec/syntax/derived_attribute.exp.geometry_schema.spherical_point.phi
+        - _class: Expressir::Model::Expressions::BinaryExpression
+          operator: MULTIPLICATION
+          operand1:
+            _class: Expressir::Model::Expressions::BinaryExpression
+            operator: MULTIPLICATION
+            operand1:
+              _class: Expressir::Model::References::SimpleReference
+              id: r
+              base_path: spec/syntax/derived_attribute.exp.geometry_schema.spherical_point.r
+            operand2:
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: sin
+              parameters:
+              - _class: Expressir::Model::References::SimpleReference
+                id: theta
+                base_path: spec/syntax/derived_attribute.exp.geometry_schema.spherical_point.theta
+          operand2:
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: sin
+            parameters:
+            - _class: Expressir::Model::References::SimpleReference
+              id: phi
+              base_path: spec/syntax/derived_attribute.exp.geometry_schema.spherical_point.phi
+        - _class: Expressir::Model::Expressions::BinaryExpression
+          operator: MULTIPLICATION
+          operand1:
+            _class: Expressir::Model::References::SimpleReference
+            id: r
+            base_path: spec/syntax/derived_attribute.exp.geometry_schema.spherical_point.r
+          operand2:
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: cos
+            parameters:
+            - _class: Expressir::Model::References::SimpleReference
+              id: theta
+              base_path: spec/syntax/derived_attribute.exp.geometry_schema.spherical_point.theta
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1

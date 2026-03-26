@@ -670,17 +670,30 @@ module Expressir
       # @param [String] file Express file path
       # @param [Boolean] skip_references skip resolving references
       # @param [Boolean] include_source attach original source code to model elements
+      # @param [Boolean] use_native use native parser (default: true when available)
       # @return [Model::ExpFile] ExpFile containing parsed schemas
       # @raise [SchemaParseFailure] if the schema file fails to parse
-      def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil) # rubocop:disable Metrics/AbcSize
+      def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil, use_native: nil) # rubocop:disable Metrics/AbcSize
         Expressir::Benchmark.measure_file(file) do
           source = File.read file
 
           # remove root path from file path
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
+          use_native = Parser.native_available? if use_native.nil?
+
           begin
-            ast = Parser.cached_parser.parse source
+            ast = if use_native && Parser.native_available?
+                    begin
+                      Parser.parse_native(source)
+                    rescue StandardError
+                      # Native parser may fail on non-ASCII or edge cases;
+                      # fall back to Ruby parser
+                      Parser.cached_parser.parse source
+                    end
+                  else
+                    Parser.cached_parser.parse source
+                  end
           rescue Parsanol::ParseFailed => e
             # Instead of just printing, raise a proper error with file context
             raise Error::SchemaParseFailure.new(schema_file, e)
@@ -712,16 +725,17 @@ module Expressir
       # @param [Array<String>] files Express file paths
       # @param [Boolean] skip_references skip resolving references
       # @param [Boolean] include_source attach original source code to model elements
+      # @param [Boolean] use_native use native parser (default: true when available)
       # @yield [filename, schemas, error] Optional block called for each file processed
       # @yieldparam filename [String] Name of the file being processed
       # @yieldparam schemas [Array, nil] Array of parsed schemas (nil if parsing failed)
       # @yieldparam error [Exception, nil] Error that occurred (nil if parsing succeeded)
       # @return [Model::Repository] Repository containing all parsed ExpFiles
-      def self.from_files(files, skip_references: nil, include_source: nil, root_path: nil)
+      def self.from_files(files, skip_references: nil, include_source: nil, root_path: nil, use_native: nil)
         all_exp_files = []
 
         files.each do |file|
-          exp_file = from_file(file, skip_references: true, root_path: root_path)
+          exp_file = from_file(file, skip_references: true, root_path: root_path, use_native: use_native)
           all_exp_files << exp_file
 
           # Call the progress block if provided
@@ -751,17 +765,19 @@ module Expressir
       # @param [String] content Express content as string
       # @param [Boolean] skip_references skip resolving references
       # @param [Boolean] include_source attach original source code to model elements
-      # @param [Boolean] use_native use native parser if available (default: false - AST format differs slightly)
+      # @param [Boolean] use_native use native parser (default: true when available)
       # @param [Boolean] use_streaming use streaming builder for maximum performance (default: false)
       # @return [Model::ExpFile] Parsed ExpFile
       # @raise [SchemaParseFailure] if the content fails to parse
       def self.from_exp(content, skip_references: nil, include_source: nil,
-                         use_native: false, use_streaming: false)
+                         use_native: nil, use_streaming: false)
         # Streaming builder mode - uses Parsanol streaming callbacks
         if use_streaming && Parser.native_available? && defined?(Parsanol::Native.parse_with_builder)
           return from_exp_streaming(content, skip_references: skip_references,
                                              include_source: include_source)
         end
+
+        use_native = Parser.native_available? if use_native.nil?
 
         begin
           # Use cached parser instance for performance (avoids ~7ms Parser.new overhead)

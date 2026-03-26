@@ -4,6 +4,12 @@ path: spec/syntax/test-generic.exp
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: annotated_3d_model_data_quality_criteria_schema
+  remarks:
+  - "$Id: test.exp,v 1.3 2020/07/30 05:18:54 ftanaka Exp $\r\nISO 10303 TC184/SC4/WG12
+    N10658\r\n\r\nEXPRESS Source:\r\nISO 10303-59 ed3 Quality of product shape data
+    - Annotated 3d model data quality criteria schema\r\n\r\nThe following permission
+    notice and disclaimer shall be included in all copies of this EXPRESS schema (\"the
+    Schema\"),\r\nand derivations of the Schema:"
   file: spec/syntax/test-generic.exp
   version:
     _class: Expressir::Model::Declarations::SchemaVersion
@@ -160,6 +166,7 @@ schemas:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
           _class: Expressir::Model::References::SimpleReference
+          id: SIZEOF
         parameters:
         - _class: Expressir::Model::Expressions::QueryExpression
           id: q
@@ -182,6 +189,7 @@ schemas:
               _class: Expressir::Model::Expressions::FunctionCall
               function:
                 _class: Expressir::Model::References::SimpleReference
+                id: TYPEOF
               parameters:
               - _class: Expressir::Model::References::SimpleReference
                 id: q

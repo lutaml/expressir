@@ -45,9 +45,6 @@ module Expressir
 
           return term if rhs.nil? || (rhs.respond_to?(:empty?) && rhs.empty?)
 
-          # Handle both formats:
-          # - Ruby parser: rhs is Array of {:item => {...}} hashes
-          # - Native parser: rhs might be a Hash (merged) or Array
           rhs_array = rhs.is_a?(Array) ? rhs : [rhs]
 
           operands = [term]
@@ -79,9 +76,6 @@ module Expressir
 
           return factor if rhs.nil? || (rhs.respond_to?(:empty?) && rhs.empty?)
 
-          # Handle both formats:
-          # - Ruby parser: rhs is Array of {:item => {...}} hashes
-          # - Native parser: rhs might be a Hash (merged) or Array
           rhs_array = rhs.is_a?(Array) ? rhs : [rhs]
 
           operands = [factor]

@@ -13,12 +13,14 @@ module Expressir
         end
 
         def build_built_in_function(ast_data)
-          id = extract_text(ast_data[:str])
+          id = extract_text(ast_data[:str]) ||
+            extract_nested_text(ast_data)
           Expressir::Model::References::SimpleReference.new(id: id)
         end
 
         def build_built_in_procedure(ast_data)
-          id = extract_text(ast_data[:str])
+          id = extract_text(ast_data[:str]) ||
+            extract_nested_text(ast_data)
           Expressir::Model::References::SimpleReference.new(id: id)
         end
 

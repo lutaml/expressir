@@ -1,41 +1,41 @@
 ---
 _class: Expressir::Model::ExpFile
-path: spec/syntax/multiple_formatted.exp
+path: spec/syntax/multiple.exp
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: multiple_schema
-  file: spec/syntax/multiple_formatted.exp
+  file: spec/syntax/multiple.exp
   interfaces:
   - _class: Expressir::Model::Declarations::Interface
     kind: REFERENCE
     schema:
       _class: Expressir::Model::References::SimpleReference
       id: multiple_schema2
-      base_path: spec/syntax/multiple_formatted.exp.multiple_schema2
+      base_path: spec/syntax/multiple.exp.multiple_schema2
   - _class: Expressir::Model::Declarations::Interface
     kind: REFERENCE
     schema:
       _class: Expressir::Model::References::SimpleReference
       id: multiple_schema3
-      base_path: spec/syntax/multiple_formatted.exp.multiple_schema3
+      base_path: spec/syntax/multiple.exp.multiple_schema3
     items:
     - _class: Expressir::Model::Declarations::InterfaceItem
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: attribute_entity3
-        base_path: spec/syntax/multiple_formatted.exp.multiple_schema3.attribute_entity3
+        base_path: spec/syntax/multiple.exp.multiple_schema3.attribute_entity3
   - _class: Expressir::Model::Declarations::Interface
     kind: REFERENCE
     schema:
       _class: Expressir::Model::References::SimpleReference
       id: multiple_schema4
-      base_path: spec/syntax/multiple_formatted.exp.multiple_schema4
+      base_path: spec/syntax/multiple.exp.multiple_schema4
     items:
     - _class: Expressir::Model::Declarations::InterfaceItem
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: attribute_entity
-        base_path: spec/syntax/multiple_formatted.exp.multiple_schema4.attribute_entity
+        base_path: spec/syntax/multiple.exp.multiple_schema4.attribute_entity
       id: attribute_entity4
   entities:
   - _class: Expressir::Model::Declarations::Entity
@@ -55,13 +55,13 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
-      base_path: spec/syntax/multiple_formatted.exp.multiple_schema.empty_entity
+      base_path: spec/syntax/multiple.exp.multiple_schema.empty_entity
   - _class: Expressir::Model::Declarations::Entity
     id: subtype_attribute_entity
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity
-      base_path: spec/syntax/multiple_formatted.exp.multiple_schema.attribute_entity
+      base_path: spec/syntax/multiple.exp.multiple_schema.attribute_entity
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: test
@@ -76,7 +76,7 @@ schemas:
           entity:
             _class: Expressir::Model::References::SimpleReference
             id: attribute_entity
-            base_path: spec/syntax/multiple_formatted.exp.multiple_schema.attribute_entity
+            base_path: spec/syntax/multiple.exp.multiple_schema.attribute_entity
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
@@ -87,7 +87,7 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity2
-      base_path: spec/syntax/multiple_formatted.exp.multiple_schema2.attribute_entity2
+      base_path: spec/syntax/multiple.exp.multiple_schema2.attribute_entity2
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: test
@@ -102,7 +102,7 @@ schemas:
           entity:
             _class: Expressir::Model::References::SimpleReference
             id: attribute_entity2
-            base_path: spec/syntax/multiple_formatted.exp.multiple_schema2.attribute_entity2
+            base_path: spec/syntax/multiple.exp.multiple_schema2.attribute_entity2
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
@@ -113,7 +113,7 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity3
-      base_path: spec/syntax/multiple_formatted.exp.multiple_schema3.attribute_entity3
+      base_path: spec/syntax/multiple.exp.multiple_schema3.attribute_entity3
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: test
@@ -128,7 +128,7 @@ schemas:
           entity:
             _class: Expressir::Model::References::SimpleReference
             id: attribute_entity3
-            base_path: spec/syntax/multiple_formatted.exp.multiple_schema3.attribute_entity3
+            base_path: spec/syntax/multiple.exp.multiple_schema3.attribute_entity3
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
@@ -139,7 +139,7 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity4
-      base_path: spec/syntax/multiple_formatted.exp.multiple_schema4.attribute_entity
+      base_path: spec/syntax/multiple.exp.multiple_schema4.attribute_entity
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: test
@@ -154,7 +154,7 @@ schemas:
           entity:
             _class: Expressir::Model::References::SimpleReference
             id: attribute_entity4
-            base_path: spec/syntax/multiple_formatted.exp.multiple_schema4.attribute_entity
+            base_path: spec/syntax/multiple.exp.multiple_schema4.attribute_entity
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test
@@ -167,7 +167,7 @@ schemas:
       id: missing_entity
 - _class: Expressir::Model::Declarations::Schema
   id: multiple_schema2
-  file: spec/syntax/multiple_formatted.exp
+  file: spec/syntax/multiple.exp
   entities:
   - _class: Expressir::Model::Declarations::Entity
     id: attribute_entity2
@@ -179,7 +179,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
 - _class: Expressir::Model::Declarations::Schema
   id: multiple_schema3
-  file: spec/syntax/multiple_formatted.exp
+  file: spec/syntax/multiple.exp
   entities:
   - _class: Expressir::Model::Declarations::Entity
     id: attribute_entity3
@@ -191,7 +191,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
 - _class: Expressir::Model::Declarations::Schema
   id: multiple_schema4
-  file: spec/syntax/multiple_formatted.exp
+  file: spec/syntax/multiple.exp
   entities:
   - _class: Expressir::Model::Declarations::Entity
     id: attribute_entity

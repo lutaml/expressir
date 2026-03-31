@@ -208,7 +208,7 @@ module Expressir
       def remark_infos
         return [] if untagged_remarks.nil?
 
-        untagged_remarks.select { |r| r.is_a?(RemarkInfo) }
+        untagged_remarks.grep(RemarkInfo)
       end
 
       private

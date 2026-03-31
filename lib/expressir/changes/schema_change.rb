@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 module Expressir
   module Changes
     # Represents changes to an EXPRESS schema across multiple versions

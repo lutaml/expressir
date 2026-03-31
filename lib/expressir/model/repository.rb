@@ -32,8 +32,8 @@ module Expressir
         map "files", to: :files
       end
 
-      def initialize(*args, base_dir: nil, schemas: nil, **kwargs)
-        super(*args, **kwargs)
+      def initialize(*, base_dir: nil, schemas: nil, **)
+        super(*, **)
         @base_dir = base_dir
         @entity_index = nil
         @type_index = nil
@@ -41,9 +41,7 @@ module Expressir
         @_schemas = []
 
         # Support direct schemas initialization
-        if schemas
-          schemas.each { |schema| @_schemas << schema }
-        end
+        schemas&.each { |schema| @_schemas << schema }
       end
 
       # Get all schemas (from both files and direct storage)
@@ -63,6 +61,7 @@ module Expressir
       # @param schema [Declarations::Schema] Schema to add
       def add_schema(schema)
         return unless schema
+
         @_schemas << schema
       end
 
@@ -342,16 +341,16 @@ module Expressir
       # @param format [Symbol] Output format
       # @yield [item] Block to convert item to hash
       # @return [Array, String] Formatted output
-      def format_output(items, format, &block)
+      def format_output(items, format, &)
         case format
         when :hash
-          items.map(&block)
+          items.map(&)
         when :json
           require "json"
-          items.map(&block).to_json
+          items.map(&).to_json
         when :yaml
           require "yaml"
-          items.map(&block).to_yaml
+          items.map(&).to_yaml
         else
           items
         end

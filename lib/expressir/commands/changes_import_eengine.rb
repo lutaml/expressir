@@ -11,7 +11,7 @@ module Expressir
       # @param version [String] Version identifier
       # @param options [Hash] Additional options
       # @return [Expressir::Changes::SchemaChange]
-      def self.from_xml(xml_content, schema_name, version, **options)
+      def self.from_xml(xml_content, schema_name, version, **)
         require "expressir/changes"
 
         # Parse into CompareReport using Lutaml::Model
@@ -19,7 +19,7 @@ module Expressir
 
         # Convert to SchemaChange
         convert_to_schema_change(compare_report, schema_name, version,
-                                 xml_content: xml_content, **options)
+                                 xml_content: xml_content, **)
       end
 
       # File-based workflow (backward compatible)

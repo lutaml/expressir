@@ -317,7 +317,7 @@ RSpec.describe Expressir::Express::PrettyFormatter do
     it "includes preamble when untagged_remarks present" do
       repo_with_remarks = Expressir::Model::Repository.new(
         schemas: [schema],
-        untagged_remarks: [Expressir::Model::RemarkInfo.new(text: "Test preamble")]
+        untagged_remarks: [Expressir::Model::RemarkInfo.new(text: "Test preamble")],
       )
 
       result = formatter.send(:format_repository, repo_with_remarks)
@@ -351,7 +351,7 @@ RSpec.describe Expressir::Express::PrettyFormatter do
     it "formats single constant" do
       # Create real constant object with INTEGER type
       int_type = Expressir::Model::DataTypes::Integer.new
-      type_ref = Expressir::Model::References::SimpleReference.new(id: "INTEGER")
+      Expressir::Model::References::SimpleReference.new(id: "INTEGER")
       constant = Expressir::Model::Declarations::Constant.new(
         id: "const1",
         type: int_type,

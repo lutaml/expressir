@@ -237,9 +237,7 @@ module Expressir
                 !node.untagged_remarks.nil? &&
                 skip_untagged_types.any? { |type| node.is_a?(type) }
 
-              remarks.concat(node.untagged_remarks.compact.select do |remark|
-                remark.is_a?(Model::RemarkInfo)
-              end.map do |remark|
+              remarks.concat(node.untagged_remarks.compact.grep(Model::RemarkInfo).map do |remark|
                 format_untagged_remark(remark)
               end)
             end

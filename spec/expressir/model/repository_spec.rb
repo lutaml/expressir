@@ -503,7 +503,7 @@ RSpec.describe Expressir::Model::Repository do
         id: "test_schema",
         entities: [Expressir::Model::Declarations::Entity.new(id: "test_entity")],
       )
-      repo = Expressir::Model::Repository.new(schemas: [schema])
+      repo = described_class.new(schemas: [schema])
 
       expect do
         repo.resolve_all_references

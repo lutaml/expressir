@@ -5,21 +5,21 @@
 # Compares Parsanol Ruby vs Native performance on full STEPmod Resource Library
 # Features: Live progress, emojis, colors, per-schema stats
 
-require 'bundler/setup'
-require 'benchmark'
-require 'fileutils'
+require "bundler/setup"
+require "benchmark"
+require "fileutils"
 
 # Force loading of native extension
-require 'parsanol'
-require 'parsanol/native'
+require "parsanol"
+require "parsanol/native"
 
 # Now require expressir
-require 'expressir'
+require "expressir"
 
 # Configuration
-SRL_PATH = '/Users/mulgogi/src/mn/iso-10303/schemas/resources'
-ITERATIONS = (ENV['ITERATIONS'] || 1).to_i
-TIMEOUT_SECONDS = (ENV['TIMEOUT'] || 30).to_i  # Timeout per file
+SRL_PATH = "/Users/mulgogi/src/mn/iso-10303/schemas/resources"
+ITERATIONS = (ENV["ITERATIONS"] || 1).to_i
+TIMEOUT_SECONDS = (ENV["TIMEOUT"] || 30).to_i # Timeout per file
 
 # Check if we're running in an interactive terminal
 INTERACTIVE = $stdout.tty?
@@ -64,7 +64,9 @@ include Colors
 module Terminal
   class << self
     def width
-      IO.console.winsize[1] rescue 80
+      IO.console.winsize[1]
+    rescue StandardError
+      80
     end
 
     def clear_line
@@ -85,7 +87,7 @@ class ProgressBar
     @current = 0
   end
 
-  def render(current, label = '')
+  def render(current, label = "")
     @current = current
     percentage = (@current.to_f / @total * 100).round(1)
     filled = (@width * @current / @total.to_f).round
@@ -97,7 +99,9 @@ class ProgressBar
 end
 
 def find_exp_files
-  Dir.glob("#{SRL_PATH}/*/*.exp").sort.reject { |f| f.include?('quantities_and_units') }
+  Dir.glob("#{SRL_PATH}/*/*.exp").reject do |f|
+    f.include?("quantities_and_units")
+  end
 end
 
 def count_lines(files)
@@ -158,50 +162,56 @@ class ParserBenchmark
     @results = []
   end
 
-  def run(files, total_lines)
+  def run(files, _total_lines)
     puts "#{@color}#{@emoji} #{@name}#{@RESET}"
     puts "#{DIM}┌──────────────────────────────────────────────────────────┐#{RESET}"
 
     progress_bar = ProgressBar.new(files.size, 25)
-    iteration_results = { success: 0, failed: 0, errors: [], time: 0, schema_times: [] }
+    iteration_results = { success: 0, failed: 0, errors: [], time: 0,
+                          schema_times: [] }
     start_time = Time.now
 
     files.each_with_index do |file, idx|
-      schema_name = File.basename(file, '.exp')
+      schema_name = File.basename(file, ".exp")
       file_start = Time.now
       schema_lines = File.read(file).lines.count
 
       begin
-        require 'timeout'
+        require "timeout"
         Timeout.timeout(TIMEOUT_SECONDS) do
           if @use_native
             content = File.read(file)
-            Expressir::Express::Parser.from_exp(content, skip_references: true, use_native: true)
+            Expressir::Express::Parser.from_exp(content, skip_references: true,
+                                                         use_native: true)
           else
             Expressir::Express::Parser.from_file(file, skip_references: true)
           end
         end
         iteration_results[:success] += 1
         status = "#{BRIGHT_GREEN}✓#{RESET}"
-      rescue Timeout::Error => e
+      rescue Timeout::Error
         iteration_results[:failed] += 1
-        iteration_results[:errors] << { file: File.basename(file), error: "Timeout after #{TIMEOUT_SECONDS}s" }
+        iteration_results[:errors] << { file: File.basename(file),
+                                        error: "Timeout after #{TIMEOUT_SECONDS}s" }
         status = "#{BRIGHT_YELLOW}⏱#{RESET}"
-      rescue => e
+      rescue StandardError => e
         iteration_results[:failed] += 1
-        iteration_results[:errors] << { file: File.basename(file), error: e.message[0..60] }
+        iteration_results[:errors] << { file: File.basename(file),
+                                        error: e.message[0..60] }
         status = "#{BRIGHT_RED}✗#{RESET}"
       end
 
       elapsed = Time.now - file_start
-      iteration_results[:schema_times] << { name: schema_name, time: elapsed, lines: schema_lines }
+      iteration_results[:schema_times] << { name: schema_name, time: elapsed,
+                                            lines: schema_lines }
 
       # Live progress update
       if INTERACTIVE
         progress_label = "#{status} #{schema_name[0..20].ljust(21)}"
-        print "#{Terminal.clear_line}  #{progress_bar.render(idx + 1, progress_label)}"
+        print "#{Terminal.clear_line}  #{progress_bar.render(idx + 1,
+                                                             progress_label)}"
         $stdout.flush
-      elsif (idx + 1) % 10 == 0 || idx == 0
+      elsif ((idx + 1) % 10).zero? || idx.zero?
         # Print progress every 10 files when not interactive
         pct = ((idx + 1).to_f / files.size * 100).round(1)
         puts "  #{progress_bar.render(idx + 1, "#{pct}% complete")}"
@@ -230,7 +240,7 @@ class ParserBenchmark
     puts "#{DIM}│#{RESET}   #{BRIGHT_CYAN}⏱️  Time:#{RESET}    #{BRIGHT_WHITE}#{format_time(avg_time).rjust(5)}#{RESET}"
     puts "#{DIM}│#{RESET}   #{BRIGHT_YELLOW}⚡ Speed:#{RESET}   #{BRIGHT_WHITE}#{format_number(lines_per_sec).rjust(5)}#{RESET} lines/sec"
 
-    if result[:failed] > 0 && result[:failed] <= 5
+    if result[:failed].positive? && result[:failed] <= 5
       puts "#{DIM}├──────────────────────────────────────────────────────────┤#{RESET}"
       puts "#{DIM}│#{RESET} #{BRIGHT_RED}⚠️  Errors:#{RESET}"
       result[:errors].first(3).each do |err|
@@ -241,7 +251,8 @@ class ParserBenchmark
     puts "#{DIM}└──────────────────────────────────────────────────────────┘#{RESET}"
     puts
 
-    { avg_time: avg_time, lines_per_sec: lines_per_sec, files_per_sec: files_per_sec }
+    { avg_time: avg_time, lines_per_sec: lines_per_sec,
+      files_per_sec: files_per_sec }
   end
 
   def print_slowest_schemas(result, count = 5)
@@ -290,7 +301,7 @@ def print_comparison(ruby_stats, native_stats, files, total_lines)
     puts "#{DIM}│#{RESET}  #{BRIGHT_YELLOW}⏱️  Time Saved:#{RESET}  #{BRIGHT_GREEN}#{format_time(time_saved)} per run#{RESET}             #{DIM}│#{RESET}"
   else
     puts "#{DIM}│#{RESET}  #{BOLD}#{BRIGHT_BLUE}🏆 WINNER: Ruby Parser#{RESET}                       #{DIM}│#{RESET}"
-    puts "#{DIM}│#{RESET}  #{BRIGHT_YELLOW}⚡ Speedup:#{RESET}     #{BOLD}#{BRIGHT_BLUE}#{(1/speedup).round(1)}x FASTER#{RESET}                  #{DIM}│#{RESET}"
+    puts "#{DIM}│#{RESET}  #{BRIGHT_YELLOW}⚡ Speedup:#{RESET}     #{BOLD}#{BRIGHT_BLUE}#{(1 / speedup).round(1)}x FASTER#{RESET}                  #{DIM}│#{RESET}"
   end
 
   puts "#{DIM}│#{RESET}                                                     #{DIM}│#{RESET}"
@@ -336,15 +347,16 @@ warmup_file = files.first
 
 begin
   Expressir::Express::Parser.from_file(warmup_file, skip_references: true)
-rescue => e
+rescue StandardError => e
   puts "#{BRIGHT_YELLOW}⚠️  Ruby warmup warning: #{e.message[0..40]}#{RESET}"
 end
 
 if Parsanol::Native.available?
   begin
     content = File.read(warmup_file)
-    Expressir::Express::Parser.from_exp(content, skip_references: true, use_native: true)
-  rescue => e
+    Expressir::Express::Parser.from_exp(content, skip_references: true,
+                                                 use_native: true)
+  rescue StandardError => e
     puts "#{BRIGHT_YELLOW}⚠️  Native warmup warning: #{e.message[0..40]}#{RESET}"
   end
 end
@@ -356,7 +368,7 @@ ruby_benchmark = ParserBenchmark.new(
   name: "Ruby Parser",
   emoji: "💎",
   color: BRIGHT_BLUE,
-  use_native: false
+  use_native: false,
 )
 
 ruby_result = ruby_benchmark.run(files, total_lines)
@@ -369,17 +381,18 @@ if Parsanol::Native.available?
     name: "Native Parser (Rust)",
     emoji: "🦀",
     color: BRIGHT_CYAN,
-    use_native: true
+    use_native: true,
   )
 
   native_result = native_benchmark.run(files, total_lines)
-  native_stats = native_benchmark.print_summary(files, total_lines, native_result)
+  native_stats = native_benchmark.print_summary(files, total_lines,
+                                                native_result)
   native_benchmark.print_slowest_schemas(native_result)
 
   # Print comparison
   print_comparison(ruby_stats, native_stats, files, total_lines)
 else
-  puts "#{BRIGHT_YELLOW}⚠️  Native parser not available. Run \`rake compile\` in parsanol-ruby to build.#{RESET}"
+  puts "#{BRIGHT_YELLOW}⚠️  Native parser not available. Run `rake compile` in parsanol-ruby to build.#{RESET}"
   puts
 end
 

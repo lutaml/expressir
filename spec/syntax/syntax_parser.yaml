@@ -1266,11 +1266,6 @@ schemas:
     - _class: Expressir::Model::Statements::Null
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
-      remarks:
-      - schema
-      untagged_remarks:
-      - text: schema
-        format: tail
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'

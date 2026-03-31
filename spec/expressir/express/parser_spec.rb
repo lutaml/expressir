@@ -125,6 +125,7 @@ RSpec.describe Expressir::Express::Parser do
       repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
+        use_native: false,
       )
       result = repo.to_yaml
       # File.write(yaml_file, result)
@@ -140,6 +141,7 @@ RSpec.describe Expressir::Express::Parser do
       repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
+        use_native: false,
       )
       result = repo.to_yaml
       # File.write(yaml_file, result)
@@ -160,6 +162,7 @@ RSpec.describe Expressir::Express::Parser do
       repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
+        use_native: false,
       )
       result = repo.to_yaml
       # File.write(yaml_file, result)
@@ -182,6 +185,7 @@ RSpec.describe Expressir::Express::Parser do
       repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
+        use_native: false,
       )
       result = repo.to_yaml
       # File.write(yaml_file, result)
@@ -197,11 +201,27 @@ RSpec.describe Expressir::Express::Parser do
       repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
+        use_native: false,
       )
       result = repo.to_yaml
       # File.write(yaml_file, result)
       expected_result = File.read(yaml_file)
       expect(result).to eq(expected_result)
+    end
+
+    it "parses a file (syntax.exp) with native parser" do
+      skip "Native parser not available" unless Expressir::Express::Parser::Parser.native_available?
+
+      exp_file = Expressir.root_path.join("spec", "syntax", "syntax.exp")
+
+      # Verify native parser can handle the full syntax.exp without errors
+      repo = described_class.from_file(
+        exp_file,
+        root_path: Expressir.root_path,
+        use_native: true,
+      )
+      expect(repo).to be_a(Expressir::Model::ExpFile)
+      expect(repo.schemas.length).to be > 0
     end
 
     it "parses a file (remark.exp)" do |_example|
@@ -212,6 +232,7 @@ RSpec.describe Expressir::Express::Parser do
       repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
+        use_native: false,
       )
       result = repo.to_yaml
       # File.write(yaml_file, result)
@@ -294,6 +315,7 @@ RSpec.describe Expressir::Express::Parser do
       repo = described_class.from_file(
         exp_file,
         root_path: Expressir.root_path,
+        use_native: false,
       )
       result = repo.to_yaml
       # File.write(yaml_file, result)

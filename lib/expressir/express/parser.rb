@@ -14,6 +14,13 @@ module Expressir
         @@cached_parser = nil
         @@parser_mutex = Mutex.new
 
+        # Cache for schemaDecl grammar JSON (used for streaming parse)
+        @@cached_schema_grammar_json = nil
+
+        # Threshold for using memory-bounded fresh parse (bytes)
+        # Files above this use parse_fresh which has no packrat cache
+        LARGE_FILE_THRESHOLD = 1024 * 1024 # 1 MB
+
         # Get cached parser instance (thread-safe)
         # Reusing the parser avoids the overhead of reinitializing all rule definitions
         def self.cached_parser
@@ -59,6 +66,15 @@ module Expressir
           @@cached_grammar_json
         end
 
+        # Get cached grammar JSON for schemaDecl (used for streaming parse)
+        def self.cached_schema_grammar_json
+          return @@cached_schema_grammar_json if @@cached_schema_grammar_json
+
+          schema_atom = cached_parser.schemaDecl
+          @@cached_schema_grammar_json = Parsanol::Native.serialize_grammar(schema_atom)
+          @@cached_schema_grammar_json
+        end
+
         # Parse using native engine with Rust-side transformation (fastest)
         #
         # This method provides ~17x speedup over pure Ruby parsing.
@@ -74,7 +90,12 @@ module Expressir
           end
 
           grammar_atom = cached_parser.syntax
-          Parsanol::Native.parse(grammar_atom, source)
+          # Use fresh-parse (no cache) for large files to bound memory
+          if source.bytesize > LARGE_FILE_THRESHOLD
+            Parsanol::Native.parse_fresh(grammar_atom, source)
+          else
+            Parsanol::Native.parse(grammar_atom, source)
+          end
         end
 
         def cts(atom)
@@ -700,7 +721,7 @@ module Expressir
           end
 
           @exp_file = ::Expressir::Express::Builder.build_with_remarks(ast, source: source,
-                                                        include_source: include_source)
+                                                                            include_source: include_source)
 
           # Set file path on the ExpFile and propagate to schemas
           @exp_file.path = schema_file
@@ -731,11 +752,13 @@ module Expressir
       # @yieldparam schemas [Array, nil] Array of parsed schemas (nil if parsing failed)
       # @yieldparam error [Exception, nil] Error that occurred (nil if parsing succeeded)
       # @return [Model::Repository] Repository containing all parsed ExpFiles
-      def self.from_files(files, skip_references: nil, include_source: nil, root_path: nil, use_native: nil)
+      def self.from_files(files, skip_references: nil, include_source: nil,
+root_path: nil, use_native: nil)
         all_exp_files = []
 
         files.each do |file|
-          exp_file = from_file(file, skip_references: true, root_path: root_path, use_native: use_native)
+          exp_file = from_file(file, skip_references: true,
+                                     root_path: root_path, use_native: use_native)
           all_exp_files << exp_file
 
           # Call the progress block if provided
@@ -790,8 +813,9 @@ module Expressir
           raise Error::SchemaParseFailure.new("(from string)", e)
         end
 
-        exp_file = ::Expressir::Express::Builder.build_with_remarks(ast, source: content,
-                                                   include_source: include_source)
+        exp_file = ::Expressir::Express::Builder.build_with_remarks(ast,
+                                                                    source: content,
+                                                                    include_source: include_source)
 
         exp_file.schemas.each do |schema|
           schema.file = nil
@@ -809,20 +833,21 @@ module Expressir
         exp_file
       end
 
-      # Parse using streaming builder (maximum performance)
+      # Parse using streaming builder (construct-by-construct)
       # @param [String] content Express content as string
       # @param [Boolean] skip_references skip resolving references
       # @param [Boolean] include_source attach original source code to model elements
       # @return [Model::ExpFile] Parsed ExpFile
       # @raise [SchemaParseFailure] if the content fails to parse
-      def self.from_exp_streaming(content, skip_references: nil, include_source: nil)
+      def self.from_exp_streaming_builder(content, skip_references: nil,
+include_source: nil)
         grammar_json = Parser.cached_grammar_json
         builder = ::Expressir::Express::StreamingBuilder.new(source: content,
-                                       include_source: include_source)
+                                                             include_source: include_source)
 
         begin
           exp_file = Parsanol::Native.parse_with_builder(grammar_json,
-                                                           content, builder)
+                                                         content, builder)
         rescue StandardError => e
           raise Error::SchemaParseFailure.new("(streaming)", e)
         end
@@ -842,6 +867,185 @@ module Expressir
 
         exp_file
       end
+
+      # Parse each schema separately with fresh arena (memory-bounded)
+      #
+      # This splits the source into schema blocks and parses each independently.
+      # Memory is bounded by the largest schema, not the entire file.
+      #
+      # @param content [String] EXPRESS source code
+      # @param skip_references [Boolean] Whether to skip reference resolution
+      # @param include_source [Boolean] Whether to include source in model
+      # @return [Expressir::Model::ExpFile] Parsed EXPRESS file
+      def self.from_exp_streaming(content, skip_references: nil,
+include_source: nil)
+        grammar_json = Parser.cached_schema_grammar_json
+
+        # Extract schema blocks from source
+        schema_blocks = extract_schema_blocks(content)
+
+        # Parse each schema with fresh arena
+        schemas = schema_blocks.map do |block|
+          ast = Parsanol::Native.parse_fresh(grammar_json, block[:source])
+          schema_model = Builder.build(ast)
+          schema_model.source = block[:source]
+          schema_model
+        rescue StandardError => e
+          raise Error::SchemaParseFailure.new(
+            "(schema #{block[:name] || 'unknown'})", e
+          )
+        end
+
+        # Build the file model
+        exp_file = Expressir::Model::ExpFile.new
+        exp_file.schemas = schemas
+
+        exp_file.schemas.each do |schema|
+          schema.file = nil
+          schema.file_basename = nil
+          schema.formatted = schema.to_s(no_remarks: true)
+        end
+
+        unless skip_references
+          Expressir::Benchmark.measure_references do
+            resolve_references_model_visitor = ResolveReferencesModelVisitor.new
+            resolve_references_model_visitor.visit(exp_file)
+          end
+        end
+
+        exp_file
+      end
+
+      # Extract individual schema blocks from EXPRESS source
+      #
+      # This uses a state machine to properly handle nested comments and strings.
+      #
+      # @param source [String] EXPRESS source
+      # @return [Array<Hash>] Array of {name: String, source: String} for each schema
+      def self.extract_schema_blocks(source)
+        blocks = []
+        pos = 0
+        len = source.length
+
+        while pos < len
+          # Skip whitespace and find SCHEMA keyword
+          skip_ws_and_comments(source, pos)
+          pos = skip_ws_and_comments(source, pos)
+
+          break if pos >= len
+
+          # Check for SCHEMA
+          if source[pos..].start_with?("SCHEMA")
+            result = parse_schema_block(source, pos)
+            if result
+              blocks << result
+              pos = result[:end_pos]
+              next
+            end
+          end
+
+          pos += 1
+        end
+
+        blocks
+      end
+
+      private_class_method :extract_schema_blocks
+
+      def self.parse_schema_block(source, start_pos)
+        # Must be at SCHEMA keyword
+        return nil unless source[start_pos..].start_with?("SCHEMA")
+
+        pos = start_pos + "SCHEMA".length
+        pos = skip_spaces(source, pos)
+
+        # Extract schema name (identifier)
+        name_start = pos
+        while pos < source.length && (source[pos] =~ /[a-zA-Z0-9_]/ || source[pos] == "_")
+          pos += 1
+        end
+        schema_name = source[name_start...pos]
+
+        return nil if schema_name.empty?
+
+        # Skip to END_SCHEMA
+        depth = 1
+        search_pos = pos
+        end_pos = nil
+
+        while search_pos < source.length
+          if source[search_pos] == '"'
+            # String literal - skip to end
+            search_pos += 1
+            while search_pos < source.length && source[search_pos] != '"'
+              search_pos += 1
+            end
+            search_pos += 1
+          elsif source[search_pos] == "(" && source[search_pos + 1] == "*"
+            # Comment - skip to end
+            search_pos += 2
+            while search_pos < source.length && !(source[search_pos] == "*" && source[search_pos + 1] == ")")
+              search_pos += 1
+            end
+            search_pos += 2
+          elsif source[search_pos..].start_with?("END_SCHEMA")
+            depth -= 1
+            if depth.zero?
+              end_pos = search_pos + "END_SCHEMA".length
+              # Skip trailing whitespace and semicolon
+              pos = end_pos
+              pos = skip_spaces(source, pos)
+              pos += 1 if source[pos] == ";" # semicolon
+              break
+            end
+            search_pos += "END_SCHEMA".length
+          else
+            search_pos += 1
+          end
+        end
+
+        return nil unless end_pos
+
+        schema_source = source[start_pos...end_pos]
+        {
+          name: schema_name,
+          source: schema_source,
+          start_pos: start_pos,
+          end_pos: pos,
+        }
+      end
+      private_class_method :parse_schema_block
+
+      def self.skip_spaces(source, pos)
+        while pos < source.length && [" ", "\t", "\n",
+                                      "\r"].include?(source[pos])
+          pos += 1
+        end
+        pos
+      end
+      private_class_method :skip_spaces
+
+      def self.skip_ws_and_comments(source, pos)
+        len = source.length
+        while pos < len
+          c = source[pos]
+          if [" ", "\t", "\n", "\r"].include?(c)
+            pos += 1
+          elsif c == "(" && source[pos + 1] == "*"
+            # Comment - skip to end
+            pos += 2
+            while pos < len - 1 && !(source[pos] == "*" && source[pos + 1] == ")")
+              pos += 1
+            end
+            pos += 2
+          else
+            break
+          end
+        end
+        pos
+      end
+      private_class_method :skip_ws_and_comments
+
       private_class_method :from_exp_streaming
     end
   end

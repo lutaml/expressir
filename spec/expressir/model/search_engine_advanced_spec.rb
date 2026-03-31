@@ -41,7 +41,8 @@ RSpec.describe Expressir::Model::SearchEngine, "advanced features" do
   end
 
   let(:repo) do
-    Expressir::Model::Repository.new(schemas: [schema1, schema2]).tap(&:build_indexes)
+    Expressir::Model::Repository.new(schemas: [schema1,
+                                               schema2]).tap(&:build_indexes)
   end
 
   let(:engine) { described_class.new(repo) }

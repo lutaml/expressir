@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 module Expressir
   module Eengine
     # Represents a modified EXPRESS object in an Eengine comparison report

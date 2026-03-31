@@ -6,7 +6,8 @@ require_relative "../../../lib/expressir/express/cache"
 RSpec.describe Expressir::Model::ModelElement do
   # Helper method to deserialize YAML using the correct class based on _class field
   def self.deserialize_yaml(yaml_content)
-    yaml_hash = YAML.safe_load(yaml_content, permitted_classes: [Time, Date], aliases: true)
+    yaml_hash = YAML.safe_load(yaml_content, permitted_classes: [Time, Date],
+                                             aliases: true)
     klass_name = yaml_hash["_class"]
 
     # Map class name to actual class
@@ -16,7 +17,7 @@ RSpec.describe Expressir::Model::ModelElement do
             when "Expressir::Model::Repository"
               Expressir::Model::Repository
             else
-              Expressir::Model::ModelElement
+              described_class
             end
 
     klass.from_yaml(yaml_content)

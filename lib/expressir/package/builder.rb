@@ -152,7 +152,9 @@ module Expressir
 
         # Get schemas that are not already in files
         file_schema_ids = normalized.files.flat_map(&:schemas).compact.map(&:id)
-        direct_schemas = repository.schemas.reject { |s| file_schema_ids.include?(s.id) }
+        direct_schemas = repository.schemas.reject do |s|
+          file_schema_ids.include?(s.id)
+        end
 
         # Create an ExpFile for direct schemas
         if direct_schemas.any?

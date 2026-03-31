@@ -344,7 +344,8 @@ RSpec.describe Expressir::Model::RepositoryValidator do
       it "does not warn for single schema repository" do
         single_schema = Expressir::Model::Declarations::Schema.new(id: "single")
         single_ref_index = Expressir::Model::Indexes::ReferenceIndex.new([single_schema])
-        single_validator = described_class.new([single_schema], single_ref_index)
+        single_validator = described_class.new([single_schema],
+                                               single_ref_index)
 
         result = single_validator.validate(strict: true)
 
@@ -521,7 +522,9 @@ RSpec.describe Expressir::Model::RepositoryValidator do
   end
 
   describe "validation behavior" do
-    let(:validator) { described_class.new([schema1, referenced_schema], reference_index) }
+    let(:validator) do
+      described_class.new([schema1, referenced_schema], reference_index)
+    end
 
     it "validates repository by calling validate method" do
       result = validator.validate
@@ -583,8 +586,11 @@ RSpec.describe Expressir::Model::RepositoryValidator do
       lowercase_schema = Expressir::Model::Declarations::Schema.new(
         id: "referenced_schema",
       )
-      test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new([uppercase_schema, lowercase_schema])
-      validator = described_class.new([uppercase_schema, lowercase_schema], test_ref_index)
+      test_ref_index = Expressir::Model::Indexes::ReferenceIndex.new([
+                                                                       uppercase_schema, lowercase_schema
+                                                                     ])
+      validator = described_class.new([uppercase_schema, lowercase_schema],
+                                      test_ref_index)
 
       result = validator.validate
 
@@ -594,7 +600,9 @@ RSpec.describe Expressir::Model::RepositoryValidator do
 
   describe "enhanced validation features" do
     describe "check_interfaces option" do
-      let(:validator) { described_class.new([schema1, referenced_schema], reference_index) }
+      let(:validator) do
+        described_class.new([schema1, referenced_schema], reference_index)
+      end
 
       it "skips detailed interface validation when false" do
         result = validator.validate(check_interfaces: false)
@@ -618,7 +626,9 @@ RSpec.describe Expressir::Model::RepositoryValidator do
 
         result = validator.validate(check_completeness: false)
 
-        empty_warnings = result[:warnings].select { |w| w[:type] == :empty_schema }
+        empty_warnings = result[:warnings].select do |w|
+          w[:type] == :empty_schema
+        end
         expect(empty_warnings).to be_empty
       end
 
@@ -651,7 +661,9 @@ RSpec.describe Expressir::Model::RepositoryValidator do
     end
 
     describe "detailed option" do
-      let(:validator) { described_class.new([schema1, referenced_schema], reference_index) }
+      let(:validator) do
+        described_class.new([schema1, referenced_schema], reference_index)
+      end
 
       it "does not include detailed report when false" do
         result = validator.validate(detailed: false, check_interfaces: false)
@@ -690,7 +702,8 @@ RSpec.describe Expressir::Model::RepositoryValidator do
     describe "error handling" do
       it "handles interface validation errors gracefully" do
         # Create a minimal valid setup
-        validator = described_class.new([schema1, referenced_schema], reference_index)
+        validator = described_class.new([schema1, referenced_schema],
+                                        reference_index)
 
         result = validator.validate(check_interfaces: true)
 
@@ -701,7 +714,9 @@ RSpec.describe Expressir::Model::RepositoryValidator do
   end
 
   describe "backward compatibility" do
-    let(:validator) { described_class.new([schema1, referenced_schema], reference_index) }
+    let(:validator) do
+      described_class.new([schema1, referenced_schema], reference_index)
+    end
 
     it "maintains existing behavior with no options" do
       result = validator.validate
@@ -719,7 +734,9 @@ RSpec.describe Expressir::Model::RepositoryValidator do
       result = validator.validate(strict: true)
 
       expect(result[:warnings]).not_to be_empty
-      expect(result[:warnings].any? { |w| w[:type] == :unused_schema }).to be true
+      expect(result[:warnings].any? do |w|
+        w[:type] == :unused_schema
+      end).to be true
     end
   end
 

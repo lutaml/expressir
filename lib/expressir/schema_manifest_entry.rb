@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 module Expressir
   class SchemaManifestEntry < Lutaml::Model::Serializable
     attribute :id, :string

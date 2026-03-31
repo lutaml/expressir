@@ -14,7 +14,8 @@ module Expressir
       include ScopeContainer
 
       attribute :path, :string
-      attribute :schemas, Declarations::Schema, collection: true, initialize_empty: true
+      attribute :schemas, Declarations::Schema, collection: true,
+                                                initialize_empty: true
       attribute :_class, :string, default: -> { self.class.name }
 
       key_value do

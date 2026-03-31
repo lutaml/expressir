@@ -75,6 +75,7 @@ module Expressir
               if OPERATOR_TOKENS.include?(handler_key)
                 ast.each_key do |key|
                   next if key == node_type
+
                   h_key = cached_snake_case(key)
                   h_builder = @register[h_key]
                   next unless h_builder
@@ -113,7 +114,9 @@ module Expressir
 
           result = build(ast)
 
-          if source && result
+          # Only attach remarks if include_source is explicitly true
+          # (nil means use default behavior - attach remarks)
+          if source && result && include_source != false
             attacher = RemarkAttacher.new(source)
             attacher.attach(result)
           end
@@ -143,6 +146,7 @@ module Expressir
         def ensure_array(value)
           return [] if value.nil?
           return [] if value.is_a?(Parsanol::Slice)
+
           value.is_a?(Array) ? value : [value]
         end
 

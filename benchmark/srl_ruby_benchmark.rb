@@ -4,18 +4,18 @@
 # SRL Benchmark Script for Expressir - Ruby Parser Only
 # Tests pure Ruby parser performance on full STEPmod Resource Library
 
-require 'bundler/setup'
-require 'benchmark'
-require 'fileutils'
+require "bundler/setup"
+require "benchmark"
+require "fileutils"
 
 # Load expressir WITHOUT native extension
-require 'expressir'
+require "expressir"
 
 # Configuration
-SRL_PATH = '/Users/mulgogi/src/mn/iso-10303/schemas/resources'
+SRL_PATH = "/Users/mulgogi/src/mn/iso-10303/schemas/resources"
 
 def find_exp_files
-  Dir.glob("#{SRL_PATH}/*/*.exp").sort
+  Dir.glob("#{SRL_PATH}/*/*.exp")
 end
 
 def count_lines(files)
@@ -46,7 +46,7 @@ warmup_file = files.first
 begin
   Expressir::Express::Parser.from_file(warmup_file, skip_references: true)
   puts "Warmup complete."
-rescue => e
+rescue StandardError => e
   puts "Warning: Warmup failed: #{e.message}"
 end
 puts
@@ -67,16 +67,18 @@ time = Benchmark.realtime do
       results[:success] += 1
       file_time = Time.now - file_start
       content = File.read(file)
-      file_times << { file: File.basename(file), time: file_time, lines: content.lines.count }
+      file_times << { file: File.basename(file), time: file_time,
+                      lines: content.lines.count }
 
       # Progress every 10 files
-      if (idx + 1) % 10 == 0
+      if ((idx + 1) % 10).zero?
         print "."
         $stdout.flush
       end
-    rescue => e
+    rescue StandardError => e
       results[:failed] += 1
-      results[:errors] << { file: File.basename(file), error: e.message[0..100] }
+      results[:errors] << { file: File.basename(file),
+                            error: e.message[0..100] }
     end
   end
 end
@@ -96,7 +98,7 @@ puts "  Time:    #{results[:total_time].round(2)}s"
 puts "  Speed:   #{lines_per_sec} lines/sec"
 puts "  Speed:   #{files_per_sec} files/sec"
 
-if results[:failed] > 0
+if results[:failed].positive?
   puts
   puts "Errors (first 10):"
   results[:errors].first(10).each do |err|

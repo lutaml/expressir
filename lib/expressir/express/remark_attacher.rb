@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "set"
-
 module Expressir
   module Express
     # Handles attaching remarks (comments) to model elements after parsing.
@@ -27,6 +25,15 @@ module Expressir
         remarks = extract_all_remarks
         attach_tagged_remarks(model, remarks)
         attach_untagged_remarks(model, remarks)
+
+        # Free expensive data structures after attachment is complete.
+        # These are only needed during the attach process.
+        @source = nil
+        @source_lines = nil
+        @scope_map = nil
+        @line_cache = nil
+        @remarks_cache = nil
+
         model
       end
 
@@ -242,7 +249,8 @@ module Expressir
               end
               # Fall back to schema prefix
               if target.nil?
-                target = create_implicit_remark_item(model, tag, get_schema_ids(model))
+                target = create_implicit_remark_item(model, tag,
+                                                     get_schema_ids(model))
               end
             end
 
@@ -280,6 +288,7 @@ module Expressir
 
         nil
       end
+
       # Done once per RemarkAttacher instance (O(file_lines)).
       # Each find_containing_scope call then becomes O(1).
       def build_scope_map

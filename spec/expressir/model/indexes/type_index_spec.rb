@@ -155,7 +155,7 @@ RSpec.describe Expressir::Model::Indexes::TypeIndex do
 
     it "clears previous indexes on rebuild" do
       index.build([schema1])
-      initial_count = index.count
+      index.count
 
       index.build([schema2])
 

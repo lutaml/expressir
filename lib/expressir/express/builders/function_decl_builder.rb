@@ -25,15 +25,15 @@ module Expressir
           functions = declarations.grep(Expressir::Model::Declarations::Function)
           procedures = declarations.grep(Expressir::Model::Declarations::Procedure)
           constants = if algorithm_head.is_a?(Hash) && algorithm_head[:constant_decl]
-                       build_constant_decl(algorithm_head[:constant_decl])
-                     else
-                       []
-                     end
+                        build_constant_decl(algorithm_head[:constant_decl])
+                      else
+                        []
+                      end
           variables = if algorithm_head.is_a?(Hash) && algorithm_head[:local_decl]
-                       build_local_decl(algorithm_head[:local_decl])
-                     else
-                       []
-                     end
+                        build_local_decl(algorithm_head[:local_decl])
+                      else
+                        []
+                      end
           statements = Builder.build_children(stmts)
 
           Expressir::Model::Declarations::Function.new(

@@ -160,9 +160,15 @@ RSpec.describe Expressir::Commands::Package,
 
         schema = Expressir::Model::Declarations::Schema.new(
           id: "test_schema",
-          entities: Array.new(5) { |i| Expressir::Model::Declarations::Entity.new(id: "entity#{i}") },
-          types: Array.new(3) { |i| Expressir::Model::Declarations::Type.new(id: "type#{i}") },
-          functions: Array.new(2) { |i| Expressir::Model::Declarations::Function.new(id: "func#{i}") },
+          entities: Array.new(5) do |i|
+            Expressir::Model::Declarations::Entity.new(id: "entity#{i}")
+          end,
+          types: Array.new(3) do |i|
+            Expressir::Model::Declarations::Type.new(id: "type#{i}")
+          end,
+          functions: Array.new(2) do |i|
+            Expressir::Model::Declarations::Function.new(id: "func#{i}")
+          end,
           rules: [Expressir::Model::Declarations::Rule.new(id: "rule1")],
         )
         repo = Expressir::Model::Repository.new(schemas: [schema])

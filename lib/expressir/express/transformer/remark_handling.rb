@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "parsanol"
-require "set"
 
 module Expressir
   module Express

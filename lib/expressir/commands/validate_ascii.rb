@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "set"
 require "paint"
 require "table_tennis"
 

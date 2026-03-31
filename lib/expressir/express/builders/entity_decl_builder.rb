@@ -36,7 +36,9 @@ module Expressir
                 if subtype_constraint[:supertype_expression]
                   supertype_expression = Builder.build({ supertype_expression: subtype_constraint[:supertype_expression] })
                 elsif subtype_constraint[:list_of_entity_ref]
-                  entity_refs = Builder.build_children(Builder.ensure_array(subtype_constraint[:list_of_entity_ref][:entity_ref]).map { |d| { entity_ref: d } })
+                  entity_refs = Builder.build_children(Builder.ensure_array(subtype_constraint[:list_of_entity_ref][:entity_ref]).map do |d|
+                    { entity_ref: d }
+                  end)
                   supertype_expression = entity_refs.first if entity_refs.length == 1
                 end
               end
@@ -47,7 +49,9 @@ module Expressir
               if list_ref.is_a?(Hash)
                 entity_ref_data = list_ref[:entity_ref]
                 if entity_ref_data
-                  subtype_of = Builder.build_children(Builder.ensure_array(entity_ref_data).map { |d| { entity_ref: d } })
+                  subtype_of = Builder.build_children(Builder.ensure_array(entity_ref_data).map do |d|
+                    { entity_ref: d }
+                  end)
                 end
               end
             end
@@ -65,12 +69,12 @@ module Expressir
 
             if entity_body[:derive_clause]
               derived = Builder.build({ derive_clause: entity_body[:derive_clause] })
-              attributes.concat([derived]) if derived
+              attributes.push(derived) if derived
             end
 
             if entity_body[:inverse_clause]
               inverse = Builder.build({ inverse_clause: entity_body[:inverse_clause] })
-              attributes.concat([inverse]) if inverse
+              attributes.push(inverse) if inverse
             end
 
             if entity_body[:unique_clause]

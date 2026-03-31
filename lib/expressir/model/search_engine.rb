@@ -84,10 +84,10 @@ module Expressir
       # @param max_depth [Integer] Maximum path depth (1=schema, 2=entity, 3=attribute)
       # @param options [Hash] Additional search options
       # @return [Array<Hash>] Filtered results
-      def search_with_depth(pattern:, max_depth:, **options)
+      def search_with_depth(pattern:, max_depth:, **)
         return [] if max_depth <= 0
 
-        results = search(pattern: pattern, **options)
+        results = search(pattern: pattern, **)
         filter_by_depth(results, max_depth)
       end
 
@@ -97,8 +97,8 @@ module Expressir
       # @param boost_prefix [Integer] Score boost for prefix matches
       # @param options [Hash] Additional search options
       # @return [Array<Hash>] Ranked results with :relevance_score
-      def search_ranked(pattern:, boost_exact: 10, boost_prefix: 5, **options)
-        results = search(pattern: pattern, **options)
+      def search_ranked(pattern:, boost_exact: 10, boost_prefix: 5, **)
+        results = search(pattern: pattern, **)
         rank_results(results, pattern, boost_exact, boost_prefix)
       end
 
@@ -108,8 +108,8 @@ module Expressir
       # @param ranked [Boolean] Enable relevance ranking
       # @param options [Hash] Additional filters and search options
       # @return [Array<Hash>] Filtered and optionally ranked results
-      def search_advanced(pattern:, max_depth: nil, ranked: false, **options)
-        results = search(pattern: pattern, **options)
+      def search_advanced(pattern:, max_depth: nil, ranked: false, **)
+        results = search(pattern: pattern, **)
 
         results = filter_by_depth(results, max_depth) if max_depth
         results = rank_results(results, pattern, 10, 5) if ranked
@@ -485,6 +485,7 @@ module Expressir
         current = element
         while current
           return current if current.is_a?(Declarations::Schema)
+
           current = current.parent
         end
       rescue StandardError

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 module Expressir
   class SchemaManifest < Lutaml::Model::Serializable
     attribute :schemas, "Expressir::SchemaManifestEntry",

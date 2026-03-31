@@ -4,22 +4,22 @@
 # SRL Benchmark Script for Expressir - Native Parser Only
 # Tests Rust native parser performance on full STEPmod Resource Library
 
-require 'bundler/setup'
-require 'benchmark'
-require 'fileutils'
+require "bundler/setup"
+require "benchmark"
+require "fileutils"
 
 # Force loading of native extension first
-require 'parsanol'
-require 'parsanol/native'
+require "parsanol"
+require "parsanol/native"
 
 # Now require expressir
-require 'expressir'
+require "expressir"
 
 # Configuration
-SRL_PATH = '/Users/mulgogi/src/mn/iso-10303/schemas/resources'
+SRL_PATH = "/Users/mulgogi/src/mn/iso-10303/schemas/resources"
 
 def find_exp_files
-  Dir.glob("#{SRL_PATH}/*/*.exp").sort
+  Dir.glob("#{SRL_PATH}/*/*.exp")
 end
 
 def count_lines(files)
@@ -59,9 +59,10 @@ puts "Warming up..."
 warmup_file = files.first
 begin
   content = File.read(warmup_file)
-  Expressir::Express::Parser.from_exp(content, skip_references: true, use_native: true)
+  Expressir::Express::Parser.from_exp(content, skip_references: true,
+                                               use_native: true)
   puts "Warmup complete."
-rescue => e
+rescue StandardError => e
   puts "Warning: Warmup failed: #{e.message}"
   puts e.backtrace.first(5)
 end
@@ -80,19 +81,22 @@ time = Benchmark.realtime do
     file_start = Time.now
     begin
       content = File.read(file)
-      Expressir::Express::Parser.from_exp(content, skip_references: true, use_native: true)
+      Expressir::Express::Parser.from_exp(content, skip_references: true,
+                                                   use_native: true)
       results[:success] += 1
       file_time = Time.now - file_start
-      file_times << { file: File.basename(file), time: file_time, lines: content.lines.count }
+      file_times << { file: File.basename(file), time: file_time,
+                      lines: content.lines.count }
 
       # Progress every 10 files
-      if (idx + 1) % 10 == 0
+      if ((idx + 1) % 10).zero?
         print "."
         $stdout.flush
       end
-    rescue => e
+    rescue StandardError => e
       results[:failed] += 1
-      results[:errors] << { file: File.basename(file), error: e.message[0..100] }
+      results[:errors] << { file: File.basename(file),
+                            error: e.message[0..100] }
     end
   end
 end
@@ -112,7 +116,7 @@ puts "  Time:    #{results[:total_time].round(2)}s"
 puts "  Speed:   #{lines_per_sec} lines/sec"
 puts "  Speed:   #{files_per_sec} files/sec"
 
-if results[:failed] > 0
+if results[:failed].positive?
   puts
   puts "Errors (first 10):"
   results[:errors].first(10).each do |err|

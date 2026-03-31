@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 module Expressir
   module Package
     # Package metadata with serialization support

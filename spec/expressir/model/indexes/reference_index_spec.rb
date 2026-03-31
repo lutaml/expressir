@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe Expressir::Model::Indexes::ReferenceIndex do
-# Use REAL objects instead of mocks
+  # Use REAL objects instead of mocks
   let(:use_interface) do
     Expressir::Model::Declarations::Interface.new(
       kind: Expressir::Model::Declarations::Interface::USE,

@@ -1030,21 +1030,41 @@ module Expressir
           # The parser always provides this via Slice#offset
           if node.source_offset
             pos = node.source_offset
-            line = get_line_number(pos)
-            source_end_line = get_line_number(pos + node.source.length)
+            # Validate offset: native parser returns 0 for leaf nodes (WhereRule)
+            # where it can't determine the actual position. These have short
+            # expression-like source ("TRUE;") that doesn't appear at file start.
+            # Container nodes (Schema, Entity, Type) have declaration-like source
+            # that either starts at position 0 legitimately or is clearly valid.
+            valid = pos > 0
+            if !valid && pos == 0 && node.source
+              src = node.source.to_s
+              # Accept position=0 if source is a declaration keyword line
+              valid = src.start_with?("SCHEMA", "ENTITY", "TYPE", "FUNCTION",
+                                     "PROCEDURE", "RULE", "CONSTANT", "VARIABLE",
+                                     "USE", "REFERENCE", "END_SCHEMA", "END_ENTITY",
+                                     "END_TYPE", "END_FUNCTION", "END_PROCEDURE",
+                                     "END_RULE", "END_CONSTANT", "END_VARIABLE")
+            end
+            if valid
+              line = get_line_number(pos)
+              source_end_line = get_line_number(pos + node.source.length)
 
-            # For container nodes, use the maximum end_line from children
-            # This is needed because source.length only covers the declaration, not the body
-            children_end_line = calculate_children_end_line(node)
-            end_line = [source_end_line,
-                        children_end_line].compact.max || source_end_line
+              # For container nodes, use the maximum end_line from children
+              # This is needed because source.length only covers the declaration, not the body
+              children_end_line = calculate_children_end_line(node)
+              end_line = [source_end_line,
+                          children_end_line].compact.max || source_end_line
 
-            result << {
-              node: node,
-              position: pos,
-              line: line,
-              end_line: end_line,
-            }
+              result << {
+                node: node,
+                position: pos,
+                line: line,
+                end_line: end_line,
+              }
+            else
+              # Invalid offset — treat as unknown position
+              result << { node: node, position: nil, line: nil, end_line: nil }
+            end
           else
             # No source_offset available - should not happen if parser provides Slice
             result << { node: node, position: nil, line: nil, end_line: nil }

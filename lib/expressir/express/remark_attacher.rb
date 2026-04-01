@@ -1035,8 +1035,8 @@ module Expressir
             # expression-like source ("TRUE;") that doesn't appear at file start.
             # Container nodes (Schema, Entity, Type) have declaration-like source
             # that either starts at position 0 legitimately or is clearly valid.
-            valid = pos > 0
-            if !valid && pos == 0 && node.source
+            valid = pos.positive?
+            if !valid && pos.zero? && node.source
               src = node.source.to_s
               # Accept position=0 if source is a declaration keyword line
               valid = src.start_with?("SCHEMA", "ENTITY", "TYPE", "FUNCTION",

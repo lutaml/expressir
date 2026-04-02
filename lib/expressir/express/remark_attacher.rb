@@ -23,8 +23,14 @@ module Expressir
       def attach(model)
         @model = model
         remarks = extract_all_remarks
-        attach_tagged_remarks(model, remarks)
-        attach_untagged_remarks(model, remarks)
+
+        # Build nodes_with_positions ONCE for both tagged and untagged remark passes.
+        # This avoids double tree walk (381K nodes × 2 = 762K visits) which was
+        # the largest memory overhead in remark attachment (~430MB for large files).
+        nodes_with_positions = build_sorted_nodes_with_positions(model)
+
+        attach_tagged_remarks(model, remarks, nodes_with_positions)
+        attach_untagged_remarks(remarks, nodes_with_positions)
 
         # Free expensive data structures after attachment is complete.
         # These are only needed during the attach process.
@@ -133,7 +139,7 @@ module Expressir
 
       alias get_line_number_from_offset get_line_number
 
-      def attach_tagged_remarks(model, remarks)
+      def attach_tagged_remarks(model, remarks, nodes_with_positions)
         tagged = remarks.select { |r| r[:tag] }
         return if tagged.empty?
 
@@ -142,12 +148,6 @@ module Expressir
         # Build scope map ONCE: O(file_lines) scan instead of O(n*file_lines) for n remarks
         # This is the key optimization that makes scope lookup O(1) per remark
         @scope_map ||= build_scope_map
-
-        # Collect nodes with positions for position-based fallback
-        nodes_with_positions = []
-        collect_nodes_with_positions(model, nodes_with_positions)
-        # Use stable sort to ensure deterministic ordering across Ruby versions
-        nodes_with_positions.sort_by!.with_index { |n, i| [n[:position] || Float::INFINITY, i] }
 
         tagged.sort_by { |r| r[:position] }.each do |remark|
           next if @attached_spans.include?(remark[:position])
@@ -917,14 +917,9 @@ module Expressir
         item
       end
 
-      def attach_untagged_remarks(model, remarks)
+      def attach_untagged_remarks(remarks, nodes_with_positions)
         untagged = remarks.reject { |r| r[:tag] }
         return unless untagged.any?
-
-        nodes_with_positions = []
-        collect_nodes_with_positions(model, nodes_with_positions)
-        # Use stable sort to preserve original order for equal keys
-        nodes_with_positions.sort_by!.with_index { |n, i| [n[:position] || Float::INFINITY, i] }
 
         untagged.each do |remark|
           next if @attached_spans.include?(remark[:position])
@@ -1123,6 +1118,16 @@ module Expressir
             collect_nodes_with_positions(item, result, visited)
           end
         end
+      end
+
+      # Build sorted nodes_with_positions ONCE for both tagged and untagged remark passes.
+      # This merges the two separate tree walks into one, cutting node visits in half.
+      def build_sorted_nodes_with_positions(model)
+        nodes_with_positions = []
+        collect_nodes_with_positions(model, nodes_with_positions)
+        # Stable sort: nil positions last, ties broken by insertion order
+        nodes_with_positions.sort_by!.with_index { |n, i| [n[:position] || Float::INFINITY, i] }
+        nodes_with_positions
       end
 
       def find_nearest_node(remark, nodes)

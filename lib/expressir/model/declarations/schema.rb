@@ -19,7 +19,6 @@ module Expressir
         attribute :procedures, Procedure, collection: true
         attribute :_class, :string, default: -> { self.class.name }
         attribute :selected, :boolean, default: false
-        attribute :formatted, :string
         attribute :file_basename, :string
 
         key_value do
@@ -64,6 +63,10 @@ module Expressir
 
         def full_source
           Expressir::Express::Formatter.format(self)
+        end
+
+        def formatted
+          @formatted ||= to_s(no_remarks: true)
         end
 
         def source

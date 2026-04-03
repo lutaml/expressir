@@ -11,6 +11,17 @@ module Expressir
     # 2. Proximity-based matching for simple tags
     # 3. NOT creating spurious schema-level items for ambiguous tags
     class RemarkAttacher
+      # Child collection attributes to walk when traversing model elements.
+      # These are the named collections on model elements (e.g., entity.attributes,
+      # schema.entities, function.parameters). Extracted to a constant to avoid
+      # duplication between calculate_children_end_line and collect_children.
+      CHILD_COLLECTION_ATTRIBUTES = %i[
+        schemas types entities functions procedures rules constants
+        attributes derived_attributes inverse_attributes
+        where_rules unique_rules informal_propositions
+        parameters variables statements items remark_items
+      ].freeze
+
       def initialize(source)
         @source = source
         @attached_spans = Set.new
@@ -1087,10 +1098,7 @@ module Expressir
         end
 
         # Check specific child collections
-        %i[schemas types entities functions procedures rules constants
-           attributes derived_attributes inverse_attributes
-           where_rules unique_rules informal_propositions
-           parameters variables statements items remark_items].each do |attr|
+        CHILD_COLLECTION_ATTRIBUTES.each do |attr|
           collection = safe_get_collection(node, attr)
           collection&.each do |child|
             if child.is_a?(Model::ModelElement) && child.source_offset && child.source
@@ -1109,10 +1117,7 @@ module Expressir
           collect_nodes_with_positions(child, result, visited)
         end
 
-        %i[schemas types entities functions procedures rules constants
-           attributes derived_attributes inverse_attributes
-           where_rules unique_rules informal_propositions
-           parameters variables statements items remark_items].each do |attr|
+        CHILD_COLLECTION_ATTRIBUTES.each do |attr|
           collection = safe_get_collection(node, attr)
           collection&.each do |item|
             collect_nodes_with_positions(item, result, visited)

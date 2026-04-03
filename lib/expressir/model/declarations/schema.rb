@@ -21,7 +21,6 @@ module Expressir
         attribute :selected, :boolean, default: false
         attribute :formatted, :string
         attribute :file_basename, :string
-        attribute :full_source, :string
 
         key_value do
           map "_class", to: :_class, render_default: true

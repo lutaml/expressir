@@ -49,7 +49,6 @@ module Expressir
         @source_lines = nil
         @scope_map = nil
         @line_cache = nil
-        @remarks_cache = nil
 
         model
       end
@@ -147,8 +146,6 @@ module Expressir
 
         @line_cache[position] ||= @source.byteslice(0...position).count("\n") + 1
       end
-
-      alias get_line_number_from_offset get_line_number
 
       def attach_tagged_remarks(model, remarks, nodes_with_positions)
         tagged = remarks.select { |r| r[:tag] }
@@ -577,102 +574,6 @@ module Expressir
         find_containing_scope_position(remark_line, nodes_with_positions)
       end
 
-      def find_scope_by_text_search(remark_line)
-        lines = source_lines
-        return nil if remark_line < 1 || remark_line > lines.length
-
-        # Track nested scopes by searching backwards from remark_line
-        scope_stack = []
-
-        lines.each_with_index do |line, idx|
-          line_num = idx + 1
-          break if line_num > remark_line
-
-          # Check for START keywords first
-          if line =~ /^\s*SCHEMA\s+(\w+)/i
-            scope_stack << { type: :schema, name: $1, line: line_num }
-          end
-
-          if line =~ /^\s*FUNCTION\s+(\w+)/i
-            scope_stack << { type: :function, name: $1, line: line_num }
-          end
-
-          if line =~ /^\s*PROCEDURE\s+(\w+)/i
-            scope_stack << { type: :procedure, name: $1, line: line_num }
-          end
-
-          if line =~ /^\s*RULE\s+(\w+)/i
-            scope_stack << { type: :rule, name: $1, line: line_num }
-          end
-
-          if line =~ /^\s*ENTITY\s+(\w+)/i
-            scope_stack << { type: :entity, name: $1, line: line_num }
-          end
-
-          if line =~ /^\s*TYPE\s+(\w+)/i
-            scope_stack << { type: :type, name: $1, line: line_num }
-          end
-
-          # Then check for END keywords (to handle inline closures on same line)
-          if (line =~ /END_TYPE/i) && (scope_stack.last&.dig(:type) == :type)
-            scope_stack.pop
-          end
-          if (line =~ /END_FUNCTION/i) && (scope_stack.last&.dig(:type) == :function)
-            scope_stack.pop
-          end
-          if (line =~ /END_PROCEDURE/i) && (scope_stack.last&.dig(:type) == :procedure)
-            scope_stack.pop
-          end
-          if (line =~ /END_RULE/i) && (scope_stack.last&.dig(:type) == :rule)
-            scope_stack.pop
-          end
-          if (line =~ /END_ENTITY/i) && (scope_stack.last&.dig(:type) == :entity)
-            scope_stack.pop
-          end
-          if (line =~ /END_SCHEMA/i) && (scope_stack.last&.dig(:type) == :schema)
-            scope_stack.pop
-          end
-        end
-
-        # Find the innermost scope and get the corresponding model node
-        return nil if scope_stack.empty?
-
-        innermost = scope_stack.last
-        find_scope_node(innermost[:type], innermost[:name])
-      end
-
-      def find_scope_node(type, name)
-        return nil unless @model && name
-
-        @model.schemas.each do |schema|
-          # Check schema itself
-          if type == :schema && schema.id == name
-            return schema
-          end
-
-          # Check schema-level declarations
-          case type
-          when :function
-            found = schema.functions&.find { |f| f.id == name }
-            return found if found
-          when :procedure
-            found = schema.procedures&.find { |p| p.id == name }
-            return found if found
-          when :rule
-            found = schema.rules&.find { |r| r.id == name }
-            return found if found
-          when :entity
-            found = schema.entities&.find { |e| e.id == name }
-            return found if found
-          when :type
-            found = schema.types&.find { |t| t.id == name }
-            return found if found
-          end
-        end
-
-        nil
-      end
-
       def build_scope_path(node)
         return nil unless node
 
@@ -691,36 +592,6 @@ module Expressir
         end
 
         parts.empty? ? nil : parts.join(".")
-      end
-
-      def find_containing_scope_for_ip(remark_line, nodes_with_positions)
-        # First try scope map (O(1))
-        scope = find_containing_scope_by_name(remark_line)
-        if scope && supports_informal_propositions?(scope)
-          return scope
-        end
-
-        # Fallback to position-based detection
-        containing_nodes = nodes_with_positions.select do |n|
-          n[:line] && n[:end_line] && remark_line >= n[:line] && remark_line <= n[:end_line] &&
-            !repository?(n[:node]) && !cache?(n[:node])
-        end
-
-        # Find the innermost node that supports informal propositions
-        if containing_nodes.any?
-          containing_nodes.reverse_each do |n|
-            node = n[:node]
-            if supports_informal_propositions?(node)
-              return node
-            end
-
-            # Fallback to schema
-            return node if node.is_a?(Model::Declarations::Schema)
-          end
-        end
-
-        # Fallback: search for containing entity/type/rule by source text
-        find_scope_by_source_text(remark_line)
       end
 
       def find_scope_by_source_text(remark_line)

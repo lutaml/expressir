@@ -728,7 +728,6 @@ module Expressir
           @exp_file.schemas.each do |schema|
             schema.file = schema_file
             schema.file_basename = File.basename(schema_file, ".exp")
-            schema.formatted = schema.to_s(no_remarks: true)
           end
 
           unless skip_references
@@ -820,7 +819,6 @@ root_path: nil, use_native: nil)
         exp_file.schemas.each do |schema|
           schema.file = nil
           schema.file_basename = nil
-          schema.formatted = schema.to_s(no_remarks: true)
         end
 
         unless skip_references
@@ -855,7 +853,6 @@ include_source: nil)
         exp_file.schemas.each do |schema|
           schema.file = nil
           schema.file_basename = nil
-          schema.formatted = schema.to_s(no_remarks: true)
         end
 
         unless skip_references
@@ -903,7 +900,6 @@ include_source: nil)
         exp_file.schemas.each do |schema|
           schema.file = nil
           schema.file_basename = nil
-          schema.formatted = schema.to_s(no_remarks: true)
         end
 
         unless skip_references

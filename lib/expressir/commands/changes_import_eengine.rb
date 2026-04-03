@@ -115,26 +115,6 @@ module Expressir
           end
         end
 
-        def extract_description(compare_report)
-          parts = []
-
-          [compare_report.modifications, compare_report.additions,
-           compare_report.deletions].each do |section|
-            next unless section&.modified_objects
-
-            section.modified_objects.each do |obj|
-              next unless obj.description
-
-              description_text = normalize_description(obj.description)
-              next if description_text.strip.empty?
-
-              parts << convert_html_to_asciidoc(description_text.strip)
-            end
-          end
-
-          parts.empty? ? nil : parts.join("\n\n")
-        end
-
         def normalize_description(description)
           # Handle both String and Array (when XML has nested elements)
           case description

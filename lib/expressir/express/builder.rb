@@ -340,14 +340,6 @@ module Expressir
           end
         end
 
-        def to_snake_case(name)
-          cached_snake_case(name)
-        end
-
-        def convert_keys_to_snake_case(obj)
-          fast_convert_keys(obj)
-        end
-
         def extract_source_info(data)
           return nil unless data
           return nil unless @source

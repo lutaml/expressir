@@ -203,14 +203,6 @@ module Expressir
         self.untagged_remarks << remark_info
       end
 
-      # Get all remarks as RemarkInfo objects
-      # @return [Array<RemarkInfo>] Array of RemarkInfo objects
-      def remark_infos
-        return [] if untagged_remarks.nil?
-
-        untagged_remarks.grep(RemarkInfo)
-      end
-
       private
 
       # @return [nil]

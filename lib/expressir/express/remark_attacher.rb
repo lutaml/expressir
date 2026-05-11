@@ -917,10 +917,10 @@ module Expressir
               src = node.source.to_s
               # Accept position=0 if source is a declaration keyword line
               valid = src.start_with?("SCHEMA", "ENTITY", "TYPE", "FUNCTION",
-                                     "PROCEDURE", "RULE", "CONSTANT", "VARIABLE",
-                                     "USE", "REFERENCE", "END_SCHEMA", "END_ENTITY",
-                                     "END_TYPE", "END_FUNCTION", "END_PROCEDURE",
-                                     "END_RULE", "END_CONSTANT", "END_VARIABLE")
+                                      "PROCEDURE", "RULE", "CONSTANT", "VARIABLE",
+                                      "USE", "REFERENCE", "END_SCHEMA", "END_ENTITY",
+                                      "END_TYPE", "END_FUNCTION", "END_PROCEDURE",
+                                      "END_RULE", "END_CONSTANT", "END_VARIABLE")
             end
             if valid
               line = get_line_number(pos)

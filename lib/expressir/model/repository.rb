@@ -32,6 +32,10 @@ module Expressir
         map "files", to: :files
       end
 
+      liquid do
+        map :schemas, to: :schemas
+      end
+
       def initialize(*, base_dir: nil, schemas: nil, **)
         super(*, **)
         @base_dir = base_dir

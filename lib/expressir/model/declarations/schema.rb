@@ -38,6 +38,14 @@ module Expressir
           map "procedures", to: :procedures
         end
 
+        liquid do
+          map :formatted, to: :formatted
+          map :source, to: :source
+          map :full_source, to: :full_source
+          map :children, to: :children
+          map :safe_children, to: :safe_children
+        end
+
         # @return [Array<Declaration>]
         def safe_children
           [

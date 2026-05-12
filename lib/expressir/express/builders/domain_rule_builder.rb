@@ -9,7 +9,9 @@ module Expressir
           inner_data = ast_data[:domain_rule] || ast_data
 
           id = Builder.build_optional(inner_data[:rule_label_id])
-          expression = Builder.build_optional(inner_data[:expression])
+          expression = if inner_data[:expression]
+                         Builder.build({ expression: inner_data[:expression] })
+                       end
           Expressir::Model::Declarations::WhereRule.new(id: id,
                                                         expression: expression)
         end

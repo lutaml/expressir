@@ -138,6 +138,12 @@ module Expressir
           when Expressir::Model::References::IndexReference
             Expressir::Model::References::IndexReference.new(ref: ref,
                                                              index1: qualifier.index1, index2: qualifier.index2)
+          when Expressir::Model::References::SimpleReference
+            Expressir::Model::References::AttributeReference.new(ref: ref,
+                                                                 attribute: qualifier)
+          when Hash
+            Expressir::Model::References::IndexReference.new(ref: ref,
+                                                             index1: qualifier[:index1], index2: qualifier[:index2])
           else
             ref
           end

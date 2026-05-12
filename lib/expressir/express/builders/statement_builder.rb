@@ -36,7 +36,9 @@ module Expressir
 
         def build_assignment_stmt(ast_data)
           ref = Builder.build_optional(ast_data[:general_ref])
-          expression = Builder.build_optional(ast_data[:expression])
+          expression = if ast_data[:expression]
+                         Builder.build({ expression: ast_data[:expression] })
+                       end
 
           if ast_data[:qualifier]
             Builder.ensure_array(ast_data[:qualifier]).each do |qual|
@@ -93,7 +95,9 @@ module Expressir
         end
 
         def build_selector(ast_data)
-          Builder.build_optional(ast_data[:expression])
+          if ast_data[:expression]
+            Builder.build({ expression: ast_data[:expression] })
+          end
         end
 
         def build_case_action(ast_data)
@@ -107,7 +111,9 @@ module Expressir
         end
 
         def build_case_label(ast_data)
-          Builder.build_optional(ast_data[:expression])
+          if ast_data[:expression]
+            Builder.build({ expression: ast_data[:expression] })
+          end
         end
 
         def build_compound_stmt(ast_data)
@@ -170,7 +176,9 @@ module Expressir
         end
 
         def build_return_stmt(ast_data)
-          expression = Builder.build_optional(ast_data[:expression])
+          expression = if ast_data[:expression]
+                         Builder.build({ expression: ast_data[:expression] })
+                       end
           Expressir::Model::Statements::Return.new(expression: expression)
         end
 

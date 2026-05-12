@@ -223,13 +223,14 @@ module Expressir
         end
 
         def build_qualifier(ast_data)
-          if ast_data[:attribute_qualifier]
+          data = ast_data[:qualifier] || ast_data
+          if data[:attribute_qualifier]
             Builder.build_node(:attribute_qualifier,
-                               ast_data[:attribute_qualifier])
-          elsif ast_data[:group_qualifier]
-            Builder.build_node(:group_qualifier, ast_data[:group_qualifier])
-          elsif ast_data[:index_qualifier]
-            Builder.build_node(:index_qualifier, ast_data[:index_qualifier])
+                               data[:attribute_qualifier])
+          elsif data[:group_qualifier]
+            Builder.build_node(:group_qualifier, data[:group_qualifier])
+          elsif data[:index_qualifier]
+            Builder.build_node(:index_qualifier, data[:index_qualifier])
           end
         end
 
@@ -304,7 +305,9 @@ module Expressir
         end
 
         def build_parameter(ast_data)
-          Builder.build_optional(ast_data[:expression])
+          if ast_data[:expression]
+            Builder.build({ expression: ast_data[:expression] })
+          end
         end
 
         # Entity constructor
@@ -354,7 +357,9 @@ module Expressir
         end
 
         def build_element(ast_data)
-          expression = Builder.build_optional(ast_data[:expression])
+          expression = if ast_data[:expression]
+                         Builder.build({ expression: ast_data[:expression] })
+                       end
           repetition = Builder.build_optional(ast_data[:repetition])
 
           if repetition

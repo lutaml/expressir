@@ -24,3 +24,19 @@
 _site/
 
 Gemfile.lock
+
+# Claude Code
+.claude/
+
+# Development / transient files
+*.ler
+*.pax
+TODO.*.md
+debug_*.rb
+measure_mem.rb
+tmp_*.rb
+mise.toml
+Gemfile.local
+Gemfile.local.lock
+Gemfile.original
+benchmark/

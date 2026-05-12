@@ -1428,8 +1428,13 @@ schemas:
       - _class: Expressir::Model::Statements::Alias
         id: test
         expression:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::References::GroupReference
+          ref:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
+          entity:
+            _class: Expressir::Model::References::SimpleReference
+            id: test2
         statements:
         - _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Declarations::Procedure
@@ -1438,8 +1443,13 @@ schemas:
       - _class: Expressir::Model::Statements::Alias
         id: test
         expression:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::References::IndexReference
+          ref:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
+          index1:
+            _class: Expressir::Model::Literals::Integer
+            value: '1'
         statements:
         - _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Declarations::Procedure
@@ -1448,8 +1458,16 @@ schemas:
       - _class: Expressir::Model::Statements::Alias
         id: test
         expression:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::References::IndexReference
+          ref:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
+          index1:
+            _class: Expressir::Model::Literals::Integer
+            value: '1'
+          index2:
+            _class: Expressir::Model::Literals::Integer
+            value: '9'
         statements:
         - _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Declarations::Procedure
@@ -1458,8 +1476,13 @@ schemas:
       - _class: Expressir::Model::Statements::Alias
         id: test
         expression:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::References::AttributeReference
+          ref:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
+          attribute:
+            _class: Expressir::Model::References::SimpleReference
+            id: test2
         statements:
         - _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Declarations::Procedure
@@ -1477,8 +1500,13 @@ schemas:
       statements:
       - _class: Expressir::Model::Statements::Assignment
         ref:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::References::GroupReference
+          ref:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
+          entity:
+            _class: Expressir::Model::References::SimpleReference
+            id: test2
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -1487,8 +1515,13 @@ schemas:
       statements:
       - _class: Expressir::Model::Statements::Assignment
         ref:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::References::IndexReference
+          ref:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
+          index1:
+            _class: Expressir::Model::Literals::Integer
+            value: '1'
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -1497,8 +1530,16 @@ schemas:
       statements:
       - _class: Expressir::Model::Statements::Assignment
         ref:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::References::IndexReference
+          ref:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
+          index1:
+            _class: Expressir::Model::Literals::Integer
+            value: '1'
+          index2:
+            _class: Expressir::Model::Literals::Integer
+            value: '9'
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -1507,8 +1548,13 @@ schemas:
       statements:
       - _class: Expressir::Model::Statements::Assignment
         ref:
-          _class: Expressir::Model::References::SimpleReference
-          id: test
+          _class: Expressir::Model::References::AttributeReference
+          ref:
+            _class: Expressir::Model::References::SimpleReference
+            id: test
+          attribute:
+            _class: Expressir::Model::References::SimpleReference
+            id: test2
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -3256,29 +3302,52 @@ schemas:
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
-        _class: Expressir::Model::References::SimpleReference
-        id: test
+        _class: Expressir::Model::References::GroupReference
+        ref:
+          _class: Expressir::Model::References::SimpleReference
+          id: test
+        entity:
+          _class: Expressir::Model::References::SimpleReference
+          id: test2
     - _class: Expressir::Model::Declarations::Variable
       id: index_reference_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
-        _class: Expressir::Model::References::SimpleReference
-        id: test
+        _class: Expressir::Model::References::IndexReference
+        ref:
+          _class: Expressir::Model::References::SimpleReference
+          id: test
+        index1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
     - _class: Expressir::Model::Declarations::Variable
       id: index2_reference_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
-        _class: Expressir::Model::References::SimpleReference
-        id: test
+        _class: Expressir::Model::References::IndexReference
+        ref:
+          _class: Expressir::Model::References::SimpleReference
+          id: test
+        index1:
+          _class: Expressir::Model::Literals::Integer
+          value: '1'
+        index2:
+          _class: Expressir::Model::Literals::Integer
+          value: '9'
     - _class: Expressir::Model::Declarations::Variable
       id: attribute_reference_expression
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
-        _class: Expressir::Model::References::SimpleReference
-        id: test
+        _class: Expressir::Model::References::AttributeReference
+        ref:
+          _class: Expressir::Model::References::SimpleReference
+          id: test
+        attribute:
+          _class: Expressir::Model::References::SimpleReference
+          id: test2
     - _class: Expressir::Model::Declarations::Variable
       id: lt_lt_interval_expression
       type:

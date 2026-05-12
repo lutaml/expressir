@@ -11,7 +11,9 @@ module Expressir
                    Builder.build({ attribute_decl: attr_decl_data })
                  end
           type = Builder.build_optional(ast_data[:parameter_type])
-          expression = Builder.build_optional(ast_data[:expression])
+          expression = if ast_data[:expression]
+                         Builder.build({ expression: ast_data[:expression] })
+                       end
 
           Expressir::Model::Declarations::DerivedAttribute.new(
             id: attr&.id,

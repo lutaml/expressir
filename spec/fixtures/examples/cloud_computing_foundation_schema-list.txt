@@ -4,7 +4,7 @@
 *** Express Engine Command Line:
 ***   eengine --list
 ***     -SCHEMA spec/fixtures/examples/cloud_computing_foundation_schema.exp
-*** File: /Users/mulgogi/src/lutaml/expressir/spec/fixtures/examples/cloud_computing_foundation_schema.exp
+*** File: spec/fixtures/examples/cloud_computing_foundation_schema.exp
 *** 1 Schema:
    cloud_computing_foundation_schema
 

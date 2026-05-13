@@ -4,7 +4,7 @@
 *** Express Engine Command Line:
 ***   eengine --list
 ***     -SCHEMA spec/fixtures/examples/nested_functions_test_schema.exp
-*** File: /Users/mulgogi/src/lutaml/expressir/spec/fixtures/examples/nested_functions_test_schema.exp
+*** File: spec/fixtures/examples/nested_functions_test_schema.exp
 *** 1 Schema:
    nested_functions_test_schema
 

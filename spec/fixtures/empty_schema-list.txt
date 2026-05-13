@@ -4,7 +4,7 @@
 *** Express Engine Command Line:
 ***   eengine --list
 ***     -SCHEMA spec/fixtures/empty_schema.exp
-*** File: /Users/mulgogi/src/lutaml/expressir/spec/fixtures/empty_schema.exp
+*** File: spec/fixtures/empty_schema.exp
 *** 1 Schema:
    empty_schema
 

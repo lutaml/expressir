@@ -3,9 +3,9 @@
 <!--   5.2.7 (GIT eeng-5.2.7) -->
 <!--   Steel Bank CL 2.5.8 (Unknown Bits) -->
 <!-- Reference_Schema: GEOMETRY_SCHEMA -->
-<!-- Path:   /Users/mulgogi/src/mn/iso-10303/schemas/resources/geometry_schema/geometry_schema_v11.exp -->
+<!-- Path:   geometry_schema_v11.exp -->
 <!-- Trial_schema: GEOMETRY_SCHEMA -->
-<!-- Path:   /Users/mulgogi/src/mn/iso-10303/schemas/resources/geometry_schema/geometry_schema_v13.exp -->
+<!-- Path:   geometry_schema_v13.exp -->
 
 
 <schema.modifications>

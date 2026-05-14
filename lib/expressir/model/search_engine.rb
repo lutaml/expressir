@@ -327,7 +327,7 @@ module Expressir
         # Guard against nil schemas array
         return [] unless schemas
 
-        schemas.flat_map { |s| s.send(method) || [] }
+        schemas.flat_map { |s| s.public_send(method) || [] }
       end
 
       # Collect all attributes from entities

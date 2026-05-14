@@ -6,7 +6,7 @@ module Expressir
         node.class.attributes.each_key do |symbol|
           next if ::Expressir::Model::ModelElement::SKIP_ATTRIBUTES.include?(symbol)
 
-          value = node.send(symbol)
+          value = node.public_send(symbol)
 
           case value
           when Array

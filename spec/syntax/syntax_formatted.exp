@@ -19,7 +19,6 @@ REFERENCE FROM contract_schema
 
     -- interfaces
     -- constants
-    -- types
 
 
 CONSTANT
@@ -267,7 +266,8 @@ FUNCTION multiple_parameter_function(test : BOOLEAN;
   ;
 END_FUNCTION;
 
-FUNCTION multiple_shorthand_parameter_function : BOOLEAN;
+FUNCTION multiple_shorthand_parameter_function(test : BOOLEAN;
+                                               test2 : BOOLEAN) : BOOLEAN;
   ;
 END_FUNCTION;
 
@@ -308,6 +308,10 @@ FUNCTION multiple_variable_function : BOOLEAN;
 END_FUNCTION;
 
 FUNCTION multiple_shorthand_variable_function : BOOLEAN;
+  LOCAL
+    test : BOOLEAN;
+    test2 : BOOLEAN;
+  END_LOCAL;
   ;
 END_FUNCTION;
 
@@ -327,6 +331,10 @@ FUNCTION multiple_variable_expression_function : BOOLEAN;
 END_FUNCTION;
 
 FUNCTION multiple_shorthand_variable_expression_function : BOOLEAN;
+  LOCAL
+    test : BOOLEAN := TRUE;
+    test2 : BOOLEAN := TRUE;
+  END_LOCAL;
   ;
 END_FUNCTION;
 
@@ -377,6 +385,10 @@ WHERE
 END_RULE;
 
 RULE multiple_shorthand_variable_rule FOR (empty_entity);
+  LOCAL
+    test : BOOLEAN;
+    test2 : BOOLEAN;
+  END_LOCAL;
 WHERE
   TRUE;
 END_RULE;
@@ -399,6 +411,10 @@ WHERE
 END_RULE;
 
 RULE multiple_shorthand_variable_expression_rule FOR (empty_entity);
+  LOCAL
+    test : BOOLEAN := TRUE;
+    test2 : BOOLEAN := TRUE;
+  END_LOCAL;
 WHERE
   TRUE;
 END_RULE;
@@ -419,22 +435,27 @@ END_PROCEDURE;
 PROCEDURE parameter_procedure(test : BOOLEAN);
 END_PROCEDURE;
 
-PROCEDURE multiple_parameter_procedure;
+PROCEDURE multiple_parameter_procedure(test : BOOLEAN;
+                                       test2 : BOOLEAN);
 END_PROCEDURE;
 
-PROCEDURE multiple_shorthand_parameter_procedure;
+PROCEDURE multiple_shorthand_parameter_procedure(test : BOOLEAN;
+                                                 test2 : BOOLEAN);
 END_PROCEDURE;
 
 PROCEDURE variable_parameter_procedure(VAR test : BOOLEAN);
 END_PROCEDURE;
 
-PROCEDURE multiple_variable_parameter_procedure;
+PROCEDURE multiple_variable_parameter_procedure(VAR test : BOOLEAN;
+                                                test2 : BOOLEAN);
 END_PROCEDURE;
 
-PROCEDURE multiple_variable_parameter2_procedure;
+PROCEDURE multiple_variable_parameter2_procedure(test : BOOLEAN;
+                                                 VAR test2 : BOOLEAN);
 END_PROCEDURE;
 
-PROCEDURE multiple_shorthand_variable_parameter_procedure;
+PROCEDURE multiple_shorthand_variable_parameter_procedure(VAR test : BOOLEAN;
+                                                          VAR test2 : BOOLEAN);
 END_PROCEDURE;
 
 PROCEDURE type_procedure;
@@ -469,6 +490,10 @@ PROCEDURE multiple_variable_procedure;
 END_PROCEDURE;
 
 PROCEDURE multiple_shorthand_variable_procedure;
+  LOCAL
+    test : BOOLEAN;
+    test2 : BOOLEAN;
+  END_LOCAL;
 END_PROCEDURE;
 
 PROCEDURE variable_expression_procedure;
@@ -485,6 +510,10 @@ PROCEDURE multiple_variable_expression_procedure;
 END_PROCEDURE;
 
 PROCEDURE multiple_shorthand_variable_expression_procedure;
+  LOCAL
+    test : BOOLEAN := TRUE;
+    test2 : BOOLEAN := TRUE;
+  END_LOCAL;
 END_PROCEDURE;
 
 PROCEDURE statement_procedure;
@@ -534,28 +563,30 @@ PROCEDURE statements;
   END_PROCEDURE;
   PROCEDURE case_statement;
     CASE test OF
-     :
-    
+    TRUE :
+      ;
     END_CASE;
   END_PROCEDURE;
   PROCEDURE case_multiple_statement;
     CASE test OF
-     :
-    
-     :
-    
+    TRUE :
+      ;
+    TRUE :
+      ;
     END_CASE;
   END_PROCEDURE;
   PROCEDURE case_multiple_shorthand_statement;
     CASE test OF
-     :
-    
+    TRUE, TRUE :
+      ;
     END_CASE;
   END_PROCEDURE;
   PROCEDURE case_otherwise_statement;
     CASE test OF
-     :
-    
+    TRUE :
+      ;
+    OTHERWISE :
+      ;
     END_CASE;
   END_PROCEDURE;
   PROCEDURE compound_statement;
@@ -712,14 +743,11 @@ PROCEDURE types;
   END_TYPE;
   TYPE set_bound_type = SET [1:9] OF STRING;
   END_TYPE;
-  TYPE select_type = SELECT
-    ();
+  TYPE select_type = SELECT;
   END_TYPE;
-  TYPE select_extensible_type = EXTENSIBLE SELECT
-    ();
+  TYPE select_extensible_type = EXTENSIBLE SELECT;
   END_TYPE;
-  TYPE select_extensible_generic_entity_type = EXTENSIBLE GENERIC_ENTITY SELECT
-    ();
+  TYPE select_extensible_generic_entity_type = EXTENSIBLE GENERIC_ENTITY SELECT;
   END_TYPE;
   TYPE select_item_type = SELECT
     (empty_type);
@@ -773,7 +801,7 @@ END_PROCEDURE;
 
 PROCEDURE expressions;
   LOCAL
-    binary_expression : BOOLEAN := %%011110000111100001111000;
+    binary_expression : BOOLEAN := %011110000111100001111000;
     integer_expression : BOOLEAN := 999;
     true_logical_expression : BOOLEAN := TRUE;
     false_logical_expression : BOOLEAN := FALSE;
@@ -826,10 +854,10 @@ PROCEDURE expressions;
     integer_division_expression : BOOLEAN := 4 DIV 2;
     modulo_expression : BOOLEAN := 4 MOD 2;
     exponentiation_expression : BOOLEAN := 4;
-    addition_addition_expression : BOOLEAN := 4 + 2 + 1;
-    subtraction_subtraction_expression : BOOLEAN := 4 - 2 - 1;
-    addition_subtraction_expression : BOOLEAN := 4 + 2 - 1;
-    subtraction_addition_expression : BOOLEAN := 4 - 2 + 1;
+    addition_addition_expression : BOOLEAN := (4 + 2) + 1;
+    subtraction_subtraction_expression : BOOLEAN := (4 - 2) - 1;
+    addition_subtraction_expression : BOOLEAN := (4 + 2) - 1;
+    subtraction_addition_expression : BOOLEAN := (4 - 2) + 1;
     addition_multiplication_expression : BOOLEAN := 8 + 4 * 2;
     multiplication_addition_expression : BOOLEAN := 8 * 4 + 2;
     parenthesis_addition_multiplication_expression : BOOLEAN := (8 + 4) * 2;
@@ -846,8 +874,8 @@ PROCEDURE expressions;
     not_or_expression : BOOLEAN := NOT (TRUE OR FALSE);
     or_expression : BOOLEAN := TRUE OR FALSE;
     and_expression : BOOLEAN := TRUE AND FALSE;
-    or_or_expression : BOOLEAN := TRUE OR FALSE OR TRUE;
-    and_and_expression : BOOLEAN := TRUE AND FALSE AND TRUE;
+    or_or_expression : BOOLEAN := (TRUE OR FALSE) OR TRUE;
+    and_and_expression : BOOLEAN := (TRUE AND FALSE) AND TRUE;
     or_and_expression : BOOLEAN := TRUE OR FALSE AND TRUE;
     and_or_expression : BOOLEAN := TRUE AND FALSE OR TRUE;
     parenthesis_or_and_expression : BOOLEAN := (TRUE OR FALSE) AND TRUE;

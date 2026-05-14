@@ -24,9 +24,9 @@ module Expressir
         def format_expressions_binary_expression(node)
           operator_precedence = self.class.const_get(:OPERATOR_PRECEDENCE)
           op1_bin_exp = node.operand1.is_a?(Model::Expressions::BinaryExpression) &&
-            (operator_precedence[node.operand1.operator] > operator_precedence[node.operator])
+            (operator_precedence[node.operand1.operator] >= operator_precedence[node.operator])
           op2_bin_exp = node.operand2.is_a?(Model::Expressions::BinaryExpression) &&
-            (operator_precedence[node.operand2.operator] > operator_precedence[node.operator])
+            (operator_precedence[node.operand2.operator] >= operator_precedence[node.operator])
 
           [
             *if op1_bin_exp
@@ -138,6 +138,9 @@ module Expressir
         end
 
         def format_expressions_unary_expression(node)
+          needs_parens = node.operand.is_a?(Model::Expressions::BinaryExpression) ||
+            node.operand.is_a?(Model::Expressions::Interval)
+
           [
             case node.operator
             when Model::Expressions::UnaryExpression::MINUS then "-"
@@ -147,11 +150,11 @@ module Expressir
             if node.operator == Model::Expressions::UnaryExpression::NOT
               " "
             end,
-            *if node.operand.is_a? Model::Expressions::BinaryExpression
+            *if needs_parens
                "("
              end,
             format(node.operand),
-            *if node.operand.is_a? Model::Expressions::BinaryExpression
+            *if needs_parens
                ")"
              end,
           ].join

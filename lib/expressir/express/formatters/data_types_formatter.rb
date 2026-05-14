@@ -4,8 +4,18 @@ module Expressir
       module DataTypesFormatter
         private
 
-        def format_data_types_aggregate(_node)
-          "AGGREGATE"
+        def format_data_types_aggregate(node)
+          [
+            "AGGREGATE",
+            *if node.base_type
+               [
+                 " ",
+                 "OF",
+                 " ",
+                 format(node.base_type),
+               ]
+             end,
+          ].join
         end
 
         def format_data_types_array(node)
@@ -257,7 +267,7 @@ module Expressir
                     ].join
                   end,
                ].join
-             else
+             elsif node.items&.length&.positive?
                indent_char = self.class.const_get(:INDENT_CHAR)
                item_indent = indent_char * "(".length
                [

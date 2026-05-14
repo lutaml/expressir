@@ -7,18 +7,20 @@ module Expressir
       class TypeBuilder
         include ::Expressir::Express::Builders::Helpers
 
-        # Simple types
-        {
-          boolean_type: Expressir::Model::DataTypes::Boolean,
-          integer_type: Expressir::Model::DataTypes::Integer,
-          logical_type: Expressir::Model::DataTypes::Logical,
-          number_type: Expressir::Model::DataTypes::Number,
-          generic_type: Expressir::Model::DataTypes::Generic,
-          generic_entity_type: Expressir::Model::DataTypes::GenericEntity,
-        }.each do |type_name, klass|
-          define_method(:"build_#{type_name}") do |_ast_data|
-            klass.new
-          end
+        def build_boolean_type(_ast_data)
+          Expressir::Model::DataTypes::Boolean.new
+        end
+
+        def build_integer_type(_ast_data)
+          Expressir::Model::DataTypes::Integer.new
+        end
+
+        def build_logical_type(_ast_data)
+          Expressir::Model::DataTypes::Logical.new
+        end
+
+        def build_number_type(_ast_data)
+          Expressir::Model::DataTypes::Number.new
         end
 
         # String type
@@ -47,6 +49,12 @@ module Expressir
           else
             Expressir::Model::DataTypes::Real.new
           end
+        end
+
+        # Aggregate type (AGGREGATE OF type)
+        def build_aggregate_type(ast_data)
+          base_type = Builder.build_optional(ast_data[:parameter_type])
+          Expressir::Model::DataTypes::Aggregate.new(base_type: base_type)
         end
 
         # Aggregation types

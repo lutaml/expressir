@@ -354,7 +354,7 @@ module Expressir
         end
 
         def attach_source_info(result, data)
-          return unless @source && result.is_a?(Model::ModelElement)
+          return unless @source && result.is_a?(Expressir::Model::ModelElement)
 
           source_info = extract_source_info(data)
           return unless source_info

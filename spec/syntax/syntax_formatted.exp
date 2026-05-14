@@ -185,7 +185,7 @@ END_ENTITY;
 ENTITY where_label_entity;
 WHERE
   WR1: TRUE;
-END_ENTITY;
+END_ENTITY; -- subtype constraints
 
 SUBTYPE_CONSTRAINT empty_subtype_constraint FOR empty_entity;
 END_SUBTYPE_CONSTRAINT;
@@ -251,7 +251,7 @@ END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT supertype_expression_oneof_andor_oneof_subtype_constraint FOR empty_entity;
   ONEOF(a, b) ANDOR ONEOF(c, d);
-END_SUBTYPE_CONSTRAINT;
+END_SUBTYPE_CONSTRAINT; -- functions
 
 FUNCTION empty_function : BOOLEAN;
   ;
@@ -336,7 +336,7 @@ FUNCTION multiple_shorthand_variable_expression_function : BOOLEAN;
     test2 : BOOLEAN := TRUE;
   END_LOCAL;
   ;
-END_FUNCTION;
+END_FUNCTION; -- rules
 
 RULE empty_rule FOR (empty_entity);
 WHERE
@@ -427,7 +427,7 @@ END_RULE;
 RULE where_label_rule FOR (empty_entity);
 WHERE
   WR1: TRUE;
-END_RULE;
+END_RULE; -- procedures
 
 PROCEDURE empty_procedure;
 END_PROCEDURE;
@@ -692,7 +692,7 @@ PROCEDURE statements;
   PROCEDURE skip_statement;
     SKIP;
   END_PROCEDURE;
-END_PROCEDURE;
+END_PROCEDURE; -- simple types
 
 PROCEDURE types;
   TYPE binary_type = BINARY;
@@ -797,7 +797,7 @@ PROCEDURE types;
   FUNCTION generic_entity_label_type : GENERIC_ENTITY;
     ;
   END_FUNCTION;
-END_PROCEDURE;
+END_PROCEDURE; -- literal expressions
 
 PROCEDURE expressions;
   LOCAL
@@ -899,6 +899,6 @@ PROCEDURE expressions;
     lte_lte_interval_expression : BOOLEAN := {1 <= 5 <= 9};
     query_expression : BOOLEAN := QUERY(test <* test2 | TRUE);
   END_LOCAL;
-END_PROCEDURE;
+END_PROCEDURE; -- interval expressions
 
 END_SCHEMA;

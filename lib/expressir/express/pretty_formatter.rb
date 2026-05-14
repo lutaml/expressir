@@ -379,7 +379,6 @@ module Expressir
       def format_declarations_schema(node)
         indent_str = " " * @config.indent
         preamble = format_preamble_remarks(node, indent_str)
-
         schema_declarations = [
           *if node.constants&.length&.positive?
              [

@@ -43,7 +43,7 @@ module Expressir
           term = Builder.build_term(ast_data[:term])
           rhs = ast_data[:rhs]
 
-          return term if rhs.nil? || (rhs.respond_to?(:empty?) && rhs.empty?)
+          return term if rhs.nil? || (rhs.is_a?(Array) && rhs.empty?)
 
           rhs_array = rhs.is_a?(Array) ? rhs : [rhs]
 
@@ -74,7 +74,7 @@ module Expressir
           factor = Builder.build_factor(ast_data[:factor])
           rhs = ast_data[:rhs]
 
-          return factor if rhs.nil? || (rhs.respond_to?(:empty?) && rhs.empty?)
+          return factor if rhs.nil? || (rhs.is_a?(Array) && rhs.empty?)
 
           rhs_array = rhs.is_a?(Array) ? rhs : [rhs]
 

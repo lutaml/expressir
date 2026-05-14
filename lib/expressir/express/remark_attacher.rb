@@ -376,7 +376,7 @@ module Expressir
           return schema if schema.id == scope_name
 
           %i[functions procedures rules entities types].each do |decl_type|
-            collection = schema.send(decl_type)
+            collection = schema.public_send(decl_type)
             next unless collection.is_a?(Array)
 
             found = collection.find { |n| n.id == scope_name }
@@ -872,7 +872,7 @@ module Expressir
         # Only add remarks to nodes that support them
         if supports_remarks?(node)
           # Always add to remarks attribute (for types that have it)
-          if node.respond_to?(:remarks) && node.respond_to?(:remarks=)
+          if node_has_remarks?(node)
             node.remarks ||= []
             node.remarks << text
           end
@@ -889,6 +889,12 @@ module Expressir
       # All ModelElement subclasses have untagged_remarks from ModelElement
       def supports_remarks?(obj)
         obj.is_a?(Model::ModelElement)
+      end
+
+      def node_has_remarks?(obj)
+        obj.is_a?(Model::Identifier) ||
+          obj.is_a?(Model::Declarations::RemarkItem) ||
+          obj.is_a?(Model::Declarations::InterfacedItem)
       end
 
       # Types that include HasRemarkItems can have remark_items
@@ -1094,7 +1100,7 @@ module Expressir
       def safe_send(obj, method)
         return nil unless obj
 
-        obj.send(method)
+        obj.public_send(method)
       rescue NoMethodError
         nil
       end
@@ -1102,7 +1108,7 @@ module Expressir
       def safe_get_collection(obj, attr)
         return nil unless obj
 
-        collection = obj.send(attr)
+        collection = obj.public_send(attr)
         collection if collection.is_a?(Array)
       rescue NoMethodError
         nil

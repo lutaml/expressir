@@ -200,7 +200,7 @@ module Expressir
         self.untagged_remarks ||= []
         return unless remark_info.is_a?(RemarkInfo)
 
-        self.untagged_remarks << remark_info
+        untagged_remarks << remark_info
       end
 
       private

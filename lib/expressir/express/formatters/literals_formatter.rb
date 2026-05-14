@@ -5,10 +5,7 @@ module Expressir
         private
 
         def format_literals_binary(node)
-          [
-            "%",
-            node.value,
-          ].join
+          node.value
         end
 
         def format_literals_integer(node)

@@ -187,8 +187,7 @@ module Expressir
             [
               "END_ENTITY",
               ";",
-              # Only show end_scope_remark if entity has explicit attributes
-              explicit_attributes&.length&.positive? ? format_end_scope_remark(node) : "",
+              format_end_scope_remark(node),
             ].join,
           ].join("\n")
         end
@@ -257,6 +256,7 @@ module Expressir
             [
               "END_FUNCTION",
               ";",
+              format_end_scope_remark(node),
             ].join,
           ].join("\n")
         end
@@ -377,6 +377,7 @@ module Expressir
             [
               "END_PROCEDURE",
               ";",
+              format_end_scope_remark(node),
             ].join,
           ].join("\n")
         end
@@ -465,6 +466,7 @@ module Expressir
             [
               "END_RULE",
               ";",
+              format_end_scope_remark(node),
             ].join,
           ].join("\n")
         end
@@ -596,6 +598,7 @@ module Expressir
             [
               "END_SUBTYPE_CONSTRAINT",
               ";",
+              format_end_scope_remark(node),
             ].join,
           ].join("\n")
         end

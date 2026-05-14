@@ -85,12 +85,14 @@ module Expressir
         def build_case_stmt(ast_data)
           selector = Builder.build_optional(ast_data[:selector])
           actions = Builder.build_children(ast_data[:case_action])
-          otherwise = Builder.build_children(ast_data[:otherwise]&.dig(:stmt))
+          otherwise_stmt = if ast_data[:t_otherwise] && ast_data[:stmt].is_a?(Hash)
+                             Builder.build({ stmt: ast_data[:stmt] })
+                           end
 
           Expressir::Model::Statements::Case.new(
             expression: selector,
             actions: actions.compact,
-            otherwise: otherwise.compact,
+            otherwise_statement: otherwise_stmt,
           )
         end
 
@@ -101,12 +103,23 @@ module Expressir
         end
 
         def build_case_action(ast_data)
-          labels = Builder.build_children(ast_data[:case_label])
-          statements = Builder.build_children(ast_data[:stmt])
+          label_data = ast_data[:list_of_case_label]
+          labels = if label_data.is_a?(Hash)
+                     Builder.build_children(label_data[:case_label])
+                   elsif label_data.is_a?(Array)
+                     label_data.flat_map do |item|
+                       Builder.build_children(item.is_a?(Hash) ? item[:case_label] : item)
+                     end
+                   else
+                     []
+                   end
+          stmt = if ast_data[:stmt].is_a?(Hash)
+                   Builder.build({ stmt: ast_data[:stmt] })
+                 end
 
           Expressir::Model::Statements::CaseAction.new(
             labels: labels.compact,
-            statements: statements.compact,
+            statement: stmt,
           )
         end
 

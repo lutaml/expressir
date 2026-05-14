@@ -62,7 +62,8 @@ module Expressir
 
           parameters = []
           Builder.ensure_array(params_data).each do |param|
-            result = Builder.build({ procedure_head_parameter: param })
+            actual_param = param[:procedure_head_parameter] || param
+            result = Builder.build({ procedure_head_parameter: actual_param })
             parameters.concat(Builder.ensure_array(result)) if result
           end
           parameters

@@ -181,18 +181,18 @@ module Expressir
       Builder.register(:interval_high) { |d| expression.build_interval_high(d) }
       Builder.register(:interval_item) { |d| expression.build_interval_item(d) }
       Builder.register(:interval_op) do |d|
-        expression.send(:extract_interval_op, d)
+        expression.extract_interval_op(d)
       end
 
       # Operators
       Builder.register(:add_like_op) do |d|
-        expression.send(:extract_operator, d)
+        expression.extract_operator(d)
       end
       Builder.register(:mul_like_op) do |d|
-        expression.send(:extract_operator, d)
+        expression.extract_operator(d)
       end
-      Builder.register(:unary_op) { |d| expression.send(:extract_unary_op, d) }
-      Builder.register(:rel_op) { |d| expression.send(:extract_rel_op, d) }
+      Builder.register(:unary_op) { |d| expression.extract_unary_op(d) }
+      Builder.register(:rel_op) { |d| expression.extract_rel_op(d) }
 
       # ========================================================================
       # Interface Builder (closures)
@@ -319,45 +319,20 @@ module Expressir
         subtype_constraint.build_total_over(d)
       end
 
-      Builder.register(:subtype_constraint_decl) do |d|
-        subtype_constraint.build_subtype_constraint_decl(d)
-      end
-      Builder.register(:total_over) do |d|
-        subtype_constraint.build_total_over(d)
-      end
-      Builder.register(:supertype_expression) do |d|
-        subtype_constraint.build_supertype_expression(d)
-      end
-      Builder.register(:supertype_factor) do |d|
-        subtype_constraint.build_supertype_factor(d)
-      end
-      Builder.register(:supertype_term) do |d|
-        subtype_constraint.build_supertype_term(d)
-      end
-      Builder.register(:one_of) { |d| subtype_constraint.build_one_of(d) }
-      Builder.register(:supertype_rule) do |d|
-        subtype_constraint.build_supertype_rule(d)
-      end
-      Builder.register(:subtype_constraint) do |d|
-        subtype_constraint.build_subtype_constraint(d)
-      end
-      Builder.register(:subtype_declaration) do |d|
-        subtype_constraint.build_subtype_declaration(d)
-      end
-
       # ========================================================================
       # Type Builder (closures)
       # ========================================================================
 
       # Simple types
-      %i[boolean_type integer_type logical_type number_type].each do |type|
-        Builder.register(type) { |d| type_builder.send(:"build_#{type}", d) }
-      end
+      Builder.register(:boolean_type) { |d| type_builder.build_boolean_type(d) }
+      Builder.register(:integer_type) { |d| type_builder.build_integer_type(d) }
+      Builder.register(:logical_type) { |d| type_builder.build_logical_type(d) }
+      Builder.register(:number_type) { |d| type_builder.build_number_type(d) }
 
       # Type constructors
       Builder.register(:generic_type) { |_d| Expressir::Model::DataTypes::Generic.new }
       Builder.register(:generic_entity_type) { |_d| Expressir::Model::DataTypes::GenericEntity.new }
-      Builder.register(:aggregate_type) { |_d| Expressir::Model::DataTypes::Aggregate.new }
+      Builder.register(:aggregate_type) { |d| type_builder.build_aggregate_type(d) }
       Builder.register(:general_set_type) do |d|
         type_builder.build_general_set_type(d)
       end

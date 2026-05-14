@@ -36,7 +36,10 @@ module Expressir
           ids = if ids_data.is_a?(Hash)
                   [Builder.build({ variable_id: ids_data })]
                 elsif ids_data.is_a?(Array)
-                  ids_data.map { |id| Builder.build({ variable_id: id }) }
+                  ids_data.filter_map do |elem|
+                    actual_id = elem[:variable_id] || elem
+                    Builder.build({ variable_id: actual_id })
+                  end
                 else
                   []
                 end
@@ -64,7 +67,10 @@ module Expressir
           ids = if ids_data.is_a?(Hash)
                   [Builder.build({ parameter_id: ids_data })]
                 elsif ids_data.is_a?(Array)
-                  ids_data.map { |id| Builder.build({ parameter_id: id }) }
+                  ids_data.filter_map do |elem|
+                    actual_id = elem[:parameter_id] || elem
+                    Builder.build({ parameter_id: actual_id })
+                  end
                 else
                   []
                 end

@@ -8,15 +8,12 @@ schemas:
   - interfaces
   - constants
   - types
-  - rules
   untagged_remarks:
   - text: interfaces
     format: tail
   - text: constants
     format: tail
   - text: types
-    format: tail
-  - text: rules
     format: tail
   file: spec/syntax/syntax.exp
   version:
@@ -957,6 +954,15 @@ schemas:
     - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Function
     id: multiple_shorthand_parameter_function
+    parameters:
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test2
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     statements:
@@ -1037,6 +1043,15 @@ schemas:
     id: multiple_shorthand_variable_function
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
+    variables:
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+    - _class: Expressir::Model::Declarations::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
     statements:
     - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Function
@@ -1076,8 +1091,28 @@ schemas:
     - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Function
     id: multiple_shorthand_variable_expression_function
+    remarks:
+    - rules
+    untagged_remarks:
+    - text: rules
+      format: tail
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
+    variables:
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: 'TRUE'
+    - _class: Expressir::Model::Declarations::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: 'TRUE'
     statements:
     - _class: Expressir::Model::Statements::Null
   rules:
@@ -1195,6 +1230,15 @@ schemas:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
+    variables:
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+    - _class: Expressir::Model::Declarations::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
@@ -1251,6 +1295,21 @@ schemas:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
       base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
+    variables:
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: 'TRUE'
+    - _class: Expressir::Model::Declarations::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: 'TRUE'
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
@@ -1298,8 +1357,26 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
   - _class: Expressir::Model::Declarations::Procedure
     id: multiple_parameter_procedure
+    parameters:
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test2
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
   - _class: Expressir::Model::Declarations::Procedure
     id: multiple_shorthand_parameter_procedure
+    parameters:
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test2
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
   - _class: Expressir::Model::Declarations::Procedure
     id: variable_parameter_procedure
     parameters:
@@ -1310,10 +1387,41 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
   - _class: Expressir::Model::Declarations::Procedure
     id: multiple_variable_parameter_procedure
+    parameters:
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test
+      var: true
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test2
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
   - _class: Expressir::Model::Declarations::Procedure
     id: multiple_variable_parameter2_procedure
+    parameters:
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test2
+      var: true
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
   - _class: Expressir::Model::Declarations::Procedure
     id: multiple_shorthand_variable_parameter_procedure
+    parameters:
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test
+      var: true
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+    - _class: Expressir::Model::Declarations::Parameter
+      id: test2
+      var: true
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
   - _class: Expressir::Model::Declarations::Procedure
     id: type_procedure
     types:
@@ -1368,6 +1476,15 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
   - _class: Expressir::Model::Declarations::Procedure
     id: multiple_shorthand_variable_procedure
+    variables:
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+    - _class: Expressir::Model::Declarations::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
   - _class: Expressir::Model::Declarations::Procedure
     id: variable_expression_procedure
     variables:
@@ -1397,6 +1514,21 @@ schemas:
         value: 'TRUE'
   - _class: Expressir::Model::Declarations::Procedure
     id: multiple_shorthand_variable_expression_procedure
+    variables:
+    - _class: Expressir::Model::Declarations::Variable
+      id: test
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: 'TRUE'
+    - _class: Expressir::Model::Declarations::Variable
+      id: test2
+      type:
+        _class: Expressir::Model::DataTypes::Boolean
+      expression:
+        _class: Expressir::Model::Literals::Logical
+        value: 'TRUE'
   - _class: Expressir::Model::Declarations::Procedure
     id: statement_procedure
     statements:
@@ -1567,6 +1699,11 @@ schemas:
           id: test
         actions:
         - _class: Expressir::Model::Statements::CaseAction
+          labels:
+          - _class: Expressir::Model::Literals::Logical
+            value: 'TRUE'
+          statement:
+            _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Declarations::Procedure
       id: case_multiple_statement
       statements:
@@ -1576,7 +1713,17 @@ schemas:
           id: test
         actions:
         - _class: Expressir::Model::Statements::CaseAction
+          labels:
+          - _class: Expressir::Model::Literals::Logical
+            value: 'TRUE'
+          statement:
+            _class: Expressir::Model::Statements::Null
         - _class: Expressir::Model::Statements::CaseAction
+          labels:
+          - _class: Expressir::Model::Literals::Logical
+            value: 'TRUE'
+          statement:
+            _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Declarations::Procedure
       id: case_multiple_shorthand_statement
       statements:
@@ -1586,6 +1733,13 @@ schemas:
           id: test
         actions:
         - _class: Expressir::Model::Statements::CaseAction
+          labels:
+          - _class: Expressir::Model::Literals::Logical
+            value: 'TRUE'
+          - _class: Expressir::Model::Literals::Logical
+            value: 'TRUE'
+          statement:
+            _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Declarations::Procedure
       id: case_otherwise_statement
       statements:
@@ -1595,6 +1749,13 @@ schemas:
           id: test
         actions:
         - _class: Expressir::Model::Statements::CaseAction
+          labels:
+          - _class: Expressir::Model::Literals::Logical
+            value: 'TRUE'
+          statement:
+            _class: Expressir::Model::Statements::Null
+        otherwise_statement:
+          _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Declarations::Procedure
       id: compound_statement
       statements:

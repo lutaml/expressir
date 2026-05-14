@@ -525,7 +525,7 @@ module Expressir
       def find_target_in_where_clause(scope, tag, remark_line)
         return nil unless supports_where_rules?(scope)
 
-        where_rules = scope.where_rules
+        where_rules = safe_get_collection(scope, :where_rules)
         return nil unless where_rules&.any?
 
         # Search source text for WHERE clause containing this remark

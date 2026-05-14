@@ -8,7 +8,11 @@ RSpec.describe Expressir::Express::Formatter do
     repo2 = Expressir::Express::Parser.from_exp(formatted1, use_native: false)
     formatted2 = described_class.format(repo2)
 
-    strip = ->(t) { t.lines.reject { |l| l.strip.start_with?("--") || l.strip.empty? }.join }
+    strip = ->(t) {
+      t.lines.reject do |l|
+        l.strip.start_with?("--") || l.strip.empty?
+      end.join
+    }
     expect(strip.call(formatted1)).to(
       eq(strip.call(formatted2)),
       "Structural content should be stable across format iterations",
@@ -114,6 +118,84 @@ RSpec.describe Expressir::Express::Formatter do
     end
   end
 
+  describe "CASE statements" do
+    it "roundtrips simple CASE with single label" do
+      exp_text = "SCHEMA t; FUNCTION f(x : INTEGER) : BOOLEAN; " \
+                 "CASE x OF 1 : RETURN (TRUE); END_CASE; " \
+                 "RETURN (FALSE); END_FUNCTION; END_SCHEMA;"
+      assert_roundtrip(exp_text)
+    end
+
+    it "roundtrips CASE with multiple labels on one action" do
+      exp_text = "SCHEMA t; FUNCTION f(x : INTEGER) : BOOLEAN; " \
+                 "CASE x OF 1, 2 : RETURN (TRUE); END_CASE; " \
+                 "RETURN (FALSE); END_FUNCTION; END_SCHEMA;"
+      assert_roundtrip(exp_text)
+    end
+
+    it "roundtrips CASE with OTHERWISE" do
+      exp_text = "SCHEMA t; FUNCTION f(x : INTEGER) : BOOLEAN; " \
+                 "CASE x OF 1 : RETURN (TRUE); OTHERWISE : RETURN (FALSE); END_CASE; " \
+                 "RETURN (FALSE); END_FUNCTION; END_SCHEMA;"
+      assert_roundtrip(exp_text)
+    end
+  end
+
+  describe "formal parameters with multiple IDs" do
+    it "preserves multiple parameter IDs sharing a type" do
+      repo = parse("SCHEMA t; FUNCTION f(a, b : INTEGER; c : REAL) : INTEGER; " \
+                   "RETURN (a + b); END_FUNCTION; END_SCHEMA;")
+
+      func = repo.schemas.first.functions.first
+      expect(func.parameters.length).to eq(3)
+      expect(func.parameters[0].id).to eq("a")
+      expect(func.parameters[1].id).to eq("b")
+      expect(func.parameters[2].id).to eq("c")
+    end
+
+    it "roundtrips multi-ID parameters" do
+      exp_text = "SCHEMA t; FUNCTION f(a, b : INTEGER) : INTEGER; " \
+                 "RETURN (a); END_FUNCTION; END_SCHEMA;"
+      assert_roundtrip(exp_text)
+    end
+  end
+
+  describe "AGGREGATE OF type" do
+    it "roundtrips AGGREGATE OF type definition" do
+      exp_text = "SCHEMA t; TYPE agg : AGGREGATE OF INTEGER; END_TYPE; END_SCHEMA;"
+      skip("AGGREGATE OF not yet supported by parser")
+      assert_roundtrip(exp_text)
+    end
+  end
+
+  describe "SELECT type" do
+    it "roundtrips SELECT with multiple items" do
+      exp_text = "SCHEMA t; " \
+                 "TYPE et1 = BOOLEAN; END_TYPE; " \
+                 "TYPE et2 = BOOLEAN; END_TYPE; " \
+                 "TYPE s1 = SELECT (et1, et2); END_TYPE; END_SCHEMA;"
+      assert_roundtrip(exp_text)
+    end
+  end
+
+  describe "interval expressions" do
+    it "roundtrips interval in WHERE clause" do
+      exp_text = "SCHEMA t; ENTITY e; x : INTEGER; WHERE " \
+                 "valid: {0 <= x <= 100}; END_ENTITY; END_SCHEMA;"
+      assert_roundtrip(exp_text)
+    end
+  end
+
+  describe "nested function declarations" do
+    it "roundtrips function with local variables and complex expressions" do
+      exp_text = "SCHEMA t; FUNCTION f(x : INTEGER) : INTEGER; " \
+                 "LOCAL y : INTEGER; z : REAL; END_LOCAL; " \
+                 "y := x * 2; z := y + 1.0; RETURN (y); " \
+                 "END_FUNCTION; END_SCHEMA;"
+      assert_roundtrip(exp_text)
+    end
+  end
+
   describe "syntax.exp full roundtrip" do
     it "roundtrips syntax.exp structural content" do
       exp_file = Expressir.root_path.join("spec", "syntax", "syntax.exp")
@@ -123,8 +205,34 @@ RSpec.describe Expressir::Express::Formatter do
       repo2 = Expressir::Express::Parser.from_exp(formatted1, use_native: false)
       formatted2 = described_class.format(repo2)
 
-      strip = ->(t) { t.lines.reject { |l| l.strip.start_with?("--") || l.strip.empty? }.join }
+      strip = ->(t) {
+        t.lines.reject do |l|
+          l.strip.start_with?("--") || l.strip.empty?
+        end.join
+      }
       expect(strip.call(formatted1)).to eq(strip.call(formatted2))
+    end
+  end
+
+  describe "WhereRule remarks" do
+    it "attaches tail remarks to WhereRule nodes" do
+      repo = parse(<<~EXP)
+        SCHEMA t;
+          TYPE wt = BOOLEAN;
+            WHERE wr1 : TRUE; -- tail remark
+          END_TYPE;
+        END_SCHEMA;
+      EXP
+
+      wr = repo.schemas.first.types.first.where_rules.first
+      expect(wr.id).to eq("wr1")
+      expect(wr.remarks).to include("tail remark")
+    end
+
+    it "roundtrips WHERE clause" do
+      exp_text = "SCHEMA t; ENTITY e; x : INTEGER; " \
+                 "WHERE valid: x > 0; END_ENTITY; END_SCHEMA;"
+      assert_roundtrip(exp_text)
     end
   end
 end

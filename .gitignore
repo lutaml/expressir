@@ -32,6 +32,7 @@ Gemfile.lock
 *.ler
 *.pax
 TODO.*.md
+TODO.refactor/
 debug_*.rb
 measure_mem.rb
 tmp_*.rb

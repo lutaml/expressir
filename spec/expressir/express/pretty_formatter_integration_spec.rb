@@ -348,8 +348,8 @@ RSpec.describe Expressir::Express::PrettyFormatter do
 
           # Verify indent is used for enumeration items (nested content)
           # The first enumeration item in product_status
-          indent_pattern = "^#{' ' * indent}\\("
-          expect(formatted).to match(/#{indent_pattern}/)
+          indent_pattern = Regexp.new("^#{' ' * indent}\\(")
+          expect(formatted).to match(indent_pattern)
         end
       end
 

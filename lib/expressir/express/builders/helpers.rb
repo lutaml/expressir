@@ -9,11 +9,9 @@ module Expressir
         # Extract text from Parsanol::Slice or return as-is
         def extract_text(val)
           return nil unless val
-          # Handle String, Symbol, and objects with to_str (duck typing via class check)
           return val.to_s if val.is_a?(String)
           return val.to_s if val.is_a?(Symbol)
-          # Handle Parsanol Slice objects - they respond to to_s but not to_str
-          return val.to_s if val.class.name&.include?("Slice")
+          return val.to_s if val.is_a?(Parsanol::Slice)
 
           if val.is_a?(Hash)
             str = val[:str]
@@ -34,8 +32,7 @@ module Expressir
           return nil unless data
           return data.to_s if data.is_a?(String)
           return data.to_s if data.is_a?(Symbol)
-          # Handle Parsanol Slice objects
-          return data.to_s if data.class.name&.include?("Slice")
+          return data.to_s if data.is_a?(Parsanol::Slice)
 
           if data.is_a?(Hash)
             str = data[:str]
@@ -141,9 +138,6 @@ module Expressir
           when Expressir::Model::References::SimpleReference
             Expressir::Model::References::AttributeReference.new(ref: ref,
                                                                  attribute: qualifier)
-          when Hash
-            Expressir::Model::References::IndexReference.new(ref: ref,
-                                                             index1: qualifier[:index1], index2: qualifier[:index2])
           else
             ref
           end

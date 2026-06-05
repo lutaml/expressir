@@ -2,7 +2,17 @@ module Expressir
   module Express
     module Formatters
       module LiteralsFormatter
-        private
+        def self.included(base)
+          base.register_formatter Model::Literals::Binary,
+                                  :format_literals_binary
+          base.register_formatter Model::Literals::Integer,
+                                  :format_literals_integer
+          base.register_formatter Model::Literals::Logical,
+                                  :format_literals_logical
+          base.register_formatter Model::Literals::Real, :format_literals_real
+          base.register_formatter Model::Literals::String,
+                                  :format_literals_string
+        end
 
         def format_literals_binary(node)
           node.value

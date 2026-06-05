@@ -1,11 +1,12 @@
 module Expressir
   module Express
     module Formatters
-      # Formatter for RemarkItem declarations
       module RemarkItemFormatter
-        # Format a RemarkItem as an EXPRESS remark
-        # @param node [Model::Declarations::RemarkItem] The remark item to format
-        # @return [String] Formatted remark
+        def self.included(base)
+          base.register_formatter Model::Declarations::RemarkItem,
+                                  :format_remark_item
+        end
+
         def format_remark_item(node)
           return "" unless node.remarks&.any?
 

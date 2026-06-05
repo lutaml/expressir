@@ -2,7 +2,31 @@ module Expressir
   module Express
     module Formatters
       module StatementsFormatter
-        private
+        def self.included(base)
+          base.register_formatter Model::Statements::Alias,
+                                  :format_statements_alias
+          base.register_formatter Model::Statements::Assignment,
+                                  :format_statements_assignment
+          base.register_formatter Model::Statements::Case,
+                                  :format_statements_case
+          base.register_formatter Model::Statements::CaseAction,
+                                  :format_statements_case_action
+          base.register_formatter Model::Statements::Compound,
+                                  :format_statements_compound
+          base.register_formatter Model::Statements::Escape,
+                                  :format_statements_escape
+          base.register_formatter Model::Statements::If, :format_statements_if
+          base.register_formatter Model::Statements::Null,
+                                  :format_statements_null
+          base.register_formatter Model::Statements::ProcedureCall,
+                                  :format_statements_procedure_call
+          base.register_formatter Model::Statements::Repeat,
+                                  :format_statements_repeat
+          base.register_formatter Model::Statements::Return,
+                                  :format_statements_return
+          base.register_formatter Model::Statements::Skip,
+                                  :format_statements_skip
+        end
 
         def format_statements_alias(node)
           [
@@ -82,10 +106,9 @@ module Expressir
         end
 
         def format_statements_case_action(node)
-          node.labels ||= []
           [
             [
-              node.labels.map { |x| format(x) }.join(", "),
+              Array(node.labels).map { |x| format(x) }.join(", "),
               " ",
               ":",
             ].join,
@@ -94,11 +117,11 @@ module Expressir
         end
 
         def format_statements_compound(node)
-          node.statements ||= []
+          statements = Array(node.statements)
           [
             "BEGIN",
-            *if node.statements&.length&.positive?
-               indent(node.statements.map { |x| format(x) }.join("\n"))
+            *if statements.length.positive?
+               indent(statements.map { |x| format(x) }.join("\n"))
              end,
             [
               "END",
@@ -144,7 +167,7 @@ module Expressir
         end
 
         def format_statements_repeat(node)
-          node.statements ||= []
+          statements = Array(node.statements)
           [
             [
               "REPEAT",
@@ -188,8 +211,8 @@ module Expressir
                end,
               ";",
             ].join,
-            *if node.statements&.length&.positive?
-               indent(node.statements.map { |x| format(x) }.join("\n"))
+            *if statements.length.positive?
+               indent(statements.map { |x| format(x) }.join("\n"))
              end,
             *format_remarks(node),
             [

@@ -2,8 +2,6 @@ module Expressir
   module Express
     module Formatters
       module RemarkFormatter
-        private
-
         def format_remark(node, remark)
           # Handle embedded remarks
           if remark.include?("\n")
@@ -142,7 +140,7 @@ module Expressir
           remarks = []
 
           # Add tagged remarks
-          if node.class.method_defined?(:remarks) && !@no_remarks &&
+          if node.is_a?(Model::HasRemarks) && !@no_remarks &&
               !node.remarks.nil?
             remarks.concat(node.remarks.compact.map do |remark|
               format_remark(node, remark)

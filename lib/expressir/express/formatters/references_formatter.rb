@@ -2,7 +2,16 @@ module Expressir
   module Express
     module Formatters
       module ReferencesFormatter
-        private
+        def self.included(base)
+          base.register_formatter Model::References::AttributeReference,
+                                  :format_references_attribute_reference
+          base.register_formatter Model::References::GroupReference,
+                                  :format_references_group_reference
+          base.register_formatter Model::References::IndexReference,
+                                  :format_references_index_reference
+          base.register_formatter Model::References::SimpleReference,
+                                  :format_references_simple_reference
+        end
 
         def format_references_attribute_reference(node)
           [

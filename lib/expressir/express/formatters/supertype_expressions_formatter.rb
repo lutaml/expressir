@@ -2,7 +2,12 @@ module Expressir
   module Express
     module Formatters
       module SupertypeExpressionsFormatter
-        private
+        def self.included(base)
+          base.register_formatter Model::SupertypeExpressions::BinarySupertypeExpression,
+                                  :format_supertype_expressions_binary_supertype_expression
+          base.register_formatter Model::SupertypeExpressions::OneofSupertypeExpression,
+                                  :format_supertype_expressions_oneof_supertype_expression
+        end
 
         def format_supertype_expressions_binary_supertype_expression(node)
           supertype_precedence = self.class.const_get(:SUPERTYPE_OPERATOR_PRECEDENCE)
@@ -36,11 +41,10 @@ module Expressir
         end
 
         def format_supertype_expressions_oneof_supertype_expression(node)
-          node.operands ||= []
           [
             "ONEOF",
             "(",
-            node.operands.map { |x| format(x) }.join(", "),
+            Array(node.operands).map { |x| format(x) }.join(", "),
             ")",
           ].join
         end

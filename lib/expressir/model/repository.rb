@@ -24,6 +24,14 @@ module Expressir
       # Index instances (lazy-loaded)
       attr_reader :entity_index, :type_index, :reference_index
 
+      # Restore deserialized indexes (used by Package::Reader)
+      def restore_indexes(entity_index: nil, type_index: nil,
+reference_index: nil)
+        @entity_index = entity_index if entity_index
+        @type_index = type_index if type_index
+        @reference_index = reference_index if reference_index
+      end
+
       # Internal schema storage for direct manipulation
       attr_reader :_schemas
 

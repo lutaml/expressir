@@ -2,8 +2,10 @@ module Expressir
   module Model
     module Identifier
       def self.included(mod)
-        # Auto-include marker - all Identifier types can have remark_items
+        # Auto-include markers - all Identifier types have id and can have remark_items and remarks
+        mod.include(HasId)
         mod.include(HasRemarkItems)
+        mod.include(HasRemarks)
 
         mod.attribute :id, :string
         mod.attribute :remarks, :string, collection: true

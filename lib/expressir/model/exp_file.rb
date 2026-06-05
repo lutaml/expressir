@@ -11,6 +11,7 @@ module Expressir
     # A Repository contains multiple ExpFile instances when parsing multiple files,
     # or a single ExpFile when parsing a single file.
     class ExpFile < ModelElement
+      include HasId
       include ScopeContainer
 
       attribute :path, :string

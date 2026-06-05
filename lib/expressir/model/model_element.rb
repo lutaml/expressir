@@ -120,7 +120,7 @@ module Expressir
         loop do
           # Skip adding the id if this is a RemarkItem that belongs to an InformalPropositionRule
           # and has the same id as its parent
-          if !(current_node.is_a? References::SimpleReference) && current_node.class.method_defined?(:id) &&
+          if !(current_node.is_a? References::SimpleReference) && current_node.is_a?(HasId) &&
               !(is_a?(Declarations::RemarkItem) &&
                 parent.is_a?(Declarations::InformalPropositionRule) &&
                 id == parent.id)
@@ -208,7 +208,7 @@ module Expressir
       # @return [nil]
       def attach_parent_to_children
         self.class.attributes.each_pair do |symbol, _lutaml_attr|
-          value = send(symbol)
+          value = public_send(symbol)
 
           case value
           when Array

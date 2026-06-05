@@ -70,7 +70,7 @@ module Expressir
         end
 
         def full_source
-          Expressir::Express::Formatter.format(self)
+          @full_source ||= Expressir::Express::Formatter.format(self)
         end
 
         def formatted
@@ -78,11 +78,13 @@ module Expressir
         end
 
         def source
-          formatter = Class.new(Expressir::Express::Formatter) do
-            include Expressir::Express::SchemaHeadFormatter
-            include Expressir::Express::HyperlinkFormatter
+          @source ||= begin
+            formatter = Class.new(Expressir::Express::Formatter) do
+              include Expressir::Express::SchemaHeadFormatter
+              include Expressir::Express::HyperlinkFormatter
+            end
+            formatter.format(self)
           end
-          formatter.format(self)
         end
 
         private

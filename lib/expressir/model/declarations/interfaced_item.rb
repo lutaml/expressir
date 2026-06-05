@@ -4,6 +4,9 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 11 Interface specification
       class InterfacedItem < ModelElement
+        include HasId
+        include HasRemarks
+
         attribute :id, :string
         attribute :remarks, :string, collection: true
         attribute :remark_items, RemarkItem, collection: true

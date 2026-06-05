@@ -3,6 +3,9 @@ module Expressir
     module Declarations
       # Implicit item with remarks
       class RemarkItem < ModelElement
+        include HasId
+        include HasRemarks
+
         attribute :id, :string
         attribute :remarks, :string, collection: true
         attribute :_class, :string, default: -> { self.class.name }

@@ -2,9 +2,15 @@
 
 module Expressir
   module Model
+    # Marker for types that have an id attribute
+    module HasId; end
+
     # Marker for types that can have remark_items children
     # These are types where RemarkItem children can be created
     module HasRemarkItems; end
+
+    # Marker for types that have a `remarks` string collection
+    module HasRemarks; end
 
     # Marker for scope containers (can contain declarations)
     # Includes schemas, functions, procedures, rules, entities, types, and files

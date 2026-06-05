@@ -132,32 +132,17 @@ module Expressir
       # @param repository [Model::Repository] Repository instance
       # @return [void]
       def load_indexes(zip, repository)
-        # Load entity index
-        entity_index_entry = zip.find_entry("entity_index.marshal")
-        if entity_index_entry
-          repository.instance_variable_set(
-            :@entity_index,
-            Marshal.load(entity_index_entry.get_input_stream.read),
-          )
+        indexes = {}
+
+        %w[entity_index type_index reference_index].each do |name|
+          entry = zip.find_entry("#{name}.marshal")
+          if entry
+            indexes[name.to_sym] =
+              Marshal.load(entry.get_input_stream.read)
+          end
         end
 
-        # Load type index
-        type_index_entry = zip.find_entry("type_index.marshal")
-        if type_index_entry
-          repository.instance_variable_set(
-            :@type_index,
-            Marshal.load(type_index_entry.get_input_stream.read),
-          )
-        end
-
-        # Load reference index
-        reference_index_entry = zip.find_entry("reference_index.marshal")
-        if reference_index_entry
-          repository.instance_variable_set(
-            :@reference_index,
-            Marshal.load(reference_index_entry.get_input_stream.read),
-          )
-        end
+        repository.restore_indexes(**indexes) unless indexes.empty?
       end
     end
   end

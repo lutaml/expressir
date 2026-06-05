@@ -282,18 +282,18 @@ module Expressir
     # @return [Boolean] True if the entity has documentation
     def self.entity_documented?(entity)
       # Check for direct remarks (types with Identifier module have remarks)
-      if entity.is_a?(Model::ModelElement) && entity.class.method_defined?(:remarks) && entity.remarks && !entity.remarks.empty?
+      if entity.is_a?(Model::HasRemarks) && entity.remarks && !entity.remarks.empty?
         return true
       end
 
       # Check for remark_items (types with Identifier module have remark_items)
-      if entity.is_a?(Model::ModelElement) && entity.class.method_defined?(:remark_items) && entity.remark_items && !entity.remark_items.empty?
+      if entity.is_a?(Model::HasRemarkItems) && entity.remark_items && !entity.remark_items.empty?
         return true
       end
 
       # For schema entities, check if there's a remark_item with their ID
       parent = entity.parent
-      if parent.is_a?(Model::ModelElement) && parent.class.method_defined?(:remark_items) && parent.remark_items
+      if parent.is_a?(Model::HasRemarkItems) && parent.remark_items
         entity_id = entity.id.to_s.downcase
         parent.remark_items.any? do |item|
           item.id.to_s.downcase == entity_id || item.id.to_s.downcase.include?("#{entity_id}.")
@@ -331,7 +331,7 @@ module Expressir
       # Filter out nil elements and ensure all have IDs
       # Note: Some ModelElement types (like Interface) don't have id
       entities = entities.compact.select do |e|
-        e.is_a?(Model::ModelElement) && e.class.method_defined?(:id) && e.id
+        e.is_a?(Model::HasId) && e.id
       end
 
       # Filter out skipped entity types

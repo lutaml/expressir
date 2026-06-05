@@ -11,16 +11,39 @@ module Expressir
     # 2. Proximity-based matching for simple tags
     # 3. NOT creating spurious schema-level items for ambiguous tags
     class RemarkAttacher
-      # Child collection attributes to walk when traversing model elements.
-      # These are the named collections on model elements (e.g., entity.attributes,
-      # schema.entities, function.parameters). Extracted to a constant to avoid
-      # duplication between calculate_children_end_line and collect_children.
-      CHILD_COLLECTION_ATTRIBUTES = %i[
-        schemas types entities functions procedures rules constants
-        attributes derived_attributes inverse_attributes
-        where_rules unique_rules informal_propositions
-        parameters variables statements items remark_items
-      ].freeze
+      # Type-driven registry: maps each model class to its collection attributes.
+      # Replaces runtime method probing (method_defined?) with explicit type declarations.
+      COLLECTION_REGISTRY = {
+        Model::Declarations::Schema => %i[
+          constants types entities subtype_constraints
+          functions rules procedures remark_items
+        ],
+        Model::Declarations::Entity => %i[
+          attributes derived_attributes inverse_attributes
+          unique_rules where_rules informal_propositions remark_items
+        ],
+        Model::Declarations::Function => %i[
+          parameters types entities subtype_constraints
+          functions procedures constants variables statements remark_items
+        ],
+        Model::Declarations::Procedure => %i[
+          parameters types entities subtype_constraints
+          functions procedures constants variables statements remark_items
+        ],
+        Model::Declarations::Rule => %i[
+          applies_to types entities subtype_constraints
+          functions procedures constants variables statements
+          where_rules informal_propositions remark_items
+        ],
+        Model::Declarations::Type => %i[
+          where_rules informal_propositions remark_items
+        ],
+        Model::ExpFile => %i[schemas],
+        Model::Statements::Compound => %i[statements],
+        Model::Statements::If => %i[statements],
+        Model::Statements::Alias => %i[statements],
+        Model::Statements::Repeat => %i[statements],
+      }.freeze
 
       def initialize(source)
         @source = source
@@ -390,30 +413,22 @@ module Expressir
       def find_node_in_scope(scope, tag)
         return nil unless scope
 
-        # Search within the scope for a node with the given tag/id
-        # Check all collections that might contain nodes with ids
-        %i[constants types variables parameters statements
-           attributes derived_attributes inverse_attributes
-           where_rules unique_rules informal_propositions].each do |attr|
-          collection = safe_get_collection(scope, attr)
-          next unless collection
-
+        collections_on(scope).each do |collection|
           collection.each do |item|
+            next unless item.is_a?(Model::HasRemarks)
             return item if item.id == tag
-          rescue NoMethodError
-            next
           end
         end
 
         # Search inside types for enumeration items
-        types = safe_get_collection(scope, :types)
+        types = get_collection(scope, :types)
         types&.each do |type|
           result = find_enumeration_item_in_type(type, tag)
           return result if result
         end
 
         # Search inside statements for nested items (alias, repeat, query)
-        statements = safe_get_collection(scope, :statements)
+        statements = get_collection(scope, :statements)
         statements&.each do |stmt|
           result = find_node_in_statement(stmt, tag)
           return result if result
@@ -448,34 +463,51 @@ module Expressir
         nil
       end
 
+      # Expression and statement child attributes for QueryExpression search.
+      # Targeted traversal prevents over-matching on unrelated model attributes.
+      EXPRESSION_CHILDREN = {
+        Model::Expressions::BinaryExpression => %i[operand1 operand2],
+        Model::Expressions::UnaryExpression => %i[operand],
+        Model::Expressions::QueryExpression => %i[expression aggregate_source],
+        Model::Expressions::AggregateInitializerItem => %i[expression
+                                                           repetition],
+        Model::Expressions::Interval => %i[low item high],
+        Model::Expressions::FunctionCall => %i[parameters],
+        Model::Expressions::EntityConstructor => %i[parameters],
+        Model::Expressions::AggregateInitializer => %i[items],
+        Model::Statements::Assignment => %i[expression],
+        Model::Statements::If => %i[expression],
+        Model::Statements::Case => %i[expression],
+        Model::Statements::CaseAction => %i[expression],
+        Model::Statements::Repeat => %i[while_expression until_expression],
+      }.freeze
+
       def find_query_in_expression(node, tag, visited = Set.new)
         return nil unless node
+        return nil unless node.is_a?(Model::ModelElement)
         return nil if visited.include?(node.object_id)
 
         visited.add(node.object_id)
 
-        # Check if this node is a QueryExpression with matching id
         if node.is_a?(Model::Expressions::QueryExpression) && node.id == tag
           return node
         end
 
-        # Recursively search expression attributes
-        %i[expression operand left right condition aggregate
-           query_expression repeat_control].each do |attr|
-          child = safe_send(node, attr)
-          next unless child
+        attrs = EXPRESSION_CHILDREN[node.class]
+        return nil unless attrs
 
-          result = find_query_in_expression(child, tag, visited)
-          return result if result
-        end
+        attrs.each do |attr|
+          value = node.public_send(attr)
+          case value
+          when Array
+            value.each do |val|
+              next unless val.is_a?(Model::ModelElement)
 
-        # Search in arrays
-        %i[expressions operands parameters arguments].each do |attr|
-          children = safe_send(node, attr)
-          next unless children.is_a?(Array)
-
-          children.each do |child|
-            result = find_query_in_expression(child, tag, visited)
+              result = find_query_in_expression(val, tag, visited)
+              return result if result
+            end
+          when Model::ModelElement
+            result = find_query_in_expression(value, tag, visited)
             return result if result
           end
         end
@@ -505,7 +537,7 @@ module Expressir
         return nil unless collection_attr
 
         # First try to find in containing scope
-        collection = safe_get_collection(containing_scope, collection_attr)
+        collection = get_collection(containing_scope, collection_attr)
         if collection
           found = collection.find { |item| item.is_a?(Model::ModelElement) && item.id == id }
           return found if found
@@ -525,7 +557,7 @@ module Expressir
       def find_target_in_where_clause(scope, tag, remark_line)
         return nil unless supports_where_rules?(scope)
 
-        where_rules = safe_get_collection(scope, :where_rules)
+        where_rules = get_collection(scope, :where_rules)
         return nil unless where_rules&.any?
 
         # Search source text for WHERE clause containing this remark
@@ -652,24 +684,21 @@ module Expressir
         nil
       end
 
+      COLLECTION_ACCESSOR = {
+        Expressir::Model::Declarations::Entity => lambda(&:entities),
+        Expressir::Model::Declarations::Type => lambda(&:types),
+        Expressir::Model::Declarations::Rule => lambda(&:rules),
+      }.freeze
+
       def find_node_by_type_and_name(node_class, name)
         return nil unless @model && name
 
-        # Search through all schemas
-        @model.schemas.each do |schema|
-          collection = case node_class.name
-                       when "Expressir::Model::Declarations::Entity"
-                         schema.entities
-                       when "Expressir::Model::Declarations::Type"
-                         schema.types
-                       when "Expressir::Model::Declarations::Rule"
-                         schema.rules
-                       end
+        accessor = COLLECTION_ACCESSOR[node_class]
+        return nil unless accessor
 
-          if collection
-            found = collection.find { |n| n.id == name }
-            return found if found
-          end
+        @model.schemas.each do |schema|
+          found = accessor.call(schema)&.find { |n| n.id == name }
+          return found if found
         end
 
         nil
@@ -892,9 +921,7 @@ module Expressir
       end
 
       def node_has_remarks?(obj)
-        obj.is_a?(Model::Identifier) ||
-          obj.is_a?(Model::Declarations::RemarkItem) ||
-          obj.is_a?(Model::Declarations::InterfacedItem)
+        obj.is_a?(Model::HasRemarks)
       end
 
       # Types that include HasRemarkItems can have remark_items
@@ -965,22 +992,20 @@ module Expressir
       def calculate_children_end_line(node)
         children_end_lines = []
 
-        # Check standard children attribute
-        children = safe_get_collection(node, :children)
-        children&.each do |child|
-          if child.is_a?(Model::ModelElement) && child.source_offset && child.source
-            child_end_line = get_line_number(child.source_offset + child.source.length)
-            children_end_lines << child_end_line
+        # Check computed children (Schema, ExpFile have a children method)
+        if node.is_a?(Model::Declarations::Schema)
+          Array(node.children).each do |child|
+            if child.is_a?(Model::ModelElement) && child.source_offset && child.source
+              children_end_lines << get_line_number(child.source_offset + child.source.length)
+            end
           end
         end
 
-        # Check specific child collections
-        CHILD_COLLECTION_ATTRIBUTES.each do |attr|
-          collection = safe_get_collection(node, attr)
-          collection&.each do |child|
+        # Visit declared collections from type registry
+        collections_on(node).each do |collection|
+          collection.each do |child|
             if child.is_a?(Model::ModelElement) && child.source_offset && child.source
-              child_end_line = get_line_number(child.source_offset + child.source.length)
-              children_end_lines << child_end_line
+              children_end_lines << get_line_number(child.source_offset + child.source.length)
             end
           end
         end
@@ -989,14 +1014,14 @@ module Expressir
       end
 
       def collect_children(node, result, visited)
-        children = safe_get_collection(node, :children)
-        children&.each do |child|
-          collect_nodes_with_positions(child, result, visited)
+        if node.is_a?(Model::Declarations::Schema)
+          Array(node.children).each do |child|
+            collect_nodes_with_positions(child, result, visited)
+          end
         end
 
-        CHILD_COLLECTION_ATTRIBUTES.each do |attr|
-          collection = safe_get_collection(node, attr)
-          collection&.each do |item|
+        collections_on(node).each do |collection|
+          collection.each do |item|
             collect_nodes_with_positions(item, result, visited)
           end
         end
@@ -1095,23 +1120,23 @@ module Expressir
         obj.is_a?(Model::HasWhereRules)
       end
 
-      # Safe accessor methods that return nil instead of NoMethodError
+      # Type-driven collection access — returns all collections for a node's type.
+      def collections_on(node)
+        attrs = COLLECTION_REGISTRY[node.class]
+        return [] unless attrs
 
-      def safe_send(obj, method)
-        return nil unless obj
-
-        obj.public_send(method)
-      rescue NoMethodError
-        nil
+        attrs.filter_map do |attr|
+          col = node.public_send(attr)
+          col if col.is_a?(Array)
+        end
       end
 
-      def safe_get_collection(obj, attr)
-        return nil unless obj
+      # Type-driven single collection access — returns one named collection if the type has it.
+      def get_collection(node, attr_name)
+        return nil unless COLLECTION_REGISTRY[node.class]&.include?(attr_name)
 
-        collection = obj.public_send(attr)
+        collection = node.public_send(attr_name)
         collection if collection.is_a?(Array)
-      rescue NoMethodError
-        nil
       end
 
       def safe_find(model, path)
@@ -1124,10 +1149,9 @@ module Expressir
 
       def safe_reset_children_by_id(obj)
         return unless obj
+        return unless obj.is_a?(Model::ScopeContainer)
 
         obj.reset_children_by_id
-      rescue NoMethodError
-        nil
       end
     end
   end

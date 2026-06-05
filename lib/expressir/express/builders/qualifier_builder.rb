@@ -65,7 +65,8 @@ module Expressir
         def build_index_qualifier(ast_data)
           index1 = Builder.build_optional(ast_data[:index1])
           index2 = Builder.build_optional(ast_data[:index2])
-          { index1: index1, index2: index2 }
+          Expressir::Model::References::IndexReference.new(index1: index1,
+                                                           index2: index2)
         end
 
         def build_index1(ast_data)

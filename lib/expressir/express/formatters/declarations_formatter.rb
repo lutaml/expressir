@@ -2,7 +2,46 @@ module Expressir
   module Express
     module Formatters
       module DeclarationsFormatter
-        private
+        def self.included(base)
+          base.register_formatter Model::Declarations::Attribute,
+                                  :format_declarations_attribute
+          base.register_formatter Model::Declarations::Constant,
+                                  :format_declarations_constant
+          base.register_formatter Model::Declarations::Entity,
+                                  :format_declarations_entity
+          base.register_formatter Model::Declarations::Function,
+                                  :format_declarations_function
+          base.register_formatter Model::Declarations::Interface,
+                                  :format_declarations_interface
+          base.register_formatter Model::Declarations::InterfaceItem,
+                                  :format_declarations_interface_item
+          base.register_formatter Model::Declarations::Parameter,
+                                  :format_declarations_parameter
+          base.register_formatter Model::Declarations::Procedure,
+                                  :format_declarations_procedure
+          base.register_formatter Model::Declarations::Rule,
+                                  :format_declarations_rule
+          base.register_formatter Model::Declarations::Schema,
+                                  :format_declarations_schema
+          base.register_formatter Model::Declarations::SchemaVersion,
+                                  :format_declarations_schema_version
+          base.register_formatter Model::Declarations::SubtypeConstraint,
+                                  :format_declarations_subtype_constraint
+          base.register_formatter Model::Declarations::Type,
+                                  :format_declarations_type
+          base.register_formatter Model::Declarations::UniqueRule,
+                                  :format_declarations_unique_rule
+          base.register_formatter Model::Declarations::Variable,
+                                  :format_declarations_variable
+          base.register_formatter Model::Declarations::WhereRule,
+                                  :format_declarations_where_rule
+          base.register_formatter Model::Declarations::InformalPropositionRule,
+                                  :format_declarations_informal_proposition_rule
+          base.register_formatter Model::Declarations::DerivedAttribute,
+                                  :format_declarations_attribute
+          base.register_formatter Model::Declarations::InverseAttribute,
+                                  :format_declarations_attribute
+        end
 
         def format_declarations_attribute(node)
           [
@@ -383,8 +422,6 @@ module Expressir
         end
 
         def format_declarations_rule(node)
-          node.applies_to ||= []
-
           # Filter out statements that only exist to hold remarks in rules
           # (ALIAS/REPEAT with only Null sub-statements, query assignments, or Null statements)
           formatted_statements = []
@@ -415,7 +452,7 @@ module Expressir
               "FOR",
               " ",
               "(",
-              node.applies_to.map { |x| format(x) }.join(", "),
+              Array(node.applies_to).map { |x| format(x) }.join(", "),
               ")",
               ";",
             ].join,
@@ -630,7 +667,6 @@ module Expressir
         end
 
         def format_declarations_unique_rule(node)
-          node.attributes ||= []
           [
             *if node.id
                [
@@ -639,7 +675,7 @@ module Expressir
                  " ",
                ].join
              end,
-            node.attributes.map { |x| format(x) }.join(", "),
+            Array(node.attributes).map { |x| format(x) }.join(", "),
             ";",
           ].join
         end

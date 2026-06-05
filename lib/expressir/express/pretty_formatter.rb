@@ -74,8 +74,6 @@ module Expressir
         super(no_remarks: options.fetch(:no_remarks, false))
       end
 
-      private
-
       # Override indent to use configured width
       # @param str [String] String to indent
       # @return [String] Indented string
@@ -434,8 +432,6 @@ module Expressir
       end
 
       # Override format_declarations_function to use aligned constants
-      # @param node [Model::Declarations::Function] Function node
-      # @return [String] Formatted function
       def format_declarations_function(node)
         [
           [
@@ -458,55 +454,12 @@ module Expressir
             format(node.return_type),
             ";",
           ].join,
-          *if node.types&.length&.positive?
-             indent(node.types.map { |x| format(x) }.join("\n"))
-           end,
-          *if node.entities&.length&.positive?
-             indent(node.entities.map { |x| format(x) }.join("\n"))
-           end,
-          *if node.subtype_constraints&.length&.positive?
-             indent(node.subtype_constraints.map { |x| format(x) }.join("\n"))
-           end,
-          *if node.functions&.length&.positive?
-             indent(node.functions.map { |x| format(x) }.join("\n"))
-           end,
-          *if node.procedures&.length&.positive?
-             indent(node.procedures.map { |x| format(x) }.join("\n"))
-           end,
-          *if node.constants&.length&.positive?
-             indent([
-               "CONSTANT",
-               indent(format_constant_block(node.constants)),
-               [
-                 "END_CONSTANT",
-                 ";",
-               ].join,
-             ].join("\n"))
-           end,
-          *if node.variables&.length&.positive?
-             indent([
-               "LOCAL",
-               indent(node.variables.map { |x| format(x) }.join("\n")),
-               [
-                 "END_LOCAL",
-                 ";",
-               ].join,
-             ].join("\n"))
-           end,
-          *if node.statements&.length&.positive?
-             indent(node.statements.map { |x| format(x) }.join("\n"))
-           end,
-          [
-            "END_FUNCTION",
-            ";",
-            format_end_scope_remark(node),
-          ].join,
+          *format_scope_body(node),
+          format_scope_footer("END_FUNCTION", node),
         ].join("\n")
       end
 
       # Override format_declarations_procedure to use aligned constants
-      # @param node [Model::Declarations::Procedure] Procedure node
-      # @return [String] Formatted procedure
       def format_declarations_procedure(node)
         [
           [
@@ -525,57 +478,13 @@ module Expressir
              end,
             ";",
           ].join,
-          *if node.types&.length&.positive?
-             indent(node.types.map { |x| format(x) }.join("\n"))
-           end,
-          *if node.entities&.length&.positive?
-             indent(node.entities.map { |x| format(x) }.join("\n"))
-           end,
-          *if node.subtype_constraints&.length&.positive?
-             indent(node.subtype_constraints.map { |x| format(x) }.join("\n"))
-           end,
-          *if node.functions&.length&.positive?
-             indent(node.functions.map { |x| format(x) }.join("\n"))
-           end,
-          *if node.procedures&.length&.positive?
-             indent(node.procedures.map { |x| format(x) }.join("\n"))
-           end,
-          *if node.constants&.length&.positive?
-             indent([
-               "CONSTANT",
-               indent(format_constant_block(node.constants)),
-               [
-                 "END_CONSTANT",
-                 ";",
-               ].join,
-             ].join("\n"))
-           end,
-          *if node.variables&.length&.positive?
-             indent([
-               "LOCAL",
-               indent(node.variables.map { |x| format(x) }.join("\n")),
-               [
-                 "END_LOCAL",
-                 ";",
-               ].join,
-             ].join("\n"))
-           end,
-          *if node.statements&.length&.positive?
-             indent(node.statements.map { |x| format(x) }.join("\n"))
-           end,
-          [
-            "END_PROCEDURE",
-            ";",
-            format_end_scope_remark(node),
-          ].join,
+          *format_scope_body(node),
+          format_scope_footer("END_PROCEDURE", node),
         ].join("\n")
       end
 
       # Override format_declarations_rule to use aligned constants
-      # @param node [Model::Declarations::Rule] Rule node
-      # @return [String] Formatted rule
       def format_declarations_rule(node)
-        node.applies_to ||= []
         [
           [
             "RULE",
@@ -585,10 +494,27 @@ module Expressir
             "FOR",
             " ",
             "(",
-            node.applies_to.map { |x| format(x) }.join(", "),
+            Array(node.applies_to).map { |x| format(x) }.join(", "),
             ")",
             ";",
           ].join,
+          *format_scope_body(node),
+          *if node.where_rules&.length&.positive?
+             [
+               "WHERE",
+               indent(node.where_rules.map { |x| format(x) }.join("\n")),
+             ]
+           end,
+          format_scope_footer("END_RULE", node),
+        ].join("\n")
+      end
+
+      # Shared scope body for function, procedure, and rule declarations.
+      # These declaration types share the same internal structure:
+      # types, entities, subtype_constraints, functions, procedures,
+      # constants, variables, statements.
+      def format_scope_body(node)
+        [
           *if node.types&.length&.positive?
              indent(node.types.map { |x| format(x) }.join("\n"))
            end,
@@ -627,17 +553,15 @@ module Expressir
           *if node.statements&.length&.positive?
              indent(node.statements.map { |x| format(x) }.join("\n"))
            end,
-          *if node.where_rules&.length&.positive?
-             [
-               "WHERE",
-               indent(node.where_rules.map { |x| format(x) }.join("\n")),
-             ]
-           end,
-          [
-            "END_RULE",
-            ";",
-          ].join,
-        ].join("\n")
+        ]
+      end
+
+      def format_scope_footer(keyword, node)
+        [
+          keyword,
+          ";",
+          format_end_scope_remark(node),
+        ].join
       end
     end
   end

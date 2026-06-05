@@ -1,6 +1,18 @@
 module Expressir
   module Express
     class Formatter
+      # Registry infrastructure — must precede includes so modules can register handlers
+      @format_registry = {}
+
+      def self.format_registry
+        @format_registry || superclass&.format_registry
+      end
+
+      def self.register_formatter(model_class, method_name)
+        @format_registry[model_class] = method_name
+      end
+
+      # Include formatter modules — each registers its handlers via self.included
       include Formatters::RemarkItemFormatter
       include Formatters::RemarkFormatter
       include Formatters::LiteralsFormatter
@@ -10,6 +22,14 @@ module Expressir
       include Formatters::ExpressionsFormatter
       include Formatters::DataTypesFormatter
       include Formatters::DeclarationsFormatter
+
+      # Handlers for types implemented directly in this class
+      register_formatter Model::Repository, :format_repository
+      register_formatter Model::ExpFile, :format_exp_file
+      register_formatter Model::Declarations::SchemaVersionItem, :format_noop
+      register_formatter Model::Declarations::InterfacedItem, :format_noop
+      register_formatter Model::Cache, :format_noop
+      register_formatter Model::ModelElement, :format_noop
 
       INDENT_CHAR = " ".freeze
       INDENT_WIDTH = 2
@@ -54,177 +74,25 @@ module Expressir
         @no_remarks = no_remarks
       end
 
-      # Formats Express model into an Express code
-      # @param [Model::ModelElement] node
-      # @return [String]
       def self.format(node)
-        formatter = new
-        formatter.format(node)
+        new.format(node)
       end
 
-      # Formats Express model into an Express code
-      # @param [Model::ModelElement] node
-      # @return [String]
-      def format(node) # rubocop:disable Metrics/MethodLength
-        case node
-        when Model::Repository
-          format_repository(node)
-        when Model::ExpFile
-          format_exp_file(node)
-        when Model::Declarations::Attribute
-          format_declarations_attribute(node)
-        when Model::Declarations::Constant
-          format_declarations_constant(node)
-        when Model::Declarations::Entity
-          format_declarations_entity(node)
-        when Model::Declarations::Function
-          format_declarations_function(node)
-        when Model::Declarations::Interface
-          format_declarations_interface(node)
-        when Model::Declarations::InterfaceItem
-          format_declarations_interface_item(node)
-        when Model::Declarations::Parameter
-          format_declarations_parameter(node)
-        when Model::Declarations::Procedure
-          format_declarations_procedure(node)
-        when Model::Declarations::Rule
-          format_declarations_rule(node)
-        when Model::Declarations::Schema
-          format_declarations_schema(node)
-        when Model::Declarations::SchemaVersion
-          format_declarations_schema_version(node)
-        when Model::Declarations::SubtypeConstraint
-          format_declarations_subtype_constraint(node)
-        when Model::Declarations::Type
-          format_declarations_type(node)
-        when Model::Declarations::UniqueRule
-          format_declarations_unique_rule(node)
-        when Model::Declarations::Variable
-          format_declarations_variable(node)
-        when Model::Declarations::WhereRule
-          format_declarations_where_rule(node)
-        when Model::Declarations::InformalPropositionRule
-          format_declarations_informal_proposition_rule(node)
-        when Model::DataTypes::Aggregate
-          format_data_types_aggregate(node)
-        when Model::DataTypes::Array
-          format_data_types_array(node)
-        when Model::DataTypes::Bag
-          format_data_types_bag(node)
-        when Model::DataTypes::Binary
-          format_data_types_binary(node)
-        when Model::DataTypes::Boolean
-          format_data_types_boolean(node)
-        when Model::DataTypes::Enumeration
-          format_data_types_enumeration(node)
-        when Model::DataTypes::EnumerationItem
-          format_data_types_enumeration_item(node)
-        when Model::DataTypes::GenericEntity
-          format_data_types_generic_entity(node)
-        when Model::DataTypes::Generic
-          format_data_types_generic(node)
-        when Model::DataTypes::Integer
-          format_data_types_integer(node)
-        when Model::DataTypes::List
-          format_data_types_list(node)
-        when Model::DataTypes::Logical
-          format_data_types_logical(node)
-        when Model::DataTypes::Number
-          format_data_types_number(node)
-        when Model::DataTypes::Real
-          format_data_types_real(node)
-        when Model::DataTypes::Select
-          format_data_types_select(node)
-        when Model::DataTypes::Set
-          format_data_types_set(node)
-        when Model::DataTypes::String
-          format_data_types_string(node)
-        when Model::Expressions::AggregateInitializer
-          format_expressions_aggregate_initializer(node)
-        when Model::Expressions::AggregateInitializerItem
-          format_expressions_aggregate_initializer_item(node)
-        when Model::Expressions::BinaryExpression
-          format_expressions_binary_expression(node)
-        when Model::Expressions::EntityConstructor
-          format_expressions_entity_constructor(node)
-        when Model::Expressions::FunctionCall
-          format_expressions_function_call(node)
-        when Model::Expressions::Interval
-          format_expressions_interval(node)
-        when Model::Expressions::QueryExpression
-          format_expressions_query_expression(node)
-        when Model::Expressions::UnaryExpression
-          format_expressions_unary_expression(node)
-        when Model::Literals::Binary
-          format_literals_binary(node)
-        when Model::Literals::Integer
-          format_literals_integer(node)
-        when Model::Literals::Logical
-          format_literals_logical(node)
-        when Model::Literals::Real
-          format_literals_real(node)
-        when Model::Literals::String
-          format_literals_string(node)
-        when Model::References::AttributeReference
-          format_references_attribute_reference(node)
-        when Model::References::GroupReference
-          format_references_group_reference(node)
-        when Model::References::IndexReference
-          format_references_index_reference(node)
-        when Model::References::SimpleReference
-          format_references_simple_reference(node)
-        when Model::Statements::Alias
-          format_statements_alias(node)
-        when Model::Statements::Assignment
-          format_statements_assignment(node)
-        when Model::Statements::Case
-          format_statements_case(node)
-        when Model::Statements::CaseAction
-          format_statements_case_action(node)
-        when Model::Statements::Compound
-          format_statements_compound(node)
-        when Model::Statements::Escape
-          format_statements_escape(node)
-        when Model::Statements::If
-          format_statements_if(node)
-        when Model::Statements::Null
-          format_statements_null(node)
-        when Model::Statements::ProcedureCall
-          format_statements_procedure_call(node)
-        when Model::Statements::Repeat
-          format_statements_repeat(node)
-        when Model::Statements::Return
-          format_statements_return(node)
-        when Model::Statements::Skip
-          format_statements_skip(node)
-        when Model::SupertypeExpressions::BinarySupertypeExpression
-          format_supertype_expressions_binary_supertype_expression(node)
-        when Model::SupertypeExpressions::OneofSupertypeExpression
-          format_supertype_expressions_oneof_supertype_expression(node)
-        when Model::Declarations::SchemaVersionItem
-          # not implemented yet
-        when Model::Declarations::InterfacedItem
-          # not implemented yet
-        when Model::Declarations::RemarkItem
-          format_remark_item(node)
-        when Model::Cache
-          # not implemented yet
-        when Model::ModelElement
-          # not implemented yet
-        when Model::Literals::Logical
-          node.value
-        when NilClass
-          # not implemented yet
-        else
-          warn "#{node.class.name} format not implemented"
-          ""
-        end
+      def format(node)
+        return "" if node.nil?
+
+        handler = self.class.format_registry[node.class]
+        return public_send(handler, node) if handler
+
+        warn "#{node.class.name} format not implemented"
+        ""
       end
 
-      private
+      def format_noop(_node)
+        ""
+      end
 
       def format_repository(node)
-        # Format each file in the repository
         result = node.files&.map { |f| format(f) }&.join("\n\n")
         result ? "#{result}\n" : ""
       end

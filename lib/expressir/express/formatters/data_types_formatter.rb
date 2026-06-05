@@ -2,7 +2,40 @@ module Expressir
   module Express
     module Formatters
       module DataTypesFormatter
-        private
+        def self.included(base)
+          base.register_formatter Model::DataTypes::Aggregate,
+                                  :format_data_types_aggregate
+          base.register_formatter Model::DataTypes::Array,
+                                  :format_data_types_array
+          base.register_formatter Model::DataTypes::Bag, :format_data_types_bag
+          base.register_formatter Model::DataTypes::Binary,
+                                  :format_data_types_binary
+          base.register_formatter Model::DataTypes::Boolean,
+                                  :format_data_types_boolean
+          base.register_formatter Model::DataTypes::Enumeration,
+                                  :format_data_types_enumeration
+          base.register_formatter Model::DataTypes::EnumerationItem,
+                                  :format_data_types_enumeration_item
+          base.register_formatter Model::DataTypes::GenericEntity,
+                                  :format_data_types_generic_entity
+          base.register_formatter Model::DataTypes::Generic,
+                                  :format_data_types_generic
+          base.register_formatter Model::DataTypes::Integer,
+                                  :format_data_types_integer
+          base.register_formatter Model::DataTypes::List,
+                                  :format_data_types_list
+          base.register_formatter Model::DataTypes::Logical,
+                                  :format_data_types_logical
+          base.register_formatter Model::DataTypes::Number,
+                                  :format_data_types_number
+          base.register_formatter Model::DataTypes::Real,
+                                  :format_data_types_real
+          base.register_formatter Model::DataTypes::Select,
+                                  :format_data_types_select
+          base.register_formatter Model::DataTypes::Set, :format_data_types_set
+          base.register_formatter Model::DataTypes::String,
+                                  :format_data_types_string
+        end
 
         def format_data_types_aggregate(node)
           [
@@ -230,7 +263,7 @@ module Expressir
 
         def format_data_types_select(node)
           indent_char = self.class.const_get(:INDENT_CHAR)
-          node.items ||= []
+          items = Array(node.items)
           [
             *if node.extensible
                [
@@ -251,7 +284,7 @@ module Expressir
                  "BASED_ON",
                  " ",
                  format(node.based_on),
-                 *if node.items&.length&.positive?
+                 *if items.length.positive?
                     item_indent = indent_char * "(".length
                     [
                       " ",
@@ -259,7 +292,7 @@ module Expressir
                       "\n",
                       indent([
                         "(",
-                        node.items.map do |x|
+                        items.map do |x|
                           format(x)
                         end.join(",\n#{item_indent}"),
                         ")",
@@ -267,14 +300,14 @@ module Expressir
                     ].join
                   end,
                ].join
-             elsif node.items&.length&.positive?
+             elsif items.length.positive?
                indent_char = self.class.const_get(:INDENT_CHAR)
                item_indent = indent_char * "(".length
                [
                  "\n",
                  indent([
                    "(",
-                   node.items.map do |x|
+                   items.map do |x|
                      format(x)
                    end.join(",\n#{item_indent}"),
                    ")",

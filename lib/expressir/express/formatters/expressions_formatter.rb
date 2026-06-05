@@ -2,13 +2,29 @@ module Expressir
   module Express
     module Formatters
       module ExpressionsFormatter
-        private
+        def self.included(base)
+          base.register_formatter Model::Expressions::AggregateInitializer,
+                                  :format_expressions_aggregate_initializer
+          base.register_formatter Model::Expressions::AggregateInitializerItem,
+                                  :format_expressions_aggregate_initializer_item
+          base.register_formatter Model::Expressions::BinaryExpression,
+                                  :format_expressions_binary_expression
+          base.register_formatter Model::Expressions::EntityConstructor,
+                                  :format_expressions_entity_constructor
+          base.register_formatter Model::Expressions::FunctionCall,
+                                  :format_expressions_function_call
+          base.register_formatter Model::Expressions::Interval,
+                                  :format_expressions_interval
+          base.register_formatter Model::Expressions::QueryExpression,
+                                  :format_expressions_query_expression
+          base.register_formatter Model::Expressions::UnaryExpression,
+                                  :format_expressions_unary_expression
+        end
 
         def format_expressions_aggregate_initializer(node)
-          node.items ||= []
           [
             "[",
-            node.items.map { |x| format(x) }.join(", "),
+            Array(node.items).map { |x| format(x) }.join(", "),
             "]",
           ].join
         end
@@ -72,11 +88,10 @@ module Expressir
         end
 
         def format_expressions_entity_constructor(node)
-          node.parameters ||= []
           [
             format(node.entity),
             "(",
-            node.parameters.map { |x| format(x) }.join(", "),
+            Array(node.parameters).map { |x| format(x) }.join(", "),
             ")",
           ].join
         end

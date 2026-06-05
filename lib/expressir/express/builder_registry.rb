@@ -332,7 +332,9 @@ module Expressir
       # Type constructors
       Builder.register(:generic_type) { |_d| Expressir::Model::DataTypes::Generic.new }
       Builder.register(:generic_entity_type) { |_d| Expressir::Model::DataTypes::GenericEntity.new }
-      Builder.register(:aggregate_type) { |d| type_builder.build_aggregate_type(d) }
+      Builder.register(:aggregate_type) do |d|
+        type_builder.build_aggregate_type(d)
+      end
       Builder.register(:general_set_type) do |d|
         type_builder.build_general_set_type(d)
       end

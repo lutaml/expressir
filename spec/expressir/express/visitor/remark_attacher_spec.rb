@@ -108,6 +108,33 @@ RSpec.describe Expressir::Express::RemarkAttacher do
   end
 
   describe "attach" do
+    it "does not attach spurious tail remarks from inside documentation blocks" do
+      source = <<~EXP
+        SCHEMA mini_schema;
+        (*
+        This schema provides representations for items a) -- d). that are mandatory in any application.
+
+        [NOTE]
+        --
+        Scenarios of the expected use are described in the introduction.
+        --
+        *)
+        END_SCHEMA;
+      EXP
+
+      exp_file = Expressir::Express::Parser.from_exp(source)
+      schema = exp_file.schemas.first
+
+      attached_texts = [exp_file, schema].flat_map do |node|
+        (node.untagged_remarks || []).map(&:text)
+      end + (schema.remarks || [])
+
+      expect(attached_texts).not_to include(
+        a_string_starting_with("d). that are mandatory"),
+      )
+      expect(attached_texts).not_to include("")
+    end
+
     it "attaches remarks to model elements" do
       source = <<~EXP
         SCHEMA test_schema;

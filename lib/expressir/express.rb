@@ -16,6 +16,7 @@ module Expressir
     autoload :Parser, "#{__dir__}/express/parser"
     autoload :PrettyFormatter, "#{__dir__}/express/pretty_formatter"
     autoload :RemarkAttacher, "#{__dir__}/express/remark_attacher"
+    autoload :RemarkScanner, "#{__dir__}/express/remark_scanner"
     autoload :ResolveReferencesModelVisitor,
              "#{__dir__}/express/resolve_references_model_visitor"
     autoload :SchemaHeadFormatter, "#{__dir__}/express/schema_head_formatter"

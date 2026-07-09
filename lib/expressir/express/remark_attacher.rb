@@ -48,7 +48,7 @@ module Expressir
       def initialize(source)
         @source = source
         @attached_spans = Set.new
-        @line_cache = {}
+        @line_map = LineMap.new(source.b)
         @model = nil
         @source_lines = nil # cached @source.lines
         @scope_map = nil # cached scope at each line number
@@ -56,7 +56,7 @@ module Expressir
 
       def attach(model)
         @model = model
-        remarks = extract_all_remarks
+        remarks = RemarkScanner.new(@source).scan
 
         # Build nodes_with_positions ONCE for both tagged and untagged remark passes.
         # This avoids double tree walk (381K nodes × 2 = 762K visits) which was
@@ -71,25 +71,22 @@ module Expressir
         @source = nil
         @source_lines = nil
         @scope_map = nil
-        @line_cache = nil
+        @line_map = nil
 
         model
       end
 
       private
 
-      def extract_all_remarks
-        RemarkScanner.new(@source).scan
-      end
+      # Remark extraction lives in {RemarkScanner}; this class only attaches.
+      # Line-number lookup is delegated to {LineMap} for O(log n) queries.
 
       def source_lines
         @source_lines ||= @source.lines
       end
 
       def get_line_number(position)
-        return 1 if position.nil? || position.zero?
-
-        @line_cache[position] ||= @source.byteslice(0...position).count("\n") + 1
+        @line_map.line_number(position)
       end
 
       def attach_tagged_remarks(model, remarks, nodes_with_positions)
@@ -102,23 +99,23 @@ module Expressir
         # This is the key optimization that makes scope lookup O(1) per remark
         @scope_map ||= build_scope_map
 
-        tagged.sort_by { |r| r[:position] }.each do |remark|
-          next if @attached_spans.include?(remark[:position])
+        tagged.sort_by { |r| r.position }.each do |remark|
+          next if @attached_spans.include?(remark.position)
 
-          tag = remark[:tag]
+          tag = remark.tag
           target = nil
 
           # Find containing scope using pre-computed scope map (O(1))
           # Falls back to position-based lookup if scope map doesn't have the line
-          containing_scope = find_containing_scope_by_name(remark[:line])
-          containing_scope ||= find_containing_scope_position(remark[:line],
+          containing_scope = find_containing_scope_by_name(remark.line)
+          containing_scope ||= find_containing_scope_position(remark.line,
                                                               nodes_with_positions)
 
           # Check if this is an informal proposition tag (IP\d+)
           if tag.match?(/^IP\d+$/)
             scope = containing_scope
             if scope.nil?
-              scope = find_scope_by_source_text(remark[:line])
+              scope = find_scope_by_source_text(remark.line)
             end
             if scope && supports_informal_propositions?(scope)
               target = create_or_find_informal_proposition(scope, tag)
@@ -168,7 +165,7 @@ module Expressir
                 # Special handling for remarks inside WHERE clauses
                 if target.nil? && supports_where_rules?(containing_scope)
                   target = find_target_in_where_clause(containing_scope, tag,
-                                                       remark[:line])
+                                                       remark.line)
                 end
 
                 # Only fall back to schema prefix if NOT inside a function/rule/procedure
@@ -218,9 +215,9 @@ module Expressir
           end
 
           if target
-            add_remark(target, remark[:text], format: remark[:format],
-                                              tag: remark[:tag])
-            @attached_spans << remark[:position]
+            add_remark(target, remark.text, format: remark.format,
+                                              tag: remark.tag)
+            @attached_spans << remark.position
           end
         end
       end
@@ -751,28 +748,28 @@ module Expressir
       end
 
       def attach_untagged_remarks(remarks, nodes_with_positions)
-        untagged = remarks.reject { |r| r[:tag] }
+        untagged = remarks.reject(&:tag)
         return unless untagged.any?
 
         untagged.each do |remark|
-          next if @attached_spans.include?(remark[:position])
+          next if @attached_spans.include?(remark.position)
 
-          if end_scope_line?(remark[:line])
+          if end_scope_line?(remark.line)
             matched_node = find_node_for_end_scope_remark(remark,
                                                           nodes_with_positions)
             if matched_node
-              add_remark(matched_node, remark[:text], format: remark[:format],
+              add_remark(matched_node, remark.text, format: remark.format,
                                                       tag: nil)
-              @attached_spans << remark[:position]
+              @attached_spans << remark.position
               next
             end
           end
 
           matched_node = find_nearest_node(remark, nodes_with_positions)
           if matched_node
-            add_remark(matched_node, remark[:text], format: remark[:format],
+            add_remark(matched_node, remark.text, format: remark.format,
                                                     tag: nil)
-            @attached_spans << remark[:position]
+            @attached_spans << remark.position
           end
         end
       end
@@ -790,7 +787,7 @@ module Expressir
       end
 
       def find_node_for_end_scope_remark(remark, nodes)
-        line_content = get_line_content(remark[:line])
+        line_content = get_line_content(remark.line)
 
         node_type = case line_content
                     when /END_SCHEMA/i then Model::Declarations::Schema
@@ -805,8 +802,8 @@ module Expressir
 
         matching_nodes = nodes.select do |n|
           n[:node].is_a?(node_type) &&
-            (n[:end_line] == remark[:line] ||
-             (n[:end_line] && n[:end_line] <= remark[:line] && n[:end_line] >= remark[:line] - 2))
+            (n[:end_line] == remark.line ||
+             (n[:end_line] && n[:end_line] <= remark.line && n[:end_line] >= remark.line - 2))
         end
 
         matching_nodes.first&.dig(:node) || find_node_by_type(nodes, node_type)
@@ -960,7 +957,7 @@ module Expressir
       end
 
       def find_nearest_node(remark, nodes)
-        remark_line = remark[:line]
+        remark_line = remark.line
 
         # For tail remarks, prefer nodes that START on the same line
         # This handles cases like: "attr : STRING; -- tail remark"

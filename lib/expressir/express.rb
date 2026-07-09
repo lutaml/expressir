@@ -12,6 +12,7 @@ module Expressir
     autoload :Formatter, "#{__dir__}/express/formatter"
     autoload :Formatters, "#{__dir__}/express/formatters"
     autoload :HyperlinkFormatter, "#{__dir__}/express/hyperlink_formatter"
+    autoload :LineMap, "#{__dir__}/express/line_map"
     autoload :ModelVisitor, "#{__dir__}/express/model_visitor"
     autoload :Parser, "#{__dir__}/express/parser"
     autoload :PrettyFormatter, "#{__dir__}/express/pretty_formatter"

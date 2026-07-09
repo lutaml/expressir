@@ -15,6 +15,16 @@ on:
           Also, you can pass 'skip' to skip 'git tag' and do 'gem push' for the current version
         required: true
         default: 'skip'
+      acknowledge_breaking_in_patch:
+        description: |
+          Override the patch-release breaking-change heuristic guard for this run.
+          Set to true ONLY when the guard's trip is a known false-positive
+          (e.g. removing private methods that are not part of the public API,
+          or a rename that preserves API). Recorded in the run inputs and audit
+          trail. See metanorma/ci#278.
+        required: false
+        type: boolean
+        default: false
   repository_dispatch:
     types: [ do-release ]
 
@@ -28,6 +38,7 @@ jobs:
       pull-requests: write
     with:
       next_version: ${{ github.event.inputs.next_version }}
+      acknowledge_breaking_in_patch: ${{ github.event.inputs.acknowledge_breaking_in_patch }}
       release_command: rake release
       bundler_cache: false
       post_install: bundle install

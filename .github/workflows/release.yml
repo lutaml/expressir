@@ -38,7 +38,7 @@ jobs:
       pull-requests: write
     with:
       next_version: ${{ github.event.inputs.next_version }}
-      acknowledge_breaking_in_patch: ${{ github.event.inputs.acknowledge_breaking_in_patch }}
+      acknowledge_breaking_in_patch: ${{ github.event.inputs.acknowledge_breaking_in_patch == 'true' }}
       release_command: rake release
       bundler_cache: false
       post_install: bundle install

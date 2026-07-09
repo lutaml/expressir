@@ -69,7 +69,7 @@ RSpec.describe Expressir::Express::RemarkScanner do
       remark = scan(source).first
       expect(remark.format).to eq("embedded")
       expect(remark.text).to eq(
-        "The '(*' symbol starts a remark, and the '*)' symbol ends it"
+        "The '(*' symbol starts a remark, and the '*)' symbol ends it",
       )
     end
   end

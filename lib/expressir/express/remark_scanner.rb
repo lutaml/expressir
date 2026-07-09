@@ -48,8 +48,8 @@ module Expressir
       # Tag forms (see ISO 10303-11 §7.1.6.3 Remark tag).
       # IP-style informal-proposition tags are recognised only in tail remarks
       # (matching historic behaviour); embedded remarks use the quoted form.
-      INFORMAL_PROPOSITION_TAG = /\A(IP\d+):\s*(.*)\z/m.freeze
-      QUOTED_TAG = /\A"([^"]*)"\s*(.*)\z/m.freeze
+      INFORMAL_PROPOSITION_TAG = /\A(IP\d+):\s*(.*)\z/m
+      QUOTED_TAG = /\A"([^"]*)"\s*(.*)\z/m
 
       # @param source [String] EXPRESS source text (any encoding).
       def initialize(source)
@@ -162,13 +162,8 @@ module Expressir
       # shorthand IP-tag form (IP1: ...). Returns [tag, content]; for untagged
       # remarks tag is nil and content is the stripped text.
       def parse_tail(text)
-        if (m = text.match(INFORMAL_PROPOSITION_TAG))
-          [m[1], m[2]]
-        elsif (m = text.match(QUOTED_TAG))
-          [m[1], m[2]]
-        else
-          [nil, text]
-        end
+        match = text.match(INFORMAL_PROPOSITION_TAG) || text.match(QUOTED_TAG)
+        match ? match.captures : [nil, text]
       end
 
       # Embedded remarks only use the quoted tag form.

@@ -38,7 +38,7 @@ module Expressir
         offsets = [0]
         i = 0
         while (i = source_bytes.index(NEWLINE, i))
-          offsets << i + 1
+          offsets << (i + 1)
           i += 1
         end
         offsets

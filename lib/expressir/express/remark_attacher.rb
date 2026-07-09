@@ -99,7 +99,7 @@ module Expressir
         # This is the key optimization that makes scope lookup O(1) per remark
         @scope_map ||= build_scope_map
 
-        tagged.sort_by { |r| r.position }.each do |remark|
+        tagged.sort_by(&:position).each do |remark|
           next if @attached_spans.include?(remark.position)
 
           tag = remark.tag
@@ -215,8 +215,8 @@ module Expressir
           end
 
           if target
-            add_remark(target, remark.text, format: remark.format,
-                                              tag: remark.tag)
+            add_remark(target, remark.text,
+                        format: remark.format, tag: remark.tag)
             @attached_spans << remark.position
           end
         end
@@ -758,8 +758,8 @@ module Expressir
             matched_node = find_node_for_end_scope_remark(remark,
                                                           nodes_with_positions)
             if matched_node
-              add_remark(matched_node, remark.text, format: remark.format,
-                                                      tag: nil)
+              add_remark(matched_node, remark.text,
+                          format: remark.format, tag: nil)
               @attached_spans << remark.position
               next
             end
@@ -767,8 +767,8 @@ module Expressir
 
           matched_node = find_nearest_node(remark, nodes_with_positions)
           if matched_node
-            add_remark(matched_node, remark.text, format: remark.format,
-                                                    tag: nil)
+            add_remark(matched_node, remark.text,
+                        format: remark.format, tag: nil)
             @attached_spans << remark.position
           end
         end

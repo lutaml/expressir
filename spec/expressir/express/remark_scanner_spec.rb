@@ -157,6 +157,20 @@ RSpec.describe Expressir::Express::RemarkScanner do
       expect(remark.text).to eq("remark body")
     end
 
+    it "preserves inline `--` inside a tagged embedded remark's content" do
+      remark = scan('(*"schema.entity" body -- with dash *)').first
+
+      expect(remark.tag).to eq("schema.entity")
+      expect(remark.text).to eq("body -- with dash")
+    end
+
+    it "extracts multiple embedded remarks separated by code" do
+      remarks = scan("(* first *) CODE; (* second *)\n")
+
+      expect(remarks.map(&:format)).to eq(%w[embedded embedded])
+      expect(remarks.map(&:text)).to eq(["first", "second"])
+    end
+
     it "does not extract a tail remark from a single-line block remark" do
       remarks = scan("SCHEMA test;\n(* prose -- more prose *)\nEND_SCHEMA;\n")
       expect(remarks.map(&:format)).to eq(["embedded"])
@@ -184,6 +198,22 @@ RSpec.describe Expressir::Express::RemarkScanner do
     it "does not mistake `--` inside an unclosed embedded remark for a tail" do
       remarks = scan("(* never closed but has -- inside")
       expect(remarks.any?(&:tail?)).to be(false)
+    end
+
+    it "strips trailing carriage returns from tail remarks under CRLF" do
+      # Tail terminates at \n; the preceding \r must not leak into the text.
+      remarks = scan("CODE; -- tail remark\r\nnext line\n")
+
+      tail = remarks.find(&:tail?)
+      expect(tail.text).to eq("tail remark")
+      expect(tail.text).not_to include("\r")
+    end
+
+    it "scans embedded remarks spanning CRLF lines correctly" do
+      remarks = scan("(*\r\nfirst\r\nsecond\r\n*)\r\n")
+
+      embedded = remarks.find(&:embedded?)
+      expect(embedded.text).to eq("first\r\nsecond")
     end
   end
 

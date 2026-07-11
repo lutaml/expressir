@@ -98,6 +98,11 @@ module Expressir
         state[:line] && remark_line >= state[:line] && remark_line <= end_line
       end
 
+      # Schema-level collections searched when resolving a scope name to a
+      # model node. Lifted out of the loop so the array isn't reallocated
+      # per iteration.
+      SCHEMA_DECL_COLLECTIONS = %i[functions procedures rules entities types].freeze
+
       # --- Strategy 1: precomputed line → scope-name map ---
 
       def find_by_name(remark_line)
@@ -108,7 +113,7 @@ module Expressir
         @model.schemas.each do |schema|
           return schema if schema.id == scope_name
 
-          %i[functions procedures rules entities types].each do |decl_type|
+          SCHEMA_DECL_COLLECTIONS.each do |decl_type|
             collection = schema.public_send(decl_type)
             next unless collection.is_a?(Array)
 

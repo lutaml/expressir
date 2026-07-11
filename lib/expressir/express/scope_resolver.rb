@@ -40,6 +40,11 @@ module Expressir
         Model::Declarations::Rule => lambda(&:rules),
       }.freeze
 
+      # Schema-level collections searched when resolving a scope name to a
+      # model node. Lifted out of the loop so the array isn't reallocated
+      # per iteration.
+      SCHEMA_DECL_COLLECTIONS = %i[functions procedures rules entities types].freeze
+
       def initialize(source:, model:, nodes_with_positions:)
         @source = source
         @model = model
@@ -97,11 +102,6 @@ module Expressir
       def span_contains?(state, remark_line, end_line)
         state[:line] && remark_line >= state[:line] && remark_line <= end_line
       end
-
-      # Schema-level collections searched when resolving a scope name to a
-      # model node. Lifted out of the loop so the array isn't reallocated
-      # per iteration.
-      SCHEMA_DECL_COLLECTIONS = %i[functions procedures rules entities types].freeze
 
       # --- Strategy 1: precomputed line → scope-name map ---
 

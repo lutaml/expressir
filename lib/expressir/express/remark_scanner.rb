@@ -24,21 +24,17 @@ module Expressir
       # Immutable value object describing a single extracted remark.
       Remark = Struct.new(:position, :line, :text, :tag, :format, keyword_init: true) do
         def tail?
-          format == TAIL_FORMAT
+          format == Model::RemarkFormat::TAIL
         end
 
         def embedded?
-          format == EMBEDDED_FORMAT
+          format == Model::RemarkFormat::EMBEDDED
         end
 
         def tagged?
           !tag.nil? && !tag.empty?
         end
       end
-
-      # Format discriminator values.
-      TAIL_FORMAT = "tail"
-      EMBEDDED_FORMAT = "embedded"
 
       # Lexical markers recognised by EXPRESS.
       TAIL_MARKER = "--"
@@ -142,7 +138,7 @@ module Expressir
           line: line,
           text: content,
           tag: tag,
-          format: TAIL_FORMAT,
+          format: Model::RemarkFormat::TAIL,
         )
       end
 
@@ -154,7 +150,7 @@ module Expressir
           line: line,
           text: content,
           tag: tag,
-          format: EMBEDDED_FORMAT,
+          format: Model::RemarkFormat::EMBEDDED,
         )
       end
 

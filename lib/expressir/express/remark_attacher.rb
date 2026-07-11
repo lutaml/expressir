@@ -4,6 +4,14 @@ module Expressir
   module Express
     # Handles attaching remarks (comments) to model elements after parsing.
     #
+    # Two collaborators sit behind the `attach` interface:
+    # - {ScopeResolver} answers "which scope contains line N?"
+    # - {NodePositionIndex} answers "which model node is nearest line N?"
+    #
+    # Remark scanning itself lives in {RemarkScanner}; line→byte lookup lives
+    # in {LineMap}. This class is the orchestrator: it walks the remarks, asks
+    # the collaborators for targets, and writes the remarks onto the model.
+    #
     # NOTE: Post-processing remark attachment has inherent limitations for scope-based
     # matching. Remarks with simple tags (like "WR1") inside scopes (TYPE, ENTITY, etc.)
     # cannot be perfectly matched without parsing context. This implementation prioritizes:
@@ -12,374 +20,10 @@ module Expressir
     # 3. NOT creating spurious schema-level items for ambiguous tags
     class RemarkAttacher
       # Type-driven registry: maps each model class to its collection attributes.
-      # Replaces runtime method probing (method_defined?) with explicit type declarations.
-      COLLECTION_REGISTRY = {
-        Model::Declarations::Schema => %i[
-          constants types entities subtype_constraints
-          functions rules procedures remark_items
-        ],
-        Model::Declarations::Entity => %i[
-          attributes derived_attributes inverse_attributes
-          unique_rules where_rules informal_propositions remark_items
-        ],
-        Model::Declarations::Function => %i[
-          parameters types entities subtype_constraints
-          functions procedures constants variables statements remark_items
-        ],
-        Model::Declarations::Procedure => %i[
-          parameters types entities subtype_constraints
-          functions procedures constants variables statements remark_items
-        ],
-        Model::Declarations::Rule => %i[
-          applies_to types entities subtype_constraints
-          functions procedures constants variables statements
-          where_rules informal_propositions remark_items
-        ],
-        Model::Declarations::Type => %i[
-          where_rules informal_propositions remark_items
-        ],
-        Model::ExpFile => %i[schemas],
-        Model::Statements::Compound => %i[statements],
-        Model::Statements::If => %i[statements],
-        Model::Statements::Alias => %i[statements],
-        Model::Statements::Repeat => %i[statements],
-      }.freeze
-
-      def initialize(source)
-        @source = source
-        @attached_spans = Set.new
-        @line_map = LineMap.new(source.b)
-        @model = nil
-        @source_lines = nil # cached @source.lines
-        @scope_map = nil # cached scope at each line number
-      end
-
-      def attach(model)
-        @model = model
-        remarks = RemarkScanner.new(@source).scan
-
-        # Build nodes_with_positions ONCE for both tagged and untagged remark passes.
-        # This avoids double tree walk (381K nodes × 2 = 762K visits) which was
-        # the largest memory overhead in remark attachment (~430MB for large files).
-        nodes_with_positions = build_sorted_nodes_with_positions(model)
-
-        attach_tagged_remarks(model, remarks, nodes_with_positions)
-        attach_untagged_remarks(remarks, nodes_with_positions)
-
-        # Free expensive data structures after attachment is complete.
-        # These are only needed during the attach process.
-        @source = nil
-        @source_lines = nil
-        @scope_map = nil
-        @line_map = nil
-
-        model
-      end
-
-      private
-
-      # Remark extraction lives in {RemarkScanner}; this class only attaches.
-      # Line-number lookup is delegated to {LineMap} for O(log n) queries.
-
-      def source_lines
-        @source_lines ||= @source.lines
-      end
-
-      def get_line_number(position)
-        @line_map.line_number(position)
-      end
-
-      def attach_tagged_remarks(model, remarks, nodes_with_positions)
-        tagged = remarks.select { |r| r[:tag] }
-        return if tagged.empty?
-
-        @model = model
-
-        # Build scope map ONCE: O(file_lines) scan instead of O(n*file_lines) for n remarks
-        # This is the key optimization that makes scope lookup O(1) per remark
-        @scope_map ||= build_scope_map
-
-        tagged.sort_by(&:position).each do |remark|
-          next if @attached_spans.include?(remark.position)
-
-          tag = remark.tag
-          target = nil
-
-          # Find containing scope using pre-computed scope map (O(1))
-          # Falls back to position-based lookup if scope map doesn't have the line
-          containing_scope = find_containing_scope_by_name(remark.line)
-          containing_scope ||= find_containing_scope_position(remark.line,
-                                                              nodes_with_positions)
-
-          # Check if this is an informal proposition tag (IP\d+)
-          if tag.match?(/^IP\d+$/)
-            scope = containing_scope
-            if scope.nil?
-              scope = find_scope_by_source_text(remark.line)
-            end
-            if scope && supports_informal_propositions?(scope)
-              target = create_or_find_informal_proposition(scope, tag)
-            end
-          end
-
-          # Standard path-based lookup
-          if target.nil?
-            # Handle prefixed tags like wr:WR1, ip:IP1, ur:UR1
-            if tag.include?(":") && !tag.include?(".")
-              target = handle_prefixed_tag(tag, containing_scope, model,
-                                           get_schema_ids(model))
-            end
-
-            # Strategy 1: Try exact path lookup
-            if target.nil?
-              target = find_by_exact_path(model, tag)
-            end
-
-            # Strategy 1b: For paths with dots, try with scope path prefix first
-            if target.nil? && tag.include?(".")
-              # First, try building full path from containing scope
-              if containing_scope && function_rule_procedure?(containing_scope)
-                scope_path = build_scope_path(containing_scope)
-                if scope_path
-                  full_path = "#{scope_path}.#{tag}"
-                  target = find_by_exact_path(model, full_path)
-                end
-              end
-
-              # Then try schema prefix
-              if target.nil?
-                schema_ids = get_schema_ids(model)
-                schema_ids.each do |schema_id|
-                  target = find_by_exact_path(model, "#{schema_id}.#{tag}")
-                  break if target
-                end
-              end
-            end
-
-            # Strategy 2: For simple tags, find in containing scope first
-            if target.nil? && !tag.include?(".")
-              if containing_scope
-                # Search within the containing scope
-                target = find_node_in_scope(containing_scope, tag)
-
-                # Special handling for remarks inside WHERE clauses
-                if target.nil? && supports_where_rules?(containing_scope)
-                  target = find_target_in_where_clause(containing_scope, tag,
-                                                       remark.line)
-                end
-
-                # Only fall back to schema prefix if NOT inside a function/rule/procedure
-                if target.nil? && !function_rule_procedure?(containing_scope)
-                  schema_ids = get_schema_ids(model)
-                  schema_ids.each do |schema_id|
-                    target = find_by_exact_path(model, "#{schema_id}.#{tag}")
-                    break if target
-                  end
-                end
-              else
-                # No containing scope, try with schema prefix
-                schema_ids = get_schema_ids(model)
-                schema_ids.each do |schema_id|
-                  target = find_by_exact_path(model, "#{schema_id}.#{tag}")
-                  break if target
-                end
-              end
-            end
-
-            # Strategy 3: Create implicit item for qualified paths only
-            if target.nil? && tag.include?(".")
-              # Try with scope path first
-              if containing_scope && function_rule_procedure?(containing_scope)
-                scope_path = build_scope_path(containing_scope)
-                if scope_path
-                  full_path = "#{scope_path}.#{tag}"
-                  target = create_implicit_remark_item(model, full_path,
-                                                       get_schema_ids(model))
-                end
-              end
-              # Fall back to schema prefix
-              if target.nil?
-                target = create_implicit_remark_item(model, tag,
-                                                     get_schema_ids(model))
-              end
-            end
-
-            # Strategy 4: For simple tags at schema level, create implicit item
-            if target.nil? && !tag.include?(".")
-              schema_ids = get_schema_ids(model)
-              if schema_ids.any?
-                target = create_implicit_remark_item_at_schema(model, tag,
-                                                               schema_ids.first)
-              end
-            end
-          end
-
-          if target
-            add_remark(target, remark.text, format: remark.format, tag: remark.tag)
-            @attached_spans << remark.position
-          end
-        end
-      end
-
-      # Position-based fallback for finding containing scope.
-      # Used when scope map lookup returns nil (e.g., for remarks at lines
-      # outside any declared scope's end_line, or for non-scope-containers).
-      def find_containing_scope_position(remark_line, nodes_with_positions)
-        containing_nodes = nodes_with_positions.select do |n|
-          n[:line] && n[:end_line] && remark_line >= n[:line] && remark_line <= n[:end_line] &&
-            !repository?(n[:node]) && !cache?(n[:node])
-        end
-
-        containing_nodes.reverse_each do |n|
-          node = n[:node]
-          return node if node.is_a?(Model::ScopeContainer)
-        end
-
-        nil
-      end
-
-      # Done once per RemarkAttacher instance (O(file_lines)).
-      # Each find_containing_scope call then becomes O(1).
-      def build_scope_map
-        lines = source_lines
-        scope_map = {}
-        return scope_map if lines.empty?
-
-        # Track nested scopes by scanning all lines once
-        scope_stack = [] # array of {type:, name:, line:}
-
-        lines.each_with_index do |line, idx|
-          line_num = idx + 1
-
-          # Check for START keywords first
-          if line =~ /^\s*SCHEMA\s+(\w+)/i
-            scope_stack << { type: :schema, name: $1, line: line_num }
-          end
-
-          if line =~ /^\s*FUNCTION\s+(\w+)/i
-            scope_stack << { type: :function, name: $1, line: line_num }
-          end
-
-          if line =~ /^\s*PROCEDURE\s+(\w+)/i
-            scope_stack << { type: :procedure, name: $1, line: line_num }
-          end
-
-          if line =~ /^\s*RULE\s+(\w+)/i
-            scope_stack << { type: :rule, name: $1, line: line_num }
-          end
-
-          if line =~ /^\s*ENTITY\s+(\w+)/i
-            scope_stack << { type: :entity, name: $1, line: line_num }
-          end
-
-          if line =~ /^\s*TYPE\s+(\w+)/i
-            scope_stack << { type: :type, name: $1, line: line_num }
-          end
-
-          # Check for END keywords (inline closures on same line handled here)
-          if (line =~ /END_TYPE/i) && (scope_stack.last&.dig(:type) == :type)
-            scope_stack.pop
-          end
-          if (line =~ /END_FUNCTION/i) && (scope_stack.last&.dig(:type) == :function)
-            scope_stack.pop
-          end
-          if (line =~ /END_PROCEDURE/i) && (scope_stack.last&.dig(:type) == :procedure)
-            scope_stack.pop
-          end
-          if (line =~ /END_RULE/i) && (scope_stack.last&.dig(:type) == :rule)
-            scope_stack.pop
-          end
-          if (line =~ /END_ENTITY/i) && (scope_stack.last&.dig(:type) == :entity)
-            scope_stack.pop
-          end
-          if (line =~ /END_SCHEMA/i) && (scope_stack.last&.dig(:type) == :schema)
-            scope_stack.pop
-          end
-
-          # Record the innermost scope for this line
-          scope_map[line_num] = scope_stack.last&.dig(:name)
-        end
-
-        scope_map
-      end
-
-      # O(1) scope lookup using pre-computed scope map
-      def find_containing_scope_by_name(remark_line)
-        return nil unless @scope_map
-
-        scope_name = @scope_map[remark_line]
-        return nil unless scope_name
-
-        # Find the model node for this scope
-        return nil unless @model
-
-        @model.schemas.each do |schema|
-          return schema if schema.id == scope_name
-
-          %i[functions procedures rules entities types].each do |decl_type|
-            collection = schema.public_send(decl_type)
-            next unless collection.is_a?(Array)
-
-            found = collection.find { |n| n.id == scope_name }
-            return found if found
-          end
-        end
-
-        nil
-      end
-
-      def find_node_in_scope(scope, tag)
-        return nil unless scope
-
-        collections_on(scope).each do |collection|
-          collection.each do |item|
-            next unless item.is_a?(Model::HasRemarks)
-            return item if item.id == tag
-          end
-        end
-
-        # Search inside types for enumeration items
-        types = get_collection(scope, :types)
-        types&.each do |type|
-          result = find_enumeration_item_in_type(type, tag)
-          return result if result
-        end
-
-        # Search inside statements for nested items (alias, repeat, query)
-        statements = get_collection(scope, :statements)
-        statements&.each do |stmt|
-          result = find_node_in_statement(stmt, tag)
-          return result if result
-
-          # Search inside expressions for QueryExpression (nested in assignments, etc.)
-          result = find_query_in_expression(stmt, tag)
-          return result if result
-        end
-
-        nil
-      end
-
-      def find_enumeration_item_in_type(type, tag)
-        return nil unless type
-
-        # Check if type is a Type declaration with enumeration
-        if type.is_a?(Model::Declarations::Type)
-          # Check enumeration_items on the type itself
-          type.enumeration_items&.each do |item|
-            return item if item.id == tag
-          end
-
-          # Also check underlying_type if it's an enumeration
-          ut = type.underlying_type
-          if ut.is_a?(Model::DataTypes::Enumeration) && ut.items
-            ut.items.each do |item|
-              return item if item.id == tag
-            end
-          end
-        end
-
-        nil
-      end
+      # Shared with {NodePositionIndex} via that class's own copy of the table.
+      # Two declarations rather than a cross-reference so each module is loadable
+      # on its own without forcing the other to load.
+      COLLECTION_REGISTRY = NodePositionIndex::COLLECTION_REGISTRY
 
       # Expression and statement child attributes for QueryExpression search.
       # Targeted traversal prevents over-matching on unrelated model attributes.
@@ -400,6 +44,227 @@ module Expressir
         Model::Statements::Repeat => %i[while_expression until_expression],
       }.freeze
 
+      def initialize(source)
+        @source = source
+        @attached_spans = Set.new
+        @line_map = LineMap.new(source.b)
+        @model = nil
+        @scope_resolver = nil
+        @node_index = nil
+      end
+
+      def attach(model)
+        @model = model
+        remarks = RemarkScanner.new(@source).scan
+
+        @node_index = NodePositionIndex.new(model, @line_map)
+        @scope_resolver = ScopeResolver.new(
+          source: @source,
+          model: model,
+          nodes_with_positions: @node_index.nodes,
+        )
+
+        attach_tagged_remarks(remarks)
+        attach_untagged_remarks(remarks)
+
+        # Free expensive data structures after attachment is complete.
+        @source = nil
+        @scope_resolver = nil
+        @node_index = nil
+        @line_map = nil
+
+        model
+      end
+
+      private
+
+      # ----- Tagged remark attachment -----
+
+      def attach_tagged_remarks(remarks)
+        tagged = remarks.select(&:tag)
+        return if tagged.empty?
+
+        tagged.each do |remark|
+          next if @attached_spans.include?(remark.position)
+
+          tag = remark.tag
+          target = nil
+
+          containing_scope = @scope_resolver.containing_scope_for(remark.line)
+
+          # Check if this is an informal proposition tag (IP\d+)
+          if tag.match?(/^IP\d+$/)
+            scope = containing_scope || @scope_resolver.find_by_source_text(remark.line)
+            if scope && supports_informal_propositions?(scope)
+              target = create_or_find_informal_proposition(scope, tag)
+            end
+          end
+
+          # Standard path-based lookup
+          if target.nil?
+            # Handle prefixed tags like wr:WR1, ip:IP1, ur:UR1
+            if tag.include?(":") && !tag.include?(".")
+              target = handle_prefixed_tag(tag, containing_scope, @model,
+                                           get_schema_ids(@model))
+            end
+
+            # Strategy 1: Try exact path lookup
+            if target.nil?
+              target = find_by_exact_path(@model, tag)
+            end
+
+            # Strategy 1b: For paths with dots, try with scope path prefix first
+            if target.nil? && tag.include?(".")
+              if containing_scope && function_rule_procedure?(containing_scope)
+                scope_path = build_scope_path(containing_scope)
+                if scope_path
+                  target = find_by_exact_path(@model, "#{scope_path}.#{tag}")
+                end
+              end
+
+              if target.nil?
+                schema_ids = get_schema_ids(@model)
+                schema_ids.each do |schema_id|
+                  target = find_by_exact_path(@model, "#{schema_id}.#{tag}")
+                  break if target
+                end
+              end
+            end
+
+            # Strategy 2: For simple tags, find in containing scope first
+            if target.nil? && !tag.include?(".")
+              if containing_scope
+                target = find_node_in_scope(containing_scope, tag)
+
+                if target.nil? && supports_where_rules?(containing_scope)
+                  target = find_target_in_where_clause(containing_scope, tag,
+                                                       remark.line)
+                end
+
+                if target.nil? && !function_rule_procedure?(containing_scope)
+                  schema_ids = get_schema_ids(@model)
+                  schema_ids.each do |schema_id|
+                    target = find_by_exact_path(@model, "#{schema_id}.#{tag}")
+                    break if target
+                  end
+                end
+              else
+                schema_ids = get_schema_ids(@model)
+                schema_ids.each do |schema_id|
+                  target = find_by_exact_path(@model, "#{schema_id}.#{tag}")
+                  break if target
+                end
+              end
+            end
+
+            # Strategy 3: Create implicit item for qualified paths only
+            if target.nil? && tag.include?(".")
+              if containing_scope && function_rule_procedure?(containing_scope)
+                scope_path = build_scope_path(containing_scope)
+                if scope_path
+                  target = create_implicit_remark_item(@model, "#{scope_path}.#{tag}",
+                                                       get_schema_ids(@model))
+                end
+              end
+              if target.nil?
+                target = create_implicit_remark_item(@model, tag,
+                                                     get_schema_ids(@model))
+              end
+            end
+
+            # Strategy 4: For simple tags at schema level, create implicit item
+            if target.nil? && !tag.include?(".")
+              schema_ids = get_schema_ids(@model)
+              if schema_ids.any?
+                target = create_implicit_remark_item_at_schema(@model, tag,
+                                                               schema_ids.first)
+              end
+            end
+          end
+
+          if target
+            add_remark(target, remark.text, format: remark.format, tag: remark.tag)
+            @attached_spans << remark.position
+          end
+        end
+      end
+
+      # ----- Untagged remark attachment -----
+
+      def attach_untagged_remarks(remarks)
+        untagged = remarks.reject(&:tag)
+        return unless untagged.any?
+
+        untagged.each do |remark|
+          next if @attached_spans.include?(remark.position)
+
+          line_content = line_content_for(remark.line)
+          if end_scope_line?(line_content)
+            matched_node = @node_index.node_for_end_scope_at(remark.line, line_content)
+            if matched_node
+              add_remark(matched_node, remark.text, format: remark.format, tag: nil)
+              @attached_spans << remark.position
+              next
+            end
+          end
+
+          matched_node = @node_index.nearest_node_to(remark.line)
+          if matched_node
+            add_remark(matched_node, remark.text, format: remark.format, tag: nil)
+            @attached_spans << remark.position
+          end
+        end
+      end
+
+      def end_scope_line?(line_content)
+        line_content =~ /END_(SCHEMA|ENTITY|TYPE|FUNCTION|PROCEDURE|RULE)/i
+      end
+
+      # ----- Tag resolution (within a scope) -----
+
+      def find_node_in_scope(scope, tag)
+        return nil unless scope
+
+        collections_on(scope).each do |collection|
+          collection.each do |item|
+            next unless item.is_a?(Model::HasRemarks)
+            return item if item.id == tag
+          end
+        end
+
+        types = get_collection(scope, :types)
+        types&.each do |type|
+          result = find_enumeration_item_in_type(type, tag)
+          return result if result
+        end
+
+        statements = get_collection(scope, :statements)
+        statements&.each do |stmt|
+          result = find_node_in_statement(stmt, tag)
+          return result if result
+
+          result = find_query_in_expression(stmt, tag)
+          return result if result
+        end
+
+        nil
+      end
+
+      def find_enumeration_item_in_type(type, tag)
+        return nil unless type
+        return nil unless type.is_a?(Model::Declarations::Type)
+
+        type.enumeration_items&.each do |item|
+          return item if item.id == tag
+        end
+
+        ut = type.underlying_type
+        return nil unless ut.is_a?(Model::DataTypes::Enumeration) && ut.items
+
+        ut.items.each { |item| return item if item.id == tag }
+        nil
+      end
+
       def find_query_in_expression(node, tag, visited = Set.new)
         return nil unless node
         return nil unless node.is_a?(Model::ModelElement)
@@ -407,9 +272,7 @@ module Expressir
 
         visited.add(node.object_id)
 
-        if node.is_a?(Model::Expressions::QueryExpression) && node.id == tag
-          return node
-        end
+        return node if node.is_a?(Model::Expressions::QueryExpression) && node.id == tag
 
         attrs = EXPRESSION_CHILDREN[node.class]
         return nil unless attrs
@@ -446,7 +309,6 @@ module Expressir
         prefix, id = tag.split(":")
         return nil unless id
 
-        # Determine collection based on prefix
         collection_attr = case prefix.downcase
                           when "wr" then :where_rules
                           when "ip" then :informal_propositions
@@ -454,14 +316,12 @@ module Expressir
                           end
         return nil unless collection_attr
 
-        # First try to find in containing scope
         collection = get_collection(containing_scope, collection_attr)
         if collection
           found = collection.find { |item| item.is_a?(Model::ModelElement) && item.id == id }
           return found if found
         end
 
-        # Fallback: try to find by full path
         schema_ids.each do |schema_id|
           full_path = "#{schema_id}.#{tag.tr(':', '.')}"
           found = safe_find(model, full_path)
@@ -471,36 +331,36 @@ module Expressir
         nil
       end
 
-      # Find target for remarks inside WHERE clauses
+      # Find target for remarks inside WHERE clauses by scanning source lines
+      # for `WHERE <id>:` patterns. Lives here (not in ScopeResolver) because
+      # it's about WHERE-rule membership, not scope membership.
       def find_target_in_where_clause(scope, tag, remark_line)
         return nil unless supports_where_rules?(scope)
 
         where_rules = get_collection(scope, :where_rules)
         return nil unless where_rules&.any?
 
-        # Search source text for WHERE clause containing this remark
-        lines = source_lines
+        lines = source_lines_for_where_clause
 
         where_rules.each do |wr|
           next unless wr.id
 
-          # Find the WHERE rule declaration
           lines.each_with_index do |line, idx|
             line_num = idx + 1
             next unless line_num < remark_line
 
-            # Look for "WHERE {id}:" pattern
-            # Check if remark is within a few lines after this WHERE declaration
-            if (line =~ /^\s*WHERE\s+#{Regexp.escape(wr.id)}\s*:/i) && remark_line.between?(
-              line_num, line_num + 5
-            )
-              # Found the WHERE rule - create remark item inside it
+            if (line =~ /^\s*WHERE\s+#{Regexp.escape(wr.id)}\s*:/i) && remark_line.between?(line_num, line_num + 5)
               return create_remark_item(wr, tag)
             end
           end
         end
 
         nil
+      end
+
+      def source_lines_for_where_clause
+        # @source is set for the duration of `attach`; freed at the end.
+        @source.lines
       end
 
       def find_node_in_statement(stmt, tag)
@@ -515,15 +375,6 @@ module Expressir
         nil
       end
 
-      def find_containing_scope(remark_line, nodes_with_positions)
-        # First try scope map (O(1) once built)
-        scope = find_containing_scope_by_name(remark_line)
-        return scope if scope
-
-        # Fallback to position-based detection
-        find_containing_scope_position(remark_line, nodes_with_positions)
-      end
-
       def build_scope_path(node)
         return nil unless node
 
@@ -535,7 +386,6 @@ module Expressir
             parts.unshift(current.id)
           end
 
-          # Stop at schema level
           break if current.is_a?(Model::Declarations::Schema)
 
           current = current.parent
@@ -544,113 +394,31 @@ module Expressir
         parts.empty? ? nil : parts.join(".")
       end
 
-      def find_scope_by_source_text(remark_line)
-        # Search backwards from remark_line for containing scope
-        lines = source_lines
-
-        # Find the entity/type/rule that contains this line
-        entity_start = nil
-        type_start = nil
-        rule_start = nil
-        current_entity = nil
-        current_type = nil
-        current_rule = nil
-
-        lines.each_with_index do |line, idx|
-          line_num = idx + 1
-
-          case line
-          when /^\s*ENTITY\s+(\w+)/i
-            entity_start = line_num
-            current_entity = $1
-          when /^\s*END_ENTITY/i
-            if entity_start && remark_line >= entity_start && remark_line <= line_num
-              # Found containing entity
-              return find_node_by_type_and_name(Model::Declarations::Entity,
-                                                current_entity)
-            end
-
-            entity_start = nil
-            current_entity = nil
-          when /^\s*TYPE\s+(\w+)/i
-            type_start = line_num
-            current_type = $1
-          when /^\s*END_TYPE/i
-            if type_start && remark_line >= type_start && remark_line <= line_num
-              # Found containing type
-              return find_node_by_type_and_name(Model::Declarations::Type,
-                                                current_type)
-            end
-
-            type_start = nil
-            current_type = nil
-          when /^\s*RULE\s+(\w+)/i
-            rule_start = line_num
-            current_rule = $1
-          when /^\s*END_RULE/i
-            if rule_start && remark_line >= rule_start && remark_line <= line_num
-              # Found containing rule
-              return find_node_by_type_and_name(Model::Declarations::Rule,
-                                                current_rule)
-            end
-
-            rule_start = nil
-            current_rule = nil
-          end
-        end
-
-        nil
-      end
-
-      COLLECTION_ACCESSOR = {
-        Expressir::Model::Declarations::Entity => lambda(&:entities),
-        Expressir::Model::Declarations::Type => lambda(&:types),
-        Expressir::Model::Declarations::Rule => lambda(&:rules),
-      }.freeze
-
-      def find_node_by_type_and_name(node_class, name)
-        return nil unless @model && name
-
-        accessor = COLLECTION_ACCESSOR[node_class]
-        return nil unless accessor
-
-        @model.schemas.each do |schema|
-          found = accessor.call(schema)&.find { |n| n.id == name }
-          return found if found
-        end
-
-        nil
-      end
+      # ----- Path-based lookup -----
 
       def find_by_exact_path(model, path)
         return nil unless path
-
-        # Only Repository and ExpFile support path-based find
         return nil unless repository?(model) || exp_file?(model)
 
-        # Try original path
         result = safe_find(model, path)
         return result if result
 
-        # Try with colon converted to dot
         normalized = path.tr(":", ".")
         normalized == path ? nil : safe_find(model, normalized)
       end
 
+      # ----- Target creation -----
+
       def create_implicit_remark_item_at_schema(model, item_id, schema_id)
-        # Only Repository and ExpFile support schema lookup
         return nil unless repository?(model) || exp_file?(model)
 
         schema = safe_find(model, schema_id)
         return nil unless schema.is_a?(Model::Declarations::Schema)
 
-        # Handle informal propositions (IP\d+ pattern) - only if schema supports it
-        # Note: Schema doesn't have informal_propositions, so this will create a remark_item instead
         if item_id.match?(/^IP\d+$/) && supports_informal_propositions?(schema)
           return create_or_find_informal_proposition(schema, item_id)
         end
 
-        # Handle remark items
         return nil unless supports_remark_items?(schema)
 
         existing = schema.remark_items&.find { |ri| ri.id == item_id }
@@ -662,19 +430,16 @@ module Expressir
       def create_implicit_remark_item(model, path, schema_ids = [])
         return nil unless repository?(model) || exp_file?(model)
 
-        # Normalize path (handle "ip:IP1" format)
         clean_path = normalize_path(path)
         parts = clean_path.split(".")
         return nil if parts.length < 2
 
-        # Find the deepest existing parent and create item there
         (parts.length - 1).downto(1) do |i|
           parent_path = parts[0...i].join(".")
           item_id = parts[i]
 
           parent = safe_find(model, parent_path)
 
-          # Try with schema prefix if not found
           if parent.nil? && schema_ids.any?
             schema_ids.each do |schema_id|
               parent = safe_find(model, "#{schema_id}.#{parent_path}")
@@ -698,12 +463,10 @@ module Expressir
       end
 
       def create_item_at_parent(parent, item_id)
-        # Handle informal propositions
         if item_id.match?(/^IP\d+$/) && supports_informal_propositions?(parent)
           return create_or_find_informal_proposition(parent, item_id)
         end
 
-        # Handle remark items
         return nil unless supports_remark_items?(parent)
 
         existing = parent.remark_items&.find { |ri| ri.id == item_id }
@@ -713,7 +476,6 @@ module Expressir
       end
 
       def create_or_find_informal_proposition(parent, id)
-        # Only Entity, Rule, Type, and InformalPropositionRule have informal_propositions
         return nil unless supports_informal_propositions?(parent)
 
         existing = parent.informal_propositions&.find { |ip| ip.id == id }
@@ -725,15 +487,12 @@ module Expressir
         parent.informal_propositions << ip
         safe_reset_children_by_id(parent)
 
-        # Also create a RemarkItem inside the InformalPropositionRule
-        # This is the expected structure for informal proposition remarks
         remark_item = Model::Declarations::RemarkItem.new(id: id)
         remark_item.parent = ip
         ip.remark_items ||= []
         ip.remark_items << remark_item
         safe_reset_children_by_id(ip)
 
-        # Return the remark_item so remarks are added to it
         remark_item
       end
 
@@ -746,84 +505,19 @@ module Expressir
         item
       end
 
-      def attach_untagged_remarks(remarks, nodes_with_positions)
-        untagged = remarks.reject(&:tag)
-        return unless untagged.any?
+      # ----- Remark storage -----
 
-        untagged.each do |remark|
-          next if @attached_spans.include?(remark.position)
-
-          if end_scope_line?(remark.line)
-            matched_node = find_node_for_end_scope_remark(remark,
-                                                          nodes_with_positions)
-            if matched_node
-              add_remark(matched_node, remark.text, format: remark.format, tag: nil)
-              @attached_spans << remark.position
-              next
-            end
-          end
-
-          matched_node = find_nearest_node(remark, nodes_with_positions)
-          if matched_node
-            add_remark(matched_node, remark.text, format: remark.format, tag: nil)
-            @attached_spans << remark.position
-          end
-        end
-      end
-
-      def end_scope_line?(line_num)
-        line = get_line_content(line_num)
-        line =~ /END_(SCHEMA|ENTITY|TYPE|FUNCTION|PROCEDURE|RULE)/i
-      end
-
-      def get_line_content(line_num)
-        lines = source_lines
-        return "" if line_num < 1 || line_num > lines.length
-
-        lines[line_num - 1]
-      end
-
-      def find_node_for_end_scope_remark(remark, nodes)
-        line_content = get_line_content(remark.line)
-
-        node_type = case line_content
-                    when /END_SCHEMA/i then Model::Declarations::Schema
-                    when /END_ENTITY/i then Model::Declarations::Entity
-                    when /END_TYPE/i then Model::Declarations::Type
-                    when /END_FUNCTION/i then Model::Declarations::Function
-                    when /END_PROCEDURE/i then Model::Declarations::Procedure
-                    when /END_RULE/i then Model::Declarations::Rule
-                    end
-
-        return nil unless node_type
-
-        matching_nodes = nodes.select do |n|
-          n[:node].is_a?(node_type) &&
-            (n[:end_line] == remark.line ||
-             (n[:end_line] && n[:end_line] <= remark.line && n[:end_line] >= remark.line - 2))
-        end
-
-        matching_nodes.first&.dig(:node) || find_node_by_type(nodes, node_type)
-      end
-
-      def find_node_by_type(nodes, node_type)
-        nodes.find { |n| n[:node].is_a?(node_type) }&.dig(:node)
-      end
-
-      def add_remark(node, text, format: "tail", tag: nil)
+      def add_remark(node, text, format: Model::RemarkFormat::TAIL, tag: nil)
         return unless node
         return unless node.is_a?(Model::ModelElement)
 
-        # Only add remarks to nodes that support them
         if supports_remarks?(node)
-          # Always add to remarks attribute (for types that have it)
           if node_has_remarks?(node)
             node.remarks ||= []
             node.remarks << text
           end
 
           if tag.nil?
-            # Untagged remark: store in untagged_remarks
             remark_info = Model::RemarkInfo.new(text: text, format: format)
             node.untagged_remarks ||= []
             node.untagged_remarks << remark_info
@@ -831,7 +525,8 @@ module Expressir
         end
       end
 
-      # All ModelElement subclasses have untagged_remarks from ModelElement
+      # ----- Type predicates -----
+
       def supports_remarks?(obj)
         obj.is_a?(Model::ModelElement)
       end
@@ -840,180 +535,16 @@ module Expressir
         obj.is_a?(Model::HasRemarks)
       end
 
-      # Types that include HasRemarkItems can have remark_items
       def supports_remark_items?(obj)
         obj.is_a?(Model::HasRemarkItems)
       end
 
-      def collect_nodes_with_positions(node, result, visited = Set.new)
-        return unless node
-        return if visited.include?(node.object_id)
-
-        visited.add(node.object_id)
-
-        if node.is_a?(Model::ModelElement) && node.source
-          # Use stored source_offset from parser
-          # The parser always provides this via Slice#offset
-          if node.source_offset
-            pos = node.source_offset
-            # Validate offset: native parser returns 0 for leaf nodes (WhereRule)
-            # where it can't determine the actual position. These have short
-            # expression-like source ("TRUE;") that doesn't appear at file start.
-            # Container nodes (Schema, Entity, Type) have declaration-like source
-            # that either starts at position 0 legitimately or is clearly valid.
-            valid = pos.positive?
-            if !valid && pos.zero? && node.source
-              src = node.source.to_s
-              # Accept position=0 if source is a declaration keyword line
-              valid = src.start_with?("SCHEMA", "ENTITY", "TYPE", "FUNCTION",
-                                      "PROCEDURE", "RULE", "CONSTANT", "VARIABLE",
-                                      "USE", "REFERENCE", "END_SCHEMA", "END_ENTITY",
-                                      "END_TYPE", "END_FUNCTION", "END_PROCEDURE",
-                                      "END_RULE", "END_CONSTANT", "END_VARIABLE")
-            end
-            if valid
-              line = get_line_number(pos)
-              source_end_line = get_line_number(pos + node.source.length)
-
-              # For container nodes, use the maximum end_line from children
-              # This is needed because source.length only covers the declaration, not the body
-              children_end_line = calculate_children_end_line(node)
-              end_line = [source_end_line,
-                          children_end_line].compact.max || source_end_line
-
-              result << {
-                node: node,
-                position: pos,
-                line: line,
-                end_line: end_line,
-              }
-            else
-              # Invalid offset — treat as unknown position
-              result << { node: node, position: nil, line: nil, end_line: nil }
-            end
-          else
-            # No source_offset available - should not happen if parser provides Slice
-            result << { node: node, position: nil, line: nil, end_line: nil }
-          end
-        else
-          result << { node: node, position: nil, line: nil, end_line: nil }
-        end
-
-        collect_children(node, result, visited)
+      def supports_informal_propositions?(obj)
+        obj.is_a?(Model::HasInformalPropositions)
       end
 
-      # Calculate the end line from all children of a node
-      # This is needed for container nodes like schemas, entities, etc.
-      # where source.length only covers the declaration, not the body
-      def calculate_children_end_line(node)
-        children_end_lines = []
-
-        # Check computed children (Schema, ExpFile have a children method)
-        if node.is_a?(Model::Declarations::Schema)
-          Array(node.children).each do |child|
-            if child.is_a?(Model::ModelElement) && child.source_offset && child.source
-              children_end_lines << get_line_number(child.source_offset + child.source.length)
-            end
-          end
-        end
-
-        # Visit declared collections from type registry
-        collections_on(node).each do |collection|
-          collection.each do |child|
-            if child.is_a?(Model::ModelElement) && child.source_offset && child.source
-              children_end_lines << get_line_number(child.source_offset + child.source.length)
-            end
-          end
-        end
-
-        children_end_lines.max
-      end
-
-      def collect_children(node, result, visited)
-        if node.is_a?(Model::Declarations::Schema)
-          Array(node.children).each do |child|
-            collect_nodes_with_positions(child, result, visited)
-          end
-        end
-
-        collections_on(node).each do |collection|
-          collection.each do |item|
-            collect_nodes_with_positions(item, result, visited)
-          end
-        end
-      end
-
-      # Build sorted nodes_with_positions ONCE for both tagged and untagged remark passes.
-      # This merges the two separate tree walks into one, cutting node visits in half.
-      def build_sorted_nodes_with_positions(model)
-        nodes_with_positions = []
-        collect_nodes_with_positions(model, nodes_with_positions)
-        # Stable sort: nil positions last, ties broken by insertion order
-        nodes_with_positions.sort_by!.with_index { |n, i| [n[:position] || Float::INFINITY, i] }
-        nodes_with_positions
-      end
-
-      def find_nearest_node(remark, nodes)
-        remark_line = remark.line
-
-        # For tail remarks, prefer nodes that START on the same line
-        # This handles cases like: "attr : STRING; -- tail remark"
-        # Exclude Repository and Cache as they are not semantic scopes
-        same_start_line = nodes.select do |n|
-          n[:line] == remark_line &&
-            !repository?(n[:node]) && !cache?(n[:node])
-        end
-        return same_start_line.last[:node] if same_start_line.any?
-
-        # Also check nodes that END on the same line
-        same_end_line = nodes.select do |n|
-          n[:end_line] == remark_line &&
-            !repository?(n[:node]) && !cache?(n[:node])
-        end
-        return same_end_line.last[:node] if same_end_line.any?
-
-        # Find the node that CONTAINS this remark line
-        # This handles preamble remarks and embedded remarks
-        # Exclude Repository and Cache as they are not semantic scopes
-        # But include ExpFile for file-level preamble remarks
-        containing = nodes.select do |n|
-          n[:line] && n[:end_line] && n[:line] <= remark_line && n[:end_line] >= remark_line &&
-            !repository?(n[:node]) && !cache?(n[:node])
-        end
-
-        if containing.any?
-          # Prefer ExpFile for preamble remarks (before first schema)
-          # Otherwise return the most specific (smallest) containing node
-          exp_file_node = containing.find { |n| exp_file?(n[:node]) }
-          # If this is a preamble remark (before first schema line), use ExpFile
-          if exp_file_node
-            first_schema_line = exp_file_node[:node].schemas&.first&.source_offset
-            if first_schema_line && remark_line < get_line_number(first_schema_line)
-              return exp_file_node[:node]
-            end
-          end
-          # Sort by span size and return the smallest
-          containing.min_by { |n| n[:end_line] - n[:line] }[:node]
-        else
-          # Fallback: find the last node that ends before this line
-          before = nodes.select do |n|
-            n[:end_line] && n[:end_line] < remark_line &&
-              !repository?(n[:node]) && !cache?(n[:node])
-          end
-          before.max_by { |n| n[:end_line] }[:node] if before.any?
-        end
-      end
-
-      # Type checking helper methods
-
-      def get_schema_ids(model)
-        if repository?(model)
-          model.schemas.filter_map(&:id)
-        elsif exp_file?(model)
-          model.schemas.filter_map(&:id)
-        else
-          []
-        end
+      def supports_where_rules?(obj)
+        obj.is_a?(Model::HasWhereRules)
       end
 
       def repository?(obj)
@@ -1028,13 +559,15 @@ module Expressir
         obj.is_a?(Model::Cache)
       end
 
-      def supports_informal_propositions?(obj)
-        obj.is_a?(Model::HasInformalPropositions)
+      def get_schema_ids(model)
+        if repository?(model) || exp_file?(model)
+          model.schemas.filter_map(&:id)
+        else
+          []
+        end
       end
 
-      def supports_where_rules?(obj)
-        obj.is_a?(Model::HasWhereRules)
-      end
+      # ----- Collection access -----
 
       # Type-driven collection access — returns all collections for a node's type.
       def collections_on(node)
@@ -1055,6 +588,8 @@ module Expressir
         collection if collection.is_a?(Array)
       end
 
+      # ----- Helpers -----
+
       def safe_find(model, path)
         return nil unless model
 
@@ -1068,6 +603,13 @@ module Expressir
         return unless obj.is_a?(Model::ScopeContainer)
 
         obj.reset_children_by_id
+      end
+
+      def line_content_for(line_num)
+        lines = source_lines_for_where_clause
+        return "" if line_num < 1 || line_num > lines.length
+
+        lines[line_num - 1]
       end
     end
   end

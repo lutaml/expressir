@@ -14,6 +14,7 @@ module Expressir
     autoload :HyperlinkFormatter, "#{__dir__}/express/hyperlink_formatter"
     autoload :LineMap, "#{__dir__}/express/line_map"
     autoload :ModelVisitor, "#{__dir__}/express/model_visitor"
+    autoload :NodePositionIndex, "#{__dir__}/express/node_position_index"
     autoload :Parser, "#{__dir__}/express/parser"
     autoload :PrettyFormatter, "#{__dir__}/express/pretty_formatter"
     autoload :RemarkAttacher, "#{__dir__}/express/remark_attacher"
@@ -21,6 +22,7 @@ module Expressir
     autoload :ResolveReferencesModelVisitor,
              "#{__dir__}/express/resolve_references_model_visitor"
     autoload :SchemaHeadFormatter, "#{__dir__}/express/schema_head_formatter"
+    autoload :ScopeResolver, "#{__dir__}/express/scope_resolver"
     autoload :StreamingBuilder, "#{__dir__}/express/streaming_builder"
 
     autoload :Transformer, "#{__dir__}/express/transformer"

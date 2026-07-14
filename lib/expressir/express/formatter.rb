@@ -10,14 +10,12 @@ module Expressir
 
       def self.register_formatter(model_class, method_name)
         # Guard: fail at registration time if the method doesn't exist on
-        # this class (or one of its included modules). A typo in a
-        # registered method name would otherwise surface only at runtime
-        # when that model type is formatted.
-        unless method_defined?(method_name)
+        # this class (or one of its included modules). Includes private
+        # methods since format handlers are private (TODO.bugs/19).
+        unless method_defined?(method_name) || private_method_defined?(method_name)
           raise ArgumentError,
                 "Formatter.register_formatter: method :#{method_name} " \
-                "is not defined for #{model_class} " \
-                "(defined on: #{instance_methods(false).sort.inspect})"
+                "is not defined for #{model_class}"
         end
 
         @format_registry[model_class] = method_name
@@ -65,12 +63,6 @@ module Expressir
         Model::SupertypeExpressions::BinarySupertypeExpression::ANDOR => 2,
       }.freeze
 
-      private_constant :INDENT_CHAR
-      private_constant :INDENT_WIDTH
-      private_constant :INDENT
-      private_constant :OPERATOR_PRECEDENCE
-      private_constant :SUPERTYPE_OPERATOR_PRECEDENCE
-
       attr_accessor :no_remarks
 
       def initialize(no_remarks: false)
@@ -85,11 +77,13 @@ module Expressir
         return "" if node.nil?
 
         handler = self.class.format_registry[node.class]
-        return public_send(handler, node) if handler
+        return send(handler, node) if handler
 
         warn "#{node.class.name} format not implemented"
         ""
       end
+
+      private
 
       def format_noop(_node)
         ""

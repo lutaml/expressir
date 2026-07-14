@@ -228,36 +228,6 @@ module Expressir
           builder.call(data)
         end
 
-        # Fast path for term nodes
-        def build_term(data)
-          build_node(:term, data)
-        end
-
-        # Fast path for factor nodes
-        def build_factor(data)
-          build_node(:factor, data)
-        end
-
-        # Fast path for simple_factor nodes
-        def build_simple_factor(data)
-          build_node(:simple_factor, data)
-        end
-
-        # Fast path for primary nodes
-        def build_primary(data)
-          build_node(:primary, data)
-        end
-
-        # Fast path for expression nodes
-        def build_expression(data)
-          build_node(:expression, data)
-        end
-
-        # Fast path for simple_expression nodes
-        def build_simple_expression(data)
-          build_node(:simple_expression, data)
-        end
-
         private
 
         # Cached snake_case conversion

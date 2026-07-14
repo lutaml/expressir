@@ -319,4 +319,32 @@ RSpec.describe Expressir::Model::ModelElement do
       end
     end
   end
+
+  describe ".collection_registry" do
+    it "each model class registers its collections" do
+      registry = described_class.collection_registry
+
+      expect(registry[Expressir::Model::Declarations::Schema]).to include(
+        :constants, :types, :entities, :functions, :rules, :procedures, :remark_items
+      )
+      expect(registry[Expressir::Model::Declarations::Entity]).to include(
+        :attributes, :derived_attributes, :inverse_attributes, :where_rules, :remark_items
+      )
+      expect(registry[Expressir::Model::Declarations::Type]).to include(
+        :where_rules, :informal_propositions, :remark_items
+      )
+      expect(registry[Expressir::Model::ExpFile]).to eq(%i[schemas])
+      expect(registry[Expressir::Model::Statements::Compound]).to eq(%i[statements])
+    end
+
+    it "NodePositionIndex::COLLECTION_REGISTRY references the same hash" do
+      expect(Expressir::Express::NodePositionIndex::COLLECTION_REGISTRY).to be(
+        described_class.collection_registry,
+      )
+    end
+
+    it "collection_attributes_list returns empty for ModelElement itself" do
+      expect(described_class.collection_attributes_list).to eq([])
+    end
+  end
 end

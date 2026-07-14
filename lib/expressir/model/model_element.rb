@@ -98,10 +98,7 @@ module Expressir
       end
 
       def source
-        formatter = Class.new(Expressir::Express::Formatter) do
-          include Expressir::Express::HyperlinkFormatter
-        end
-        formatter.format(self)
+        Expressir::Express::SourceFormatter.format(self)
       end
 
       # @param [Hash] options
@@ -188,10 +185,19 @@ module Expressir
         nil
       end
 
-      def to_s(no_remarks: false, formatter: nil)
+      # Format this element back into EXPRESS source text.
+      # @param no_remarks [Boolean] omit remarks from the output
+      # @param formatter [Express::Formatter, nil] use a specific formatter
+      # @return [String]
+      def format(no_remarks: false, formatter: nil)
         f = formatter || Express::Formatter.new(no_remarks: no_remarks)
-        f.no_remarks = no_remarks
         f.format(self)
+      end
+
+      # No-arg delegator so string interpolation ("#{element}") still
+      # produces EXPRESS source rather than the default Object#to_s.
+      def to_s
+        format
       end
 
       # Add a remark to this element

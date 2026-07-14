@@ -12,8 +12,6 @@ module Expressir
       # @param options [Hash] Additional options
       # @return [Expressir::Changes::SchemaChange]
       def self.from_xml(xml_content, schema_name, version, **)
-        require "expressir/changes"
-
         # Parse into CompareReport using Lutaml::Model
         compare_report = Expressir::Eengine::CompareReport.from_xml(xml_content)
 
@@ -24,8 +22,6 @@ module Expressir
 
       # File-based workflow (backward compatible)
       def self.call(input_file, output_file, schema_name, version, **options)
-        require "expressir/changes"
-
         xml_content = File.read(input_file)
 
         # Load existing schema if output file exists
@@ -51,8 +47,6 @@ module Expressir
 
         def convert_to_schema_change(compare_report, schema_name, version,
 **options)
-          require "expressir/changes"
-
           # Extract changes from CompareReport
           changes = {
             additions: extract_items(compare_report.additions,

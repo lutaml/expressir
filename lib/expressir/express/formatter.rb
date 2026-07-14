@@ -9,6 +9,17 @@ module Expressir
       end
 
       def self.register_formatter(model_class, method_name)
+        # Guard: fail at registration time if the method doesn't exist on
+        # this class (or one of its included modules). A typo in a
+        # registered method name would otherwise surface only at runtime
+        # when that model type is formatted.
+        unless method_defined?(method_name)
+          raise ArgumentError,
+                "Formatter.register_formatter: method :#{method_name} " \
+                "is not defined for #{model_class} " \
+                "(defined on: #{instance_methods(false).sort.inspect})"
+        end
+
         @format_registry[model_class] = method_name
       end
 
@@ -22,14 +33,6 @@ module Expressir
       include Formatters::ExpressionsFormatter
       include Formatters::DataTypesFormatter
       include Formatters::DeclarationsFormatter
-
-      # Handlers for types implemented directly in this class
-      register_formatter Model::Repository, :format_repository
-      register_formatter Model::ExpFile, :format_exp_file
-      register_formatter Model::Declarations::SchemaVersionItem, :format_noop
-      register_formatter Model::Declarations::InterfacedItem, :format_noop
-      register_formatter Model::Cache, :format_noop
-      register_formatter Model::ModelElement, :format_noop
 
       INDENT_CHAR = " ".freeze
       INDENT_WIDTH = 2
@@ -107,6 +110,16 @@ module Expressir
 
         str.split("\n").map { |x| "#{INDENT}#{x}" }.join("\n")
       end
+
+      # Handlers for types implemented directly in this class.
+      # Registered at the bottom so the methods exist when the
+      # registration-time method_defined? guard runs.
+      register_formatter Model::Repository, :format_repository
+      register_formatter Model::ExpFile, :format_exp_file
+      register_formatter Model::Declarations::SchemaVersionItem, :format_noop
+      register_formatter Model::Declarations::InterfacedItem, :format_noop
+      register_formatter Model::Cache, :format_noop
+      register_formatter Model::ModelElement, :format_noop
     end
   end
 end

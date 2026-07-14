@@ -177,6 +177,43 @@ RSpec.describe Expressir::Express::RemarkScanner do
     end
   end
 
+  describe "string literals (ISO 10303-11 §7.1.6.5)" do
+    it "does not mistake `--` inside a simple string literal for a tail remark" do
+      source = "CONSTANT greeting : STRING := 'hello -- world'; END_CONSTANT;\n"
+
+      expect(scan(source)).to eq([])
+    end
+
+    it "does not mistake `(*` inside a simple string literal for an embedded remark" do
+      source = "CONSTANT note : STRING := 'see (* not a block *) here'; END_CONSTANT;\n"
+
+      expect(scan(source)).to eq([])
+    end
+
+    it "handles the `''` escape: a doubled quote is content, not a closer" do
+      # 'it''s -- ok' is the string `it's -- ok`; the `--` is inside the
+      # string, so no tail remark should be emitted.
+      source = "x : STRING := 'it''s -- ok';\n"
+
+      expect(scan(source)).to eq([])
+    end
+
+    it "resumes normal scanning after a string closes" do
+      source = "x : STRING := 'no -- dash'; -- real tail\n"
+
+      remarks = scan(source)
+      expect(remarks.size).to eq(1)
+      expect(remarks.first.tail?).to be(true)
+      expect(remarks.first.text).to eq("real tail")
+    end
+
+    it "tolerates an unclosed string by terminating the scan gracefully" do
+      # No closing quote — malformed EXPRESS. Scanner should not raise and
+      # should not emit any spurious remarks.
+      expect(scan("x := 'never closed -- not a tail")).to eq([])
+    end
+  end
+
   describe "edge cases" do
     it "returns an empty array for empty source" do
       expect(scan("")).to eq([])

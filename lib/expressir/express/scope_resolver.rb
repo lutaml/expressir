@@ -41,9 +41,9 @@ module Expressir
       }.freeze
 
       # Schema-level collections searched when resolving a scope name to a
-      # model node. Lifted out of the loop so the array isn't reallocated
-      # per iteration.
-      SCHEMA_DECL_COLLECTIONS = %i[functions procedures rules entities types].freeze
+      # model node. Sourced from Model::Declarations::Schema::SCOPE_DECL_COLLECTIONS
+      # so the "which Schema collections hold named scopes" fact lives on
+      # the model, not duplicated here.
 
       def initialize(source:, model:, nodes_with_positions:)
         @source = source
@@ -113,7 +113,7 @@ module Expressir
         @model.schemas.each do |schema|
           return schema if schema.id == scope_name
 
-          SCHEMA_DECL_COLLECTIONS.each do |decl_type|
+          Model::Declarations::Schema::SCOPE_DECL_COLLECTIONS.each do |decl_type|
             collection = schema.public_send(decl_type)
             next unless collection.is_a?(Array)
 

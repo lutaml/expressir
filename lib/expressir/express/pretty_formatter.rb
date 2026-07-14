@@ -24,7 +24,7 @@ module Expressir
           @provenance_name = resolve_param(options, :provenance_name,
                                            "EXPRESSIR_PROVENANCE_NAME", "Expressir")
           @provenance_version = resolve_param(options, :provenance_version,
-                                              "EXPRESSIR_PROVENANCE_VERSION", Expressir::VERSION)
+                                              "EXPRESSIR_PROVENANCE_VERSION", Expressir::Version::VERSION)
         end
 
         private
@@ -67,7 +67,7 @@ module Expressir
       # @option options [Boolean] :insert_space Insert spaces for readability (default: true)
       # @option options [Boolean] :provenance Include provenance information (default: true)
       # @option options [String] :provenance_name Tool name for provenance (default: "Expressir")
-      # @option options [String] :provenance_version Tool version for provenance (default: Expressir::VERSION)
+      # @option options [String] :provenance_version Tool version for provenance (default: Expressir::Version::VERSION)
       # @option options [Boolean] :no_remarks Suppress remarks in output (default: false)
       def initialize(options = {})
         @config = Configuration.new(options)

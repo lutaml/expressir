@@ -15,11 +15,14 @@ module Expressir
     #   embedded_remark = '(*' [ remark_tag ]
     #                       { <any char> | nested embedded_remark } '*)'
     #
-    # The scanner is a single-pass state machine with three states:
-    #   :top          — outside any remark; look for `--` or `(*`.
+    # The scanner is a single-pass state machine with four states:
+    #   :top          — outside any remark/string; look for `--`, `(*`, or `'`.
     #   :in_tail       — inside a tail remark; look only for the next newline.
     #   :in_embedded   — inside one or more nested embedded remarks; look
     #                    for the matching `*)` or a nested `(*`, ignoring `--`.
+    #   :in_string     — inside a simple string literal; look for the closing
+    #                    `'`, treating `''` as an escaped quote (ISO 10303-11
+    #                    §7.1.6.5). `--` and `(*` inside a string are content.
     class RemarkScanner
       # Immutable value object describing a single extracted remark.
       Remark = Struct.new(:position, :line, :text, :tag, :format, keyword_init: true) do
@@ -40,6 +43,7 @@ module Expressir
       TAIL_MARKER = "--"
       EMBEDDED_OPEN = "(*"
       EMBEDDED_CLOSE = "*)"
+      STRING_QUOTE = "'"
 
       # Tag forms (see ISO 10303-11 §7.1.6.3 Remark tag).
       # IP-style informal-proposition tags are recognised only in tail remarks
@@ -105,11 +109,33 @@ module Expressir
               # Unclosed embedded remark — terminate scan gracefully.
               return remarks
             end
+          when :in_string
+            # ISO 10303-11 §7.1.6.5: `''` inside a string is an escaped quote.
+            # Find the next `'`; if followed by another `'`, skip both; else
+            # the string closes.
+            quote_pos = src.index(STRING_QUOTE, pos)
+            if quote_pos.nil?
+              # Unclosed string — malformed EXPRESS; terminate scan gracefully.
+              return remarks
+            end
+
+            if quote_pos + 1 < src.bytesize && src.getbyte(quote_pos + 1) == STRING_QUOTE.ord
+              pos = quote_pos + 2
+            else
+              pos = quote_pos + 1
+              state = :top
+            end
           else # :top
             next_embed = src.index(EMBEDDED_OPEN, pos)
             next_tail = src.index(TAIL_MARKER, pos)
-            if next_embed.nil? && next_tail.nil?
+            next_quote = src.index(STRING_QUOTE, pos)
+            if next_embed.nil? && next_tail.nil? && next_quote.nil?
               return remarks
+            elsif next_quote && (next_embed.nil? || next_quote < next_embed) &&
+                (next_tail.nil? || next_quote < next_tail)
+              # String opener wins — enter :in_string and skip the quote.
+              pos = next_quote + STRING_QUOTE.bytesize
+              state = :in_string
             elsif next_embed && (next_tail.nil? || next_embed <= next_tail)
               embedded_start = next_embed + EMBEDDED_OPEN.bytesize
               embedded_line = @line_map.line_number(next_embed)

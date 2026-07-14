@@ -1,6 +1,3 @@
-require_relative "expressir/version"
-require_relative "expressir/errors"
-
 require "lutaml/model"
 require "liquid" # To enable Lutaml::Model::Liquefiable
 
@@ -28,6 +25,44 @@ module Expressir
   # autoload definitions for classes within that namespace
   autoload :Config, "#{__dir__}/expressir/config"
   extend Config
+
+  autoload :Version, "#{__dir__}/expressir/version"
+
+  # Error classes — autoload the same errors.rb file from each name.
+  # The first reference triggers the load; the file defines all 21 classes.
+  autoload :Error, "#{__dir__}/expressir/errors"
+  autoload :FileNotFoundError, "#{__dir__}/expressir/errors"
+  autoload :ManifestNotFoundError, "#{__dir__}/expressir/errors"
+  autoload :PackageNotFoundError, "#{__dir__}/expressir/errors"
+  autoload :SchemaNotFoundError, "#{__dir__}/expressir/errors"
+  autoload :UsageError, "#{__dir__}/expressir/errors"
+  autoload :MissingRequiredArgumentError, "#{__dir__}/expressir/errors"
+  autoload :InvalidOptionError, "#{__dir__}/expressir/errors"
+  autoload :ValidationError, "#{__dir__}/expressir/errors"
+  autoload :ManifestValidationError, "#{__dir__}/expressir/errors"
+  autoload :SchemaValidationError, "#{__dir__}/expressir/errors"
+  autoload :ReferentialIntegrityError, "#{__dir__}/expressir/errors"
+  autoload :NoValidSchemaPathsError, "#{__dir__}/expressir/errors"
+  autoload :CommandError, "#{__dir__}/expressir/errors"
+  autoload :PackageBuildError, "#{__dir__}/expressir/errors"
+  autoload :PackageReadError, "#{__dir__}/expressir/errors"
+  autoload :PackageExtractError, "#{__dir__}/expressir/errors"
+  autoload :PackageValidationError, "#{__dir__}/expressir/errors"
+  autoload :PackageListError, "#{__dir__}/expressir/errors"
+  autoload :PackageSearchError, "#{__dir__}/expressir/errors"
+  autoload :PackageTreeError, "#{__dir__}/expressir/errors"
+
+  # Backward-compatible top-level VERSION constant.
+  # Expressir::VERSION is a string, which Ruby autoload cannot lazy-load
+  # (autoload only works for module/class constants). The actual value
+  # lives in Expressir::Version::VERSION, autoloaded on first reference.
+  # This const_missing triggers the autoload when Expressir::VERSION is
+  # referenced, then caches the result.
+  def self.const_missing(name)
+    return Version::VERSION if name == :VERSION
+
+    super
+  end
 
   autoload :Benchmark, "#{__dir__}/expressir/benchmark"
   autoload :Coverage, "#{__dir__}/expressir/coverage"

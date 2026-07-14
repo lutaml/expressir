@@ -6,16 +6,14 @@ module Expressir
       class Parser < Parsanol::Parser
         root(:syntax)
 
-        # Cache for native parser grammar (class-level)
-        @@cached_grammar_json = nil
-        @@cached_grammar_atom_id = nil
-
-        # Cache for parser instance (avoids ~7ms overhead of Parser.new)
-        @@cached_parser = nil
-        @@parser_mutex = Mutex.new
-
-        # Cache for schemaDecl grammar JSON (used for streaming parse)
-        @@cached_schema_grammar_json = nil
+        # Class instance variables for caching (not @@ class variables,
+        # which are shared across the entire hierarchy). These are scoped
+        # to this class only. Accessed via @var within class methods.
+        @cached_grammar_json = nil
+        @cached_grammar_atom_id = nil
+        @cached_parser = nil
+        @parser_mutex = Mutex.new
+        @cached_schema_grammar_json = nil
 
         # Threshold for using memory-bounded fresh parse (bytes)
         # Files above this use parse_fresh which has no packrat cache
@@ -24,17 +22,17 @@ module Expressir
         # Get cached parser instance (thread-safe)
         # Reusing the parser avoids the overhead of reinitializing all rule definitions
         def self.cached_parser
-          return @@cached_parser if @@cached_parser
+          return @cached_parser if @cached_parser
 
-          @@parser_mutex.synchronize do
-            @@cached_parser ||= new
+          @parser_mutex.synchronize do
+            @cached_parser ||= new
           end
         end
 
         # Clear the cached parser (useful for testing or after grammar changes)
         def self.clear_parser_cache
-          @@parser_mutex.synchronize do
-            @@cached_parser = nil
+          @parser_mutex.synchronize do
+            @cached_parser = nil
           end
         end
 
@@ -52,27 +50,27 @@ module Expressir
 
         # Get cached grammar JSON for native parsing
         def self.cached_grammar_json
-          return @@cached_grammar_json if @@cached_grammar_json
+          return @cached_grammar_json if @cached_grammar_json
 
           parser = new
           atom = parser.syntax
 
           # Cache by atom object_id
-          if atom.object_id != @@cached_grammar_atom_id
-            @@cached_grammar_atom_id = atom.object_id
-            @@cached_grammar_json = Parsanol::Native.serialize_grammar(atom)
+          if atom.object_id != @cached_grammar_atom_id
+            @cached_grammar_atom_id = atom.object_id
+            @cached_grammar_json = Parsanol::Native.serialize_grammar(atom)
           end
 
-          @@cached_grammar_json
+          @cached_grammar_json
         end
 
         # Get cached grammar JSON for schemaDecl (used for streaming parse)
         def self.cached_schema_grammar_json
-          return @@cached_schema_grammar_json if @@cached_schema_grammar_json
+          return @cached_schema_grammar_json if @cached_schema_grammar_json
 
           schema_atom = cached_parser.schemaDecl
-          @@cached_schema_grammar_json = Parsanol::Native.serialize_grammar(schema_atom)
-          @@cached_schema_grammar_json
+          @cached_schema_grammar_json = Parsanol::Native.serialize_grammar(schema_atom)
+          @cached_schema_grammar_json
         end
 
         # Parse using native engine with Rust-side transformation (fastest)
@@ -720,24 +718,23 @@ module Expressir
             raise Error::SchemaParseFailure.new(schema_file, e)
           end
 
-          @exp_file = ::Expressir::Express::Builder.build_with_remarks(ast, source: source,
-                                                                            include_source: include_source)
+          exp_file = ::Expressir::Express::Builder.build_with_remarks(ast, source: source,
+                                                                           include_source: include_source)
 
           # Set file path on the ExpFile and propagate to schemas
-          @exp_file.path = schema_file
-          @exp_file.schemas.each do |schema|
+          exp_file.path = schema_file
+          exp_file.schemas.each do |schema|
             schema.file = schema_file
             schema.file_basename = File.basename(schema_file, ".exp")
           end
 
           unless skip_references
             Expressir::Benchmark.measure_references do
-              @resolve_references_model_visitor = ResolveReferencesModelVisitor.new
-              @resolve_references_model_visitor.visit(@exp_file)
+              ResolveReferencesModelVisitor.new.visit(exp_file)
             end
           end
 
-          @exp_file
+          exp_file
         end
       end
 
@@ -771,16 +768,15 @@ root_path: nil, use_native: nil)
           raise unless e.is_a?(Error::SchemaParseFailure)
         end
 
-        @repository = Model::Repository.new(files: all_exp_files)
+        repository = Model::Repository.new(files: all_exp_files)
 
         unless skip_references
           Expressir::Benchmark.measure_references do
-            @resolve_references_model_visitor = ResolveReferencesModelVisitor.new
-            @resolve_references_model_visitor.visit(@repository)
+            ResolveReferencesModelVisitor.new.visit(repository)
           end
         end
 
-        @repository
+        repository
       end
 
       # Parses Express content string into an Express model

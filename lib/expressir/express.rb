@@ -3,8 +3,9 @@
 module Expressir
   module Express
     autoload :Builder, "#{__dir__}/express/builder"
+    autoload :BuilderContext, "#{__dir__}/express/builder_context"
+    autoload :BuilderRegistry, "#{__dir__}/express/builder_registry"
     autoload :Builders, "#{__dir__}/express/builders"
-    # autoload :BuilderRegistry, "#{__dir__}/express/builder_registry"
 
     # Core classes (autoloaded for lazy loading)
     autoload :Cache, "#{__dir__}/express/cache"
@@ -22,12 +23,9 @@ module Expressir
     autoload :ResolveReferencesModelVisitor,
              "#{__dir__}/express/resolve_references_model_visitor"
     autoload :SchemaHeadFormatter, "#{__dir__}/express/schema_head_formatter"
+    autoload :SchemaSourceFormatter, "#{__dir__}/express/schema_source_formatter"
     autoload :ScopeResolver, "#{__dir__}/express/scope_resolver"
+    autoload :SourceFormatter, "#{__dir__}/express/source_formatter"
     autoload :StreamingBuilder, "#{__dir__}/express/streaming_builder"
-
-    autoload :Transformer, "#{__dir__}/express/transformer"
   end
 end
-
-# Eagerly load builders (they register themselves at load time)
-require_relative "express/builder_registry"

@@ -7,7 +7,26 @@ module Expressir
     # This is the ONLY way to build models from AST - no Transformer fallback.
     module Builder
       class << self
-        attr_reader :source, :include_source
+        # Thread-local key under which the current BuilderContext is stored
+        # for the duration of a build_with_remarks call. Recursive build
+        # calls read source/include_source from here instead of from
+        # class-level mutable state.
+        CONTEXT_KEY = :expressir_builder_context
+
+        # Returns the BuilderContext for the current thread, or nil if no
+        # build is in progress.
+        def current_context
+          Thread.current[CONTEXT_KEY]
+        end
+
+        # Convenience accessors — read from the current context.
+        def source
+          current_context&.source
+        end
+
+        def include_source
+          current_context&.include_source
+        end
 
         # Cache for snake_case conversions
         SNAKE_CASE_CACHE = {} # rubocop:disable Style/MutableConstant
@@ -23,8 +42,6 @@ module Expressir
 
         # Build a Model object from AST data.
         # @param ast [Hash] The AST with node type as key
-        # @param source [String, nil] The original source code
-        # @param include_source [Boolean, nil] Whether to include source
         # @return [Model::ModelElement] The built model object
         # Operator tokens that return nil (separators, punctuation)
         # When these appear as the first key in a multi-key hash, they should be
@@ -41,13 +58,8 @@ module Expressir
                                     op_query_begin op_query_end op_question_mark
                                   ]).freeze
 
-        def build(ast, source: nil, include_source: nil)
+        def build(ast)
           return nil unless ast
-
-          # Only set instance variables on first call (when they're provided)
-          # Recursive calls pass nil which shouldn't override the saved values
-          @source = source unless source.nil?
-          @include_source = include_source unless include_source.nil?
 
           # Optimized: Hash is 90%+ of cases, check it first
           case ast
@@ -105,12 +117,23 @@ module Expressir
           end
         end
 
-        # Build with remark attachment
+        # Build with remark attachment.
+        #
+        # Sets up a BuilderContext as a thread-local for the duration of the
+        # build so recursive build calls can read source/include_source via
+        # `Builder.source` / `Builder.include_source`. The previous context
+        # (if any) is restored on exit so nested builds are reentrant.
         def build_with_remarks(ast, source: nil, include_source: nil)
-          # Reset instance variables at the start of a top-level build
-          # This ensures state from previous parses is cleared
-          @source = source
-          @include_source = include_source
+          # Trigger BuilderRegistry autoload so all AST node type handlers
+          # are registered before build() runs. The reference to
+          # BuilderRegistry resolves the autoload defined in express.rb.
+          BuilderRegistry
+
+          previous = Thread.current[CONTEXT_KEY]
+          Thread.current[CONTEXT_KEY] = BuilderContext.new(
+            source: source,
+            include_source: include_source,
+          )
 
           result = build(ast)
 
@@ -122,6 +145,8 @@ module Expressir
           end
 
           result
+        ensure
+          Thread.current[CONTEXT_KEY] = previous
         end
 
         # Check if a builder is registered for a node type.
@@ -342,25 +367,27 @@ module Expressir
 
         def extract_source_info(data)
           return nil unless data
-          return nil unless @source
+
+          src = source
+          return nil unless src
 
           slice = find_slice(data)
           return nil unless slice
 
           {
-            text: @source[slice.offset...(slice.offset + slice.length)]&.strip,
+            text: src[slice.offset...(slice.offset + slice.length)]&.strip,
             offset: slice.offset,
           }
         end
 
         def attach_source_info(result, data)
-          return unless @source && result.is_a?(Expressir::Model::ModelElement)
+          return unless source && result.is_a?(Expressir::Model::ModelElement)
 
           source_info = extract_source_info(data)
           return unless source_info
 
           result.source_offset = source_info[:offset]
-          result.source = source_info[:text] if @include_source
+          result.source = source_info[:text] if include_source
         end
 
         def find_slice(data, depth = 0)

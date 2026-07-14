@@ -11,7 +11,7 @@ module Expressir
       # @return [nil]
       def self.to_file(file, content, root_path: nil,
 test_overwrite_version: nil)
-        version = test_overwrite_version || VERSION
+        version = test_overwrite_version || Expressir::Version::VERSION
 
         cache = Model::Cache.new(
           version: version,
@@ -32,7 +32,7 @@ test_overwrite_version: nil)
       # @param test_overwrite_version [String] don't use, only for tests
       # @return [Model::ModelElement] Express model
       def self.from_file(file, root_path: nil, test_overwrite_version: nil)
-        version = test_overwrite_version || VERSION
+        version = test_overwrite_version || Expressir::Version::VERSION
 
         yaml_compressed = File.binread(file)
         yaml = Zlib::Inflate.inflate(yaml_compressed)

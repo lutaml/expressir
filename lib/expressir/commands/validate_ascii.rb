@@ -322,7 +322,7 @@ module Expressir
 
           # Format each schema without remarks to get plain EXPRESS code
           repository.schemas.each do |schema|
-            formatted_schema = schema.to_s(no_remarks: true)
+            formatted_schema = schema.format(no_remarks: true)
 
             # Check the formatted schema (without remarks) for non-ASCII
             formatted_schema.lines.each_with_index do |line, line_idx|

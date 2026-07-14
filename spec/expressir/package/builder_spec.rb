@@ -323,7 +323,7 @@ RSpec.describe Expressir::Package::Builder do
         metadata = Expressir::Package::Metadata.from_yaml(
           metadata_entry.get_input_stream.read,
         )
-        expect(metadata.expressir_version).to eq(Expressir::VERSION)
+        expect(metadata.expressir_version).to eq(Expressir::Version::VERSION)
       end
       # Windows: Release file handle
       GC.start if Gem.win_platform?

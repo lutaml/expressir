@@ -5,7 +5,7 @@ module Expressir
         repository = Expressir::Express::Parser.from_file(path)
         formatted_schemas = repository.schemas.map do |schema|
           # Format schema without remarks
-          schema.to_s(no_remarks: true)
+          schema.format(no_remarks: true)
         end.join("\n\n")
 
         if options[:output]

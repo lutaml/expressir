@@ -2,7 +2,7 @@ module Expressir
   module Commands
     class Version < Base
       def run
-        say Expressir::VERSION
+        say Expressir::Version::VERSION
       end
     end
   end

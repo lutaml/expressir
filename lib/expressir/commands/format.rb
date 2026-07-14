@@ -35,7 +35,7 @@ module Expressir
       def format_with_iso_profile(repository)
         repository.schemas.each do |schema|
           say "\n(* Expressir formatted schema: #{schema.id} *)\n"
-          say schema.to_s(no_remarks: true)
+          say schema.format(no_remarks: true)
         end
       end
     end

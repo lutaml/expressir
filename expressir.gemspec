@@ -4,7 +4,7 @@ require "expressir/version"
 
 Gem::Specification.new do |spec|
   spec.name = "expressir"
-  spec.version = Expressir::VERSION
+  spec.version = Expressir::Version::VERSION
   spec.authors = ["Ribose Inc."]
   spec.email = ["open.source@ribose.com"]
 

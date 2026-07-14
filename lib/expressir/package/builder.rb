@@ -68,7 +68,7 @@ module Expressir
           description: options[:description],
           created_at: Time.now.utc.iso8601,
           created_by: "expressir",
-          expressir_version: Expressir::VERSION,
+          expressir_version: Expressir::Version::VERSION,
           express_mode: options[:express_mode],
           resolution_mode: options[:resolution_mode],
           serialization_format: options[:serialization_format],

@@ -10,7 +10,7 @@ RSpec.describe "Expressir" do
       print "\n[#{example.description}] "
       # rubocop:enable all
 
-      expect(Expressir::VERSION).not_to be_nil
+      expect(Expressir::Version::VERSION).not_to be_nil
     end
 
     it "displays the current version" do |example|
@@ -20,7 +20,7 @@ RSpec.describe "Expressir" do
 
       command = %w(version)
       output = capture_stdout { Expressir::Cli.start(command) }
-      expect(output).to include(Expressir::VERSION)
+      expect(output).to include(Expressir::Version::VERSION)
     end
   end
 end

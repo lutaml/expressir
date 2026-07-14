@@ -59,4 +59,10 @@ RSpec.describe Expressir::Express::ScopeResolver do
     scope = resolver.find_by_source_text(end_type_line)
     expect(scope).to be_a(Expressir::Model::Declarations::Type)
   end
+
+  it "SCOPE_DECL_COLLECTIONS is a subset of COLLECTION_REGISTRY[Schema]" do
+    schema_collections = Expressir::Express::NodePositionIndex::COLLECTION_REGISTRY[Expressir::Model::Declarations::Schema]
+    scope_collections = Expressir::Model::Declarations::Schema::SCOPE_DECL_COLLECTIONS
+    expect(scope_collections).to all(satisfy { |c| schema_collections.include?(c) })
+  end
 end

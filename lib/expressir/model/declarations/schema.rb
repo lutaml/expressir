@@ -7,6 +7,16 @@ module Expressir
         include Identifier
         include ScopeContainer
 
+        # Subset of this schema's collection attributes that hold named
+        # scope declarations (Function, Procedure, Rule, Entity, Type).
+        # Used by ScopeResolver to enumerate scope-capable children without
+        # duplicating the list. Single source of truth: this is the subset
+        # of NodePositionIndex::COLLECTION_REGISTRY[Schema] that holds
+        # scopes rather than remark_items / constants / subtype_constraints.
+        SCOPE_DECL_COLLECTIONS = %i[
+          functions procedures rules entities types
+        ].freeze
+
         attribute :file, :string
         attribute :version, SchemaVersion
         attribute :interfaces, Interface, collection: true
@@ -74,17 +84,11 @@ module Expressir
         end
 
         def formatted
-          @formatted ||= to_s(no_remarks: true)
+          @formatted ||= format(no_remarks: true)
         end
 
         def source
-          @source ||= begin
-            formatter = Class.new(Expressir::Express::Formatter) do
-              include Expressir::Express::SchemaHeadFormatter
-              include Expressir::Express::HyperlinkFormatter
-            end
-            formatter.format(self)
-          end
+          @source ||= Expressir::Express::SchemaSourceFormatter.format(self)
         end
 
         private

@@ -5,8 +5,6 @@ module Expressir
     # Command to validate and normalize EXPRESS Changes YAML files
     class ChangesValidate < Base
       def run(path)
-        require "expressir/changes"
-
         # Check if file exists
         unless File.exist?(path)
           exit_with_error("File not found: #{path}")

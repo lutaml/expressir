@@ -4,6 +4,7 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 13.5 Compound statement
       class Compound < ModelElement
+        collection_attributes :statements
         attribute :statements, ModelElement, collection: true
         attribute :_class, :string, default: -> { self.class.name }
 

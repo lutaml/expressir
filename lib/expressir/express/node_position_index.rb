@@ -13,40 +13,11 @@ module Expressir
     # instances; this module turns those spans into a line-keyed index that
     # remark attachment can query.
     class NodePositionIndex
-      # Type-driven registry: maps each model class to its collection
-      # attributes. Single source of truth for "what collections does this
-      # node have" — used by both RemarkAttacher and NodePositionIndex.
-      COLLECTION_REGISTRY = {
-        Model::Declarations::Schema => %i[
-          constants types entities subtype_constraints
-          functions rules procedures remark_items
-        ],
-        Model::Declarations::Entity => %i[
-          attributes derived_attributes inverse_attributes
-          unique_rules where_rules informal_propositions remark_items
-        ],
-        Model::Declarations::Function => %i[
-          parameters types entities subtype_constraints
-          functions procedures constants variables statements remark_items
-        ],
-        Model::Declarations::Procedure => %i[
-          parameters types entities subtype_constraints
-          functions procedures constants variables statements remark_items
-        ],
-        Model::Declarations::Rule => %i[
-          applies_to types entities subtype_constraints
-          functions procedures constants variables statements
-          where_rules informal_propositions remark_items
-        ],
-        Model::Declarations::Type => %i[
-          where_rules informal_propositions remark_items
-        ],
-        Model::ExpFile => %i[schemas],
-        Model::Statements::Compound => %i[statements],
-        Model::Statements::If => %i[statements],
-        Model::Statements::Alias => %i[statements],
-        Model::Statements::Repeat => %i[statements],
-      }.freeze
+      # Single source of truth for "what collections does this node have"
+      # lives on the model — each class declares its own via the
+      # `collection_attributes` macro. Referenced by both RemarkAttacher
+      # and NodePositionIndex via this alias for backward compatibility.
+      COLLECTION_REGISTRY = Model::ModelElement.collection_registry
 
       attr_reader :nodes
 

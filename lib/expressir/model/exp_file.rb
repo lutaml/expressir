@@ -14,6 +14,8 @@ module Expressir
       include HasId
       include ScopeContainer
 
+      collection_attributes :schemas
+
       attribute :path, :string
       attribute :schemas, Declarations::Schema, collection: true,
                                                 initialize_empty: true

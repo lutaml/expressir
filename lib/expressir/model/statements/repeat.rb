@@ -6,6 +6,7 @@ module Expressir
       class Repeat < ModelElement
         include Identifier
 
+        collection_attributes :statements
         attribute :bound1, ModelElement
         attribute :bound2, ModelElement
         attribute :increment, ModelElement

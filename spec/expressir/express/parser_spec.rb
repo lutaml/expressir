@@ -6,7 +6,7 @@ RSpec.describe Expressir::Express::Parser do
     describe ".native_available?" do
       it "reports native parser availability" do
         # native_available? is defined on Parser::Parser (inner class)
-        result = Expressir::Express::Parser::Parser.native_available?
+        result = Expressir::Express::Grammar::Parser.native_available?
         expect(result).to be(true).or be(false)
       end
     end
@@ -29,7 +29,7 @@ RSpec.describe Expressir::Express::Parser do
       end
 
       it "provides LRU cache management" do
-        skip "Native parser not available" unless Expressir::Express::Parser::Parser.native_available?
+        skip "Native parser not available" unless Expressir::Express::Grammar::Parser.native_available?
 
         require "parsanol/native"
         expect(Parsanol::Native).to respond_to(:grammar_cache_size)
@@ -76,7 +76,7 @@ RSpec.describe Expressir::Express::Parser do
         repo_ruby = described_class.from_exp(content, use_native: false)
 
         # Parse with native parser (if available)
-        if Expressir::Express::Parser::Parser.native_available?
+        if Expressir::Express::Grammar::Parser.native_available?
           repo_native = described_class.from_exp(content, use_native: true)
 
           # Both should produce valid ExpFile with same structure
@@ -96,7 +96,7 @@ RSpec.describe Expressir::Express::Parser do
         repo_ruby = described_class.from_exp(content, use_native: false)
 
         # Parse with native parser (if available)
-        if Expressir::Express::Parser::Parser.native_available?
+        if Expressir::Express::Grammar::Parser.native_available?
           repo_native = described_class.from_exp(content, use_native: true)
 
           ruby_interface = repo_ruby.schemas.first.interfaces.first
@@ -210,7 +210,7 @@ RSpec.describe Expressir::Express::Parser do
     end
 
     it "parses a file (syntax.exp) with native parser" do
-      skip "Native parser not available" unless Expressir::Express::Parser::Parser.native_available?
+      skip "Native parser not available" unless Expressir::Express::Grammar::Parser.native_available?
 
       exp_file = Expressir.root_path.join("spec", "syntax", "syntax.exp")
 

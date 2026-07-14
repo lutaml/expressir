@@ -7,6 +7,11 @@ module Expressir
         include Identifier
         include ScopeContainer
 
+        collection_attributes :parameters, :types, :entities,
+                              :subtype_constraints, :functions, :procedures,
+                              :constants, :variables, :statements,
+                              :remark_items
+
         attribute :parameters, Parameter, collection: true
         attribute :return_type, ModelElement
         attribute :types, ModelElement, collection: true

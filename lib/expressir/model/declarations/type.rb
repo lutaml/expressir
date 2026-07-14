@@ -9,6 +9,9 @@ module Expressir
         include HasInformalPropositions
         include HasWhereRules
 
+        collection_attributes :where_rules, :informal_propositions,
+                              :remark_items
+
         attribute :underlying_type, ModelElement
         attribute :where_rules, WhereRule, collection: true
         attribute :informal_propositions, InformalPropositionRule,

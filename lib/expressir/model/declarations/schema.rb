@@ -7,6 +7,12 @@ module Expressir
         include Identifier
         include ScopeContainer
 
+        # Tree-walker collection attributes (TODO.bugs/12 — single source
+        # of truth; NodePositionIndex derives COLLECTION_REGISTRY from this).
+        collection_attributes :constants, :types, :entities,
+                              :subtype_constraints, :functions, :rules,
+                              :procedures, :remark_items
+
         # Subset of this schema's collection attributes that hold named
         # scope declarations (Function, Procedure, Rule, Entity, Type).
         # Used by ScopeResolver to enumerate scope-capable children without

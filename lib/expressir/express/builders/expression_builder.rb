@@ -10,9 +10,9 @@ module Expressir
         # Expression
         def build_expression(ast_data)
           left = if ast_data[:simple_expression]
-                   Builder.build_simple_expression(ast_data[:simple_expression])
+                   Builder.build_node(:simple_expression, ast_data[:simple_expression])
                  elsif ast_data[:logical_expression]
-                   Builder.build_simple_expression(ast_data[:logical_expression][:simple_expression])
+                   Builder.build_node(:simple_expression, ast_data[:logical_expression][:simple_expression])
                  end
 
           if ast_data[:rel_op_extended] && ast_data[:rhs]
@@ -29,18 +29,18 @@ module Expressir
         end
 
         def build_logical_expression(ast_data)
-          Builder.build_simple_expression(ast_data[:simple_expression])
+          Builder.build_node(:simple_expression, ast_data[:simple_expression])
         end
 
         def build_numeric_expression(ast_data)
-          Builder.build_simple_expression(ast_data[:simple_expression])
+          Builder.build_node(:simple_expression, ast_data[:simple_expression])
         end
 
         # Simple expression (addition/subtraction chain)
         def build_simple_expression(ast_data)
           return nil unless ast_data[:term]
 
-          term = Builder.build_term(ast_data[:term])
+          term = Builder.build_node(:term, ast_data[:term])
           rhs = ast_data[:rhs]
 
           return term if rhs.nil? || (rhs.is_a?(Array) && rhs.empty?)
@@ -60,7 +60,7 @@ module Expressir
             op_data = item[:operator]
             operators << extract_operator(op_data[:add_like_op]) if op_data
             if item[:term]
-              operands << Builder.build_term(item[:term])
+              operands << Builder.build_node(:term, item[:term])
             end
           end
 
@@ -71,7 +71,7 @@ module Expressir
         def build_term(ast_data)
           return nil unless ast_data[:factor]
 
-          factor = Builder.build_factor(ast_data[:factor])
+          factor = Builder.build_node(:factor, ast_data[:factor])
           rhs = ast_data[:rhs]
 
           return factor if rhs.nil? || (rhs.is_a?(Array) && rhs.empty?)
@@ -90,7 +90,7 @@ module Expressir
             item = r[:item] || r
             op_data = item[:multiplication_like_op] || item[:mul_like_op]
             operators << extract_operator(op_data) if op_data
-            operands << Builder.build_factor(item[:factor]) if item[:factor]
+            operands << Builder.build_node(:factor, item[:factor]) if item[:factor]
           end
 
           build_binary_expression(operands, operators)
@@ -99,14 +99,14 @@ module Expressir
         def build_factor(ast_data)
           return nil unless ast_data[:simple_factor]
 
-          Builder.build_simple_factor(ast_data[:simple_factor])
+          Builder.build_node(:simple_factor, ast_data[:simple_factor])
         end
 
         def build_simple_factor(ast_data)
           return nil unless ast_data
 
           if ast_data[:primary]
-            Builder.build_primary(ast_data[:primary])
+            Builder.build_node(:primary, ast_data[:primary])
           elsif ast_data[:simple_factor_expression]
             Builder.build_node(:simple_factor_expression,
                                ast_data[:simple_factor_expression])
@@ -116,7 +116,7 @@ module Expressir
           elsif ast_data[:constant_factor]
             Builder.build_node(:constant_factor, ast_data[:constant_factor])
           elsif ast_data[:expression]
-            Builder.build_expression(ast_data[:expression])
+            Builder.build_node(:expression, ast_data[:expression])
           elsif ast_data[:aggregate_initializer]
             Builder.build_node(:aggregate_initializer,
                                ast_data[:aggregate_initializer])
@@ -137,21 +137,21 @@ module Expressir
 
         def build_simple_factor_expression(ast_data)
           if ast_data[:primary]
-            Builder.build_primary(ast_data[:primary])
+            Builder.build_node(:primary, ast_data[:primary])
           elsif ast_data[:expression]
-            Builder.build_expression(ast_data[:expression])
+            Builder.build_node(:expression, ast_data[:expression])
           end
         end
 
         def build_simple_factor_unary_expression(ast_data)
           op = extract_unary_op(ast_data[:unary_op])
           operand = if ast_data[:simple_factor]
-                      Builder.build_simple_factor(ast_data[:simple_factor])
+                      Builder.build_node(:simple_factor, ast_data[:simple_factor])
                     elsif ast_data[:simple_factor_expression]
                       Builder.build_node(:simple_factor_expression,
                                          ast_data[:simple_factor_expression])
                     elsif ast_data[:primary]
-                      Builder.build_primary(ast_data[:primary])
+                      Builder.build_node(:primary, ast_data[:primary])
                     end
 
           if op
@@ -181,7 +181,7 @@ module Expressir
           elsif ast_data[:population]
             build_population(ast_data[:population], ast_data[:qualifier])
           elsif ast_data[:expression]
-            Builder.build_expression(ast_data[:expression])
+            Builder.build_node(:expression, ast_data[:expression])
           end
         end
 

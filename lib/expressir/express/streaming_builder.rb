@@ -112,15 +112,13 @@ module Expressir
       # @param key [String] The hash key name
       def on_hash_key(key)
         # Convert string key to symbol to match existing parser AST format
-        puts "DEBUG on_hash_key: #{key.inspect} (#{key.class})" if ENV["DEBUG_STREAMING"]
         @pending_key = key.to_sym
       end
 
       # Called when a hash value is about to be parsed
       #
       # @param key [String] The hash key name
-      def on_hash_value(key)
-        puts "DEBUG on_hash_value: #{key.inspect} (#{key.class})" if ENV["DEBUG_STREAMING"]
+      def on_hash_value(_key)
         @pending_key = nil
       end
 
@@ -445,7 +443,6 @@ module Expressir
         else
           # This handles unexpected container types (debugging)
           if ENV["DEBUG_STREAMING"]
-            puts "DEBUG: Unknown container type: #{container.class}"
             puts "  Container value: #{container.inspect[0..200]}"
             puts "  Pending key: #{@pending_key.inspect}"
             puts "  Stack depth: #{@stack.length}"

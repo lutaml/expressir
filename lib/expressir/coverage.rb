@@ -3,53 +3,39 @@ require "pathname"
 module Expressir
   # Coverage module for calculating documentation coverage of EXPRESS entities
   module Coverage
-    # Mapping of EXPRESS entity type names to their corresponding class names
-    ENTITY_TYPE_MAP = {
-      "TYPE" => "Expressir::Model::Declarations::Type",
-      "ENTITY" => "Expressir::Model::Declarations::Entity",
-      "CONSTANT" => "Expressir::Model::Declarations::Constant",
-      "FUNCTION" => "Expressir::Model::Declarations::Function",
-      "RULE" => "Expressir::Model::Declarations::Rule",
-      "PROCEDURE" => "Expressir::Model::Declarations::Procedure",
-      "SUBTYPE_CONSTRAINT" => "Expressir::Model::Declarations::SubtypeConstraint",
-      "PARAMETER" => "Expressir::Model::Declarations::Parameter",
-      "VARIABLE" => "Expressir::Model::Declarations::Variable",
-      "ATTRIBUTE" => "Expressir::Model::Declarations::Attribute",
-      "DERIVED_ATTRIBUTE" => "Expressir::Model::Declarations::DerivedAttribute",
-      "INVERSE_ATTRIBUTE" => "Expressir::Model::Declarations::InverseAttribute",
-      "UNIQUE_RULE" => "Expressir::Model::Declarations::UniqueRule",
-      "WHERE_RULE" => "Expressir::Model::Declarations::WhereRule",
-      "ENUMERATION_ITEM" => "Expressir::Model::DataTypes::EnumerationItem",
-      "INTERFACE" => "Expressir::Model::Declarations::Interface",
-      "INTERFACE_ITEM" => "Expressir::Model::Declarations::InterfaceItem",
-      "INTERFACED_ITEM" => "Expressir::Model::Declarations::InterfacedItem",
-      "SCHEMA_VERSION" => "Expressir::Model::Declarations::SchemaVersion",
-      "SCHEMA_VERSION_ITEM" => "Expressir::Model::Declarations::SchemaVersionItem",
-    }.freeze
+    # Single source of truth: EXPRESS type name → Ruby class name pairs.
+    # ENTITY_TYPE_MAP and CLASS_TO_EXPRESS_TYPE_MAP are derived from this
+    # so the two never drift out of sync.
+    TYPE_PAIRS = [
+      ["TYPE", "Expressir::Model::Declarations::Type"],
+      ["ENTITY", "Expressir::Model::Declarations::Entity"],
+      ["CONSTANT", "Expressir::Model::Declarations::Constant"],
+      ["FUNCTION", "Expressir::Model::Declarations::Function"],
+      ["RULE", "Expressir::Model::Declarations::Rule"],
+      ["PROCEDURE", "Expressir::Model::Declarations::Procedure"],
+      ["SUBTYPE_CONSTRAINT", "Expressir::Model::Declarations::SubtypeConstraint"],
+      ["PARAMETER", "Expressir::Model::Declarations::Parameter"],
+      ["VARIABLE", "Expressir::Model::Declarations::Variable"],
+      ["ATTRIBUTE", "Expressir::Model::Declarations::Attribute"],
+      ["DERIVED_ATTRIBUTE", "Expressir::Model::Declarations::DerivedAttribute"],
+      ["INVERSE_ATTRIBUTE", "Expressir::Model::Declarations::InverseAttribute"],
+      ["UNIQUE_RULE", "Expressir::Model::Declarations::UniqueRule"],
+      ["WHERE_RULE", "Expressir::Model::Declarations::WhereRule"],
+      ["ENUMERATION_ITEM", "Expressir::Model::DataTypes::EnumerationItem"],
+      ["INTERFACE", "Expressir::Model::Declarations::Interface"],
+      ["INTERFACE_ITEM", "Expressir::Model::Declarations::InterfaceItem"],
+      ["INTERFACED_ITEM", "Expressir::Model::Declarations::InterfacedItem"],
+      ["SCHEMA_VERSION", "Expressir::Model::Declarations::SchemaVersion"],
+      ["SCHEMA_VERSION_ITEM", "Expressir::Model::Declarations::SchemaVersionItem"],
+    ].freeze
 
-    # Mapping of class names to EXPRESS entity type names (for proper formatting)
-    CLASS_TO_EXPRESS_TYPE_MAP = {
-      "Type" => "TYPE",
-      "Entity" => "ENTITY",
-      "Constant" => "CONSTANT",
-      "Function" => "FUNCTION",
-      "Rule" => "RULE",
-      "Procedure" => "PROCEDURE",
-      "SubtypeConstraint" => "SUBTYPE_CONSTRAINT",
-      "Parameter" => "PARAMETER",
-      "Variable" => "VARIABLE",
-      "Attribute" => "ATTRIBUTE",
-      "DerivedAttribute" => "DERIVED_ATTRIBUTE",
-      "InverseAttribute" => "INVERSE_ATTRIBUTE",
-      "UniqueRule" => "UNIQUE_RULE",
-      "WhereRule" => "WHERE_RULE",
-      "EnumerationItem" => "ENUMERATION_ITEM",
-      "Interface" => "INTERFACE",
-      "InterfaceItem" => "INTERFACE_ITEM",
-      "InterfacedItem" => "INTERFACED_ITEM",
-      "SchemaVersion" => "SCHEMA_VERSION",
-      "SchemaVersionItem" => "SCHEMA_VERSION_ITEM",
-    }.freeze
+    # EXPRESS entity type name → Ruby class name.
+    ENTITY_TYPE_MAP = TYPE_PAIRS.to_h.freeze
+
+    # Short Ruby class name → EXPRESS entity type name.
+    CLASS_TO_EXPRESS_TYPE_MAP = TYPE_PAIRS.to_h do |express_name, ruby_class|
+      [ruby_class.split("::").last, express_name]
+    end.freeze
 
     # Available TYPE subtypes based on data types
     TYPE_SUBTYPES = %w[
@@ -401,78 +387,24 @@ module Expressir
         entities.concat(container.unique_rules) if container.unique_rules
         entities.concat(container.where_rules) if container.where_rules
 
-      when Expressir::Model::Declarations::Function
-        # Function nested entities
-        entities.concat(container.parameters) if container.parameters
-        entities.concat(container.variables) if container.variables
-        entities.concat(container.constants) if container.constants
-        entities.concat(container.types) if container.types
-        entities.concat(container.entities) if container.entities
-        entities.concat(container.functions) if container.functions
-        entities.concat(container.procedures) if container.procedures
-        entities.concat(container.subtype_constraints) if container.subtype_constraints
-
-        # Recursively find nested entities in nested containers
-        container.types&.each do |type|
-          entities.concat(find_nested_entities(type))
-        end
-        container.entities&.each do |entity|
-          entities.concat(find_nested_entities(entity))
-        end
-        container.functions&.each do |function|
-          entities.concat(find_nested_entities(function))
-        end
-        container.procedures&.each do |procedure|
-          entities.concat(find_nested_entities(procedure))
+      when Expressir::Model::Declarations::Function,
+           Expressir::Model::Declarations::Procedure,
+           Expressir::Model::Declarations::Rule
+        # All three scope containers follow the same nested-entity pattern.
+        # Derive the collection list from the model's own declaration rather
+        # than maintaining three separate hand-coded branches.
+        nested_attrs = container.class.collection_attributes_list - %i[
+          statements remark_items where_rules informal_propositions applies_to
+        ]
+        nested_attrs.each do |attr|
+          collection = container.public_send(attr)
+          entities.concat(collection) if collection.is_a?(Array)
         end
 
-      when Expressir::Model::Declarations::Rule
-        # Rule nested entities
-        entities.concat(container.variables) if container.variables
-        entities.concat(container.constants) if container.constants
-        entities.concat(container.types) if container.types
-        entities.concat(container.entities) if container.entities
-        entities.concat(container.functions) if container.functions
-        entities.concat(container.procedures) if container.procedures
-        entities.concat(container.subtype_constraints) if container.subtype_constraints
-
-        # Recursively find nested entities in nested containers
-        container.types&.each do |type|
-          entities.concat(find_nested_entities(type))
-        end
-        container.entities&.each do |entity|
-          entities.concat(find_nested_entities(entity))
-        end
-        container.functions&.each do |function|
-          entities.concat(find_nested_entities(function))
-        end
-        container.procedures&.each do |procedure|
-          entities.concat(find_nested_entities(procedure))
-        end
-
-      when Expressir::Model::Declarations::Procedure
-        # Procedure nested entities
-        entities.concat(container.parameters) if container.parameters
-        entities.concat(container.variables) if container.variables
-        entities.concat(container.constants) if container.constants
-        entities.concat(container.types) if container.types
-        entities.concat(container.entities) if container.entities
-        entities.concat(container.functions) if container.functions
-        entities.concat(container.procedures) if container.procedures
-        entities.concat(container.subtype_constraints) if container.subtype_constraints
-
-        # Recursively find nested entities in nested containers
-        container.types&.each do |type|
-          entities.concat(find_nested_entities(type))
-        end
-        container.entities&.each do |entity|
-          entities.concat(find_nested_entities(entity))
-        end
-        container.functions&.each do |function|
-          entities.concat(find_nested_entities(function))
-        end
-        container.procedures&.each do |procedure|
-          entities.concat(find_nested_entities(procedure))
+        # Recursively find nested entities in nested scope containers
+        %i[types entities functions procedures].each do |attr|
+          collection = container.public_send(attr)
+          collection&.each { |item| entities.concat(find_nested_entities(item)) }
         end
 
       when Expressir::Model::Declarations::Interface

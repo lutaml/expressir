@@ -4,6 +4,36 @@ module Expressir
   module Model
     # Base model element
     class ModelElement < Lutaml::Model::Serializable
+      # ---- Collection-attributes macro (TODO.bugs/12) ----
+      #
+      # Each model class declares which attributes hold child collections
+      # via `collection_attributes :foo, :bar, ...`. The declarations
+      # auto-register into the global registry, eliminating the need for
+      # a hand-maintained hash in NodePositionIndex.
+
+      # Returns the global registry: class → array of attr symbols.
+      def self.collection_registry
+        @collection_registry ||= {}
+      end
+
+      # Returns the collection attributes declared on this class (empty
+      # if none declared).
+      def self.collection_attributes_list
+        @collection_attributes || []
+      end
+
+      # Declare which attributes on this model class hold child collections
+      # that should be traversed by tree-walkers (NodePositionIndex,
+      # RemarkAttacher, ScopeResolver). Also registers this class in the
+      # global collection registry so NodePositionIndex can derive its
+      # COLLECTION_REGISTRY from the model instead of duplicating it.
+      def self.collection_attributes(*attrs)
+        @collection_attributes = attrs.freeze
+        ModelElement.collection_registry[self] = attrs
+      end
+
+      # ---- End collection-attributes macro ----
+
       SKIP_ATTRIBUTES = %i[parent _class].freeze
       # :parent is a special attribute that is used to store the parent of the current element
       # It is not a real attribute

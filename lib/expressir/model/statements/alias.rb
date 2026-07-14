@@ -6,6 +6,7 @@ module Expressir
       class Alias < ModelElement
         include Identifier
 
+        collection_attributes :statements
         attribute :expression, ModelElement
         attribute :statements, ModelElement, collection: true
         attribute :_class, :string, default: -> { self.class.name }

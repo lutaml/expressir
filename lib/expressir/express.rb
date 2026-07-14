@@ -12,6 +12,7 @@ module Expressir
     autoload :Error, "#{__dir__}/express/error"
     autoload :Formatter, "#{__dir__}/express/formatter"
     autoload :Formatters, "#{__dir__}/express/formatters"
+    autoload :Grammar, "#{__dir__}/express/grammar"
     autoload :HyperlinkFormatter, "#{__dir__}/express/hyperlink_formatter"
     autoload :LineMap, "#{__dir__}/express/line_map"
     autoload :ModelVisitor, "#{__dir__}/express/model_visitor"
@@ -22,6 +23,7 @@ module Expressir
     autoload :RemarkScanner, "#{__dir__}/express/remark_scanner"
     autoload :ResolveReferencesModelVisitor,
              "#{__dir__}/express/resolve_references_model_visitor"
+    autoload :SchemaBlockScanner, "#{__dir__}/express/schema_block_scanner"
     autoload :SchemaHeadFormatter, "#{__dir__}/express/schema_head_formatter"
     autoload :SchemaSourceFormatter, "#{__dir__}/express/schema_source_formatter"
     autoload :ScopeResolver, "#{__dir__}/express/scope_resolver"

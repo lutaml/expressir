@@ -92,200 +92,145 @@ module Expressir
       option :verbose, type: :boolean, default: false,
                        desc: "Enable verbose output"
       def build(root_schema = nil, output = nil)
-        schema_files = if options[:manifest]
-                         # Manifest-based mode
-                         unless File.exist?(options[:manifest])
-                           raise Expressir::ManifestNotFoundError.new(options[:manifest])
-                         end
-
-                         # Override output if not provided
-                         output ||= root_schema
-                         unless output
-                           raise Expressir::MissingRequiredArgumentError.new(
-                             "OUTPUT path is required",
-                             usage_hint: "expressir package build --manifest MANIFEST.yaml OUTPUT.ler",
-                           )
-                         end
-
-                         # Build repository
-                         say "Building LER package from manifest #{options[:manifest]}..." if options[:verbose]
-
-                         # Load manifest for verification and data extraction
-                         manifest = Expressir::SchemaManifest.from_file(options[:manifest])
-                         manifest_data = YAML.load_file(options[:manifest])
-                         manifest_dir = File.dirname(File.expand_path(options[:manifest]))
-
-                         # Verify manifest unless --skip-verify is used
-                         if options[:skip_verify]
-                           say "⚠ Warning: Skipping manifest verification",
-                               :yellow
-                           say "  This set of EXPRESS schemas may not be fully internally consistent.",
-                               :yellow
-                           say ""
-                         else
-                           say "Verifying manifest integrity..."
-
-                           validator = Expressir::Manifest::Validator.new(
-                             manifest, options.merge(verbose: true)
-                           )
-
-                           # Check file existence
-                           file_errors = validator.validate_file_existence
-                           unless file_errors.empty?
-                             raise Expressir::ManifestValidationError.new(
-                               "Manifest validation failed",
-                               errors: file_errors.map { |e| e[:message] },
-                             )
-                           end
-
-                           # Check referential integrity
-                           reference_errors = validator.validate_referential_integrity
-                           unless reference_errors.empty?
-                             raise Expressir::ReferentialIntegrityError.new(
-                               reference_errors,
-                               message: "Manifest has unresolved dependencies",
-                             )
-                           end
-
-                           say "✓ Manifest verified", :green
-                         end
-
-                         # Validate and collect paths
-                         errors = []
-                         warnings = []
-                         paths = []
-
-                         manifest_data["schemas"].each do |schema_id, schema_data|
-                           schema_path = schema_data["path"]
-
-                           if schema_path.nil? || schema_path.empty?
-                             warnings << "Schema '#{schema_id}' has no path specified"
-                             next
-                           end
-
-                           # Expand relative paths relative to manifest directory
-                           full_path = if Pathname.new(schema_path).absolute?
-                                         schema_path
-                                       else
-                                         File.expand_path(schema_path,
-                                                          manifest_dir)
-                                       end
-
-                           unless File.exist?(full_path)
-                             errors << "Schema file not found: #{full_path} (#{schema_id})"
-                             next
-                           end
-
-                           paths << full_path
-                         end
-
-                         unless errors.empty?
-                           raise Expressir::ManifestValidationError.new(
-                             "Manifest validation failed",
-                             errors: errors,
-                           )
-                         end
-
-                         if options[:verbose] && warnings.any?
-                           say "Warnings:"
-                           warnings.each { |w| say "  - #{w}", :yellow }
-                         end
-
-                         say "  Using #{paths.size} schema(s) from manifest" if options[:verbose]
-                         paths
-                       else
-                         # Auto-resolution mode
-                         unless root_schema
-                           raise Expressir::MissingRequiredArgumentError.new(
-                             "ROOT_SCHEMA is required when not using --manifest",
-                             usage_hint: "expressir package build ROOT_SCHEMA OUTPUT.ler",
-                           )
-                         end
-
-                         unless output
-                           raise Expressir::MissingRequiredArgumentError.new(
-                             "OUTPUT path is required",
-                             usage_hint: "expressir package build ROOT_SCHEMA OUTPUT.ler",
-                           )
-                         end
-
-                         say "Building LER package from #{root_schema}..." if options[:verbose]
-
-                         # Resolve dependencies
-                         say "Resolving dependencies..." if options[:verbose]
-                         base_dirs = if options[:base_dirs]
-                                       options[:base_dirs].split(",").map(&:strip)
-                                     else
-                                       # Default to the directory containing the root schema
-                                       [File.dirname(File.expand_path(root_schema))]
-                                     end
-
-                         if options[:verbose] && base_dirs.size == 1
-                           say "  Using base directory: #{base_dirs.first}"
-                           say "  Tip: Use --base-dirs to specify additional search paths for dependencies"
-                         end
-
-                         resolver = Expressir::Model::DependencyResolver.new(
-                           base_dirs: base_dirs,
-                           verbose: options[:verbose],
-                         )
-                         resolved = resolver.resolve_dependencies(root_schema)
-                         say "  Found #{resolved.size} schema(s)" if options[:verbose]
-                         resolved
-                       end
-
-        # Build repository
-        say "Building repository..." if options[:verbose]
+        schema_files, output = resolve_schema_files(root_schema, output)
         repo = Expressir::Model::Repository.from_files(schema_files)
-
-        # Validate if requested
-        # When using --skip-verify, skip validation unless explicitly requested with --validate
-        should_validate = if options[:manifest] && options[:skip_verify]
-                            # Check if --validate was explicitly passed
-                            # Thor doesn't have a way to check if option was set by user vs default
-                            # So we check if --no-validate was explicitly disabled
-                            false
-                          else
-                            options[:validate]
-                          end
-
-        if should_validate
-          say "Validating repository..." if options[:verbose]
-          validation = repo.validate
-          unless validation[:valid?]
-            raise Expressir::SchemaValidationError.new(
-              "Repository validation failed",
-              errors: (validation[:errors] || []).map do |e|
-                if e.is_a?(Hash)
-                  msg = e[:message] || "Unknown error"
-                  type = e[:type] ? "[#{e[:type]}] " : ""
-                  schema = e[:schema] ? " (schema: #{e[:schema]})" : ""
-                  ref = e[:referenced_schema] ? " (referenced: #{e[:referenced_schema]})" : ""
-                  iface = e[:interface_type] ? " (interface: #{e[:interface_type]})" : ""
-                  "#{type}#{msg}#{schema}#{ref}#{iface}"
-                else
-                  e.to_s
-                end
-              end,
-            )
-          end
-          say "  ✓ Validation passed" if options[:verbose]
-        end
-
-        # Build package
-        say "Creating package..." if options[:verbose]
-        repo.export_to_package(output, build_package_options)
-
-        say "✓ Package created: #{output}", :green
-        say "  Schemas: #{repo.schemas.size}", :green if options[:verbose]
+        validate_repository(repo) if should_validate?
+        create_package(repo, output)
       rescue Expressir::Error
-        raise # Re-raise Expressir errors
+        raise
       rescue StandardError => e
         raise Expressir::PackageBuildError.new(
           "Error building package: #{e.message}",
           command_name: "package build",
         )
       end
+
+      private
+
+      def resolve_schema_files(root_schema, output)
+        if options[:manifest]
+          [resolve_from_manifest(output), output || root_schema]
+        else
+          [resolve_from_auto_resolution(root_schema), output]
+        end
+      end
+
+      def resolve_from_manifest(output)
+        raise Expressir::ManifestNotFoundError.new(options[:manifest]) unless File.exist?(options[:manifest])
+
+        raise Expressir::MissingRequiredArgumentError.new(
+          "OUTPUT path is required",
+          usage_hint: "expressir package build --manifest MANIFEST.yaml OUTPUT.ler",
+        ) unless output || root_schema_arg
+
+        say "Building LER package from manifest #{options[:manifest]}..." if options[:verbose]
+
+        manifest = Expressir::SchemaManifest.from_file(options[:manifest])
+        manifest_data = YAML.load_file(options[:manifest])
+        manifest_dir = File.dirname(File.expand_path(options[:manifest]))
+
+        verify_manifest(manifest) unless options[:skip_verify]
+        collect_manifest_paths(manifest_data, manifest_dir)
+      end
+
+      def verify_manifest(manifest)
+        say "Verifying manifest integrity..."
+        validator = Expressir::Manifest::Validator.new(manifest, options.merge(verbose: true))
+
+        file_errors = validator.validate_file_existence
+        raise Expressir::ManifestValidationError.new(
+          "Manifest validation failed", errors: file_errors.map { |e| e[:message] },
+        ) unless file_errors.empty?
+
+        reference_errors = validator.validate_referential_integrity
+        raise Expressir::ReferentialIntegrityError.new(
+          reference_errors, message: "Manifest has unresolved dependencies",
+        ) unless reference_errors.empty?
+
+        say "✓ Manifest verified", :green
+      end
+
+      def collect_manifest_paths(manifest_data, manifest_dir)
+        errors = []
+        warnings = []
+        paths = []
+
+        manifest_data["schemas"].each do |schema_id, schema_data|
+          schema_path = schema_data["path"]
+          if schema_path.nil? || schema_path.empty?
+            warnings << "Schema '#{schema_id}' has no path specified"
+            next
+          end
+
+          full_path = Pathname.new(schema_path).absolute? ? schema_path : File.expand_path(schema_path, manifest_dir)
+          if File.exist?(full_path)
+            paths << full_path
+          else
+            errors << "Schema file not found: #{full_path} (#{schema_id})"
+          end
+        end
+
+        raise Expressir::ManifestValidationError.new("Manifest validation failed", errors: errors) unless errors.empty?
+
+        say "Warnings:" if options[:verbose] && warnings.any?
+        warnings.each { |w| say "  - #{w}", :yellow } if options[:verbose] && warnings.any?
+        say "  Using #{paths.size} schema(s) from manifest" if options[:verbose]
+        paths
+      end
+
+      def resolve_from_auto_resolution(root_schema)
+        raise Expressir::MissingRequiredArgumentError.new(
+          "ROOT_SCHEMA is required when not using --manifest",
+          usage_hint: "expressir package build ROOT_SCHEMA OUTPUT.ler",
+        ) unless root_schema
+
+        say "Building LER package from #{root_schema}..." if options[:verbose]
+        say "Resolving dependencies..." if options[:verbose]
+
+        base_dirs = options[:base_dirs] ? options[:base_dirs].split(",").map(&:strip) : [File.dirname(File.expand_path(root_schema))]
+        if options[:verbose] && base_dirs.size == 1
+          say "  Using base directory: #{base_dirs.first}"
+          say "  Tip: Use --base-dirs to specify additional search paths for dependencies"
+        end
+
+        resolver = Expressir::Model::DependencyResolver.new(base_dirs: base_dirs, verbose: options[:verbose])
+        resolved = resolver.resolve_dependencies(root_schema)
+        say "  Found #{resolved.size} schema(s)" if options[:verbose]
+        resolved
+      end
+
+      def should_validate?
+        return false if options[:manifest] && options[:skip_verify]
+
+        options[:validate]
+      end
+
+      def validate_repository(repo)
+        say "Validating repository..." if options[:verbose]
+        validation = repo.validate
+        return if validation[:valid?]
+
+        formatted_errors = (validation[:errors] || []).map do |e|
+          next e.to_s unless e.is_a?(Hash)
+
+          msg = e[:message] || "Unknown error"
+          type = e[:type] ? "[#{e[:type]}] " : ""
+          schema = e[:schema] ? " (schema: #{e[:schema]})" : ""
+          ref = e[:referenced_schema] ? " (referenced: #{e[:referenced_schema]})" : ""
+          iface = e[:interface_type] ? " (interface: #{e[:interface_type]})" : ""
+          "#{type}#{msg}#{schema}#{ref}#{iface}"
+        end
+        raise Expressir::SchemaValidationError.new("Repository validation failed", errors: formatted_errors)
+      end
+
+      def create_package(repo, output)
+        say "Creating package..." if options[:verbose]
+        repo.export_to_package(output, build_package_options)
+        say "✓ Package created: #{output}", :green
+        say "  Schemas: #{repo.schemas.size}", :green if options[:verbose]
+      end
+
+      public
 
       desc "info PACKAGE", "Display package metadata and statistics"
       long_desc <<~DESC

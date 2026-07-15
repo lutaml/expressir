@@ -118,6 +118,30 @@ module Expressir
 
     # Collection of all violations across multiple files
     class NonAsciiViolationCollection
+      # Pre-defined mapping of common Unicode math symbols to AsciiMath.
+      UNICODE_TO_ASCIIDOC_MAP = {
+        # Greek letters
+        "α" => "alpha", "β" => "beta", "γ" => "gamma", "Γ" => "Gamma",
+        "δ" => "delta", "Δ" => "Delta", "ε" => "epsilon", "ζ" => "zeta",
+        "η" => "eta", "θ" => "theta", "Θ" => "Theta", "ι" => "iota",
+        "κ" => "kappa", "λ" => "lambda", "Λ" => "Lambda", "μ" => "mu",
+        "ν" => "nu", "ξ" => "xi", "Ξ" => "Xi", "π" => "pi", "Π" => "Pi",
+        "ρ" => "rho", "σ" => "sigma", "Σ" => "Sigma", "τ" => "tau",
+        "υ" => "upsilon", "φ" => "phi", "Φ" => "Phi", "χ" => "chi",
+        "ψ" => "psi", "Ψ" => "Psi", "ω" => "omega", "Ω" => "Omega",
+        # Math operators
+        "×" => "xx", "÷" => "div", "±" => "pm", "∓" => "mp",
+        "∞" => "oo", "≤" => "le", "≥" => "ge", "≠" => "ne",
+        "≈" => "~~", "≅" => "cong", "≡" => "equiv", "∈" => "in",
+        "∉" => "notin", "⊂" => "subset", "⊃" => "supset", "∩" => "cap",
+        "∪" => "cup", "∧" => "and", "∨" => "or", "¬" => "neg",
+        "∀" => "forall", "∃" => "exists", "∄" => "nexists", "∇" => "grad",
+        "∂" => "del", "∑" => "sum", "∏" => "prod", "∫" => "int",
+        "∮" => "oint", "√" => "sqrt", "⊥" => "perp", "‖" => "norm",
+        "→" => "rarr", "←" => "larr", "↔" => "harr",
+        "⇒" => "rArr", "⇐" => "lArr", "⇔" => "hArr"
+      }.freeze
+
       attr_reader :file_violations, :total_files
 
       def initialize(check_remarks: false)
@@ -432,31 +456,6 @@ module Expressir
           "\"#{sprintf('%02X%02X%02X%02X', group, plane, row, cell)}\""
         end
       end
-
-      # Pre-defined mapping of common Unicode math symbols to AsciiMath.
-      # Extracted from UNICODE_TO_ASCIIDOC_MAP (TODO.bugs/30).
-      UNICODE_TO_ASCIIDOC_MAP = {
-        # Greek letters
-        "α" => "alpha", "β" => "beta", "γ" => "gamma", "Γ" => "Gamma",
-        "δ" => "delta", "Δ" => "Delta", "ε" => "epsilon", "ζ" => "zeta",
-        "η" => "eta", "θ" => "theta", "Θ" => "Theta", "ι" => "iota",
-        "κ" => "kappa", "λ" => "lambda", "Λ" => "Lambda", "μ" => "mu",
-        "ν" => "nu", "ξ" => "xi", "Ξ" => "Xi", "π" => "pi", "Π" => "Pi",
-        "ρ" => "rho", "σ" => "sigma", "Σ" => "Sigma", "τ" => "tau",
-        "υ" => "upsilon", "φ" => "phi", "Φ" => "Phi", "χ" => "chi",
-        "ψ" => "psi", "Ψ" => "Psi", "ω" => "omega", "Ω" => "Omega",
-        # Math operators
-        "×" => "xx", "÷" => "div", "±" => "pm", "∓" => "mp",
-        "∞" => "oo", "≤" => "le", "≥" => "ge", "≠" => "ne",
-        "≈" => "~~", "≅" => "cong", "≡" => "equiv", "∈" => "in",
-        "∉" => "notin", "⊂" => "subset", "⊃" => "supset", "∩" => "cap",
-        "∪" => "cup", "∧" => "and", "∨" => "or", "¬" => "neg",
-        "∀" => "forall", "∃" => "exists", "∄" => "nexists", "∇" => "grad",
-        "∂" => "del", "∑" => "sum", "∏" => "prod", "∫" => "int",
-        "∮" => "oint", "√" => "sqrt", "⊥" => "perp", "‖" => "norm",
-        "→" => "rarr", "←" => "larr", "↔" => "harr",
-        "⇒" => "rArr", "⇐" => "lArr", "⇔" => "hArr",
-      }.freeze
     end
 
     # ValidateAscii command for checking EXPRESS files for non-ASCII characters

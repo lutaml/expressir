@@ -118,10 +118,12 @@ module Expressir
       def resolve_from_manifest(output)
         raise Expressir::ManifestNotFoundError.new(options[:manifest]) unless File.exist?(options[:manifest])
 
-        raise Expressir::MissingRequiredArgumentError.new(
-          "OUTPUT path is required",
-          usage_hint: "expressir package build --manifest MANIFEST.yaml OUTPUT.ler",
-        ) unless output || root_schema_arg
+        unless output || root_schema_arg
+          raise Expressir::MissingRequiredArgumentError.new(
+            "OUTPUT path is required",
+            usage_hint: "expressir package build --manifest MANIFEST.yaml OUTPUT.ler",
+          )
+        end
 
         say "Building LER package from manifest #{options[:manifest]}..." if options[:verbose]
 
@@ -138,14 +140,18 @@ module Expressir
         validator = Expressir::Manifest::Validator.new(manifest, options.merge(verbose: true))
 
         file_errors = validator.validate_file_existence
-        raise Expressir::ManifestValidationError.new(
-          "Manifest validation failed", errors: file_errors.map { |e| e[:message] },
-        ) unless file_errors.empty?
+        unless file_errors.empty?
+          raise Expressir::ManifestValidationError.new(
+            "Manifest validation failed", errors: file_errors.map { |e| e[:message] }
+          )
+        end
 
         reference_errors = validator.validate_referential_integrity
-        raise Expressir::ReferentialIntegrityError.new(
-          reference_errors, message: "Manifest has unresolved dependencies",
-        ) unless reference_errors.empty?
+        unless reference_errors.empty?
+          raise Expressir::ReferentialIntegrityError.new(
+            reference_errors, message: "Manifest has unresolved dependencies"
+          )
+        end
 
         say "✓ Manifest verified", :green
       end
@@ -179,10 +185,12 @@ module Expressir
       end
 
       def resolve_from_auto_resolution(root_schema)
-        raise Expressir::MissingRequiredArgumentError.new(
-          "ROOT_SCHEMA is required when not using --manifest",
-          usage_hint: "expressir package build ROOT_SCHEMA OUTPUT.ler",
-        ) unless root_schema
+        unless root_schema
+          raise Expressir::MissingRequiredArgumentError.new(
+            "ROOT_SCHEMA is required when not using --manifest",
+            usage_hint: "expressir package build ROOT_SCHEMA OUTPUT.ler",
+          )
+        end
 
         say "Building LER package from #{root_schema}..." if options[:verbose]
         say "Resolving dependencies..." if options[:verbose]

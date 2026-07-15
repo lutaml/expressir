@@ -34,9 +34,8 @@ RSpec.describe Expressir::Commands::ValidateAscii do
 
     describe "#process_non_ascii_char" do
       before do
-        # Initialize the unicode_to_asciimath map
-        collection.instance_variable_set(:@unicode_to_asciimath,
-                                         collection.send(:build_unicode_to_asciimath_map))
+        # Initialize the unicode_to_asciimath map via the public interface
+        collection.process_file("spec/fixtures/examples/tail_remarks_test_schema.exp")
       end
 
       it "identifies common math symbols correctly" do

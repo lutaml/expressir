@@ -131,7 +131,7 @@ module Expressir
         @total_files += 1
 
         # Initialize the mapping once
-        @unicode_to_asciimath ||= build_unicode_to_asciimath_map
+        @unicode_to_asciimath ||= UNICODE_TO_ASCIIDOC_MAP
 
         file_violations = process_file_violations(file)
         return if file_violations.violations.empty?
@@ -433,85 +433,30 @@ module Expressir
         end
       end
 
-      def build_unicode_to_asciimath_map
-        # Pre-defined mapping of common math symbols
-        {
-          # Greek letters
-          "α" => "alpha",
-          "β" => "beta",
-          "γ" => "gamma",
-          "Γ" => "Gamma",
-          "δ" => "delta",
-          "Δ" => "Delta",
-          "ε" => "epsilon",
-          "ζ" => "zeta",
-          "η" => "eta",
-          "θ" => "theta",
-          "Θ" => "Theta",
-          "ι" => "iota",
-          "κ" => "kappa",
-          "λ" => "lambda",
-          "Λ" => "Lambda",
-          "μ" => "mu",
-          "ν" => "nu",
-          "ξ" => "xi",
-          "Ξ" => "Xi",
-          "π" => "pi",
-          "Π" => "Pi",
-          "ρ" => "rho",
-          "σ" => "sigma",
-          "Σ" => "Sigma",
-          "τ" => "tau",
-          "υ" => "upsilon",
-          "φ" => "phi",
-          "Φ" => "Phi",
-          "χ" => "chi",
-          "ψ" => "psi",
-          "Ψ" => "Psi",
-          "ω" => "omega",
-          "Ω" => "Omega",
-
-          # Math operators
-          "×" => "xx",
-          "÷" => "div",
-          "±" => "pm",
-          "∓" => "mp",
-          "∞" => "oo",
-          "≤" => "le",
-          "≥" => "ge",
-          "≠" => "ne",
-          "≈" => "~~",
-          "≅" => "cong",
-          "≡" => "equiv",
-          "∈" => "in",
-          "∉" => "notin",
-          "⊂" => "subset",
-          "⊃" => "supset",
-          "∩" => "cap",
-          "∪" => "cup",
-          "∧" => "and",
-          "∨" => "or",
-          "¬" => "neg",
-          "∀" => "forall",
-          "∃" => "exists",
-          "∄" => "nexists",
-          "∇" => "grad",
-          "∂" => "del",
-          "∑" => "sum",
-          "∏" => "prod",
-          "∫" => "int",
-          "∮" => "oint",
-          "√" => "sqrt",
-          "⊥" => "perp",
-          "‖" => "norm",
-          "→" => "rarr",
-          "←" => "larr",
-          "↔" => "harr",
-          "⇒" => "rArr",
-          "⇐" => "lArr",
-          "⇔" => "hArr",
-        }
-      end
+      # Pre-defined mapping of common Unicode math symbols to AsciiMath.
+      # Extracted from UNICODE_TO_ASCIIDOC_MAP (TODO.bugs/30).
+      UNICODE_TO_ASCIIDOC_MAP = {
+        # Greek letters
+        "α" => "alpha", "β" => "beta", "γ" => "gamma", "Γ" => "Gamma",
+        "δ" => "delta", "Δ" => "Delta", "ε" => "epsilon", "ζ" => "zeta",
+        "η" => "eta", "θ" => "theta", "Θ" => "Theta", "ι" => "iota",
+        "κ" => "kappa", "λ" => "lambda", "Λ" => "Lambda", "μ" => "mu",
+        "ν" => "nu", "ξ" => "xi", "Ξ" => "Xi", "π" => "pi", "Π" => "Pi",
+        "ρ" => "rho", "σ" => "sigma", "Σ" => "Sigma", "τ" => "tau",
+        "υ" => "upsilon", "φ" => "phi", "Φ" => "Phi", "χ" => "chi",
+        "ψ" => "psi", "Ψ" => "Psi", "ω" => "omega", "Ω" => "Omega",
+        # Math operators
+        "×" => "xx", "÷" => "div", "±" => "pm", "∓" => "mp",
+        "∞" => "oo", "≤" => "le", "≥" => "ge", "≠" => "ne",
+        "≈" => "~~", "≅" => "cong", "≡" => "equiv", "∈" => "in",
+        "∉" => "notin", "⊂" => "subset", "⊃" => "supset", "∩" => "cap",
+        "∪" => "cup", "∧" => "and", "∨" => "or", "¬" => "neg",
+        "∀" => "forall", "∃" => "exists", "∄" => "nexists", "∇" => "grad",
+        "∂" => "del", "∑" => "sum", "∏" => "prod", "∫" => "int",
+        "∮" => "oint", "√" => "sqrt", "⊥" => "perp", "‖" => "norm",
+        "→" => "rarr", "←" => "larr", "↔" => "harr",
+        "⇒" => "rArr", "⇐" => "lArr", "⇔" => "hArr",
+      }.freeze
     end
 
     # ValidateAscii command for checking EXPRESS files for non-ASCII characters

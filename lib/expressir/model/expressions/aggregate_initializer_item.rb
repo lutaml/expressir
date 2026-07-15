@@ -4,6 +4,7 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 12.9 Aggregate initializer
       class AggregateInitializerItem < ModelElement
+        child_attributes :expression, :repetition
         attribute :expression, ModelElement
         attribute :repetition, ModelElement
         attribute :_class, :string, default: -> { self.class.name }

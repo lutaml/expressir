@@ -11,13 +11,13 @@ module Expressir
         key_value do
           map "_class", to: :_class, render_default: true
         end
-      end
 
-      # @return [Array<Declaration>]
-      def children
-        [
-          *remark_items,
-        ]
+        # @return [Array<Declaration>]
+        def children
+          [
+            *remark_items,
+          ]
+        end
       end
     end
   end

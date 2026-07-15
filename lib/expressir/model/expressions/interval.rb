@@ -4,6 +4,7 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 12.2.4 Interval expressions
       class Interval < ModelElement
+        child_attributes :low, :item, :high
         LESS_THAN = "LESS_THAN".freeze
         LESS_THAN_OR_EQUAL = "LESS_THAN_OR_EQUAL".freeze
 

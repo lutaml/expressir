@@ -5,6 +5,7 @@ module Expressir
       # - section 12.1 Arithmetic operators
       # - section 12.4.1 NOT operator
       class UnaryExpression < ModelElement
+        child_attributes :operand
         MINUS = "MINUS".freeze
         NOT = "NOT".freeze
         PLUS = "PLUS".freeze

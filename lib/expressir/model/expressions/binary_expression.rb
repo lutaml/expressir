@@ -10,6 +10,7 @@ module Expressir
       # - section 12.6 Aggregate operators
       # - section 12.10 Complex entity instance construction operator
       class BinaryExpression < ModelElement
+        child_attributes :operand1, :operand2
         ADDITION = "ADDITION".freeze
         AND = "AND".freeze
         COMBINE = "COMBINE".freeze

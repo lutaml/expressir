@@ -5,6 +5,7 @@ module Expressir
       # - section 13.7 If ... Then ... Else statement
       class If < ModelElement
         collection_attributes :statements
+        child_attributes :expression
         attribute :expression, ModelElement
         attribute :statements, ModelElement, collection: true
         attribute :else_statements, ModelElement, collection: true

@@ -4,6 +4,7 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 12.8 Function call
       class FunctionCall < ModelElement
+        child_attributes :parameters
         attribute :function, ModelElement
         attribute :parameters, ModelElement, collection: true
         attribute :_class, :string, default: -> { self.class.name }

@@ -25,24 +25,9 @@ module Expressir
       # on its own without forcing the other to load.
       COLLECTION_REGISTRY = NodePositionIndex::COLLECTION_REGISTRY
 
-      # Expression and statement child attributes for QueryExpression search.
-      # Targeted traversal prevents over-matching on unrelated model attributes.
-      EXPRESSION_CHILDREN = {
-        Model::Expressions::BinaryExpression => %i[operand1 operand2],
-        Model::Expressions::UnaryExpression => %i[operand],
-        Model::Expressions::QueryExpression => %i[expression aggregate_source],
-        Model::Expressions::AggregateInitializerItem => %i[expression
-                                                           repetition],
-        Model::Expressions::Interval => %i[low item high],
-        Model::Expressions::FunctionCall => %i[parameters],
-        Model::Expressions::EntityConstructor => %i[parameters],
-        Model::Expressions::AggregateInitializer => %i[items],
-        Model::Statements::Assignment => %i[expression],
-        Model::Statements::If => %i[expression],
-        Model::Statements::Case => %i[expression],
-        Model::Statements::CaseAction => %i[expression],
-        Model::Statements::Repeat => %i[while_expression until_expression],
-      }.freeze
+      # Expression and statement child attributes are declared on the model
+      # via `child_attributes :foo, :bar, ...`. See TODO.bugs/15.
+      EXPRESSION_CHILDREN = Model::ModelElement.child_attributes_registry
 
       def initialize(source)
         @source = source

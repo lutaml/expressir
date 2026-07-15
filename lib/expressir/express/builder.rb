@@ -48,21 +48,6 @@ module Expressir
         # Build a Model object from AST data.
         # @param ast [Hash] The AST with node type as key
         # @return [Model::ModelElement] The built model object
-        # Operator tokens that return nil (separators, punctuation)
-        # When these appear as the first key in a multi-key hash, they should be
-        # skipped in favor of the content key. This handles grammar patterns like
-        # `element >> (op_comma >> element).repeat` which produce
-        # {:op_comma => ..., :element => {...}}.
-        OPERATOR_TOKENS = Set.new(%i[
-                                    op_comma op_colon op_decl op_delim op_leftparen op_rightparen
-                                    op_leftbracket op_rightbracket op_left_curly_brace op_right_curly_brace
-                                    op_period op_pipe op_double_backslash op_double_pipe op_double_asterisk
-                                    op_asterisk op_slash op_plus op_minus op_less_equal op_greater_equal
-                                    op_less_greater op_less_than op_greater_than op_equals
-                                    op_colon_less_greater_colon op_colon_equals_colon
-                                    op_query_begin op_query_end op_question_mark
-                                  ]).freeze
-
         def build(ast)
           return nil unless ast
 
@@ -85,26 +70,27 @@ module Expressir
                 return result
               end
 
-              # Slow path: operator token returned nil in multi-key hash.
-              # Try other keys for actual content. This handles
-              # {:op_comma => ..., :element => {...}} where the first key
-              # is an operator separator rather than a content key.
-              if OPERATOR_TOKENS.include?(handler_key)
-                ast.each_key do |key|
-                  next if key == node_type
+              # Slow path: first-key builder returned nil in a multi-key
+              # hash. Try remaining keys for actual content. This handles
+              # grammar patterns like `element >> (op_comma >> element).repeat`
+              # which produce {:op_comma => ..., :element => {...}} where
+              # the first key is an operator separator.
+              # Previously gated by a hand-maintained OPERATOR_TOKENS set;
+              # now tries all remaining keys unconditionally (TODO.bugs/21).
+              ast.each_key do |key|
+                next if key == node_type
 
-                  h_key = cached_snake_case(key)
-                  h_builder = @register[h_key]
-                  next unless h_builder
+                h_key = cached_snake_case(key)
+                h_builder = @register[h_key]
+                next unless h_builder
 
-                  n_data = ast[key]
-                  s_data = fast_convert_keys(n_data)
-                  result = h_builder.call(s_data)
+                n_data = ast[key]
+                s_data = fast_convert_keys(n_data)
+                result = h_builder.call(s_data)
 
-                  unless result.nil?
-                    attach_source_info(result, n_data)
-                    return result
-                  end
+                unless result.nil?
+                  attach_source_info(result, n_data)
+                  return result
                 end
               end
             else

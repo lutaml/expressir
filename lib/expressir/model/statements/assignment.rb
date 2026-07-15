@@ -4,6 +4,7 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 13.3 Assignment
       class Assignment < ModelElement
+        child_attributes :expression
         attribute :ref, ModelElement
         attribute :expression, ModelElement
         attribute :_class, :string, default: -> { self.class.name }

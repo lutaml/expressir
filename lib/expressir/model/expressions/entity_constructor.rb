@@ -4,6 +4,7 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 9.2.6 Implicit declarations
       class EntityConstructor < ModelElement
+        child_attributes :parameters
         attribute :entity, ModelElement
         attribute :parameters, ModelElement, collection: true
         attribute :_class, :string, default: -> { self.class.name }

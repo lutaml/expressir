@@ -28,8 +28,13 @@ module Expressir
           current_context&.include_source
         end
 
-        # Cache for snake_case conversions
-        SNAKE_CASE_CACHE = {} # rubocop:disable Style/MutableConstant
+        # Thread-local snake_case conversion cache. Thread-local avoids the
+        # mutable-constant anti-pattern while remaining thread-safe.
+        # Each thread gets its own cache; the cache grows with the number of
+        # unique AST node-type names encountered (bounded by grammar size).
+        def snake_case_cache
+          Thread.current[:expressir_snake_case_cache] ||= {}
+        end
 
         # Register a builder for a node type.
         # @param node_type [Symbol] The AST node type
@@ -232,7 +237,7 @@ module Expressir
 
         # Cached snake_case conversion
         def cached_snake_case(name)
-          SNAKE_CASE_CACHE[name] ||= begin
+          snake_case_cache[name] ||= begin
             str = name.to_s
             # Check if already snake_case
             if /^[a-z_]+$/.match?(str)

@@ -6,6 +6,8 @@ module Expressir
       class QueryExpression < ModelElement
         include Identifier
 
+        child_attributes :expression, :aggregate_source
+
         attribute :aggregate_source, ModelElement
         attribute :expression, ModelElement
         attribute :_class, :string, default: -> { self.class.name }

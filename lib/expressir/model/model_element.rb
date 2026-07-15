@@ -34,6 +34,33 @@ module Expressir
 
       # ---- End collection-attributes macro ----
 
+      # ---- Child-attributes macro (TODO.bugs/15) ----
+      #
+      # Similar to collection_attributes, but for single-value ModelElement
+      # children (non-collection attributes that hold a ModelElement, like
+      # BinaryExpression#operand1). Used by RemarkAttacher for query
+      # traversal so the EXPRESSION_CHILDREN hash lives on the model.
+
+      # Returns the global registry: class → array of attr symbols.
+      def self.child_attributes_registry
+        @child_attributes_registry ||= {}
+      end
+
+      # Returns the child attributes declared on this class (empty if none).
+      def self.child_attributes_list
+        @child_attributes || []
+      end
+
+      # Declare which attributes on this model class hold single-value
+      # ModelElement children that should be traversed by the remark
+      # attacher's query-search.
+      def self.child_attributes(*attrs)
+        @child_attributes = attrs.freeze
+        ModelElement.child_attributes_registry[self] = attrs
+      end
+
+      # ---- End child-attributes macro ----
+
       SKIP_ATTRIBUTES = %i[parent _class].freeze
       # :parent is a special attribute that is used to store the parent of the current element
       # It is not a real attribute

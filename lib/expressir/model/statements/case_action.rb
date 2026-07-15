@@ -4,6 +4,7 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 13.4 Case statement
       class CaseAction < ModelElement
+        child_attributes :expression
         attribute :labels, ModelElement, collection: true
         attribute :statement, ModelElement
         attribute :_class, :string, default: -> { self.class.name }

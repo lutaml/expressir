@@ -7,6 +7,7 @@ module Expressir
         include Identifier
 
         collection_attributes :statements
+        child_attributes :while_expression, :until_expression
         attribute :bound1, ModelElement
         attribute :bound2, ModelElement
         attribute :increment, ModelElement

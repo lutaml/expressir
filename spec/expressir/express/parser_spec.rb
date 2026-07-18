@@ -502,4 +502,27 @@ RSpec.describe Expressir::Express::Parser do
       expect(schemas[4].id).to eq("multiple_schema4")
     end
   end
+
+  describe "issue #126: `(*)` pattern in remarks" do
+    # `(*)` overlaps the embedded-remark opener `(*` and closer `*)` at the
+    # `*` character. The parser must accept it (as an empty embedded remark)
+    # instead of failing or terminating the enclosing remark early.
+    it "parses a schema with `(*)` inside an embedded remark" do
+      source = "SCHEMA s; (* test (*) here *) END_SCHEMA;\n"
+
+      expect { described_class.from_exp(source) }.not_to raise_error
+    end
+
+    it "parses a schema with standalone `(*)`" do
+      source = "SCHEMA s; (*) END_SCHEMA;\n"
+
+      expect { described_class.from_exp(source) }.not_to raise_error
+    end
+
+    it "parses a schema with multiple `(*)` inside one remark" do
+      source = "SCHEMA s; (* a (*) b (*) c *) END_SCHEMA;\n"
+
+      expect { described_class.from_exp(source) }.not_to raise_error
+    end
+  end
 end

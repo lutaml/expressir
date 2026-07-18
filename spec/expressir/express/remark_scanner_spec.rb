@@ -254,6 +254,50 @@ RSpec.describe Expressir::Express::RemarkScanner do
     end
   end
 
+  describe "issue #126: `(*)` overlap pattern" do
+    # `(*)` is a 3-char pattern where the embedded-remark opener `(*` and the
+    # closer `*)` share the `*` character. Per strict ISO 10303-11 §7.1.6
+    # grammar the opener and closer are distinct tokens that cannot share
+    # characters, so `(*)` is technically invalid; we accept it as a 3-char
+    # empty embedded remark for robustness.
+    it "extracts `(*)` alone as an empty embedded remark" do
+      remarks = scan("(*)")
+
+      expect(remarks.size).to eq(1)
+      expect(remarks.first).to be_embedded
+      expect(remarks.first.text).to eq("")
+    end
+
+    it "preserves an outer remark when `(*)` appears inside it" do
+      remarks = scan("(* test (*) here *)")
+
+      expect(remarks.size).to eq(1)
+      expect(remarks.first).to be_embedded
+      expect(remarks.first.text).to eq("test (*) here")
+    end
+
+    it "handles multiple `(*)` patterns inside one remark" do
+      remarks = scan("(* before (*) after (*) end *)")
+
+      expect(remarks.size).to eq(1)
+      expect(remarks.first.text).to eq("before (*) after (*) end")
+    end
+
+    it "treats `(*)` as empty nested inside a tagged embedded remark" do
+      remarks = scan('(*"tag" content (*) content *)')
+
+      expect(remarks.size).to eq(1)
+      expect(remarks.first.tag).to eq("tag")
+      expect(remarks.first.text).to eq("content (*) content")
+    end
+
+    it "still recognises `(* *)` and `(**)` as ordinary embedded remarks" do
+      expect(scan("(* *)").first.text).to eq("")
+      expect(scan("(**)").first.text).to eq("")
+      expect(scan("(* a (**) c *)").first.text).to eq("a (**) c")
+    end
+  end
+
   describe "source-order and positions" do
     it "returns remarks ordered by byte position" do
       source = "-- one\n(* two *)\n-- three\n"

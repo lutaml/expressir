@@ -256,7 +256,15 @@ module Expressir
           (expression >> (op_colon >> repetition).maybe).as(:element)
         end
         rule(:embeddedRemark) do
-          (str("(*") >> (str("*)").absent? >> (embeddedRemark | any)).repeat >> str("*)")).as(:embeddedRemark)
+          (
+            # `(*)` is a 3-character empty embedded remark: the opener `(*`
+            # and closer `*)` share the `*`. Per strict ISO 10303-11 §7.1.6
+            # grammar the opener and closer are distinct tokens and cannot
+            # share characters, so `(*)` is technically invalid. We accept
+            # it for robustness (issue #126).
+            str("(*)") |
+            (str("(*") >> (str("*)").absent? >> (embeddedRemark | any)).repeat >> str("*)"))
+          ).as(:embeddedRemark)
         end
         rule(:encodedCharacter) { octet >> octet >> octet >> octet }
         rule(:encodedStringLiteral) do

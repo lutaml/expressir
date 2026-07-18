@@ -239,191 +239,167 @@ module Expressir
       def convert_ast_format(obj)
         case obj
         when Hash
-          return obj if obj.empty?
-
-          # Process each key-value pair
-          result = {}
-          obj.each do |key, value|
-            # Check if this is a str or spaces key with an array value
-            result[key] = if %i[str spaces].include?(key) && value.is_a?(Array)
-                            # Concatenate character arrays
-                            value.compact.join
-                          else
-                            # Recursively convert the value
-                            convert_ast_format(value)
-                          end
-          end
-          result
+          convert_hash_node(obj)
         when Array
-          return obj if obj.empty?
-
-          # First, convert each element
-          converted_items = obj.map { |item| convert_ast_format(item) }
-
-          # Flatten nested arrays that come from grammar repetition (.repeat)
-          # These appear as arrays containing arrays (which may contain hashes)
-          # This handles the case where (op_comma >> item).repeat produces [[{...}, {...}], [{...}, {...}]]
-          # After inner conversion, this becomes [{multi-key hash}, {multi-key hash}]
-          # which should be flattened into the parent array
-          flattened_items = []
-          converted_items.each do |item|
-            if item.is_a?(Array)
-              # Flatten this array into the parent
-              flattened_items.concat(item)
-            else
-              flattened_items << item
-            end
-          end
-          converted_items = flattened_items
-
-          # Check if this is an array of hashes (Parsanol sequence format)
-          # that should be merged into a single hash.
-          # Empty arrays and nil values are treated as nil/absent optional elements
-          non_empty_items = converted_items.reject do |item|
-            item.nil? || (item.is_a?(Array) && item.empty?)
-          end
-
-          if non_empty_items.empty?
-            # All items were nil or empty - return empty hash (sequence with all optionals absent)
-            {}
-          elsif non_empty_items.all?(Hash)
-            # Check if this is a repetition pattern where all hashes have the SAME single key
-            first_keys = non_empty_items.first.keys
-
-            if first_keys.length == 1 &&
-                non_empty_items.length > 1 &&
-                non_empty_items.all? do |item|
-                  item.keys.length == 1 && item.keys.first == first_keys.first
-                end
-              # Multiple items with the same single key - this is a repetition pattern
-              # Keep as array (each element is already a single-key hash)
-              return converted_items
-            end
-
-            # Check if any key appears in MULTIPLE hashes (repetition with separators pattern)
-            # Example: [{formalParameter: {...}}, {op_delim: {...}}, {formalParameter: {...}}]
-            # In this case, formalParameter appears in two different hashes
-            all_keys = non_empty_items.flat_map(&:keys)
-            key_counts = all_keys.tally
-            if key_counts.any? { |_, count| count > 1 }
-              # At least one key appears multiple times - this is a repetition pattern
-              # Keep as array
-              return converted_items
-            end
-
-            # Check if we have a repetition pattern that needs unzipping
-            # Pattern: [{item: first}, {separator: [...], item: [rest...]}]
-            # This happens when Parsanol groups repeated elements
-
-            # More specific detection:
-            # 1. First item has a single key with a non-array value
-            # 2. A later item has the SAME key with an array value (the grouped repetitions)
-            # 3. The later item also has a "separator" key (like op_comma)
-
-            if non_empty_items.length >= 2
-              first_item = non_empty_items[0]
-              later_items = non_empty_items[1..]
-
-              # Check if first item is simple (single key, non-array value)
-              if first_item.keys.length == 1 && !first_item.values.first.is_a?(Array)
-                first_key = first_item.keys.first
-
-                # Look for a later item that:
-                # 1. Has the same key as the first item
-                # 2. That key has an array value with length > 1
-                # 3. Also has at least one other key (the separator)
-                repetition_item = later_items.find do |item|
-                  item.key?(first_key) &&
-                    item[first_key].is_a?(Array) &&
-                    item[first_key].length > 1 &&
-                    item.keys.length >= 2
-                end
-
-                if repetition_item
-                  # This is a repetition pattern - unzip it
-                  # Build interleaved result
-                  result = [first_item]
-
-                  later_items.each do |item|
-                    # Find keys with array values
-                    array_keys = item.select do |_, v|
-                      v.is_a?(Array) && v.length > 1
-                    end.keys
-
-                    if array_keys.empty?
-                      # No array values - add as-is
-                      result << item
-                    elsif array_keys.length == 1
-                      # Single array key - expand it
-                      key = array_keys.first
-                      values = item[key]
-                      other_keys = item.keys - [key]
-
-                      values.each_with_index do |val, _idx|
-                        new_item = { key => val }
-                        other_keys.each do |ok|
-                          new_item[ok] = item[ok]
-                        end
-                        result << new_item
-                      end
-                    else
-                      # Multiple array keys - interleave them
-                      # All arrays should have the same length
-                      len = array_keys.map { |k| item[k].length }.max
-                      other_keys = item.keys - array_keys
-
-                      len.times do |idx|
-                        new_item = {}
-                        array_keys.each do |k|
-                          values = item[k]
-                          new_item[k] = values[idx] if idx < values.length
-                        end
-                        other_keys.each do |ok|
-                          new_item[ok] = item[ok]
-                        end
-                        result << new_item
-                      end
-                    end
-                  end
-
-                  return result
-                end
-              end
-            end
-
-            # No repetition pattern detected - merge all hashes into one hash
-            # This handles sequences like: tENUMERATION >> tOF >> enumerationItems
-            # which produce: [{tENUMERATION: ...}, {tOF: ..., enumerationItems: ...}]
-            merged = {}
-            non_empty_items.each do |item|
-              item.each do |key, value|
-                # If key already exists, convert to array or append
-                if merged.key?(key)
-                  existing = merged[key]
-                  if existing.is_a?(Array)
-                    if value.is_a?(Array)
-                      existing.concat(value)
-                    else
-                      existing << value
-                    end
-                  else
-                    merged[key] = [existing, value]
-                  end
-                else
-                  merged[key] = value
-                end
-              end
-            end
-
-            # Process the merged hash for :str/:spaces concatenation
-            process_str_and_spaces(merged)
-          else
-            # Regular array - return the converted items
-            converted_items
-          end
+          convert_array_node(obj)
         else
           obj
         end
+      end
+
+      private
+
+      def convert_hash_node(hash)
+        return hash if hash.empty?
+
+        result = {}
+        hash.each do |key, value|
+          result[key] = if %i[str spaces].include?(key) && value.is_a?(Array)
+                          value.compact.join
+                        else
+                          convert_ast_format(value)
+                        end
+        end
+        result
+      end
+
+      def convert_array_node(array)
+        return array if array.empty?
+
+        converted_items = array.map { |item| convert_ast_format(item) }
+
+        # Flatten nested arrays from grammar repetition (.repeat)
+        flattened = flatten_nested_arrays(converted_items)
+
+        non_empty = flattened.reject { |item| item.nil? || (item.is_a?(Array) && item.empty?) }
+
+        if non_empty.empty?
+          {}
+        elsif non_empty.all?(Hash)
+          merge_or_preserve_sequence(non_empty, flattened)
+        else
+          flattened
+        end
+      end
+
+      def flatten_nested_arrays(items)
+        result = []
+        items.each do |item|
+          if item.is_a?(Array)
+            result.concat(item)
+          else
+            result << item
+          end
+        end
+        result
+      end
+
+      def merge_or_preserve_sequence(non_empty, converted)
+        # Check for repetition patterns that should stay as arrays
+        return converted if same_key_repetition?(non_empty)
+        return converted if duplicate_key_repetition?(non_empty)
+
+        # Check for grouped repetition that needs unzipping
+        unzipped = try_unzip_repetition(non_empty)
+        return unzipped if unzipped
+
+        # Default: merge all single-key hashes into one hash
+        merge_sequence_hashes(non_empty)
+      end
+
+      def same_key_repetition?(items)
+        first_keys = items.first.keys
+        first_keys.length == 1 &&
+          items.length > 1 &&
+          items.all? { |item| item.keys.length == 1 && item.keys.first == first_keys.first }
+      end
+
+      def duplicate_key_repetition?(items)
+        all_keys = items.flat_map(&:keys)
+        key_counts = all_keys.tally
+        key_counts.any? { |_, count| count > 1 }
+      end
+
+      def try_unzip_repetition(items)
+        return nil unless items.length >= 2
+
+        first_item = items[0]
+        later_items = items[1..]
+        return nil unless first_item.keys.length == 1 && !first_item.values.first.is_a?(Array)
+
+        first_key = first_item.keys.first
+        repetition_item = later_items.find do |item|
+          item.key?(first_key) &&
+            item[first_key].is_a?(Array) &&
+            item[first_key].length > 1 &&
+            item.keys.length >= 2
+        end
+        return nil unless repetition_item
+
+        unzip_grouped_repetition(first_item, later_items)
+      end
+
+      def unzip_grouped_repetition(first_item, later_items)
+        result = [first_item]
+
+        later_items.each do |item|
+          array_keys = item.select { |_, v| v.is_a?(Array) && v.length > 1 }.keys
+
+          if array_keys.empty?
+            result << item
+          elsif array_keys.length == 1
+            expand_single_array_key(item, array_keys.first, result)
+          else
+            expand_multiple_array_keys(item, array_keys, result)
+          end
+        end
+
+        result
+      end
+
+      def expand_single_array_key(item, key, result)
+        values = item[key]
+        other_keys = item.keys - [key]
+
+        values.each do |val|
+          new_item = { key => val }
+          other_keys.each { |ok| new_item[ok] = item[ok] }
+          result << new_item
+        end
+      end
+
+      def expand_multiple_array_keys(item, array_keys, result)
+        len = array_keys.map { |k| item[k].length }.max
+        other_keys = item.keys - array_keys
+
+        len.times do |idx|
+          new_item = {}
+          array_keys.each do |k|
+            values = item[k]
+            new_item[k] = values[idx] if idx < values.length
+          end
+          other_keys.each { |ok| new_item[ok] = item[ok] }
+          result << new_item
+        end
+      end
+
+      def merge_sequence_hashes(items)
+        merged = {}
+        items.each do |item|
+          item.each do |key, value|
+            if merged.key?(key)
+              existing = merged[key]
+              if existing.is_a?(Array)
+                existing.is_a?(Array) && value.is_a?(Array) ? existing.concat(value) : existing << value
+              else
+                merged[key] = [existing, value]
+              end
+            else
+              merged[key] = value
+            end
+          end
+        end
+        process_str_and_spaces(merged)
       end
 
       # Add a value to the current container on top of the stack

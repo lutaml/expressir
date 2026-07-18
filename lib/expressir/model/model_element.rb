@@ -200,26 +200,12 @@ module Expressir
           current_path
         end
 
-        # Annotated EXPRESS remark tags reference redeclared attributes via
-        # `SELF\<supertype>.<attr>` (ISO 10303-11 §9.2.3). The redeclared
-        # attribute is indexed in the entity's children_by_id under its base
-        # name (e.g. `operand`), not under the SELF-qualified form. Strip the
-        # SELF\<supertype> qualifier so lookup succeeds (issue #130).
-        path_parts = path_parts.reject { |part| part.start_with?("self\\") }
-
         current_scope = self
         target_node = nil
         loop do
-          # find in current scope
-          current_node = current_scope
-          path_parts.each do |current_path|
-            current_node = current_node.children_by_id[current_path]
-            break unless current_node
-          end
-          target_node = current_node
+          target_node = resolve_path_in_scope(current_scope, path_parts)
           break if target_node
 
-          # retry search in parent scope
           current_scope = current_scope.parent
           break unless current_scope
         end
@@ -229,6 +215,62 @@ module Expressir
         end
 
         target_node
+      end
+
+      # Walk `path_parts` through `scope`, resolving one part at a time.
+      # Handles `SELF\<supertype>.<attr>` qualifiers inline: when a part
+      # starts with `self\`, the next part is matched against the scope's
+      # redeclared attributes and disambiguated by the supertype name
+      # (issues #130 and #267).
+      def resolve_path_in_scope(scope, path_parts)
+        current_node = scope
+        pending_supertype = nil
+
+        path_parts.each do |current_path|
+          if current_path.start_with?("self\\")
+            pending_supertype = current_path.split("\\", 2).last
+            next
+          end
+
+          if pending_supertype
+            child = find_redeclared_by_supertype(current_node, current_path,
+                                                 pending_supertype)
+            return nil unless child
+
+            current_node = child
+            pending_supertype = nil
+          else
+            current_node = current_node.children_by_id[current_path]
+            return nil unless current_node
+          end
+        end
+
+        # If the path ended on a SELF qualifier (no attr name followed),
+        # resolution is incomplete.
+        pending_supertype ? nil : current_node
+      end
+
+      # Find a redeclared attribute among `scope`'s children whose id matches
+      # `attr_name` and whose supertype_attribute references the given
+      # `supertype` name. Returns nil if `scope` is not an Attribute container
+      # or no such child exists.
+      def find_redeclared_by_supertype(scope, attr_name, supertype)
+        attrs = scope.respond_to?(:attributes) ? scope.attributes : nil
+        return nil unless attrs
+
+        attrs.find do |child|
+          next false unless child.is_a?(Model::Declarations::Attribute)
+          next false unless child.id&.safe_downcase == attr_name
+
+          supertype_attr = child.supertype_attribute
+          next false unless supertype_attr.respond_to?(:ref)
+
+          group_ref = supertype_attr.ref
+          next false unless group_ref.respond_to?(:entity)
+
+          entity_ref = group_ref.entity
+          entity_ref&.id&.safe_downcase == supertype
+        end
       end
 
       # @return [Array<Declaration>]

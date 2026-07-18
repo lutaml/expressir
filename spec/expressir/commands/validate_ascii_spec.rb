@@ -16,19 +16,19 @@ RSpec.describe Expressir::Commands::ValidateAscii do
   describe "NonAsciiViolationCollection" do
     let(:collection) { Expressir::Commands::NonAsciiViolationCollection.new }
 
-    describe "#encode_iso_10303_11" do
+    describe "#encode_express_format" do
       it "encodes ASCII characters correctly" do
-        expect(collection.send(:encode_iso_10303_11, "A")).to eq("\"00000041\"")
+        expect(collection.send(:encode_express_format, "A")).to eq("\"00000041\"")
       end
 
       it "encodes A-ring character correctly" do
-        expect(collection.send(:encode_iso_10303_11, "Å")).to eq("\"000000C5\"")
+        expect(collection.send(:encode_express_format, "Å")).to eq("\"000000C5\"")
       end
 
       it "encodes Japanese characters correctly" do
         # Test for 神戸 encoding
-        expect(collection.send(:encode_iso_10303_11, "神")).to eq("\"0000795E\"")
-        expect(collection.send(:encode_iso_10303_11, "戸")).to eq("\"00006238\"")
+        expect(collection.send(:encode_express_format, "神")).to eq("\"0000795E\"")
+        expect(collection.send(:encode_express_format, "戸")).to eq("\"00006238\"")
       end
     end
 

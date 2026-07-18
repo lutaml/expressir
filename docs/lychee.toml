@@ -59,6 +59,9 @@ exclude = [
   "https://www\\.nist\\.gov/.*",
   "https://www\\.steptools\\.com/.*",
 
+  # iso.org returns 403 to bots — the ISO store page is reachable in a browser
+  "https://www\\.iso\\.org/.*",
+
   # GitHub URLs that require authentication
   "https://github\\.com/.*/(issues|pull)/[0-9]+/files.*",
 

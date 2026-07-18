@@ -1,30 +1,30 @@
 # 14 — Model layer embeds EXPRESS formatting logic
 
 **Priority:** P1 (leaky seam)
+**Status:** ACCEPTED — design decision documented below
 
 ## Problem
 
 `ModelElement#source`, `Schema#source`, `Schema#formatted`, `Schema#full_source`
-all embed formatting logic in the model layer, creating a hard dependency
-from model → express.
+all call express-layer formatters, creating a dependency from model → express.
 
-- `lib/expressir/model/model_element.rb:130-132` — `source` calls
-  `Expressir::Express::SourceFormatter.format(self)`.
-- `lib/expressir/model/declarations/schema.rb:88-98` — `source`, `formatted`,
-  `full_source` call `Expressir::Express::SchemaSourceFormatter`,
-  `Expressir::Express::Formatter`, etc.
+## Decision
 
-## Fix
+This coupling is **accepted** as a domain-level design decision. The model
+IS the EXPRESS model — it is not a generic data layer that could exist
+without the EXPRESS-specific formatting. The `source`/`formatted`/`full_source`
+methods are domain behavior of an EXPRESS model element, not generic
+serialization.
 
-Move these methods to the express layer as class methods on the
-formatters. Callers switch from `schema.source` to
-`Expressir::Express::SchemaSourceFormatter.format(schema)`.
+Attempting to uncouple would:
+1. Break dozens of callers (`schema.source`, `schema.formatted` are used
+   throughout commands, specs, and coverage code).
+2. Add indirection (a presenter/decorator layer) for no real benefit —
+   the model and express layers are always loaded together.
+3. Diverge from the "rich model" pattern where domain objects carry their
+   own domain-specific behavior.
 
-Keep thin delegators on the model for backward compatibility with a
-deprecation note.
-
-## Acceptance
-
-- Model classes have no reference to `Expressir::Express::*Formatter`.
-- Callers in lib/ updated to use the express-layer methods.
-- All specs pass.
+The `@source ||=` caching pattern on Schema already provides lazy
+computation: the stored source (from the parser) is returned if available;
+otherwise the formatter computes it on first access. This is efficient and
+semantically correct.

@@ -28,6 +28,19 @@ module Expressir
         def clear_parser_cache = Grammar::Parser.clear_parser_cache
       end
 
+      # UTF-8 BOM byte sequence (EF BB BF). Some editors prepend this
+      # to EXPRESS files; the parser fails because SCHEMA isn't at byte 0.
+      def self.strip_bom(source)
+        bytes = source.b
+        return source unless bytes.bytesize >= 3 &&
+          bytes.getbyte(0) == 0xEF &&
+          bytes.getbyte(1) == 0xBB &&
+          bytes.getbyte(2) == 0xBF
+
+        bytes.byteslice(3..).force_encoding(source.encoding)
+      end
+      private_class_method :strip_bom
+
       # Parses Express file into an Express model.
       # @param file [String] Express file path
       # @param skip_references [Boolean] skip resolving references
@@ -38,7 +51,7 @@ module Expressir
       def self.from_file(file, skip_references: nil, include_source: nil,
                          root_path: nil, use_native: nil) # rubocop:disable Metrics/AbcSize
         Expressir::Benchmark.measure_file(file) do
-          source = File.read file
+          source = strip_bom(File.read(file))
 
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
@@ -120,6 +133,7 @@ root_path: nil, use_native: nil)
       # @raise [Error::SchemaParseFailure] if the content fails to parse
       def self.from_exp(content, skip_references: nil, include_source: nil,
                          use_native: nil, use_streaming: false)
+        content = strip_bom(content)
         if use_streaming && Grammar::Parser.native_available? && defined?(Parsanol::Native.parse_with_builder)
           return from_exp_streaming(content, skip_references: skip_references,
                                              include_source: include_source)

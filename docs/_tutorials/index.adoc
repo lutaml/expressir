@@ -58,6 +58,11 @@ Duration: 45-60 minutes
 +
 Analyze and improve schema documentation quality with coverage tools and metrics.
 
+**link:formatting-schemas.html[Formatting Schemas]**::
+Duration: 15-20 minutes
++
+Render parsed schemas back to EXPRESS source text — default formatting, remark stripping, schema-head and hyperlink mixins.
+
 === Tutorial Features
 
 Each tutorial includes:
@@ -121,6 +126,11 @@ Where to go after completing the tutorial
 | Advanced
 | Coverage analysis
 | 45-60 min
+
+| link:formatting-schemas.html[Formatting Schemas]
+| Beginner
+| Rendering schemas to source text
+| 15-20 min
 |===
 
 === Additional Resources

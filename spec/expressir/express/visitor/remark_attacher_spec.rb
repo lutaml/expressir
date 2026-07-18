@@ -155,4 +155,53 @@ RSpec.describe Expressir::Express::RemarkAttacher do
       expect(plain.remarks).to eq(["The label identifying the dependent variable."])
     end
   end
+
+  describe "issue #267: two redeclared attributes with same base name" do
+    # When an entity redeclares the same attribute name from multiple
+    # supertypes, each `SELF\<supertype>.<attr>` remark tag must attach to
+    # the specific redeclared attribute (matched by supertype qualifier),
+    # not collapse onto a single one.
+    let(:source) do
+      <<~EXP
+        SCHEMA parameterization_schema;
+
+        ENTITY maths_variable;
+          name : label;
+        END_ENTITY;
+
+        ENTITY representation_item;
+          name : label;
+        END_ENTITY;
+
+        ENTITY variational_parameter
+          SUBTYPE OF (maths_variable, representation_item);
+          SELF\\maths_variable.name : label;
+          SELF\\representation_item.name : label;
+        END_ENTITY;
+
+        (*"parameterization_schema.variational_parameter.SELF\\maths_variable.name"
+        The maths_variable name.
+        *)
+
+        (*"parameterization_schema.variational_parameter.SELF\\representation_item.name"
+        The representation_item name.
+        *)
+
+        END_SCHEMA;
+      EXP
+    end
+    let(:repo) { Expressir::Express::Parser.from_exp(source) }
+    let(:schema) { repo.schemas.first }
+    let(:entity) { schema.entities.find { |e| e.id == "variational_parameter" } }
+
+    it "attaches each remark to the matching redeclared attribute" do
+      maths_attr, repr_attr = entity.attributes
+
+      expect(maths_attr.supertype_attribute.ref.entity.id).to eq("maths_variable")
+      expect(repr_attr.supertype_attribute.ref.entity.id).to eq("representation_item")
+
+      expect(maths_attr.remarks).to eq(["The maths_variable name."])
+      expect(repr_attr.remarks).to eq(["The representation_item name."])
+    end
+  end
 end

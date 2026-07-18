@@ -25,7 +25,13 @@ module Expressir
     #                    §7.1.6.5). `--` and `(*` inside a string are content.
     class RemarkScanner
       # Immutable value object describing a single extracted remark.
-      Remark = Struct.new(:position, :line, :text, :tag, :format, keyword_init: true) do
+      # `position` is the byte offset of the opener (`--` or `(*`).
+      # `end_position` is the byte offset one past the closer (the newline
+      # byte for tail remarks, the byte after `*)` for embedded remarks).
+      # `[position, end_position)` is the full byte range the remark
+      # occupied in the original source.
+      Remark = Struct.new(:position, :end_position, :line, :text, :tag,
+                          :format, keyword_init: true) do
         def tail?
           format == Model::RemarkFormat::TAIL
         end
@@ -36,6 +42,11 @@ module Expressir
 
         def tagged?
           !tag.nil? && !tag.empty?
+        end
+
+        # Byte length of the full remark (opener + content + closer).
+        def bytesize
+          end_position - position
         end
       end
 
@@ -161,6 +172,7 @@ module Expressir
         tag, content = parse_tail(raw.strip)
         remarks << Remark.new(
           position: content_start - TAIL_MARKER.bytesize,
+          end_position: content_end,
           line: line,
           text: content,
           tag: tag,
@@ -173,6 +185,7 @@ module Expressir
         tag, content = parse_embedded(raw)
         remarks << Remark.new(
           position: content_start - EMBEDDED_OPEN.bytesize,
+          end_position: content_end + EMBEDDED_CLOSE.bytesize,
           line: line,
           text: content,
           tag: tag,

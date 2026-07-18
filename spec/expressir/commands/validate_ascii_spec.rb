@@ -80,16 +80,17 @@ RSpec.describe Expressir::Commands::ValidateAscii do
     context "with check_remarks option" do
       let(:fixtures_dir) { "spec/fixtures/validate_ascii" }
 
-      it "excludes remarks by default (check_remarks: false)" do
+      it "scans tail remarks by default but skips embedded remarks (check_remarks: false)" do
         command.run("#{fixtures_dir}/non_ascii_in_remarks_only.exp")
 
-        # Should NOT find violations since Unicode is only in remarks
-        expect(output.string).to include("Found")
-        expect(output.string).to include("0")
-        expect(output.string).to include("non-ASCII sequence(s)")
+        # Tail remarks (`--`) are part of code lines and stay in scope (issue #285).
+        # Embedded remarks (`(* ... *)`) are excluded by default.
+        expect(output.string).to include("non-ASCII sequence")
+        expect(output.string).to include("non-ASCII sequence(s) in")
+        expect(output.string).not_to include("0\n")
       end
 
-      it "includes remarks when check_remarks is true" do
+      it "includes both tail and embedded remarks when check_remarks is true" do
         command_with_check = described_class.new(check_remarks: true)
 
         command_with_check.run("#{fixtures_dir}/non_ascii_in_remarks_only.exp")
@@ -117,16 +118,17 @@ RSpec.describe Expressir::Commands::ValidateAscii do
     context "with fixture files" do
       let(:fixtures_dir) { "spec/fixtures/validate_ascii" }
 
-      it "passes validation for file with non-ASCII only in remarks" do
+      it "detects tail-remark violations by default for file with non-ASCII only in remarks" do
         command.run("#{fixtures_dir}/non_ascii_in_remarks_only.exp")
 
-        # Should NOT find violations since Unicode is only in remarks
+        # Tail remarks are scanned; embedded remarks are not.
         expect(output.string).to include("Scanned")
         expect(output.string).to include("1")
         expect(output.string).to include("EXPRESS file(s)")
         expect(output.string).to include("Found")
-        expect(output.string).to include("0")
-        expect(output.string).to include("non-ASCII sequence(s)")
+        # Should find at least one tail-remark violation (e.g. -- Japanese: 日本語)
+        expect(output.string).to include("non-ASCII sequence(s) in")
+        expect(output.string).to include("1")
       end
 
       it "detects violations in file with non-ASCII in code" do
@@ -140,15 +142,15 @@ RSpec.describe Expressir::Commands::ValidateAscii do
         expect(output.string).to include("μ")
       end
 
-      it "detects only code violations in file with non-ASCII in both" do
+      it "detects code and tail-remark violations in file with non-ASCII in both" do
         command.run("#{fixtures_dir}/non_ascii_in_both.exp")
 
-        # Should detect violations in code but not in remarks
+        # Default scope: code + tail remarks. Should detect code violations
+        # and tail-remark violations, but skip embedded-remark text.
         expect(output.string).to include("non-ASCII sequence")
         expect(output.string).to include("価格") # Code violation
         expect(output.string).to include("π") # Code violation
 
-        # Remarks should be excluded, so count should be less than total Unicode chars
         violation_count = output.string.scan("non-ASCII sequence").size
         expect(violation_count).to be > 0
         expect(violation_count).to be < 10 # Should be much less than all Unicode chars including remarks
@@ -176,24 +178,24 @@ RSpec.describe Expressir::Commands::ValidateAscii do
         expect(output.string).to include("\"00006238\"")
       end
 
-      it "excludes non-ASCII characters in tail remarks" do
+      it "detects non-ASCII characters in tail remarks by default (issue #285)" do
         temp_file.write("SCHEMA test_schema;\nENTITY test_entity;\n  name : STRING; -- 神戸 Japanese characters\nEND_ENTITY;\nEND_SCHEMA;\n")
         temp_file.close
 
         command.run(temp_file.path)
 
-        # Should NOT detect 神戸 in tail remark (model-based formatting removes it)
-        expect(output.string).not_to include("神")
-        expect(output.string).not_to include("戸")
+        # Tail remarks are part of code lines and stay in scope by default.
+        expect(output.string).to include("神")
+        expect(output.string).to include("戸")
       end
 
-      it "excludes non-ASCII characters in embedded remarks" do
+      it "excludes non-ASCII characters in embedded remarks by default" do
         temp_file.write("SCHEMA test_schema;\nENTITY (* comment with 中文字 *) test_entity;\n  name : STRING;\nEND_ENTITY;\nEND_SCHEMA;\n")
         temp_file.close
 
         command.run(temp_file.path)
 
-        # Should NOT detect 中文字 in embedded remark (model-based formatting removes it)
+        # Should NOT detect 中文字 in embedded remark (default scope excludes embedded)
         expect(output.string).not_to include("中")
         expect(output.string).not_to include("文")
         expect(output.string).not_to include("字")

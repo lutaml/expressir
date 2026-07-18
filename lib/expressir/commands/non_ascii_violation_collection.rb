@@ -133,7 +133,7 @@ module Expressir
         end
 
         # Always print summary
-        validation_scope = @check_remarks ? "code and remarks" : "code only (remarks excluded)"
+        validation_scope = @check_remarks ? "code and all remarks" : "code and tail remarks (embedded remarks excluded)"
         puts "\n#{Paint['Summary:', :blue, :bold]}"
         puts "  #{Paint['Validation scope:',
                         :green]} #{Paint[validation_scope,
@@ -197,100 +197,53 @@ module Expressir
 
       private
 
-      def process_file_violations(file)
-        file_violations = FileViolations.new(file)
+      # Build a masked copy of `source` where every byte inside an embedded
+      # remark region is replaced with an ASCII space. Byte positions and the
+      # string's encoding are preserved, so masked lines still align 1:1 with
+      # the original file for reporting.
+      def mask_embedded_remarks(source)
+        remarks = Expressir::Express::RemarkScanner.new(source).scan
+        embedded = remarks.select(&:embedded?)
+        return source if embedded.empty?
 
-        if @check_remarks
-          # Check remarks too - validate original file content
-          File.readlines(file,
-                         encoding: "UTF-8").each_with_index do |line, line_idx|
-            line_number = line_idx + 1
-
-            # Skip if line only contains ASCII
-            next unless /[^\x00-\x7F]/.match?(line)
-
-            # Find all non-ASCII sequences
-            line.chomp.scan(/([^\x00-\x7F]+)/) do |match|
-              match = match[0]
-              column = line.index(match)
-
-              # Process each character in the sequence
-              char_details = match.chars.filter_map do |c|
-                process_non_ascii_char(c)
-              end
-
-              # Skip if no non-ASCII characters found
-              next if char_details.empty?
-
-              file_violations.add_violation(line_number, column, match,
-                                            char_details, line.chomp)
-            end
-          end
-        else
-          # Default: exclude remarks - use model-based approach
-          # Parse the EXPRESS file to get the model
-          repository = Expressir::Express::Parser.from_file(file)
-
-          # Format each schema without remarks to get plain EXPRESS code
-          repository.schemas.each do |schema|
-            formatted_schema = schema.format(no_remarks: true)
-
-            # Check the formatted schema (without remarks) for non-ASCII
-            formatted_schema.lines.each_with_index do |line, line_idx|
-              line_number = line_idx + 1
-
-              # Skip if line only contains ASCII
-              next unless /[^\x00-\x7F]/.match?(line)
-
-              # Find all non-ASCII sequences
-              line.chomp.scan(/([^\x00-\x7F]+)/) do |match|
-                match = match[0]
-                column = line.index(match)
-
-                # Process each character in the sequence
-                char_details = match.chars.filter_map do |c|
-                  process_non_ascii_char(c)
-                end
-
-                # Skip if no non-ASCII characters found
-                next if char_details.empty?
-
-                file_violations.add_violation(line_number, column, match,
-                                              char_details, line.chomp)
-              end
-            end
-          end
+        masked = source.b.dup
+        embedded.each do |r|
+          (r.position...r.end_position).each { |i| masked.setbyte(i, 0x20) }
         end
+        masked.force_encoding(source.encoding)
+      end
 
-        file_violations
-      rescue Expressir::Express::Error::SchemaParseFailure
-        # If file can't be parsed, fall back to checking original content
-        # This ensures we still catch non-ASCII even in invalid EXPRESS
-        File.readlines(file,
-                       encoding: "UTF-8").each_with_index do |line, line_idx|
+      def scan_lines_for_non_ascii(file_violations, lines)
+        lines.each_with_index do |line, line_idx|
           line_number = line_idx + 1
-
-          # Skip if line only contains ASCII
           next unless /[^\x00-\x7F]/.match?(line)
 
-          # Find all non-ASCII sequences
           line.chomp.scan(/([^\x00-\x7F]+)/) do |match|
             match = match[0]
             column = line.index(match)
 
-            # Process each character in the sequence
             char_details = match.chars.filter_map do |c|
               process_non_ascii_char(c)
             end
-
-            # Skip if no non-ASCII characters found
             next if char_details.empty?
 
             file_violations.add_violation(line_number, column, match,
                                           char_details, line.chomp)
           end
         end
+      end
 
+      def process_file_violations(file)
+        file_violations = FileViolations.new(file)
+        source = File.read(file, encoding: "UTF-8")
+
+        # With --check-remarks: scan every line including embedded remarks.
+        # Without: scan code + tail remarks only — mask out embedded remark
+        # regions so non-ASCII inside `(* ... *)` documentation blocks is
+        # not flagged. Tail remarks (`--`) are part of code lines and stay
+        # in scope (issue #285).
+        scan_source = @check_remarks ? source : mask_embedded_remarks(source)
+        scan_lines_for_non_ascii(file_violations, scan_source.lines)
         file_violations
       end
 

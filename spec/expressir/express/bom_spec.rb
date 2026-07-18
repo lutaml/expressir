@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe "UTF-8 BOM handling (issue #316)" do
+RSpec.describe Expressir::Express::Parser, "UTF-8 BOM handling" do
   let(:bom) { String.new("\xEF\xBB\xBF", encoding: "UTF-8") }
   let(:schema_source) do
     <<~EXP

@@ -251,8 +251,10 @@ RSpec.describe Expressir::Express::Parser do
         SCHEMA multiple_schema;
 
         REFERENCE FROM multiple_schema2;
+
         REFERENCE FROM multiple_schema3
           (attribute_entity3);
+
         REFERENCE FROM multiple_schema4
           (attribute_entity AS attribute_entity4);
 

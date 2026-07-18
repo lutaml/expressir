@@ -200,6 +200,13 @@ module Expressir
           current_path
         end
 
+        # Annotated EXPRESS remark tags reference redeclared attributes via
+        # `SELF\<supertype>.<attr>` (ISO 10303-11 §9.2.3). The redeclared
+        # attribute is indexed in the entity's children_by_id under its base
+        # name (e.g. `operand`), not under the SELF-qualified form. Strip the
+        # SELF\<supertype> qualifier so lookup succeeds (issue #130).
+        path_parts = path_parts.reject { |part| part.start_with?("self\\") }
+
         current_scope = self
         target_node = nil
         loop do

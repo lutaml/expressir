@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "paint"
-require "set"
 
 module Expressir
   module Commands
@@ -323,12 +322,12 @@ module Expressir
           hex: hex,
           utf8: utf8,
           is_math: false,
-          replacement: encode_iso_10303_11(char),
+          replacement: encode_express_format(char),
           replacement_type: "iso-10303-11",
         }
       end
 
-      def encode_iso_10303_11(char)
+      def encode_express_format(char)
         code_point = char.ord
 
         # Format the encoded value with double quotes

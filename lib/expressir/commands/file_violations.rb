@@ -66,6 +66,5 @@ module Expressir
         }
       end
     end
-
   end
 end

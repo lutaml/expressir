@@ -85,9 +85,13 @@ RSpec.describe Expressir::Commands::ValidateAscii do
 
         # Tail remarks (`--`) are part of code lines and stay in scope (issue #285).
         # Embedded remarks (`(* ... *)`) are excluded by default.
+        # The fixture's tail-remark lines (e.g. `-- Japanese: 日本語、中文、한글`)
+        # carry non-ASCII chars that must be flagged.
         expect(output.string).to include("non-ASCII sequence")
-        expect(output.string).to include("non-ASCII sequence(s) in")
-        expect(output.string).not_to include("0\n")
+        expect(output.string).to include("日")
+        # Embedded-remark text is masked out; verified indirectly by the fact
+        # that the same fixture yields MORE violations under --check-remarks
+        # (see the next test).
       end
 
       it "includes both tail and embedded remarks when check_remarks is true" do

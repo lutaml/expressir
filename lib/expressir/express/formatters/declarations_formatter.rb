@@ -525,7 +525,7 @@ module Expressir
             *if node.interfaces&.length&.positive?
                [
                  "",
-                 node.interfaces.map { |x| format(x) }.join("\n"),
+                 node.interfaces.map { |x| format(x) }.join("\n\n"),
                ]
              end,
           ].join("\n")

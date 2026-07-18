@@ -106,4 +106,53 @@ RSpec.describe Expressir::Express::RemarkAttacher do
       expect(remarks[3].text).to eq("embedded remark")
     end
   end
+
+  describe "issue #130: SELF\\<supertype>.<attr> remark targets" do
+    # Annotated EXPRESS remark tags reference redeclared attributes via
+    # `SELF\<supertype>.<attr>` (ISO 10303-11 §9.2.3). The redeclared
+    # attribute is indexed under its base name; the SELF qualifier must not
+    # confuse path lookup.
+    let(:source) do
+      <<~EXP
+        SCHEMA mathematical_functions_schema;
+
+        ENTITY unary_generic_expression;
+          operand : GENERIC_ENTITY;
+        END_ENTITY;
+
+        ENTITY dependent_variable_definition
+          SUBTYPE OF (unary_generic_expression);
+          name        : label;
+          SELF\\unary_generic_expression.operand : GENERIC_ENTITY;
+        END_ENTITY;
+
+        (*"mathematical_functions_schema.dependent_variable_definition.SELF\\unary_generic_expression.operand"
+        The expression defining the dependent variable.
+        *)
+
+        (*"mathematical_functions_schema.dependent_variable_definition.name"
+        The label identifying the dependent variable.
+        *)
+
+        END_SCHEMA;
+      EXP
+    end
+    let(:repo) { Expressir::Express::Parser.from_exp(source) }
+    let(:schema) { repo.schemas.first }
+    let(:entity) { schema.entities.find { |e| e.id == "dependent_variable_definition" } }
+
+    it "attaches the remark to the redeclared (SELF\\...) attribute" do
+      redeclared = entity.attributes.find { |a| a.id == "operand" }
+
+      expect(redeclared).not_to be_nil
+      expect(redeclared.remarks).to eq(["The expression defining the dependent variable."])
+    end
+
+    it "still attaches the remark to the plain attribute" do
+      plain = entity.attributes.find { |a| a.id == "name" }
+
+      expect(plain).not_to be_nil
+      expect(plain.remarks).to eq(["The label identifying the dependent variable."])
+    end
+  end
 end

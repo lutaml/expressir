@@ -45,6 +45,10 @@ module Expressir
       EMBEDDED_CLOSE = "*)"
       STRING_QUOTE = "'"
 
+      # Byte value of `)` — used to detect the `(*)` overlap pattern where
+      # the embedded-remark opener `(*` and closer `*)` share the `*`.
+      RPAREN_BYTE = ")".ord
+
       # Tag forms (see ISO 10303-11 §7.1.6.3 Remark tag).
       # IP-style informal-proposition tags are recognised only in tail remarks
       # (matching historic behaviour); embedded remarks use the quoted form.
@@ -67,6 +71,17 @@ module Expressir
       alias call scan
 
       private
+
+      # Detects the `(*)` overlap pattern: opener `(*` (positions pos, pos+1)
+      # and closer `*)` (positions pos+1, pos+2) share the `*` character.
+      # Per strict ISO 10303-11 §7.1.6 grammar the opener and closer are
+      # distinct tokens that cannot share characters, so `(*)` is technically
+      # invalid; we accept it as a 3-character empty embedded remark for
+      # robustness (issue #126).
+      def empty_overlap_remark?(pos)
+        pos + 2 < @source_bytes.bytesize &&
+          @source_bytes.getbyte(pos + 2) == RPAREN_BYTE
+      end
 
       def run_state_machine
         remarks = []
@@ -96,8 +111,13 @@ module Expressir
             closing = src.index(EMBEDDED_CLOSE, pos)
             nesting = src.index(EMBEDDED_OPEN, pos)
             if nesting && (!closing || nesting < closing)
-              embedded_depth += 1
-              pos = nesting + EMBEDDED_OPEN.bytesize
+              if empty_overlap_remark?(nesting)
+                # `(*)` opens and closes immediately; depth unchanged.
+                pos = nesting + 3
+              else
+                embedded_depth += 1
+                pos = nesting + EMBEDDED_OPEN.bytesize
+              end
             elsif closing
               embedded_depth -= 1
               pos = closing + EMBEDDED_CLOSE.bytesize
@@ -137,11 +157,21 @@ module Expressir
               pos = next_quote + STRING_QUOTE.bytesize
               state = :in_string
             elsif next_embed && (next_tail.nil? || next_embed <= next_tail)
-              embedded_start = next_embed + EMBEDDED_OPEN.bytesize
-              embedded_line = @line_map.line_number(next_embed)
-              embedded_depth = 1
-              state = :in_embedded
-              pos = next_embed + EMBEDDED_OPEN.bytesize
+              if empty_overlap_remark?(next_embed)
+                # Standalone `(*)`: empty embedded remark, opener and closer
+                # share the `*`. Emit with empty content and continue.
+                emit_embedded(remarks, next_embed + EMBEDDED_OPEN.bytesize,
+                              next_embed + EMBEDDED_OPEN.bytesize,
+                              @line_map.line_number(next_embed))
+                pos = next_embed + 3
+                state = :top
+              else
+                embedded_start = next_embed + EMBEDDED_OPEN.bytesize
+                embedded_line = @line_map.line_number(next_embed)
+                embedded_depth = 1
+                state = :in_embedded
+                pos = next_embed + EMBEDDED_OPEN.bytesize
+              end
             else
               tail_start = next_tail + TAIL_MARKER.bytesize
               tail_line = @line_map.line_number(next_tail)

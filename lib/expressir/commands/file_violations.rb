@@ -3,7 +3,7 @@
 module Expressir
   module Commands
     class FileViolations
-      attr_reader :path, :filename, :directory, :violations, :unique_characters
+      attr_reader :path, :filename, :directory, :violations
 
       def initialize(file_path)
         @path = file_path

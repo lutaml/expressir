@@ -247,8 +247,6 @@ module Expressir
         end
       end
 
-      private
-
       def convert_hash_node(hash)
         return hash if hash.empty?
 

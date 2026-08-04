@@ -77,10 +77,14 @@ module Expressir
         return "" if node.nil?
 
         handler = self.class.format_registry[node.class]
-        return send(handler, node) if handler
+        unless handler
+          warn "#{node.class.name} format not implemented"
+          return ""
+        end
 
-        warn "#{node.class.name} format not implemented"
-        ""
+        formatted = send(handler, node)
+        leading = format_leading_statement_remarks(node)
+        leading.empty? ? formatted : [*leading, formatted].join("\n")
       end
 
       private

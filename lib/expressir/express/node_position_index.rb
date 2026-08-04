@@ -100,26 +100,28 @@ module Expressir
         result
       end
 
-      def collect_nodes(node, result, visited)
+      def collect_nodes(node, result, visited, owner: nil, collection: nil)
         return unless node
         return if visited.include?(node.object_id)
 
         visited.add(node.object_id)
 
         if node.is_a?(Model::ModelElement) && node.source && node.source_offset
-          record_node_position(node, result)
+          record_node_position(node, result, owner, collection)
         else
-          result << { node: node, position: nil, line: nil, end_line: nil }
+          result << { node: node, position: nil, line: nil, end_line: nil,
+                      owner: owner, collection: collection }
         end
 
         collect_children(node, result, visited)
       end
 
-      def record_node_position(node, result)
+      def record_node_position(node, result, owner, collection)
         pos = node.source_offset
         valid = position_valid?(pos, node)
         unless valid
-          result << { node: node, position: nil, line: nil, end_line: nil }
+          result << { node: node, position: nil, line: nil, end_line: nil,
+                      owner: owner, collection: collection }
           return
         end
 
@@ -128,7 +130,8 @@ module Expressir
         children_end_line = children_end_line_for(node)
         end_line = [source_end_line, children_end_line].compact.max || source_end_line
 
-        result << { node: node, position: pos, line: line, end_line: end_line }
+        result << { node: node, position: pos, line: line, end_line: end_line,
+                    owner: owner, collection: collection }
       end
 
       # The parser returns source_offset=0 for leaf nodes (WhereRule) where
@@ -170,18 +173,21 @@ module Expressir
 
       def collect_children(node, result, visited)
         if node.is_a?(Model::Declarations::Schema)
-          Array(node.children).each { |c| collect_nodes(c, result, visited) }
+          Array(node.children).each do |c|
+            collect_nodes(c, result, visited, owner: node, collection: :children)
+          end
         end
 
-        each_collection_on(node) do |item|
-          collect_nodes(item, result, visited)
+        each_collection_on(node) do |item, attr|
+          collect_nodes(item, result, visited, owner: node, collection: attr)
         end
       end
 
-      # Yields each child in any declared collection on the node, based on
-      # the type-driven COLLECTION_REGISTRY. Returns nothing for nodes whose
-      # class is not registered.
-      def each_collection_on(node, &block)
+      # Yields each child in any declared collection on the node (with the
+      # collection attribute name), based on the type-driven
+      # COLLECTION_REGISTRY. Returns nothing for nodes whose class is not
+      # registered.
+      def each_collection_on(node)
         attrs = COLLECTION_REGISTRY[node.class]
         return unless attrs
 
@@ -189,7 +195,7 @@ module Expressir
           collection = node.public_send(attr)
           next unless collection.is_a?(Array)
 
-          collection.each(&block)
+          collection.each { |item| yield(item, attr) }
         end
       end
     end

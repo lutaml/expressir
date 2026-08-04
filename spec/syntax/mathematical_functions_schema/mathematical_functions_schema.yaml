@@ -10496,15 +10496,6 @@ schemas:
             value: 'TRUE'
     - _class: Expressir::Model::Statements::Repeat
       id: i
-      remarks:
-      - Must be a generic_expression which doesn't simplify and which is not a
-      - complex_number_literal, maths_space, or maths_function.
-      untagged_remarks:
-      - text: Must be a generic_expression which doesn't simplify and which is not
-          a
-        format: tail
-      - text: complex_number_literal, maths_space, or maths_function.
-        format: tail
       bound1:
         _class: Expressir::Model::Literals::Integer
         value: '1'
@@ -10646,6 +10637,14 @@ schemas:
             _class: Expressir::Model::Literals::Logical
             value: 'FALSE'
       - _class: Expressir::Model::Statements::Assignment
+        untagged_remarks:
+        - text: Must be a generic_expression which doesn't simplify and which is not
+            a
+          format: tail
+          placement: leading
+        - text: complex_number_literal, maths_space, or maths_function.
+          format: tail
+          placement: leading
         ref:
           _class: Expressir::Model::References::SimpleReference
           id: ge
@@ -10772,7 +10771,6 @@ schemas:
       This function determines whether a pair consisting of a value of <<express:mathematical_functions_schema.space_constraint_type,space_constraint_type>> and a value of <<express:mathematical_functions_schema.maths_space,maths_space>> describe a constraint that is satisfied by all mathematical spaces.
 
       NOTE: This function is used in connection with <<express:mathematical_functions_schema.function_space,function_space>> instances.
-    - Should be unreachable.
     - any_space_satisfies
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -10781,8 +10779,6 @@ schemas:
       - "(output) The BOOLEAN value indicating whether any mathematical space satisfies
         the implied constraint or not."
     untagged_remarks:
-    - text: Should be unreachable.
-      format: tail
     - text: any_space_satisfies
       format: tail
     parameters:
@@ -10948,6 +10944,10 @@ schemas:
                 id: es_maths_spaces
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_space_enumerators.es_maths_spaces
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: Should be unreachable.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: "?"
@@ -10957,11 +10957,6 @@ schemas:
     - This function returns an instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
       representing the associative cartesian product of its two <<express:mathematical_functions_schema.tuple_space,tuple_space>>
       arguments.
-    - Identify type of first operand
-    - Identify type of second operand
-    - Construction for each combination of cases
-    - Next line may assign indeterminate (?) to tspace.
-    - No subtype available to represent this cartesian product.
     - assoc_product_space
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -10978,16 +10973,6 @@ schemas:
       - "(output) An instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
         representing the associative cartesian product of the two operands."
     untagged_remarks:
-    - text: Identify type of first operand
-      format: tail
-    - text: Identify type of second operand
-      format: tail
-    - text: Construction for each combination of cases
-      format: tail
-    - text: Next line may assign indeterminate (?) to tspace.
-      format: tail
-    - text: No subtype available to represent this cartesian product.
-      format: tail
     - text: assoc_product_space
       format: tail
     parameters:
@@ -11170,6 +11155,10 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.tuple_space
     statements:
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Identify type of first operand
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -11261,6 +11250,10 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.assoc_product_space.types1
           statements:
           - _class: Expressir::Model::Statements::Return
+            untagged_remarks:
+            - text: Unreachable when this function was written.
+              format: tail
+              placement: leading
             expression:
               _class: Expressir::Model::References::SimpleReference
               id: "?"
@@ -11290,6 +11283,10 @@ schemas:
             _class: Expressir::Model::Literals::Logical
             value: 'FALSE'
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Identify type of second operand
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -11381,6 +11378,10 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.assoc_product_space.types2
           statements:
           - _class: Expressir::Model::Statements::Return
+            untagged_remarks:
+            - text: Unreachable when this function was written.
+              format: tail
+              placement: leading
             expression:
               _class: Expressir::Model::References::SimpleReference
               id: "?"
@@ -11410,6 +11411,10 @@ schemas:
             _class: Expressir::Model::Literals::Logical
             value: 'FALSE'
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Construction for each combination of cases
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: use_up1
@@ -11545,6 +11550,10 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.assoc_product_space.use_lp2
           statements:
           - _class: Expressir::Model::Statements::Assignment
+            untagged_remarks:
+            - text: Avoid compiler confusion by breaking into two lines.
+              format: tail
+              placement: leading
             ref:
               _class: Expressir::Model::References::SimpleReference
               id: factors
@@ -11653,6 +11662,10 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.assoc_product_space.use_up2
           statements:
           - _class: Expressir::Model::Statements::Assignment
+            untagged_remarks:
+            - text: Avoid compiler confusion by breaking into two lines.
+              format: tail
+              placement: leading
             ref:
               _class: Expressir::Model::References::SimpleReference
               id: factors
@@ -11858,6 +11871,10 @@ schemas:
                     id: extender
             else_statements:
             - _class: Expressir::Model::Statements::Return
+              untagged_remarks:
+              - text: No subtype is available to represent this cartesian product.
+                format: tail
+                placement: leading
               expression:
                 _class: Expressir::Model::References::SimpleReference
                 id: "?"
@@ -11883,6 +11900,11 @@ schemas:
                   id: factors
             - _class: Expressir::Model::Statements::Repeat
               id: i
+              remarks:
+              - No subtype available to represent this cartesian product.
+              untagged_remarks:
+              - text: No subtype available to represent this cartesian product.
+                format: tail
               bound1:
                 _class: Expressir::Model::Literals::Integer
                 value: '1'
@@ -11989,6 +12011,10 @@ schemas:
                     id: extender
               statements:
               - _class: Expressir::Model::Statements::Assignment
+                untagged_remarks:
+                - text: Next line may assign indeterminate (?) to tspace.
+                  format: tail
+                  placement: leading
                 ref:
                   _class: Expressir::Model::References::SimpleReference
                   id: tspace
@@ -12012,6 +12038,10 @@ schemas:
                       id: base
               else_statements:
               - _class: Expressir::Model::Statements::Return
+                untagged_remarks:
+                - text: No subtype available to represent this cartesian product.
+                  format: tail
+                  placement: leading
                 expression:
                   _class: Expressir::Model::References::SimpleReference
                   id: "?"
@@ -12227,23 +12257,12 @@ schemas:
     - This function verifies that the domain of the index function in an instance
       of <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>>
       is consistent with the other attributes.
-    - A consequence of WR1 of basic_sparse_matrix is that here we need only
-    - consider the case that mthspc is a finite integer interval and is the only
-    - factor space of idxdom.
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The boolean value indicating whether the domain of the index function
         is consistent with the other attributes."
-    untagged_remarks:
-    - text: A consequence of WR1 of basic_sparse_matrix is that here we need only
-      format: tail
-    - text: consider the case that mthspc is a finite integer interval and is the
-        only
-      format: tail
-    - text: factor space of idxdom.
-      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: idxdom
@@ -12321,6 +12340,17 @@ schemas:
           id: idxdom
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.check_sparse_index_domain.idxdom
     - _class: Expressir::Model::Statements::Assignment
+      untagged_remarks:
+      - text: A consequence of WR1 of basic_sparse_matrix is that here we need only
+        format: tail
+        placement: leading
+      - text: consider the case that mthspc is a finite integer interval and is the
+          only
+        format: tail
+        placement: leading
+      - text: factor space of idxdom.
+        format: tail
+        placement: leading
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: interval
@@ -13305,8 +13335,6 @@ schemas:
     - This function compares two values in accordance with the indicated comparison
       operator, and returns TRUE only if the comparison is true. In every other case,
       the function returns FALSE.
-    - This algorithm assumes a comparison between "incompatible" types will
-    - produce the indeterminate value (or UNKNOWN?).
     - compare_values
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -13315,10 +13343,6 @@ schemas:
       - "(output) A BOOLEAN value which is TRUE if the comparison between the values
         v1 and v2 indicated by op is true."
     untagged_remarks:
-    - text: This algorithm assumes a comparison between "incompatible" types will
-      format: tail
-    - text: produce the indeterminate value (or UNKNOWN?).
-      format: tail
     - text: compare_values
       format: tail
     parameters:
@@ -13354,6 +13378,13 @@ schemas:
         value: UNKNOWN
     statements:
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: This algorithm assumes a comparison between "incompatible" types will
+        format: tail
+        placement: leading
+      - text: produce the indeterminate value (or UNKNOWN?).
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: OR
@@ -13575,8 +13606,6 @@ schemas:
     remarks:
     - This function defines whether two instances of <<express:mathematical_functions_schema.maths_space,maths_space>>
       which happen to be complex number subsets are compatible or not. See <<express:mathematical_functions_schema.compatible_spaces,compatible_spaces>>.
-    - Make do with imperfect tests for remaining cases.
-    - Two polar regions with different centres
     - compatible_complex_number_regions
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -13587,10 +13616,6 @@ schemas:
 
         NOTE: One can construct regions which the preceding function reports as compatible, but which, in fact, have empty intersection. This is acceptable. The consequence is merely that some valid instances have no practical use.
     untagged_remarks:
-    - text: Make do with imperfect tests for remaining cases.
-      format: tail
-    - text: Two polar regions with different centres
-      format: tail
     - text: compatible_complex_number_regions
       format: tail
     parameters:
@@ -13675,6 +13700,9 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
     statements:
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: 'Improper usage: Default response is to assume compatibility.'
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -13754,6 +13782,9 @@ schemas:
           id: sp2
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.compatible_complex_number_regions.sp2
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: 'Improper usage: Default response is to assume compatibility.'
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -13831,6 +13862,10 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.compatible_complex_number_regions.sp2_is_crgn
       statements:
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: two cartesian regions
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: AND
@@ -13960,6 +13995,10 @@ schemas:
               id: imag_part
       statements:
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: two polar regions with common centre
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::Expressions::UnaryExpression
           operator: NOT
@@ -14017,6 +14056,10 @@ schemas:
             _class: Expressir::Model::Literals::Logical
             value: 'TRUE'
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: Deal with direction ambiguity by 2 pi.
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: AND
@@ -14237,6 +14280,10 @@ schemas:
           _class: Expressir::Model::Literals::Logical
           value: 'FALSE'
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Make do with imperfect tests for remaining cases.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: AND
@@ -14403,6 +14450,10 @@ schemas:
               id: prgn2
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.compatible_complex_number_regions.prgn2
     - _class: Expressir::Model::Statements::Assignment
+      untagged_remarks:
+      - text: Two polar regions with different centres
+        format: tail
+        placement: leading
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: prgn1c2
@@ -14483,7 +14534,6 @@ schemas:
       This function ascertains whether two <<express:mathematical_functions_schema.elementary_space_enumerators,elementary_space_enumerators>> values identify two compatible spaces. For the purposes of this document, the integers, the real numbers, and the complex numbers shall be treated as disjoint spaces whose union is the space of all numbers.
 
       NOTE: The Express language considers the `INTEGER` type to be a specialization of the `REAL` type. This is inconsistent with all programming languages and with most of mathematics. The normal mathematical relationship is that there is a natural isomorphism between the integers and a unique subset of the real numbers, but they are not identical. The usual conversions between integers and reals are applications of this isomorphism and its inverse.
-    - All other cases are incompatible
     - compatible_es_values
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -14493,8 +14543,6 @@ schemas:
         intersection of the spaces identified by the values is empty. Otherwise, TRUE
         is returned."
     untagged_remarks:
-    - text: All other cases are incompatible
-      format: tail
     - text: compatible_es_values
       format: tail
     parameters:
@@ -14755,6 +14803,10 @@ schemas:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: All other cases are incompatible
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'FALSE'
@@ -15620,6 +15672,10 @@ schemas:
                 id: es_maths_functions
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_space_enumerators.es_maths_functions
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: Should be unreachable.
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -15897,10 +15953,17 @@ schemas:
                 id: es_maths_functions
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_space_enumerators.es_maths_functions
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: Should be unreachable.
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Note that sp1 finite already handled.
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -15916,6 +15979,9 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_space_enumerators.es_integers
       statements:
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: Note that sp2 finite already handled.
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -15968,6 +16034,9 @@ schemas:
           _class: Expressir::Model::Literals::Logical
           value: 'FALSE'
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Note that sp1 finite already handled.
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -15983,6 +16052,9 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_space_enumerators.es_reals
       statements:
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: Note that sp2 finite already handled.
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -16035,6 +16107,9 @@ schemas:
           _class: Expressir::Model::Literals::Logical
           value: 'FALSE'
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Note sp1 finite already handled.
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -16050,6 +16125,9 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_space_enumerators.es_complex_numbers
       statements:
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: Note sp2 finite already handled.
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -16519,6 +16597,10 @@ schemas:
             _class: Expressir::Model::Literals::Logical
             value: 'FALSE'
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: Should be unreachable.
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -16953,6 +17035,10 @@ schemas:
             _class: Expressir::Model::Literals::Logical
             value: 'FALSE'
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: Should be unreachable.
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -17351,10 +17437,17 @@ schemas:
             _class: Expressir::Model::Literals::Logical
             value: 'FALSE'
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: Should be unreachable.
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Should be unreachable.
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -18103,6 +18196,10 @@ schemas:
             _class: Expressir::Model::Literals::Logical
             value: 'TRUE'
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: Should be unreachable.
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
@@ -18225,7 +18322,6 @@ schemas:
     remarks:
     - This function constructs an instance of <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>>
       given a value of <<express:mathematical_functions_schema.maths_atom,maths_atom>>.
-    - Should be unreachable
     - convert_to_literal
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -18234,8 +18330,6 @@ schemas:
       - "(output) The constructed complex entity instance of some subtype of <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>>
         representing the input value."
     untagged_remarks:
-    - text: Should be unreachable
-      format: tail
     - text: convert_to_literal
       format: tail
     parameters:
@@ -18437,6 +18531,10 @@ schemas:
             id: val
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.convert_to_literal.val
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: Should be unreachable
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: "?"
@@ -18948,8 +19046,6 @@ schemas:
     - This function creates a generic expression corresponding to an arbitrary <<express:mathematical_functions_schema.maths_value,maths_value>>.
       This amounts to creating instances of <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>>
       for those values which are not already instances of <<express:iso13584_generic_expressions_schema.generic_expression,generic_expression>>.
-    - Use intermediate variables of appropriate declared types to help the compilers.
-    - Should be unreachable
     - convert_to_operand
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -18962,10 +19058,6 @@ schemas:
       remarks:
       - "(output) The list of generic expressions corresponding to the input."
     untagged_remarks:
-    - text: Use intermediate variables of appropriate declared types to help the compilers.
-      format: tail
-    - text: Should be unreachable
-      format: tail
     - text: convert_to_operand
       format: tail
     parameters:
@@ -18997,6 +19089,11 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.convert_to_operand.val
     statements:
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Use intermediate variables of appropriate declared types to help the
+          compilers.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -19083,6 +19180,10 @@ schemas:
             id: val
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.convert_to_operand.val
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: Should be unreachable
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: "?"
@@ -20120,8 +20221,6 @@ schemas:
       of integration. The number of prefixed factors matches the number of finite
       bounds of the integral. The packaging is chosen to match that of the integrand
       function.
-    - 'Internal utility function:'
-    - Resume body of derive_definite_integral_domain function
     - derive_definite_integral_domain
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -20129,10 +20228,6 @@ schemas:
       remarks:
       - "(output) The function domain of the input instance."
     untagged_remarks:
-    - text: 'Internal utility function:'
-      format: tail
-    - text: Resume body of derive_definite_integral_domain function
-      format: tail
     - text: derive_definite_integral_domain
       format: tail
     parameters:
@@ -20552,6 +20647,13 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
     statements:
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: 'Internal utility function:'
+        format: tail
+        placement: leading
+      - text: Resume body of derive_definite_integral_domain function
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: tupled
@@ -25671,13 +25773,6 @@ schemas:
     - This function returns an instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
       representing the domain of the <<express:mathematical_functions_schema.finite_function,finite_function>>
       to whose *pairs* attribute it is applied.
-    - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
-    - three lines ambiguous in those cases where an operand is simultaneously a member
-    - of the base type and the aggregate type.
-    - REPEAT i := 1 TO SIZEOF (pairs);
-    - result := result + pairs[i][1];
-    - END_REPEAT;
-    - The next line unions an empty set and the desired list to get the desired set.
     - derive_finite_function_domain
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -25686,23 +25781,6 @@ schemas:
       - "(output) An instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
         representing the domain of the function."
     untagged_remarks:
-    - text: An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the
-        following
-      format: tail
-    - text: three lines ambiguous in those cases where an operand is simultaneously
-        a member
-      format: tail
-    - text: of the base type and the aggregate type.
-      format: tail
-    - text: REPEAT i := 1 TO SIZEOF (pairs);
-      format: tail
-    - text: result := result + pairs[i][1];
-      format: tail
-    - text: END_REPEAT;
-      format: tail
-    - text: The next line unions an empty set and the desired list to get the desired
-        set.
-      format: tail
     - text: derive_finite_function_domain
       format: tail
     parameters:
@@ -25747,6 +25825,31 @@ schemas:
         _class: Expressir::Model::Expressions::AggregateInitializer
     statements:
     - _class: Expressir::Model::Statements::Assignment
+      untagged_remarks:
+      - text: An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of
+          the following
+        format: tail
+        placement: leading
+      - text: three lines ambiguous in those cases where an operand is simultaneously
+          a member
+        format: tail
+        placement: leading
+      - text: of the base type and the aggregate type.
+        format: tail
+        placement: leading
+      - text: REPEAT i := 1 TO SIZEOF (pairs);
+        format: tail
+        placement: leading
+      - text: result := result + pairs[i][1];
+        format: tail
+        placement: leading
+      - text: END_REPEAT;
+        format: tail
+        placement: leading
+      - text: The next line unions an empty set and the desired list to get the desired
+          set.
+        format: tail
+        placement: leading
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: result
@@ -25793,13 +25896,6 @@ schemas:
     - This function returns an instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
       representing the range of the <<express:mathematical_functions_schema.finite_function,finite_function>>
       to whose *pairs* attribute it is applied.
-    - An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the following
-    - three lines ambiguous in those cases where an operand is simultaneously a member
-    - of the base type and the aggregate type.
-    - REPEAT i := 1 TO SIZEOF (pairs);
-    - result := result + pairs[i][2];
-    - END_REPEAT;
-    - The next line unions an empty set and the desired list to get the desired set.
     - derive_finite_function_range
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -25808,23 +25904,6 @@ schemas:
       - "(output) An instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
         representing the range of the function."
     untagged_remarks:
-    - text: An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of the
-        following
-      format: tail
-    - text: three lines ambiguous in those cases where an operand is simultaneously
-        a member
-      format: tail
-    - text: of the base type and the aggregate type.
-      format: tail
-    - text: REPEAT i := 1 TO SIZEOF (pairs);
-      format: tail
-    - text: result := result + pairs[i][2];
-      format: tail
-    - text: END_REPEAT;
-      format: tail
-    - text: The next line unions an empty set and the desired list to get the desired
-        set.
-      format: tail
     - text: derive_finite_function_range
       format: tail
     parameters:
@@ -25869,6 +25948,31 @@ schemas:
         _class: Expressir::Model::Expressions::AggregateInitializer
     statements:
     - _class: Expressir::Model::Statements::Assignment
+      untagged_remarks:
+      - text: An ambiguity in ISO 10303-11:1994 pages 99-101 leaves the result of
+          the following
+        format: tail
+        placement: leading
+      - text: three lines ambiguous in those cases where an operand is simultaneously
+          a member
+        format: tail
+        placement: leading
+      - text: of the base type and the aggregate type.
+        format: tail
+        placement: leading
+      - text: REPEAT i := 1 TO SIZEOF (pairs);
+        format: tail
+        placement: leading
+      - text: result := result + pairs[i][2];
+        format: tail
+        placement: leading
+      - text: END_REPEAT;
+        format: tail
+        placement: leading
+      - text: The next line unions an empty set and the desired list to get the desired
+          set.
+        format: tail
+        placement: leading
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: result
@@ -25915,8 +26019,6 @@ schemas:
     - This function returns an instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
       representing the domain of the <<express:mathematical_functions_schema.maths_function,maths_function>>
       to which it is applied.
-    - Unreachable, as no other subtypes of maths_function are permissible without
-    - first modifying this function to account for them.
     - derive_function_domain
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -25925,10 +26027,6 @@ schemas:
       - "(output) An instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
         representing the domain of the function."
     untagged_remarks:
-    - text: Unreachable, as no other subtypes of maths_function are permissible without
-      format: tail
-    - text: first modifying this function to account for them.
-      format: tail
     - text: derive_function_domain
       format: tail
     parameters:
@@ -26348,6 +26446,10 @@ schemas:
                 _class: Expressir::Model::References::SimpleReference
                 id: domain
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: Unreachable, as there is no other possible value for input_repack.
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
@@ -27584,6 +27686,14 @@ schemas:
             _class: Expressir::Model::References::SimpleReference
             id: explicit_domain
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: Unreachable, as no other subtypes of maths_function are permissible
+          without
+        format: tail
+        placement: leading
+      - text: first modifying this function to account for them.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: "?"
@@ -27593,8 +27703,6 @@ schemas:
     - This function returns an instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
       representing the range of the <<express:mathematical_functions_schema.maths_function,maths_function>>
       to which it is applied.
-    - Unreachable, as no other subtypes of maths_function are permissible without
-    - first modifying this function to account for them.
     - derive_function_range
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -27603,10 +27711,6 @@ schemas:
       - "(output) An instance of <<express:mathematical_functions_schema.tuple_space,tuple_space>>
         representing the range of the function."
     untagged_remarks:
-    - text: Unreachable, as no other subtypes of maths_function are permissible without
-      format: tail
-    - text: first modifying this function to account for them.
-      format: tail
     - text: derive_function_range
       format: tail
     parameters:
@@ -28503,6 +28607,13 @@ schemas:
               _class: Expressir::Model::References::SimpleReference
               id: range
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: Unreachable, as no other subtypes of explicit_table_function are permissible
+          format: tail
+          placement: leading
+        - text: without first modifying this function to account for them.
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
@@ -29504,6 +29615,14 @@ schemas:
             _class: Expressir::Model::References::SimpleReference
             id: explicit_range
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: Unreachable, as no other subtypes of maths_function are permissible
+          without
+        format: tail
+        placement: leading
+      - text: first modifying this function to account for them.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: "?"
@@ -30335,12 +30454,6 @@ schemas:
       This function constructs the smallest instance of <<express:mathematical_functions_schema.polar_complex_number_region,polar_complex_number_region>> with given centre which contains a given instance of <<express:mathematical_functions_schema.cartesian_complex_number_region,cartesian_complex_number_region>>, if such an instance exists. It returns the indeterminate value if no such instance exists.
 
       NOTE: The indeterminate value is returned if either input is indeterminate or both the given centre is inside the given region and also the given region has infinite extent.
-    - Find equivalent direction in range -PI < a <= PI.
-    - Include direction in minmax collection
-    - Include distance in min collection
-    - Extract elementary input information
-    - within +/- 0.5*PI, or that the centre lies properly inside crgn.
-    - Identify any closest point on a side but not a corner.
     - enclose_cregion_in_pregion
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -30349,18 +30462,6 @@ schemas:
       - "(output) The smallest polar complex region with the given centre enclosing
         the input region, if any such region exists."
     untagged_remarks:
-    - text: Find equivalent direction in range -PI < a <= PI.
-      format: tail
-    - text: Include direction in minmax collection
-      format: tail
-    - text: Include distance in min collection
-      format: tail
-    - text: Extract elementary input information
-      format: tail
-    - text: within +/- 0.5*PI, or that the centre lies properly inside crgn.
-      format: tail
-    - text: Identify any closest point on a side but not a corner.
-      format: tail
     - text: enclose_cregion_in_pregion
       format: tail
     parameters:
@@ -31161,6 +31262,16 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.open_closed.open
     statements:
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Find equivalent direction in range -PI < a <= PI.
+        format: tail
+        placement: leading
+      - text: Include direction in minmax collection
+        format: tail
+        placement: leading
+      - text: Include distance in min collection
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: OR
@@ -31194,6 +31305,10 @@ schemas:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
     - _class: Expressir::Model::Statements::Assignment
+      untagged_remarks:
+      - text: Extract elementary input information
+        format: tail
+        placement: leading
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: xitv
@@ -31450,6 +31565,10 @@ schemas:
             id: yitv
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.yitv
     - _class: Expressir::Model::Statements::Assignment
+      untagged_remarks:
+      - text: Identify base direction with respect to which all relevant directions
+          lie
+        format: tail
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: rmax_exists
@@ -31480,6 +31599,10 @@ schemas:
           id: is_ymax
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.is_ymax
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: within +/- 0.5*PI, or that the centre lies properly inside crgn.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: AND
@@ -31638,10 +31761,17 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.rmax_exists
       statements:
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: No enclosing polar region exists (requires whole plane)
+          format: tail
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Identify any closest point on a side but not a corner.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: AND
@@ -31895,6 +32025,9 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.is_xmin
       statements:
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: Consider lower left corner
+          format: tail
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: is_ymin
@@ -32101,6 +32234,9 @@ schemas:
                   id: ymin_in
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.ymin_in
             - _class: Expressir::Model::Statements::ProcedureCall
+              untagged_remarks:
+              - text: Centre at lower left corner
+                format: tail
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -32220,6 +32356,9 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.xmin_in
         else_statements:
         - _class: Expressir::Model::Statements::If
+          untagged_remarks:
+          - text: Consider points near (xmin, -infinity)
+            format: tail
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: LESS_THAN_OR_EQUAL
@@ -32282,6 +32421,9 @@ schemas:
               id: amax_in
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.amax_in
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: Consider points near (xmin, +infinity)
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: AND
@@ -32357,6 +32499,9 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.is_ymin
       statements:
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: Consider lower right corner
+          format: tail
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: is_xmax
@@ -32563,6 +32708,9 @@ schemas:
                   id: ymin_in
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.ymin_in
             - _class: Expressir::Model::Statements::ProcedureCall
+              untagged_remarks:
+              - text: Centre at lower right corner
+                format: tail
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -32682,6 +32830,9 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.xmax_in
         else_statements:
         - _class: Expressir::Model::Statements::If
+          untagged_remarks:
+          - text: Consider points near (+infinity, ymin)
+            format: tail
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: LESS_THAN_OR_EQUAL
@@ -32735,6 +32886,9 @@ schemas:
               id: amax_in
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.amax_in
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: Consider points near (-infinity, ymin)
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: AND
@@ -32804,6 +32958,9 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.is_xmax
       statements:
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: Consider upper right corner
+          format: tail
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: is_ymax
@@ -33010,6 +33167,9 @@ schemas:
                   id: ymax_in
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.ymax_in
             - _class: Expressir::Model::Statements::ProcedureCall
+              untagged_remarks:
+              - text: Centre at lower left corner
+                format: tail
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -33135,6 +33295,9 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.xmax_in
         else_statements:
         - _class: Expressir::Model::Statements::If
+          untagged_remarks:
+          - text: Consider points near (xmax, +infinity)
+            format: tail
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: GREATER_THAN_OR_EQUAL
@@ -33194,6 +33357,9 @@ schemas:
               id: amax_in
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.amax_in
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: Consider points near (xmax, -infinity)
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: AND
@@ -33272,6 +33438,9 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.is_ymax
       statements:
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: Consider upper left corner
+          format: tail
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: is_xmin
@@ -33478,6 +33647,9 @@ schemas:
                   id: ymax_in
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.ymax_in
             - _class: Expressir::Model::Statements::ProcedureCall
+              untagged_remarks:
+              - text: Centre at lower right corner
+                format: tail
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -33597,6 +33769,9 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.xmin_in
         else_statements:
         - _class: Expressir::Model::Statements::If
+          untagged_remarks:
+          - text: Consider points near (-infinity, ymax)
+            format: tail
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: GREATER_THAN_OR_EQUAL
@@ -33650,6 +33825,9 @@ schemas:
               id: amax_in
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.amax_in
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: Consider points near (+infinity, ymax)
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: AND
@@ -33713,6 +33891,9 @@ schemas:
             id: amax_in
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.amax_in
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Change direction origin from ab back to zero
+        format: tail
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: outside
@@ -34030,34 +34211,12 @@ schemas:
       This function constructs the smallest instance of <<express:mathematical_functions_schema.cartesian_complex_number_region,cartesian_complex_number_region>> which contains a given instance of <<express:mathematical_functions_schema.polar_complex_number_region,polar_complex_number_region>>, if such an instance exists. It returns the indeterminate value if no such instance exists.
 
       NOTE: The indeterminate value is returned if the input is indeterminate or the input region extends arbitrarily far in all four cartesian directions.
-    - Extract elementary input data
-    - Determine xmin data
-    - Determine xmax data
-    - Determine ymin data
-    - Determine ymax data
-    - Construct result
-    - Construct real_constraint
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The smallest cartesian complex region enclosing the input region,
         if any such region exists."
-    untagged_remarks:
-    - text: Extract elementary input data
-      format: tail
-    - text: Determine xmin data
-      format: tail
-    - text: Determine xmax data
-      format: tail
-    - text: Determine ymin data
-      format: tail
-    - text: Determine ymax data
-      format: tail
-    - text: Construct result
-      format: tail
-    - text: Construct real_constraint
-      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: prgn
@@ -34131,6 +34290,10 @@ schemas:
               id: min
         statements:
         - _class: Expressir::Model::Statements::If
+          untagged_remarks:
+          - text: a+2.0*PI > aitv.min automatically!
+            format: tail
+            placement: leading
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: LESS_THAN
@@ -34566,6 +34729,10 @@ schemas:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
     - _class: Expressir::Model::Statements::Assignment
+      untagged_remarks:
+      - text: Extract elementary input data
+        format: tail
+        placement: leading
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: xc
@@ -34628,6 +34795,10 @@ schemas:
           _class: Expressir::Model::References::SimpleReference
           id: direction_constraint
     - _class: Expressir::Model::Statements::ProcedureCall
+      untagged_remarks:
+      - text: Determine xmin data
+        format: tail
+        placement: leading
       procedure:
         _class: Expressir::Model::References::SimpleReference
         id: nearest_good_direction
@@ -34830,6 +35001,10 @@ schemas:
             _class: Expressir::Model::Literals::Logical
             value: 'FALSE'
     - _class: Expressir::Model::Statements::ProcedureCall
+      untagged_remarks:
+      - text: Determine xmax data
+        format: tail
+        placement: leading
       procedure:
         _class: Expressir::Model::References::SimpleReference
         id: nearest_good_direction
@@ -35032,6 +35207,10 @@ schemas:
             _class: Expressir::Model::Literals::Logical
             value: 'FALSE'
     - _class: Expressir::Model::Statements::ProcedureCall
+      untagged_remarks:
+      - text: Determine ymin data
+        format: tail
+        placement: leading
       procedure:
         _class: Expressir::Model::References::SimpleReference
         id: nearest_good_direction
@@ -35243,6 +35422,10 @@ schemas:
             _class: Expressir::Model::Literals::Logical
             value: 'FALSE'
     - _class: Expressir::Model::Statements::ProcedureCall
+      untagged_remarks:
+      - text: Determine ymax data
+        format: tail
+        placement: leading
       procedure:
         _class: Expressir::Model::References::SimpleReference
         id: nearest_good_direction
@@ -35451,6 +35634,10 @@ schemas:
             _class: Expressir::Model::Literals::Logical
             value: 'FALSE'
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Construct result
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::UnaryExpression
         operator: NOT
@@ -35481,10 +35668,19 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_cregion.ymax_exists
       statements:
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: No finite boundaries exist
+          format: tail
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Construct real_constraint
+        format: tail
+        placement: leading
+      - text: Construct imag_constraint
+        format: tail
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: xmin_exists
@@ -35650,6 +35846,9 @@ schemas:
             id: the_reals
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.the_reals
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Construct cartesian region
+        format: tail
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: ymin_exists
@@ -35835,15 +36034,6 @@ schemas:
       This function constructs the smallest instance of <<express:mathematical_functions_schema.polar_complex_number_region,polar_complex_number_region>> with given centre which contains a given instance of <<express:mathematical_functions_schema.polar_complex_number_region,polar_complex_number_region>>, if such an instance exists. It returns the indeterminate value if no such instance exists.
 
       NOTE: The indeterminate value is returned if either input is indeterminate or both the given centre is inside the given region and also the given region has infinite extent.
-    - Find equivalent direction in range -PI < a <= PI.
-    - Find min and max and related inclusion booleans among four candidates,
-    - using a base direction chosen to ensure the algebraic comparisons are valid.
-    - Extract elementary input information
-    - Analyse cases by existence of max distance and direction limits
-    - Using base direction midway in prgn, compute all directions using
-    - values which ensure a3 < a2 and a0 < a1 algebraically.
-    - Cannot see out
-    - No pregion exists.  (Would require whole plane.)
     - enclose_pregion_in_pregion
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -35852,25 +36042,6 @@ schemas:
       - "(output) The smallest polar complex region with the given centre enclosing
         the input region, if any such region exists."
     untagged_remarks:
-    - text: Find equivalent direction in range -PI < a <= PI.
-      format: tail
-    - text: Find min and max and related inclusion booleans among four candidates,
-      format: tail
-    - text: using a base direction chosen to ensure the algebraic comparisons are
-        valid.
-      format: tail
-    - text: Extract elementary input information
-      format: tail
-    - text: Analyse cases by existence of max distance and direction limits
-      format: tail
-    - text: Using base direction midway in prgn, compute all directions using
-      format: tail
-    - text: values which ensure a3 < a2 and a0 < a1 algebraically.
-      format: tail
-    - text: Cannot see out
-      format: tail
-    - text: No pregion exists.  (Would require whole plane.)
-      format: tail
     - text: enclose_pregion_in_pregion
       format: tail
     parameters:
@@ -37062,6 +37233,20 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.open_closed.open
     statements:
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Find equivalent direction in range -PI < a <= PI.
+        format: tail
+        placement: leading
+      - text: Find min and max and related inclusion booleans among four candidates,
+        format: tail
+        placement: leading
+      - text: using a base direction chosen to ensure the algebraic comparisons are
+          valid.
+        format: tail
+        placement: leading
+      - text: Extract elementary input information
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: OR
@@ -37329,6 +37514,10 @@ schemas:
           id: ritp
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.ritp
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Analyse cases by existence of max distance and direction limits
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -37356,6 +37545,9 @@ schemas:
             id: ritp
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.ritp
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: direction range < 2*PI
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -37389,6 +37581,12 @@ schemas:
               id: PI
         statements:
         - _class: Expressir::Model::Statements::Assignment
+          untagged_remarks:
+          - text: annulus or disk, with or without slot or puncture
+            format: tail
+            placement: leading
+          - text: slot exists;
+            format: tail
           ref:
             _class: Expressir::Model::References::SimpleReference
             id: inn
@@ -37407,6 +37605,9 @@ schemas:
                 id: aitp
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.aitp
         - _class: Expressir::Model::Statements::Assignment
+          untagged_remarks:
+          - text: slot direction
+            format: tail
           ref:
             _class: Expressir::Model::References::SimpleReference
             id: a
@@ -37675,6 +37876,10 @@ schemas:
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.inn
             statements:
             - _class: Expressir::Model::Statements::If
+              untagged_remarks:
+              - text: slotted case
+                format: tail
+                placement: leading
               expression:
                 _class: Expressir::Model::Expressions::BinaryExpression
                 operator: EQUAL
@@ -37980,6 +38185,9 @@ schemas:
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.rmnp
               statements:
               - _class: Expressir::Model::Statements::If
+                untagged_remarks:
+                - text: in the slot
+                  format: tail
                 expression:
                   _class: Expressir::Model::Expressions::BinaryExpression
                   operator: AND
@@ -38177,6 +38385,9 @@ schemas:
                   _class: Expressir::Model::Literals::Logical
                   value: 'TRUE'
               - _class: Expressir::Model::Statements::If
+                untagged_remarks:
+                - text: Special cases when aligned with slot
+                  format: tail
                 expression:
                   _class: Expressir::Model::References::SimpleReference
                   id: inn
@@ -38303,6 +38514,10 @@ schemas:
                         value: 'FALSE'
         else_statements:
         - _class: Expressir::Model::Statements::Assignment
+          untagged_remarks:
+          - text: Compute data for corners with respect to xc,yc
+            format: tail
+            placement: leading
           ref:
             _class: Expressir::Model::References::SimpleReference
             id: x
@@ -39208,6 +39423,10 @@ schemas:
                 id: in1
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.in1
         - _class: Expressir::Model::Statements::If
+          untagged_remarks:
+          - text: Find rmax
+            format: tail
+            placement: leading
           expression:
             _class: Expressir::Model::Expressions::FunctionCall
             function:
@@ -39453,6 +39672,10 @@ schemas:
                 id: in3
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.in3
         - _class: Expressir::Model::Statements::If
+          untagged_remarks:
+          - text: Find rmin
+            format: tail
+            placement: leading
           expression:
             _class: Expressir::Model::Expressions::FunctionCall
             function:
@@ -39634,6 +39857,9 @@ schemas:
                   id: a
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.a
           - _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: use nearest point on line segment
+              format: tail
             expression:
               _class: Expressir::Model::Expressions::Interval
               low:
@@ -39734,6 +39960,9 @@ schemas:
                   id: a
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.a
           - _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: try nearest point on line segment
+              format: tail
             expression:
               _class: Expressir::Model::Expressions::Interval
               low:
@@ -40033,6 +40262,12 @@ schemas:
                 id: in3
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.in3
         - _class: Expressir::Model::Statements::If
+          untagged_remarks:
+          - text: Find amin and amax, initially with respect to base direction ab.
+            format: tail
+            placement: leading
+          - text: outside outer circle
+            format: tail
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: GREATER_THAN_OR_EQUAL
@@ -40264,6 +40499,9 @@ schemas:
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.amax
           else_statements:
           - _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: values which ensure a3 < a2 and a0 < a1 algebraically.
+              format: tail
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: GREATER_THAN
@@ -40277,6 +40515,9 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.rmnp
             statements:
             - _class: Expressir::Model::Statements::Assignment
+              untagged_remarks:
+              - text: reference direction
+                format: tail
               ref:
                 _class: Expressir::Model::References::SimpleReference
                 id: ab
@@ -40313,6 +40554,10 @@ schemas:
                         _class: Expressir::Model::References::SimpleReference
                         id: max
             - _class: Expressir::Model::Statements::ProcedureCall
+              untagged_remarks:
+              - text: Using base direction midway in prgn, compute all directions
+                  using
+                format: tail
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: find_aminmax
@@ -40359,6 +40604,9 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.amax_in
             else_statements:
             - _class: Expressir::Model::Statements::Assignment
+              untagged_remarks:
+              - text: reference direction
+                format: tail
               ref:
                 _class: Expressir::Model::References::SimpleReference
                 id: ab
@@ -40716,6 +40964,10 @@ schemas:
                       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.amax_in
               statements:
               - _class: Expressir::Model::Statements::Assignment
+                untagged_remarks:
+                - text: Cannot see out
+                  format: tail
+                  placement: leading
                 ref:
                   _class: Expressir::Model::References::SimpleReference
                   id: amin
@@ -40826,6 +41078,9 @@ schemas:
             id: closed
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.open_closed.closed
       - _class: Expressir::Model::Statements::Assignment
+        untagged_remarks:
+        - text: Not max_exists(ritp)
+          format: tail
         ref:
           _class: Expressir::Model::References::SimpleReference
           id: ritv
@@ -40880,10 +41135,16 @@ schemas:
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.aitp
         statements:
         - _class: Expressir::Model::Statements::Return
+          untagged_remarks:
+          - text: No pregion exists.  (Would require whole plane.)
+            format: tail
           expression:
             _class: Expressir::Model::References::SimpleReference
             id: "?"
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: direction range < 2*PI
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -40917,6 +41178,12 @@ schemas:
               id: PI
         statements:
         - _class: Expressir::Model::Statements::Assignment
+          untagged_remarks:
+          - text: complement of disk, with or without slot
+            format: tail
+            placement: leading
+          - text: slot direction
+            format: tail
           ref:
             _class: Expressir::Model::References::SimpleReference
             id: a
@@ -40936,6 +41203,9 @@ schemas:
                 _class: Expressir::Model::References::SimpleReference
                 id: min
         - _class: Expressir::Model::Statements::If
+          untagged_remarks:
+          - text: already excluded if not aligned with slot
+            format: tail
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: GREATER_THAN
@@ -40961,6 +41231,9 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.aitp
             statements:
             - _class: Expressir::Model::Statements::Return
+              untagged_remarks:
+              - text: No pregion exists.  (Would require whole plane.)
+                format: tail
               expression:
                 _class: Expressir::Model::References::SimpleReference
                 id: "?"
@@ -41090,6 +41363,9 @@ schemas:
               _class: Expressir::Model::Literals::Logical
               value: 'TRUE'
           - _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: Special cases when aligned with slot
+              format: tail
             expression:
               _class: Expressir::Model::Expressions::UnaryExpression
               operator: NOT
@@ -41225,6 +41501,10 @@ schemas:
                     value: 'FALSE'
         else_statements:
         - _class: Expressir::Model::Statements::Assignment
+          untagged_remarks:
+          - text: Compute data for corners with respect to xc,yc (two at infinity)
+            format: tail
+            placement: leading
           ref:
             _class: Expressir::Model::References::SimpleReference
             id: a0
@@ -41810,6 +42090,10 @@ schemas:
                 id: in1
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.in1
         - _class: Expressir::Model::Statements::If
+          untagged_remarks:
+          - text: Find rmin
+            format: tail
+            placement: leading
           expression:
             _class: Expressir::Model::Expressions::FunctionCall
             function:
@@ -41916,6 +42200,9 @@ schemas:
                   id: a
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.a
           - _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: use nearest point on aitp.min ray
+              format: tail
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: LESS_THAN
@@ -42011,6 +42298,9 @@ schemas:
                   id: a
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.a
           - _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: try nearest point on aitp.max ray
+              format: tail
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: LESS_THAN
@@ -42185,6 +42475,12 @@ schemas:
                 id: in3
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.in3
         - _class: Expressir::Model::Statements::Assignment
+          untagged_remarks:
+          - text: Find amin and amax
+            format: tail
+            placement: leading
+          - text: reference direction
+            format: tail
           ref:
             _class: Expressir::Model::References::SimpleReference
             id: ab
@@ -42221,6 +42517,9 @@ schemas:
                     _class: Expressir::Model::References::SimpleReference
                     id: max
         - _class: Expressir::Model::Statements::If
+          untagged_remarks:
+          - text: values which ensure a3 < a2 and a0 < a1 algebraically.
+            format: tail
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: GREATER_THAN
@@ -42234,6 +42533,9 @@ schemas:
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.rmnp
           statements:
           - _class: Expressir::Model::Statements::ProcedureCall
+            untagged_remarks:
+            - text: Using base direction midway in prgn, compute all directions using
+              format: tail
             procedure:
               _class: Expressir::Model::References::SimpleReference
               id: find_aminmax
@@ -42601,6 +42903,10 @@ schemas:
                     base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.amax_in
             statements:
             - _class: Expressir::Model::Statements::Assignment
+              untagged_remarks:
+              - text: Cannot see out
+                format: tail
+                placement: leading
               ref:
                 _class: Expressir::Model::References::SimpleReference
                 id: amin
@@ -42655,6 +42961,9 @@ schemas:
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.rmin_in
               statements:
               - _class: Expressir::Model::Statements::Return
+                untagged_remarks:
+                - text: No pregion exists.  (Would require whole plane.)
+                  format: tail
                 expression:
                   _class: Expressir::Model::References::SimpleReference
                   id: "?"
@@ -42785,6 +43094,9 @@ schemas:
           id: closed
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.open_closed.closed
     - _class: Expressir::Model::Statements::Assignment
+      untagged_remarks:
+      - text: Construct polar region
+        format: tail
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: aitv
@@ -43127,6 +43439,9 @@ schemas:
             id: PI
       statements:
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: quadrant to upper right
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -43504,6 +43819,9 @@ schemas:
                       id: yitv
                       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.equal_cregion_pregion.yitv
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: quadrant to upper left
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -43887,6 +44205,9 @@ schemas:
                       id: yitv
                       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.equal_cregion_pregion.yitv
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: quadrant to lower left
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -44267,6 +44588,9 @@ schemas:
                       id: yitv
                       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.equal_cregion_pregion.yitv
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: quadrant to lower right
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -44665,6 +44989,9 @@ schemas:
           id: PI
       statements:
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: upper half space
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -44860,6 +45187,9 @@ schemas:
                       id: yitv
                       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.equal_cregion_pregion.yitv
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: left half space
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -45061,6 +45391,9 @@ schemas:
                       id: xitv
                       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.equal_cregion_pregion.xitv
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: lower half space
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -45259,6 +45592,9 @@ schemas:
                       id: yitv
                       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.equal_cregion_pregion.yitv
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: right half space
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -45473,7 +45809,6 @@ schemas:
       This function performs a value equality test on the mathematical objects represented by the two <<express:mathematical_functions_schema.maths_function,maths_function>> arguments. The value *UNKNOWN* is returned if the information available is insufficient to decide.
 
       NOTE: This function is most likely to be decisive if the inputs have already been simplified by function *simplify_maths_functions*.
-    - A lot of further analysis is possible, but not required.
     - equal_maths_functions
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -45483,8 +45818,6 @@ schemas:
         if the objects are known to be different, or *UNKNOWN* if it is not easily
         decidable from the information at hand."
     untagged_remarks:
-    - text: A lot of further analysis is possible, but not required.
-      format: tail
     - text: equal_maths_functions
       format: tail
     parameters:
@@ -45621,6 +45954,10 @@ schemas:
           _class: Expressir::Model::Literals::Logical
           value: 'FALSE'
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: A lot of further analysis is possible, but not required.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Literals::Logical
         value: UNKNOWN
@@ -45631,7 +45968,6 @@ schemas:
       This function performs a value equality test on the mathematical objects represented by the two <<express:mathematical_functions_schema.maths_space,maths_space>> arguments. The value *UNKNOWN* is returned if the information available is insufficient to decide.
 
       NOTE: This function is most likely to be decisive if the inputs have already been simplified by function <<express:mathematical_functions_schema.simplify_maths_space,simplify_maths_spaces>>.
-    - Consider cases where it is not yet certain that spc1 <> spc2.
     - equal_maths_spaces
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -45641,8 +45977,6 @@ schemas:
         if the objects are known to be different, or *UNKNOWN* if it is not easily
         decidable from the information at hand."
     untagged_remarks:
-    - text: Consider cases where it is not yet certain that spc1 <> spc2.
-      format: tail
     - text: equal_maths_spaces
       format: tail
     parameters:
@@ -45781,6 +46115,10 @@ schemas:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Consider cases where it is not yet certain that spc1 <> spc2.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -45825,6 +46163,14 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.equal_maths_spaces.spc2types
         statements:
         - _class: Expressir::Model::Statements::Assignment
+          untagged_remarks:
+          - text: Members may have different but equivalent representations and in
+            format: tail
+            placement: leading
+          - text: different orders.  May also have disguised repeats in same set of
+              members.
+            format: tail
+            placement: leading
           ref:
             _class: Expressir::Model::References::SimpleReference
             id: set2
@@ -46200,6 +46546,10 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.equal_maths_spaces.spc2types
       statements:
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: Quadrants and half spaces have two representations
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -46239,6 +46589,10 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.equal_maths_spaces.spc2types
       statements:
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: Quadrants and half spaces have two representations
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -47055,6 +47409,10 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.space_constraint_type.sc_member
           statements:
           - _class: Expressir::Model::Statements::Return
+            untagged_remarks:
+            - text: Safety check.  Should be unreachable.
+              format: tail
+              placement: leading
             expression:
               _class: Expressir::Model::Literals::Logical
               value: UNKNOWN
@@ -47180,6 +47538,10 @@ schemas:
               _class: Expressir::Model::Literals::Logical
               value: 'FALSE'
         - _class: Expressir::Model::Statements::Return
+          untagged_remarks:
+          - text: Remaining cases too complex.
+            format: tail
+            placement: leading
           expression:
             _class: Expressir::Model::Literals::Logical
             value: UNKNOWN
@@ -47356,6 +47718,10 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.space_constraint_type.sc_member
           statements:
           - _class: Expressir::Model::Statements::Return
+            untagged_remarks:
+            - text: Safety check.  Should be unreachable.
+              format: tail
+              placement: leading
             expression:
               _class: Expressir::Model::Literals::Logical
               value: UNKNOWN
@@ -47481,6 +47847,10 @@ schemas:
               _class: Expressir::Model::Literals::Logical
               value: 'FALSE'
         - _class: Expressir::Model::Statements::Return
+          untagged_remarks:
+          - text: Remaining cases too complex.
+            format: tail
+            placement: leading
           expression:
             _class: Expressir::Model::Literals::Logical
             value: UNKNOWN
@@ -49519,8 +49889,6 @@ schemas:
     id: factor1
     remarks:
     - This function returns the first factor space of a tuple space.
-    - This is the correct result for this case.
-    - Should not be reachable.
     - factor1
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -49528,10 +49896,6 @@ schemas:
       remarks:
       - "(output) The first factor space of the input tuple space."
     untagged_remarks:
-    - text: This is the correct result for this case.
-      format: tail
-    - text: Should not be reachable.
-      format: tail
     - text: factor1
       format: tail
     parameters:
@@ -49600,6 +49964,9 @@ schemas:
             _class: Expressir::Model::References::SimpleReference
             id: base
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: This path could return the indeterminate value if the list is empty.
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -49640,6 +50007,10 @@ schemas:
             _class: Expressir::Model::Literals::Integer
             value: '1'
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: This is the correct result for this case.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -49681,6 +50052,10 @@ schemas:
               _class: Expressir::Model::References::SimpleReference
               id: base
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: Should not be reachable.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: "?"
@@ -49689,7 +50064,6 @@ schemas:
     remarks:
     - This function returns the selected factor space of a tuple space. If the selection
       index is out of range, the indeterminate value (?) is returned
-    - Should not be reachable.
     - factor_space
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -49697,8 +50071,6 @@ schemas:
       remarks:
       - "(output) The selected factor space of the input tuple space."
     untagged_remarks:
-    - text: Should not be reachable.
-      format: tail
     - text: factor_space
       format: tail
     parameters:
@@ -49967,6 +50339,10 @@ schemas:
             _class: Expressir::Model::References::SimpleReference
             id: extender
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: Should not be reachable.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: "?"
@@ -49977,8 +50353,6 @@ schemas:
       instance. It is similar to the *iso13584_generic_expressions_schema.used_variables*
       function except that variables bound by instances of <<express:mathematical_functions_schema.quantifier_expression,quantifier_expression>>
       are removed.
-    - In this case the subtype shall not contain any variable (see IP1 in
-    - generic_expression).
     - free_variables_of
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -49986,10 +50360,6 @@ schemas:
       remarks:
       - "(output) The set of free variables in the expression."
     untagged_remarks:
-    - text: In this case the subtype shall not contain any variable (see IP1 in
-      format: tail
-    - text: generic_expression).
-      format: tail
     - text: free_variables_of
       format: tail
     parameters:
@@ -50442,6 +50812,13 @@ schemas:
           id: result
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.free_variables_of.result
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: In this case the subtype shall not contain any variable (see IP1 in
+        format: tail
+        placement: leading
+      - text: generic_expression).
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: result
@@ -50636,6 +51013,9 @@ schemas:
               value: 'FALSE'
         else_statements:
         - _class: Expressir::Model::Statements::Return
+          untagged_remarks:
+          - text: Should be unreachable
+            format: tail
           expression:
             _class: Expressir::Model::Literals::Logical
             value: 'FALSE'
@@ -52642,6 +53022,9 @@ schemas:
       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.abstracted_expression_function
     statements:
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: derived
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: COMBINE
@@ -54477,6 +54860,9 @@ schemas:
       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.function_application
     statements:
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: derived
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: COMBINE
@@ -54881,6 +55267,9 @@ schemas:
       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.listed_complex_number_data
     statements:
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: 2nd derived
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: COMBINE
@@ -54998,6 +55387,9 @@ schemas:
       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.listed_data
     statements:
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: 2nd derived
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: COMBINE
@@ -55102,6 +55494,9 @@ schemas:
       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.listed_integer_data
     statements:
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: 2nd derived
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: COMBINE
@@ -55269,6 +55664,9 @@ schemas:
       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.listed_real_data
     statements:
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: 2nd derived
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: COMBINE
@@ -55731,6 +56129,9 @@ schemas:
       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.parallel_composed_function
     statements:
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: derived
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: COMBINE
@@ -57696,8 +58097,6 @@ schemas:
       This function attempts to determine whether a given mathematical value is a member of a given mathematical space. Where the information accessible to this function is not sufficient to determine the matter, UNKNOWN is returned.
 
       NOTE: The EXPRESS code below introduces and uses the trivial function *fedex* solely to avoid an error in the NIST Fedex compiler. Although technically unnecessary, the extra code is correct and should have no detectable consequences.
-    - Trivial function introduced to avoid NIST Fedex compiler error
-    - Should be unreachable
     - member_of
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -57707,10 +58106,6 @@ schemas:
         be a member of the space, FALSE if the value can be determined not to be a
         member of the space, and UNKNOWN, otherwise."
     untagged_remarks:
-    - text: Trivial function introduced to avoid NIST Fedex compiler error
-      format: tail
-    - text: Should be unreachable
-      format: tail
     - text: member_of
       format: tail
     parameters:
@@ -57886,6 +58281,10 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
     statements:
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Trivial function introduced to avoid NIST Fedex compiler error
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::UnaryExpression
         operator: NOT
@@ -59321,6 +59720,9 @@ schemas:
               value: '0.0'
           statements:
           - _class: Expressir::Model::Statements::Return
+            untagged_remarks:
+            - text: The centre has no direction.
+              format: tail
             expression:
               _class: Expressir::Model::Literals::Logical
               value: 'TRUE'
@@ -59537,6 +59939,9 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.member_of.stypes
       statements:
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: See note above for explanation of fedex()
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: IN
@@ -59621,6 +60026,9 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.member_of.v
             statements:
             - _class: Expressir::Model::Statements::Assignment
+              untagged_remarks:
+              - text: cum := cum AND member_of (fedex (v, i), sspc);
+                format: tail
               ref:
                 _class: Expressir::Model::References::SimpleReference
                 id: cum
@@ -59688,6 +60096,9 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.member_of.stypes
       statements:
       - _class: Expressir::Model::Statements::If
+        untagged_remarks:
+        - text: See note above for explanation of fedex()
+          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: IN
@@ -59766,6 +60177,9 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.member_of.v
             statements:
             - _class: Expressir::Model::Statements::Assignment
+              untagged_remarks:
+              - text: cum := cum AND member_of (fedex (v, i), factors[i]);
+                format: tail
               ref:
                 _class: Expressir::Model::References::SimpleReference
                 id: cum
@@ -59912,11 +60326,6 @@ schemas:
               value: 'TRUE'
           - _class: Expressir::Model::Statements::Repeat
             id: i
-            remarks:
-            - See note above for explanation of fedex()
-            untagged_remarks:
-            - text: See note above for explanation of fedex()
-              format: tail
             bound1:
               _class: Expressir::Model::Literals::Integer
               value: '1'
@@ -59926,6 +60335,10 @@ schemas:
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.member_of.tmp_int
             statements:
             - _class: Expressir::Model::Statements::Assignment
+              untagged_remarks:
+              - text: cum := cum AND member_of (fedex (v, i), factor_space (sspc,
+                  i));
+                format: tail
               ref:
                 _class: Expressir::Model::References::SimpleReference
                 id: cum
@@ -59964,6 +60377,10 @@ schemas:
                     - _class: Expressir::Model::References::SimpleReference
                       id: i
             - _class: Expressir::Model::Statements::If
+              untagged_remarks:
+              - text: See note above for explanation of fedex()
+                format: tail
+                placement: leading
               expression:
                 _class: Expressir::Model::Expressions::BinaryExpression
                 operator: EQUAL
@@ -60405,6 +60822,10 @@ schemas:
           _class: Expressir::Model::Literals::Logical
           value: 'FALSE'
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: Should be unreachable
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Literals::Logical
         value: UNKNOWN
@@ -61036,7 +61457,6 @@ schemas:
       This function returns true if the graph of <<express:mathematical_functions_schema.maths_space,maths_space>> references generated from its input <<express:mathematical_functions_schema.maths_space,maths_space>> contains no cycles and no members of its second argument.
 
       NOTE: In normal use, the second argument is initialized with the empty set. The presence of the second argument enables its implementation by recursion.
-    - spc contains no references to other spaces
     - no_cyclic_space_reference
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -61045,8 +61465,6 @@ schemas:
       - "(output) A BOOLEAN value which is TRUE if the graph of space references reachable
         from the input has no cycles."
     untagged_remarks:
-    - text: spc contains no references to other spaces
-      format: tail
     - text: no_cyclic_space_reference
       format: tail
     parameters:
@@ -61411,6 +61829,10 @@ schemas:
               id: refs_plus
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.no_cyclic_space_reference.refs_plus
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: spc contains no references to other spaces
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
@@ -64454,6 +64876,23 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_function_application.is_elementary
       statements:
       - _class: Expressir::Model::Statements::Case
+        untagged_remarks:
+        - text: 'ef_if_i : combined with ef_if'
+          format: tail
+        - text: 'ef_if_r : combined with ef_if'
+          format: tail
+        - text: 'ef_if_c : combined with ef_if'
+          format: tail
+        - text: 'ef_if_s : combined with ef_if'
+          format: tail
+        - text: 'ef_if_b : combined with ef_if'
+          format: tail
+        - text: This can have multiple outputs, but the expression only
+          format: tail
+        - text: denotes the first.
+          format: tail
+        - text: 'ef_if_t : combined with ef_if'
+          format: tail
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: ef_val
@@ -78136,6 +78575,10 @@ schemas:
                     id: lgc
                     base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_function_application.lgc
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: "(mem + vlist) effectively converts list to set"
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -78359,15 +78802,6 @@ schemas:
       to obtain a simpler <<express:mathematical_functions_schema.maths_value,maths_value>>.
       When no simpler expression can be identified, the input expression is returned
       unchanged.
-    - Unwrap the elementary kinds of literals
-    - Simplify one special class of literals
-    - Simplify one special kind of expression
-    - Separate and simplify the operands
-    - Simplify the one kind of maths_function which derives its operands.
-    - Simplify individual kinds of expressions.  It is not necessary to cover all
-      cases.
-    - No special simplification defined, return same with simplified operands.
-    - Should be unreachable, but for safety, return unsimplified expression.
     - simplify_generic_expression
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -78376,23 +78810,6 @@ schemas:
       - "(output) A <<express:mathematical_functions_schema.maths_value,maths_value>>
         denoting the same mathematical object as the input expression."
     untagged_remarks:
-    - text: Unwrap the elementary kinds of literals
-      format: tail
-    - text: Simplify one special class of literals
-      format: tail
-    - text: Simplify one special kind of expression
-      format: tail
-    - text: Separate and simplify the operands
-      format: tail
-    - text: Simplify the one kind of maths_function which derives its operands.
-      format: tail
-    - text: Simplify individual kinds of expressions.  It is not necessary to cover
-        all cases.
-      format: tail
-    - text: No special simplification defined, return same with simplified operands.
-      format: tail
-    - text: Should be unreachable, but for safety, return unsimplified expression.
-      format: tail
     - text: simplify_generic_expression
       format: tail
     parameters:
@@ -78707,6 +79124,10 @@ schemas:
         _class: Expressir::Model::DataTypes::Number
     statements:
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Unwrap the elementary kinds of literals
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -78851,6 +79272,9 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_generic_expression.types
       statements:
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: No simpler expression available
+          format: tail
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: expr
@@ -79082,6 +79506,10 @@ schemas:
               _class: Expressir::Model::References::SimpleReference
               id: lit_value
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Simplify one special class of literals
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -79105,6 +79533,10 @@ schemas:
             id: expr
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_generic_expression.expr
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Simplify one special kind of expression
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -79128,6 +79560,10 @@ schemas:
             id: expr
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_generic_expression.expr
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Separate and simplify the operands
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -79392,6 +79828,10 @@ schemas:
               _class: Expressir::Model::Literals::Integer
               value: '1'
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Simplify the one kind of maths_function which derives its operands.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -79485,6 +79925,11 @@ schemas:
             id: finfun
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_generic_expression.finfun
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Simplify individual kinds of expressions.  It is not necessary to cover
+          all cases.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: AND
@@ -80207,6 +80652,9 @@ schemas:
                             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_generic_expression.v2
                     else_statements:
                     - _class: Expressir::Model::Statements::Return
+                      untagged_remarks:
+                      - text: Unreachable
+                        format: tail
                       expression:
                         _class: Expressir::Model::References::SimpleReference
                         id: "?"
@@ -82948,6 +83396,10 @@ schemas:
               id: v2
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_generic_expression.v2
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: No special simplification defined, return same with simplified operands.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -83029,6 +83481,10 @@ schemas:
             id: oplist
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_generic_expression.oplist
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: Should be unreachable, but for safety, return unsimplified expression.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: expr
@@ -84109,7 +84565,6 @@ schemas:
       This function returns the dimension of a tuple space. In the case of a <<express:mathematical_functions_schema.product_space,product_space>>, the dimension is the number of factors in the cartesian product, which is equivalent to the length of its members. In the case of an <<express:mathematical_functions_schema.extended_tuple_space,extended_tuple_space>>, the dimension is the minimum length of any of its members.
 
       NOTE: An <<express:mathematical_functions_schema.extended_tuple_space,extended_tuple_space>> has no upper limit on the length of its members.
-    - Should be unreachable
     - space_dimension
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -84117,8 +84572,6 @@ schemas:
       remarks:
       - "(output) The dimension of the tuple space."
     untagged_remarks:
-    - text: Should be unreachable
-      format: tail
     - text: space_dimension
       format: tail
     parameters:
@@ -84246,6 +84699,10 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.space_dimension.types
       statements:
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: In the case of an extended_tuple_space, the minimum dimension is returned.
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -84268,6 +84725,10 @@ schemas:
               _class: Expressir::Model::References::SimpleReference
               id: base
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: Should be unreachable
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: "?"
@@ -85145,6 +85606,11 @@ schemas:
             _class: Expressir::Model::Literals::Logical
             value: 'TRUE'
       - _class: Expressir::Model::Statements::Case
+        untagged_remarks:
+        - text: Note that the cases (spc2=the_generics) and (spc1=spc2) have been
+            handled.
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::References::AttributeReference
           ref:
@@ -85304,6 +85770,10 @@ schemas:
               _class: Expressir::Model::Literals::Logical
               value: 'FALSE'
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: Should be unreachable.
+          format: tail
+          placement: leading
         expression:
           _class: Expressir::Model::Literals::Logical
           value: UNKNOWN
@@ -87451,6 +87921,9 @@ schemas:
           _class: Expressir::Model::Literals::Logical
           value: 'FALSE'
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: Should be unreachable
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -88871,10 +89344,6 @@ schemas:
       This function constructs an expression by substituting values for variables in a given expression. The list of values is substituted for the corresponding variables simultaneously.
 
       NOTE: Since the substitution occurs simultaneously, it is possible, for example, to substitute values stem:[y] and stem:[x] for variables stem:[x] and stem:[y] in the expression stem:[2x(y - x)] and get stem:[2y(x - y)].
-    - which derive their operands from other attributes!
-    - This technique will not work on subtypes of binary_generic_expression
-    - which derive their operands from other attributes!
-    - expression which derive their operands from other attributes!
     - substitute
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -88882,14 +89351,6 @@ schemas:
       remarks:
       - "(output) The expression created by carrying out the substitutions."
     untagged_remarks:
-    - text: which derive their operands from other attributes!
-      format: tail
-    - text: This technique will not work on subtypes of binary_generic_expression
-      format: tail
-    - text: which derive their operands from other attributes!
-      format: tail
-    - text: expression which derive their operands from other attributes!
-      format: tail
     - text: substitute
       format: tail
     parameters:
@@ -89141,6 +89602,17 @@ schemas:
             id: variables
       - _class: Expressir::Model::Statements::Repeat
         id: i
+        remarks:
+        - Variables subject to a quantifier do not participate in this kind of
+        - substitution process.
+        untagged_remarks:
+        - text: Variables subject to a quantifier do not participate in this kind
+            of
+          format: tail
+          placement: leading
+        - text: substitution process.
+          format: tail
+          placement: leading
         bound1:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -89300,11 +89772,20 @@ schemas:
                 id: vals
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.substitute.vals
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: which derive their operands from other attributes!
+          format: tail
+          placement: leading
+        - text: operands modified!
+          format: tail
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: expr
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.substitute.expr
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: This technique will not work on subtypes of unary_generic_expression
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -89367,6 +89848,10 @@ schemas:
             id: vals
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.substitute.vals
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: which derive their operands from other attributes!
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -89499,6 +89984,13 @@ schemas:
             id: vals
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.substitute.vals
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: This technique will not work on subtypes of binary_generic_expression
+        format: tail
+        placement: leading
+      - text: which derive their operands from other attributes!
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -89511,6 +90003,10 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.substitute.types
       statements:
       - _class: Expressir::Model::Statements::Assignment
+        untagged_remarks:
+        - text: Subtype of multiple_arity_generic_expression which derives its operands.
+          format: tail
+          placement: leading
         ref:
           _class: Expressir::Model::References::SimpleReference
           id: srcdom
@@ -89786,6 +90282,10 @@ schemas:
               id: vals
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.substitute.vals
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: expression which derive their operands from other attributes!
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: expr
@@ -89799,8 +90299,6 @@ schemas:
       Analogously to the range space of a function, the values space of an expression is only a space containing all the possible values. It may contain many values which are not actual values of the expression for any assignment of values to free variables.
 
       NOTE: The _actual_ value space of an expression is impractical to ascertain in general. The purpose of this function is that it gives an equivalent of "type" information for mathematical expressions.
-    - When it becomes possible, the subtypes should be analysed and
-    - more finely defined spaces returned.
     - values_space_of
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -89808,10 +90306,6 @@ schemas:
       remarks:
       - "(output) A space containing all possible values of the expression."
     untagged_remarks:
-    - text: When it becomes possible, the subtypes should be analysed and
-      format: tail
-    - text: more finely defined spaces returned.
-      format: tail
     - text: values_space_of
       format: tail
     parameters:
@@ -90171,6 +90665,9 @@ schemas:
               id: the_strings
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.the_strings
       - _class: Expressir::Model::Statements::Return
+        untagged_remarks:
+        - text: unknown subtype of expression
+          format: tail
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
@@ -90302,6 +90799,9 @@ schemas:
             _class: Expressir::Model::References::SimpleReference
             id: range
     - _class: Expressir::Model::Statements::If
+      untagged_remarks:
+      - text: This case cannot occur in this version of the schema.
+        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -90347,6 +90847,13 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.values_space_of.expr
         else_statements:
         - _class: Expressir::Model::Statements::Return
+          untagged_remarks:
+          - text: When it becomes possible, the subtypes should be analysed and
+            format: tail
+            placement: leading
+          - text: more finely defined spaces returned.
+            format: tail
+            placement: leading
           expression:
             _class: Expressir::Model::Expressions::FunctionCall
             function:
@@ -90825,6 +91332,9 @@ schemas:
                 _class: Expressir::Model::References::SimpleReference
                 id: integrand
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: not recognized as a mathematical expression
+        format: tail
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: "?"

@@ -25,6 +25,14 @@ module Expressir
       # on its own without forcing the other to load.
       COLLECTION_REGISTRY = NodePositionIndex::COLLECTION_REGISTRY
 
+      # Collections holding executable statements — the regions a leading
+      # body comment can belong to.
+      STATEMENT_REGIONS = %i[statements else_statements].freeze
+
+      # Matches the ELSE keyword opening a line or following a statement
+      # terminator, optionally trailed by an inline tail remark.
+      ELSE_BOUNDARY = /\A(?:.*;)?\s*ELSE(?:\s*--.*)?\z/i
+
       # Expression and statement child attributes are declared on the model
       # via `child_attributes :foo, :bar, ...`. See TODO.bugs/15.
       EXPRESSION_CHILDREN = Model::ModelElement.child_attributes_registry
@@ -193,6 +201,14 @@ module Expressir
             end
           end
 
+          target, placement = find_body_comment_target(remark)
+          if target
+            add_remark(target, remark.text, format: remark.format,
+                                            tag: nil, placement: placement)
+            @attached_spans << remark.position
+            next
+          end
+
           matched_node = @node_index.nearest_node_to(remark.line)
           if matched_node
             add_remark(matched_node, remark.text, format: remark.format, tag: nil)
@@ -203,6 +219,83 @@ module Expressir
 
       def end_scope_line?(line_content)
         line_content =~ /END_(SCHEMA|ENTITY|TYPE|FUNCTION|PROCEDURE|RULE)/i
+      end
+
+      # Own-line body comments belong to the next statement in the same
+      # statement region (Function body, THEN branch, ELSE branch, loop body):
+      # attached there with "leading" placement. A terminal comment — one with
+      # no following statement in its region — belongs to the enclosing node
+      # with legacy (nil) placement, deterministically, so it never reaches
+      # the coincidence-prone same-line fallback. Returns [nil, nil] — meaning
+      # "use the legacy fallback" — when the remark shares a line with a node
+      # or sits outside any statement-bearing node.
+      def find_body_comment_target(remark)
+        line = remark.line
+        nodes = @node_index.nodes
+        # An own-line comment shares its line with no node. A node STARTING
+        # here means the remark is an inline tail (code; -- note). The
+        # end-line check is restricted to statements: container end_lines are
+        # child-derived approximations that can collide with comment lines.
+        inline = nodes.any? do |n|
+          n[:line] == line ||
+            (n[:end_line] == line && n[:node].is_a?(Model::Statement))
+        end
+        return [nil, nil] if inline
+
+        enclosing, region = statement_region_for(line, nodes)
+        return [nil, nil] unless region
+
+        following = region
+          .select { |n| n[:line] > line }
+          .min_by { |n| n[:position] }
+        return [following[:node], "leading"] if following
+
+        [enclosing[:node], nil]
+      end
+
+      def statement_region_for(line, nodes)
+        enclosing = nodes
+          .select do |n|
+            n[:line] && n[:end_line] && n[:line] <= line && n[:end_line] >= line &&
+              (n[:node].is_a?(Model::Statement) || function_rule_procedure?(n[:node]))
+          end
+          .min_by { |n| n[:end_line] - n[:line] }
+        return [nil, nil] unless enclosing
+
+        children = nodes.select do |n|
+          n[:owner].equal?(enclosing[:node]) &&
+            STATEMENT_REGIONS.include?(n[:collection]) && n[:line]
+        end
+        return [enclosing, nil] if children.empty?
+
+        preceding = children.select { |n| n[:line] < line }.max_by { |n| n[:position] }
+        following = children.select { |n| n[:line] > line }.min_by { |n| n[:position] }
+        region_attr = region_attr_for(line, preceding, following)
+        return [enclosing, nil] unless region_attr
+
+        [enclosing, children.select { |n| n[:collection] == region_attr }]
+      end
+
+      # A comment in the gap between the THEN and ELSE regions of an If sits
+      # on one side of the ELSE keyword: after it, the comment leads the ELSE
+      # branch; before it, it trails the THEN branch (legacy fallback). The
+      # gap between the last THEN child and the first ELSE child can contain
+      # only the ELSE keyword and comments, so a line scan of that gap is
+      # exact. Comment lines are skipped so prose mentioning ELSE cannot
+      # match.
+      def region_attr_for(line, preceding, following)
+        return following&.dig(:collection) unless preceding
+
+        if preceding[:collection] == :statements &&
+            following&.dig(:collection) == :else_statements
+          else_line = (preceding[:end_line]...following[:line]).find do |ln|
+            content = line_content_for(ln).strip
+            !content.start_with?("--") && ELSE_BOUNDARY.match?(content)
+          end
+          return :else_statements if else_line && line > else_line
+        end
+
+        preceding[:collection]
       end
 
       # ----- Tag resolution (within a scope) -----
@@ -492,7 +585,8 @@ module Expressir
 
       # ----- Remark storage -----
 
-      def add_remark(node, text, format: Model::RemarkFormat::TAIL, tag: nil)
+      def add_remark(node, text, format: Model::RemarkFormat::TAIL, tag: nil,
+                     placement: nil)
         return unless node
         return unless node.is_a?(Model::ModelElement)
 
@@ -503,7 +597,8 @@ module Expressir
           end
 
           if tag.nil?
-            remark_info = Model::RemarkInfo.new(text: text, format: format)
+            remark_info = Model::RemarkInfo.new(text: text, format: format,
+                                                placement: placement)
             node.untagged_remarks ||= []
             node.untagged_remarks << remark_info
           end

@@ -7,6 +7,8 @@ module Expressir
       attribute :text, :string
       attribute :format, :string, default: RemarkFormat::EMBEDDED
       attribute :tag, :string # optional remark tag like "entity.attr"
+      # "leading" = emit above the owning statement; nil = legacy placement
+      attribute :placement, :string
 
       # Check if this is a tail remark
       # @return [Boolean] True if format is 'tail'
@@ -26,11 +28,18 @@ module Expressir
         !tag.nil? && !tag.empty?
       end
 
+      # Check if this remark should be emitted above its owning statement
+      # @return [Boolean] True if placement is 'leading'
+      def leading?
+        placement == "leading"
+      end
+
       # YAML serialization
       yaml do
         map "text", to: :text
         map "format", to: :format
         map "tag", to: :tag
+        map "placement", to: :placement
       end
 
       # XML serialization
@@ -39,6 +48,7 @@ module Expressir
         map_element "text", to: :text
         map_element "format", to: :format
         map_element "tag", to: :tag
+        map_element "placement", to: :placement
       end
     end
   end

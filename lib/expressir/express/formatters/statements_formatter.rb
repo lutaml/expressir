@@ -43,7 +43,7 @@ module Expressir
             *if node.statements&.length&.positive?
                indent(node.statements.map { |x| format(x) }.join("\n"))
              end,
-            *format_remarks(node),
+            *format_block_end_remarks(node).map { |x| indent(x) },
             [
               "END_ALIAS",
               ";",
@@ -214,7 +214,7 @@ module Expressir
             *if statements.length.positive?
                indent(statements.map { |x| format(x) }.join("\n"))
              end,
-            *format_remarks(node),
+            *format_block_end_remarks(node).map { |x| indent(x) },
             [
               "END_REPEAT",
               ";",

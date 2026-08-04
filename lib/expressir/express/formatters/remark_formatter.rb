@@ -136,6 +136,43 @@ module Expressir
           end.join("\n")
         end
 
+        def format_leading_statement_remarks(node)
+          return [] if @no_remarks
+          return [] unless node.is_a?(Model::Statement)
+
+          Array(node.untagged_remarks).filter_map do |remark|
+            next unless remark.leading?
+
+            formatted = format_untagged_remark(remark)
+            formatted unless formatted.empty?
+          end
+        end
+
+        # Block-end emission for ALIAS/REPEAT bodies. Tagged remarks are
+        # stored as bare text in node.remarks alongside a mirror of every
+        # untagged text (add_remark dual-store), so "genuinely tagged" is
+        # derivable only by multiset-subtracting the untagged texts.
+        def format_block_end_remarks(node)
+          return [] if @no_remarks
+
+          untagged = Array(node.untagged_remarks)
+          remaining = untagged.map(&:text).tally
+          tagged = Array(node.remarks).compact.reject do |text|
+            next false unless remaining[text]&.positive?
+
+            remaining[text] -= 1
+            true
+          end
+
+          [
+            *tagged.map { |text| format_remark(node, text) },
+            *untagged.reject(&:leading?).filter_map do |remark|
+              formatted = format_untagged_remark(remark)
+              formatted unless formatted.empty?
+            end,
+          ]
+        end
+
         def format_remarks(node)
           remarks = []
 

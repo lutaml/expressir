@@ -4,6 +4,7 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 13.9 Repeat statement
       class Repeat < ModelElement
+        include Statement
         include Identifier
 
         collection_attributes :statements

@@ -3,13 +3,14 @@
 module Expressir
   module Model
     # Marker modules — autoload the same concerns.rb file from each name.
-    # The first reference triggers the load; the file defines all six markers.
+    # The first reference triggers the load; the file defines all seven markers.
     autoload :HasId, "#{__dir__}/model/concerns"
     autoload :HasRemarkItems, "#{__dir__}/model/concerns"
     autoload :HasRemarks, "#{__dir__}/model/concerns"
     autoload :ScopeContainer, "#{__dir__}/model/concerns"
     autoload :HasInformalPropositions, "#{__dir__}/model/concerns"
     autoload :HasWhereRules, "#{__dir__}/model/concerns"
+    autoload :Statement, "#{__dir__}/model/concerns"
 
     autoload :ModelElement, "#{__dir__}/model/model_element"
     autoload :Cache, "#{__dir__}/model/cache"

@@ -37,11 +37,11 @@ FUNCTION remark_function(remark_parameter : STRING) : BOOLEAN;
   END_LOCAL;
   ALIAS remark_alias FOR remark_variable;
     ;
-  --"remark_alias" function alias scope - function alias
+    --"remark_alias" function alias scope - function alias
   END_ALIAS;
   REPEAT remark_repeat := 1 TO 9;
     ;
-  --"remark_repeat" function repeat scope - function repeat
+    --"remark_repeat" function repeat scope - function repeat
   END_REPEAT;
   remark_variable := QUERY(remark_query <* remark_variable | TRUE
   --"remark_query" function query scope - function query
@@ -74,11 +74,11 @@ PROCEDURE remark_procedure(remark_parameter : STRING);
   END_LOCAL;
   ALIAS remark_alias FOR remark_variable;
     ;
-  --"remark_alias" procedure alias scope - procedure alias
+    --"remark_alias" procedure alias scope - procedure alias
   END_ALIAS;
   REPEAT remark_repeat := 1 TO 9;
     ;
-  --"remark_repeat" procedure repeat scope - procedure repeat
+    --"remark_repeat" procedure repeat scope - procedure repeat
   END_REPEAT;
   remark_variable := QUERY(remark_query <* remark_variable | TRUE
   --"remark_query" procedure query scope - procedure query

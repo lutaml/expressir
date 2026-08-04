@@ -4,6 +4,8 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 13.4 Case statement
       class Case < ModelElement
+        include Statement
+
         child_attributes :expression
         attribute :expression, ModelElement
         attribute :actions, CaseAction, collection: true
@@ -12,6 +14,7 @@ module Expressir
 
         key_value do
           map "_class", to: :_class, render_default: true
+          map "untagged_remarks", to: :untagged_remarks
           map "expression", to: :expression
           map "actions", to: :actions
           map "otherwise_statement", to: :otherwise_statement

@@ -24,8 +24,8 @@ RSpec.describe Expressir::Express::Formatter do
       expect(lines.index { |l| l.include?("-- STEP-3") })
         .to be < lines.index { |l| l.include?("total := total - 1") }
       step1 = lines.index { |l| l.include?("-- STEP-1") }
-      expect(lines[step1 + 1]).to match(/-- accumulate the input value/)
-      expect(lines[step1 + 2]).to match(/total := total \+ input/)
+      expect(lines[step1 + 1]).to include("-- accumulate the input value")
+      expect(lines[step1 + 2]).to include("total := total + input")
     end
 
     it "does not invent remark tags from loop variables" do
@@ -47,7 +47,7 @@ RSpec.describe Expressir::Express::Formatter do
     it "keeps a terminal comment before END_REPEAT at the block end" do
       term_idx = lines.index { |l| l.include?("-- TERMINAL-REPEAT") }
       expect(term_idx).not_to be_nil
-      expect(lines[term_idx + 1]).to match(/END_REPEAT/)
+      expect(lines[term_idx + 1]).to include("END_REPEAT")
     end
 
     it "does not pull a schema-level comment into a function body" do
@@ -63,14 +63,14 @@ RSpec.describe Expressir::Express::Formatter do
       if before_else
         fn2_idx = lines.index { |l| l.include?("FUNCTION edge_cases") }
         expect(before_else).to be > fn2_idx
-        expect(lines[before_else + 1]).not_to match(/total := 0/)
+        expect(lines[before_else + 1]).not_to include("total := 0")
       end
     end
 
     it "attaches a comment after a same-line ELSE to the ELSE branch" do
       idx = lines.index { |l| l.include?("-- AFTER-INLINE-ELSE") }
       expect(idx).not_to be_nil
-      expect(lines[idx + 1]).to match(/total := 2/)
+      expect(lines[idx + 1]).to include("total := 2")
     end
 
     it "emits no remarks with no_remarks: true" do

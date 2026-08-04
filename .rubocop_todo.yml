@@ -165,7 +165,6 @@ RSpec/DescribeClass:
     - '**/spec/system/**/*'
     - '**/spec/views/**/*'
     - 'spec/expressir/express/formatter_architecture_spec.rb'
-    - 'spec/expressir/express/function_body_remarks_spec.rb'
     - 'spec/expressir/integration/package_roundtrip_spec.rb'
 
 # Offense count: 6

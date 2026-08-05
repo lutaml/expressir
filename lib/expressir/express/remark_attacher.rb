@@ -254,12 +254,11 @@ module Expressir
       end
 
       def statement_region_for(line, nodes)
-        enclosing = nodes
-          .select do |n|
-            n[:line] && n[:end_line] && n[:line] <= line && n[:end_line] >= line &&
-              (n[:node].is_a?(Model::Statement) || function_rule_procedure?(n[:node]))
-          end
-          .min_by { |n| n[:end_line] - n[:line] }
+        candidates = nodes.select do |n|
+          n[:line] && n[:end_line] && n[:line] <= line && n[:end_line] >= line &&
+            (n[:node].is_a?(Model::Statement) || function_rule_procedure?(n[:node]))
+        end
+        enclosing = innermost_candidate(candidates, nodes)
         return [nil, nil] unless enclosing
 
         children = nodes.select do |n|
@@ -274,6 +273,29 @@ module Expressir
         return [enclosing, nil] unless region_attr
 
         [enclosing, children.select { |n| n[:collection] == region_attr }]
+      end
+
+      # Node end lines are child-derived approximations, so a parent's span
+      # can come out SMALLER than a child's and span size alone picks the
+      # wrong container. Ownership links are exact: drop every candidate
+      # that is an ancestor of another candidate, then pick the smallest
+      # span among the true leaves.
+      def innermost_candidate(candidates, nodes)
+        return candidates.first if candidates.length <= 1
+
+        owner_of = nodes.each_with_object({}) do |n, map|
+          map[n[:node].object_id] = n[:owner]
+        end
+        ancestor_ids = candidates.each_with_object(Set.new) do |cand, set|
+          current = owner_of[cand[:node].object_id]
+          while current
+            set << current.object_id
+            current = owner_of[current.object_id]
+          end
+        end
+
+        leaves = candidates.reject { |n| ancestor_ids.include?(n[:node].object_id) }
+        (leaves.empty? ? candidates : leaves).min_by { |n| n[:end_line] - n[:line] }
       end
 
       # A comment in the gap between the THEN and ELSE regions of an If sits

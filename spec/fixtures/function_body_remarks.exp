@@ -45,6 +45,22 @@ SCHEMA function_body_remarks_schema;
     RETURN (TRUE);
   END_FUNCTION;
 
+  FUNCTION after_repeat(input : INTEGER) : LOGICAL;
+    LOCAL
+      total : INTEGER := 0;
+    END_LOCAL;
+    IF (input > 0) THEN
+      REPEAT i := 1 TO input;
+        total := total + i;
+      END_REPEAT;
+      -- AFTER-REPEAT leading comment
+      IF (total > 100) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_IF;
+    RETURN (TRUE);
+  END_FUNCTION;
+
   FUNCTION inline_else(input : INTEGER) : LOGICAL;
     LOCAL
       total : INTEGER := 0;

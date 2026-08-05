@@ -283,18 +283,17 @@ module Expressir
       def innermost_candidate(candidates, nodes)
         return candidates.first if candidates.length <= 1
 
-        owner_of = nodes.each_with_object({}) do |n, map|
-          map[n[:node].object_id] = n[:owner]
-        end
-        ancestor_ids = candidates.each_with_object(Set.new) do |cand, set|
-          current = owner_of[cand[:node].object_id]
+        owner_of = nodes.to_h { |n| [n[:node], n[:owner]] }.compare_by_identity
+        ancestors = Set.new.compare_by_identity
+        candidates.each do |cand|
+          current = owner_of[cand[:node]]
           while current
-            set << current.object_id
-            current = owner_of[current.object_id]
+            ancestors << current
+            current = owner_of[current]
           end
         end
 
-        leaves = candidates.reject { |n| ancestor_ids.include?(n[:node].object_id) }
+        leaves = candidates.reject { |n| ancestors.include?(n[:node]) }
         (leaves.empty? ? candidates : leaves).min_by { |n| n[:end_line] - n[:line] }
       end
 

@@ -36,5 +36,16 @@ RSpec.describe Expressir::Express::RemarkAttacher do
 
       expect(chosen[:node]).to be(sibling)
     end
+
+    it "builds the ownership lookup once for an immutable node index" do
+      nodes = [
+        { node: parent, line: 10, end_line: 20, owner: nil, collection: nil },
+        { node: child, line: 12, end_line: 25, owner: parent,
+          collection: :statements },
+      ]
+      expect(nodes).to receive(:to_h).once.and_call_original
+
+      2.times { attacher.send(:innermost_candidate, nodes, nodes) }
+    end
   end
 end

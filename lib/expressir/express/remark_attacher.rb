@@ -44,6 +44,7 @@ module Expressir
         @model = nil
         @scope_resolver = nil
         @node_index = nil
+        @owner_map = nil
       end
 
       def attach(model)
@@ -65,6 +66,7 @@ module Expressir
         @scope_resolver = nil
         @node_index = nil
         @line_map = nil
+        @owner_map = nil
 
         model
       end
@@ -283,7 +285,7 @@ module Expressir
       def innermost_candidate(candidates, nodes)
         return candidates.first if candidates.length <= 1
 
-        owner_of = nodes.to_h { |n| [n[:node], n[:owner]] }.compare_by_identity
+        owner_of = owner_map(nodes)
         ancestors = Set.new.compare_by_identity
         candidates.each do |cand|
           current = owner_of[cand[:node]]
@@ -295,6 +297,12 @@ module Expressir
 
         leaves = candidates.reject { |n| ancestors.include?(n[:node]) }
         (leaves.empty? ? candidates : leaves).min_by { |n| n[:end_line] - n[:line] }
+      end
+
+      # The node index is immutable during attachment, so its ownership map
+      # only needs to be built once for all body remarks.
+      def owner_map(nodes)
+        @owner_map ||= nodes.to_h { |n| [n[:node], n[:owner]] }.compare_by_identity
       end
 
       # A comment in the gap between the THEN and ELSE regions of an If sits

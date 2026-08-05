@@ -67,6 +67,12 @@ RSpec.describe Expressir::Express::Formatter do
       end
     end
 
+    it "keeps a comment between END_REPEAT and a nested IF in place" do
+      idx = lines.index { |l| l.include?("-- AFTER-REPEAT") }
+      expect(idx).not_to be_nil
+      expect(lines[idx + 1]).to include("IF total > 100 THEN")
+    end
+
     it "attaches a comment after a same-line ELSE to the ELSE branch" do
       idx = lines.index { |l| l.include?("-- AFTER-INLINE-ELSE") }
       expect(idx).not_to be_nil

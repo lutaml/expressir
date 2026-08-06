@@ -302,8 +302,9 @@ module Expressir
 
       # No-arg delegator so string interpolation ("#{element}") still
       # produces EXPRESS source rather than the default Object#to_s.
+      # set default formatter to no_remarks: true
       def to_s
-        format
+        format(no_remarks: true)
       end
 
       # Add a remark to this element

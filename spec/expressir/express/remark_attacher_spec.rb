@@ -6,6 +6,15 @@ RSpec.describe Expressir::Express::RemarkAttacher do
     let(:parent) { Expressir::Model::Statements::Repeat.new }
     let(:child) { Expressir::Model::Statements::If.new }
 
+    # innermost_candidate reads the ownership map off the node index that
+    # attach installs, so the helper specs install one directly.
+    def with_node_index(nodes)
+      index = instance_double(Expressir::Express::NodePositionIndex,
+                              nodes: nodes)
+      attacher.instance_variable_set(:@node_index, index)
+      attacher
+    end
+
     it "prefers the ownership leaf over a smaller-span ancestor" do
       # Node end lines are child-derived approximations: a parent's span can
       # come out SMALLER than its own child's. Span size alone then picks
@@ -18,7 +27,8 @@ RSpec.describe Expressir::Express::RemarkAttacher do
           collection: :statements },
       ]
 
-      chosen = attacher.send(:innermost_candidate, candidates, candidates)
+      chosen = with_node_index(candidates)
+        .send(:innermost_candidate, candidates)
 
       expect(chosen[:node]).to be(child)
     end
@@ -32,9 +42,40 @@ RSpec.describe Expressir::Express::RemarkAttacher do
           collection: :statements },
       ]
 
-      chosen = attacher.send(:innermost_candidate, candidates, candidates)
+      chosen = with_node_index(candidates)
+        .send(:innermost_candidate, candidates)
 
       expect(chosen[:node]).to be(sibling)
+    end
+
+    it "builds the ownership lookup once for an immutable node index" do
+      nodes = [
+        { node: parent, line: 10, end_line: 20, owner: nil, collection: nil },
+        { node: child, line: 12, end_line: 25, owner: parent,
+          collection: :statements },
+      ]
+      expect(nodes).to receive(:to_h).once.and_call_original
+
+      with_node_index(nodes)
+      2.times { attacher.send(:innermost_candidate, nodes) }
+    end
+  end
+
+  describe "#attach" do
+    let(:attacher) { described_class.new("SCHEMA s; END_SCHEMA;") }
+
+    it "drops the memoized ownership map when attachment raises" do
+      # Build the map first, so the assertion below is about the ensure
+      # block dropping a populated map rather than one that was never set.
+      allow(attacher).to receive(:attach_tagged_remarks) do
+        attacher.send(:owner_map)
+        raise "boom"
+      end
+
+      expect { attacher.attach(Expressir::Model::Repository.new) }
+        .to raise_error("boom")
+      expect(attacher.instance_variable_get(:@owner_map)).to be_nil
+      expect(attacher.instance_variable_get(:@node_index)).to be_nil
     end
   end
 end

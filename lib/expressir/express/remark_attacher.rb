@@ -227,7 +227,7 @@ module Expressir
 
       # Own-line body comments belong to the next statement in the same
       # statement region (Function body, THEN branch, ELSE branch, loop body):
-      # attached there with "leading" placement. A terminal comment — one with
+      # attached there with LEADING placement. A terminal comment — one with
       # no following statement in its region — belongs to the enclosing node
       # with legacy (nil) placement, deterministically, so it never reaches
       # the coincidence-prone same-line fallback. Returns [nil, nil] — meaning
@@ -252,7 +252,7 @@ module Expressir
         following = region
           .select { |n| n[:line] > line }
           .min_by { |n| n[:position] }
-        return [following[:node], "leading"] if following
+        return [following[:node], Model::RemarkPlacement::LEADING] if following
 
         [enclosing[:node], nil]
       end

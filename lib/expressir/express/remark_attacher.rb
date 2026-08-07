@@ -358,8 +358,8 @@ module Expressir
       # of node they produce. Used to find which construct a closing keyword
       # actually belongs to.
       OPENERS = [
-        [/\bIF\b.*\bTHEN\b/i, Model::Statements::If],
-        [/\bCASE\b.*\bOF\b/i, Model::Statements::Case],
+        [/\bIF\b.*?\bTHEN\b/i, Model::Statements::If],
+        [/\bCASE\b.*?\bOF\b/i, Model::Statements::Case],
         [/\bREPEAT\b/i, Model::Statements::Repeat],
         [/\bALIAS\b/i, Model::Statements::Alias],
         [/\bBEGIN\b/i, Model::Statements::Compound],
@@ -370,7 +370,7 @@ module Expressir
         [/\A\s*TYPE\b/i, :other],
       ].freeze
 
-      CLOSERS = /\bEND_IF\b|\bEND_CASE\b|\bEND_REPEAT\b|\bEND_ALIAS\b|\bEND_FUNCTION\b|\bEND_PROCEDURE\b|\bEND_RULE\b|\bEND_ENTITY\b|\bEND_TYPE\b|\AEND\s*;/i
+      CLOSERS = /\bEND_IF\b|\bEND_CASE\b|\bEND_REPEAT\b|\bEND_ALIAS\b|\bEND_FUNCTION\b|\bEND_PROCEDURE\b|\bEND_RULE\b|\bEND_ENTITY\b|\bEND_TYPE\b|\bEND\s*;/i
 
       # Strips what must not be scanned for keywords: string literals and a
       # trailing `--` remark. Without this, `x := 'IF a THEN'` or a comment
@@ -404,11 +404,15 @@ module Expressir
       end
 
       # Opener/closer events on one line, ordered by where they appear.
+      # EVERY occurrence is collected, not just the first: a line holding two
+      # complete IF blocks contributes two openers and two closers, and
+      # recording only one opener would over-pop the enclosing construct.
       def line_events(content)
         events = []
         OPENERS.each do |pattern, klass|
-          offset = content =~ pattern
-          events << [offset, :open, klass] if offset
+          content.enum_for(:scan, pattern).each do
+            events << [Regexp.last_match.begin(0), :open, klass]
+          end
         end
         content.enum_for(:scan, CLOSERS).each do
           events << [Regexp.last_match.begin(0), :close, nil]

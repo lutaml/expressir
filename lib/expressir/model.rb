@@ -20,6 +20,7 @@ module Expressir
     autoload :RepositoryValidator, "#{__dir__}/model/repository_validator"
     autoload :DependencyResolver, "#{__dir__}/model/dependency_resolver"
     autoload :RemarkFormat, "#{__dir__}/model/remark_format"
+    autoload :RemarkPlacement, "#{__dir__}/model/remark_placement"
     autoload :RemarkInfo, "#{__dir__}/model/remark_info"
     autoload :InterfaceValidator, "#{__dir__}/model/interface_validator"
     autoload :SearchEngine, "#{__dir__}/model/search_engine"

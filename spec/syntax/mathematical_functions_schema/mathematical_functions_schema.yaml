@@ -64881,23 +64881,6 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_function_application.is_elementary
       statements:
       - _class: Expressir::Model::Statements::Case
-        untagged_remarks:
-        - text: 'ef_if_i : combined with ef_if'
-          format: tail
-        - text: 'ef_if_r : combined with ef_if'
-          format: tail
-        - text: 'ef_if_c : combined with ef_if'
-          format: tail
-        - text: 'ef_if_s : combined with ef_if'
-          format: tail
-        - text: 'ef_if_b : combined with ef_if'
-          format: tail
-        - text: This can have multiple outputs, but the expression only
-          format: tail
-        - text: denotes the first.
-          format: tail
-        - text: 'ef_if_t : combined with ef_if'
-          format: tail
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: ef_val
@@ -67109,6 +67092,9 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_function_enumerators.ef_min_i
           statement:
             _class: Expressir::Model::Statements::Compound
+            untagged_remarks:
+            - text: 'ef_if_i : combined with ef_if'
+              format: tail
             statements:
             - _class: Expressir::Model::Statements::Assignment
               ref:
@@ -69801,6 +69787,10 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_function_enumerators.ef_form_c
           statement:
             _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: 'ef_if_r : combined with ef_if'
+              format: tail
+              placement: leading
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: AND
@@ -72486,6 +72476,9 @@ schemas:
                         id: p
                         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_function_application.p
             - _class: Expressir::Model::Statements::Return
+              untagged_remarks:
+              - text: 'ef_if_c : combined with ef_if'
+                format: tail
               expression:
                 _class: Expressir::Model::Expressions::FunctionCall
                 function:
@@ -73654,6 +73647,10 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_function_enumerators.ef_subscript_b
           statement:
             _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: 'ef_if_s : combined with ef_if'
+              format: tail
+              placement: leading
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: AND
@@ -74541,6 +74538,9 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_function_enumerators.ef_size_b
           statement:
             _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: 'ef_if_b : combined with ef_if'
+              format: tail
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: IN
@@ -75130,6 +75130,13 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_function_enumerators.ef_detuple
           statement:
             _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: This can have multiple outputs, but the expression only
+              format: tail
+              placement: leading
+            - text: denotes the first.
+              format: tail
+              placement: leading
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: IN
@@ -75343,6 +75350,10 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_function_enumerators.ef_sum_it
           statement:
             _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: 'ef_if_t : combined with ef_if'
+              format: tail
+              placement: leading
             expression:
               _class: Expressir::Model::Expressions::FunctionCall
               function:
@@ -78491,6 +78502,10 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_function_enumerators.ef_ensemble
           statement:
             _class: Expressir::Model::Statements::Return
+            untagged_remarks:
+            - text: "(mem + vlist) effectively converts list to set"
+              format: tail
+              placement: leading
             expression:
               _class: Expressir::Model::Expressions::FunctionCall
               function:
@@ -78580,10 +78595,6 @@ schemas:
                     id: lgc
                     base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_function_application.lgc
       - _class: Expressir::Model::Statements::Return
-        untagged_remarks:
-        - text: "(mem + vlist) effectively converts list to set"
-          format: tail
-          placement: leading
         expression:
           _class: Expressir::Model::Expressions::FunctionCall
           function:

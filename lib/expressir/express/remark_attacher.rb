@@ -25,13 +25,11 @@ module Expressir
       # on its own without forcing the other to load.
       COLLECTION_REGISTRY = NodePositionIndex::COLLECTION_REGISTRY
 
-      # Collections holding executable statements — the regions a leading
-      # body comment can belong to.
-      STATEMENT_REGIONS = %i[statements else_statements].freeze
-
-      # Matches the ELSE keyword opening a line or following a statement
-      # terminator, optionally trailed by an inline tail remark.
-      ELSE_BOUNDARY = /\A(?:.*;)?\s*ELSE(?:\s*--.*)?\z/i
+      # Collections holding executable statements — the regions a body
+      # comment can belong to.
+      STATEMENT_REGIONS = %i[
+        statements else_statements action_statements otherwise_statements
+      ].freeze
 
       # Expression and statement child attributes are declared on the model
       # via `child_attributes :foo, :bar, ...`. See TODO.bugs/15.
@@ -382,23 +380,31 @@ module Expressir
         ) { |n, map| map[n[:node]] = n[:owner] }
       end
 
-      # A comment in the gap between the THEN and ELSE regions of an If sits
-      # on one side of the ELSE keyword: after it, the comment leads the ELSE
-      # branch; before it, it trails the THEN branch (legacy fallback). The
-      # gap between the last THEN child and the first ELSE child can contain
-      # only the ELSE keyword and comments, so a line scan of that gap is
-      # exact. Comment lines are skipped so prose mentioning ELSE cannot
+      # The keyword that opens each region, for regions that follow another
+      # region of the same owner. A comment in the gap belongs to whichever
+      # side of this keyword it was written on.
+      REGION_OPENERS = {
+        else_statements: /\A(?:.*;)?\s*ELSE(?:\s*--.*)?\z/i,
+        otherwise_statements: /\A\s*OTHERWISE\b/i,
+      }.freeze
+
+      # A comment between two regions of the same owner — between the THEN
+      # body and ELSE, or between the last CASE action and OTHERWISE — sits
+      # on one side of the keyword that opens the second region. The gap can
+      # hold only that keyword and comments, so scanning it is exact.
+      # Comment lines are skipped so prose mentioning the keyword cannot
       # match.
       def region_attr_for(line, preceding, following)
         return following&.dig(:collection) unless preceding
 
-        if preceding[:collection] == :statements &&
-            following&.dig(:collection) == :else_statements
-          else_line = (preceding[:end_line]...following[:line]).find do |ln|
+        following_attr = following&.dig(:collection)
+        opener = REGION_OPENERS[following_attr]
+        if opener && following_attr != preceding[:collection]
+          opener_line = (preceding[:end_line]...following[:line]).find do |ln|
             content = line_content_for(ln).strip
-            !content.start_with?("--") && ELSE_BOUNDARY.match?(content)
+            !content.start_with?("--") && opener.match?(content)
           end
-          return :else_statements if else_line && line > else_line
+          return following_attr if opener_line && line > opener_line
         end
 
         preceding[:collection]

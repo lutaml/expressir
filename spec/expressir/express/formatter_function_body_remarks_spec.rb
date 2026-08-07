@@ -33,9 +33,10 @@ RSpec.describe Expressir::Express::Formatter do
     end
 
     it "emits nothing after END_FUNCTION" do
-      lines.each do |line|
-        expect(line).to match(/\A\s*END_FUNCTION;\s*\z/) if line.include?("END_FUNCTION")
-      end
+      end_lines = lines.select { |l| l.include?("END_FUNCTION") }
+
+      expect(end_lines).not_to be_empty
+      expect(end_lines).to all(match(/\A\s*END_FUNCTION;\s*\z/))
     end
 
     it "keeps comments inside ELSE branches" do
@@ -50,21 +51,17 @@ RSpec.describe Expressir::Express::Formatter do
       expect(lines[term_idx + 1]).to include("END_REPEAT")
     end
 
-    it "does not pull a schema-level comment into a function body" do
-      between_idx = lines.index { |l| l.include?("BETWEEN-FUNCTIONS") }
-      if between_idx
-        fn2_idx = lines.index { |l| l.include?("FUNCTION edge_cases") }
-        expect(between_idx).to be < fn2_idx
-      end
+    # Known limitation: a comment with no statement following it inside its
+    # own region — at schema level, or trailing just before ELSE — keeps the
+    # pre-existing behavior and is not emitted. These examples pin that state
+    # so a later fix has to update them deliberately instead of silently
+    # changing output.
+    it "currently drops a schema-level comment between functions" do
+      expect(formatted).not_to include("BETWEEN-FUNCTIONS")
     end
 
-    it "does not misplace a before-ELSE trailing comment" do
-      before_else = lines.index { |l| l.include?("-- BEFORE-ELSE") }
-      if before_else
-        fn2_idx = lines.index { |l| l.include?("FUNCTION edge_cases") }
-        expect(before_else).to be > fn2_idx
-        expect(lines[before_else + 1]).not_to include("total := 0")
-      end
+    it "currently drops a trailing comment before ELSE" do
+      expect(formatted).not_to include("BEFORE-ELSE")
     end
 
     it "keeps a comment between END_REPEAT and a nested IF in place" do

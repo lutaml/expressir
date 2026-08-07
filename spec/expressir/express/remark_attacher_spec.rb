@@ -54,9 +54,12 @@ RSpec.describe Expressir::Express::RemarkAttacher do
         { node: child, line: 12, end_line: 25, owner: parent,
           collection: :statements },
       ]
-      expect(nodes).to receive(:to_h).once.and_call_original
+      # Asserts the node index is consulted once, rather than pinning the
+      # collection method the map happens to be built with.
+      index = instance_double(Expressir::Express::NodePositionIndex)
+      expect(index).to receive(:nodes).once.and_return(nodes)
+      attacher.instance_variable_set(:@node_index, index)
 
-      with_node_index(nodes)
       2.times { attacher.send(:innermost_candidate, nodes) }
     end
   end

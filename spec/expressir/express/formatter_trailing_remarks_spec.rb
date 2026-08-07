@@ -81,4 +81,40 @@ RSpec.describe Expressir::Express::Formatter do
       expect(bare).not_to include("CLOSES-")
     end
   end
+
+  describe "closing keywords resolve to the construct they actually close" do
+    let(:source) do
+      <<~EXPRESS
+        SCHEMA nesting_schema;
+          FUNCTION probe(i : INTEGER) : LOGICAL;
+            LOCAL
+              t : INTEGER := 0;
+            END_LOCAL;
+            IF (i > 0) THEN
+              IF (i > 5) THEN
+                t := 1;
+              END_IF;
+              -- CLOSES-OUTER not the inner IF
+            END_IF;
+            RETURN (TRUE);
+          END_FUNCTION;
+        END_SCHEMA;
+      EXPRESS
+    end
+    let(:lines) do
+      described_class.format(Expressir::Express::Parser.from_exp(source))
+        .lines.map(&:rstrip)
+    end
+
+    # Resolving by "latest node of the right class" would pick the inner IF,
+    # which has already closed, and move the comment above its END_IF.
+    it "attaches a comment before the outer END_IF to the outer IF" do
+      idx = lines.index { |l| l.include?("CLOSES-OUTER") }
+      end_ifs = lines.each_index.select { |i| lines[i].include?("END_IF") }
+
+      expect(idx).not_to be_nil
+      expect(idx).to be > end_ifs.first
+      expect(idx).to be < end_ifs.last
+    end
+  end
 end

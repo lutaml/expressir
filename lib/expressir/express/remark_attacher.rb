@@ -326,15 +326,20 @@ module Expressir
       # the keyword that follows: it names both the owner type and the body
       # being closed.
       def closing_region_target(line, nodes)
-        keyword_owner, region = closing_keyword_after(line)
+        keyword_owner, region, keyword_line = closing_keyword_after(line)
         return [nil, nil, nil] unless keyword_owner
 
-        # The owner is the innermost node of that type opening before the
-        # comment. Selecting on end_line would miss containers whose recorded
-        # span already covers their own closing keyword.
-        owner = nodes
-          .select { |n| n[:node].is_a?(keyword_owner) && n[:line] && n[:line] < line }
-          .max_by { |n| n[:line] }
+        # The owner is the construct the keyword actually closes — the
+        # innermost one still open at that line. Picking the latest node of
+        # the right class instead would grab an already-closed inner block
+        # (nested IFs) or an unrelated earlier declaration (a RULE, when the
+        # WHERE really belongs to an ENTITY).
+        opener_line = active_opener_line(keyword_line, keyword_owner)
+        return [nil, nil, nil] unless opener_line
+
+        owner = nodes.find do |n|
+          n[:node].is_a?(keyword_owner) && n[:line] == opener_line
+        end
         return [nil, nil, nil] unless owner
 
         # END_IF closes the THEN body when there is no ELSE; END_CASE closes
@@ -346,6 +351,45 @@ module Expressir
       end
 
       # The first non-blank, non-comment source line after `line`.
+      # Source keywords that open a nestable construct, paired with the class
+      # of node they produce. Used to find which construct a closing keyword
+      # actually belongs to.
+      OPENERS = [
+        [/\bIF\b.*\bTHEN\b/i, Model::Statements::If],
+        [/\bCASE\b.*\bOF\b/i, Model::Statements::Case],
+        [/\bREPEAT\b/i, Model::Statements::Repeat],
+        [/\bALIAS\b/i, Model::Statements::Alias],
+        [/\bBEGIN\b/i, Model::Statements::Compound],
+        [/\A\s*FUNCTION\b/i, Model::Declarations::Function],
+        [/\A\s*PROCEDURE\b/i, Model::Declarations::Procedure],
+        [/\A\s*RULE\b/i, Model::Declarations::Rule],
+        [/\A\s*ENTITY\b/i, :other],
+        [/\A\s*TYPE\b/i, :other],
+      ].freeze
+
+      CLOSERS = /\bEND_IF\b|\bEND_CASE\b|\bEND_REPEAT\b|\bEND_ALIAS\b|\bEND_FUNCTION\b|\bEND_PROCEDURE\b|\bEND_RULE\b|\bEND_ENTITY\b|\bEND_TYPE\b|\AEND\s*;/i
+
+      # The opening line of the innermost construct still open at
+      # `keyword_line`, or nil when that construct is not of `expected_class`.
+      # A single forward scan maintains the nesting stack; comment lines are
+      # skipped so prose cannot open or close a construct.
+      def active_opener_line(keyword_line, expected_class)
+        stack = []
+        (1...keyword_line).each do |ln|
+          content = line_content_for(ln).to_s.strip
+          next if content.empty? || content.start_with?("--")
+
+          stack.pop if content.match?(CLOSERS)
+          opener = OPENERS.find { |pattern, _| content.match?(pattern) }
+          stack << [opener[1], ln] if opener
+        end
+
+        active = stack.last
+        return nil unless active && active[0] == expected_class
+
+        active[1]
+      end
+
       def closing_keyword_after(line)
         probe = line + 1
         # Skip further comment lines AND blank lines: a comment separated
@@ -358,9 +402,9 @@ module Expressir
         end
         content = line_content_for(probe).to_s.strip
         CLOSING_KEYWORDS.each do |pattern, owner_region|
-          return owner_region if content.match?(pattern)
+          return [*owner_region, probe] if content.match?(pattern)
         end
-        [nil, nil]
+        [nil, nil, nil]
       end
 
       def statement_region_for(line, nodes)

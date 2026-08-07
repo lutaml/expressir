@@ -36,6 +36,12 @@ module Expressir
         placement == RemarkPlacement::LEADING
       end
 
+      # Check if this remark trails its owning statement on the same line
+      # @return [Boolean] True if placement is 'inline'
+      def inline?
+        placement == RemarkPlacement::INLINE
+      end
+
       # Check if this remark closes the given body of its owning node
       # @param name [Symbol, String] region attribute name
       # @return [Boolean]

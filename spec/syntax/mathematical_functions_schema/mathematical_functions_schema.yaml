@@ -31769,6 +31769,7 @@ schemas:
         untagged_remarks:
         - text: No enclosing polar region exists (requires whole plane)
           format: tail
+          placement: inline
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
@@ -35676,6 +35677,7 @@ schemas:
         untagged_remarks:
         - text: No finite boundaries exist
           format: tail
+          placement: inline
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
@@ -37592,6 +37594,7 @@ schemas:
             placement: leading
           - text: slot exists;
             format: tail
+            placement: inline
           ref:
             _class: Expressir::Model::References::SimpleReference
             id: inn
@@ -37613,6 +37616,7 @@ schemas:
           untagged_remarks:
           - text: slot direction
             format: tail
+            placement: inline
           ref:
             _class: Expressir::Model::References::SimpleReference
             id: a
@@ -40523,6 +40527,7 @@ schemas:
               untagged_remarks:
               - text: reference direction
                 format: tail
+                placement: inline
               ref:
                 _class: Expressir::Model::References::SimpleReference
                 id: ab
@@ -40612,6 +40617,7 @@ schemas:
               untagged_remarks:
               - text: reference direction
                 format: tail
+                placement: inline
               ref:
                 _class: Expressir::Model::References::SimpleReference
                 id: ab
@@ -41143,6 +41149,7 @@ schemas:
           untagged_remarks:
           - text: No pregion exists.  (Would require whole plane.)
             format: tail
+            placement: inline
           expression:
             _class: Expressir::Model::References::SimpleReference
             id: "?"
@@ -41189,6 +41196,7 @@ schemas:
             placement: leading
           - text: slot direction
             format: tail
+            placement: inline
           ref:
             _class: Expressir::Model::References::SimpleReference
             id: a
@@ -41239,6 +41247,7 @@ schemas:
               untagged_remarks:
               - text: No pregion exists.  (Would require whole plane.)
                 format: tail
+                placement: inline
               expression:
                 _class: Expressir::Model::References::SimpleReference
                 id: "?"
@@ -42486,6 +42495,7 @@ schemas:
             placement: leading
           - text: reference direction
             format: tail
+            placement: inline
           ref:
             _class: Expressir::Model::References::SimpleReference
             id: ab
@@ -42969,6 +42979,7 @@ schemas:
                 untagged_remarks:
                 - text: No pregion exists.  (Would require whole plane.)
                   format: tail
+                  placement: inline
                 expression:
                   _class: Expressir::Model::References::SimpleReference
                   id: "?"
@@ -51021,6 +51032,7 @@ schemas:
           untagged_remarks:
           - text: Should be unreachable
             format: tail
+            placement: inline
           expression:
             _class: Expressir::Model::Literals::Logical
             value: 'FALSE'
@@ -59728,6 +59740,7 @@ schemas:
             untagged_remarks:
             - text: The centre has no direction.
               format: tail
+              placement: inline
             expression:
               _class: Expressir::Model::Literals::Logical
               value: 'TRUE'
@@ -79291,6 +79304,7 @@ schemas:
         untagged_remarks:
         - text: No simpler expression available
           format: tail
+          placement: inline
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: expr
@@ -80671,6 +80685,7 @@ schemas:
                       untagged_remarks:
                       - text: Unreachable
                         format: tail
+                        placement: inline
                       expression:
                         _class: Expressir::Model::References::SimpleReference
                         id: "?"
@@ -89796,6 +89811,7 @@ schemas:
         untagged_remarks:
         - text: operands modified!
           format: tail
+          placement: inline
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: expr
@@ -90689,6 +90705,7 @@ schemas:
         untagged_remarks:
         - text: unknown subtype of expression
           format: tail
+          placement: inline
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
@@ -91356,6 +91373,7 @@ schemas:
       untagged_remarks:
       - text: not recognized as a mathematical expression
         format: tail
+        placement: inline
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: "?"

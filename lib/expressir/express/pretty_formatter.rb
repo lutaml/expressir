@@ -505,6 +505,7 @@ module Expressir
                indent(node.where_rules.map { |x| format(x) }.join("\n")),
              ]
            end,
+          *format_trailing_region_remarks(node, :where_rules).map { |x| indent(x) },
           format_scope_footer("END_RULE", node),
         ].join("\n")
       end

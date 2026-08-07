@@ -520,6 +520,8 @@ module Expressir
                  indent(node.where_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
+            # A comment after the last where rule closes the WHERE section.
+            *format_trailing_region_remarks(node, :where_rules).map { |x| indent(x) },
             [
               "END_RULE",
               ";",

@@ -68,9 +68,11 @@ module Expressir
         def format_end_scope_remark(node)
           return "" if @no_remarks
           return "" unless node.is_a?(Model::ModelElement)
-          return "" if node.untagged_remarks.nil? || node.untagged_remarks.empty?
 
-          remark = node.untagged_remarks.last
+          # Only legacy (unplaced) remarks belong after the END_* keyword.
+          # Remarks carrying an explicit placement are rendered by the
+          # placement-aware emitters, and must not be emitted twice.
+          remark = Array(node.untagged_remarks).reject(&:placement).last
           return "" unless remark.is_a?(Model::RemarkInfo)
 
           text = remark.text
@@ -134,6 +136,22 @@ module Expressir
           preamble_remarks.map do |remark|
             format_preamble_remark(remark, indent_str)
           end.join("\n")
+        end
+
+        # Remarks that close one body of `node`, emitted just before that
+        # body's closing keyword. Only explicit TRAILING remarks for the named
+        # region qualify: legacy (nil) remarks keep their historical emission
+        # path so old caches render exactly as they did before.
+        def format_trailing_region_remarks(node, region)
+          return [] if @no_remarks
+          return [] unless node.is_a?(Model::ModelElement)
+
+          Array(node.untagged_remarks).filter_map do |remark|
+            next unless remark.trailing_region?(region)
+
+            formatted = format_untagged_remark(remark)
+            formatted unless formatted.empty?
+          end
         end
 
         def format_leading_statement_remarks(node)

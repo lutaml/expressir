@@ -205,10 +205,10 @@ module Expressir
             end
           end
 
-          target, placement = find_body_comment_target(remark)
+          target, placement, region = find_body_comment_target(remark)
           if target
-            add_remark(target, remark.text, format: remark.format,
-                                            tag: nil, placement: placement)
+            add_remark(target, remark.text, format: remark.format, tag: nil,
+                                            placement: placement, region: region)
             @attached_spans << remark.position
             next
           end
@@ -227,12 +227,13 @@ module Expressir
 
       # Own-line body comments belong to the next statement in the same
       # statement region (Function body, THEN branch, ELSE branch, loop body):
-      # attached there with LEADING placement. A terminal comment — one with
-      # no following statement in its region — belongs to the enclosing node
-      # with legacy (nil) placement, deterministically, so it never reaches
-      # the coincidence-prone same-line fallback. Returns [nil, nil] — meaning
-      # "use the legacy fallback" — when the remark shares a line with a node
-      # or sits outside any statement-bearing node.
+      # attached there with LEADING placement. A comment with no following
+      # statement in its region closes that region, so it attaches to the
+      # region's owner with TRAILING placement and the region's name — an IF
+      # owns two bodies that close at different keywords.
+      #
+      # Returns [nil, nil, nil] — "use the legacy fallback" — when the remark
+      # shares a line with a node or sits outside any statement-bearing node.
       def find_body_comment_target(remark)
         line = remark.line
         nodes = @node_index.nodes
@@ -244,17 +245,85 @@ module Expressir
           n[:line] == line ||
             (n[:end_line] == line && n[:node].is_a?(Model::Statement))
         end
-        return [nil, nil] if inline
+        return [nil, nil, nil] if inline
 
-        enclosing, region = statement_region_for(line, nodes)
-        return [nil, nil] unless region
+        # A closing keyword on the next code line is decisive: the comment
+        # closes that body. Without this check the comment would instead be
+        # read as leading the next statement of an OUTER region, which is
+        # where it would wrongly render.
+        closing = closing_region_target(line, nodes)
+        return closing if closing.first
+
+        enclosing, region, = statement_region_for(line, nodes)
+        return [nil, nil, nil] unless region
 
         following = region
           .select { |n| n[:line] > line }
           .min_by { |n| n[:position] }
-        return [following[:node], Model::RemarkPlacement::LEADING] if following
+        if following
+          return [following[:node], Model::RemarkPlacement::LEADING, nil]
+        end
 
-        [enclosing[:node], nil]
+        # No following statement and no closing keyword above: the comment is
+        # not demonstrably inside this body (it may sit after the whole
+        # declaration). Keep the legacy attachment rather than guessing.
+        [enclosing[:node], nil, nil]
+      end
+
+      # Which closing keyword ends which region of which owner. A comment
+      # sitting between a body's last statement and one of these keywords
+      # closes that body.
+      CLOSING_KEYWORDS = {
+        /\AELSE\b/i => [Model::Statements::If, :statements],
+        /\AEND_IF\b/i => [Model::Statements::If, :else_statements],
+        /\AEND_CASE\b/i => [Model::Statements::Case, :statements],
+        /\AEND_REPEAT\b/i => [Model::Statements::Repeat, :statements],
+        /\AEND_ALIAS\b/i => [Model::Statements::Alias, :statements],
+        /\AEND_FUNCTION\b/i => [Model::Declarations::Function, :statements],
+        /\AEND_PROCEDURE\b/i => [Model::Declarations::Procedure, :statements],
+        /\AEND_RULE\b/i => [Model::Declarations::Rule, :statements],
+      }.freeze
+
+      # A node's indexed span stops at its last child, so a comment written
+      # after that child but before the node's closing keyword sits outside
+      # every span and never reaches statement_region_for. Resolve it from
+      # the keyword that follows: it names both the owner type and the body
+      # being closed.
+      def closing_region_target(line, nodes)
+        keyword_owner, region = closing_keyword_after(line)
+        return [nil, nil, nil] unless keyword_owner
+
+        # The owner is the innermost node of that type opening before the
+        # comment. Selecting on end_line would miss containers whose recorded
+        # span already covers their own closing keyword.
+        owner = nodes
+          .select { |n| n[:node].is_a?(keyword_owner) && n[:line] && n[:line] < line }
+          .max_by { |n| n[:line] }
+        return [nil, nil, nil] unless owner
+
+        # An IF with no ELSE closes its THEN body at END_IF.
+        if keyword_owner == Model::Statements::If && region == :else_statements &&
+            !owner[:node].else_statements&.length&.positive?
+          region = :statements
+        end
+
+        [owner[:node], Model::RemarkPlacement::TRAILING, region.to_s]
+      end
+
+      # The first non-blank, non-comment source line after `line`.
+      def closing_keyword_after(line)
+        probe = line + 1
+        loop do
+          content = line_content_for(probe).to_s.strip
+          break if content.empty? || !content.start_with?("--")
+
+          probe += 1
+        end
+        content = line_content_for(probe).to_s.strip
+        CLOSING_KEYWORDS.each do |pattern, owner_region|
+          return owner_region if content.match?(pattern)
+        end
+        [nil, nil]
       end
 
       def statement_region_for(line, nodes)
@@ -263,20 +332,20 @@ module Expressir
             (n[:node].is_a?(Model::Statement) || function_rule_procedure?(n[:node]))
         end
         enclosing = innermost_candidate(candidates)
-        return [nil, nil] unless enclosing
+        return [nil, nil, nil] unless enclosing
 
         children = nodes.select do |n|
           n[:owner].equal?(enclosing[:node]) &&
             STATEMENT_REGIONS.include?(n[:collection]) && n[:line]
         end
-        return [enclosing, nil] if children.empty?
+        return [enclosing, nil, nil] if children.empty?
 
         preceding = children.select { |n| n[:line] < line }.max_by { |n| n[:position] }
         following = children.select { |n| n[:line] > line }.min_by { |n| n[:position] }
         region_attr = region_attr_for(line, preceding, following)
-        return [enclosing, nil] unless region_attr
+        return [enclosing, nil, nil] unless region_attr
 
-        [enclosing, children.select { |n| n[:collection] == region_attr }]
+        [enclosing, children.select { |n| n[:collection] == region_attr }, region_attr]
       end
 
       # Node end lines are child-derived approximations, so a parent's span
@@ -623,7 +692,7 @@ module Expressir
       # ----- Remark storage -----
 
       def add_remark(node, text, format: Model::RemarkFormat::TAIL, tag: nil,
-                     placement: nil)
+                     placement: nil, region: nil)
         return unless node
         return unless node.is_a?(Model::ModelElement)
 
@@ -635,7 +704,8 @@ module Expressir
 
           if tag.nil?
             remark_info = Model::RemarkInfo.new(text: text, format: format,
-                                                placement: placement)
+                                                placement: placement,
+                                                region: region)
             node.untagged_remarks ||= []
             node.untagged_remarks << remark_info
           end

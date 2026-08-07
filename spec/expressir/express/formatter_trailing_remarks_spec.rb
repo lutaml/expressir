@@ -117,4 +117,44 @@ RSpec.describe Expressir::Express::Formatter do
       expect(idx).to be < end_ifs.last
     end
   end
+
+  describe "RULE where section" do
+    let(:source) do
+      <<~EXPRESS
+        SCHEMA rule_where_schema;
+          ENTITY thing; END_ENTITY;
+          RULE checks FOR (thing);
+            ;
+            -- CLOSES-BODY section head
+          WHERE
+            wr1 : TRUE;
+            -- CLOSES-WHERE section tail
+          END_RULE;
+        END_SCHEMA;
+      EXPRESS
+    end
+    let(:repo) { Expressir::Express::Parser.from_exp(source) }
+    let(:lines) { described_class.format(repo).lines.map(&:rstrip) }
+
+    # The body's trailing remarks render above WHERE; a comment written
+    # after the last where rule must stay below it, not jump the section.
+    it "keeps each comment on its own side of WHERE" do
+      body = lines.index { |l| l.include?("CLOSES-BODY") }
+      where = lines.index { |l| l =~ /\AWHERE\b/ }
+      after = lines.index { |l| l.include?("CLOSES-WHERE") }
+      end_rule = lines.index { |l| l.include?("END_RULE") }
+
+      expect([body, where, after, end_rule]).to all(be_truthy)
+      expect(body).to be < where
+      expect(after).to be > where
+      expect(after).to be < end_rule
+    end
+
+    it "agrees with PrettyFormatter" do
+      pretty = Expressir::Express::PrettyFormatter.new.format(repo)
+
+      expect(pretty.scan("CLOSES-WHERE").size).to eq(1)
+      expect(pretty.scan("CLOSES-BODY").size).to eq(1)
+    end
+  end
 end

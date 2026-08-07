@@ -308,7 +308,8 @@ module Expressir
         /\AWHERE\b/i => [Model::Declarations::Rule, :statements],
         /\AEND_FUNCTION\b/i => [Model::Declarations::Function, :statements],
         /\AEND_PROCEDURE\b/i => [Model::Declarations::Procedure, :statements],
-        /\AEND_RULE\b/i => [Model::Declarations::Rule, :statements],
+        # END_RULE closes the WHERE section when the rule has one.
+        /\AEND_RULE\b/i => [Model::Declarations::Rule, :where_rules],
       }.freeze
 
       # Regions whose owner may not have that body, in which case the
@@ -318,6 +319,8 @@ module Expressir
           [:statements, ->(n) { n.else_statements&.length&.positive? }],
         [Model::Statements::Case, :otherwise_statements] =>
           [:action_statements, ->(n) { !n.otherwise_statement.nil? }],
+        [Model::Declarations::Rule, :where_rules] =>
+          [:statements, ->(n) { n.where_rules&.length&.positive? }],
       }.freeze
 
       # A node's indexed span stops at its last child, so a comment written

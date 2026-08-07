@@ -43,6 +43,7 @@ module Expressir
         @scope_resolver = nil
         @node_index = nil
         @owner_map = nil
+        @active_scope_map = nil
       end
 
       def attach(model)
@@ -69,6 +70,7 @@ module Expressir
         @node_index = nil
         @line_map = nil
         @owner_map = nil
+        @active_scope_map = nil
       end
 
       private
@@ -383,12 +385,26 @@ module Expressir
 
       # The opening line of the innermost construct still open at
       # `keyword_line`, or nil when that construct is not of `expected_class`.
-      # One forward scan maintains the nesting stack. Openers and closers are
-      # applied in source order, so a construct opened and closed on the same
-      # line nets out instead of displacing its enclosing scope.
       def active_opener_line(keyword_line, expected_class)
+        active = active_scope_map[keyword_line]
+        return nil unless active && active[0] == expected_class
+
+        active[1]
+      end
+
+      # Line number => the construct open at the START of that line, as
+      # [class, opening_line]. Built once per source: rescanning from line 1
+      # for every trailing comment is quadratic, and on a comment-dense file
+      # that cost dominates parsing entirely.
+      def active_scope_map
+        @active_scope_map ||= build_active_scope_map
+      end
+
+      def build_active_scope_map
+        map = {}
         stack = []
-        (1...keyword_line).each do |ln|
+        (1..source_line_count).each do |ln|
+          map[ln] = stack.last
           content = keyword_scannable(line_content_for(ln).to_s.strip)
           next if content.empty? || content.start_with?("--")
 
@@ -396,11 +412,7 @@ module Expressir
             kind == :open ? stack << [klass, ln] : stack.pop
           end
         end
-
-        active = stack.last
-        return nil unless active && active[0] == expected_class
-
-        active[1]
+        map
       end
 
       # Opener/closer events on one line, ordered by where they appear.

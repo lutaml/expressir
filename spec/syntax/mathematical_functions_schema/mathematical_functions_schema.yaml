@@ -9,8 +9,6 @@ schemas:
     functions. The context for these mathematical functions is provided by other parts
     of ISO 10303 and the applications which use this schema. Only the unitless, purely
     mathematical aspects of mathematical functions are considered in this schema.
-  - The index function is evaluated at (base+shape[i]) when determining the
-  - upper search bound for entries of the last row or column, respectively.
   - mathematical_functions_schema
   remark_items:
   - _class: Expressir::Model::Declarations::RemarkItem
@@ -256,10 +254,6 @@ schemas:
     remarks:
     - data/resource_docs/mathematical_constructs/resource.xml
   untagged_remarks:
-  - text: The index function is evaluated at (base+shape[i]) when determining the
-    format: tail
-  - text: upper search bound for entries of the last row or column, respectively.
-    format: tail
   - text: mathematical_functions_schema
     format: tail
   file: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp
@@ -12256,12 +12250,23 @@ schemas:
     - This function verifies that the domain of the index function in an instance
       of <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>>
       is consistent with the other attributes.
+    - The index function is evaluated at (base+shape[i]) when determining the
+    - upper search bound for entries of the last row or column, respectively.
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The boolean value indicating whether the domain of the index function
         is consistent with the other attributes."
+    untagged_remarks:
+    - text: The index function is evaluated at (base+shape[i]) when determining the
+      format: tail
+      placement: trailing
+      region: statements
+    - text: upper search bound for entries of the last row or column, respectively.
+      format: tail
+      placement: trailing
+      region: statements
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: idxdom

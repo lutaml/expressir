@@ -372,25 +372,48 @@ module Expressir
 
       CLOSERS = /\bEND_IF\b|\bEND_CASE\b|\bEND_REPEAT\b|\bEND_ALIAS\b|\bEND_FUNCTION\b|\bEND_PROCEDURE\b|\bEND_RULE\b|\bEND_ENTITY\b|\bEND_TYPE\b|\AEND\s*;/i
 
+      # Strips what must not be scanned for keywords: string literals and a
+      # trailing `--` remark. Without this, `x := 'IF a THEN'` or a comment
+      # mentioning REPEAT would push a construct that never opened.
+      def keyword_scannable(content)
+        without_strings = content.gsub(/'[^']*'/, "''")
+        tail = without_strings.index("--")
+        tail ? without_strings[0...tail] : without_strings
+      end
+
       # The opening line of the innermost construct still open at
       # `keyword_line`, or nil when that construct is not of `expected_class`.
-      # A single forward scan maintains the nesting stack; comment lines are
-      # skipped so prose cannot open or close a construct.
+      # One forward scan maintains the nesting stack. Openers and closers are
+      # applied in source order, so a construct opened and closed on the same
+      # line nets out instead of displacing its enclosing scope.
       def active_opener_line(keyword_line, expected_class)
         stack = []
         (1...keyword_line).each do |ln|
-          content = line_content_for(ln).to_s.strip
+          content = keyword_scannable(line_content_for(ln).to_s.strip)
           next if content.empty? || content.start_with?("--")
 
-          stack.pop if content.match?(CLOSERS)
-          opener = OPENERS.find { |pattern, _| content.match?(pattern) }
-          stack << [opener[1], ln] if opener
+          line_events(content).each do |_offset, kind, klass|
+            kind == :open ? stack << [klass, ln] : stack.pop
+          end
         end
 
         active = stack.last
         return nil unless active && active[0] == expected_class
 
         active[1]
+      end
+
+      # Opener/closer events on one line, ordered by where they appear.
+      def line_events(content)
+        events = []
+        OPENERS.each do |pattern, klass|
+          offset = content =~ pattern
+          events << [offset, :open, klass] if offset
+        end
+        content.enum_for(:scan, CLOSERS).each do
+          events << [Regexp.last_match.begin(0), :close, nil]
+        end
+        events.sort_by(&:first)
       end
 
       def closing_keyword_after(line)

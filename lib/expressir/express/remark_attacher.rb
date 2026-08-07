@@ -304,9 +304,13 @@ module Expressir
       # The node index is immutable during attachment, so its ownership map
       # only needs to be built once for all body remarks.
       def owner_map
-        @owner_map ||= @node_index.nodes
-          .to_h { |n| [n[:node], n[:owner]] }
-          .compare_by_identity
+        # Identity comparison must be enabled BEFORE the hash is populated.
+        # Model elements compare by value, so two distinct-but-equal nodes
+        # would collapse into one entry during a plain build, and switching
+        # to identity afterwards cannot recover the lost entry.
+        @owner_map ||= @node_index.nodes.each_with_object(
+          {}.compare_by_identity,
+        ) { |n, map| map[n[:node]] = n[:owner] }
       end
 
       # A comment in the gap between the THEN and ELSE regions of an If sits

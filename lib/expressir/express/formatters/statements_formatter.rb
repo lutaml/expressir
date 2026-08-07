@@ -88,6 +88,10 @@ module Expressir
             *if node.actions&.length&.positive?
                node.actions.map { |x| format(x) }
              end,
+            # Closes the last action: before OTHERWISE when one exists,
+            # otherwise before END_CASE.
+            *format_trailing_region_remarks(node, :action_statements)
+              .map { |x| indent(x) },
             *if node.otherwise_statement
                [
                  [
@@ -98,6 +102,8 @@ module Expressir
                  indent(format(node.otherwise_statement)),
                ]
              end,
+            *format_trailing_region_remarks(node, :otherwise_statements)
+              .map { |x| indent(x) },
             [
               "END_CASE",
               ";",
@@ -123,6 +129,7 @@ module Expressir
             *if statements.length.positive?
                indent(statements.map { |x| format(x) }.join("\n"))
              end,
+            *format_trailing_region_remarks(node, :statements).map { |x| indent(x) },
             [
               "END",
               ";",

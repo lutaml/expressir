@@ -239,11 +239,7 @@ module Expressir
         # here means the remark is an inline tail (code; -- note). The
         # end-line check is restricted to statements: container end_lines are
         # child-derived approximations that can collide with comment lines.
-        shares_line = nodes.any? do |n|
-          n[:line] == line ||
-            (n[:end_line] == line && n[:node].is_a?(Model::Statement))
-        end
-        return inline_target(line, nodes) if shares_line
+        return inline_target(remark, nodes) if inline_remark?(remark)
 
         # A closing keyword on the next code line is decisive: the comment
         # closes that body. Without this check the comment would instead be
@@ -268,17 +264,30 @@ module Expressir
         [enclosing[:node], nil, nil]
       end
 
-      # A comment sharing a line with a statement trails it: `x := 1; -- why`.
-      # Only single-line statements qualify, because appending to a statement
-      # that spans several lines would move the remark down to its closing
-      # keyword. Anything else keeps the legacy attachment.
-      def inline_target(line, nodes)
+      # Whether the remark trails code on its own line. Decided from the
+      # source text before it, not from node positions: container end lines
+      # are child-derived approximations that collide with comment lines and
+      # would misread an own-line comment as a trailing one.
+      def inline_remark?(remark)
+        content = line_content_for(remark.line).to_s
+        opener = content.index("--")
+        return false unless opener
+
+        !content[0...opener].strip.empty?
+      end
+
+      # A comment trailing code on its line belongs to the statement that
+      # ends closest before it: `x := 1; -- why`. Only single-line statements
+      # qualify, because appending to a statement spanning several lines
+      # would move the remark down to its closing keyword.
+      def inline_target(remark, nodes)
         owner = nodes
           .select do |n|
             n[:node].is_a?(Model::Statement) &&
-              n[:line] == line && n[:end_line] == line
+              n[:line] == remark.line && n[:end_line] == remark.line &&
+              n[:position] && n[:position] < remark.position
           end
-          .max_by { |n| n[:position] }
+          .max_by { |n| n[:position] + n[:node].source.to_s.length }
         return [nil, nil, nil] unless owner
 
         [owner[:node], Model::RemarkPlacement::INLINE, nil]
@@ -290,12 +299,25 @@ module Expressir
       CLOSING_KEYWORDS = {
         /\AELSE\b/i => [Model::Statements::If, :statements],
         /\AEND_IF\b/i => [Model::Statements::If, :else_statements],
-        /\AEND_CASE\b/i => [Model::Statements::Case, :statements],
+        /\AOTHERWISE\b/i => [Model::Statements::Case, :action_statements],
+        /\AEND_CASE\b/i => [Model::Statements::Case, :otherwise_statements],
         /\AEND_REPEAT\b/i => [Model::Statements::Repeat, :statements],
         /\AEND_ALIAS\b/i => [Model::Statements::Alias, :statements],
+        /\AEND\s*;/i => [Model::Statements::Compound, :statements],
+        # A RULE's executable body ends at WHERE, not at END_RULE.
+        /\AWHERE\b/i => [Model::Declarations::Rule, :statements],
         /\AEND_FUNCTION\b/i => [Model::Declarations::Function, :statements],
         /\AEND_PROCEDURE\b/i => [Model::Declarations::Procedure, :statements],
         /\AEND_RULE\b/i => [Model::Declarations::Rule, :statements],
+      }.freeze
+
+      # Regions whose owner may not have that body, in which case the
+      # keyword closes the earlier region instead.
+      REGION_FALLBACKS = {
+        [Model::Statements::If, :else_statements] =>
+          [:statements, ->(n) { n.else_statements&.length&.positive? }],
+        [Model::Statements::Case, :otherwise_statements] =>
+          [:action_statements, ->(n) { !n.otherwise_statement.nil? }],
       }.freeze
 
       # A node's indexed span stops at its last child, so a comment written
@@ -315,11 +337,10 @@ module Expressir
           .max_by { |n| n[:line] }
         return [nil, nil, nil] unless owner
 
-        # An IF with no ELSE closes its THEN body at END_IF.
-        if keyword_owner == Model::Statements::If && region == :else_statements &&
-            !owner[:node].else_statements&.length&.positive?
-          region = :statements
-        end
+        # END_IF closes the THEN body when there is no ELSE; END_CASE closes
+        # the last action when there is no OTHERWISE.
+        fallback, present = REGION_FALLBACKS[[keyword_owner, region]]
+        region = fallback if fallback && !present.call(owner[:node])
 
         [owner[:node], Model::RemarkPlacement::TRAILING, region.to_s]
       end
@@ -327,9 +348,11 @@ module Expressir
       # The first non-blank, non-comment source line after `line`.
       def closing_keyword_after(line)
         probe = line + 1
-        loop do
+        # Skip further comment lines AND blank lines: a comment separated
+        # from its closing keyword by an empty line still closes that body.
+        while probe <= source_line_count
           content = line_content_for(probe).to_s.strip
-          break if content.empty? || !content.start_with?("--")
+          break unless content.empty? || content.start_with?("--")
 
           probe += 1
         end
@@ -819,6 +842,10 @@ module Expressir
         return "" if line_num < 1 || line_num > lines.length
 
         lines[line_num - 1]
+      end
+
+      def source_line_count
+        source_lines_for_where_clause.length
       end
     end
   end

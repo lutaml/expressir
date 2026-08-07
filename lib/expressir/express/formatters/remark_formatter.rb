@@ -154,6 +154,21 @@ module Expressir
           end
         end
 
+        # Remarks written after their statement on the same line. Attachment
+        # only assigns these to single-line statements, so appending keeps
+        # them on that statement's line.
+        def format_inline_statement_remarks(node)
+          return "" if @no_remarks
+          return "" unless node.is_a?(Model::Statement)
+
+          Array(node.untagged_remarks).filter_map do |remark|
+            next unless remark.inline?
+
+            formatted = format_untagged_remark(remark)
+            formatted unless formatted.empty?
+          end.map { |text| " #{text}" }.join
+        end
+
         def format_leading_statement_remarks(node)
           return [] if @no_remarks
           return [] unless node.is_a?(Model::Statement)

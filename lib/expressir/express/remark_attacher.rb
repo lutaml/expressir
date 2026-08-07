@@ -239,11 +239,11 @@ module Expressir
         # here means the remark is an inline tail (code; -- note). The
         # end-line check is restricted to statements: container end_lines are
         # child-derived approximations that can collide with comment lines.
-        inline = nodes.any? do |n|
+        shares_line = nodes.any? do |n|
           n[:line] == line ||
             (n[:end_line] == line && n[:node].is_a?(Model::Statement))
         end
-        return [nil, nil, nil] if inline
+        return inline_target(line, nodes) if shares_line
 
         # A closing keyword on the next code line is decisive: the comment
         # closes that body. Without this check the comment would instead be
@@ -266,6 +266,22 @@ module Expressir
         # not demonstrably inside this body (it may sit after the whole
         # declaration). Keep the legacy attachment rather than guessing.
         [enclosing[:node], nil, nil]
+      end
+
+      # A comment sharing a line with a statement trails it: `x := 1; -- why`.
+      # Only single-line statements qualify, because appending to a statement
+      # that spans several lines would move the remark down to its closing
+      # keyword. Anything else keeps the legacy attachment.
+      def inline_target(line, nodes)
+        owner = nodes
+          .select do |n|
+            n[:node].is_a?(Model::Statement) &&
+              n[:line] == line && n[:end_line] == line
+          end
+          .max_by { |n| n[:position] }
+        return [nil, nil, nil] unless owner
+
+        [owner[:node], Model::RemarkPlacement::INLINE, nil]
       end
 
       # Which closing keyword ends which region of which owner. A comment

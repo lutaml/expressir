@@ -423,14 +423,29 @@ module Expressir
           ].join("\n")
         end
 
+        # True when the statement holds a remark that only it can render.
+        # Under no_remarks nothing is emitted anyway, so the statement stays
+        # filtered and remark-free output is byte-identical to before.
+        def carries_placed_remark?(statement)
+          return false if @no_remarks
+
+          Array(statement.untagged_remarks).any?(&:placement)
+        end
+
         def format_declarations_rule(node)
           # Filter out statements that only exist to hold remarks in rules
           # (ALIAS/REPEAT with only Null sub-statements, query assignments, or Null statements)
           formatted_statements = []
           if node.statements&.length&.positive?
             formatted_statements = node.statements.reject do |stmt|
+              # A statement holding a placed remark is the only thing that can
+              # render it, so filtering it would silently drop the comment —
+              # and PrettyFormatter, which does not filter, would then produce
+              # different content from this formatter.
+              if carries_placed_remark?(stmt)
+                false
               # Filter ALIAS/REPEAT with only Null statements
-              if stmt.is_a?(Model::Statements::Alias) || stmt.is_a?(Model::Statements::Repeat)
+              elsif stmt.is_a?(Model::Statements::Alias) || stmt.is_a?(Model::Statements::Repeat)
                 stmt.statements&.all?(Model::Statements::Null)
               # Filter query assignments (assignments with QueryExpression that exist only for remarks)
               elsif stmt.is_a?(Model::Statements::Assignment) &&

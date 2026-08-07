@@ -9,6 +9,8 @@ module Expressir
       attribute :tag, :string # optional remark tag like "entity.attr"
       # See RemarkPlacement. nil = legacy placement.
       attribute :placement, :string
+      # For TRAILING remarks, which body of the owner they close.
+      attribute :region, :string
 
       # Check if this is a tail remark
       # @return [Boolean] True if format is 'tail'
@@ -34,12 +36,20 @@ module Expressir
         placement == RemarkPlacement::LEADING
       end
 
+      # Check if this remark closes the given body of its owning node
+      # @param name [Symbol, String] region attribute name
+      # @return [Boolean]
+      def trailing_region?(name)
+        placement == RemarkPlacement::TRAILING && region == name.to_s
+      end
+
       # YAML serialization
       yaml do
         map "text", to: :text
         map "format", to: :format
         map "tag", to: :tag
         map "placement", to: :placement
+        map "region", to: :region
       end
 
       # XML serialization
@@ -49,6 +59,7 @@ module Expressir
         map_element "format", to: :format
         map_element "tag", to: :tag
         map_element "placement", to: :placement
+        map_element "region", to: :region
       end
     end
   end

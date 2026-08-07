@@ -51,17 +51,21 @@ RSpec.describe Expressir::Express::Formatter do
       expect(lines[term_idx + 1]).to include("END_REPEAT")
     end
 
-    # Known limitation: a comment with no statement following it inside its
-    # own region — at schema level, or trailing just before ELSE — keeps the
-    # pre-existing behavior and is not emitted. These examples pin that state
-    # so a later fix has to update them deliberately instead of silently
-    # changing output.
-    it "currently drops a schema-level comment between functions" do
-      expect(formatted).not_to include("BETWEEN-FUNCTIONS")
+    it "keeps a trailing comment inside the THEN branch, above ELSE" do
+      idx = lines.index { |l| l.include?("-- BEFORE-ELSE") }
+
+      expect(formatted.scan("BEFORE-ELSE").size).to eq(1)
+      expect(idx).not_to be_nil
+      expect(lines[idx + 1]).to match(/\A\s*ELSE\s*\z/)
+      # Indented with the branch body, not with the ELSE keyword.
+      expect(lines[idx][/\A */].size).to be > lines[idx + 1][/\A */].size
     end
 
-    it "currently drops a trailing comment before ELSE" do
-      expect(formatted).not_to include("BEFORE-ELSE")
+    # Known limitation: a comment between two declarations is not a body
+    # comment, so it keeps its pre-existing schema-level handling. This pins
+    # that state so a later fix updates it deliberately.
+    it "currently drops a schema-level comment between functions" do
+      expect(formatted).not_to include("BETWEEN-FUNCTIONS")
     end
 
     it "keeps a comment between END_REPEAT and a nested IF in place" do

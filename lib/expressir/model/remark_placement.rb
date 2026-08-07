@@ -10,12 +10,16 @@ module Expressir
     # formatter put the remark back where it was written:
     #
     # - LEADING — on its own line(s) directly above the owning statement.
+    # - TRAILING — on its own line(s) at the end of a body, before the closing
+    #   keyword. The owner is the body's owner, and RemarkInfo#region names
+    #   which body: an IF owns two, and they close at different keywords.
     #
     # `nil` means the remark was attached by a legacy path, or predates
     # placement tracking. Those keep their historical emission and must not
     # be rendered by placement-aware emitters.
     module RemarkPlacement
       LEADING = "leading"
+      TRAILING = "trailing"
     end
   end
 end

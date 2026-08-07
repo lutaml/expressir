@@ -292,6 +292,7 @@ module Expressir
             *if node.statements&.length&.positive?
                indent(node.statements.map { |x| format(x) }.join("\n"))
              end,
+            *format_trailing_region_remarks(node, :statements).map { |x| indent(x) },
             [
               "END_FUNCTION",
               ";",
@@ -413,6 +414,7 @@ module Expressir
             *if node.statements&.length&.positive?
                indent(node.statements.map { |x| format(x) }.join("\n"))
              end,
+            *format_trailing_region_remarks(node, :statements).map { |x| indent(x) },
             [
               "END_PROCEDURE",
               ";",
@@ -500,6 +502,7 @@ module Expressir
                  indent(node.where_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
+            *format_trailing_region_remarks(node, :statements).map { |x| indent(x) },
             [
               "END_RULE",
               ";",

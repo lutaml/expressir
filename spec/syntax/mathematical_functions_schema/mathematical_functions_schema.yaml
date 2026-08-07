@@ -11942,11 +11942,6 @@ schemas:
                   id: factors
             - _class: Expressir::Model::Statements::Repeat
               id: i
-              remarks:
-              - No subtype available to represent this cartesian product.
-              untagged_remarks:
-              - text: No subtype available to represent this cartesian product.
-                format: tail
               bound1:
                 _class: Expressir::Model::Literals::Integer
                 value: '1'
@@ -11983,6 +11978,10 @@ schemas:
                       id: i
                 statements:
                 - _class: Expressir::Model::Statements::Return
+                  untagged_remarks:
+                  - text: No subtype available to represent this cartesian product.
+                    format: tail
+                    placement: leading
                   expression:
                     _class: Expressir::Model::References::SimpleReference
                     id: "?"
@@ -13753,9 +13752,6 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
     statements:
     - _class: Expressir::Model::Statements::If
-      untagged_remarks:
-      - text: 'Improper usage: Default response is to assume compatibility.'
-        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -13816,6 +13812,10 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.compatible_complex_number_regions.sp1
         else_statements:
         - _class: Expressir::Model::Statements::Return
+          untagged_remarks:
+          - text: 'Improper usage: Default response is to assume compatibility.'
+            format: tail
+            placement: leading
           expression:
             _class: Expressir::Model::Literals::Logical
             value: 'TRUE'
@@ -13835,9 +13835,6 @@ schemas:
           id: sp2
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.compatible_complex_number_regions.sp2
     - _class: Expressir::Model::Statements::If
-      untagged_remarks:
-      - text: 'Improper usage: Default response is to assume compatibility.'
-        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -13898,6 +13895,10 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.compatible_complex_number_regions.sp2
         else_statements:
         - _class: Expressir::Model::Statements::Return
+          untagged_remarks:
+          - text: 'Improper usage: Default response is to assume compatibility.'
+            format: tail
+            placement: leading
           expression:
             _class: Expressir::Model::Literals::Logical
             value: 'TRUE'
@@ -50031,6 +50032,8 @@ schemas:
       untagged_remarks:
       - text: This path could return the indeterminate value if the list is empty.
         format: tail
+        placement: trailing
+        region: statements
       - text: This is the correct result for this case.
         format: tail
         placement: trailing
@@ -60005,9 +60008,6 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.member_of.stypes
       statements:
       - _class: Expressir::Model::Statements::If
-        untagged_remarks:
-        - text: See note above for explanation of fedex()
-          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: IN
@@ -60125,6 +60125,10 @@ schemas:
                     id: sspc
                     base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.member_of.sspc
             - _class: Expressir::Model::Statements::If
+              untagged_remarks:
+              - text: See note above for explanation of fedex()
+                format: tail
+                placement: leading
               expression:
                 _class: Expressir::Model::Expressions::BinaryExpression
                 operator: EQUAL
@@ -60162,9 +60166,6 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.member_of.stypes
       statements:
       - _class: Expressir::Model::Statements::If
-        untagged_remarks:
-        - text: See note above for explanation of fedex()
-          format: tail
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: IN
@@ -60281,6 +60282,10 @@ schemas:
                       _class: Expressir::Model::References::SimpleReference
                       id: i
             - _class: Expressir::Model::Statements::If
+              untagged_remarks:
+              - text: See note above for explanation of fedex()
+                format: tail
+                placement: leading
               expression:
                 _class: Expressir::Model::Expressions::BinaryExpression
                 operator: EQUAL
@@ -64942,6 +64947,11 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_function_application.is_elementary
       statements:
       - _class: Expressir::Model::Statements::Case
+        untagged_remarks:
+        - text: This can have multiple outputs, but the expression only
+          format: tail
+        - text: "(mem + vlist) effectively converts list to set"
+          format: tail
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: ef_val
@@ -75192,9 +75202,6 @@ schemas:
           statement:
             _class: Expressir::Model::Statements::If
             untagged_remarks:
-            - text: This can have multiple outputs, but the expression only
-              format: tail
-              placement: leading
             - text: denotes the first.
               format: tail
               placement: leading
@@ -78563,10 +78570,6 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_function_enumerators.ef_ensemble
           statement:
             _class: Expressir::Model::Statements::Return
-            untagged_remarks:
-            - text: "(mem + vlist) effectively converts list to set"
-              format: tail
-              placement: leading
             expression:
               _class: Expressir::Model::Expressions::FunctionCall
               function:
@@ -89770,11 +89773,6 @@ schemas:
             id: operands
       - _class: Expressir::Model::Statements::Repeat
         id: i
-        remarks:
-        - This technique will not work on subtypes of quantifier_expression
-        untagged_remarks:
-        - text: This technique will not work on subtypes of quantifier_expression
-          format: tail
         bound1:
           _class: Expressir::Model::Literals::Integer
           value: '1'
@@ -89790,6 +89788,10 @@ schemas:
         statements:
         - _class: Expressir::Model::Statements::If
           untagged_remarks:
+          - text: This technique will not work on subtypes of quantifier_expression
+            format: tail
+            placement: trailing
+            region: statements
           - text: which derive their operands from other attributes!
             format: tail
             placement: trailing
@@ -89868,6 +89870,8 @@ schemas:
       untagged_remarks:
       - text: This technique will not work on subtypes of unary_generic_expression
         format: tail
+        placement: trailing
+        region: statements
       - text: which derive their operands from other attributes!
         format: tail
         placement: trailing
@@ -90312,6 +90316,8 @@ schemas:
         untagged_remarks:
         - text: This technique will not work on subtypes of multiple_arity_generic_
           format: tail
+          placement: trailing
+          region: statements
         - text: expression which derive their operands from other attributes!
           format: tail
           placement: trailing
@@ -90885,9 +90891,6 @@ schemas:
             _class: Expressir::Model::References::SimpleReference
             id: range
     - _class: Expressir::Model::Statements::If
-      untagged_remarks:
-      - text: This case cannot occur in this version of the schema.
-        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -90934,6 +90937,9 @@ schemas:
         else_statements:
         - _class: Expressir::Model::Statements::Return
           untagged_remarks:
+          - text: This case cannot occur in this version of the schema.
+            format: tail
+            placement: leading
           - text: When it becomes possible, the subtypes should be analysed and
             format: tail
             placement: leading

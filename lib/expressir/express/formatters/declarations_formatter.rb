@@ -511,13 +511,15 @@ module Expressir
             *if formatted_statements.length.positive?
                indent(formatted_statements.map { |x| format(x) }.join("\n"))
              end,
+            # A RULE's executable body ends at WHERE, so its trailing
+            # remarks belong above that keyword, not after the where rules.
+            *format_trailing_region_remarks(node, :statements).map { |x| indent(x) },
             *if node.where_rules&.length&.positive?
                [
                  "WHERE",
                  indent(node.where_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
-            *format_trailing_region_remarks(node, :statements).map { |x| indent(x) },
             [
               "END_RULE",
               ";",

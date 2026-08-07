@@ -553,6 +553,11 @@ module Expressir
           *if node.statements&.length&.positive?
              indent(node.statements.map { |x| format(x) }.join("\n"))
            end,
+          # Comments closing the executable body. This formatter overrides
+          # the declaration formatters, so the emitter is repeated here or
+          # trailing remarks would render only in standard output. For a
+          # RULE the body ends at WHERE, which follows this block.
+          *format_trailing_region_remarks(node, :statements).map { |x| indent(x) },
         ]
       end
 

@@ -199,10 +199,13 @@ module Expressir
 
           [
             *tagged.map { |text| format_remark(node, text) },
-            *untagged.reject(&:leading?).filter_map do |remark|
-              formatted = format_untagged_remark(remark)
-              formatted unless formatted.empty?
-            end,
+            # Leading and inline remarks are emitted by their own paths;
+            # including them here would render them a second time.
+            *untagged.reject { |r| r.leading? || r.inline? }
+              .filter_map do |remark|
+                formatted = format_untagged_remark(remark)
+                formatted unless formatted.empty?
+              end,
           ]
         end
 

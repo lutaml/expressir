@@ -15,6 +15,12 @@ RSpec.configure do |config|
   # Disable RSpec exposing methods globally on `Module` and `main`
   config.disable_monkey_patching!
 
+  # Checks that parse a production-scale schema. They cost about a minute, so
+  # `rake verify:remarks` runs them rather than the default suite.
+  if ENV["EXPRESSIR_PRODUCTION_SCALE"].to_s.empty?
+    config.filter_run_excluding :production_scale
+  end
+
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end

@@ -154,15 +154,30 @@ module Expressir
           end
         end
 
-        # Remarks written after their statement on the same line. Attachment
-        # only assigns these to single-line statements, so appending keeps
-        # them on that statement's line.
+        # Remarks written after their statement on the same line, which for a
+        # single-line statement is where appending puts them back. Opener
+        # remarks are excluded: those belong on the first line rather than
+        # after the closing keyword, and {#format_opener_remarks} emits them.
         def format_inline_statement_remarks(node)
+          formatted_inline_remarks(node) { |remark| !remark.opener? }
+        end
+
+        # Remarks that trailed the opening line of a statement spanning
+        # several lines, as in `IF x THEN -- why`. Where they are written back
+        # is Formatter#format's business, not this method's.
+        def format_opener_remarks(node)
+          formatted_inline_remarks(node, &:opener?)
+        end
+
+        # The inline remarks of a node that the given block accepts, formatted
+        # and joined. The two callers partition the same collection, so every
+        # inline remark is emitted by exactly one of them.
+        def formatted_inline_remarks(node, &)
           return "" if @no_remarks
           return "" unless node.is_a?(Model::Statement)
 
           Array(node.untagged_remarks).filter_map do |remark|
-            next unless remark.inline?
+            next unless remark.inline? && yield(remark)
 
             formatted = format_untagged_remark(remark)
             formatted unless formatted.empty?

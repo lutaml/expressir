@@ -5,7 +5,9 @@ namespace :verify do
   task :remarks do
     specs = %w[
       spec/expressir/remark_conservation_spec.rb
+      spec/expressir/remark_ownership_spec.rb
       spec/expressir/express/formatter_remark_conservation_spec.rb
+      spec/expressir/express/formatter_remark_ownership_spec.rb
     ]
 
     sh({ "EXPRESSIR_PRODUCTION_SCALE" => "1" },

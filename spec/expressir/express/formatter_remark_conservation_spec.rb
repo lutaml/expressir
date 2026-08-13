@@ -18,9 +18,8 @@ require "spec_helper"
 #
 # What this does NOT catch: these are multisets, so a remark that moves to the
 # wrong declaration while still being written out leaves every count
-# unchanged. Conservation is about remarks surviving, not about where they
-# land. Placement is covered by the per-construct formatter specs, and a
-# positional check belongs here later.
+# unchanged. Conservation is about whether a remark survives, not about where
+# it lands; `formatter_remark_ownership_spec.rb` covers where.
 round_trips = {
   # Trailing remarks on REFERENCE FROM lines, plus 20 `--IPn:` informal
   # proposition declarations that are dropped with them.

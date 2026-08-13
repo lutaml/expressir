@@ -9,7 +9,10 @@ module Expressir
       attribute :tag, :string # optional remark tag like "entity.attr"
       # See RemarkPlacement. nil = legacy placement.
       attribute :placement, :string
-      # For TRAILING remarks, which body of the owner they close.
+      # Qualifies the placement. For TRAILING, which body of the owner the
+      # remark closes, named by that body's attribute. For INLINE,
+      # RemarkPlacement::OPENER_REGION when it trailed a compound statement's
+      # opening line rather than a whole statement.
       attribute :region, :string
 
       # Check if this is a tail remark
@@ -40,6 +43,13 @@ module Expressir
       # @return [Boolean] True if placement is 'inline'
       def inline?
         placement == RemarkPlacement::INLINE
+      end
+
+      # Check if this remark trailed the opening line of a statement spanning
+      # several lines, as in `IF x THEN -- why`
+      # @return [Boolean]
+      def opener?
+        inline? && region == RemarkPlacement::OPENER_REGION
       end
 
       # Check if this remark closes the given body of its owning node

@@ -14,8 +14,11 @@ module Expressir
     #   keyword. The owner is the body's owner, and RemarkInfo#region names
     #   which body: an IF owns two, and they close at different keywords.
     # - INLINE — on the same line as the owning statement, after its text.
-    #   Only single-line statements take these: appending to a multi-line
-    #   statement would move the remark down to its closing keyword.
+    #   Emitted after the whole statement, which for a single-line one is the
+    #   line it was written on. RemarkInfo#region separates the other case:
+    #   OPENER_REGION means the remark trailed the opening line of a statement
+    #   spanning several lines, as in `IF x THEN -- why`, and belongs back on
+    #   that opener rather than after the closing keyword.
     #
     # `nil` means the remark was attached by a legacy path, or predates
     # placement tracking. Those keep their historical emission and must not
@@ -24,6 +27,9 @@ module Expressir
       LEADING = "leading"
       TRAILING = "trailing"
       INLINE = "inline"
+
+      # Region of an INLINE remark that trailed a compound statement's opener.
+      OPENER_REGION = "opener"
     end
   end
 end

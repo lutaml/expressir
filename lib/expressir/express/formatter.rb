@@ -93,7 +93,8 @@ module Expressir
       # opener remark is spliced onto its first line, and leading remarks go
       # on lines above it.
       #
-      # Some handlers return nil, which none of these steps may turn into "".
+      # Some handlers return nil; appending and splicing must not turn that
+      # into "".
       def place_remarks(formatted, node)
         inline = format_inline_statement_remarks(node)
         formatted += inline if formatted.is_a?(String) && !inline.empty?

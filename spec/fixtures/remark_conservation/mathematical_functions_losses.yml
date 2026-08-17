@@ -1,0 +1,79 @@
+---
+"(mem + vlist) effectively converts list to set": 1
+2nd derived: 4
+Centre at lower left corner: 2
+Centre at lower right corner: 2
+Change direction origin from ab back to zero: 1
+Consider lower left corner: 1
+Consider lower right corner: 1
+Consider points near (+infinity, ymax): 1
+Consider points near (+infinity, ymin): 1
+Consider points near (-infinity, ymax): 1
+Consider points near (-infinity, ymin): 1
+Consider points near (xmax, +infinity): 1
+Consider points near (xmax, -infinity): 1
+Consider points near (xmin, +infinity): 1
+Consider points near (xmin, -infinity): 1
+Consider upper left corner: 1
+Consider upper right corner: 1
+Construct cartesian region: 1
+Construct imag_constraint: 1
+Construct polar region: 1
+ISO 10303-41: 2
+ISO 10303-42: 1
+ISO 13584-20: 2
+Identify base direction with respect to which all relevant directions lie: 1
+Include distance in max collection: 1
+Not max_exists(ritp): 1
+Note sp1 finite already handled.: 1
+Note sp2 finite already handled.: 1
+Note that sp1 finite already handled.: 2
+Note that sp2 finite already handled.: 2
+Should be unreachable: 1
+Should be unreachable.: 1
+Special cases when aligned with slot: 2
+This can have multiple outputs, but the expression only: 1
+Using base direction midway in prgn, compute all directions using: 2
+all_members_of_es: 1
+already excluded if not aligned with slot: 1
+atan2: 1
+check_sparse_index_domain;: 1
+check_sparse_index_to_loc: 1
+compatible_intervals: 1
+compatible_spaces: 1
+convert_to_maths_value: 1
+cum := cum AND member_of (fedex (v, i), factor_space (sspc, i));: 1
+cum := cum AND member_of (fedex (v, i), factors[i]);: 1
+cum := cum AND member_of (fedex (v, i), sspc);: 1
+definite_integral_expr_check: 1
+derive_elementary_function_domain: 1
+derive_elementary_function_range: 1
+derived: 3
+direction range < 2*PI: 2
+'ef_if_b : combined with ef_if': 1
+'ef_if_c : combined with ef_if': 1
+'ef_if_i : combined with ef_if': 1
+enclose_pregion_in_cregion: 1
+equal_maths_values: 1
+es_subspace_of_es: 1
+extract_factors: 1
+function_is_2d_table: 1
+in the slot: 1
+left half space: 1
+lower half space: 1
+mem_of_vs: 1
+outside outer circle: 1
+quadrant to lower left: 1
+quadrant to lower right: 1
+quadrant to upper left: 1
+quadrant to upper right: 1
+restore_binary: 1
+right half space: 1
+simplify_function_application: 1
+simplify_maths_space: 1
+try nearest point on aitp.max ray: 1
+try nearest point on line segment: 1
+upper half space: 1
+use nearest point on aitp.min ray: 1
+use nearest point on line segment: 1
+values which ensure a3 < a2 and a0 < a1 algebraically.: 2

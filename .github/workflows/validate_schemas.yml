@@ -79,29 +79,48 @@ jobs:
           cache-version: 0 # Increment this number if you need to re-download cached gems
 
       - name: Validate schemas ${{ matrix.test-group }} (${{ matrix.shard }}/${{ matrix.shards }})
+        env:
+          GROUP: ${{ matrix.test-group }}
+          SHARD: ${{ matrix.shard }}
+          SHARDS: ${{ matrix.shards }}
         run: |
           set -euo pipefail
+          # A shard numbered above its own total selects nothing, and selecting
+          # nothing is the one failure this job cannot notice: the step would
+          # report "0 of 1189" and go green while a quarter of the manifest
+          # went unvalidated. Catch the misconfigured matrix row instead.
+          if [ "$SHARD" -lt 1 ] || [ "$SHARD" -gt "$SHARDS" ]; then
+            echo "::error::shard $SHARD is outside 1..$SHARDS, check the matrix"
+            exit 1
+          fi
           all="$RUNNER_TEMP/all-schemas.txt"
           shard="$RUNNER_TEMP/shard-schemas.txt"
-          yq '.schemas[].path | sub("schemas", "iso-10303/schemas")' "${{ matrix.test-group }}" > "$all"
-          awk 'NR % ${{ matrix.shards }} == ${{ matrix.shard }} % ${{ matrix.shards }}' "$all" > "$shard"
+          yq '.schemas[].path | sub("schemas", "iso-10303/schemas")' "$GROUP" > "$all"
+          # Deal each module's adjacent arm/mim pair to the same shard rather
+          # than dealing single lines. mim costs far more to parse than arm, so
+          # line-at-a-time round-robin sorts the cheap and the expensive halves
+          # into different shards. Measured on run 31715452932, which ran this
+          # workflow over the module group: line-at-a-time gave 7, 34, 8 and 39
+          # minutes of parsing, pairs give 16 to 26 for the same total work.
+          awk -v n="$SHARDS" -v i="$SHARD" 'int((NR - 1) / 2) % n == i - 1' "$all" > "$shard"
           # awk rather than `wc -l`, which counts newlines rather than lines and
           # so reports one fewer if the last path ever arrives unterminated.
           total=$(awk 'END { print NR }' "$all")
           count=$(awk 'END { print NR }' "$shard")
           if [ "$total" -eq 0 ]; then
-            echo "::error::${{ matrix.test-group }} produced no schema paths"
+            echo "::error::$GROUP produced no schema paths"
             exit 1
           fi
           # Add these up across the shards when reading the logs: they should
           # come to the total, and a job cannot check that on its own.
-          echo "shard ${{ matrix.shard }}/${{ matrix.shards }}: $count of $total schemas"
+          echo "shard $SHARD/$SHARDS: $count of $total schemas"
           if [ "$count" -eq 0 ]; then
-            echo "::notice::no schemas in this shard, the manifest holds fewer than ${{ matrix.shards }}"
+            echo "::notice::no schemas in this shard, the manifest holds fewer pairs than $SHARDS"
             exit 0
           fi
           # NUL separated so a path is taken literally: bare xargs reads quotes
           # and backslashes in a filename as syntax and would validate the
-          # wrong file. `-0` works on any xargs, unlike GNU's `-d`.
+          # wrong file. `-0` is carried by both GNU and BSD xargs, so this line
+          # also runs on a developer's macOS, which GNU-only `-d` would not.
           tr '\n' '\0' < "$shard" | xargs -0 bundle exec ./exe/expressir validate load
 

@@ -1,17 +1,11 @@
 ---
 "(mem + vlist) effectively converts list to set": 1
 2nd derived: 4
-Centre at lower left corner: 2
-Centre at lower right corner: 2
 Construct cartesian region: 1
 Construct imag_constraint: 1
 Construct polar region: 1
-ISO 10303-41: 2
-ISO 10303-42: 1
-ISO 13584-20: 2
 Identify base direction with respect to which all relevant directions lie: 1
 Include distance in max collection: 1
-Not max_exists(ritp): 1
 Should be unreachable: 1
 Should be unreachable.: 1
 This can have multiple outputs, but the expression only: 1
@@ -29,7 +23,7 @@ cum := cum AND member_of (fedex (v, i), sspc);: 1
 definite_integral_expr_check: 1
 derive_elementary_function_domain: 1
 derive_elementary_function_range: 1
-derived: 3
+derived: 1
 direction range < 2*PI: 2
 'ef_if_b : combined with ef_if': 1
 'ef_if_c : combined with ef_if': 1

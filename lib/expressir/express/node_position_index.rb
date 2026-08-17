@@ -142,9 +142,9 @@ module Expressir
 
       # Returns the most-specific node whose span contains `remark_line`,
       # preferring same-line starts/ends, then smallest containing span.
-      # Excludes Repository and Cache (not semantic scopes for remarks).
+      # Skips nodes that cannot own such a remark; see {#remark_scope?}.
       def nearest_node_to(remark_line)
-        same_start = starting_at(remark_line)
+same_start = starting_at(remark_line)
         return same_start.last[:node] if same_start.any?
 
         same_end = ending_at(remark_line)
@@ -167,7 +167,7 @@ module Expressir
           candidates = containing if candidates.empty?
           candidates.min_by { |n| n[:end_line] - n[:line] }[:node]
         else
-          before = semantic_ending_before(remark_line)
+before = semantic_ending_before(remark_line)
           if before.any?
             before.max_by { |n| n[:end_line] }[:node]
           else
@@ -215,7 +215,8 @@ module Expressir
       end
 
       def semantic?(node)
-        !node.is_a?(Model::Repository) && !node.is_a?(Model::Cache)
+        !node.is_a?(Model::Repository) && !node.is_a?(Model::Cache) &&
+          !node.is_a?(Model::Declarations::Interface)
       end
 
       def build_sorted_nodes

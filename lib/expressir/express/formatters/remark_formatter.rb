@@ -174,7 +174,7 @@ module Expressir
         # inline remark is emitted by exactly one of them.
         def formatted_inline_remarks(node, &)
           return "" if @no_remarks
-          return "" unless node.is_a?(Model::Statement)
+          return "" unless node.is_a?(Model::TakesInlineRemark)
 
           Array(node.untagged_remarks).filter_map do |remark|
             next unless remark.inline? && yield(remark)

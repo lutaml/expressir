@@ -288,42 +288,73 @@ module Expressir
       # first line; the OPENER_REGION on the returned placement is what tells
       # it to, and without that region the old appending behaviour stands.
       def inline_target(remark, nodes)
-        candidates = nodes.select do |n|
-          n[:node].is_a?(Model::Statement) && n[:line] == remark.line &&
+        started_here = nodes.select do |n|
+          n[:node].is_a?(Model::TakesInlineRemark) &&
+            n[:line] == remark.line &&
             n[:position] && n[:position] < remark.position
         end
 
-        single = single_line_owner(candidates, remark.line)
-        opener = opener_owner(candidates, remark.line)
-        # Whichever starts later is the one the remark actually follows:
-        # `x := 0; IF n > 0 THEN -- why` trails the IF, not the assignment.
-        owner = [single, opener].compact.max_by { |n| n[:position] }
+        # Of the two that began here, whichever starts later is the one the
+        # remark follows: `x := 0; IF n > 0 THEN -- why` trails the IF.
+        began = [single_line_owner(started_here, remark.line),
+                 opener_owner(started_here, remark.line)]
+          .compact.max_by { |n| n[:position] }
+
+        owner = began || closing_owner(nodes, remark)
         return [nil, nil, nil] unless owner
 
-        region = Model::RemarkPlacement::OPENER_REGION if owner.equal?(opener)
-        [owner[:node], Model::RemarkPlacement::INLINE, region]
+        [owner[:node], Model::RemarkPlacement::INLINE,
+         opener_region(owner, remark.line)]
       end
 
-      # A statement beginning and ending on the remark's line. Ranked by where
-      # it ends, so the last of several sharing a line wins.
+      # A node beginning and ending on the remark's line. Ranked by where it
+      # ends, so of several sharing the line the outermost complete one wins:
+      # `CASE n OF 1 : x := 2; END_CASE; -- why` trails the CASE, not its
+      # action.
       def single_line_owner(candidates, line)
         candidates
           .select { |n| n[:end_line] == line }
           .max_by { |n| n[:position] + n[:node].source.to_s.length }
       end
 
-      # A statement whose opener is on the remark's line but which continues
-      # past it. Ranked by where it STARTS, not where it ends: such a
-      # statement's source spans its whole body, so ranking by end would let
-      # an enclosing block outrank the one the remark actually follows.
-      #
-      # A known end line past the remark is required rather than merely "not
-      # ending here": a node whose extent the index could not determine says
-      # nothing about whether the remark trails its opener.
+      # A node whose opener is on the remark's line but which continues past
+      # it. Ranked by where it STARTS, not where it ends: such a node's source
+      # spans its whole body, so ranking by end would let an enclosing block
+      # outrank the one the remark actually follows.
       def opener_owner(candidates, line)
         candidates
           .select { |n| n[:end_line] && n[:end_line] > line }
           .max_by { |n| n[:position] }
+      end
+
+      # Nothing began on the remark's line, so it may still be closing one
+      # that began earlier:
+      #
+      #     REFERENCE FROM x
+      #       (a, b); -- why
+      #
+      # Only reached as a fallback. Were it folded into the main lookup, an
+      # enclosing block would become a candidate for every remark inside it,
+      # since a node's end line is derived from its children.
+      def closing_owner(nodes, remark)
+        nodes
+          .select do |n|
+            n[:node].is_a?(Model::TakesInlineRemark) &&
+              n[:end_line] == remark.line && n[:line] &&
+              n[:line] < remark.line &&
+              n[:position] && n[:position] < remark.position
+          end
+          .max_by { |n| n[:position] }
+      end
+
+      # A remark trailing a node that closes on its line follows the whole
+      # node, so it is written back the way an ordinary inline remark is. One
+      # that continues past the line trailed the node's opener instead, and
+      # belongs back there rather than after the closing keyword.
+      def opener_region(owner, line)
+        return nil unless owner[:end_line] && owner[:end_line] > line
+
+        Model::RemarkPlacement::OPENER_REGION
       end
 
       # Which closing keyword ends which region of which owner. A comment

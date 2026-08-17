@@ -322,6 +322,11 @@ schemas:
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: variable_semantics
+    untagged_remarks:
+    - text: ISO 13584-20
+      format: tail
+      placement: inline
+      region: opener
   - _class: Expressir::Model::Declarations::Interface
     kind: REFERENCE
     schema:
@@ -670,6 +675,11 @@ schemas:
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: xor_expression
+    untagged_remarks:
+    - text: ISO 13584-20
+      format: tail
+      placement: inline
+      region: opener
   - _class: Expressir::Model::Declarations::Interface
     kind: REFERENCE
     schema:
@@ -684,6 +694,10 @@ schemas:
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: text
+    untagged_remarks:
+    - text: ISO 10303-41
+      format: tail
+      placement: inline
   - _class: Expressir::Model::Declarations::Interface
     kind: REFERENCE
     schema:
@@ -694,6 +708,10 @@ schemas:
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: externally_defined_item
+    untagged_remarks:
+    - text: ISO 10303-41
+      format: tail
+      placement: inline
   - _class: Expressir::Model::Declarations::Interface
     kind: REFERENCE
     schema:
@@ -720,6 +738,11 @@ schemas:
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: volume
+    untagged_remarks:
+    - text: ISO 10303-42
+      format: tail
+      placement: inline
+      region: opener
   constants:
   - _class: Expressir::Model::Declarations::Constant
     id: schema_prefix
@@ -32258,6 +32281,7 @@ schemas:
               untagged_remarks:
               - text: Centre at lower left corner
                 format: tail
+                placement: inline
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -32738,6 +32762,7 @@ schemas:
               untagged_remarks:
               - text: Centre at lower right corner
                 format: tail
+                placement: inline
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -33203,6 +33228,7 @@ schemas:
               untagged_remarks:
               - text: Centre at lower left corner
                 format: tail
+                placement: inline
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -33689,6 +33715,7 @@ schemas:
               untagged_remarks:
               - text: Centre at lower right corner
                 format: tail
+                placement: inline
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -41141,6 +41168,7 @@ schemas:
         untagged_remarks:
         - text: Not max_exists(ritp)
           format: tail
+          placement: inline
         ref:
           _class: Expressir::Model::References::SimpleReference
           id: ritv
@@ -54955,6 +54983,7 @@ schemas:
       untagged_remarks:
       - text: derived
         format: tail
+        placement: inline
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: COMBINE
@@ -56224,6 +56253,7 @@ schemas:
       untagged_remarks:
       - text: derived
         format: tail
+        placement: inline
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: COMBINE

@@ -58,7 +58,7 @@ RSpec.describe Expressir::Express::Formatter do
       formatted = round_trip("REFERENCE FROM other_schema (a, b); -- why\n")
 
       expect_remark_on(formatted, "b);", "-- why")
-      expect(formatted).not_to match(/REFERENCE FROM other_schema -- why/)
+      expect(formatted).not_to include("REFERENCE FROM other_schema -- why")
     end
   end
 

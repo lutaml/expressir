@@ -16,6 +16,10 @@ schemas:
     schema:
       _class: Expressir::Model::References::SimpleReference
       id: Foundation_representation_arm
+    untagged_remarks:
+    - text: ISO/TS 10303-1006
+      format: tail
+      placement: inline
   entities:
   - _class: Expressir::Model::Declarations::Entity
     id: Analysis_model

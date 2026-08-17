@@ -9,7 +9,7 @@ module Expressir
 
         # Tree-walker collection attributes (TODO.bugs/12 — single source
         # of truth; NodePositionIndex derives COLLECTION_REGISTRY from this).
-        collection_attributes :constants, :types, :entities,
+        collection_attributes :interfaces, :constants, :types, :entities,
                               :subtype_constraints, :functions, :rules,
                               :procedures, :remark_items
 

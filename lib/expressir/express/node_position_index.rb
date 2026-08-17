@@ -29,22 +29,22 @@ module Expressir
 
       # Returns the most-specific node whose span contains `remark_line`,
       # preferring same-line starts/ends, then smallest containing span.
-      # Excludes Repository and Cache (not semantic scopes for remarks).
+      # Skips nodes that cannot own such a remark; see {#remark_scope?}.
       def nearest_node_to(remark_line)
         same_start = nodes.select do |n|
-          n[:line] == remark_line && semantic?(n[:node])
+          n[:line] == remark_line && remark_scope?(n[:node])
         end
         return same_start.last[:node] if same_start.any?
 
         same_end = nodes.select do |n|
-          n[:end_line] == remark_line && semantic?(n[:node])
+          n[:end_line] == remark_line && remark_scope?(n[:node])
         end
         return same_end.last[:node] if same_end.any?
 
         containing = nodes.select do |n|
           n[:line] && n[:end_line] &&
             n[:line] <= remark_line && n[:end_line] >= remark_line &&
-            semantic?(n[:node])
+            remark_scope?(n[:node])
         end
 
         if containing.any?
@@ -58,7 +58,7 @@ module Expressir
           containing.min_by { |n| n[:end_line] - n[:line] }[:node]
         else
           before = nodes.select do |n|
-            n[:end_line] && n[:end_line] < remark_line && semantic?(n[:node])
+            n[:end_line] && n[:end_line] < remark_line && remark_scope?(n[:node])
           end
           before.max_by { |n| n[:end_line] }[:node] if before.any?
         end
@@ -89,8 +89,22 @@ module Expressir
 
       private
 
-      def semantic?(node)
-        !node.is_a?(Model::Repository) && !node.is_a?(Model::Cache)
+      # Whether a node can own a remark sitting on a line of its own. Stated
+      # as an exclusion list rather than a positive test: the types that
+      # cannot are few and known, while enumerating every type that can would
+      # have to be revisited for each new one.
+      #
+      # Distinct from Model::TakesInlineRemark, which asks whether a node can
+      # own a remark written AFTER it on the same line. A statement answers
+      # yes to both; an interface clause only to that one.
+      #
+      # An interface clause is indexed so a remark trailing it can find it,
+      # but it encloses nothing: an own-line remark below `REFERENCE FROM x;`
+      # introduces whatever comes next, and giving it to the clause would
+      # both misplace it and lose it, since nothing renders remarks there.
+      def remark_scope?(node)
+        !node.is_a?(Model::Repository) && !node.is_a?(Model::Cache) &&
+          !node.is_a?(Model::Declarations::Interface)
       end
 
       def build_sorted_nodes

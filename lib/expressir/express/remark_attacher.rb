@@ -40,6 +40,7 @@ module Expressir
         @attached_spans = Set.new
         @line_map = LineMap.new(source.b)
         @model = nil
+        @source_lines = nil
         @scope_resolver = nil
         @node_index = nil
         @owner_map = nil
@@ -66,6 +67,7 @@ module Expressir
         # raising path this also drops the memoized ownership map, which
         # would otherwise outlive the node index it was derived from.
         @source = nil
+        @source_lines = nil
         @scope_resolver = nil
         @node_index = nil
         @line_map = nil
@@ -717,7 +719,7 @@ module Expressir
         where_rules = get_collection(scope, :where_rules)
         return nil unless where_rules&.any?
 
-        lines = source_lines_for_where_clause
+        lines = source_lines
 
         where_rules.each do |wr|
           next unless wr.id
@@ -735,9 +737,9 @@ module Expressir
         nil
       end
 
-      def source_lines_for_where_clause
-        # @source is set for the duration of `attach`; freed at the end.
-        @source.lines
+      def source_lines
+        # @source is set for the duration of `attach`; this cache is freed with it.
+        @source_lines ||= @source.lines
       end
 
       def find_node_in_statement(stmt, tag)
@@ -986,14 +988,14 @@ module Expressir
       end
 
       def line_content_for(line_num)
-        lines = source_lines_for_where_clause
+        lines = source_lines
         return "" if line_num < 1 || line_num > lines.length
 
         lines[line_num - 1]
       end
 
       def source_line_count
-        source_lines_for_where_clause.length
+        source_lines.length
       end
     end
   end

@@ -82,16 +82,38 @@ module Expressir
           return ""
         end
 
-        formatted = send(handler, node)
-        # Some handlers return nil; appending must not turn that into "".
+        place_remarks(send(handler, node), node)
+      end
+
+      private
+
+      # Puts a node's remarks back around its formatted text. Each placement
+      # is written back a different way, and this is the one place that knows
+      # all three: an inline remark is appended after the whole statement, an
+      # opener remark is spliced onto its first line, and leading remarks go
+      # on lines above it.
+      #
+      # Some handlers return nil; appending and splicing must not turn that
+      # into "".
+      def place_remarks(formatted, node)
         inline = format_inline_statement_remarks(node)
         formatted += inline if formatted.is_a?(String) && !inline.empty?
+        formatted = splice_opener_remark(formatted,
+                                         format_opener_remarks(node))
 
         leading = format_leading_statement_remarks(node)
         leading.empty? ? formatted : [*leading, formatted].join("\n")
       end
 
-      private
+      # A remark that trailed a compound statement's opening line goes back on
+      # that line. Appending it like an ordinary inline remark would carry the
+      # remark of `IF x THEN -- why` down past its END_IF.
+      def splice_opener_remark(formatted, opener)
+        return formatted unless formatted.is_a?(String) && !opener.empty?
+
+        head, newline, rest = formatted.partition("\n")
+        "#{head}#{opener}#{newline}#{rest}"
+      end
 
       def format_noop(_node)
         ""

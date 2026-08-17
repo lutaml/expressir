@@ -22,9 +22,9 @@ module Expressir
       Entry = Data.define(:path, :text, :format, :tagged, :placement, :region)
 
       # Tagged remarks live in a plain string collection on the element they
-      # were bound to, separately from the RemarkInfo list.
+      # were bound to, separately from the RemarkInfo list. Only some elements
+      # carry it, unlike `untagged_remarks` which ModelElement declares for all.
       TAGGED_COLLECTION = :remarks
-      UNTAGGED_COLLECTION = :untagged_remarks
 
       # @param model [Model::ModelElement]
       # @return [Array<Entry>] one per remark, in traversal order, with a
@@ -66,11 +66,7 @@ module Expressir
       end
 
       def record(node, path)
-        untagged = if node.respond_to?(UNTAGGED_COLLECTION)
-                     Array(node.public_send(UNTAGGED_COLLECTION))
-                   else
-                     []
-                   end
+        untagged = Array(node.untagged_remarks)
 
         record_untagged(untagged, path)
         record_tagged(node, untagged, path)

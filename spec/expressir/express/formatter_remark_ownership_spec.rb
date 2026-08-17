@@ -71,4 +71,110 @@ RSpec.describe Expressir::Express::Formatter do
       end
     end
   end
+
+  # Placement is the defect class that keeps shipping here, and until this
+  # example existed it was checked only on the hand-written fixtures above.
+  # The production schema got conservation and no ownership, and
+  # conservation structurally cannot see a misplaced remark: it compares
+  # multisets, so a remark that escapes a REPEAT loop and reattaches to the
+  # enclosing function is still present, still spelled the same, still
+  # counted.
+  #
+  # 637 KB of real EXPRESS, parsed and reparsed, so this costs about two
+  # minutes. That is why `rake verify:remarks` runs it and the default suite
+  # does not.
+  describe "production scale ownership", :production_scale do
+    # Copies beyond the ones +right+ also holds, per place. `was` and `now`
+    # are place tallies, so this is a count delta rather than a key
+    # difference: a copy relocating onto a place that already holds another
+    # copy of the same text adds no new key, it only raises that count.
+    def copies_beyond(left, right)
+      left.each_with_object({}) do |(place, count), rest|
+        remainder = count - right.fetch(place, 0)
+        rest[place] = remainder if remainder.positive?
+      end
+    end
+
+    let(:schema_prefix) do
+      "ExpFile/schemas[0]Declarations::Schema" \
+        "(mathematical_functions_schema)/"
+    end
+
+    # Three texts that each have several copies in the schema and lose exactly
+    # one through the round trip. How many copies go missing is already pinned
+    # in `mathematical_functions_losses.yml`; what is left here is the place
+    # count changing, which `moved` reports as a move. None of them is a
+    # remark changing owner.
+    #
+    # The place is pinned, not just the identity. Every copy of these texts
+    # sits alone in its own place, so pinning which place loses its copy fixes
+    # the surviving set exactly: a different copy departing is a different
+    # distribution, and it fails here even though the totals are unchanged.
+    #
+    # In all three the departing copy is the one with no placement recorded.
+    # A place is the tuple [path, placement, region].
+    let(:known_lost_copies) do
+      { ["Should be unreachable.", "tail", false] =>
+          "functions[14]Declarations::Function(compatible_spaces)/" \
+          "statements[13]Statements::If",
+        ["Should be unreachable", "tail", false] =>
+          "functions[144]Declarations::Function(subspace_of)/" \
+          "statements[14]Statements::If",
+        ["derived", "tail", false] =>
+          "functions[57]Declarations::Function" \
+          "(make_abstracted_expression_function)/" \
+          "statements[0]Statements::Return" }
+        .transform_values { |path| { ["#{schema_prefix}#{path}", nil, nil] => 1 } }
+    end
+
+    it "keeps every surviving remark of the production schema in place" do
+      path = "spec/syntax/mathematical_functions_schema/" \
+             "mathematical_functions_schema.exp"
+      source_model = Expressir::Express::Parser.from_file(path)
+      reparsed_model = Expressir::Express::Parser.from_exp(source_model.to_s)
+
+      traced = Expressir::RemarkOwnership::Trace.of(source_model)
+      moved = ownership.moved(
+        traced, Expressir::RemarkOwnership::Trace.of(reparsed_model)
+      )
+
+      # Floors, for the same reason as the table above: an ownership check
+      # that reads no remarks reports no moves and passes every assertion
+      # below vacuously.
+      expect(traced.size).to be >= 1530
+      expect(traced.count(&:tagged)).to be >= 1135
+
+      # `moved` is keyed by identity, so these count distinct remarks, not
+      # copies: one identity sitting in nine places is one entry here.
+      escapes, others = moved.partition do |_, move|
+        ownership.schema_escape?(move)
+      end
+
+      # The identity, not just the count. Counting alone would let the known
+      # escape be fixed while a different remark started escaping, and
+      # conservation would not notice either.
+      expect(escapes.map(&:first))
+        .to eq([["mathematical_functions_schema", "tail", false]])
+
+      # `moved` is keyed by [text, format, tagged], so listing the three
+      # identities alone would pin which texts may appear here, not what kind
+      # of move they are: relocate the surviving `derived` copy and the key is
+      # unchanged, the entry stays allowed, and this passes.
+      #
+      # So assert the places instead. Nothing may gain a copy, and each text
+      # must lose the exact copy recorded above.
+      expect(others.map(&:first)).to match_array(known_lost_copies.keys)
+
+      others.each do |identity, (was, now)|
+        arrived = copies_beyond(now, was)
+        departed = copies_beyond(was, now)
+
+        expect(arrived)
+          .to eq({}), "#{identity.first.inspect} gained a copy somewhere"
+        expect(departed)
+          .to eq(known_lost_copies.fetch(identity)),
+              "#{identity.first.inspect} lost a different copy"
+      end
+    end
+  end
 end

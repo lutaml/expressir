@@ -70,6 +70,56 @@ RSpec.describe Expressir::RemarkConservation do
     end
   end
 
+  describe ".embedded_pairs" do
+    it "reads an embedded remark" do
+      expect(described_class.embedded_pairs("(* hello *)\n"))
+        .to eq([[nil, "hello"]])
+    end
+
+    it "reads an embedded remark spanning several lines" do
+      expect(described_class.embedded_pairs("(* one\ntwo *)\n"))
+        .to eq([[nil, "one\ntwo"]])
+    end
+
+    it "pairs an embedded remark's tag with its text" do
+      expect(described_class.embedded_pairs(%((*"entity.attr" hello *)\n)))
+        .to eq([["entity.attr", "hello"]])
+    end
+
+    it "leaves out tail remarks" do
+      expect(described_class.embedded_pairs("-- hello\n")).to be_empty
+    end
+
+    # A `--` inside an embedded block is content, not a tail remark, and the
+    # inner `*)` closes only the nested block, not the outer one. A
+    # hand-rolled per-line scanner reported a phantom remark here, which is
+    # why extraction stays with the production scanner.
+    it "keeps a nested block as one remark" do
+      express = "(* outer (* inner *) still outer -- not a remark *)\n"
+
+      expect(described_class.embedded_pairs(express))
+        .to eq([[nil, "outer (* inner *) still outer -- not a remark"]])
+    end
+
+    # An untagged remark carries a nil tag, so these two cannot cancel each
+    # other in a multiset comparison the way a bare text and a pair would.
+    it "tells an untagged remark apart from a tagged one of the same text" do
+      express = %((* same *)\n(*"a" same *)\n)
+
+      expect(described_class.embedded_pairs(express))
+        .to eq([[nil, "same"], ["a", "same"]])
+    end
+
+    it "leaves out an untagged remark with no text" do
+      expect(described_class.embedded_pairs("(* *)\n")).to be_empty
+    end
+
+    it "keeps a tagged remark that carries no text" do
+      expect(described_class.embedded_pairs(%((*"x" *)\n)))
+        .to eq([["x", ""]])
+    end
+  end
+
   describe ".lost" do
     it "reports nothing when both sides match" do
       expect(described_class.lost(%w[a b], %w[b a])).to be_empty

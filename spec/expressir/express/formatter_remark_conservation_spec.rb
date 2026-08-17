@@ -21,15 +21,14 @@ require "spec_helper"
 # unchanged. Conservation is about whether a remark survives, not about where
 # it lands; `formatter_remark_ownership_spec.rb` covers where.
 round_trips = {
-  # Trailing remarks on REFERENCE FROM lines, plus 20 `--IPn:` informal
-  # proposition declarations that are dropped with them.
+  # Nothing untagged is lost in these two any more: the remarks trailing
+  # their REFERENCE FROM lines now survive. What remains is 20 `--IPn:`
+  # informal proposition declarations each, which the formatter never emits.
   "spec/fixtures/examples/autonomous_vehicle_navigation_schema.exp" => {
-    lost: { "ACME 5000-41" => 1, "ACME 5000-42" => 3, "ACME 5000-43" => 1 },
-    tagged_lost: 20, tagged_survivors: []
+    lost: {}, tagged_lost: 20, tagged_survivors: []
   },
   "spec/fixtures/examples/geometry_schema.exp" => {
-    lost: { "ACME 5000-41" => 1, "ACME 5000-42" => 3, "ACME 5000-43" => 1 },
-    tagged_lost: 20, tagged_survivors: []
+    lost: {}, tagged_lost: 20, tagged_survivors: []
   },
   # Remarks sitting between schema-level declarations.
   "spec/fixtures/examples/nested_functions_test_schema.exp" => {

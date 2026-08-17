@@ -11,18 +11,53 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # The shards split the manifest by line position, so every one of them has
+  # to read the same revision of it. Left to themselves they each resolve the
+  # default branch when they happen to start, and a push to iso-10303 midway
+  # through could reorder the manifest under them: each shard stays non-empty,
+  # the counts still look right, and a schema is silently never validated.
+  # Resolving the revision once and pinning every checkout to it closes that.
+  resolve-schemas-revision:
+    name: Pin iso-10303 revision
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.pin.outputs.sha }}
+    steps:
+      - name: Resolve iso-10303 HEAD
+        id: pin
+        env:
+          GH_TOKEN: ${{ secrets.LUTAML_CI_PAT_TOKEN }}
+        run: |
+          set -euo pipefail
+          sha=$(gh api repos/metanorma/iso-10303/commits/HEAD --jq .sha)
+          # An empty answer here would be handed to `actions/checkout` as an
+          # empty `ref`, which quietly falls back to the default branch and
+          # puts back exactly the drift this job exists to remove.
+          if ! printf '%s' "$sha" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo "::error::could not resolve iso-10303 HEAD, got '$sha'"
+            exit 1
+          fi
+          echo "::notice::pinned iso-10303 to $sha"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
   schemas:
     name: Validate schemas
     runs-on: ubuntu-latest
+    needs: resolve-schemas-revision
     strategy:
       fail-fast: false
       matrix:
-        test-group:
-          [
-            'iso-10303/schemas-srl.yml',
-            'iso-10303/schemas_module.yml',
-            'iso-10303/schemas_bom.yml',
-          ]
+        # The module group carries the bulk of the schemas and has run for
+        # anywhere between 1.5 and 3 hours, so it is split across runners.
+        # The other two are short enough that a split would cost more in
+        # setup than it saves.
+        include:
+          - { test-group: 'iso-10303/schemas-srl.yml', shard: 1, shards: 1 }
+          - { test-group: 'iso-10303/schemas_bom.yml', shard: 1, shards: 1 }
+          - { test-group: 'iso-10303/schemas_module.yml', shard: 1, shards: 4 }
+          - { test-group: 'iso-10303/schemas_module.yml', shard: 2, shards: 4 }
+          - { test-group: 'iso-10303/schemas_module.yml', shard: 3, shards: 4 }
+          - { test-group: 'iso-10303/schemas_module.yml', shard: 4, shards: 4 }
 
     steps:
       - name: Checkout
@@ -32,6 +67,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'metanorma/iso-10303'
+          ref: ${{ needs.resolve-schemas-revision.outputs.sha }}
           path: iso-10303
           token: ${{ secrets.LUTAML_CI_PAT_TOKEN }}
 
@@ -42,7 +78,49 @@ jobs:
           bundler-cache: true
           cache-version: 0 # Increment this number if you need to re-download cached gems
 
-      - name: Validate schemas ${{ matrix.test-group }}
+      - name: Validate schemas ${{ matrix.test-group }} (${{ matrix.shard }}/${{ matrix.shards }})
+        env:
+          GROUP: ${{ matrix.test-group }}
+          SHARD: ${{ matrix.shard }}
+          SHARDS: ${{ matrix.shards }}
         run: |
-          yq '.schemas[].path | sub("schemas", "iso-10303/schemas")' ${{ matrix.test-group }} | xargs bundle exec ./exe/expressir validate load
+          set -euo pipefail
+          # A shard numbered above its own total selects nothing, and selecting
+          # nothing is the one failure this job cannot notice: the step would
+          # report "0 of 1189" and go green while a quarter of the manifest
+          # went unvalidated. Catch the misconfigured matrix row instead.
+          if [ "$SHARD" -lt 1 ] || [ "$SHARD" -gt "$SHARDS" ]; then
+            echo "::error::shard $SHARD is outside 1..$SHARDS, check the matrix"
+            exit 1
+          fi
+          all="$RUNNER_TEMP/all-schemas.txt"
+          shard="$RUNNER_TEMP/shard-schemas.txt"
+          yq '.schemas[].path | sub("schemas", "iso-10303/schemas")' "$GROUP" > "$all"
+          # Deal each module's adjacent arm/mim pair to the same shard rather
+          # than dealing single lines. mim costs far more to parse than arm, so
+          # line-at-a-time round-robin sorts the cheap and the expensive halves
+          # into different shards. Measured on run 31715452932, which ran this
+          # workflow over the module group: line-at-a-time gave 7, 34, 8 and 39
+          # minutes of parsing, pairs give 16 to 26 for the same total work.
+          awk -v n="$SHARDS" -v i="$SHARD" 'int((NR - 1) / 2) % n == i - 1' "$all" > "$shard"
+          # awk rather than `wc -l`, which counts newlines rather than lines and
+          # so reports one fewer if the last path ever arrives unterminated.
+          total=$(awk 'END { print NR }' "$all")
+          count=$(awk 'END { print NR }' "$shard")
+          if [ "$total" -eq 0 ]; then
+            echo "::error::$GROUP produced no schema paths"
+            exit 1
+          fi
+          # Add these up across the shards when reading the logs: they should
+          # come to the total, and a job cannot check that on its own.
+          echo "shard $SHARD/$SHARDS: $count of $total schemas"
+          if [ "$count" -eq 0 ]; then
+            echo "::notice::no schemas in this shard, the manifest holds fewer pairs than $SHARDS"
+            exit 0
+          fi
+          # NUL separated so a path is taken literally: bare xargs reads quotes
+          # and backslashes in a filename as syntax and would validate the
+          # wrong file. `-0` is carried by both GNU and BSD xargs, so this line
+          # also runs on a developer's macOS, which GNU-only `-d` would not.
+          tr '\n' '\0' < "$shard" | xargs -0 bundle exec ./exe/expressir validate load
 

@@ -134,15 +134,25 @@ RSpec.describe Expressir::Express::Formatter do
       reparsed_model = Expressir::Express::Parser.from_exp(source_model.to_s)
 
       traced = Expressir::RemarkOwnership::Trace.of(source_model)
-      moved = ownership.moved(
-        traced, Expressir::RemarkOwnership::Trace.of(reparsed_model)
-      )
+      reparsed = Expressir::RemarkOwnership::Trace.of(reparsed_model)
+      moved = ownership.moved(traced, reparsed)
 
       # Floors, for the same reason as the table above: an ownership check
       # that reads no remarks reports no moves and passes every assertion
       # below vacuously.
       expect(traced.size).to be >= 1530
       expect(traced.count(&:tagged)).to be >= 1135
+
+      # The reparsed side needs its own floor. `moved` compares only the
+      # identities both sides share, so one that vanishes on reparse is not a
+      # move and drops out of the comparison entirely. Relocating a remark far
+      # enough to lose its identity there left this example green while the
+      # reparsed trace quietly fell by one.
+      #
+      # Far below the source floor, and correctly so: of the 1530 traced in
+      # source, 1135 are tagged and the formatter writes almost none of those
+      # back, leaving 395 untagged less the 45 recorded losses.
+      expect(reparsed.size).to be >= 350
 
       # `moved` is keyed by identity, so these count distinct remarks, not
       # copies: one identity sitting in nine places is one entry here.

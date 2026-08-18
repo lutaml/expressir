@@ -173,6 +173,25 @@ RSpec.describe Expressir::Express::Formatter do
                                conservation.untagged_texts(rendered)))
         .to eq({ "duplicate" => 1 })
     end
+
+    # No fixture puts an embedded remark above a statement, so the emitter
+    # for that position went unguarded: deleting only leading embedded
+    # remarks from the formatter left every other example in this file green.
+    it "keeps an embedded remark written above a statement" do
+      source = <<~EXPRESS
+        SCHEMA x;
+        FUNCTION f : INTEGER;
+        (* keep me *)
+        RETURN(1);
+        END_FUNCTION;
+        END_SCHEMA;
+      EXPRESS
+      rendered = Expressir::Express::Parser.from_exp(source).to_s
+
+      expect(conservation.embedded_pairs(rendered))
+        .to eq(conservation.embedded_pairs(source))
+      expect(conservation.embedded_pairs(rendered)).to eq([[nil, "keep me"]])
+    end
   end
 
   describe "production scale conservation", :production_scale do

@@ -10,15 +10,17 @@ module Expressir
   module RemarkConservation
     module_function
 
-    # The tail remarks in EXPRESS source or in formatted output.
+    # The remarks of one format in EXPRESS source or in formatted output.
     #
     # Both sides of a round trip are read the same way. A remark that starts a
     # line in the source may end a line in the output, so reading the two sides
     # differently would report a move as a loss.
     #
-    # Only `--` remarks. Embedded `(* *)` remarks are a separate gap with its
-    # own handling, and folding them in here would mix two populations whose
-    # round trips fail for different reasons.
+    # The format is a parameter rather than something the caller filters on
+    # afterwards. Tail and embedded remarks are separate populations whose
+    # round trips fail for different reasons, and comparing them together lets
+    # a surviving embedded remark cancel a tail remark that was lost, when the
+    # two happen to share a text.
     #
     # An untagged remark with no text carries nothing to conserve, so it is
     # left out. A tagged one still does: `--"x"` and the informal proposition
@@ -26,10 +28,11 @@ module Expressir
     # their loss behind an empty diff.
     #
     # @param express [String] EXPRESS source or formatted output
+    # @param format [String] a Model::RemarkFormat value
     # @return [Array<Express::RemarkScanner::Remark>] in source order
-    def remarks(express)
+    def remarks(express, format)
       Express::RemarkScanner.new(express).scan
-        .select(&:tail?)
+        .select { |remark| remark.format == format }
         .reject { |remark| remark.text.empty? && !remark.tagged? }
     end
 
@@ -43,7 +46,7 @@ module Expressir
     # @param express [String] EXPRESS source or formatted output
     # @return [Array<String>] duplicates preserved
     def untagged_texts(express)
-      remarks(express).reject(&:tagged?).map(&:text)
+      remarks(express, Model::RemarkFormat::TAIL).reject(&:tagged?).map(&:text)
     end
 
     # Tag and text of each tagged tail remark.
@@ -59,7 +62,33 @@ module Expressir
     # @param express [String] EXPRESS source or formatted output
     # @return [Array<Array(String, String)>] duplicates preserved
     def tagged_pairs(express)
-      remarks(express).select(&:tagged?).map { |r| [r.tag, r.text] }
+      remarks(express, Model::RemarkFormat::TAIL)
+        .select(&:tagged?).map { |r| [r.tag, r.text] }
+    end
+
+    # Tag and text of every embedded `(* *)` remark, tagged or not.
+    #
+    # Embedded remarks need one collection where tail remarks need two, for
+    # two reasons together:
+    #
+    # An untagged remark carries a nil tag, so it cannot cancel a tagged one
+    # that happens to share its text. The cancellation that {untagged_texts}
+    # and {tagged_pairs} are split apart to avoid cannot arise here.
+    #
+    # And the two tail populations are pinned by different strategies: untagged
+    # tail losses are pinned as an exact text map, tagged ones as a total plus
+    # an exact survivor list. Embedded remarks use one strategy for both, so
+    # one collection says everything the table needs.
+    #
+    # Do not read the first reason on its own and collapse the tail methods
+    # into this shape. That would break the exact untagged-loss table.
+    #
+    # @param express [String] EXPRESS source or formatted output
+    # @return [Array<Array(String, String)>] duplicates preserved, nil tag
+    #   for an untagged remark
+    def embedded_pairs(express)
+      remarks(express, Model::RemarkFormat::EMBEDDED)
+        .map { |r| [r.tag, r.text] }
     end
 
     # Texts present in +expected+ more often than in +actual+.

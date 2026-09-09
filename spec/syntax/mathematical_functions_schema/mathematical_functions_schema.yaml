@@ -2759,15 +2759,18 @@ schemas:
       indicates that a variable is a bound variable whose semantics is determined
       by the quantifier expression which references the variable in its <<express:iso13584_expressions_schema.variable,variables>>
       attribute.
-    remark_items:
-    - _class: Expressir::Model::Declarations::RemarkItem
-      id: wr
-      remarks:
-      - Only those variables which are listed in the <<express:iso13584_expressions_schema.variable,variables>>
-        attribute of a quantifier expression may have this semantics.
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: variable_semantics
+    informal_propositions:
+    - _class: Expressir::Model::Declarations::InformalPropositionRule
+      id: IP1
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP1
+        remarks:
+        - Only those variables which are listed in the <<express:iso13584_expressions_schema.variable,variables>>
+          attribute of a quantifier expression may have this semantics.
   - _class: Expressir::Model::Declarations::Entity
     id: free_variable_semantics
     remarks:
@@ -4098,13 +4101,6 @@ schemas:
       and <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>>
       represents mathematical spaces with a finite number of members. This includes
       the space with zero members, also known as the empty set.
-    remark_items:
-    - _class: Expressir::Model::Declarations::RemarkItem
-      id: wr
-      remarks:
-      - The members shall denote distinct mathematical values, for example, the number
-        "4" and the expression "2+2" shall not both be members of the same instance
-        of <<express:mathematical_functions_schema.finite_space,finite_space>>.
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: members
@@ -4198,6 +4194,16 @@ schemas:
         - _class: Expressir::Model::References::SimpleReference
           id: SELF
         - _class: Expressir::Model::Expressions::AggregateInitializer
+    informal_propositions:
+    - _class: Expressir::Model::Declarations::InformalPropositionRule
+      id: IP1
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP1
+        remarks:
+        - The members shall denote distinct mathematical values, for example, the
+          number "4" and the expression "2+2" shall not both be members of the same
+          instance of <<express:mathematical_functions_schema.finite_space,finite_space>>.
   - _class: Expressir::Model::Declarations::Entity
     id: uniform_product_space
     remarks:
@@ -9815,12 +9821,6 @@ schemas:
       This type of <<express:mathematical_functions_schema.maths_function,maths_function>> and <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>> represents the parametric function defined for a curve instance from the *geometry_schema*. It permits non-geometric data to be associated with the curve using the curve's parametrization.
 
       The range of an <<express:mathematical_functions_schema.imported_curve_function,imported_curve_function>> is derived to be either stem:[(R^2)^1] or stem:[(R^3)^1] depending on the geometric dimension of the curve.
-    remark_items:
-    - _class: Expressir::Model::Declarations::RemarkItem
-      id: wr
-      remarks:
-      - The value of *parametric_domain* represents the domain of the parametric function
-        of the geometry.
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: geometry
@@ -9854,6 +9854,15 @@ schemas:
         - _class: Expressir::Model::References::SimpleReference
           id: parametric_domain
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.imported_curve_function.parametric_domain
+    informal_propositions:
+    - _class: Expressir::Model::Declarations::InformalPropositionRule
+      id: IP1
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP1
+        remarks:
+        - The value of *parametric_domain* represents the domain of the parametric
+          function of the geometry.
   - _class: Expressir::Model::Declarations::Entity
     id: imported_surface_function
     remarks:
@@ -9862,12 +9871,6 @@ schemas:
 
       The range of an <<express:mathematical_functions_schema.imported_surface_function,imported_surface_function>>
        is derived to be stem:[(R^3)^1].
-    remark_items:
-    - _class: Expressir::Model::Declarations::RemarkItem
-      id: wr
-      remarks:
-      - The value of *parametric_domain* represents the domain of the parametric function
-        of the geometry.
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: geometry
@@ -9901,6 +9904,15 @@ schemas:
         - _class: Expressir::Model::References::SimpleReference
           id: parametric_domain
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.imported_surface_function.parametric_domain
+    informal_propositions:
+    - _class: Expressir::Model::Declarations::InformalPropositionRule
+      id: IP1
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP1
+        remarks:
+        - The value of *parametric_domain* represents the domain of the parametric
+          function of the geometry.
   - _class: Expressir::Model::Declarations::Entity
     id: imported_volume_function
     remarks:
@@ -9909,12 +9921,6 @@ schemas:
 
       The range of an <<express:mathematical_functions_schema.imported_surface_function,imported_surface_function>>
        is derived to be stem:[(R^3)^1].
-    remark_items:
-    - _class: Expressir::Model::Declarations::RemarkItem
-      id: wr
-      remarks:
-      - The value of *parametric_domain* represents the domain of the parametric function
-        of the geometry
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: geometry
@@ -9948,6 +9954,15 @@ schemas:
         - _class: Expressir::Model::References::SimpleReference
           id: parametric_domain
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.imported_volume_function.parametric_domain
+    informal_propositions:
+    - _class: Expressir::Model::Declarations::InformalPropositionRule
+      id: IP1
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP1
+        remarks:
+        - The value of *parametric_domain* represents the domain of the parametric
+          function of the geometry
   - _class: Expressir::Model::Declarations::Entity
     id: application_defined_function
     remarks:
@@ -9961,12 +9976,6 @@ schemas:
       NOTE: In order to integrate application-defined functions with the expressions structure inherited from *iso13584_generic_expressions*, it is necessary that an introduced subtype also explicitly subtype itself from one of the first or second tier subtypes of <<express:iso13584_generic_expressions_schema.generic_expression,generic_expression>>, and, if subtyped from other than <<express:iso13584_generic_expressions_schema.simple_generic_expression,simple_generic_expression>>, either derive the inherited *operand(s)* attribute or explicitly provide its value.
 
       NOTE: All instantiable subtypes of <<express:mathematical_functions_schema.maths_function,maths_function>> defined in this schema are associated with well-defined mathematical algorithms for obtaining outputs from inputs. The differences in results on different systems should be small. However, it is quite possible to use the application-defined function mechanism to create representations for functions which are mathematically well-defined, but for which no computationally reliable algorithm is known. For example, consider the minimum distance function on the images of two parametric surfaces. Each implementor will produce some approximation of the mathematical function, but no standard algorithm exists. Application developers must carefully consider the meaning and consequences of exchanging an instance representing such a function.
-    remark_items:
-    - _class: Expressir::Model::Declarations::RemarkItem
-      id: wr
-      remarks:
-      - The total information associated with an instance of <<express:mathematical_functions_schema.application_defined_function,application_defined_function>>
-        shall be sufficient to uniquely identify a mathematical function.
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: maths_function
@@ -10034,6 +10043,33 @@ schemas:
         - _class: Expressir::Model::References::SimpleReference
           id: explicit_range
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.application_defined_function.explicit_range
+    informal_propositions:
+    - _class: Expressir::Model::Declarations::InformalPropositionRule
+      id: IP1
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP1
+        remarks:
+        - The total information associated with an instance of <<express:mathematical_functions_schema.application_defined_function,application_defined_function>>
+          shall be sufficient to uniquely identify a mathematical function.
+    - _class: Expressir::Model::Declarations::InformalPropositionRule
+      id: IP2
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP2
+        remarks:
+        - The space supplied as the domain of the function shall be compatible with
+          the actual athematical domain of the function.
+    - _class: Expressir::Model::Declarations::InformalPropositionRule
+      id: IP3
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP3
+        remarks:
+        - |-
+          The space supplied as the range of the function shall represent a superspace of the actual mathematical range of the function.
+
+          NOTE: The total information associated with an instance includes its actual subtype, the values of its attributes, and any instances of <<express:mathematical_functions_schema.mathematical_description,mathematical_description>> referencing it via the *described* attribute.
   - _class: Expressir::Model::Declarations::Entity
     id: mathematical_description
     remarks:
@@ -10052,12 +10088,6 @@ schemas:
       NOTE: An application protocol or application module may constrain the allowable languages or language encodings and specify the labels to be used for each.
 
       NOTE: Languages using a different character set than that used by Express, such as MathML's use of UNICODE, require special care. In some cases, it may be necessary or desirable to specify a special encoding of conflicting or missing elements into an Express string value.
-    remark_items:
-    - _class: Expressir::Model::Declarations::RemarkItem
-      id: wr
-      remarks:
-      - The value of attribute *describing* shall be a valid instance of the language
-        or encoding identified by the value of attribute *encoding*.
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: described
@@ -10083,6 +10113,24 @@ schemas:
       type:
         _class: Expressir::Model::References::SimpleReference
         id: label
+    informal_propositions:
+    - _class: Expressir::Model::Declarations::InformalPropositionRule
+      id: IP1
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP1
+        remarks:
+        - The value of attribute *describing* shall be a valid instance of the language
+          or encoding identified by the value of attribute *encoding*.
+    - _class: Expressir::Model::Declarations::InformalPropositionRule
+      id: IP2
+      remark_items:
+      - _class: Expressir::Model::Declarations::RemarkItem
+        id: IP2
+        remarks:
+        - In so far as the value of the attribute *described* is already defined in
+          this document, the meaning of the value of *describing* shall be consistent
+          with it.
   - _class: Expressir::Model::Declarations::Entity
     id: logical_literal
     remarks:

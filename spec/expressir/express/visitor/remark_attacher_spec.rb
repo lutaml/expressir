@@ -204,4 +204,78 @@ RSpec.describe Expressir::Express::RemarkAttacher do
       expect(repr_attr.remarks).to eq(["The representation_item name."])
     end
   end
+
+  describe "wr:IP prefix convention for informal propositions" do
+    # EXPRESS annotated schemas use `(*"schema.entity.wr:IP1" ...*)` to
+    # attach documentation to informal propositions. The `wr:` prefix
+    # indicates the WHERE clause; the suffix `IP1` is the informal
+    # proposition id.  The attacher must recognise this convention and
+    # create InformalPropositionRule objects, not RemarkItems.
+    let(:source) do
+      <<~EXP
+        SCHEMA test_schema;
+
+        ENTITY test_entity
+          SUBTYPE OF (base_entity);
+        WHERE
+          WR1 : SELF\\base_entity.attr > 0;
+          WR2 : SIZEOF(QUERY(it <* SELF.items| TRUE)) = 0;
+        END_ENTITY;
+
+        (*"test_schema.test_entity.wr:WR1"
+        The attribute shall be positive.
+        *)
+
+        (*"test_schema.test_entity.wr:WR2"
+        All items shall satisfy the condition.
+        *)
+
+        (*"test_schema.test_entity.wr:IP1"
+        This is the first informal proposition.
+        *)
+
+        (*"test_schema.test_entity.wr:IP2"
+        This is the second informal proposition.
+        *)
+
+        (*"test_schema.test_entity.__note"
+        This is a note on the entity.
+        *)
+
+        END_SCHEMA;
+      EXP
+    end
+    let(:repo) { Expressir::Express::Parser.from_exp(source) }
+    let(:schema) { repo.schemas.first }
+    let(:entity) { schema.entities.find { |e| e.id == "test_entity" } }
+
+    it "creates InformalPropositionRule objects from wr:IP tags" do
+      expect(entity.informal_propositions).not_to be_nil
+      expect(entity.informal_propositions.map(&:id)).to eq(%w[IP1 IP2])
+    end
+
+    it "attaches remark text to the IP's child RemarkItem" do
+      ip1 = entity.informal_propositions.find { |ip| ip.id == "IP1" }
+      expect(ip1.remark_items).not_to be_nil
+      expect(ip1.remark_items.first.remarks).to eq(["This is the first informal proposition."])
+
+      ip2 = entity.informal_propositions.find { |ip| ip.id == "IP2" }
+      expect(ip2.remark_items).not_to be_nil
+      expect(ip2.remark_items.first.remarks).to eq(["This is the second informal proposition."])
+    end
+
+    it "attaches wr:WR tags to WhereRules, not as RemarkItems" do
+      wr1 = entity.where_rules.find { |wr| wr.id == "WR1" }
+      expect(wr1).not_to be_nil
+      expect(wr1.remarks).to eq(["The attribute shall be positive."])
+
+      wr2 = entity.where_rules.find { |wr| wr.id == "WR2" }
+      expect(wr2).not_to be_nil
+      expect(wr2.remarks).to eq(["All items shall satisfy the condition."])
+    end
+
+    it "attaches __note to remark_items, not informal_propositions" do
+      expect(entity.remark_items.map(&:id)).to eq(["__note"])
+    end
+  end
 end

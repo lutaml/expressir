@@ -400,8 +400,10 @@ module Expressir
         schema = safe_find(model, schema_id)
         return nil unless schema.is_a?(Model::Declarations::Schema)
 
-        if item_id.match?(/^IP\d+$/) && supports_informal_propositions?(schema)
-          return create_or_find_informal_proposition(schema, item_id)
+        # Strip "wr:" prefix convention (e.g. "wr:IP1" → "IP1")
+        ip_id = extract_ip_id(item_id)
+        if ip_id && supports_informal_propositions?(schema)
+          return create_or_find_informal_proposition(schema, ip_id)
         end
 
         return nil unless supports_remark_items?(schema)
@@ -414,6 +416,22 @@ module Expressir
 
       def create_implicit_remark_item(model, path, schema_ids = [])
         return nil unless repository?(model) || exp_file?(model)
+
+        # Handle "wr:IP1" convention: extract parent path and IP id directly
+        # so normalize_path doesn't split "wr:IP1" into "wr"."IP1" segments.
+        ip_prefix_match = path.match(/\A(.+)\.(\w+):(IP\d+)\z/)
+        if ip_prefix_match
+          parent_path = ip_prefix_match[1]
+          ip_id = ip_prefix_match[3]
+          parent = safe_find(model, parent_path)
+          if parent.nil? && schema_ids.any?
+            schema_ids.each do |schema_id|
+              parent = safe_find(model, "#{schema_id}.#{parent_path}")
+              break if parent
+            end
+          end
+          return create_or_find_informal_proposition(parent, ip_id) if parent
+        end
 
         clean_path = normalize_path(path)
         parts = clean_path.split(".")
@@ -448,8 +466,10 @@ module Expressir
       end
 
       def create_item_at_parent(parent, item_id)
-        if item_id.match?(/^IP\d+$/) && supports_informal_propositions?(parent)
-          return create_or_find_informal_proposition(parent, item_id)
+        # Strip "wr:" prefix convention (e.g. "wr:IP1" → "IP1")
+        ip_id = extract_ip_id(item_id)
+        if ip_id && supports_informal_propositions?(parent)
+          return create_or_find_informal_proposition(parent, ip_id)
         end
 
         return nil unless supports_remark_items?(parent)
@@ -526,6 +546,13 @@ module Expressir
 
       def supports_informal_propositions?(obj)
         obj.is_a?(Model::HasInformalPropositions)
+      end
+
+      # Extracts an IP id from a potentially prefixed item_id.
+      # "wr:IP1" → "IP1", "IP1" → "IP1", "WR1" → nil
+      def extract_ip_id(item_id)
+        bare = item_id.sub(/\A\w+:/, "")
+        bare.match?(/^IP\d+$/) ? bare : nil
       end
 
       def supports_where_rules?(obj)

@@ -1,11 +1,9 @@
-require "set"
-
 # reference type is not recognized
 # see note in A.1.5 Interpreted identifiers
 # > It is expected that identifiers matching these syntax rules are known to an implementation.
 # > How the implementation obtains this information is of no concern to the definition of the language. One
 # > method of gaining this information is multi-pass parsing: the first pass collects the identifiers from their
-# > declarations, so that subsequent passes are then able to distinguish a veriable_ref from a function_ref,
+# > declarations, so that subsequent passes are then able to distinguish a variable_ref from a function_ref,
 # > for example.
 # - such multi-pass parsing is not implemented yet
 # - xxxRef - merged to SimpleReference
@@ -40,13 +38,25 @@ module Expressir
           str.data.to_s
         end
 
-        def method_missing(name, *args)
-          rulename = name.to_s.sub(/^visit_/, "").gsub(/_([a-z])/) do |m|
+        def method_missing(name, *)
+          rulename = rule_name(name)
+          self.class.define_method(name) { @data[rulename] }
+          send(name, *)
+        end
+
+        def respond_to_missing?(name, include_private = false)
+          @data.key?(rule_name(name)) || super
+        end
+
+        private
+
+        def rule_name(name)
+          name.to_s.sub(/^visit_/, "").gsub(/_([a-z])/) do |m|
             m[1].upcase
           end.to_sym
-          self.class.define_method(name) { @data[rulename] }
-          send name, *args
         end
+
+        public
 
         def keys
           @data.keys
@@ -56,8 +66,8 @@ module Expressir
           @data.values
         end
 
-        def each(&block)
-          @data.values.each(&block)
+        def each(&)
+          @data.values.each(&)
         end
       end
 
@@ -517,18 +527,18 @@ module Expressir
 
       def visit_add_like_op(ctx)
         ctx__text = ctx.values[0].text
-        ctx__ADDITION = ctx__text == "+"
-        ctx__SUBTRACTION = ctx__text == "-"
-        ctx__OR = ctx.tOR
-        ctx__XOR = ctx.tXOR
+        ctx__addition = ctx__text == "+"
+        ctx__subtraction = ctx__text == "-"
+        ctx__or = ctx.tOR
+        ctx__xor = ctx.tXOR
 
-        if ctx__ADDITION
+        if ctx__addition
           Model::Expressions::BinaryExpression::ADDITION
-        elsif ctx__SUBTRACTION
+        elsif ctx__subtraction
           Model::Expressions::BinaryExpression::SUBTRACTION
-        elsif ctx__OR
+        elsif ctx__or
           Model::Expressions::BinaryExpression::OR
-        elsif ctx__XOR
+        elsif ctx__xor
           Model::Expressions::BinaryExpression::XOR
         else
           raise Error::VisitorInvalidStateError.new("visit_add_like_op called with invalid context")
@@ -597,16 +607,16 @@ module Expressir
 
       def visit_array_type(ctx)
         ctx__bound_spec = ctx.bound_spec
-        ctx__OPTIONAL = ctx.tOPTIONAL
-        ctx__UNIQUE = ctx.tUNIQUE
+        ctx__optional = ctx.tOPTIONAL
+        ctx__unique = ctx.tUNIQUE
         ctx__instantiable_type = ctx.instantiable_type
         ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
         ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
 
         bound1 = visit_if(ctx__bound_spec__bound1)
         bound2 = visit_if(ctx__bound_spec__bound2)
-        optional = ctx__OPTIONAL && true
-        unique = ctx__UNIQUE && true
+        optional = ctx__optional && true
+        unique = ctx__unique && true
         base_type = visit_if(ctx__instantiable_type)
 
         Model::DataTypes::Array.new(
@@ -654,9 +664,9 @@ module Expressir
       end
 
       def visit_attribute_id(ctx)
-        ctx__SimpleId = ctx.simpleId
+        ctx__simple_id = ctx.simpleId
 
-        handle_simple_id(ctx__SimpleId)
+        handle_simple_id(ctx__simple_id)
       end
 
       def visit_attribute_qualifier(ctx)
@@ -693,10 +703,10 @@ module Expressir
       def visit_binary_type(ctx)
         ctx__width_spec = ctx.width_spec
         ctx__width_spec__width = ctx__width_spec&.width
-        ctx__width_spec__FIXED = ctx__width_spec&.tFIXED
+        ctx__width_spec__fixed = ctx__width_spec&.tFIXED
 
         width = visit_if(ctx__width_spec__width)
-        fixed = ctx__width_spec__FIXED && true
+        fixed = ctx__width_spec__fixed && true
 
         Model::DataTypes::Binary.new(
           width: width,
@@ -838,9 +848,9 @@ module Expressir
       end
 
       def visit_constant_id(ctx)
-        ctx__SimpleId = ctx.simpleId
+        ctx__simple_id = ctx.simpleId
 
-        handle_simple_id(ctx__SimpleId)
+        handle_simple_id(ctx__simple_id)
       end
 
       def visit_constructed_types(ctx)
@@ -983,9 +993,9 @@ module Expressir
       end
 
       def visit_entity_id(ctx)
-        ctx__SimpleId = ctx.simpleId
+        ctx__simple_id = ctx.simpleId
 
-        handle_simple_id(ctx__SimpleId)
+        handle_simple_id(ctx__simple_id)
       end
 
       def visit_enumeration_extension(_ctx)
@@ -993,9 +1003,9 @@ module Expressir
       end
 
       def visit_enumeration_id(ctx)
-        ctx__SimpleId = ctx.simpleId
+        ctx__simple_id = ctx.simpleId
 
-        handle_simple_id(ctx__SimpleId)
+        handle_simple_id(ctx__simple_id)
       end
 
       def visit_enumeration_items(ctx)
@@ -1032,13 +1042,13 @@ module Expressir
       end
 
       def visit_enumeration_type(ctx)
-        ctx__EXTENSIBLE = ctx.tEXTENSIBLE
+        ctx__extensible = ctx.tEXTENSIBLE
         ctx__enumeration_items = ctx.enumeration_items
         ctx__enumeration_extension = ctx.enumeration_extension
         ctx__enumeration_extension__type_ref = ctx__enumeration_extension&.type_ref
         ctx__enumeration_extension__enumeration_items = ctx__enumeration_extension&.enumeration_items
 
-        extensible = ctx__EXTENSIBLE && true
+        extensible = ctx__extensible && true
         based_on = visit_if(ctx__enumeration_extension__type_ref)
         items = visit_if(
           ctx__enumeration_items || ctx__enumeration_extension__enumeration_items, []
@@ -1057,11 +1067,11 @@ module Expressir
 
       def visit_explicit_attr(ctx)
         ctx__attribute_decl = ctx.attribute_decl
-        ctx__OPTIONAL = ctx.tOPTIONAL
+        ctx__optional = ctx.tOPTIONAL
         ctx__parameter_type = ctx.parameter_type
 
         attributes = visit_if_map(ctx__attribute_decl)
-        optional = ctx__OPTIONAL && true
+        optional = ctx__optional && true
         type = visit_if(ctx__parameter_type)
 
         attributes.map do |attribute|
@@ -1158,19 +1168,11 @@ module Expressir
         parameters = visit_if_map_flatten(ctx__function_head__formal_parameter)
         return_type = visit_if(ctx__function_head__parameter_type)
         declarations = visit_if_map(ctx__algorithm_head__declaration)
-        types = declarations.select { |x| x.is_a? Model::Declarations::Type }
-        entities = declarations.select do |x|
-          x.is_a? Model::Declarations::Entity
-        end
-        subtype_constraints = declarations.select do |x|
-          x.is_a? Model::Declarations::SubtypeConstraint
-        end
-        functions = declarations.select do |x|
-          x.is_a? Model::Declarations::Function
-        end
-        procedures = declarations.select do |x|
-          x.is_a? Model::Declarations::Procedure
-        end
+        types = declarations.grep(Model::Declarations::Type)
+        entities = declarations.grep(Model::Declarations::Entity)
+        subtype_constraints = declarations.grep(Model::Declarations::SubtypeConstraint)
+        functions = declarations.grep(Model::Declarations::Function)
+        procedures = declarations.grep(Model::Declarations::Procedure)
         constants = visit_if(ctx__algorithm_head__constant_decl, [])
         variables = visit_if(ctx__algorithm_head__local_decl, [])
         statements = visit_if_map(ctx__stmt)
@@ -1195,9 +1197,9 @@ module Expressir
       end
 
       def visit_function_id(ctx)
-        ctx__SimpleId = ctx.simpleId
+        ctx__simple_id = ctx.simpleId
 
-        handle_simple_id(ctx__SimpleId)
+        handle_simple_id(ctx__simple_id)
       end
 
       def visit_generalized_types(ctx)
@@ -1220,16 +1222,16 @@ module Expressir
 
       def visit_general_array_type(ctx)
         ctx__bound_spec = ctx.bound_spec
-        ctx__OPTIONAL = ctx.tOPTIONAL
-        ctx__UNIQUE = ctx.tUNIQUE
+        ctx__optional = ctx.tOPTIONAL
+        ctx__unique = ctx.tUNIQUE
         ctx__parameter_type = ctx.parameter_type
         ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
         ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
 
         bound1 = visit_if(ctx__bound_spec__bound1)
         bound2 = visit_if(ctx__bound_spec__bound2)
-        optional = ctx__OPTIONAL && true
-        unique = ctx__UNIQUE && true
+        optional = ctx__optional && true
+        unique = ctx__unique && true
         base_type = visit_if(ctx__parameter_type)
 
         Model::DataTypes::Array.new(
@@ -1260,14 +1262,14 @@ module Expressir
 
       def visit_general_list_type(ctx)
         ctx__bound_spec = ctx.bound_spec
-        ctx__UNIQUE = ctx.tUNIQUE
+        ctx__unique = ctx.tUNIQUE
         ctx__parameter_type = ctx.parameter_type
         ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
         ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
 
         bound1 = visit_if(ctx__bound_spec__bound1)
         bound2 = visit_if(ctx__bound_spec__bound2)
-        unique = ctx__UNIQUE && true
+        unique = ctx__unique && true
         base_type = visit_if(ctx__parameter_type)
 
         Model::DataTypes::List.new(
@@ -1469,12 +1471,12 @@ module Expressir
 
       def visit_interval_op(ctx)
         ctx__text = ctx.values[0].text
-        ctx__LESS_THAN = ctx__text == "<"
-        ctx__LESS_THAN_OR_EQUAL = ctx__text == "<="
+        ctx__less_than = ctx__text == "<"
+        ctx__less_than_or_equal = ctx__text == "<="
 
-        if ctx__LESS_THAN
+        if ctx__less_than
           Model::Expressions::Interval::LESS_THAN
-        elsif ctx__LESS_THAN_OR_EQUAL
+        elsif ctx__less_than_or_equal
           Model::Expressions::Interval::LESS_THAN_OR_EQUAL
         else
           raise Error::VisitorInvalidStateError.new("visit_interval_op called with invalid context")
@@ -1510,14 +1512,14 @@ module Expressir
       end
 
       def visit_inverse_attr_type(ctx)
-        ctx__SET = ctx.tSET
-        ctx__BAG = ctx.tBAG
+        ctx__set = ctx.tSET
+        ctx__bag = ctx.tBAG
         ctx__bound_spec = ctx.bound_spec
         ctx__entity_ref = ctx.entity_ref
         ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
         ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
 
-        if ctx__SET
+        if ctx__set
           bound1 = visit_if(ctx__bound_spec__bound1)
           bound2 = visit_if(ctx__bound_spec__bound2)
           base_type = visit_if(ctx__entity_ref)
@@ -1527,7 +1529,7 @@ module Expressir
             bound2: bound2,
             base_type: base_type,
           )
-        elsif ctx__BAG
+        elsif ctx__bag
           bound1 = visit_if(ctx__bound_spec__bound1)
           bound2 = visit_if(ctx__bound_spec__bound2)
           base_type = visit_if(ctx__entity_ref)
@@ -1550,14 +1552,14 @@ module Expressir
 
       def visit_list_type(ctx)
         ctx__bound_spec = ctx.bound_spec
-        ctx__UNIQUE = ctx.tUNIQUE
+        ctx__unique = ctx.tUNIQUE
         ctx__instantiable_type = ctx.instantiable_type
         ctx__bound_spec__bound1 = ctx__bound_spec&.bound1
         ctx__bound_spec__bound2 = ctx__bound_spec&.bound2
 
         bound1 = visit_if(ctx__bound_spec__bound1)
         bound2 = visit_if(ctx__bound_spec__bound2)
-        unique = ctx__UNIQUE && true
+        unique = ctx__unique && true
         base_type = visit_if(ctx__instantiable_type)
 
         Model::DataTypes::List.new(
@@ -1569,20 +1571,20 @@ module Expressir
       end
 
       def visit_literal(ctx)
-        ctx__BinaryLiteral = ctx.binary_literal
-        ctx__IntegerLiteral = ctx.integerLiteral
+        ctx__binary_literal = ctx.binary_literal
+        ctx__integer_literal = ctx.integerLiteral
         ctx__logical_literal = ctx.logical_literal
-        ctx__RealLiteral = ctx.real_literal
+        ctx__real_literal = ctx.real_literal
         ctx__string_literal = ctx.string_literal
 
-        if ctx__BinaryLiteral
-          handle_binary_literal(ctx__BinaryLiteral)
-        elsif ctx__IntegerLiteral
-          handle_integer_literal(ctx__IntegerLiteral)
+        if ctx__binary_literal
+          handle_binary_literal(ctx__binary_literal)
+        elsif ctx__integer_literal
+          handle_integer_literal(ctx__integer_literal)
         elsif ctx__logical_literal
           visit(ctx__logical_literal)
-        elsif ctx__RealLiteral
-          handle_real_literal(ctx__RealLiteral)
+        elsif ctx__real_literal
+          handle_real_literal(ctx__real_literal)
         elsif ctx__string_literal
           visit(ctx__string_literal)
         else
@@ -1621,15 +1623,15 @@ module Expressir
       end
 
       def visit_logical_literal(ctx)
-        ctx__TRUE = ctx.tTRUE
-        ctx__FALSE = ctx.tFALSE
-        ctx__UNKNOWN = ctx.tUNKNOWN
+        ctx__true = ctx.tTRUE
+        ctx__false = ctx.tFALSE
+        ctx__unknown = ctx.tUNKNOWN
 
-        value = if ctx__TRUE
+        value = if ctx__true
                   Model::Literals::Logical::TRUE
-                elsif ctx__FALSE
+                elsif ctx__false
                   Model::Literals::Logical::FALSE
-                elsif ctx__UNKNOWN
+                elsif ctx__unknown
                   Model::Literals::Logical::UNKNOWN
                 else
                   raise Error::VisitorInvalidStateError.new("visit_logical_literal called with invalid context")
@@ -1646,24 +1648,24 @@ module Expressir
 
       def visit_multiplication_like_op(ctx)
         ctx__text = ctx.values[0].text
-        ctx__MULTIPLICATION = ctx__text == "*"
-        ctx__REAL_DIVISION = ctx__text == "/"
-        ctx__INTEGER_DIVISION = ctx.tDIV
-        ctx__MODULO = ctx.tMOD
-        ctx__AND = ctx.tAND
-        ctx__COMBINE = ctx__text == "||"
+        ctx__multiplication = ctx__text == "*"
+        ctx__real_division = ctx__text == "/"
+        ctx__integer_division = ctx.tDIV
+        ctx__modulo = ctx.tMOD
+        ctx__and = ctx.tAND
+        ctx__combine = ctx__text == "||"
 
-        if ctx__MULTIPLICATION
+        if ctx__multiplication
           Model::Expressions::BinaryExpression::MULTIPLICATION
-        elsif ctx__REAL_DIVISION
+        elsif ctx__real_division
           Model::Expressions::BinaryExpression::REAL_DIVISION
-        elsif ctx__INTEGER_DIVISION
+        elsif ctx__integer_division
           Model::Expressions::BinaryExpression::INTEGER_DIVISION
-        elsif ctx__MODULO
+        elsif ctx__modulo
           Model::Expressions::BinaryExpression::MODULO
-        elsif ctx__AND
+        elsif ctx__and
           Model::Expressions::BinaryExpression::AND
-        elsif ctx__COMBINE
+        elsif ctx__combine
           Model::Expressions::BinaryExpression::COMBINE
         else
           raise Error::VisitorInvalidStateError.new("visit_multiplication_like_op called with invalid context")
@@ -1722,9 +1724,9 @@ module Expressir
       end
 
       def visit_parameter_id(ctx)
-        ctx__SimpleId = ctx.simpleId
+        ctx__simple_id = ctx.simpleId
 
-        handle_simple_id(ctx__SimpleId)
+        handle_simple_id(ctx__simple_id)
       end
 
       def visit_parameter_type(ctx)
@@ -1788,19 +1790,11 @@ module Expressir
         id = visit_if(ctx__procedure_head__procedure_id)
         parameters = visit_if_map_flatten(ctx__procedure_head__procedure_head_parameter)
         declarations = visit_if_map(ctx__algorithm_head__declaration)
-        types = declarations.select { |x| x.is_a? Model::Declarations::Type }
-        entities = declarations.select do |x|
-          x.is_a? Model::Declarations::Entity
-        end
-        subtype_constraints = declarations.select do |x|
-          x.is_a? Model::Declarations::SubtypeConstraint
-        end
-        functions = declarations.select do |x|
-          x.is_a? Model::Declarations::Function
-        end
-        procedures = declarations.select do |x|
-          x.is_a? Model::Declarations::Procedure
-        end
+        types = declarations.grep(Model::Declarations::Type)
+        entities = declarations.grep(Model::Declarations::Entity)
+        subtype_constraints = declarations.grep(Model::Declarations::SubtypeConstraint)
+        functions = declarations.grep(Model::Declarations::Function)
+        procedures = declarations.grep(Model::Declarations::Procedure)
         constants = visit_if(ctx__algorithm_head__constant_decl, [])
         variables = visit_if(ctx__algorithm_head__local_decl, [])
         statements = visit_if_map(ctx__stmt)
@@ -1843,9 +1837,9 @@ module Expressir
       end
 
       def visit_procedure_id(ctx)
-        ctx__SimpleId = ctx.simpleId
+        ctx__simple_id = ctx.simpleId
 
-        handle_simple_id(ctx__SimpleId)
+        handle_simple_id(ctx__simple_id)
       end
 
       def visit_qualifiable_factor(ctx)
@@ -1938,30 +1932,30 @@ module Expressir
 
       def visit_rel_op(ctx)
         ctx__text = ctx.values[0].text
-        ctx__LESS_THAN = ctx__text == "<"
-        ctx__GREATER_THAN = ctx__text == ">"
-        ctx__LESS_THAN_OR_EQUAL = ctx__text == "<="
-        ctx__GREATER_THAN_OR_EQUAL = ctx__text == ">="
-        ctx__NOT_EQUAL = ctx__text == "<>"
-        ctx__EQUAL = ctx__text == "="
-        ctx__INSTANCE_NOT_EQUAL = ctx__text == ":<>:"
-        ctx__INSTANCE_EQUAL = ctx__text == ":=:"
+        ctx__less_than = ctx__text == "<"
+        ctx__greater_than = ctx__text == ">"
+        ctx__less_than_or_equal = ctx__text == "<="
+        ctx__greater_than_or_equal = ctx__text == ">="
+        ctx__not_equal = ctx__text == "<>"
+        ctx__equal = ctx__text == "="
+        ctx__instance_not_equal = ctx__text == ":<>:"
+        ctx__instance_equal = ctx__text == ":=:"
 
-        if ctx__LESS_THAN
+        if ctx__less_than
           Model::Expressions::BinaryExpression::LESS_THAN
-        elsif ctx__GREATER_THAN
+        elsif ctx__greater_than
           Model::Expressions::BinaryExpression::GREATER_THAN
-        elsif ctx__LESS_THAN_OR_EQUAL
+        elsif ctx__less_than_or_equal
           Model::Expressions::BinaryExpression::LESS_THAN_OR_EQUAL
-        elsif ctx__GREATER_THAN_OR_EQUAL
+        elsif ctx__greater_than_or_equal
           Model::Expressions::BinaryExpression::GREATER_THAN_OR_EQUAL
-        elsif ctx__NOT_EQUAL
+        elsif ctx__not_equal
           Model::Expressions::BinaryExpression::NOT_EQUAL
-        elsif ctx__EQUAL
+        elsif ctx__equal
           Model::Expressions::BinaryExpression::EQUAL
-        elsif ctx__INSTANCE_NOT_EQUAL
+        elsif ctx__instance_not_equal
           Model::Expressions::BinaryExpression::INSTANCE_NOT_EQUAL
-        elsif ctx__INSTANCE_EQUAL
+        elsif ctx__instance_equal
           Model::Expressions::BinaryExpression::INSTANCE_EQUAL
         else
           raise Error::VisitorInvalidStateError.new("visit_rel_op called with invalid context")
@@ -1970,14 +1964,14 @@ module Expressir
 
       def visit_rel_op_extended(ctx)
         ctx__rel_op = ctx.rel_op
-        ctx__IN = ctx.tIN
-        ctx__LIKE = ctx.tLIKE
+        ctx__in = ctx.tin
+        ctx__like = ctx.tlike
 
         if ctx__rel_op
           visit(ctx__rel_op)
-        elsif ctx__IN
+        elsif ctx__in
           Model::Expressions::BinaryExpression::IN
-        elsif ctx__LIKE
+        elsif ctx__like
           Model::Expressions::BinaryExpression::LIKE
         else
           raise Error::VisitorInvalidStateError.new("visit_rel_op_extended called with invalid context")
@@ -2081,19 +2075,11 @@ module Expressir
         id = visit_if(ctx__rule_head__rule_id)
         applies_to = visit_if_map(ctx__rule_head__entity_ref)
         declarations = visit_if_map(ctx__algorithm_head__declaration)
-        types = declarations.select { |x| x.is_a? Model::Declarations::Type }
-        entities = declarations.select do |x|
-          x.is_a? Model::Declarations::Entity
-        end
-        subtype_constraints = declarations.select do |x|
-          x.is_a? Model::Declarations::SubtypeConstraint
-        end
-        functions = declarations.select do |x|
-          x.is_a? Model::Declarations::Function
-        end
-        procedures = declarations.select do |x|
-          x.is_a? Model::Declarations::Procedure
-        end
+        types = declarations.grep(Model::Declarations::Type)
+        entities = declarations.grep(Model::Declarations::Entity)
+        subtype_constraints = declarations.grep(Model::Declarations::SubtypeConstraint)
+        functions = declarations.grep(Model::Declarations::Function)
+        procedures = declarations.grep(Model::Declarations::Procedure)
         constants = visit_if(ctx__algorithm_head__constant_decl, [])
         variables = visit_if(ctx__algorithm_head__local_decl, [])
         statements = visit_if_map(ctx__stmt)
@@ -2119,15 +2105,15 @@ module Expressir
       end
 
       def visit_rule_id(ctx)
-        ctx__SimpleId = ctx.simpleId
+        ctx__simple_id = ctx.simpleId
 
-        handle_simple_id(ctx__SimpleId)
+        handle_simple_id(ctx__simple_id)
       end
 
       def visit_rule_label_id(ctx)
-        ctx__SimpleId = ctx.simpleId
+        ctx__simple_id = ctx.simpleId
 
-        handle_simple_id(ctx__SimpleId)
+        handle_simple_id(ctx__simple_id)
       end
 
       def visit_schema_body(_ctx)
@@ -2154,20 +2140,12 @@ module Expressir
         interfaces = visit_if_map(ctx__schema_body__interface_specification)
         constants = visit_if(ctx__schema_body__constant_decl, [])
         declarations = visit_if_map(ctx__schema_body__schema_body_declaration)
-        types = declarations.select { |x| x.is_a? Model::Declarations::Type }
-        entities = declarations.select do |x|
-          x.is_a? Model::Declarations::Entity
-        end
-        subtype_constraints = declarations.select do |x|
-          x.is_a? Model::Declarations::SubtypeConstraint
-        end
-        functions = declarations.select do |x|
-          x.is_a? Model::Declarations::Function
-        end
-        rules = declarations.select { |x| x.is_a? Model::Declarations::Rule }
-        procedures = declarations.select do |x|
-          x.is_a? Model::Declarations::Procedure
-        end
+        types = declarations.grep(Model::Declarations::Type)
+        entities = declarations.grep(Model::Declarations::Entity)
+        subtype_constraints = declarations.grep(Model::Declarations::SubtypeConstraint)
+        functions = declarations.grep(Model::Declarations::Function)
+        rules = declarations.grep(Model::Declarations::Rule)
+        procedures = declarations.grep(Model::Declarations::Procedure)
 
         Model::Declarations::Schema.new(
           id: id,
@@ -2184,9 +2162,9 @@ module Expressir
       end
 
       def visit_schema_id(ctx)
-        ctx__SimpleId = ctx.simpleId
+        ctx__simple_id = ctx.simpleId
 
-        handle_simple_id(ctx__SimpleId)
+        handle_simple_id(ctx__simple_id)
       end
 
       def visit_schema_version_id(ctx)
@@ -2238,15 +2216,15 @@ module Expressir
       end
 
       def visit_select_type(ctx)
-        ctx__EXTENSIBLE = ctx.tEXTENSIBLE
-        ctx__GENERIC_ENTITY = ctx.tGENERIC_ENTITY
+        ctx__extensible = ctx.tEXTENSIBLE
+        ctx__generic_entity = ctx.tGENERIC_ENTITY
         ctx__select_list = ctx.select_list
         ctx__select_extension = ctx.select_extension
         ctx__select_extension__type_ref = ctx.select_extension&.type_ref
         ctx__select_extension__select_list = ctx__select_extension&.select_list
 
-        extensible = ctx__EXTENSIBLE && true
-        generic_entity = ctx__GENERIC_ENTITY && true
+        extensible = ctx__extensible && true
+        generic_entity = ctx__generic_entity && true
         based_on = visit_if(ctx__select_extension__type_ref)
         items = visit_if(
           ctx__select_list || ctx__select_extension__select_list, []
@@ -2372,13 +2350,13 @@ module Expressir
       end
 
       def visit_string_literal(ctx)
-        ctx__SimpleStringLiteral = ctx.simpleStringLiteral
-        ctx__EncodedStringLiteral = ctx.encodedStringLiteral
+        ctx__simple_string_literal = ctx.simpleStringLiteral
+        ctx__encoded_string_literal = ctx.encodedStringLiteral
 
-        if ctx__SimpleStringLiteral
-          handle_simple_string_literal(ctx__SimpleStringLiteral)
-        elsif ctx__EncodedStringLiteral
-          handle_encoded_string_literal(ctx__EncodedStringLiteral)
+        if ctx__simple_string_literal
+          handle_simple_string_literal(ctx__simple_string_literal)
+        elsif ctx__encoded_string_literal
+          handle_encoded_string_literal(ctx__encoded_string_literal)
         else
           raise Error::VisitorInvalidStateError.new("visit_string_literal called with invalid context")
         end
@@ -2387,10 +2365,10 @@ module Expressir
       def visit_string_type(ctx)
         ctx__width_spec = ctx.width_spec
         ctx__width_spec__width = ctx__width_spec&.width
-        ctx__width_spec__FIXED = ctx__width_spec&.tFIXED
+        ctx__width_spec__fixed = ctx__width_spec&.tFIXED
 
         width = visit_if(ctx__width_spec__width)
-        fixed = ctx__width_spec__FIXED && true
+        fixed = ctx__width_spec__fixed && true
 
         Model::DataTypes::String.new(
           width: width,
@@ -2441,9 +2419,9 @@ module Expressir
       end
 
       def visit_subtype_constraint_id(ctx)
-        ctx__SimpleId = ctx.simpleId
+        ctx__simple_id = ctx.simpleId
 
-        handle_simple_id(ctx__SimpleId)
+        handle_simple_id(ctx__simple_id)
       end
 
       def visit_subtype_declaration(ctx)
@@ -2458,13 +2436,13 @@ module Expressir
 
       def visit_supertype_expression(ctx)
         ctx__supertype_factor = [ctx.supertype_factor] + ctx.rhs.map(&:supertype_factor)
-        ctx__ANDOR = ctx.rhs.map { |item| item.operator.values[0] }
+        ctx__andor = ctx.rhs.map { |item| item.operator.values[0] }
 
         if ctx__supertype_factor
           if ctx__supertype_factor.length >= 2
-            if ctx__ANDOR && (ctx__ANDOR.length == ctx__supertype_factor.length - 1)
+            if ctx__andor && (ctx__andor.length == ctx__supertype_factor.length - 1)
               operands = ctx__supertype_factor.map { |item| visit(item) }
-              operators = ctx__ANDOR.map do
+              operators = ctx__andor.map do
                 Model::SupertypeExpressions::BinarySupertypeExpression::ANDOR
               end
 
@@ -2482,13 +2460,13 @@ module Expressir
 
       def visit_supertype_factor(ctx)
         ctx__supertype_term = [ctx.supertype_term] + ctx.rhs.map(&:supertype_term)
-        ctx__AND = ctx.rhs.map { |item| item.operator.values[0] }
+        ctx__and = ctx.rhs.map { |item| item.operator.values[0] }
 
         if ctx__supertype_term
           if ctx__supertype_term.length >= 2
-            if ctx__AND && (ctx__AND.length == ctx__supertype_term.length - 1)
+            if ctx__and && (ctx__and.length == ctx__supertype_term.length - 1)
               operands = ctx__supertype_term.map { |item| visit(item) }
-              operators = ctx__AND.map do
+              operators = ctx__and.map do
                 Model::SupertypeExpressions::BinarySupertypeExpression::AND
               end
 
@@ -2573,9 +2551,9 @@ module Expressir
       end
 
       def visit_type_id(ctx)
-        ctx__SimpleId = ctx.simpleId
+        ctx__simple_id = ctx.simpleId
 
-        handle_simple_id(ctx__SimpleId)
+        handle_simple_id(ctx__simple_id)
       end
 
       def visit_type_label(ctx)
@@ -2586,22 +2564,22 @@ module Expressir
       end
 
       def visit_type_label_id(ctx)
-        ctx__SimpleId = ctx.simpleId
+        ctx__simple_id = ctx.simpleId
 
-        handle_simple_id(ctx__SimpleId)
+        handle_simple_id(ctx__simple_id)
       end
 
       def visit_unary_op(ctx)
         ctx__text = ctx.values[0].text
-        ctx__PLUS = ctx__text == "+"
-        ctx__MINUS = ctx__text == "-"
-        ctx__NOT = ctx.tNOT
+        ctx__plus = ctx__text == "+"
+        ctx__minus = ctx__text == "-"
+        ctx__not = ctx.tNOT
 
-        if ctx__PLUS
+        if ctx__plus
           Model::Expressions::UnaryExpression::PLUS
-        elsif ctx__MINUS
+        elsif ctx__minus
           Model::Expressions::UnaryExpression::MINUS
-        elsif ctx__NOT
+        elsif ctx__not
           Model::Expressions::UnaryExpression::NOT
         else
           raise Error::VisitorInvalidStateError.new("visit_unary_op called with invalid context")
@@ -2655,9 +2633,9 @@ module Expressir
       end
 
       def visit_variable_id(ctx)
-        ctx__SimpleId = ctx.simpleId
+        ctx__simple_id = ctx.simpleId
 
-        handle_simple_id(ctx__SimpleId)
+        handle_simple_id(ctx__simple_id)
       end
 
       def visit_where_clause(ctx)
@@ -2692,7 +2670,7 @@ module Expressir
           operand1: operands[0],
           operand2: operands[1],
         )
-        operators[1..(operators.length - 1)].each_with_index do |operator, i|
+        operators[1..].each_with_index do |operator, i|
           expression = Model::Expressions::BinaryExpression.new(
             operator: operator,
             operand1: expression,
@@ -2712,7 +2690,7 @@ module Expressir
           operand1: operands[0],
           operand2: operands[1],
         )
-        operators[1..(operators.length - 1)].each_with_index do |operator, i|
+        operators[1..].each_with_index do |operator, i|
           expression = Model::SupertypeExpressions::BinarySupertypeExpression.new(
             operator: operator,
             operand1: expression,
@@ -2759,7 +2737,7 @@ module Expressir
       def handle_binary_literal(ctx)
         ctx__text = ctx.text
 
-        value = ctx__text[1..(ctx__text.length - 1)]
+        value = ctx__text[1..]
 
         Model::Literals::Binary.new(
           value: value,
@@ -2793,7 +2771,7 @@ module Expressir
       def handle_simple_string_literal(ctx)
         ctx__text = ctx.text
 
-        value = ctx__text[1..(ctx__text.length - 2)].force_encoding("UTF-8")
+        value = ctx__text[1..-2].force_encoding("UTF-8")
 
         Model::Literals::String.new(
           value: value,
@@ -2803,7 +2781,7 @@ module Expressir
       def handle_encoded_string_literal(ctx)
         ctx__text = ctx.text
 
-        value = ctx__text[1..(ctx__text.length - 2)].force_encoding("UTF-8")
+        value = ctx__text[1..-2].force_encoding("UTF-8")
 
         Model::Literals::String.new(
           value: value,

@@ -430,7 +430,10 @@ module Expressir
               break if parent
             end
           end
-          return create_or_find_informal_proposition(parent, ip_id) if parent
+
+          if parent && supports_informal_propositions?(parent)
+            return create_or_find_informal_proposition(parent, ip_id)
+          end
         end
 
         clean_path = normalize_path(path)

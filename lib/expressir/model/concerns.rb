@@ -21,5 +21,8 @@ module Expressir
 
     # Marker for types supporting where rules
     module HasWhereRules; end
+
+    # Marker for executable statements (ISO 10303-11 section 13)
+    module Statement; end
   end
 end

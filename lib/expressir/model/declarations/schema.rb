@@ -90,7 +90,7 @@ module Expressir
         end
 
         def formatted
-          @formatted ||= format(no_remarks: true)
+          @formatted ||= format(no_remarks: false)
         end
 
         def source

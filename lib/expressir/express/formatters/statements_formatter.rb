@@ -43,7 +43,7 @@ module Expressir
             *if node.statements&.length&.positive?
                indent(node.statements.map { |x| format(x) }.join("\n"))
              end,
-            *format_remarks(node),
+            *format_block_end_remarks(node).map { |x| indent(x) },
             [
               "END_ALIAS",
               ";",
@@ -88,6 +88,10 @@ module Expressir
             *if node.actions&.length&.positive?
                node.actions.map { |x| format(x) }
              end,
+            # Closes the last action: before OTHERWISE when one exists,
+            # otherwise before END_CASE.
+            *format_trailing_region_remarks(node, :action_statements)
+              .map { |x| indent(x) },
             *if node.otherwise_statement
                [
                  [
@@ -98,6 +102,8 @@ module Expressir
                  indent(format(node.otherwise_statement)),
                ]
              end,
+            *format_trailing_region_remarks(node, :otherwise_statements)
+              .map { |x| indent(x) },
             [
               "END_CASE",
               ";",
@@ -123,6 +129,7 @@ module Expressir
             *if statements.length.positive?
                indent(statements.map { |x| format(x) }.join("\n"))
              end,
+            *format_trailing_region_remarks(node, :statements).map { |x| indent(x) },
             [
               "END",
               ";",
@@ -138,6 +145,14 @@ module Expressir
         end
 
         def format_statements_if(node)
+          has_else = node.else_statements&.length&.positive?
+          # A comment closing the THEN body sits before ELSE when there is
+          # one, and before END_IF otherwise.
+          then_trailing = format_trailing_region_remarks(node, :statements)
+            .map { |x| indent(x) }
+          else_trailing = format_trailing_region_remarks(node, :else_statements)
+            .map { |x| indent(x) }
+
           [
             [
               "IF",
@@ -149,12 +164,14 @@ module Expressir
             *if node.statements&.length&.positive?
                indent(node.statements.map { |x| format(x) }.join("\n"))
              end,
-            *if node.else_statements&.length&.positive?
+            *(then_trailing if has_else),
+            *if has_else
                [
                  "ELSE",
                  indent(node.else_statements.map { |x| format(x) }.join("\n")),
                ].join("\n")
              end,
+            *(has_else ? else_trailing : then_trailing),
             [
               "END_IF",
               ";",
@@ -214,7 +231,7 @@ module Expressir
             *if statements.length.positive?
                indent(statements.map { |x| format(x) }.join("\n"))
              end,
-            *format_remarks(node),
+            *format_block_end_remarks(node).map { |x| indent(x) },
             [
               "END_REPEAT",
               ";",

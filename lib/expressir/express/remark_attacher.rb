@@ -25,6 +25,12 @@ module Expressir
       # on its own without forcing the other to load.
       COLLECTION_REGISTRY = NodePositionIndex::COLLECTION_REGISTRY
 
+      # Collections holding executable statements — the regions a body
+      # comment can belong to.
+      STATEMENT_REGIONS = %i[
+        statements else_statements action_statements otherwise_statements
+      ].freeze
+
       # Expression and statement child attributes are declared on the model
       # via `child_attributes :foo, :bar, ...`. See TODO.bugs/15.
       EXPRESSION_CHILDREN = Model::ModelElement.child_attributes_registry
@@ -36,6 +42,8 @@ module Expressir
         @model = nil
         @scope_resolver = nil
         @node_index = nil
+        @owner_map = nil
+        @active_scope_map = nil
       end
 
       def attach(model)
@@ -52,13 +60,17 @@ module Expressir
         attach_tagged_remarks(remarks)
         attach_untagged_remarks(remarks)
 
-        # Free expensive data structures after attachment is complete.
+        model
+      ensure
+        # Free expensive data structures once attachment is over. On the
+        # raising path this also drops the memoized ownership map, which
+        # would otherwise outlive the node index it was derived from.
         @source = nil
         @scope_resolver = nil
         @node_index = nil
         @line_map = nil
-
-        model
+        @owner_map = nil
+        @active_scope_map = nil
       end
 
       private
@@ -193,6 +205,14 @@ module Expressir
             end
           end
 
+          target, placement, region = find_body_comment_target(remark)
+          if target
+            add_remark(target, remark.text, format: remark.format, tag: nil,
+                                            placement: placement, region: region)
+            @attached_spans << remark.position
+            next
+          end
+
           matched_node = @node_index.nearest_node_to(remark.line)
           if matched_node
             add_remark(matched_node, remark.text, format: remark.format, tag: nil)
@@ -203,6 +223,316 @@ module Expressir
 
       def end_scope_line?(line_content)
         line_content =~ /END_(SCHEMA|ENTITY|TYPE|FUNCTION|PROCEDURE|RULE)/i
+      end
+
+      # Own-line body comments belong to the next statement in the same
+      # statement region (Function body, THEN branch, ELSE branch, loop body):
+      # attached there with LEADING placement. A comment with no following
+      # statement in its region closes that region, so it attaches to the
+      # region's owner with TRAILING placement and the region's name — an IF
+      # owns two bodies that close at different keywords.
+      #
+      # Returns [nil, nil, nil] — "use the legacy fallback" — when the remark
+      # shares a line with a node or sits outside any statement-bearing node.
+      def find_body_comment_target(remark)
+        line = remark.line
+        nodes = @node_index.nodes
+        # An own-line comment shares its line with no node. A node STARTING
+        # here means the remark is an inline tail (code; -- note). The
+        # end-line check is restricted to statements: container end_lines are
+        # child-derived approximations that can collide with comment lines.
+        return inline_target(remark, nodes) if inline_remark?(remark)
+
+        # A closing keyword on the next code line is decisive: the comment
+        # closes that body. Without this check the comment would instead be
+        # read as leading the next statement of an OUTER region, which is
+        # where it would wrongly render.
+        closing = closing_region_target(line, nodes)
+        return closing if closing.first
+
+        enclosing, region, = statement_region_for(line, nodes)
+        return [nil, nil, nil] unless region
+
+        following = region
+          .select { |n| n[:line] > line }
+          .min_by { |n| n[:position] }
+        if following
+          return [following[:node], Model::RemarkPlacement::LEADING, nil]
+        end
+
+        # No following statement and no closing keyword above: the comment is
+        # not demonstrably inside this body (it may sit after the whole
+        # declaration). Keep the legacy attachment rather than guessing.
+        [enclosing[:node], nil, nil]
+      end
+
+      # Whether the remark trails code on its own line. Decided from the
+      # source text before it, not from node positions: container end lines
+      # are child-derived approximations that collide with comment lines and
+      # would misread an own-line comment as a trailing one.
+      def inline_remark?(remark)
+        content = line_content_for(remark.line).to_s
+        opener = content.index("--")
+        return false unless opener
+
+        !content[0...opener].strip.empty?
+      end
+
+      # A comment trailing code on its line belongs to the statement that
+      # ends closest before it: `x := 1; -- why`. Only single-line statements
+      # qualify, because appending to a statement spanning several lines
+      # would move the remark down to its closing keyword.
+      def inline_target(remark, nodes)
+        owner = nodes
+          .select do |n|
+            n[:node].is_a?(Model::Statement) &&
+              n[:line] == remark.line && n[:end_line] == remark.line &&
+              n[:position] && n[:position] < remark.position
+          end
+          .max_by { |n| n[:position] + n[:node].source.to_s.length }
+        return [nil, nil, nil] unless owner
+
+        [owner[:node], Model::RemarkPlacement::INLINE, nil]
+      end
+
+      # Which closing keyword ends which region of which owner. A comment
+      # sitting between a body's last statement and one of these keywords
+      # closes that body.
+      CLOSING_KEYWORDS = {
+        /\AELSE\b/i => [Model::Statements::If, :statements],
+        /\AEND_IF\b/i => [Model::Statements::If, :else_statements],
+        /\AOTHERWISE\b/i => [Model::Statements::Case, :action_statements],
+        /\AEND_CASE\b/i => [Model::Statements::Case, :otherwise_statements],
+        /\AEND_REPEAT\b/i => [Model::Statements::Repeat, :statements],
+        /\AEND_ALIAS\b/i => [Model::Statements::Alias, :statements],
+        /\AEND\s*;/i => [Model::Statements::Compound, :statements],
+        # A RULE's executable body ends at WHERE, not at END_RULE.
+        /\AWHERE\b/i => [Model::Declarations::Rule, :statements],
+        /\AEND_FUNCTION\b/i => [Model::Declarations::Function, :statements],
+        /\AEND_PROCEDURE\b/i => [Model::Declarations::Procedure, :statements],
+        # END_RULE closes the WHERE section when the rule has one.
+        /\AEND_RULE\b/i => [Model::Declarations::Rule, :where_rules],
+      }.freeze
+
+      # Regions whose owner may not have that body, in which case the
+      # keyword closes the earlier region instead.
+      REGION_FALLBACKS = {
+        [Model::Statements::If, :else_statements] =>
+          [:statements, ->(n) { n.else_statements&.length&.positive? }],
+        [Model::Statements::Case, :otherwise_statements] =>
+          [:action_statements, ->(n) { !n.otherwise_statement.nil? }],
+        [Model::Declarations::Rule, :where_rules] =>
+          [:statements, ->(n) { n.where_rules&.length&.positive? }],
+      }.freeze
+
+      # A node's indexed span stops at its last child, so a comment written
+      # after that child but before the node's closing keyword sits outside
+      # every span and never reaches statement_region_for. Resolve it from
+      # the keyword that follows: it names both the owner type and the body
+      # being closed.
+      def closing_region_target(line, nodes)
+        keyword_owner, region, keyword_line = closing_keyword_after(line)
+        return [nil, nil, nil] unless keyword_owner
+
+        # The owner is the construct the keyword actually closes — the
+        # innermost one still open at that line. Picking the latest node of
+        # the right class instead would grab an already-closed inner block
+        # (nested IFs) or an unrelated earlier declaration (a RULE, when the
+        # WHERE really belongs to an ENTITY).
+        opener_line = active_opener_line(keyword_line, keyword_owner)
+        return [nil, nil, nil] unless opener_line
+
+        owner = nodes.find do |n|
+          n[:node].is_a?(keyword_owner) && n[:line] == opener_line
+        end
+        return [nil, nil, nil] unless owner
+
+        # END_IF closes the THEN body when there is no ELSE; END_CASE closes
+        # the last action when there is no OTHERWISE.
+        fallback, present = REGION_FALLBACKS[[keyword_owner, region]]
+        region = fallback if fallback && !present.call(owner[:node])
+
+        [owner[:node], Model::RemarkPlacement::TRAILING, region.to_s]
+      end
+
+      # The first non-blank, non-comment source line after `line`.
+      # Source keywords that open a nestable construct, paired with the class
+      # of node they produce. Used to find which construct a closing keyword
+      # actually belongs to.
+      OPENERS = [
+        [/\bIF\b.*?\bTHEN\b/i, Model::Statements::If],
+        [/\bCASE\b.*?\bOF\b/i, Model::Statements::Case],
+        [/\bREPEAT\b/i, Model::Statements::Repeat],
+        [/\bALIAS\b/i, Model::Statements::Alias],
+        [/\bBEGIN\b/i, Model::Statements::Compound],
+        [/\A\s*FUNCTION\b/i, Model::Declarations::Function],
+        [/\A\s*PROCEDURE\b/i, Model::Declarations::Procedure],
+        [/\A\s*RULE\b/i, Model::Declarations::Rule],
+        [/\A\s*ENTITY\b/i, :other],
+        [/\A\s*TYPE\b/i, :other],
+      ].freeze
+
+      CLOSERS = /\bEND_IF\b|\bEND_CASE\b|\bEND_REPEAT\b|\bEND_ALIAS\b|\bEND_FUNCTION\b|\bEND_PROCEDURE\b|\bEND_RULE\b|\bEND_ENTITY\b|\bEND_TYPE\b|\bEND\s*;/i
+
+      # Strips what must not be scanned for keywords: string literals and a
+      # trailing `--` remark. Without this, `x := 'IF a THEN'` or a comment
+      # mentioning REPEAT would push a construct that never opened.
+      def keyword_scannable(content)
+        without_strings = content.gsub(/'[^']*'/, "''")
+        tail = without_strings.index("--")
+        tail ? without_strings[0...tail] : without_strings
+      end
+
+      # The opening line of the innermost construct still open at
+      # `keyword_line`, or nil when that construct is not of `expected_class`.
+      def active_opener_line(keyword_line, expected_class)
+        active = active_scope_map[keyword_line]
+        return nil unless active && active[0] == expected_class
+
+        active[1]
+      end
+
+      # Line number => the construct open at the START of that line, as
+      # [class, opening_line]. Built once per source: rescanning from line 1
+      # for every trailing comment is quadratic, and on a comment-dense file
+      # that cost dominates parsing entirely.
+      def active_scope_map
+        @active_scope_map ||= build_active_scope_map
+      end
+
+      def build_active_scope_map
+        map = {}
+        stack = []
+        (1..source_line_count).each do |ln|
+          map[ln] = stack.last
+          content = keyword_scannable(line_content_for(ln).to_s.strip)
+          next if content.empty? || content.start_with?("--")
+
+          line_events(content).each do |_offset, kind, klass|
+            kind == :open ? stack << [klass, ln] : stack.pop
+          end
+        end
+        map
+      end
+
+      # Opener/closer events on one line, ordered by where they appear.
+      # EVERY occurrence is collected, not just the first: a line holding two
+      # complete IF blocks contributes two openers and two closers, and
+      # recording only one opener would over-pop the enclosing construct.
+      def line_events(content)
+        events = []
+        OPENERS.each do |pattern, klass|
+          content.enum_for(:scan, pattern).each do
+            events << [Regexp.last_match.begin(0), :open, klass]
+          end
+        end
+        content.enum_for(:scan, CLOSERS).each do
+          events << [Regexp.last_match.begin(0), :close, nil]
+        end
+        events.sort_by(&:first)
+      end
+
+      def closing_keyword_after(line)
+        probe = line + 1
+        # Skip further comment lines AND blank lines: a comment separated
+        # from its closing keyword by an empty line still closes that body.
+        while probe <= source_line_count
+          content = line_content_for(probe).to_s.strip
+          break unless content.empty? || content.start_with?("--")
+
+          probe += 1
+        end
+        content = line_content_for(probe).to_s.strip
+        CLOSING_KEYWORDS.each do |pattern, owner_region|
+          return [*owner_region, probe] if content.match?(pattern)
+        end
+        [nil, nil, nil]
+      end
+
+      def statement_region_for(line, nodes)
+        candidates = nodes.select do |n|
+          n[:line] && n[:end_line] && n[:line] <= line && n[:end_line] >= line &&
+            (n[:node].is_a?(Model::Statement) || function_rule_procedure?(n[:node]))
+        end
+        enclosing = innermost_candidate(candidates)
+        return [nil, nil, nil] unless enclosing
+
+        children = nodes.select do |n|
+          n[:owner].equal?(enclosing[:node]) &&
+            STATEMENT_REGIONS.include?(n[:collection]) && n[:line]
+        end
+        return [enclosing, nil, nil] if children.empty?
+
+        preceding = children.select { |n| n[:line] < line }.max_by { |n| n[:position] }
+        following = children.select { |n| n[:line] > line }.min_by { |n| n[:position] }
+        region_attr = region_attr_for(line, preceding, following)
+        return [enclosing, nil, nil] unless region_attr
+
+        [enclosing, children.select { |n| n[:collection] == region_attr }, region_attr]
+      end
+
+      # Node end lines are child-derived approximations, so a parent's span
+      # can come out SMALLER than a child's and span size alone picks the
+      # wrong container. Ownership links are exact: drop every candidate
+      # that is an ancestor of another candidate, then pick the smallest
+      # span among the true leaves.
+      def innermost_candidate(candidates)
+        return candidates.first if candidates.length <= 1
+
+        owner_of = owner_map
+        ancestors = Set.new.compare_by_identity
+        candidates.each do |cand|
+          current = owner_of[cand[:node]]
+          while current
+            ancestors << current
+            current = owner_of[current]
+          end
+        end
+
+        leaves = candidates.reject { |n| ancestors.include?(n[:node]) }
+        (leaves.empty? ? candidates : leaves).min_by { |n| n[:end_line] - n[:line] }
+      end
+
+      # The node index is immutable during attachment, so its ownership map
+      # only needs to be built once for all body remarks.
+      def owner_map
+        # Identity comparison must be enabled BEFORE the hash is populated.
+        # Model elements compare by value, so two distinct-but-equal nodes
+        # would collapse into one entry during a plain build, and switching
+        # to identity afterwards cannot recover the lost entry.
+        @owner_map ||= @node_index.nodes.each_with_object(
+          {}.compare_by_identity,
+        ) { |n, map| map[n[:node]] = n[:owner] }
+      end
+
+      # The keyword that opens each region, for regions that follow another
+      # region of the same owner. A comment in the gap belongs to whichever
+      # side of this keyword it was written on.
+      REGION_OPENERS = {
+        else_statements: /\A(?:.*;)?\s*ELSE(?:\s*--.*)?\z/i,
+        otherwise_statements: /\A\s*OTHERWISE\b/i,
+      }.freeze
+
+      # A comment between two regions of the same owner — between the THEN
+      # body and ELSE, or between the last CASE action and OTHERWISE — sits
+      # on one side of the keyword that opens the second region. The gap can
+      # hold only that keyword and comments, so scanning it is exact.
+      # Comment lines are skipped so prose mentioning the keyword cannot
+      # match.
+      def region_attr_for(line, preceding, following)
+        return following&.dig(:collection) unless preceding
+
+        following_attr = following&.dig(:collection)
+        opener = REGION_OPENERS[following_attr]
+        if opener && following_attr != preceding[:collection]
+          opener_line = (preceding[:end_line]...following[:line]).find do |ln|
+            content = line_content_for(ln).strip
+            !content.start_with?("--") && opener.match?(content)
+          end
+          return following_attr if opener_line && line > opener_line
+        end
+
+        preceding[:collection]
       end
 
       # ----- Tag resolution (within a scope) -----
@@ -515,7 +845,8 @@ module Expressir
 
       # ----- Remark storage -----
 
-      def add_remark(node, text, format: Model::RemarkFormat::TAIL, tag: nil)
+      def add_remark(node, text, format: Model::RemarkFormat::TAIL, tag: nil,
+                     placement: nil, region: nil)
         return unless node
         return unless node.is_a?(Model::ModelElement)
 
@@ -526,7 +857,9 @@ module Expressir
           end
 
           if tag.nil?
-            remark_info = Model::RemarkInfo.new(text: text, format: format)
+            remark_info = Model::RemarkInfo.new(text: text, format: format,
+                                                placement: placement,
+                                                region: region)
             node.untagged_remarks ||= []
             node.untagged_remarks << remark_info
           end
@@ -625,6 +958,10 @@ module Expressir
         return "" if line_num < 1 || line_num > lines.length
 
         lines[line_num - 1]
+      end
+
+      def source_line_count
+        source_lines_for_where_clause.length
       end
     end
   end

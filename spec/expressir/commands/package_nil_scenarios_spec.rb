@@ -176,7 +176,7 @@ RSpec.describe Expressir::Commands::Package,
       empty_repo = Expressir::Model::Repository.new
       empty_repo.instance_variable_set(:@schemas, [])
 
-      Zip::File.open(empty_package_path, Zip::File::CREATE) do |zip|
+      Zip::File.open(empty_package_path, create: true) do |zip|
         metadata = Expressir::Package::Metadata.new(
           name: "Empty Package",
           version: "1.0.0",
@@ -325,7 +325,7 @@ RSpec.describe Expressir::Commands::Package,
 
       it "handles ZIP with missing entries" do
         # Create ZIP with missing required files
-        Zip::File.open(corrupted_package_path, Zip::File::CREATE) do |zip|
+        Zip::File.open(corrupted_package_path, create: true) do |zip|
           zip.get_output_stream("dummy.txt") { |s| s.write("test") }
         end
 
@@ -341,7 +341,7 @@ RSpec.describe Expressir::Commands::Package,
     describe "#info" do
       it "handles package with missing metadata" do
         # Create ZIP without metadata
-        Zip::File.open(corrupted_package_path, Zip::File::CREATE) do |zip|
+        Zip::File.open(corrupted_package_path, create: true) do |zip|
           zip.get_output_stream("dummy.txt") { |s| s.write("test") }
         end
 
@@ -354,7 +354,7 @@ RSpec.describe Expressir::Commands::Package,
 
       it "handles package with corrupted metadata" do
         # Create ZIP with invalid metadata
-        Zip::File.open(corrupted_package_path, Zip::File::CREATE) do |zip|
+        Zip::File.open(corrupted_package_path, create: true) do |zip|
           zip.get_output_stream("metadata.yaml") do |s|
             s.write("invalid: yaml: content:")
           end
@@ -371,7 +371,7 @@ RSpec.describe Expressir::Commands::Package,
     describe "#validate" do
       it "handles package with invalid structure" do
         # Create ZIP with minimal invalid structure
-        Zip::File.open(corrupted_package_path, Zip::File::CREATE) do |zip|
+        Zip::File.open(corrupted_package_path, create: true) do |zip|
           metadata = Expressir::Package::Metadata.new(
             name: "Invalid Package",
             version: "1.0.0",

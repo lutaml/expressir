@@ -383,7 +383,7 @@ module Expressir
           zip.each do |entry|
             dest_path = File.join(output_dir, entry.name)
             FileUtils.mkdir_p(File.dirname(dest_path))
-            entry.extract(dest_path) unless File.exist?(dest_path)
+            entry.extract(entry.name, destination_directory: output_dir) unless File.exist?(dest_path)
           end
         end
 

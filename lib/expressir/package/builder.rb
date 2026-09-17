@@ -31,7 +31,7 @@ module Expressir
         end
 
         # Create ZIP package
-        Zip::File.open(output_path, Zip::File::CREATE) do |zip|
+        Zip::File.open(output_path, create: true) do |zip|
           add_metadata(zip, metadata)
           add_schemas(zip, repository, options)
           add_indexes(zip, repository)

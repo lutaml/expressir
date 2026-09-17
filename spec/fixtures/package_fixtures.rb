@@ -10,7 +10,7 @@ module Expressir
       class << self
         # Create a package with nil metadata fields
         def create_nil_metadata_package(path)
-          Zip::File.open(path, Zip::File::CREATE) do |zip|
+          Zip::File.open(path, create: true) do |zip|
             # Metadata with nil fields
             metadata_hash = {
               "name" => "Test Package",
@@ -43,7 +43,7 @@ module Expressir
 
         # Create a package with empty string metadata fields
         def create_empty_metadata_package(path)
-          Zip::File.open(path, Zip::File::CREATE) do |zip|
+          Zip::File.open(path, create: true) do |zip|
             metadata_hash = {
               "name" => "",
               "version" => "",
@@ -71,7 +71,7 @@ module Expressir
 
         # Create a package with completely empty repository
         def create_empty_repository_package(path)
-          Zip::File.open(path, Zip::File::CREATE) do |zip|
+          Zip::File.open(path, create: true) do |zip|
             metadata = Expressir::Package::Metadata.new(
               name: "Empty Repository Package",
               version: "1.0.0",
@@ -98,7 +98,7 @@ module Expressir
 
         # Create a package with schemas but nil entities/types/functions
         def create_nil_collections_package(path)
-          Zip::File.open(path, Zip::File::CREATE) do |zip|
+          Zip::File.open(path, create: true) do |zip|
             metadata = Expressir::Package::Metadata.new(
               name: "Nil Collections Package",
               version: "1.0.0",
@@ -136,7 +136,7 @@ module Expressir
 
         # Create a package with entities that have nil attributes
         def create_nil_attributes_package(path)
-          Zip::File.open(path, Zip::File::CREATE) do |zip|
+          Zip::File.open(path, create: true) do |zip|
             metadata = Expressir::Package::Metadata.new(
               name: "Nil Attributes Package",
               version: "1.0.0",
@@ -175,7 +175,7 @@ module Expressir
 
         # Create a package missing critical files
         def create_missing_files_package(path)
-          Zip::File.open(path, Zip::File::CREATE) do |zip|
+          Zip::File.open(path, create: true) do |zip|
             # Only add metadata, missing everything else
             metadata = Expressir::Package::Metadata.new(
               name: "Missing Files Package",
@@ -193,7 +193,7 @@ module Expressir
 
         # Create a package with corrupted files
         def create_corrupted_package(path)
-          Zip::File.open(path, Zip::File::CREATE) do |zip|
+          Zip::File.open(path, create: true) do |zip|
             metadata = Expressir::Package::Metadata.new(
               name: "Corrupted Package",
               version: "1.0.0",
@@ -217,7 +217,7 @@ module Expressir
 
         # Create a package with malformed YAML
         def create_malformed_yaml_package(path)
-          Zip::File.open(path, Zip::File::CREATE) do |zip|
+          Zip::File.open(path, create: true) do |zip|
             # Malformed YAML metadata
             zip.get_output_stream("metadata.yaml") do |s|
               s.write("invalid: yaml: syntax: [unclosed")
@@ -227,7 +227,7 @@ module Expressir
 
         # Create a package for testing search with no results
         def create_empty_search_package(path)
-          Zip::File.open(path, Zip::File::CREATE) do |zip|
+          Zip::File.open(path, create: true) do |zip|
             metadata = Expressir::Package::Metadata.new(
               name: "Empty Search Package",
               version: "1.0.0",
@@ -261,7 +261,7 @@ module Expressir
 
         # Create a package with mixed nil and valid data
         def create_mixed_data_package(path)
-          Zip::File.open(path, Zip::File::CREATE) do |zip|
+          Zip::File.open(path, create: true) do |zip|
             metadata = Expressir::Package::Metadata.new(
               name: "Mixed Data Package",
               version: "1.0.0",

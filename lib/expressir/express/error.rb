@@ -38,6 +38,13 @@ module Expressir
         end
       end
 
+      # Error raised when a cache file is not a valid cache file or fails integrity validation
+      class CacheCorruptedError < ExpressError
+        def initialize(message = "Cache file is corrupted or not a valid Expressir cache file")
+          super
+        end
+      end
+
       # Base class for visitor-related errors
       class VisitorError < ExpressError; end
 

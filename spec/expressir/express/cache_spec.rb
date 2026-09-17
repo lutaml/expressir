@@ -71,4 +71,59 @@ RSpec.describe Expressir::Express::Cache do
       end
     end
   end
+
+  describe "cache integrity" do
+    let(:repository) { Expressir::Model::Repository.new }
+    let(:temp_file) { Tempfile.new }
+
+    after do
+      temp_file.close
+      temp_file.unlink
+    end
+
+    it "detects a corrupted cache file" do
+      described_class.to_file(temp_file, repository,
+                              test_overwrite_version: TEST_VERSION)
+      raw = File.binread(temp_file)
+      raw.setbyte(raw.bytesize - 5, raw.getbyte(raw.bytesize - 5) ^ 0xFF)
+      File.binwrite(temp_file, raw)
+
+      expect do
+        described_class.from_file(temp_file,
+                                  test_overwrite_version: TEST_VERSION)
+      end.to raise_error(Expressir::Express::Error::CacheCorruptedError)
+    end
+
+    it "detects a truncated cache file" do
+      described_class.to_file(temp_file, repository,
+                              test_overwrite_version: TEST_VERSION)
+      File.binwrite(temp_file, File.binread(temp_file)[0, 20])
+
+      expect do
+        described_class.from_file(temp_file,
+                                  test_overwrite_version: TEST_VERSION)
+      end.to raise_error(Expressir::Express::Error::CacheCorruptedError)
+    end
+
+    it "rejects a file that is not an Expressir cache" do
+      File.binwrite(temp_file, "not a cache at all")
+
+      expect do
+        described_class.from_file(temp_file,
+                                  test_overwrite_version: TEST_VERSION)
+      end.to raise_error(Expressir::Express::Error::CacheCorruptedError)
+    end
+
+    it "round-trips model content through Marshal" do
+      schema = Expressir::Model::Declarations::Schema.new(id: "s")
+      repository.files = [Expressir::Model::ExpFile.new(schemas: [schema])]
+
+      described_class.to_file(temp_file, repository,
+                              test_overwrite_version: TEST_VERSION)
+      result = described_class.from_file(temp_file,
+                                         test_overwrite_version: TEST_VERSION)
+
+      expect(result.content.files.first.schemas.first.id).to eq("s")
+    end
+  end
 end

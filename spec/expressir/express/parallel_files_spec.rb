@@ -17,7 +17,7 @@ RSpec.describe Expressir::Express::ParallelFiles do
   it "parses files in parallel and returns the same schemas as sequential" do
     skip "needs at least 3 fixture files" if files.size < 3
 
-    parallel = parse(files)
+    parallel = parse(files, max_processes: 4)
     sequential = parse(files, max_processes: 1)
 
     parallel_ids = parallel.files.flat_map(&:schemas).map(&:id)
@@ -30,7 +30,7 @@ RSpec.describe Expressir::Express::ParallelFiles do
   it "preserves file order" do
     skip "needs at least 3 fixture files" if files.size < 3
 
-    repository = parse(files)
+    repository = parse(files, max_processes: 4)
     expect(repository.files.map { |f| f.schemas.first.id }).to eq(
       parse(files, max_processes: 1).files.map { |f| f.schemas.first.id },
     )
@@ -40,7 +40,8 @@ RSpec.describe Expressir::Express::ParallelFiles do
     skip "needs at least 3 fixture files" if files.size < 3
 
     yielded = []
-    Expressir::Express::Parser.from_files(files, skip_references: true) do |file, _schemas, error|
+    Expressir::Express::Parser.from_files(files, skip_references: true,
+                                                 max_processes: 4) do |file, _schemas, error|
       yielded << [File.basename(file), error]
     end
 
@@ -54,7 +55,7 @@ RSpec.describe Expressir::Express::ParallelFiles do
     bad.flush
     paths = files + [bad.path]
 
-    repository = parse(paths)
+    repository = parse(paths, max_processes: 4)
     expect(repository.files.compact.size).to eq(files.size)
     expect(repository.files.last).to be_nil
   end
@@ -62,13 +63,13 @@ RSpec.describe Expressir::Express::ParallelFiles do
   it "propagates other errors" do
     missing = files + ["/nonexistent/schema.exp"]
 
-    expect { parse(missing) }.to raise_error(Errno::ENOENT)
+    expect { parse(missing, max_processes: 4) }.to raise_error(Errno::ENOENT)
   end
 
-  it "uses the sequential path for fewer than 3 files" do
-    expect(described_class.sequential?(["a.exp"], 4)).to be(true)
-    expect(described_class.sequential?(["a.exp", "b.exp"], 4)).to be(true)
+  it "does not fork unless parallelism is explicitly requested" do
+    expect(described_class.sequential?(%w[a.exp b.exp c.exp], nil)).to be(true)
     expect(described_class.sequential?(%w[a.exp b.exp c.exp], 1)).to be(true)
+    expect(described_class.sequential?(%w[a.exp b.exp], 4)).to be(true)
     expect(described_class.sequential?(%w[a.exp b.exp c.exp], 4)).to be(false)
   end
 end

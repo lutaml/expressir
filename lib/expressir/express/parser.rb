@@ -101,8 +101,7 @@ module Expressir
       # @return [Model::Repository] Repository containing all parsed ExpFiles
       def self.from_files(files, skip_references: nil, include_source: nil,
 root_path: nil, use_native: nil, max_processes: nil, &progress)
-        gate = max_processes || ParallelFiles::DEFAULT_MAX_PROCESSES
-        all_exp_files = if ParallelFiles.sequential?(files, gate)
+        all_exp_files = if ParallelFiles.sequential?(files, max_processes)
                           parse_files_sequentially(
                             files, skip_references: skip_references, include_source: include_source,
                                    root_path: root_path, use_native: use_native

@@ -13,8 +13,12 @@ module Expressir
       DEFAULT_MAX_PROCESSES = 4
       FRAME_HEADER_BYTES = 4
 
+      # Forking is never the default: a library must not spawn processes on
+      # behalf of its host (forked children inherit broken thread and lock
+      # state, and fork does not exist on all Rubies). Parallelism requires
+      # an explicit max_processes > 1 from the caller.
       def self.sequential?(files, max_processes)
-        max_processes <= 1 || files.size < 3
+        max_processes.nil? || max_processes <= 1 || files.size < 3
       end
 
       # @param files [Array<String>] EXPRESS file paths

@@ -354,4 +354,30 @@ RSpec.describe Expressir::Model::ModelElement do
       expect(described_class.collection_attributes_list).to eq([])
     end
   end
+
+  describe "#source" do
+    let(:source) do
+      <<~EXP
+        SCHEMA demo;
+        ENTITY person;
+          name : STRING;
+        END_ENTITY;
+        END_SCHEMA;
+      EXP
+    end
+    let(:exp_file) { Expressir::Express::Parser.from_exp(source) }
+    let(:entity) { exp_file.schemas.first.entities.first }
+
+    it "memoizes the formatted source per node" do
+      first = entity.source
+      expect(entity.source).to equal(first)
+    end
+
+    it "keeps the formatted reader independent of the stored raw source" do
+      formatted = entity.source
+      entity.source = "RAW SPAN"
+      expect(entity.source).to eq(formatted)
+      expect(entity.source).not_to eq("RAW SPAN")
+    end
+  end
 end

@@ -81,4 +81,38 @@ RSpec.describe Expressir::Express::RemarkAttacher do
       expect(attacher.instance_variable_get(:@node_index)).to be_nil
     end
   end
+
+  describe "#where_clause_line_index" do
+    let(:source) do
+      <<~EXP
+        SCHEMA demo;
+        RULE size_check FOR (item) IS
+          WHERE valid_count : SIZEOF(item) > 0;
+        END_RULE;
+        RULE other_check FOR (thing) IS
+          WHERE VALID_COUNT : SIZEOF(thing) > 1;
+        END_RULE;
+        END_SCHEMA;
+      EXP
+    end
+    let(:attacher) { described_class.new(source) }
+
+    it "maps WHERE labels to their line numbers, case-insensitively" do
+      index = attacher.send(:where_clause_line_index)
+      expect(index.keys).to contain_exactly("valid_count", "VALID_COUNT")
+    end
+
+    it "collects every occurrence of a repeated label in line order" do
+      doubled = source + source
+      index = described_class.new(doubled).send(:where_clause_line_index)
+      lines = index["valid_count"].sort
+      expect(lines.length).to eq(2)
+      expect(lines).to eq(lines.sort)
+    end
+
+    it "does not treat ordinary lines as WHERE clauses" do
+      index = attacher.send(:where_clause_line_index)
+      expect(index).not_to have_key("item")
+    end
+  end
 end

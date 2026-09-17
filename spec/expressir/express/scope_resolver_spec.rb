@@ -65,4 +65,61 @@ RSpec.describe Expressir::Express::ScopeResolver do
     scope_collections = Expressir::Model::Declarations::Schema::SCOPE_DECL_COLLECTIONS
     expect(scope_collections).to all(satisfy { |c| schema_collections.include?(c) })
   end
+
+  describe "#find_by_position with the bucketed index" do
+    # Synthetic positioned nodes crossing the 1024-line bucket boundary:
+    # the bucketed lookup must return exactly what the linear scan did,
+    # including order-sensitive innermost selection.
+    let(:schema_node) { Expressir::Model::Declarations::Schema.new }
+    let(:entity_node) { Expressir::Model::Declarations::Entity.new }
+    let(:function_node) { Expressir::Model::Declarations::Function.new }
+
+    def node_entry(node, line, end_line)
+      { node: node, line: line, end_line: end_line, position: nil,
+        owner: nil, collection: nil }
+    end
+
+    def resolver_for(nodes)
+      described_class.new(source: "", model: nil, nodes_with_positions: nodes)
+    end
+
+    it "resolves a line inside a node spanning several 1024-line buckets" do
+      nodes = [
+        node_entry(schema_node, 1, 5000),
+        node_entry(entity_node, 2000, 3000),
+      ]
+      expect(resolver_for(nodes).send(:find_by_position, 2_500)).to be(entity_node)
+    end
+
+    it "falls back to the outer node outside inner spans" do
+      nodes = [
+        node_entry(schema_node, 1, 5000),
+        node_entry(entity_node, 2000, 3000),
+      ]
+      expect(resolver_for(nodes).send(:find_by_position, 1_500)).to be(schema_node)
+    end
+
+    it "selects the last containing scope container in index order" do
+      nodes = [
+        node_entry(schema_node, 1, 5000),
+        node_entry(entity_node, 2000, 3000),
+        node_entry(function_node, 2100, 2200),
+      ]
+      expect(resolver_for(nodes).send(:find_by_position, 2_150)).to be(function_node)
+    end
+
+    it "never returns Repository even when it spans the line" do
+      repository = Expressir::Model::Repository.new
+      nodes = [
+        node_entry(repository, 1, 9999),
+        node_entry(schema_node, 1, 5000),
+      ]
+      expect(resolver_for(nodes).send(:find_by_position, 100)).to be(schema_node)
+    end
+
+    it "returns nil when no node covers the line" do
+      nodes = [node_entry(entity_node, 2000, 3000)]
+      expect(resolver_for(nodes).send(:find_by_position, 4_097)).to be_nil
+    end
+  end
 end

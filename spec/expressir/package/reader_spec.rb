@@ -94,7 +94,7 @@ RSpec.describe Expressir::Package::Reader do
     context "with missing metadata" do
       it "raises error" do
         # Create a ZIP without metadata
-        Zip::File.open(package_path, Zip::File::CREATE) do |zip|
+        Zip::File.open(package_path, create: true) do |zip|
           zip.get_output_stream("dummy.txt") { |s| s.write("test") }
         end
 
@@ -172,7 +172,7 @@ RSpec.describe Expressir::Package::Reader do
     context "with bare mode and EXPRESS files" do
       it "parses EXPRESS files when present" do
         # Create a package with EXPRESS files
-        Zip::File.open(package_path, Zip::File::CREATE) do |zip|
+        Zip::File.open(package_path, create: true) do |zip|
           # Add metadata
           metadata = Expressir::Package::Metadata.new(
             name: "Test",
@@ -319,7 +319,7 @@ RSpec.describe Expressir::Package::Reader do
   describe "error handling" do
     it "handles missing serialized repository gracefully" do
       # Create package without serialized repository
-      Zip::File.open(package_path, Zip::File::CREATE) do |zip|
+      Zip::File.open(package_path, create: true) do |zip|
         metadata = Expressir::Package::Metadata.new(
           name: "Test",
           version: "1.0",
@@ -339,7 +339,7 @@ RSpec.describe Expressir::Package::Reader do
     end
 
     it "handles unknown serialization format" do
-      Zip::File.open(package_path, Zip::File::CREATE) do |zip|
+      Zip::File.open(package_path, create: true) do |zip|
         metadata = Expressir::Package::Metadata.new(
           name: "Test",
           version: "1.0",

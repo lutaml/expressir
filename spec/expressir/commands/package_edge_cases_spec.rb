@@ -20,7 +20,7 @@ RSpec.describe Expressir::Commands::Package,
   describe "malformed package handling" do
     context "with incomplete package structure" do
       before do
-        Zip::File.open(test_package, Zip::File::CREATE) do |zip|
+        Zip::File.open(test_package, create: true) do |zip|
           # Only add metadata, missing other required files
           metadata = Expressir::Package::Metadata.new(
             name: "Incomplete Package",
@@ -56,7 +56,7 @@ RSpec.describe Expressir::Commands::Package,
 
     context "with corrupted internal files" do
       before do
-        Zip::File.open(test_package, Zip::File::CREATE) do |zip|
+        Zip::File.open(test_package, create: true) do |zip|
           metadata = Expressir::Package::Metadata.new(
             name: "Corrupted Package",
             version: "1.0.0",
@@ -143,7 +143,7 @@ RSpec.describe Expressir::Commands::Package,
     it "handles package file being deleted during operation" do
       # Create package
       empty_repo = Expressir::Model::Repository.new
-      Zip::File.open(test_package, Zip::File::CREATE) do |zip|
+      Zip::File.open(test_package, create: true) do |zip|
         metadata = Expressir::Package::Metadata.new(
           name: "Test Package",
           version: "1.0.0",
@@ -176,7 +176,7 @@ RSpec.describe Expressir::Commands::Package,
           r.build_indexes
         end
 
-        Zip::File.open(test_package, Zip::File::CREATE) do |zip|
+        Zip::File.open(test_package, create: true) do |zip|
           metadata = Expressir::Package::Metadata.new(
             name: "Test Package",
             version: "1.0.0",
@@ -255,7 +255,7 @@ RSpec.describe Expressir::Commands::Package,
           r.build_indexes
         end
 
-        Zip::File.open(test_package, Zip::File::CREATE) do |zip|
+        Zip::File.open(test_package, create: true) do |zip|
           metadata = Expressir::Package::Metadata.new(
             name: "Test Package",
             version: "1.0.0",
@@ -301,7 +301,7 @@ RSpec.describe Expressir::Commands::Package,
 
           before do
             repo = Expressir::Model::Repository.new
-            Zip::File.open(format_package, Zip::File::CREATE) do |zip|
+            Zip::File.open(format_package, create: true) do |zip|
               metadata = Expressir::Package::Metadata.new(
                 name: "Test Package",
                 version: "1.0.0",
@@ -365,7 +365,7 @@ RSpec.describe Expressir::Commands::Package,
     end
 
     before do
-      Zip::File.open(test_package, Zip::File::CREATE) do |zip|
+      Zip::File.open(test_package, create: true) do |zip|
         metadata = Expressir::Package::Metadata.new(
           name: "Test Package",
           version: "1.0.0",
@@ -482,7 +482,7 @@ RSpec.describe Expressir::Commands::Package,
       end
 
       before do
-        Zip::File.open(test_package, Zip::File::CREATE) do |zip|
+        Zip::File.open(test_package, create: true) do |zip|
           metadata = Expressir::Package::Metadata.new(
             name: "Complex Package",
             version: "1.0.0",

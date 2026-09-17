@@ -24,7 +24,7 @@ RSpec.describe Expressir::Commands::Package,
       repo = Expressir::Model::Repository.new
       repo.instance_variable_set(:@schemas, [])
 
-      Zip::File.open(nil_description_package, Zip::File::CREATE) do |zip|
+      Zip::File.open(nil_description_package, create: true) do |zip|
         # Create metadata hash with nil description - the original bug scenario
         metadata_hash = {
           "name" => "Test Package",
@@ -244,7 +244,7 @@ RSpec.describe Expressir::Commands::Package,
 
       repo.instance_variable_set(:@schemas, [schema])
 
-      Zip::File.open(nil_search_package, Zip::File::CREATE) do |zip|
+      Zip::File.open(nil_search_package, create: true) do |zip|
         metadata = Expressir::Package::Metadata.new(name: "Nil Search Test",
                                                     version: "1.0.0")
         zip.get_output_stream("metadata.yaml") { |s| s.write(metadata.to_yaml) }

@@ -42,7 +42,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "paint"
   spec.add_dependency "parsanol", "~> 1.3.9", ">= 1.3.9"
   spec.add_dependency "ruby-progressbar", "~> 1.11"
-  spec.add_dependency "rubyzip", "~> 2.3"
+  spec.add_dependency "rubyzip", "~> 3.4"
   spec.add_dependency "table_tennis"
   spec.add_dependency "thor", "~> 1.0"
   # Native YAML/JSON engine (lutaml-model opt-in by bundle contents)

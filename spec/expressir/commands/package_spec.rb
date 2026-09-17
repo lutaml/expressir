@@ -105,7 +105,7 @@ RSpec.describe Expressir::Commands::Package do
                                                           file: nil)
       repo.add_schema(schema)
 
-      Zip::File.open(test_package, Zip::File::CREATE) do |zip|
+      Zip::File.open(test_package, create: true) do |zip|
         metadata = Expressir::Package::Metadata.new(
           name: "Test Package",
           version: "1.0.0",
@@ -168,7 +168,7 @@ RSpec.describe Expressir::Commands::Package do
 
       before do
         repo = Expressir::Model::Repository.new
-        Zip::File.open(nil_package, Zip::File::CREATE) do |zip|
+        Zip::File.open(nil_package, create: true) do |zip|
           # Create metadata with nil description to test the original bug
           metadata_hash = {
             "name" => "Test Package",
@@ -307,7 +307,7 @@ RSpec.describe Expressir::Commands::Package do
       repo.add_schema(schema)
       repo.build_indexes
 
-      Zip::File.open(list_test_package, Zip::File::CREATE) do |zip|
+      Zip::File.open(list_test_package, create: true) do |zip|
         metadata = Expressir::Package::Metadata.new(name: "List Test",
                                                     version: "1.0.0")
         zip.get_output_stream("metadata.yaml") { |s| s.write(metadata.to_yaml) }
@@ -330,7 +330,7 @@ RSpec.describe Expressir::Commands::Package do
       empty_repo.instance_variable_set(:@schemas, [])
       empty_repo.build_indexes
 
-      Zip::File.open(empty_list_package, Zip::File::CREATE) do |zip|
+      Zip::File.open(empty_list_package, create: true) do |zip|
         metadata = Expressir::Package::Metadata.new(name: "Empty List Test",
                                                     version: "1.0.0")
         zip.get_output_stream("metadata.yaml") { |s| s.write(metadata.to_yaml) }
@@ -443,7 +443,7 @@ RSpec.describe Expressir::Commands::Package do
       repo.add_schema(schema)
       repo.build_indexes
 
-      Zip::File.open(search_test_package, Zip::File::CREATE) do |zip|
+      Zip::File.open(search_test_package, create: true) do |zip|
         metadata = Expressir::Package::Metadata.new(name: "Search Test",
                                                     version: "1.0.0")
         zip.get_output_stream("metadata.yaml") { |s| s.write(metadata.to_yaml) }
@@ -459,7 +459,7 @@ RSpec.describe Expressir::Commands::Package do
       empty_repo.instance_variable_set(:@schemas, [])
       empty_repo.build_indexes
 
-      Zip::File.open(empty_search_package, Zip::File::CREATE) do |zip|
+      Zip::File.open(empty_search_package, create: true) do |zip|
         metadata = Expressir::Package::Metadata.new(name: "Empty Search Test",
                                                     version: "1.0.0")
         zip.get_output_stream("metadata.yaml") { |s| s.write(metadata.to_yaml) }

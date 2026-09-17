@@ -45,4 +45,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rubyzip", "~> 2.3"
   spec.add_dependency "table_tennis"
   spec.add_dependency "thor", "~> 1.0"
+  # Native YAML/JSON engine (lutaml-model opt-in by bundle contents)
+  spec.add_dependency "yeptris", "~> 0.6.1"
 end

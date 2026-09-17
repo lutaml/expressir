@@ -35,6 +35,10 @@ module Expressir
       # via `child_attributes :foo, :bar, ...`. See TODO.bugs/15.
       EXPRESSION_CHILDREN = Model::ModelElement.child_attributes_registry
 
+      # `WHERE <label> :` clause headers; the captured label maps to the
+      # 1-based line number(s) it appears on.
+      WHERE_CLAUSE_PATTERN = /\A\s*WHERE\s+(\w+)\s*:/i
+
       def initialize(source)
         @source = source
         @attached_spans = Set.new
@@ -71,6 +75,8 @@ module Expressir
         @line_map = nil
         @owner_map = nil
         @active_scope_map = nil
+        @source_lines_for_where_clause = nil
+        @where_clause_line_index = nil
       end
 
       private
@@ -658,27 +664,39 @@ module Expressir
         where_rules = get_collection(scope, :where_rules)
         return nil unless where_rules&.any?
 
-        lines = source_lines_for_where_clause
+        where_clause_lines = where_clause_line_index
 
         where_rules.each do |wr|
           next unless wr.id
 
-          lines.each_with_index do |line, idx|
-            line_num = idx + 1
+          where_clause_lines.fetch(wr.id, []).each do |line_num|
             next unless line_num < remark_line
 
-            if (line =~ /^\s*WHERE\s+#{Regexp.escape(wr.id)}\s*:/i) && remark_line.between?(line_num, line_num + 5)
-              return create_remark_item(wr, tag)
-            end
+            return create_remark_item(wr, tag) if remark_line.between?(line_num, line_num + 5)
           end
         end
 
         nil
       end
 
+      # Single scan over the source lines mapping each `WHERE <id>:` label to
+      # its 1-based line number, so per-remark lookups stop re-testing every
+      # line against every WHERE rule's regex.
+      def where_clause_line_index
+        @where_clause_line_index ||= begin
+          index = Hash.new { |h, k| h[k] = [] }
+          source_lines_for_where_clause.each_with_index do |line, idx|
+            if (match = line.match(WHERE_CLAUSE_PATTERN))
+              index[match[1]] << (idx + 1)
+            end
+          end
+          index
+        end
+      end
+
       def source_lines_for_where_clause
         # @source is set for the duration of `attach`; freed at the end.
-        @source.lines
+        @source_lines_for_where_clause ||= @source.lines
       end
 
       def find_node_in_statement(stmt, tag)

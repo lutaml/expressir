@@ -50,7 +50,12 @@ module Expressir
         @model = model
         @nodes_with_positions = nodes_with_positions
         @scope_map = nil
+        @source_lines = nil
+        @position_buckets = nil
       end
+
+      # Line-band width for the position fallback index.
+      BUCKET_LINES = 1024
 
       # Returns the innermost Model::ScopeContainer whose source span contains
       # the given 1-based remark line, or nil if none is found.
@@ -69,7 +74,7 @@ module Expressir
         type_state = { line: nil, name: nil }
         rule_state = { line: nil, name: nil }
 
-        @source.lines.each_with_index do |line, idx|
+        source_lines.each_with_index do |line, idx|
           line_num = idx + 1
 
           case line
@@ -131,8 +136,15 @@ module Expressir
         @scope_map ||= build_scope_map
       end
 
+      # Source split into lines, computed once per resolver: both the
+      # scope-map build and find_by_source_text need it, and re-splitting the
+      # whole source per lookup dominates remark attachment on large files.
+      def source_lines
+        @source_lines ||= @source.lines
+      end
+
       def build_scope_map
-        lines = @source.lines
+        lines = source_lines
         map = {}
         return map if lines.empty?
 
@@ -160,10 +172,27 @@ module Expressir
 
       # --- Strategy 2: position-based fallback against the node index ---
 
+      # Nodes bucketed by 1024-line bands: a node spanning [line, end_line]
+      # is registered in every band it overlaps, so a remark-line lookup only
+      # scans nodes that can possibly contain it. Bucket order preserves the
+      # original index order, so select+reverse_each semantics are unchanged.
+      def position_buckets
+        @position_buckets ||= begin
+          buckets = Hash.new { |h, k| h[k] = [] }
+          @nodes_with_positions.each do |n|
+            next unless n[:line] && n[:end_line]
+
+            ((n[:line] / BUCKET_LINES)..(n[:end_line] / BUCKET_LINES)).each do |b|
+              buckets[b] << n
+            end
+          end
+          buckets
+        end
+      end
+
       def find_by_position(remark_line)
-        containing = @nodes_with_positions.select do |n|
-          n[:line] && n[:end_line] &&
-            remark_line >= n[:line] && remark_line <= n[:end_line] &&
+        containing = position_buckets[remark_line / BUCKET_LINES].select do |n|
+          remark_line.between?(n[:line], n[:end_line]) &&
             !n[:node].is_a?(Model::Repository) && !n[:node].is_a?(Model::Cache)
         end
 

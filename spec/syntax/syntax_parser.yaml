@@ -16,6 +16,7 @@ schemas:
   - text: types
     format: tail
   file: spec/syntax/syntax.exp
+  header: schema
   version:
     _class: Expressir::Model::Declarations::SchemaVersion
     value: "{ISO standard 10303 part(41) object(1) version(8)}"

@@ -11,6 +11,7 @@ module Expressir
       attribute :placement, :string
       # For TRAILING remarks, which body of the owner they close.
       attribute :region, :string
+      attribute :source_offset, :integer # byte offset in source text
 
       # Check if this is a tail remark
       # @return [Boolean] True if format is 'tail'

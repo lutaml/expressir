@@ -55,12 +55,24 @@ module Expressir
               return exp_file_node[:node]
             end
           end
-          containing.min_by { |n| n[:end_line] - n[:line] }[:node]
+          # Prefer non-ExpFile nodes (Schema, Entity, etc.) over ExpFile
+          # when both span the same range, since ExpFile is a file-level
+          # container and remarks inside a schema belong to the schema.
+          candidates = containing.reject { |n| n[:node].is_a?(Model::ExpFile) }
+          candidates = containing if candidates.empty?
+          candidates.min_by { |n| n[:end_line] - n[:line] }[:node]
         else
           before = nodes.select do |n|
             n[:end_line] && n[:end_line] < remark_line && semantic?(n[:node])
           end
-          before.max_by { |n| n[:end_line] }[:node] if before.any?
+          if before.any?
+            before.max_by { |n| n[:end_line] }[:node]
+          else
+            # Remark is before all nodes (e.g., preamble comment before SCHEMA).
+            # Attach to the first semantic node.
+            after = nodes.select { |n| n[:line] && semantic?(n[:node]) }
+            after.min_by { |n| n[:line] }[:node] if after.any?
+          end
         end
       end
 

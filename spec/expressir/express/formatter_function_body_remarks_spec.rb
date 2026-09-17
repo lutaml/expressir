@@ -61,11 +61,8 @@ RSpec.describe Expressir::Express::Formatter do
       expect(lines[idx][/\A */].size).to be > lines[idx + 1][/\A */].size
     end
 
-    # Known limitation: a comment between two declarations is not a body
-    # comment, so it keeps its pre-existing schema-level handling. This pins
-    # that state so a later fix updates it deliberately.
-    it "currently drops a schema-level comment between functions" do
-      expect(formatted).not_to include("BETWEEN-FUNCTIONS")
+    it "keeps a schema-level comment between functions" do
+      expect(formatted).to include("BETWEEN-FUNCTIONS")
     end
 
     it "keeps a comment between END_REPEAT and a nested IF in place" do

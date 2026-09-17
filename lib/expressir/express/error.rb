@@ -45,6 +45,13 @@ module Expressir
         end
       end
 
+      # Error raised when parallel file parsing loses a worker or its data
+      class ParallelParseError < ExpressError
+        def initialize(message = "Parallel parsing failed")
+          super
+        end
+      end
+
       # Base class for visitor-related errors
       class VisitorError < ExpressError; end
 

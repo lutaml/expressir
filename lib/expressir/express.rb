@@ -17,6 +17,7 @@ module Expressir
     autoload :LineMap, "#{__dir__}/express/line_map"
     autoload :ModelVisitor, "#{__dir__}/express/model_visitor"
     autoload :NodePositionIndex, "#{__dir__}/express/node_position_index"
+    autoload :ParallelFiles, "#{__dir__}/express/parallel_files"
     autoload :Parser, "#{__dir__}/express/parser"
     autoload :PrettyFormatter, "#{__dir__}/express/pretty_formatter"
     autoload :RemarkAttacher, "#{__dir__}/express/remark_attacher"

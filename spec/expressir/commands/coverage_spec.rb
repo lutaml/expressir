@@ -1,5 +1,6 @@
 require "spec_helper"
 require "stringio"
+require "fileutils"
 
 RSpec.describe Expressir::Commands::Coverage do
   let(:output) { StringIO.new }
@@ -241,8 +242,8 @@ RSpec.describe Expressir::Commands::Coverage do
       unless File.exist?(test_manifest_path)
         File.write(test_manifest_path, {
           "schemas" => {
-            "test_schema_1" => { "path" => "spec/syntax/remark.exp" },
-            "test_schema_2" => { "path" => "spec/expressir/test_undocumented.exp" },
+            "test_schema_1" => { "path" => "../syntax/remark.exp" },
+            "test_schema_2" => { "path" => "../expressir/test_undocumented.exp" },
           },
         }.to_yaml)
       end

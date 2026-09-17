@@ -100,7 +100,33 @@ module Expressir
       # @yield [filename, schemas, error] Optional block called for each file
       # @return [Model::Repository] Repository containing all parsed ExpFiles
       def self.from_files(files, skip_references: nil, include_source: nil,
-root_path: nil, use_native: nil)
+root_path: nil, use_native: nil, max_processes: nil, &progress)
+        gate = max_processes || ParallelFiles::DEFAULT_MAX_PROCESSES
+        all_exp_files = if ParallelFiles.sequential?(files, gate)
+                          parse_files_sequentially(
+                            files, skip_references: skip_references, include_source: include_source,
+                                   root_path: root_path, use_native: use_native
+                          ) do |file, exp_file, error|
+                            progress&.call(file, exp_file&.schemas, error)
+                          end
+                        else
+                          ParallelFiles.run(
+                            files,
+                            max_processes: max_processes,
+                            parse: lambda do |file|
+                              from_file(file, skip_references: true, root_path: root_path,
+                                              use_native: use_native)
+                            end,
+                          ) do |file, exp_file, error|
+                            progress&.call(file, exp_file&.schemas, error)
+                          end
+                        end
+
+        build_repository(all_exp_files, skip_references: skip_references)
+      end
+
+      def self.parse_files_sequentially(files, skip_references: nil,
+include_source: nil, root_path: nil, use_native: nil, &block)
         all_exp_files = []
 
         files.each do |file|
@@ -108,12 +134,16 @@ root_path: nil, use_native: nil)
                                      root_path: root_path, use_native: use_native)
           all_exp_files << exp_file
 
-          yield(file, exp_file&.schemas, nil) if block_given?
+          yield(file, exp_file&.schemas, nil) if block
         rescue StandardError => e
-          yield(file, nil, e) if block_given?
+          yield(file, nil, e) if block
           raise unless e.is_a?(Error::SchemaParseFailure)
         end
 
+        all_exp_files
+      end
+
+      def self.build_repository(all_exp_files, skip_references: nil)
         repository = Model::Repository.new(files: all_exp_files)
 
         unless skip_references

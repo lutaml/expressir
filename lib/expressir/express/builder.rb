@@ -219,6 +219,10 @@ module Expressir
           builder.call(data)
         end
 
+        # Keys containing uppercase need snake-casing; testing the key
+        # directly avoids allocating `to_s` strings per key per pass.
+        UPPERCASE_PATTERN = /[A-Z]/
+
         private
 
         # Cached snake_case conversion
@@ -245,52 +249,39 @@ module Expressir
           when Hash
             return obj if obj.empty?
 
-            # First pass: check if any conversion is needed
+            # Single pass: recurse into container values and note which keys
+            # need snake-casing, so the common no-conversion case allocates
+            # nothing and the conversion case walks the keys once.
             keys = obj.keys
-            needs_conversion = false
             converted_values = nil
+            new_keys = nil
 
-            keys.each do |k|
-              key_str = k.to_s
-              # Check if key needs conversion (has uppercase)
-              if key_str.match?(/[A-Z]/)
-                needs_conversion = true
-              end
-
-              # Check if value needs conversion
+            keys.each_with_index do |k, i|
               val = obj[k]
               case val
               when Hash
-                next if val.empty?
-
-                converted_val = fast_convert_keys(val)
-                if !converted_val.equal?(val) # Identity check - same object?
-                  needs_conversion = true
-                  converted_values ||= {}
-                  converted_values[k] = converted_val
+                unless val.empty?
+                  converted_val = fast_convert_keys(val)
+                  (converted_values ||= {})[k] = converted_val unless converted_val.equal?(val)
                 end
               when Array
-                next if val.empty?
-
-                converted_val = fast_convert_keys(val)
-                if !converted_val.equal?(val)
-                  needs_conversion = true
-                  converted_values ||= {}
-                  converted_values[k] = converted_val
+                unless val.empty?
+                  converted_val = fast_convert_keys(val)
+                  (converted_values ||= {})[k] = converted_val unless converted_val.equal?(val)
                 end
+              end
+
+              if k.match?(UPPERCASE_PATTERN)
+                (new_keys ||= keys.dup)[i] = cached_snake_case(k)
               end
             end
 
-            # Return original if no conversion needed (zero allocation!)
-            return obj unless needs_conversion
+            return obj unless new_keys || converted_values
 
-            # Build result only when necessary
             result = {}
-            keys.each do |k|
-              key_str = k.to_s
-              new_key = key_str.match?(/[A-Z]/) ? cached_snake_case(k) : k
-              new_val = converted_values&.key?(k) ? converted_values[k] : obj[k]
-              result[new_key] = new_val
+            keys.each_with_index do |k, i|
+              key = new_keys&.[](i) || k
+              result[key] = converted_values&.key?(k) ? converted_values[k] : obj[k]
             end
             result
           when Array

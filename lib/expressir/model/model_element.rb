@@ -155,7 +155,12 @@ module Expressir
       end
 
       def source
-        Expressir::Express::SourceFormatter.format(self)
+        # Formatting is not free and callers probe `source` repeatedly while
+        # walking the tree (position index, remark attachment), so the text is
+        # computed once per node. Deliberately NOT @source: that ivar holds
+        # the raw source span lutaml-model's `source=` stores when
+        # include_source is on, and readers must keep seeing formatted text.
+        @formatted_source ||= Expressir::Express::SourceFormatter.format(self) # rubocop:disable Naming/MemoizedInstanceVariableName
       end
 
       # @param [Hash] options

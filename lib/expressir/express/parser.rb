@@ -74,6 +74,8 @@ module Expressir
           exp_file = ::Expressir::Express::Builder.build_with_remarks(ast, source: source,
                                                                            include_source: include_source)
 
+          transfer_header_to_schema(exp_file, source)
+
           exp_file.path = schema_file
           exp_file.schemas.each do |schema|
             schema.file = schema_file
@@ -154,6 +156,8 @@ root_path: nil, use_native: nil)
         exp_file = ::Expressir::Express::Builder.build_with_remarks(ast,
                                                                     source: content,
                                                                     include_source: include_source)
+
+        transfer_header_to_schema(exp_file, content)
 
         exp_file.schemas.each do |schema|
           schema.file = nil
@@ -245,6 +249,28 @@ include_source: nil)
 
         exp_file
       end
+
+      # Transfer file-level untagged remarks that appear before the first
+      # SCHEMA keyword to the first schema's +header+ attribute so they are
+      # accessible via +schema.header+ and through Liquid drops.
+      def self.transfer_header_to_schema(exp_file, source = nil)
+        return unless exp_file.untagged_remarks&.any?
+        return unless exp_file.schemas&.any?
+        return unless source
+
+        schema_pos = source.b.index(/\bSCHEMA\b/)
+        return unless schema_pos
+
+        header_remarks = exp_file.untagged_remarks.select do |r|
+          r.source_offset && r.source_offset < schema_pos
+        end
+        return unless header_remarks.any?
+
+        header_text = header_remarks.map(&:text).join("\n")
+        exp_file.schemas.first.header = header_text
+        exp_file.untagged_remarks -= header_remarks
+      end
+      private_class_method :transfer_header_to_schema
 
       private_class_method :from_exp_streaming
     end

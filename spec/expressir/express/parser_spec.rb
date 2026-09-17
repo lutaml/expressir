@@ -419,12 +419,15 @@ RSpec.describe Expressir::Express::Parser do
         root_path: Expressir.root_path,
       )
 
-      # ExpFile should have preamble remarks (before first schema)
-      file_remarks = repo.untagged_remarks || []
-      expect(file_remarks.length).to eq(3)
+      schema = repo.schemas.first
+      type_decl = schema.types.first
+
+      # Schema should have preamble remarks (inside schema body) + END_SCHEMA remark (4 total)
+      schema_remarks = schema.untagged_remarks || []
+      expect(schema_remarks.length).to eq(4)
 
       # Check preamble remarks (handle both RemarkInfo and String)
-      preamble_remark1 = file_remarks[0]
+      preamble_remark1 = schema_remarks[0]
       if preamble_remark1.is_a?(Expressir::Model::RemarkInfo)
         expect(preamble_remark1.text).to eq("This schema demonstrates Unicode in remarks only")
         expect(preamble_remark1.format).to eq("tail")
@@ -432,7 +435,7 @@ RSpec.describe Expressir::Express::Parser do
         expect(preamble_remark1).to eq("This schema demonstrates Unicode in remarks only")
       end
 
-      preamble_remark2 = file_remarks[1]
+      preamble_remark2 = schema_remarks[1]
       if preamble_remark2.is_a?(Expressir::Model::RemarkInfo)
         expect(preamble_remark2.text).to eq("Japanese: 日本語、中文、한글")
         expect(preamble_remark2.format).to eq("tail")
@@ -441,16 +444,13 @@ RSpec.describe Expressir::Express::Parser do
       end
 
       # Third remark is the embedded multi-line remark
-      preamble_remark3 = file_remarks[2]
+      preamble_remark3 = schema_remarks[2]
       if preamble_remark3.is_a?(Expressir::Model::RemarkInfo)
         expect(preamble_remark3.text).to include("Multi-line remark with Unicode")
         expect(preamble_remark3.format).to eq("embedded")
       else
         expect(preamble_remark3).to include("Multi-line remark with Unicode")
       end
-
-      schema = repo.schemas.first
-      type_decl = schema.types.first
 
       # END_TYPE remark should be attached to the Type, not Schema
       expect(type_decl.untagged_remarks.length).to eq(1)
@@ -464,11 +464,7 @@ RSpec.describe Expressir::Express::Parser do
         expect(type_remark).to eq("Status with Korean: 상태")
       end
 
-      # Schema should have END_SCHEMA remark only (1 total)
-      schema_remarks = schema.untagged_remarks || []
-      expect(schema_remarks.length).to eq(1)
-
-      # Check END_SCHEMA remark
+      # Check END_SCHEMA remark (last on Schema)
       end_remark = schema_remarks.last
       if end_remark.is_a?(Expressir::Model::RemarkInfo)
         expect(end_remark.text).to eq("test_schema")

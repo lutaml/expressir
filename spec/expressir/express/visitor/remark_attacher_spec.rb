@@ -32,7 +32,7 @@ RSpec.describe Expressir::Express::RemarkAttacher do
   end
 
   describe "attach" do
-    it "attaches file-level preamble remarks to ExpFile" do
+    it "attaches remarks inside schema body to Schema" do
       source = <<~EXP
         SCHEMA test_schema;
         -- Schema level remark
@@ -42,9 +42,26 @@ RSpec.describe Expressir::Express::RemarkAttacher do
       EXP
 
       exp_file = Expressir::Express::Parser.from_exp(source)
+      schema = exp_file.schemas.first
 
       expect(exp_file).to be_a(Expressir::Model::ExpFile)
-      expect(exp_file.untagged_remarks).not_to be_empty
+      expect(schema.untagged_remarks).not_to be_empty
+    end
+
+    it "transfers file-level preamble remarks (before SCHEMA) to schema header" do
+      source = <<~EXP
+        (* File-level preamble *)
+        SCHEMA test_schema;
+        ENTITY test_entity;
+        END_ENTITY;
+        END_SCHEMA;
+      EXP
+
+      exp_file = Expressir::Express::Parser.from_exp(source)
+
+      expect(exp_file).to be_a(Expressir::Model::ExpFile)
+      expect(exp_file.untagged_remarks).to be_empty
+      expect(exp_file.schemas.first.header).to eq("File-level preamble")
     end
 
     it "does not attach spurious tail remarks from inside documentation blocks" do

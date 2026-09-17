@@ -180,7 +180,8 @@ module Expressir
           end
 
           if target
-            add_remark(target, remark.text, format: remark.format, tag: remark.tag)
+            add_remark(target, remark.text, format: remark.format, tag: remark.tag,
+                                            source_offset: remark.position)
             @attached_spans << remark.position
           end
         end
@@ -199,7 +200,8 @@ module Expressir
           if end_scope_line?(line_content)
             matched_node = @node_index.node_for_end_scope_at(remark.line, line_content)
             if matched_node
-              add_remark(matched_node, remark.text, format: remark.format, tag: nil)
+              add_remark(matched_node, remark.text, format: remark.format, tag: nil,
+                                                    source_offset: remark.position)
               @attached_spans << remark.position
               next
             end
@@ -215,7 +217,8 @@ module Expressir
 
           matched_node = @node_index.nearest_node_to(remark.line)
           if matched_node
-            add_remark(matched_node, remark.text, format: remark.format, tag: nil)
+            add_remark(matched_node, remark.text, format: remark.format, tag: nil,
+                                                  source_offset: remark.position)
             @attached_spans << remark.position
           end
         end
@@ -846,7 +849,7 @@ module Expressir
       # ----- Remark storage -----
 
       def add_remark(node, text, format: Model::RemarkFormat::TAIL, tag: nil,
-                     placement: nil, region: nil)
+                     placement: nil, region: nil, source_offset: nil)
         return unless node
         return unless node.is_a?(Model::ModelElement)
 
@@ -859,7 +862,8 @@ module Expressir
           if tag.nil?
             remark_info = Model::RemarkInfo.new(text: text, format: format,
                                                 placement: placement,
-                                                region: region)
+                                                region: region,
+                                                source_offset: source_offset)
             node.untagged_remarks ||= []
             node.untagged_remarks << remark_info
           end

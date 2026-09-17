@@ -33,6 +33,7 @@ module Expressir
         attribute :functions, Function, collection: true
         attribute :rules, Rule, collection: true
         attribute :procedures, Procedure, collection: true
+        attribute :header, :string
         attribute :_class, :string, default: -> { self.class.name }
         attribute :selected, :boolean, default: false
         attribute :file_basename, :string
@@ -41,6 +42,7 @@ module Expressir
           map "_class", to: :_class, render_default: true
           map "id", to: :id
           map "file", to: :file
+          map "header", to: :header
           map "remarks", to: :remarks
           map "remark_items", to: :remark_items
           map "version", to: :version
@@ -55,6 +57,7 @@ module Expressir
         end
 
         liquid do
+          map :header, to: :header
           map :formatted, to: :formatted
           map :source, to: :source
           map :full_source, to: :full_source

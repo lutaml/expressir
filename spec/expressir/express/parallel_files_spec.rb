@@ -41,12 +41,26 @@ RSpec.describe Expressir::Express::ParallelFiles do
 
     yielded = []
     Expressir::Express::Parser.from_files(files, skip_references: true,
-                                                 max_processes: 4) do |file, _schemas, error|
-      yielded << [File.basename(file), error]
+                                                 max_processes: 4) do |file, schemas, error|
+      yielded << [File.basename(file), schemas, error]
     end
 
     expect(yielded.map(&:first)).to eq(files.map { |f| File.basename(f) })
     expect(yielded.map(&:last)).to all(be_nil)
+    expect(yielded.map { |_, schemas, _| schemas }).to all(be_an(Array))
+  end
+
+  it "yields schemas for each file on the sequential path" do
+    yielded = []
+    Expressir::Express::Parser.from_files(files.first(2),
+                                          skip_references: true) do |file, schemas, error|
+      yielded << [File.basename(file), schemas, error]
+    end
+
+    expect(yielded.size).to eq(2)
+    expect(yielded.map(&:last)).to all(be_nil)
+    expect(yielded.first[1]).to be_an(Array)
+    expect(yielded.first[1]).to all(be_a(Expressir::Model::Declarations::Schema))
   end
 
   it "skips files that fail with SchemaParseFailure, like the sequential path" do

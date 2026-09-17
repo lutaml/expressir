@@ -133,7 +133,7 @@ include_source: nil, root_path: nil, use_native: nil, &block)
                                      root_path: root_path, use_native: use_native)
           all_exp_files << exp_file
 
-          yield(file, exp_file&.schemas, nil) if block
+          yield(file, exp_file, nil) if block
         rescue StandardError => e
           yield(file, nil, e) if block
           raise unless e.is_a?(Error::SchemaParseFailure)

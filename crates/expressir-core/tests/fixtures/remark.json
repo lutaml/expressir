@@ -1,0 +1,75 @@
+{
+  "schemas": [
+    {
+      "name": "remark_schema",
+      "version": null,
+      "entities": [
+        {
+          "name": "remark_entity",
+          "attributes": [
+            {
+              "name": "remark_attribute"
+            },
+            {
+              "name": "remark_derived_attribute"
+            },
+            {
+              "name": "remark_inverse_attribute"
+            }
+          ],
+          "whereRules": [
+            {
+              "label": "WR1"
+            }
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "remark_type",
+          "whereRules": [
+            {
+              "label": "WR1"
+            }
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "remark_function",
+          "parameters": [
+            "remark_parameter"
+          ]
+        }
+      ],
+      "procedures": [
+        {
+          "name": "remark_procedure",
+          "parameters": [
+            "remark_parameter"
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "name": "remark_rule",
+          "whereRules": [
+            {
+              "label": "WR1"
+            }
+          ]
+        }
+      ],
+      "subtypeConstraints": [
+        {
+          "name": "remark_subtype_constraint"
+        }
+      ],
+      "constants": [
+        {
+          "name": "remark_constant"
+        }
+      ]
+    }
+  ]
+}

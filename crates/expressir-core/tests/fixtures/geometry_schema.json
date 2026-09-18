@@ -1,0 +1,52 @@
+{
+  "schemas": [
+    {
+      "name": "geometry_schema",
+      "version": "{iso standard 10303 part(42) version(13) object(1) geometry-schema(1)}",
+      "entities": [
+        {
+          "name": "point",
+          "attributes": [],
+          "whereRules": []
+        },
+        {
+          "name": "cartesian_point",
+          "attributes": [
+            {
+              "name": "coordinates"
+            }
+          ],
+          "whereRules": []
+        },
+        {
+          "name": "spherical_point",
+          "attributes": [
+            {
+              "name": "r"
+            },
+            {
+              "name": "theta"
+            },
+            {
+              "name": "phi"
+            },
+            {
+              "name": "coordinates"
+            }
+          ],
+          "whereRules": [
+            {
+              "label": "WR1"
+            }
+          ]
+        }
+      ],
+      "types": [],
+      "functions": [],
+      "procedures": [],
+      "rules": [],
+      "subtypeConstraints": [],
+      "constants": []
+    }
+  ]
+}

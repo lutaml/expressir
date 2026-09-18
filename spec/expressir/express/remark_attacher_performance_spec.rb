@@ -37,14 +37,13 @@ RSpec.describe Expressir::Express::RemarkAttacher do
       # The attacher is constructed inside the builder, so there is no
       # instance to hold; counting calls is the only way to assert the
       # invariant, and the count is the whole point of the example.
-      # rubocop:disable RSpec/AnyInstance
+      # rubocop:disable-next RSpec/AnyInstance
       allow_any_instance_of(described_class)
         .to receive(:build_active_scope_map)
         .and_wrap_original do |original, *args|
           builds += 1
           original.call(*args)
         end
-      # rubocop:enable RSpec/AnyInstance
 
       Expressir::Express::Parser.from_exp(source)
 

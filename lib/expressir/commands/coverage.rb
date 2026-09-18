@@ -6,9 +6,6 @@ require "ruby-progressbar"
 module Expressir
   module Commands
     class Coverage < Base
-      DEFAULT_MAX_PROCESSES =
-        Expressir::Express::ParallelFiles::DEFAULT_MAX_PROCESSES
-
       def run(paths)
         if paths.empty?
           exit_with_error "No paths specified. Please provide paths to EXPRESS files or directories."

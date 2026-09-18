@@ -16,7 +16,9 @@ yeptris has since released 0.6.4.1 and 0.6.5.1.
       (`package_fixtures_spec`, `package_spec`, `cache_spec`): 84/84 green on
       0.6.5.1
 - [x] Re-run the failed rake workflow on main (resolves 0.6.5.1)
-- [ ] Confirm the rake workflow on main is green
+- [x] Confirmed: rake green on main after yeptris 0.6.5.3 (mingw FFI
+      constants now defined in ffi.rb; new x64-mingw32/x86_64-darwin-24
+      platform builds) — verified via the run on this merge
 - [x] 0.6.5.1 does NOT fix mingw (same NameError, all Windows jobs) — filed
       leptris/yeptris#318 with the CI repro
 - [x] expressir-side guard: `Expressir.select_serialization_engines` pins the

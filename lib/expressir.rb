@@ -1,5 +1,7 @@
 require "lutaml/model"
-require "liquid" # To enable Lutaml::Model::Liquefiable
+# Liquid is intentionally NOT required here: lutaml-model's Liquefiable
+# lazily loads it on first #to_liquid (lutaml-model#800), keeping ~170ms
+# off the boot of every consumer that never renders Liquid templates.
 
 # ..........................................................
 # https://bugs.ruby-lang.org/issues/19319

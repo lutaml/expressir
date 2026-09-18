@@ -81,6 +81,10 @@ RSpec.describe Expressir::Express::ParallelFiles do
   end
 
   it "does not fork unless parallelism is explicitly requested" do
+    unless described_class::FORK_SUPPORTED
+      skip "fork is not available on this platform"
+    end
+
     expect(described_class.sequential?(%w[a.exp b.exp c.exp], nil)).to be(true)
     expect(described_class.sequential?(%w[a.exp b.exp c.exp], 1)).to be(true)
     expect(described_class.sequential?(%w[a.exp b.exp], 4)).to be(true)

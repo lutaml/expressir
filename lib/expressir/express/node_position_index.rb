@@ -13,6 +13,9 @@ module Expressir
     # instances; this module turns those spans into a line-keyed index that
     # remark attachment can query.
     class NodePositionIndex
+      EMPTY = [].freeze
+      private_constant :EMPTY
+
       # Single source of truth for "what collections does this node have"
       # lives on the model — each class declares its own via the
       # `collection_attributes` macro. Referenced by both RemarkAttacher
@@ -21,31 +24,133 @@ module Expressir
 
       attr_reader :nodes
 
+      # Semantic entries starting on `line` (node order).
+      def starting_at(line)
+        semantic_by_line[line] || EMPTY
+      end
+
+      # Semantic entries ending on `line` (node order).
+      def ending_at(line)
+        semantic_by_end_line[line] || EMPTY
+      end
+
+      # Semantic entries whose span covers `line` (node order within the
+      # covering band).
+      def spanning(line)
+        band = line / BAND
+        bands = span_bands
+        return EMPTY unless bands.key?(band)
+
+        bands[band].select { |n| line.between?(n[:line], n[:end_line]) }
+      end
+
+      # Semantic entries with end_line < line, ascending by end_line.
+      def semantic_ending_before(line)
+        sorted = semantic_by_end_line_list
+        idx = sorted.bsearch_index { |n| n[:end_line] >= line } || sorted.size
+        sorted[0...idx]
+      end
+
+      # The first semantic entry (smallest line), for preamble remarks.
+      def first_semantic
+        first_by_line = semantic_by_line.keys.min
+        first_by_line && semantic_by_line[first_by_line]&.first
+      end
+
+      # Entries owned by `owner` within any of `collections`, in node order.
+      # Identity-keyed: ownership is object identity (the tree-walker's
+      # `.equal?` semantics), and value-equal model objects must not
+      # collide.
+      def children_in(owner, collections)
+        per_collection = children_index[owner]
+        return EMPTY unless per_collection
+
+        entries = per_collection.values_at(*collections).compact.flatten(1)
+        entries.sort_by { |n| node_order(n) }
+      end
+
+      # First node (in node order) that is_a?(type), memoized per type.
+      def first_node_of_type(type)
+        @first_of_type ||= {}
+        @first_of_type[type] ||= @nodes.find { |n| n[:node].is_a?(type) }&.dig(:node)
+      end
+
+      def semantic_entries
+        @semantic_entries ||=
+          @nodes.select { |n| n[:line] && semantic?(n[:node]) }
+      end
+
+      # Non-vivifying: missed lookups must not materialize keys, or
+      # `keys.min`-style queries see phantom lines.
+      def semantic_by_line
+        @semantic_by_line ||= begin
+          h = {}
+          semantic_entries.each { |n| (h[n[:line]] ||= []) << n }
+          h
+        end
+      end
+
+      def semantic_by_end_line
+        @semantic_by_end_line ||= begin
+          h = {}
+          semantic_entries.each { |n| (h[n[:end_line]] ||= []) << n if n[:end_line] }
+          h
+        end
+      end
+
+      def semantic_by_end_line_list
+        @semantic_by_end_line_list ||=
+          semantic_entries.select { |n| n[:end_line] }.sort_by { |n| n[:end_line] }
+      end
+
+      def children_index
+        @children_index ||= begin
+          index = {}.compare_by_identity
+          @nodes.each do |n|
+            next unless n[:owner] && n[:line]
+
+            per_owner = (index[n[:owner]] ||= {})
+            (per_owner[n[:collection]] ||= []) << n
+          end
+          index
+        end
+      end
+
+      def span_bands
+        @span_bands ||= begin
+          bands = Hash.new { |hash, key| hash[key] = [] }
+          semantic_entries.each do |n|
+            next unless n[:end_line]
+
+            ((n[:line] / BAND)..(n[:end_line] / BAND)).each do |band|
+              bands[band] << n
+            end
+          end
+          bands
+        end
+      end
+
+      BAND = 1024
+      private_constant :BAND
+
       def initialize(model, line_map)
         @model = model
         @line_map = line_map
         @nodes = build_sorted_nodes
+        @node_order = nil
       end
 
       # Returns the most-specific node whose span contains `remark_line`,
       # preferring same-line starts/ends, then smallest containing span.
       # Excludes Repository and Cache (not semantic scopes for remarks).
       def nearest_node_to(remark_line)
-        same_start = nodes.select do |n|
-          n[:line] == remark_line && semantic?(n[:node])
-        end
+        same_start = starting_at(remark_line)
         return same_start.last[:node] if same_start.any?
 
-        same_end = nodes.select do |n|
-          n[:end_line] == remark_line && semantic?(n[:node])
-        end
+        same_end = ending_at(remark_line)
         return same_end.last[:node] if same_end.any?
 
-        containing = nodes.select do |n|
-          n[:line] && n[:end_line] &&
-            n[:line] <= remark_line && n[:end_line] >= remark_line &&
-            semantic?(n[:node])
-        end
+        containing = spanning(remark_line)
 
         if containing.any?
           exp_file_node = containing.find { |n| n[:node].is_a?(Model::ExpFile) }
@@ -62,16 +167,13 @@ module Expressir
           candidates = containing if candidates.empty?
           candidates.min_by { |n| n[:end_line] - n[:line] }[:node]
         else
-          before = nodes.select do |n|
-            n[:end_line] && n[:end_line] < remark_line && semantic?(n[:node])
-          end
+          before = semantic_ending_before(remark_line)
           if before.any?
             before.max_by { |n| n[:end_line] }[:node]
           else
             # Remark is before all nodes (e.g., preamble comment before SCHEMA).
             # Attach to the first semantic node.
-            after = nodes.select { |n| n[:line] && semantic?(n[:node]) }
-            after.min_by { |n| n[:line] }[:node] if after.any?
+            first_semantic&.dig(:node)
           end
         end
       end
@@ -90,16 +192,27 @@ module Expressir
                     end
         return nil unless node_type
 
-        matching = nodes.select do |n|
+        candidates = (0..2).flat_map do |back|
+          ending_at(remark_line - back)
+        end.select do |n|
           n[:node].is_a?(node_type) &&
-            (n[:end_line] == remark_line ||
-             (n[:end_line] && n[:end_line] <= remark_line && n[:end_line] >= remark_line - 2))
+            n[:end_line] <= remark_line && n[:end_line] >= remark_line - 2
         end
 
-        matching.first&.dig(:node) || nodes.find { |n| n[:node].is_a?(node_type) }&.dig(:node)
+        candidates.min_by { |n| node_order(n) }&.dig(:node) ||
+          first_node_of_type(node_type)
       end
 
       private
+
+      def node_order(entry)
+        @node_order ||= begin
+          map = {}.compare_by_identity
+          @nodes.each_with_index { |n, i| map[n] = i }
+          map
+        end
+        @node_order[entry]
+      end
 
       def semantic?(node)
         !node.is_a?(Model::Repository) && !node.is_a?(Model::Cache)

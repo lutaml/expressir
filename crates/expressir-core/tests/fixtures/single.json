@@ -1,0 +1,26 @@
+{
+  "schemas": [
+    {
+      "name": "single_schema",
+      "version": "version",
+      "entities": [
+        {
+          "name": "empty_entity",
+          "attributes": [],
+          "whereRules": []
+        },
+        {
+          "name": "subtype_empty_entity",
+          "attributes": [],
+          "whereRules": []
+        }
+      ],
+      "types": [],
+      "functions": [],
+      "procedures": [],
+      "rules": [],
+      "subtypeConstraints": [],
+      "constants": []
+    }
+  ]
+}

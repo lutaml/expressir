@@ -245,21 +245,20 @@ module Expressir
       # shares a line with a node or sits outside any statement-bearing node.
       def find_body_comment_target(remark)
         line = remark.line
-        nodes = @node_index.nodes
         # An own-line comment shares its line with no node. A node STARTING
         # here means the remark is an inline tail (code; -- note). The
         # end-line check is restricted to statements: container end_lines are
         # child-derived approximations that can collide with comment lines.
-        return inline_target(remark, nodes) if inline_remark?(remark)
+        return inline_target(remark, @node_index.starting_at(line)) if inline_remark?(remark)
 
         # A closing keyword on the next code line is decisive: the comment
         # closes that body. Without this check the comment would instead be
         # read as leading the next statement of an OUTER region, which is
         # where it would wrongly render.
-        closing = closing_region_target(line, nodes)
+        closing = closing_region_target(line)
         return closing if closing.first
 
-        enclosing, region, = statement_region_for(line, nodes)
+        enclosing, region, = statement_region_for(line)
         return [nil, nil, nil] unless region
 
         following = region
@@ -339,7 +338,7 @@ module Expressir
       # every span and never reaches statement_region_for. Resolve it from
       # the keyword that follows: it names both the owner type and the body
       # being closed.
-      def closing_region_target(line, nodes)
+      def closing_region_target(line)
         keyword_owner, region, keyword_line = closing_keyword_after(line)
         return [nil, nil, nil] unless keyword_owner
 
@@ -351,8 +350,8 @@ module Expressir
         opener_line = active_opener_line(keyword_line, keyword_owner)
         return [nil, nil, nil] unless opener_line
 
-        owner = nodes.find do |n|
-          n[:node].is_a?(keyword_owner) && n[:line] == opener_line
+        owner = @node_index.starting_at(opener_line).find do |n|
+          n[:node].is_a?(keyword_owner)
         end
         return [nil, nil, nil] unless owner
 
@@ -458,18 +457,15 @@ module Expressir
         [nil, nil, nil]
       end
 
-      def statement_region_for(line, nodes)
-        candidates = nodes.select do |n|
+      def statement_region_for(line, nodes = nil)
+        candidates = (nodes || @node_index.spanning(line)).select do |n|
           n[:line] && n[:end_line] && n[:line] <= line && n[:end_line] >= line &&
             (n[:node].is_a?(Model::Statement) || function_rule_procedure?(n[:node]))
         end
         enclosing = innermost_candidate(candidates)
         return [nil, nil, nil] unless enclosing
 
-        children = nodes.select do |n|
-          n[:owner].equal?(enclosing[:node]) &&
-            STATEMENT_REGIONS.include?(n[:collection]) && n[:line]
-        end
+        children = @node_index.children_in(enclosing[:node], STATEMENT_REGIONS)
         return [enclosing, nil, nil] if children.empty?
 
         preceding = children.select { |n| n[:line] < line }.max_by { |n| n[:position] }

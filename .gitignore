@@ -42,3 +42,7 @@ Gemfile.local.lock
 Gemfile.original
 benchmark/
 CLAUDE.md
+
+# Rust workspace
+/target/
+Cargo.lock

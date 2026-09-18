@@ -1,0 +1,21 @@
+name: rust
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  expressir-core:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: crates/expressir-core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: crates/expressir-core
+      - run: cargo test
+      - run: cargo build --examples

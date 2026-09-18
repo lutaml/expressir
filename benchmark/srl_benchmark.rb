@@ -17,7 +17,8 @@ require "parsanol/native"
 require "expressir"
 
 # Configuration
-SRL_PATH = "/Users/mulgogi/src/mn/iso-10303/schemas/resources"
+SRL_PATH = ENV["SRL_PATH"] ||
+            "/Users/mulgogi/src/mn/iso-10303/schemas/resources"
 ITERATIONS = (ENV["ITERATIONS"] || 1).to_i
 TIMEOUT_SECONDS = (ENV["TIMEOUT"] || 30).to_i # Timeout per file
 
@@ -104,6 +105,65 @@ def find_exp_files
   end
 end
 
+# Parse one file in a forked child with a hard wall-clock kill.
+# Ruby's Timeout cannot interrupt the native parser (the GVL is held
+# for the whole FFI call), so process isolation is the only reliable
+# guard against pathological backtracking hangs.
+def parse_file_isolated(file, use_native:, timeout: TIMEOUT_SECONDS)
+  rd, wr = IO.pipe
+  pid = fork do
+    rd.close
+    t = Time.now
+    result = { status: "ok", elapsed: 0.0, error: nil }
+    begin
+      if use_native
+        content = File.read(file)
+        Expressir::Express::Parser.from_exp(content, skip_references: true,
+                                                     use_native: true)
+      else
+        Expressir::Express::Parser.from_file(file, skip_references: true,
+                                                    use_native: false)
+      end
+    rescue StandardError => e
+      result[:status] = "err"
+      result[:error] = "#{e.class}: #{e.message[0..60]}"
+    end
+    result[:elapsed] = Time.now - t
+    data = Marshal.dump(result)
+    wr.write([data.bytesize].pack("N"))
+    wr.write(data)
+    wr.close
+    exit!(0)
+  end
+  wr.close
+
+  deadline = Time.now + timeout
+  timed_out = false
+  loop do
+    done = Process.waitpid(pid, Process::WNOHANG)
+    break if done
+
+    if Time.now > deadline
+      Process.kill("TERM", pid)
+      sleep 1
+      Process.kill("KILL", pid) if Process.waitpid(pid, Process::WNOHANG).nil? rescue nil
+      timed_out = true
+      break
+    end
+    sleep 0.1
+  end
+
+  if timed_out
+    rd.close
+    { status: "timeout", elapsed: timeout.to_f, error: "Timeout after #{timeout}s" }
+  else
+    header = rd.read(4)
+    payload = header && Marshal.load(rd.read(header.unpack1("N"))) # rubocop:disable Security/MarshalLoad
+    rd.close
+    payload
+  end
+end
+
 def count_lines(files)
   files.sum { |f| File.read(f).lines.count }
 end
@@ -176,28 +236,22 @@ class ParserBenchmark
       file_start = Time.now
       schema_lines = File.read(file).lines.count
 
-      begin
-        require "timeout"
-        Timeout.timeout(TIMEOUT_SECONDS) do
-          if @use_native
-            content = File.read(file)
-            Expressir::Express::Parser.from_exp(content, skip_references: true,
-                                                         use_native: true)
-          else
-            Expressir::Express::Parser.from_file(file, skip_references: true)
-          end
-        end
+      result = parse_file_isolated(file, use_native: @use_native)
+      elapsed = result[:elapsed]
+
+      case result[:status]
+      when "ok"
         iteration_results[:success] += 1
         status = "#{BRIGHT_GREEN}✓#{RESET}"
-      rescue Timeout::Error
+      when "timeout"
         iteration_results[:failed] += 1
         iteration_results[:errors] << { file: File.basename(file),
-                                        error: "Timeout after #{TIMEOUT_SECONDS}s" }
+                                        error: result[:error] }
         status = "#{BRIGHT_YELLOW}⏱#{RESET}"
-      rescue StandardError => e
+      else
         iteration_results[:failed] += 1
         iteration_results[:errors] << { file: File.basename(file),
-                                        error: e.message[0..60] }
+                                        error: result[:error] }
         status = "#{BRIGHT_RED}✗#{RESET}"
       end
 
@@ -346,7 +400,8 @@ print_warmup_start
 warmup_file = files.first
 
 begin
-  Expressir::Express::Parser.from_file(warmup_file, skip_references: true)
+  Expressir::Express::Parser.from_file(warmup_file, skip_references: true,
+                                                 use_native: false)
 rescue StandardError => e
   puts "#{BRIGHT_YELLOW}⚠️  Ruby warmup warning: #{e.message[0..40]}#{RESET}"
 end

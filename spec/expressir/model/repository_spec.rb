@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "tempfile"
 
 RSpec.describe Expressir::Model::Repository do
   let(:schema1) do
@@ -514,6 +515,43 @@ RSpec.describe Expressir::Model::Repository do
   describe "#children" do
     it "returns schemas as children" do
       expect(repository.children).to eq([schema1, schema2])
+    end
+  end
+
+  describe ".from_files" do
+    let(:syntax_dir) { File.expand_path("../../syntax", __dir__) }
+    let(:files) do
+      %w[single.exp multiple.exp derived_attribute.exp geometry_schema.exp]
+        .map { |f| File.join(syntax_dir, f) }
+        .select { |f| File.exist?(f) }
+    end
+
+    it "parses in parallel with results identical to sequential" do
+      skip "needs at least 3 fixture files and fork" if files.size < 3 ||
+        !Expressir::Express::ParallelFiles::FORK_SUPPORTED
+
+      parallel = described_class.from_files(files, max_processes: 4)
+      sequential = described_class.from_files(files, max_processes: 1)
+
+      expect(parallel.files.flat_map(&:schemas).map(&:id))
+        .to eq(sequential.files.flat_map(&:schemas).map(&:id))
+    end
+
+    it "raises on unparseable files even in parallel mode" do
+      skip "needs fork" unless Expressir::Express::ParallelFiles::FORK_SUPPORTED
+
+      bad = Tempfile.new(%w[bad .exp])
+      begin
+        bad.write("ENTITY broken")
+        bad.flush
+
+        expect do
+          described_class.from_files(files + [bad.path], max_processes: 4)
+        end.to raise_error(Expressir::Express::Error::SchemaParseFailure)
+      ensure
+        bad.close
+        bad.unlink
+      end
     end
   end
 end

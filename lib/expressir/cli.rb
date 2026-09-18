@@ -67,6 +67,9 @@ module Expressir
                            desc: "Output file path for JSON/YAML formats (defaults to coverage_report.json/yaml)"
     method_option :ignore_files, type: :string,
                                  desc: "Path to YAML file containing array of files to ignore from overall coverage calculation"
+    method_option :max_processes, type: :numeric,
+                                  default: Expressir::Express::ParallelFiles::DEFAULT_MAX_PROCESSES,
+                                  desc: "Parallel parse workers (1 = sequential; falls back to sequential where fork is unavailable)"
     def coverage(*paths)
       Expressir::Commands::Coverage.new(options).run(paths)
     end

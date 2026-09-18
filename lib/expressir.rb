@@ -21,6 +21,24 @@ else
 end
 
 module Expressir
+  # yeptris mingw builds crash once loaded (`uninitialized constant
+  # Yeptris::FFI::NODE_SCALAR`, leptris/yeptris#318) and the gem rebinds
+  # core YAML on require, so merely having it in the bundle breaks every
+  # Hash#to_yaml on Windows. Pinning the portable adapters stops
+  # lutaml-model's bundle-based autodetection from loading yeptris there;
+  # other platforms keep the native engine. Revisit when yeptris ships a
+  # working mingw build.
+  def self.select_serialization_engines(windows: Gem.win_platform?)
+    return unless windows
+
+    Lutaml::Model::Config.configure do |config|
+      config.yaml_adapter_type = :standard
+      config.json_adapter_type = :standard
+    end
+  end
+
+  select_serialization_engines
+
   # Namespace modules - autoload loads the namespace file which contains
   # autoload definitions for classes within that namespace
   autoload :Config, "#{__dir__}/expressir/config"

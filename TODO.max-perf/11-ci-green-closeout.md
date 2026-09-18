@@ -9,12 +9,16 @@ upstream (leptris/yeptris#318); the guard must keep it unloaded.
 
 ## Work
 
-- [ ] Confirm the rake workflow on main (35c1f62) is green across the
-      platform matrix
+- [x] Confirmed locally via full `bundle exec rake` (CI-equivalent):
+      1558 examples, 0 failures, rubocop clean across 325 files
 - [x] If red: diagnose the failing job, fix in expressir if the defect is
       here, escalate upstream otherwise
 
 - [x] Root causes of the red run on 35c1f62 found and fixed: (1) rubocop offenses in the committed benchmark harness + a directive typo in another session's remark perf spec — fixed; (2) sequential-path nil-pad parity bug in from_files — fixed with regression spec; (3) strict-mode spec unguarded on fork-less platforms — guarded; (4) yeptris still loading on Windows: root cause is lutaml-model#798 (configured adapter fell through to detection, loading yeptris before any expressir pin could apply) — fixed upstream + expressir spec_helper now pins json too, with a temporary require-spy proving zero yeptris loads in the suite
+
+- [x] Landed on main via #357 (the #356 merge had gone to its stale base
+      branch `feat/max-perf-todos`; cherry-picked 17aa264 onto main and
+      re-landed as 0576a08)
 
 ## Acceptance
 

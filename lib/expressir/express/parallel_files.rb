@@ -29,17 +29,20 @@ module Expressir
       # @param files [Array<String>] EXPRESS file paths
       # @param max_processes [Integer, nil] worker cap; nil auto-selects
       # @param parse [Proc] callback taking a file path, returning an ExpFile
+      # @param strict [Boolean] re-raise every error, including
+      #   Error::SchemaParseFailure, instead of skipping the file
       # @yield [file, exp_file, error] called in original file order
       # @return [Array<Expressir::Model::ExpFile, nil>] parsed files in order;
       #   nil marks a file that failed with Error::SchemaParseFailure
-      def self.run(files, parse:, max_processes: nil, &block)
-        new(files, max_processes, parse, block).run
+      def self.run(files, parse:, max_processes: nil, strict: false, &block)
+        new(files, max_processes, parse, block, strict).run
       end
 
-      def initialize(files, max_processes, parse, block)
+      def initialize(files, max_processes, parse, block, strict)
         @files = files
         @parse = parse
         @block = block
+        @strict = strict
         @worker_count = [
           files.size - 1,
           max_processes || [Etc.nprocessors, DEFAULT_MAX_PROCESSES].min,
@@ -158,7 +161,8 @@ module Expressir
         files_results.each_with_index do |payload, index|
           error = payload[:error]
           @block&.call(@files[index], payload[:exp_file], error)
-          raise error if error && !error.is_a?(Error::SchemaParseFailure)
+          raise error if error && (@strict ||
+                                  !error.is_a?(Error::SchemaParseFailure))
         end
 
         files_results.map do |payload|

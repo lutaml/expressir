@@ -6,8 +6,9 @@ module Expressir
     #
     # A hand-rolled state machine that skips comments (`(* ... *)`) and
     # string literals, tracks SCHEMA/END_SCHEMA depth, and returns one
-    # block per schema declaration. Used by `Parser.from_exp_streaming`
-    # to parse each schema independently with a fresh memory arena.
+    # block per schema declaration. Retained for the future streaming
+    # parse path (see TODO.max-perf/02) that parses each schema
+    # independently with a fresh memory arena.
     #
     # Extracted from the outer Parser class (TODO.bugs/09) so block-
     # scanning logic lives in one focused module behind one interface.

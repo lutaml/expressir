@@ -159,15 +159,18 @@ include_source: nil, root_path: nil, use_native: nil, &block)
       # @param skip_references [Boolean] skip resolving references
       # @param include_source [Boolean] attach original source code to model elements
       # @param use_native [Boolean] use native parser (default: true when available)
-      # @param use_streaming [Boolean] use streaming builder for maximum performance
+      # @param use_streaming [Boolean] unsupported on current parsanol;
+      #   passing true raises {Error::StreamingUnsupportedError}. The
+      #   streaming paths return when parsanol exposes a stable
+      #   parse_with_builder (see parsanol-ruby#52 and the TODO.max-perf/02
+      #   notes).
       # @return [Model::ExpFile] Parsed ExpFile
       # @raise [Error::SchemaParseFailure] if the content fails to parse
       def self.from_exp(content, skip_references: nil, include_source: nil,
                          use_native: nil, use_streaming: false)
         content = strip_bom(content)
-        if use_streaming && Grammar::Parser.native_available? && defined?(Parsanol::Native.parse_with_builder)
-          return from_exp_streaming(content, skip_references: skip_references,
-                                             include_source: include_source)
+        if use_streaming
+          raise Error::StreamingUnsupportedError
         end
 
         use_native = Grammar::Parser.native_available? if use_native.nil?
@@ -187,83 +190,6 @@ include_source: nil, root_path: nil, use_native: nil, &block)
                                                                     include_source: include_source)
 
         transfer_header_to_schema(exp_file, content)
-
-        exp_file.schemas.each do |schema|
-          schema.file = nil
-          schema.file_basename = nil
-        end
-
-        unless skip_references
-          Expressir::Benchmark.measure_references do
-            ResolveReferencesModelVisitor.new.visit(exp_file)
-          end
-        end
-
-        exp_file
-      end
-
-      # Parse using streaming builder (construct-by-construct).
-      # @param content [String] EXPRESS source code
-      # @param skip_references [Boolean] skip resolving references
-      # @param include_source [Boolean] attach original source code to model elements
-      # @return [Model::ExpFile] Parsed ExpFile
-      # @raise [Error::SchemaParseFailure] if the content fails to parse
-      def self.from_exp_streaming_builder(content, skip_references: nil,
-include_source: nil)
-        grammar_json = Grammar::Parser.cached_grammar_json
-        builder = ::Expressir::Express::StreamingBuilder.new(source: content,
-                                                             include_source: include_source)
-
-        begin
-          exp_file = Parsanol::Native.parse_with_builder(grammar_json,
-                                                         content, builder)
-        rescue StandardError => e
-          raise Error::SchemaParseFailure.new("(streaming)", e)
-        end
-
-        exp_file.schemas.each do |schema|
-          schema.file = nil
-          schema.file_basename = nil
-        end
-
-        unless skip_references
-          Expressir::Benchmark.measure_references do
-            ResolveReferencesModelVisitor.new.visit(exp_file)
-          end
-        end
-
-        exp_file
-      end
-
-      # Parse each schema separately with fresh arena (memory-bounded).
-      #
-      # Splits source into schema blocks via {SchemaBlockScanner} and parses
-      # each independently. Memory is bounded by the largest schema, not the
-      # entire file.
-      #
-      # @param content [String] EXPRESS source code
-      # @param skip_references [Boolean] skip resolving references
-      # @param include_source [Boolean] attach original source code to model elements
-      # @return [Model::ExpFile] Parsed ExpFile
-      def self.from_exp_streaming(content, skip_references: nil,
-include_source: nil)
-        grammar_json = Grammar::Parser.cached_schema_grammar_json
-
-        schema_blocks = SchemaBlockScanner.extract_schema_blocks(content)
-
-        schemas = schema_blocks.map do |block|
-          ast = Parsanol::Native.parse_fresh(grammar_json, block[:source])
-          schema_model = Builder.build(ast)
-          schema_model.source = block[:source]
-          schema_model
-        rescue StandardError => e
-          raise Error::SchemaParseFailure.new(
-            "(schema #{block[:name] || 'unknown'})", e
-          )
-        end
-
-        exp_file = Expressir::Model::ExpFile.new
-        exp_file.schemas = schemas
 
         exp_file.schemas.each do |schema|
           schema.file = nil
@@ -300,8 +226,6 @@ include_source: nil)
         exp_file.untagged_remarks -= header_remarks
       end
       private_class_method :transfer_header_to_schema
-
-      private_class_method :from_exp_streaming
     end
   end
 end

@@ -52,6 +52,16 @@ module Expressir
         end
       end
 
+      # Error raised when streaming parsing is requested but unavailable.
+      # The streaming paths require a parsanol release whose
+      # parse_with_builder is stable; parse_fresh cannot parse EXPRESS
+      # without packrat memoization (see parsanol-ruby#52).
+      class StreamingUnsupportedError < ExpressError
+        def initialize(message = "Streaming parsing is not supported by the installed parsanol release")
+          super
+        end
+      end
+
       # Base class for visitor-related errors
       class VisitorError < ExpressError; end
 

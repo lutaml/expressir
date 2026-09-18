@@ -91,9 +91,12 @@ module Expressir
                            desc: "Skip manifest verification (may result in incomplete packages)"
       option :verbose, type: :boolean, default: false,
                        desc: "Enable verbose output"
+      option :max_processes, type: :numeric, default: 1,
+                             desc: "Parallel parse workers for schema loading (1 = sequential)"
       def build(root_schema = nil, output = nil)
         schema_files, output = resolve_schema_files(root_schema, output)
-        repo = Expressir::Model::Repository.from_files(schema_files)
+        repo = Expressir::Model::Repository.from_files(schema_files,
+                                                       max_processes: options[:max_processes])
         validate_repository(repo) if should_validate?
         create_package(repo, output)
       rescue Expressir::Error

@@ -6,6 +6,9 @@ require "ruby-progressbar"
 module Expressir
   module Commands
     class Coverage < Base
+      DEFAULT_MAX_PROCESSES =
+        Expressir::Express::ParallelFiles::DEFAULT_MAX_PROCESSES
+
       def run(paths)
         if paths.empty?
           exit_with_error "No paths specified. Please provide paths to EXPRESS files or directories."
@@ -73,7 +76,9 @@ module Expressir
 
         # Parse all files and create a repository with progress tracking
         begin
-          repository = Expressir::Express::Parser.from_files(exp_files) do |filename, _schemas, error|
+          repository = Expressir::Express::Parser.from_files(
+            exp_files, max_processes: options[:max_processes]
+          ) do |filename, _schemas, error|
             if error
               say "  Error processing #{File.basename(filename)}: #{error.message}"
             end
@@ -125,7 +130,9 @@ module Expressir
             )
 
             # Process files with progress tracking
-            repository = Expressir::Express::Parser.from_files(schema_files) do |filename, _schemas, error|
+            repository = Expressir::Express::Parser.from_files(
+              schema_files, max_processes: options[:max_processes]
+            ) do |filename, _schemas, error|
               if error
                 say "  Error processing #{File.basename(filename)}: #{error.message}"
               end

@@ -291,14 +291,27 @@ reference_index: nil)
       # Build repository from list of schema files
       # @param file_paths [Array<String>] Schema file paths
       # @param base_dir [String, nil] Base directory for path resolution
+      # @param max_processes [Integer, nil] parse in a fork worker pool when
+      #   set above 1 on a fork-capable platform (advisory; degrades to
+      #   sequential otherwise). Unlike Express::Parser.from_files, a file
+      #   that fails to parse always raises.
       # @return [Repository] Built repository with all schemas
-      def self.from_files(file_paths, base_dir: nil)
+      def self.from_files(file_paths, base_dir: nil, max_processes: nil)
         repo = new(base_dir: base_dir)
 
-        file_paths.each do |path|
-          parsed = Expressir::Express::Parser.from_file(path)
-          next unless parsed
+        pool = Expressir::Express::ParallelFiles
+        parsed_files = if pool.sequential?(file_paths, max_processes)
+                         file_paths.map do |path|
+                           Expressir::Express::Parser.from_file(path)
+                         end
+                       else
+                         pool.run(file_paths,
+                                  parse: ->(path) { Expressir::Express::Parser.from_file(path) },
+                                  max_processes: max_processes,
+                                  strict: true)
+                       end
 
+        parsed_files.each do |parsed|
           repo.files << parsed if parsed.is_a?(ExpFile)
         end
 

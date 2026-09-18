@@ -27,6 +27,15 @@ RSpec.describe Expressir::Express::ParallelFiles do
     expect(parallel.files.size).to eq(files.size)
   end
 
+  it "produces a deep-equal model to sequential parsing" do
+    skip "needs at least 3 fixture files" if files.size < 3
+
+    parallel = parse(files, max_processes: 4)
+    sequential = parse(files, max_processes: 1)
+
+    expect(parallel.to_hash).to eq(sequential.to_hash)
+  end
+
   it "preserves file order" do
     skip "needs at least 3 fixture files" if files.size < 3
 
@@ -78,6 +87,24 @@ RSpec.describe Expressir::Express::ParallelFiles do
     missing = files + ["/nonexistent/schema.exp"]
 
     expect { parse(missing, max_processes: 4) }.to raise_error(Errno::ENOENT)
+  end
+
+  it "re-raises SchemaParseFailure in strict mode" do
+    bad = Tempfile.new(%w[bad .exp])
+    bad.write("ENTITY broken")
+    bad.flush
+    paths = files + [bad.path]
+
+    expect do
+      Expressir::Express::ParallelFiles.run(
+        paths,
+        max_processes: 4,
+        strict: true,
+        parse: lambda do |f|
+          Expressir::Express::Parser.from_file(f, skip_references: true)
+        end,
+      )
+    end.to raise_error(Expressir::Express::Error::SchemaParseFailure)
   end
 
   it "does not fork unless parallelism is explicitly requested" do

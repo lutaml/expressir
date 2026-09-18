@@ -226,6 +226,8 @@ include_source: nil, root_path: nil, use_native: nil, &block)
         exp_file.untagged_remarks -= header_remarks
       end
       private_class_method :transfer_header_to_schema
+      private_class_method :parse_files_sequentially
+      private_class_method :build_repository
     end
   end
 end

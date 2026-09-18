@@ -13,6 +13,9 @@ module Expressir
         # class-level mutable state.
         CONTEXT_KEY = :expressir_builder_context
 
+        # Marker ivar for fast_convert_keys memoization (see there).
+        SNAKED_MARKER = :@_expressir_keys_snaked
+
         # Returns the BuilderContext for the current thread, or nil if no
         # build is in progress.
         def current_context
@@ -244,10 +247,25 @@ module Expressir
 
         # Optimized key conversion - returns original object when no conversion needed
         # This avoids unnecessary allocations for AST nodes that don't need key conversion
+        #
+        # build() descends into child nodes whose subtrees the parent already
+        # scanned, so unchanged containers are marked with an instance
+        # variable and skipped on re-visits — without it, every subtree is
+        # re-scanned once per ancestor level (~60 fast_convert_keys calls per
+        # model node on real schemas). The marker is invisible to equality,
+        # hashing, and inspection.
+        def mark_snaked(obj)
+          obj.instance_variable_set(SNAKED_MARKER, true)
+          obj
+        rescue FrozenError
+          obj
+        end
+
         def fast_convert_keys(obj)
           case obj
           when Hash
             return obj if obj.empty?
+            return obj if obj.instance_variable_defined?(SNAKED_MARKER)
 
             # Single pass: recurse into container values and note which keys
             # need snake-casing, so the common no-conversion case allocates
@@ -276,16 +294,17 @@ module Expressir
               end
             end
 
-            return obj unless new_keys || converted_values
+            return mark_snaked(obj) unless new_keys || converted_values
 
             result = {}
             keys.each_with_index do |k, i|
               key = new_keys&.[](i) || k
               result[key] = converted_values&.key?(k) ? converted_values[k] : obj[k]
             end
-            result
+            mark_snaked(result)
           when Array
             return obj if obj.empty?
+            return obj if obj.instance_variable_defined?(SNAKED_MARKER)
 
             # Check if any element needs conversion
             needs_conversion = false
@@ -311,7 +330,7 @@ module Expressir
             end
 
             # Return original if no conversion needed
-            needs_conversion ? result : obj
+            needs_conversion ? mark_snaked(result) : mark_snaked(obj)
           else
             obj
           end

@@ -2,6 +2,7 @@
 
 module Expressir
   module Express
+    autoload :AstKeyConverter, "#{__dir__}/express/ast_key_converter"
     autoload :Builder, "#{__dir__}/express/builder"
     autoload :BuilderContext, "#{__dir__}/express/builder_context"
     autoload :BuilderRegistry, "#{__dir__}/express/builder_registry"

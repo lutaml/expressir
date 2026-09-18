@@ -18,7 +18,7 @@ require "expressir"
 
 # Configuration
 SRL_PATH = ENV["SRL_PATH"] ||
-            "/Users/mulgogi/src/mn/iso-10303/schemas/resources"
+  "/Users/mulgogi/src/mn/iso-10303/schemas/resources"
 ITERATIONS = (ENV["ITERATIONS"] || 1).to_i
 TIMEOUT_SECONDS = (ENV["TIMEOUT"] || 30).to_i # Timeout per file
 
@@ -122,7 +122,7 @@ def parse_file_isolated(file, use_native:, timeout: TIMEOUT_SECONDS)
                                                      use_native: true)
       else
         Expressir::Express::Parser.from_file(file, skip_references: true,
-                                                    use_native: false)
+                                                   use_native: false)
       end
     rescue StandardError => e
       result[:status] = "err"
@@ -146,7 +146,11 @@ def parse_file_isolated(file, use_native:, timeout: TIMEOUT_SECONDS)
     if Time.now > deadline
       Process.kill("TERM", pid)
       sleep 1
-      Process.kill("KILL", pid) if Process.waitpid(pid, Process::WNOHANG).nil? rescue nil
+      begin
+        Process.kill("KILL", pid) if Process.waitpid(pid, Process::WNOHANG).nil?
+      rescue StandardError
+        nil
+      end
       timed_out = true
       break
     end
@@ -237,7 +241,7 @@ class ParserBenchmark
       schema_lines = File.read(file).lines.count
 
       result = parse_file_isolated(file, use_native: @use_native)
-      elapsed = result[:elapsed]
+      result[:elapsed]
 
       case result[:status]
       when "ok"
@@ -401,7 +405,7 @@ warmup_file = files.first
 
 begin
   Expressir::Express::Parser.from_file(warmup_file, skip_references: true,
-                                                 use_native: false)
+                                                    use_native: false)
 rescue StandardError => e
   puts "#{BRIGHT_YELLOW}⚠️  Ruby warmup warning: #{e.message[0..40]}#{RESET}"
 end

@@ -13,9 +13,6 @@ module Expressir
         # class-level mutable state.
         CONTEXT_KEY = :expressir_builder_context
 
-        # Marker ivar for fast_convert_keys memoization (see there).
-        SNAKED_MARKER = :@_expressir_keys_snaked
-
         # Returns the BuilderContext for the current thread, or nil if no
         # build is in progress.
         def current_context
@@ -29,14 +26,6 @@ module Expressir
 
         def include_source
           current_context&.include_source
-        end
-
-        # Thread-local snake_case conversion cache. Thread-local avoids the
-        # mutable-constant anti-pattern while remaining thread-safe.
-        # Each thread gets its own cache; the cache grows with the number of
-        # unique AST node-type names encountered (bounded by grammar size).
-        def snake_case_cache
-          Thread.current[:expressir_snake_case_cache] ||= {}
         end
 
         # Register a builder for a node type.
@@ -60,8 +49,8 @@ module Expressir
             node_type = ast.keys.first
             node_data = ast[node_type]
 
-            handler_key = cached_snake_case(node_type)
-            snake_data = fast_convert_keys(node_data)
+            handler_key = AstKeyConverter.snake_case(node_type)
+            snake_data = AstKeyConverter.convert(node_data)
 
             builder = @register[handler_key]
             if builder
@@ -83,12 +72,12 @@ module Expressir
               ast.each_key do |key|
                 next if key == node_type
 
-                h_key = cached_snake_case(key)
+                h_key = AstKeyConverter.snake_case(key)
                 h_builder = @register[h_key]
                 next unless h_builder
 
                 n_data = ast[key]
-                s_data = fast_convert_keys(n_data)
+                s_data = AstKeyConverter.convert(n_data)
                 result = h_builder.call(s_data)
 
                 unless result.nil?
@@ -224,118 +213,8 @@ module Expressir
 
         # Keys containing uppercase need snake-casing; testing the key
         # directly avoids allocating `to_s` strings per key per pass.
-        UPPERCASE_PATTERN = /[A-Z]/
-
-        private
-
-        # Cached snake_case conversion
-        def cached_snake_case(name)
-          snake_case_cache[name] ||= begin
-            str = name.to_s
-            # Check if already snake_case
-            if /^[a-z_]+$/.match?(str)
-              str.to_sym
-            else
-              str
-                .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
-                .gsub(/([a-z\d])([A-Z])/, '\1_\2')
-                .downcase
-                .to_sym
-            end
-          end
-        end
-
-        # Optimized key conversion - returns original object when no conversion needed
-        # This avoids unnecessary allocations for AST nodes that don't need key conversion
-        #
-        # build() descends into child nodes whose subtrees the parent already
-        # scanned, so unchanged containers are marked with an instance
-        # variable and skipped on re-visits — without it, every subtree is
-        # re-scanned once per ancestor level (~60 fast_convert_keys calls per
-        # model node on real schemas). The marker is invisible to equality,
-        # hashing, and inspection.
-        def mark_snaked(obj)
-          obj.instance_variable_set(SNAKED_MARKER, true)
-          obj
-        rescue FrozenError
-          obj
-        end
-
-        def fast_convert_keys(obj)
-          case obj
-          when Hash
-            return obj if obj.empty?
-            return obj if obj.instance_variable_defined?(SNAKED_MARKER)
-
-            # Single pass: recurse into container values and note which keys
-            # need snake-casing, so the common no-conversion case allocates
-            # nothing and the conversion case walks the keys once.
-            keys = obj.keys
-            converted_values = nil
-            new_keys = nil
-
-            keys.each_with_index do |k, i|
-              val = obj[k]
-              case val
-              when Hash
-                unless val.empty?
-                  converted_val = fast_convert_keys(val)
-                  (converted_values ||= {})[k] = converted_val unless converted_val.equal?(val)
-                end
-              when Array
-                unless val.empty?
-                  converted_val = fast_convert_keys(val)
-                  (converted_values ||= {})[k] = converted_val unless converted_val.equal?(val)
-                end
-              end
-
-              if k.match?(UPPERCASE_PATTERN)
-                (new_keys ||= keys.dup)[i] = cached_snake_case(k)
-              end
-            end
-
-            return mark_snaked(obj) unless new_keys || converted_values
-
-            result = {}
-            keys.each_with_index do |k, i|
-              key = new_keys&.[](i) || k
-              result[key] = converted_values&.key?(k) ? converted_values[k] : obj[k]
-            end
-            mark_snaked(result)
-          when Array
-            return obj if obj.empty?
-            return obj if obj.instance_variable_defined?(SNAKED_MARKER)
-
-            # Check if any element needs conversion
-            needs_conversion = false
-            result = []
-
-            obj.each do |item|
-              case item
-              when Hash
-                next if item.empty?
-
-                converted = fast_convert_keys(item)
-                result << converted
-                needs_conversion = true unless converted.equal?(item)
-              when Array
-                next if item.empty?
-
-                converted = fast_convert_keys(item)
-                result << converted
-                needs_conversion = true unless converted.equal?(item)
-              else
-                result << item
-              end
-            end
-
-            # Return original if no conversion needed
-            needs_conversion ? mark_snaked(result) : mark_snaked(obj)
-          else
-            obj
-          end
-        end
-
+        # Key conversion lives in AstKeyConverter (MECE: converting AST
+        # keys is not building models).
         def extract_source_info(data)
           return nil unless data
 

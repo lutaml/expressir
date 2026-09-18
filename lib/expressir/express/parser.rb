@@ -135,6 +135,9 @@ include_source: nil, root_path: nil, use_native: nil, &block)
 
           yield(file, exp_file, nil) if block
         rescue StandardError => e
+          # Nil-pad so results align with files by index, exactly like the
+          # parallel path does.
+          all_exp_files << nil if e.is_a?(Error::SchemaParseFailure)
           yield(file, nil, e) if block
           raise unless e.is_a?(Error::SchemaParseFailure)
         end

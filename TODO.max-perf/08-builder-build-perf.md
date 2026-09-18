@@ -36,6 +36,8 @@ builder.call (upstream territory).
       to_hash equality verified against pre-change output on all four
       schemas
 
+- [x] Handler-level audit (TODO 14 overlap): `expression` 25.8% / `syntax` 15.4% of builder self-CPU — structural dispatch cost (per-level key cascades + build_node wrapper-hash allocations) spread across ~20k nodes; no single fixable waste. Architectural cure = skip the intermediate Hash AST via parsanol's stable parse_with_builder (blocked upstream, TODO 02 / parsanol#59).
+
 ## Acceptance
 
 Numbers table for the three stages; either a measured improvement merged or

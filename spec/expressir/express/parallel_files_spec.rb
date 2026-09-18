@@ -90,13 +90,17 @@ RSpec.describe Expressir::Express::ParallelFiles do
   end
 
   it "re-raises SchemaParseFailure in strict mode" do
+    unless described_class::FORK_SUPPORTED
+      skip "fork is not available on this platform"
+    end
+
     bad = Tempfile.new(%w[bad .exp])
     bad.write("ENTITY broken")
     bad.flush
     paths = files + [bad.path]
 
     expect do
-      Expressir::Express::ParallelFiles.run(
+      described_class.run(
         paths,
         max_processes: 4,
         strict: true,

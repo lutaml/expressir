@@ -61,7 +61,11 @@ module Expressir
 
       # ---- End child-attributes macro ----
 
-      SKIP_ATTRIBUTES = %i[parent _class].freeze
+      # :source is skipped deliberately: its reader formats the node,
+      # and reading it during construction (attach_parent_to_children on
+      # a from_hash-built object whose attributes are not yet applied)
+      # would memoize an incomplete rendering forever.
+      SKIP_ATTRIBUTES = %i[parent _class source].freeze
       # :parent is a special attribute that is used to store the parent of the current element
       # It is not a real attribute
       # attribute :parent, ModelElement
@@ -101,6 +105,7 @@ module Expressir
         "Expressir::Model::Declarations::Entity" => "Expressir::Model::Declarations::Entity",
         "Expressir::Model::Declarations::Function" => "Expressir::Model::Declarations::Function",
         "Expressir::Model::Declarations::InterfaceItem" => "Expressir::Model::Declarations::InterfaceItem",
+        "Expressir::Model::Declarations::InverseAttribute" => "Expressir::Model::Declarations::InverseAttribute",
         "Expressir::Model::Declarations::Interface" => "Expressir::Model::Declarations::Interface",
         "Expressir::Model::Declarations::InterfacedItem" => "Expressir::Model::Declarations::InterfacedItem",
         "Expressir::Model::Declarations::Parameter" => "Expressir::Model::Declarations::Parameter",
@@ -152,6 +157,10 @@ module Expressir
       key_value do
         map "_class", to: :_class, render_default: true,
                       polymorphic_map: POLYMORPHIC_CLASS_MAP
+        # Hydrate-only: byte positions ride the wire (Rust core path)
+        # without ever appearing in to_hash — the serialized shape stays
+        # identical to the Ruby-built model.
+        map "source_offset", to: :source_offset, serialize: false
       end
 
       def source
@@ -345,6 +354,8 @@ module Expressir
       # @return [nil]
       def attach_parent_to_children
         self.class.attributes.each_pair do |symbol, _lutaml_attr|
+          next if SKIP_ATTRIBUTES.include?(symbol)
+
           value = public_send(symbol)
 
           case value

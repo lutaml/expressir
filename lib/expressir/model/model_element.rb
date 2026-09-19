@@ -278,6 +278,24 @@ module Expressir
         end
       end
 
+      # Wire the parent pointers of this node's entire subtree. Needed
+      # for models materialized outside the builders (e.g. hydrated
+      # from the Rust core path), whose parents start unset.
+      def wire_parents(parent = nil)
+        self.parent = parent
+        self.class.attributes.each_key do |attr|
+          next if SKIP_ATTRIBUTES.include?(attr) || attr == :parent
+
+          value = public_send(attr)
+          case value
+          when Array
+            value.each { |v| v.wire_parents(self) if v.is_a?(ModelElement) }
+          when ModelElement
+            value.wire_parents(self)
+          end
+        end
+      end
+
       # @return [Array<Declaration>]
       def children
         []

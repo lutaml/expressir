@@ -49,7 +49,14 @@ module Expressir
       # @return [Model::ExpFile] ExpFile containing parsed schemas
       # @raise [Error::SchemaParseFailure] if the schema file fails to parse
       def self.from_file(file, skip_references: nil, include_source: nil,
-                         root_path: nil, use_native: nil) # rubocop:disable Metrics/AbcSize
+                         root_path: nil, use_native: nil,
+                         use_core: nil) # rubocop:disable Metrics/AbcSize
+        if use_core && Core::NATIVE_AVAILABLE
+          return from_file_core(file, skip_references: skip_references,
+                                      include_source: include_source,
+                                      root_path: root_path)
+        end
+
         Expressir::Benchmark.measure_file(file) do
           source = strip_bom(File.read(file))
 
@@ -123,6 +130,49 @@ root_path: nil, use_native: nil, max_processes: nil, &progress)
 
         build_repository(all_exp_files, skip_references: skip_references)
       end
+
+      # Core path: the Rust extension parses and emits the model hash
+      # directly (lutaml wire shape); Ruby hydrates, then remark
+      # attachment runs on the source as usual.
+      def self.from_file_core(file, skip_references: nil,
+                              include_source: nil, root_path: nil, &block)
+        unless Core::NATIVE_AVAILABLE
+          raise Error::StreamingUnsupportedError,
+                "core parse requires the native extension"
+        end
+
+        Expressir::Benchmark.measure_file(file) do
+          source = strip_bom(File.read(file))
+          schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
+
+          hash = begin
+            Core.parse_to_model_hash(source, schema_file)
+          rescue StandardError => e
+            raise Error::SchemaParseFailure.new(schema_file, e)
+          end
+          exp_file = Model::ExpFile.from_hash(hash)
+          exp_file&.wire_parents
+
+          RemarkAttacher.new(source).attach(exp_file) if source && include_source != false
+
+          transfer_header_to_schema(exp_file, source)
+
+          exp_file.path = schema_file
+          exp_file.schemas.each do |schema|
+            schema.file = schema_file
+            schema.file_basename = File.basename(schema_file, ".exp")
+          end
+
+          unless skip_references
+            Expressir::Benchmark.measure_references do
+              ResolveReferencesModelVisitor.new.visit(exp_file)
+            end
+          end
+
+          exp_file
+        end
+      end
+      private_class_method :from_file_core
 
       def self.parse_files_sequentially(files, skip_references: nil,
 include_source: nil, root_path: nil, use_native: nil, &block)

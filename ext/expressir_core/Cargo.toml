@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 magnus = { version = "0.9" }
-expressir-core = { path = "../../crates/expressir-core" }
+expressir-rs = { git = "https://github.com/lutaml/expressir-rs", branch = "main" }
 serde_json = "1.0"
 
 # Standalone workspace: the repo root workspace owns crates/, the ext

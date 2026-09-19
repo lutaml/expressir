@@ -8,9 +8,7 @@ repository = "https://github.com/lutaml/expressir"
 publish = false
 
 [dependencies]
-# Pinned to the parslet-transform parity fixes (parsanol-rs#83); move to
-# a released version once that ships.
-parsanol = { git = "https://github.com/parsanol/parsanol-rs", rev = "d0c46ec" }
+parsanol = { version = "0.7.3" }
 serde = { version = "1.0", features = ["derive"] }
 
 [dev-dependencies]

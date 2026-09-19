@@ -1,4 +1,0 @@
-# The parsanol-rs dependency is fetched over SSH by the system git CLI
-# (cargo's built-in HTTPS fetch cannot authenticate for private repos).
-[net]
-git-fetch-with-cli = true

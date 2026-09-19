@@ -26,6 +26,11 @@ yeptris has since released 0.6.4.1 and 0.6.5.1.
       lutaml-model's autodetection never loads the broken mingw build; Unix
       keeps yeptris. Spec: spec/expressir/engine_selection_spec.rb
 
+- [x] Follow-up (2026-09-19): yeptris 0.6.7.4 re-vendors libyeptris (mingw
+      gem ships libyeptris.dll + per-Ruby natives; FFI constants defined in
+      ffi.rb). Engine loads and parses on darwin via the FFI ladder; this
+      PR's matrix run is the Windows verdict with the engine active again.
+
 ## Acceptance
 
 rake workflow green on main across the full platform matrix.

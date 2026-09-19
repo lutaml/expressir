@@ -23,7 +23,6 @@ else
 end
 
 module Expressir
-
   # Namespace modules - autoload loads the namespace file which contains
   # autoload definitions for classes within that namespace
   autoload :Config, "#{__dir__}/expressir/config"

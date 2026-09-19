@@ -3,7 +3,7 @@
 
 use std::fs;
 
-use expressir_core::ParsedTree;
+use expressir_rs::ParsedTree;
 use magnus::{function, prelude::*, Error, Ruby};
 
 fn model_json(ruby: &Ruby, path: String) -> Result<String, Error> {

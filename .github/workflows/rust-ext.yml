@@ -1,0 +1,33 @@
+name: rust-ext
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  build-ext:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+      - name: Build the expressir-core extension
+        working-directory: ext/expressir_core
+        run: |
+          ruby extconf.rb
+          RB_SYS_CARGO_PROFILE=release make
+      - name: Smoke test the bridge
+        run: |
+          bundle install --jobs 4
+          bundle exec ruby -e '
+            $LOAD_PATH.unshift "lib"
+            require "expressir/core"
+            raise "native unavailable" unless Expressir::Core::NATIVE_AVAILABLE
+            require "json"
+            m = JSON.parse(Expressir::Core.model_json("spec/syntax/multiple.exp"))
+            raise "bad model" unless m["schemas"].first["name"] == "multiple_schema"
+            puts "bridge OK"
+          '

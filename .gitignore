@@ -42,3 +42,9 @@ Gemfile.local.lock
 Gemfile.original
 benchmark/
 CLAUDE.md
+
+# Rust workspace
+/target/
+Cargo.lock
+/ext/expressir_core/target/
+/ext/expressir_core/*.bundle

@@ -46,11 +46,16 @@ module Expressir
       # @param skip_references [Boolean] skip resolving references
       # @param include_source [Boolean] attach original source code to model elements
       # @param use_native [Boolean] use native parser (default: true when available)
+      # @param use_core [Boolean] use the Rust core parse path
+      #   (default: true when the expressir-core extension is available;
+      #   produces a byte-identical model to the Ruby path — see
+      #   parser_core_parity_spec)
       # @return [Model::ExpFile] ExpFile containing parsed schemas
       # @raise [Error::SchemaParseFailure] if the schema file fails to parse
       def self.from_file(file, skip_references: nil, include_source: nil,
                          root_path: nil, use_native: nil,
                          use_core: nil) # rubocop:disable Metrics/AbcSize
+        use_core = Core::NATIVE_AVAILABLE if use_core.nil?
         if use_core && Core::NATIVE_AVAILABLE
           return from_file_core(file, skip_references: skip_references,
                                       include_source: include_source,

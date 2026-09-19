@@ -12,6 +12,7 @@ module Expressir
     autoload :Cache, "#{__dir__}/express/cache"
     autoload :Checker, "#{__dir__}/express/checker"
     autoload :Concatenator, "#{__dir__}/express/concatenator"
+    autoload :Core, "#{__dir__}/express/core"
     autoload :Error, "#{__dir__}/express/error"
     autoload :Formatter, "#{__dir__}/express/formatter"
     autoload :Formatters, "#{__dir__}/express/formatters"

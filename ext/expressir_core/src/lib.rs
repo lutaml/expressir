@@ -1,7 +1,6 @@
 //! Ruby bridge for expressir-core: exposes the Rust parse + model
 //! extraction pipeline to the expressir gem.
 
-use std::fs;
 
 use expressir_rs::ParsedTree;
 use magnus::{function, prelude::*, Error, Ruby};

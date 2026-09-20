@@ -339,6 +339,42 @@ fn set_matches_sources(ruby: &Ruby, reader: &SetReader, read_paths: RHash) -> Re
     }
 }
 
+/// Write a compiled set from Ruby-provided entries —
+/// `[wire_path, source_sha, wire_json]` triples (the post-remark wire
+/// of finalized models, so warm loads skip remark attachment).
+fn set_write(
+    ruby: &Ruby,
+    out_path: String,
+    entries: RArray,
+    expressir_version: String,
+) -> Result<magnus::Value, Error> {
+    let mut files = Vec::with_capacity(entries.len());
+    for index in 0..entries.len() {
+        let triple = RArray::from_value(entries.entry(index as isize)?).ok_or_else(|| {
+            Error::new(
+                ruby.exception_arg_error(),
+                "entries must be [wire_path, source_sha, wire_json] triples",
+            )
+        })?;
+        let wire_path: String = triple.entry(0)?;
+        let source_sha: String = triple.entry(1)?;
+        let wire_json: String = triple.entry(2)?;
+        files.push(CompiledFile {
+            wire_path,
+            source_sha,
+            wire_json,
+        });
+    }
+    let set = CompiledSet::build(files, &expressir_version, &expressir_rs::grammar_digest());
+    set.write_to(&out_path).map_err(|e| {
+        Error::new(
+            ruby.exception_io_error(),
+            format!("compiled set {out_path}: {e}"),
+        )
+    })?;
+    Ok(ruby.str_new(&set.header.set_digest).as_value())
+}
+
 fn value_to_ruby(ruby: &Ruby, cache: &mut ClassCache, wire: &Wire) -> Result<magnus::Value, Error> {
     match wire {
         Wire::Null => Ok(ruby.qnil().as_value()),
@@ -392,6 +428,7 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     let module = ruby.define_module("Expressir")?.define_module("Core")?;
     module.define_singleton_method("parse_to_model_hash", function!(model_json, 2))?;
     module.define_singleton_method("parse_to_model", function!(model_object, 2))?;
+    module.define_singleton_method("write_set", function!(set_write, 3))?;
     let batch_class = module.define_class("BatchStream", ruby.class_object())?;
     batch_class.define_singleton_method("start", function!(batch_start, 2))?;
     batch_class.define_method("next", method!(batch_next, 0))?;

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "digest"
+require "json"
 require "parsanol"
 
 module Expressir

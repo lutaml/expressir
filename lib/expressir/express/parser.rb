@@ -112,8 +112,27 @@ module Expressir
       # @yield [filename, schemas, error] Optional block called for each file
       # @return [Model::Repository] Repository containing all parsed ExpFiles
       def self.from_files(files, skip_references: nil, include_source: nil,
-root_path: nil, use_native: nil, max_processes: nil, &progress)
-        all_exp_files = if ParallelFiles.sequential?(files, max_processes)
+root_path: nil, use_native: nil, max_processes: nil,
+compiled_set: nil, &progress)
+        set_path = compiled_set || ENV["EXPRESSIR_COMPILED_SET"]
+        if set_path && core_set_available?
+          repo = from_compiled_set(set_path, files,
+                                   skip_references: skip_references,
+                                   include_source: include_source,
+                                   root_path: root_path)
+          return repo if repo
+        end
+
+        all_exp_files = if batch_available? && files.size > 1
+                          from_files_batch(
+                            files, include_source: include_source,
+                                   root_path: root_path,
+                                   max_processes: max_processes,
+                                   compiled_set_out: set_path
+                          ) do |file, exp_file, error|
+                            progress&.call(file, exp_file&.schemas, error)
+                          end
+                        elsif ParallelFiles.sequential?(files, max_processes)
                           parse_files_sequentially(
                             files, skip_references: skip_references, include_source: include_source,
                                    root_path: root_path, use_native: use_native
@@ -165,15 +184,8 @@ root_path: nil, use_native: nil, max_processes: nil, &progress)
               raise Error::SchemaParseFailure.new(schema_file, e)
             end
 
-          RemarkAttacher.new(source).attach(exp_file) if source && include_source != false
-
-          transfer_header_to_schema(exp_file, source)
-
-          exp_file.path = schema_file
-          exp_file.schemas.each do |schema|
-            schema.file = schema_file
-            schema.file_basename = File.basename(schema_file, ".exp")
-          end
+          finalize_loaded_file(exp_file, source, schema_file,
+                               include_source: include_source)
 
           unless skip_references
             Expressir::Benchmark.measure_references do
@@ -185,6 +197,133 @@ root_path: nil, use_native: nil, max_processes: nil, &progress)
         end
       end
       private_class_method :from_file_core
+
+      # Shared post-parse steps for every core-path file: remark
+      # attachment, header-remark transfer, and path wiring.
+      def self.finalize_loaded_file(exp_file, source, schema_file,
+                                    include_source: nil)
+        RemarkAttacher.new(source).attach(exp_file) if source && include_source != false
+
+        transfer_header_to_schema(exp_file, source)
+
+        exp_file.path = schema_file
+        exp_file.schemas.each do |schema|
+          schema.file = schema_file
+          schema.file_basename = File.basename(schema_file, ".exp")
+        end
+      end
+      private_class_method :finalize_loaded_file
+
+      # Whether the native batch compiler is usable: the extension is
+      # loaded and exposes BatchStream.
+      def self.batch_available?
+        Core::NATIVE_AVAILABLE &&
+          ::Expressir::Core.const_defined?(:BatchStream, false)
+      end
+      private_class_method :batch_available?
+
+      # Whether the compiled-set artifact APIs are exposed.
+      def self.core_set_available?
+        Core::NATIVE_AVAILABLE && ::Expressir::Core.const_defined?(:Set, false)
+      end
+      private_class_method :core_set_available?
+
+      # Concurrent core-path parse: workers compile in the background
+      # while this thread hydrates, attaches remarks, and reports
+      # progress per file. Results keep the input order; a file that
+      # fails to parse is nil-padded exactly like the other paths.
+      def self.from_files_batch(files, include_source: nil, root_path: nil,
+                                max_processes: nil, compiled_set_out: nil,
+                                &progress)
+        schema_file_for = lambda do |file|
+          root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
+        end
+        wire_paths = files.map { |f| schema_file_for.call(f) }
+        physical = wire_paths.zip(files.map(&:to_s)).to_h
+
+        results = {}
+        jobs = files.map { |f| [f.to_s, schema_file_for.call(f)] }
+        # Outcomes arrive in completion order; files are finalized and
+        # reported in input order (the contract every other path keeps).
+        pending = {}
+        stream = ::Expressir::Core::BatchStream.start(jobs, max_processes.to_i)
+        cursor = 0
+        while (item = stream.next)
+          wire_path, model, error = item
+          if error
+            # Unreadable sources raise like every other path; parse
+            # failures nil-pad and report.
+            raise Errno::ENOENT, error if error.start_with?("read ")
+
+            pending[wire_path] = [nil, error]
+          else
+            pending[wire_path] = [model, nil]
+          end
+          while (entry = pending[wire_paths[cursor]])
+            pending.delete(wire_paths[cursor])
+            ordered_path = wire_paths[cursor]
+            file = physical[ordered_path]
+            loaded, load_error = entry
+            if loaded
+              source = strip_bom(File.read(file))
+              loaded.wire_parents
+              finalize_loaded_file(loaded, source, ordered_path,
+                                   include_source: include_source)
+              results[ordered_path] = loaded
+              yield(file, loaded, nil)
+            else
+              results[ordered_path] = nil
+              yield(file, nil,
+                    Error::SchemaParseFailure.new(ordered_path,
+                                                  RuntimeError.new(load_error)))
+            end
+            cursor += 1
+          end
+        end
+
+        if compiled_set_out && !results.value?(nil)
+          stream.write_set(compiled_set_out, physical,
+                           Expressir::Version::VERSION)
+        end
+
+        wire_paths.map { |wire_path| results[wire_path] }
+      end
+      private_class_method :from_files_batch
+
+      # Warm start from a compiled-set artifact. Returns nil (caller
+      # falls back to compiling) when the artifact is unreadable or no
+      # longer matches the sources. Remarks are re-attached from the
+      # source files and references are resolved as usual — everything
+      # not carried by the wire is deterministic and cheap to rebuild.
+      def self.from_compiled_set(path, files, skip_references: nil,
+                                 include_source: nil, root_path: nil, &progress)
+        schema_file_for = lambda do |file|
+          root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
+        end
+        physical = files.to_h { |f| [schema_file_for.call(f), f.to_s] }
+
+        set = begin
+          ::Expressir::Core::Set.open(path)
+        rescue StandardError
+          return nil
+        end
+        return nil unless set.matches_sources(physical) == true
+
+        models = []
+        while (pair = set.next)
+          wire_path, model = pair
+          file = physical[wire_path]
+          source = file ? strip_bom(File.read(file)) : nil
+          model.wire_parents
+          finalize_loaded_file(model, source, wire_path,
+                               include_source: include_source)
+          models << model
+          progress&.call(file || wire_path, model.schemas, nil)
+        end
+
+        build_repository(models, skip_references: skip_references)
+      end
+      private_class_method :from_compiled_set
 
       def self.parse_files_sequentially(files, skip_references: nil,
 include_source: nil, root_path: nil, use_native: nil, &block)

@@ -42,6 +42,25 @@ module Expressir
 
         ::Expressir::Core.parse_to_model(source, path)
       end
+
+      # Compile many files concurrently: jobs are [read_path,
+      # wire_path] pairs; the block receives (wire_path, model, error)
+      # per job in completion order. Workers run on native threads, so
+      # they keep compiling while the block hydrates and post-processes
+      # each model.
+      def self.parse_batch(jobs, workers: 0)
+        unless ::Expressir::Core.respond_to?(:const_defined?) &&
+               ::Expressir::Core.const_defined?(:BatchStream)
+          raise NotImplementedError,
+                "batch compile unavailable; parse files individually"
+        end
+
+        stream = ::Expressir::Core::BatchStream.start(jobs, workers)
+        while (item = stream.next)
+          path, model, error = item
+          yield(path, model, error)
+        end
+      end
     end
   end
 end

@@ -190,7 +190,7 @@ module Expressir
             "GENERIC_ENTITY",
             *if node.id
                [
-                 ":",
+                 " : ",
                  node.id,
                ]
              end,
@@ -202,7 +202,7 @@ module Expressir
             "GENERIC",
             *if node.id
                [
-                 ":",
+                 " : ",
                  node.id,
                ]
              end,

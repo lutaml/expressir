@@ -325,13 +325,22 @@ module Expressir
 
       # Simple types
       Builder.register(:boolean_type) { |d| type_builder.build_boolean_type(d) }
+      # GENERIC[: label] / GENERIC_ENTITY[: label] — ISO 10303-11
+      # 9.5.3.2 type label (GH-339).
+      def self.type_label_id(ast_data)
+        label = ast_data.is_a?(Hash) ? ast_data[:type_label] : nil
+        return nil unless label.is_a?(Hash)
+
+        Builder.build_optional({ simple_id: label[:type_label_id][:simple_id] })
+      end
+
       Builder.register(:integer_type) { |d| type_builder.build_integer_type(d) }
       Builder.register(:logical_type) { |d| type_builder.build_logical_type(d) }
       Builder.register(:number_type) { |d| type_builder.build_number_type(d) }
 
       # Type constructors
-      Builder.register(:generic_type) { |_d| Expressir::Model::DataTypes::Generic.new }
-      Builder.register(:generic_entity_type) { |_d| Expressir::Model::DataTypes::GenericEntity.new }
+      Builder.register(:generic_type) { |d| Expressir::Model::DataTypes::Generic.new(id: BuilderRegistry.type_label_id(d)) }
+      Builder.register(:generic_entity_type) { |d| Expressir::Model::DataTypes::GenericEntity.new(id: BuilderRegistry.type_label_id(d)) }
       Builder.register(:aggregate_type) do |d|
         type_builder.build_aggregate_type(d)
       end

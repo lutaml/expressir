@@ -150,13 +150,20 @@ root_path: nil, use_native: nil, max_processes: nil, &progress)
           source = strip_bom(File.read(file))
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
-          hash = begin
-            Core.parse_to_model_hash(source, schema_file)
-          rescue StandardError => e
-            raise Error::SchemaParseFailure.new(schema_file, e)
-          end
-          exp_file = Model::ExpFile.from_hash(hash)
-          exp_file&.wire_parents
+          exp_file =
+            begin
+              Core.parse_to_model(source, schema_file).tap(&:wire_parents)
+            rescue NotImplementedError
+              begin
+                Model::ExpFile.from_hash(
+                  Core.parse_to_model_hash(source, schema_file),
+                )&.tap(&:wire_parents)
+              rescue StandardError => e
+                raise Error::SchemaParseFailure.new(schema_file, e)
+              end
+            rescue StandardError => e
+              raise Error::SchemaParseFailure.new(schema_file, e)
+            end
 
           RemarkAttacher.new(source).attach(exp_file) if source && include_source != false
 

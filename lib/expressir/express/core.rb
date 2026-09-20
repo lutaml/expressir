@@ -27,6 +27,21 @@ module Expressir
       def self.parse_to_model_hash(source, path)
         JSON.parse(::Expressir::Core.parse_to_model_hash(source, path))
       end
+
+      # Parse EXPRESS source into the hydrated model directly: the
+      # extension walks the wire definition once and constructs every
+      # node through Serializable.instantiate (lutaml-model's fast
+      # bulk constructor). Falls back to the hash path when either
+      # the extension or the lutaml-model instantiate API is absent.
+      def self.parse_to_model(source, path)
+        unless ::Expressir::Core.respond_to?(:parse_to_model) &&
+            Model::ExpFile.respond_to?(:instantiate)
+          raise NotImplementedError,
+                "direct model construction unavailable; use parse_to_model_hash"
+        end
+
+        ::Expressir::Core.parse_to_model(source, path)
+      end
     end
   end
 end

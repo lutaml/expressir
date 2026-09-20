@@ -2311,6 +2311,7 @@ schemas:
       id: generic_label_type
       return_type:
         _class: Expressir::Model::DataTypes::Generic
+        id: label
       statements:
       - _class: Expressir::Model::Statements::Null
     - _class: Expressir::Model::Declarations::Function
@@ -2323,6 +2324,7 @@ schemas:
       id: generic_entity_label_type
       return_type:
         _class: Expressir::Model::DataTypes::GenericEntity
+        id: label
       statements:
       - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Procedure

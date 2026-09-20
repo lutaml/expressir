@@ -795,13 +795,13 @@ PROCEDURE types;
   FUNCTION generic_type : GENERIC;
     ;
   END_FUNCTION;
-  FUNCTION generic_label_type : GENERIC;
+  FUNCTION generic_label_type : GENERIC : label;
     ;
   END_FUNCTION;
   FUNCTION generic_entity_type : GENERIC_ENTITY;
     ;
   END_FUNCTION;
-  FUNCTION generic_entity_label_type : GENERIC_ENTITY;
+  FUNCTION generic_entity_label_type : GENERIC_ENTITY : label;
     ;
   END_FUNCTION;
 END_PROCEDURE; -- literal expressions

@@ -866,6 +866,9 @@ module Expressir
                      placement: nil, region: nil, source_offset: nil)
         return unless node
         return unless node.is_a?(Model::ModelElement)
+        # An empty remark body carries no content; storing it produced
+        # remarks == [""] entries (GH-363).
+        return if text.nil? || text.strip.empty?
 
         if supports_remarks?(node)
           if node_has_remarks?(node)

@@ -46,13 +46,22 @@ module Expressir
 
             if subtype_declaration.is_a?(Hash)
               list_ref = subtype_declaration[:list_of_entity_ref]
-              if list_ref.is_a?(Hash)
-                entity_ref_data = list_ref[:entity_ref]
-                if entity_ref_data
-                  subtype_of = Builder.build_children(Builder.ensure_array(entity_ref_data).map do |d|
-                    { entity_ref: d }
-                  end)
+              # SUBTYPE OF (a) flattens to a Hash; SUBTYPE OF (a, b) to an
+              # Array of single-key fragments (entity_ref possibly merged
+              # with its op_comma). Collect entity_ref from either shape
+              # (lutaml/expressir#341).
+              raw_entity_refs =
+                if list_ref.is_a?(Hash)
+                  ref = list_ref[:entity_ref]
+                  ref.is_a?(Array) ? ref : [ref]
+                elsif list_ref.is_a?(Array)
+                  list_ref.filter_map { |el| el[:entity_ref] if el.is_a?(Hash) }
+                    .flat_map { |d| d.is_a?(Array) ? d : [d] }
                 end
+              if raw_entity_refs && !raw_entity_refs.empty?
+                subtype_of = Builder.build_children(raw_entity_refs.map do |d|
+                  { entity_ref: d }
+                end)
               end
             end
           end
@@ -78,7 +87,8 @@ module Expressir
             end
 
             if entity_body[:unique_clause]
-              unique_rules = Builder.build({ unique_clause: entity_body[:unique_clause] })
+              built = Builder.build({ unique_clause: entity_body[:unique_clause] })
+              unique_rules = Array(built).compact
             end
             unique_rules ||= []
 

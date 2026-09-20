@@ -25,8 +25,15 @@ module Expressir
             attributes = Builder.build_children(inner_data[:referenced_attribute])
           end
 
+          attributes = attributes.compact
+
+          # The grammar's separator repetition can yield a phantom rule
+          # fragment (no label, no referenced attributes) between real
+          # rules; drop it so clean never emits a bare ";" (GH-340).
+          return nil if id.nil? && attributes.empty?
+
           Expressir::Model::Declarations::UniqueRule.new(id: id,
-                                                         attributes: attributes.compact)
+                                                         attributes: attributes)
         end
       end
     end

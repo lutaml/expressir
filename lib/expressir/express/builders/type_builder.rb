@@ -114,10 +114,18 @@ module Expressir
           bound1 = Builder.build_optional(bound_spec[:bound1])
           bound2 = Builder.build_optional(bound_spec[:bound2])
           base_type = Builder.build_optional(ast_data[:parameter_type])
+          # Element modifiers are legal on general aggregations too
+          # (attributes and parameters); dropping them silently changed
+          # element constraints (GH-338). ARRAY carries both flags,
+          # LIST only UNIQUE, per the model.
+          optional = !ast_data[:t_optional].nil? if type_class.method_defined?(:optional)
+          unique = !ast_data[:t_unique].nil? if type_class.method_defined?(:unique)
 
           type_class.new(
             bound1: bound1,
             bound2: bound2,
+            optional: optional,
+            unique: unique,
             base_type: base_type,
           )
         end

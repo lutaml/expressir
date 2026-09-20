@@ -2648,6 +2648,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: true
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_variable
@@ -3023,6 +3024,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Real
   - _class: Expressir::Model::Declarations::Entity
@@ -3048,6 +3050,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Integer
   - _class: Expressir::Model::Declarations::Entity
@@ -3088,6 +3091,7 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -3139,6 +3143,12 @@ schemas:
     - This type of <<express:mathematical_functions_schema.maths_variable,maths_variable>>
       and <<express:iso13584_expressions_schema.real_numeric_variable,real_numeric_variable>>
       makes a convenient representation for variables ranging over the real numbers.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_variable
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_variable
+    - _class: Expressir::Model::References::SimpleReference
+      id: real_numeric_variable
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -3174,6 +3184,12 @@ schemas:
     - This type of <<express:mathematical_functions_schema.maths_variable,maths_variable>>
       and <<express:iso13584_expressions_schema.int_numeric_variable,int_numeric_variable>>
       makes a convenient representation for variables ranging over the integers.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_variable
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_variable
+    - _class: Expressir::Model::References::SimpleReference
+      id: int_numeric_variable
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -3208,6 +3224,12 @@ schemas:
     - This type of <<express:mathematical_functions_schema.maths_variable,maths_variable>>
       and <<express:iso13584_expressions_schema.boolean_variable,boolean_variable>>
       makes a convenient representation for variables ranging over the booleans.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_variable
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_variable
+    - _class: Expressir::Model::References::SimpleReference
+      id: boolean_variable
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -3242,6 +3264,12 @@ schemas:
     - This type of <<express:mathematical_functions_schema.maths_variable,maths_variable>>
       and <<express:iso13584_expressions_schema.string_variable,string_variable>>
       makes a convenient representation for variables ranging over strings.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_variable
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_variable
+    - _class: Expressir::Model::References::SimpleReference
+      id: string_variable
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -3303,6 +3331,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_expression
@@ -3336,6 +3365,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_expression
@@ -3470,6 +3500,12 @@ schemas:
       and <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>>
       is used to represent the elementary mathematical spaces identified by the enumeration
       type *elementary_maths_space*.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_space
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: space_id
@@ -3486,6 +3522,12 @@ schemas:
     - This type of <<express:mathematical_functions_schema.maths_space,maths_space>>
       and <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>>
       represents mathematical spaces which are non-empty, finite intervals of integers.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_space
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: min
@@ -3553,6 +3595,12 @@ schemas:
       and <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>>
       represents semi-infinite integer intervals which contain all integers greater
       than or equal to a given integer.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_space
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: min
@@ -3568,6 +3616,12 @@ schemas:
       and <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>>
       represents semi-infinite integer intervals which contain all integers less than
       or equal to a given integer.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_space
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: max
@@ -3589,6 +3643,12 @@ schemas:
       This type of <<express:mathematical_functions_schema.maths_space,maths_space>> and <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>> represents mathematical spaces which are intervals of the real numbers having finite positive length.
 
       NOTE: The finiteness of these intervals is exhibited in their lengths, not the number of members.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_space
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: min
@@ -3649,6 +3709,12 @@ schemas:
       bounded below but not bounded above. That is, it represents intervals which
       contain all real numbers either greater than, or greater than or equal to, a
       given real number.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_space
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: min
@@ -3676,6 +3742,12 @@ schemas:
       bounded above but not bounded below. That is, it represents intervals which
       contain all real numbers either less than, or less than or equal to, a given
       real number.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_space
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: max
@@ -3702,6 +3774,12 @@ schemas:
       represents subsets of the complex numbers defined by restricting the real parts
       to a specified, non-trivial, real interval and the imaginary parts to another
       such interval.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_space
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: real_constraint
@@ -3788,6 +3866,12 @@ schemas:
       upward. The direction stem:[theta] of a complex number from the designated centre
       shall be deemed to belong to a real interval if either stem:[theta] or stem:[theta
       + 2pi] is a member of the interval.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_space
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: centre
@@ -4138,6 +4222,12 @@ schemas:
       and <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>>
       represents mathematical spaces with a finite number of members. This includes
       the space with zero members, also known as the empty set.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_space
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: members
@@ -4248,6 +4338,12 @@ schemas:
       This type of <<express:mathematical_functions_schema.maths_space,maths_space>> and <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>> represents finite Cartesian product spaces, all of whose factor spaces are the same. These Cartesian products are commonly written using an exponential notation. Let stem:[B] be the space represented by the *base* attribute and stem:[n] be the value of the *exponent* attribute. Then the space represented by the instance is commonly expressed as stem:[B^n].
 
       NOTE: There is a unique, natural isomorphism between the space stem:[B] and the space stem:[B^1]. It is a very common practice in mathematics to identify these two spaces via this isomorphism and not distinguish between elements of stem:[B] and the corresponding one-tuples in stem:[B^1]. In this schema, this distinction must be maintained in order to avoid computer processing ambiguity in later applications.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_space
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: base
@@ -4328,6 +4424,12 @@ schemas:
       ++++
 
       NOTE: The spaces represented by instances of <<express:mathematical_functions_schema.uniform_product_space,uniform_product_space>> are also representable by instances <<express:mathematical_functions_schema.listed_product_space,listed_product_space>>. Since redundant representation is inherent in mathematical expressions and in the possibility of multiple instances of the same entity type representing the same mathematical object, no advantage was seen in attempting to add rules to prevent it or in forcing use of an inconvenient representation. Consider representing stem:[R^(64)] using an instance of <<express:mathematical_functions_schema.listed_product_space,listed_product_space>>.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_space
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: factors
@@ -4337,6 +4439,7 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_space
@@ -4450,6 +4553,12 @@ schemas:
       ++++
 
       where the associative Cartesian product operation is being used.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_space
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: base
@@ -4540,6 +4649,12 @@ schemas:
       and <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>>
       represents mathematical spaces whose members are all the mathematical functions
       which satisfy the indicated constraints on their domains and ranges.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_space
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: domain_constraint
@@ -4886,6 +5001,12 @@ schemas:
       This type of <<express:mathematical_functions_schema.maths_function,maths_function>> and <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>> provides representations for functions specified by simply collecting all pairs of input and corresponding output values.
 
       The domain and range are derived from the value of *pairs* by constructing the <<express:mathematical_functions_schema.finite_space,finite_space>> of all first members and all second members, respectively.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: pairs
@@ -4908,6 +5029,7 @@ schemas:
           bound2:
             _class: Expressir::Model::Literals::Integer
             value: '2'
+          unique: false
           base_type:
             _class: Expressir::Model::References::SimpleReference
             id: maths_value
@@ -4967,6 +5089,12 @@ schemas:
       * Else _src_ is a <<express:mathematical_functions_schema.maths_function,maths_function>> and the domain of _src_ is the constant function domain.
 
       NOTE: The choice of references from which the domain of a <<express:mathematical_functions_schema.constant_function,constant_function>> can be derived reflects the fact that constant functions are usually created to serve some minor role in a larger construct, and that larger construct usually determines the desired domain for the constant function. In particular, function domains are often derived rather than explicitly represented, and this mechanism allows a constant function to "borrow" that derivation from another function.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: sole_output
@@ -5042,6 +5170,12 @@ schemas:
       The range of a <<express:mathematical_functions_schema.selector_function,selector_function>> is derived to be the space of one-tuples of the appropriate component of the domain.
 
       NOTE: The choice of references from which the domain of a <<express:mathematical_functions_schema.selector_function,selector_function>> can be derived reflects the fact that selector functions are usually created to serve some minor role in a larger construct, and that larger construct usually determines the desired domain for the selector function. In particular, function domains are often derived rather than explicitly represented, and this mechanism allows a selector function to "borrow" that derivation from another function.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: selector
@@ -5110,6 +5244,12 @@ schemas:
       This type of <<express:mathematical_functions_schema.maths_function,maths_function>> and <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>> provides representations for the elementary operators, functions and procedures identified by <<express:mathematical_functions_schema.elementary_function_enumerators,elementary_function_enumerators>> items.
 
       The domain and range are derived from the value of *func_id*.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: func_id
@@ -5128,6 +5268,12 @@ schemas:
       This type of <<express:mathematical_functions_schema.maths_function,maths_function>> and <<express:iso13584_generic_expressions_schema.unary_generic_expression,unary_generic_expression>> represents identity functions on given mathematical spaces. They may be used to restrict the effective domain or range of another function by composing them with the other function in an appropriate order.
 
       Restriction functions take a single value from the space indicated by *operand* as input and produce the same single value as output. The domain and range are derived accordingly to be the spaces of all one-tuples from the space identified by the *operand* value.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: unary_generic_expression
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: operand
@@ -5174,6 +5320,12 @@ schemas:
       - The inherited *operand* attribute is constrained to be an instance of <<express:mathematical_functions_schema.maths_function,maths_function>>
         and identifies the function to be repackaged, herinafter referred to as the
         original function.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: unary_generic_expression
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: operand
@@ -5466,6 +5618,12 @@ schemas:
       The range of the <<express:mathematical_functions_schema.reindexed_array_function,reindexed_array_function>> is derived to be the same as that of the value of the inherited *operand* attribute.
 
       NOTE: In most cases, the *operand* value will be a table function represented using one of the other subtypes of <<express:mathematical_functions_schema.maths_function,maths_function>>. The present type serves as a convenient mechanism for representing arrays whose indices don't all start at zero or at one.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: unary_generic_expression
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: operand
@@ -5503,6 +5661,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Integer
     where_rules:
@@ -5582,6 +5741,12 @@ schemas:
       This type of <<express:mathematical_functions_schema.maths_function,maths_function>> and <<express:iso13584_generic_expressions_schema.multiple_arity_generic_expression,multiple_arity_generic_expression>> represents the mathematical function which is the serial composition of the functions in its inherited *operands* attribute. The output of an instance of <<express:mathematical_functions_schema.series_composed_function,series_composed_function>> is obtained from its input by applying *operands[1]* to its input, *operands[2]* to the output from *operands[1]*, and so on, until the output of the *composed_function* is obtained as the output of the last member of *operands*. In mathematical notation, the <<express:mathematical_functions_schema.series_composed_function,series_composed_function>> stem:[F] is constructed from the list of functions stem:[f_1, f_2, f_3, ..., f_n] indicated by its *operands* attribute value by stem:[F(x) -= fn(...f_3(f_2(f_1(x)))...)], where stem:[x] represents any list of actual inputs.
 
       The domain of the <<express:mathematical_functions_schema.series_composed_function,series_composed_function>> is derived to be the domain of its first operand and its range is derived as that of its last operand.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: multiple_arity_generic_expression
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: operands
@@ -5611,6 +5776,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_function
@@ -5653,6 +5819,12 @@ schemas:
       * Else _src_ is a <<express:mathematical_functions_schema.maths_function,maths_function>> and the domain of _src_ is the function domain.
 
       The range of the <<express:mathematical_functions_schema.parallel_composed_function,parallel_composed_function>> is derived to be the range of the value of its *final_function* attribute.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: multiple_arity_generic_expression
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: source_of_domain
@@ -5676,6 +5848,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_function
@@ -5718,6 +5891,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_expression
@@ -5996,6 +6170,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -6009,6 +6184,12 @@ schemas:
       These functions take a single integer from the interval from *index_base* to *index_base* + SIZEOF( *values* ) - 1 as input and produce a single real number as output.
 
       NOTE: This class of functions is functionally equivalent to one-dimensional tables of reals.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: explicit_table_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.explicit_table_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: values
@@ -6023,6 +6204,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::DerivedAttribute
@@ -6053,6 +6235,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -6077,6 +6260,12 @@ schemas:
       These functions take a single integer from the interval from *index_base* to *index_base* + SIZEOF( *values* ) - 1 as input and produce a single integer as output.
 
       NOTE: This class of functions is functionally equivalent to one-dimensional tables of integers.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: explicit_table_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.explicit_table_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: values
@@ -6091,6 +6280,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::DerivedAttribute
@@ -6136,6 +6326,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -6160,6 +6351,12 @@ schemas:
       These functions take a single integer from the interval from *index_base* to *index_base* + SIZEOF( *values* ) - 1 as input and produce a single EXPRESS logical value as output.
 
       NOTE: This class of functions is functionally equivalent to one-dimensional tables of EXPRESS logical values.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: explicit_table_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.explicit_table_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: values
@@ -6174,6 +6371,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Logical
     - _class: Expressir::Model::Declarations::DerivedAttribute
@@ -6204,6 +6402,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -6228,6 +6427,12 @@ schemas:
       These functions take a single integer from the interval from *index_base* to *index_base* + SIZEOF( *values* ) - 1 as input and produce a single string value as output.
 
       NOTE: This class of functions is functionally equivalent to one-dimensional tables of strings.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: explicit_table_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.explicit_table_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: values
@@ -6242,6 +6447,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::String
     - _class: Expressir::Model::Declarations::DerivedAttribute
@@ -6272,6 +6478,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -6296,6 +6503,12 @@ schemas:
       These functions take a single integer from the interval from *index_base* to *index_base* + SIZEOF( *values* )/2 - 1 as input and produce a single complex number as output.
 
       NOTE: This class of functions is functionally equivalent to one-dimensional tables of complex numbers.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: explicit_table_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.explicit_table_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: values
@@ -6311,6 +6524,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::DerivedAttribute
@@ -6341,6 +6555,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -6408,6 +6623,12 @@ schemas:
       These functions take a single integer from the interval from *index_base* to *index_base* + SIZEOF( *values* ) - 1 as input and produce a single EXPRESS <<express:mathematical_functions_schema.maths_value,maths_value>> as output. The inherited *range* attribute is derived to be the space of one-tuples from *value_range*.
 
       NOTE: This class of functions is functionally equivalent to one-dimensional tables of *maths_values*.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: explicit_table_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.explicit_table_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: values
@@ -6422,6 +6643,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -6464,6 +6686,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -6540,6 +6763,14 @@ schemas:
       These functions take a single integer from the interval from *index_base* to *index_base* + *shape[1]* - 1 as input and produce a single EXPRESS <<express:mathematical_functions_schema.maths_value,maths_value>> belonging to *value_range* as output.
 
       NOTE: This class of functions is functionally equivalent to one-dimensional tables of *maths_values*. One application of this type is for the case where the list of values is so large that embedding it in an exchange file is impractical. In such cases, the data values may be exchanged in a separate file in an especially efficient format, or maintained in a central respository which is only accessed as needed over a network. It is expected that the correspondence to a list-like structure will usually be obvious and implicit.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: explicit_table_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.explicit_table_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
+    - _class: Expressir::Model::References::SimpleReference
+      id: externally_defined_item
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: value_range
@@ -6597,6 +6828,12 @@ schemas:
       - _class: Expressir::Model::References::SimpleReference
         id: banded_matrix
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.banded_matrix
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: explicit_table_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.explicit_table_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: unary_generic_expression
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: operand
@@ -6834,6 +7071,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Integer
     where_rules:
@@ -7687,6 +7925,12 @@ schemas:
       The input to the function represented by a <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>> is a single ordered pair of integers and the output is a single value from the range of *val*.
 
       NOTE: Other, more specialized representations for sparse matrices may be required for certain applications in the future. They may take advantage of additional structure that may exist in the matrices used by these applications.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: explicit_table_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.explicit_table_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: multiple_arity_generic_expression
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: operands
@@ -7715,6 +7959,7 @@ schemas:
         bound2:
           _class: Expressir::Model::Literals::Integer
           value: '3'
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_function
@@ -8034,6 +8279,12 @@ schemas:
       NOTE: The indication of summation indices generalizes more easily to other contexts.
 
       NOTE: The matrix of coefficients may be given by any two-dimensional table function. In particular, it might be an instance of <<express:mathematical_functions_schema.standard_table_function,standard_table_function>>, <<express:mathematical_functions_schema.regular_table_function,regular_table_function>>, <<express:mathematical_functions_schema.triangular_matrix,triangular_matrix>>, *sparse_matrix*, <<express:mathematical_functions_schema.parallel_composed_function,parallel_composed_function>>, or many other types. The critical characteristics identifying a two-dimensional table function have to do with its domain and range and not with how its algorithm is specified.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: unary_generic_expression
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: operand
@@ -8171,6 +8422,12 @@ schemas:
       NOTE: General linear functions include all the "rigid motions" such as translation, rotation, and reflection, as well as "nonrigid motions" such as rescaling, projecting and shearing.
 
       NOTE: General linear functions are precisely those functions which preserve affine subspaces of a real space, that is, they map lines to lines, planes to planes, and stem:[n]-dimensional "flat" subspaces to stem:[n]-dimensional "flat' subspaces for any positive integer stem:[n].
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: unary_generic_expression
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: operand
@@ -8322,6 +8579,12 @@ schemas:
       This type of <<express:mathematical_functions_schema.maths_function,maths_function>> and <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>> defines a tuple of B-spline basis functions, usually for use with one of the input variables of a B-spline function.
 
       The function represented by an instance of this type takes a single real number as input and produces a real tuple of length *num_basis* as output.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: degree
@@ -8345,6 +8608,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::DerivedAttribute
@@ -8470,6 +8734,12 @@ schemas:
       represents tensor product B-spline functions with arbitrary numbers of input
       and output variables. Depending on the dimension of the coefficient table, the
       outputs are real numbers, real tuples, or multi-dimensional real table functions.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: unary_generic_expression
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: operand
@@ -8507,6 +8777,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: b_spline_basis
@@ -8692,6 +8963,12 @@ schemas:
 
       Rational B-spline functions can be represented by instantiating a <<express:mathematical_functions_schema.rationalize_function,rationalize_function>> with a *fun* attribute value set to a <<express:mathematical_functions_schema.b_spline_function,b_spline_function>> which corresponds very simply with the desired rational B-spline function. Numerator coefficients stem:[X_(ij), Y_(ij), Z_(ij)] and denominator (or weights) coefficients stem:[W_(ij)], become spline coefficients stem:[X_(ij)W_(ij), Y_(ij)W_(ij), Z_(ij)W_(ij)], and stem:[W_(ij)] in a non-rational spline.
       ====
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: unary_generic_expression
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: operand
@@ -8873,6 +9150,12 @@ schemas:
       NOTE: The strictest definition of derivative requires that the function being differentiated be defined on an open set containing the point at which the derivative is being evaluated. This implies that the derivative is never defined at boundaries of the domain. More commonly, the derivative is extended to all points at which continuity of the derivative can be preserved. In the case of the real numbers, one can also define left- and right-sided derivatives which may be defined at places the strict (two-sided) derivative is not. The extension attribute requires specification of which of these common extensions to the strictest notion of derivative is to be represented.
 
       NOTE: Partial derivatives only exist mathematically for certain functions. At a minimum, the outputs must be real or complex numbers or (possibly nested) tuples thereof and the inputs corresponding to members of *d_variables* must be real or complex numbers. The <<express:mathematical_functions_schema.space_is_continuum,space_is_continuum>> and <<express:mathematical_functions_schema.partial_derivative_check,partial_derivative_check>> functions verify these minimal requirements.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: unary_generic_expression
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: operand
@@ -8912,6 +9195,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: input_selector
@@ -9041,6 +9325,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_variable
@@ -9223,6 +9508,12 @@ schemas:
       The represented function has the same number of outputs, of the same real or complex types, and with the same packaging, as the integrand function.
 
       The domains of any new inputs are derived to be the same as the domain of the variable of integration. The range is derived to have the same structure as that of the integrand function, but any restrictions to subsets of the real or complex numbers are replaced by the corresponding spaces of all real numbers and all complex numbers.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: unary_generic_expression
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: operand
@@ -9476,6 +9767,7 @@ schemas:
         bound2:
           _class: Expressir::Model::Literals::Integer
           value: '1'
+        unique: true
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_variable
@@ -9591,6 +9883,13 @@ schemas:
       This type of <<express:mathematical_functions_schema.maths_function,maths_function>> and <<express:mathematical_functions_schema.quantifier_expression,quantifier_expression>> defines a mathematical function by function abstraction from an expression. A list of variables is identified as corresponding to the inputs of the function. These variables become bound variables in the resulting expression, which now denotes a function. That is, the variables identified as function inputs may not be assigned values or any semantics other than that they are placeholders for inputs to a function. This operation corresponds to "lambda quantification" in the Lambda Calculus formalism.
 
       The domain of an instance of <<express:mathematical_functions_schema.abstracted_expression_function,abstracted_expression_function>> is derived to be the Cartesian product of the value spaces of its <<express:iso13584_expressions_schema.variable,variables>>, in that order. The range is derived to be the value space of its *expr*. The value space of any mathematical expression is computed by function *value_space_of*.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: quantifier_expression
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.quantifier_expression
     attributes:
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: variables
@@ -9620,6 +9919,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: true
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_variable
@@ -9743,6 +10043,12 @@ schemas:
       This type of <<express:mathematical_functions_schema.maths_function,maths_function>> and unary <<express:iso13584_generic_expressions_schema.generic_expression,generic_expression>> recognizes an expression which denotes a mathematical function as an instance of <<express:mathematical_functions_schema.maths_function,maths_function>>. Such an expression could arise, for example, as an instance of <<express:mathematical_functions_schema.function_application,function_application>>. Suitable expressions are identified by the output of the <<express:mathematical_functions_schema.values_space_of,values_space_of>> function being a <<express:mathematical_functions_schema.function_space,function_space>>.
 
       The domain and range of an instance of <<express:mathematical_functions_schema.expression_denoted_function,expression_denoted_function>> are derived from the *domain_argument* and *range_argument* attributes of the function space produced by <<express:mathematical_functions_schema.values_space_of,values_space_of>> ( *expr* ).
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: unary_generic_expression
     attributes:
     - _class: Expressir::Model::Declarations::DerivedAttribute
       id: expr
@@ -9842,6 +10148,12 @@ schemas:
       This type of <<express:mathematical_functions_schema.maths_function,maths_function>> and <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>> represents the constant function corresponding to a <<express:geometry_schema.point,point>> instance from the *geometry_schema*. It enables instances of <<express:geometry_schema.point,point>> to participate in the construction of other instances of <<express:mathematical_functions_schema.maths_function,maths_function>>.
 
       The domain of an instance of <<express:mathematical_functions_schema.imported_point_function,imported_point_function>> is the space stem:[(R^0)^1]. This implies that the function takes a single input which is an element of the space stem:[R^0]. The only element of the space stem:[R^0] is the zero-tuple of real numbers, which is represented in EXPRESS by the empty list of reals.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: geometry
@@ -9858,6 +10170,12 @@ schemas:
       This type of <<express:mathematical_functions_schema.maths_function,maths_function>> and <<express:iso13584_generic_expressions_schema.generic_literal,generic_literal>> represents the parametric function defined for a curve instance from the *geometry_schema*. It permits non-geometric data to be associated with the curve using the curve's parametrization.
 
       The range of an <<express:mathematical_functions_schema.imported_curve_function,imported_curve_function>> is derived to be either stem:[(R^2)^1] or stem:[(R^3)^1] depending on the geometric dimension of the curve.
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: geometry
@@ -9908,6 +10226,12 @@ schemas:
 
       The range of an <<express:mathematical_functions_schema.imported_surface_function,imported_surface_function>>
        is derived to be stem:[(R^3)^1].
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: geometry
@@ -9958,6 +10282,12 @@ schemas:
 
       The range of an <<express:mathematical_functions_schema.imported_surface_function,imported_surface_function>>
        is derived to be stem:[(R^3)^1].
+    subtype_of:
+    - _class: Expressir::Model::References::SimpleReference
+      id: maths_function
+      base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+    - _class: Expressir::Model::References::SimpleReference
+      id: generic_literal
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: geometry
@@ -10044,6 +10374,7 @@ schemas:
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -11226,6 +11557,7 @@ schemas:
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_space
@@ -12387,6 +12719,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -12582,6 +12915,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -13109,6 +13443,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: b_spline_basis
@@ -13128,6 +13463,7 @@ schemas:
       id: shape
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -13307,8 +13643,10 @@ schemas:
       - "(input) The list of values to use in the comparison."
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Generic
+          id: G
     - _class: Expressir::Model::Declarations::Parameter
       id: op
       remarks:
@@ -13324,6 +13662,7 @@ schemas:
       - The value to use in the comparison.
       type:
         _class: Expressir::Model::DataTypes::Generic
+        id: G
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     statements:
@@ -13447,6 +13786,7 @@ schemas:
       - "(input) The first value to use in the comparison."
       type:
         _class: Expressir::Model::DataTypes::Generic
+        id: G
     - _class: Expressir::Model::Declarations::Parameter
       id: op
       remarks:
@@ -13461,6 +13801,7 @@ schemas:
       - "(input) The second value to use in the comparison."
       type:
         _class: Expressir::Model::DataTypes::Generic
+        id: G
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     variables:
@@ -18334,6 +18675,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_function
@@ -18759,6 +19101,7 @@ schemas:
       - "(input) The arbitrary value to be converted."
       type:
         _class: Expressir::Model::DataTypes::Generic
+        id: G
     return_type:
       _class: Expressir::Model::References::SimpleReference
       id: maths_value
@@ -19318,6 +19661,7 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_value
     return_type:
       _class: Expressir::Model::DataTypes::List
+      unique: false
       base_type:
         _class: Expressir::Model::References::SimpleReference
         id: generic_expression
@@ -19326,6 +19670,7 @@ schemas:
       id: operands
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_expression
@@ -19453,6 +19798,7 @@ schemas:
       - "(input) The value of the *prep_functions* attribute."
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_function
@@ -19473,6 +19819,7 @@ schemas:
       bound2:
         _class: Expressir::Model::References::SimpleReference
         id: "?"
+      unique: false
       base_type:
         _class: Expressir::Model::References::SimpleReference
         id: generic_expression
@@ -19481,6 +19828,7 @@ schemas:
       id: operands
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_expression
@@ -19887,6 +20235,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_expression
@@ -20389,6 +20738,7 @@ schemas:
         id: factors
         type:
           _class: Expressir::Model::DataTypes::List
+          unique: false
           base_type:
             _class: Expressir::Model::References::SimpleReference
             id: maths_space
@@ -25901,6 +26251,7 @@ schemas:
           bound2:
             _class: Expressir::Model::Literals::Integer
             value: '2'
+          unique: false
           base_type:
             _class: Expressir::Model::References::SimpleReference
             id: maths_value
@@ -26024,6 +26375,7 @@ schemas:
           bound2:
             _class: Expressir::Model::Literals::Integer
             value: '2'
+          unique: false
           base_type:
             _class: Expressir::Model::References::SimpleReference
             id: maths_value
@@ -26174,6 +26526,7 @@ schemas:
       id: shape
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -26182,6 +26535,7 @@ schemas:
       id: sidxs
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Integer
       expression:
@@ -26199,6 +26553,7 @@ schemas:
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: finite_integer_interval
@@ -30306,6 +30661,7 @@ schemas:
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_space
@@ -46176,6 +46532,7 @@ schemas:
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_space
@@ -46184,6 +46541,7 @@ schemas:
       id: factors2
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_space
@@ -48124,6 +48482,7 @@ schemas:
       id: list1
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -48132,6 +48491,7 @@ schemas:
       id: list2
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -49322,6 +49682,7 @@ schemas:
       id: shape
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -49344,6 +49705,7 @@ schemas:
       id: sublo
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Integer
       expression:
@@ -49352,6 +49714,7 @@ schemas:
       id: subhi
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Integer
       expression:
@@ -50515,6 +50878,7 @@ schemas:
       id: exprs
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_expression
@@ -50972,6 +51336,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -52969,6 +53334,7 @@ schemas:
         _class: Expressir::Model::DataTypes::Aggregate
         base_type:
           _class: Expressir::Model::DataTypes::List
+          unique: false
           base_type:
             _class: Expressir::Model::References::SimpleReference
             id: maths_value
@@ -52983,6 +53349,7 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.positive_integer
     return_type:
       _class: Expressir::Model::DataTypes::List
+      unique: false
       base_type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_value
@@ -52992,6 +53359,7 @@ schemas:
       id: result
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -53124,6 +53492,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_expression
@@ -53276,6 +53645,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Real
     return_type:
@@ -53357,6 +53727,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: b_spline_basis
@@ -53437,6 +53808,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -53597,6 +53969,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -53614,6 +53987,7 @@ schemas:
         bound2:
           _class: Expressir::Model::Literals::Integer
           value: '3'
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_function
@@ -54135,6 +54509,7 @@ schemas:
         bound2:
           _class: Expressir::Model::Literals::Integer
           value: '4'
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_expression
@@ -54649,6 +55024,7 @@ schemas:
           bound2:
             _class: Expressir::Model::Literals::Integer
             value: '2'
+          unique: false
           base_type:
             _class: Expressir::Model::References::SimpleReference
             id: maths_value
@@ -54961,6 +55337,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -55370,6 +55747,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Real
     return_type:
@@ -55480,6 +55858,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -55597,6 +55976,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Integer
     return_type:
@@ -55687,6 +56067,7 @@ schemas:
       - "(input) The factor spaces for the product space."
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_space
@@ -55767,6 +56148,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Real
     return_type:
@@ -56075,6 +56457,7 @@ schemas:
       - "(input) The value for which a literal is to be constructed."
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -56140,6 +56523,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_expression
@@ -56222,6 +56606,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_function
@@ -56330,6 +56715,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_variable
@@ -56414,6 +56800,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: input_selector
@@ -56875,6 +57262,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -56905,6 +57293,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Integer
     return_type:
@@ -57012,6 +57401,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Integer
     return_type:
@@ -57251,6 +57641,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_function
@@ -57397,6 +57788,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -57529,6 +57921,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -58226,6 +58619,7 @@ schemas:
       - "(input) The value to be tested for membership in the space."
       type:
         _class: Expressir::Model::DataTypes::Generic
+        id: G
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
       remarks:
@@ -58251,12 +58645,14 @@ schemas:
           _class: Expressir::Model::DataTypes::Aggregate
           base_type:
             _class: Expressir::Model::DataTypes::Generic
+            id: X
       - _class: Expressir::Model::Declarations::Parameter
         id: i
         type:
           _class: Expressir::Model::DataTypes::Integer
       return_type:
         _class: Expressir::Model::DataTypes::Generic
+        id: X
       statements:
       - _class: Expressir::Model::Statements::Return
         expression:
@@ -58386,6 +58782,7 @@ schemas:
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_space
@@ -61968,6 +62365,7 @@ schemas:
       - "(input) The list of real values to be tested."
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Real
     return_type:
@@ -62211,6 +62609,7 @@ schemas:
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_space
@@ -62490,6 +62889,7 @@ schemas:
       - "(input) The list of functions whose ranges are to be used."
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_function
@@ -62624,6 +63024,7 @@ schemas:
         for compatibility with *comdom*."
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_function
@@ -62914,6 +63315,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: input_selector
@@ -63531,6 +63933,7 @@ schemas:
       - "(input) The subscript tuple for which a single index is to be computed."
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Parameter
@@ -63553,6 +63956,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -63569,6 +63973,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Parameter
@@ -63889,19 +64294,25 @@ schemas:
       - "(input) The input list."
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Generic
+          id: GEN
     return_type:
       _class: Expressir::Model::DataTypes::List
+      unique: false
       base_type:
         _class: Expressir::Model::DataTypes::Generic
+        id: GEN
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: blist
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::DataTypes::Generic
+          id: GEN
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: alist
@@ -64060,6 +64471,7 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
     return_type:
       _class: Expressir::Model::DataTypes::List
+      unique: false
       base_type:
         _class: Expressir::Model::References::SimpleReference
         id: positive_integer
@@ -64081,6 +64493,7 @@ schemas:
       id: result
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: positive_integer
@@ -64343,6 +64756,7 @@ schemas:
         id: x
         type:
           _class: Expressir::Model::DataTypes::Generic
+          id: G
       return_type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_value
@@ -64419,6 +64833,7 @@ schemas:
         id: tpl
         type:
           _class: Expressir::Model::DataTypes::List
+          unique: false
           base_type:
             _class: Expressir::Model::References::SimpleReference
             id: maths_value
@@ -64627,6 +65042,7 @@ schemas:
       id: vlist
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -64656,6 +65072,7 @@ schemas:
           bound2:
             _class: Expressir::Model::Literals::Integer
             value: '2'
+          unique: false
           base_type:
             _class: Expressir::Model::References::SimpleReference
             id: maths_value
@@ -64728,6 +65145,7 @@ schemas:
       id: tpl
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -64736,6 +65154,7 @@ schemas:
       id: tp2
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -79068,6 +79487,7 @@ schemas:
         id: ops
         type:
           _class: Expressir::Model::DataTypes::List
+          unique: false
           base_type:
             _class: Expressir::Model::References::SimpleReference
             id: generic_expression
@@ -79181,6 +79601,7 @@ schemas:
       id: vlist
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -79201,6 +79622,7 @@ schemas:
       id: oplist
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_expression
@@ -79216,6 +79638,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_expression
@@ -83714,6 +84137,7 @@ schemas:
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_space
@@ -83722,6 +84146,7 @@ schemas:
       id: zfactors
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_space
@@ -84394,6 +84819,7 @@ schemas:
       id: vlist
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -84402,6 +84828,7 @@ schemas:
       id: nlist
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -84903,6 +85330,7 @@ schemas:
       id: factors
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_space
@@ -85265,6 +85693,7 @@ schemas:
       - "(input) The value whose set of stripped type names is to be produced."
       type:
         _class: Expressir::Model::DataTypes::Generic
+        id: G
     return_type:
       _class: Expressir::Model::DataTypes::Set
       base_type:
@@ -89498,6 +89927,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_variable
@@ -89514,6 +89944,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -89542,6 +89973,7 @@ schemas:
       id: opnds
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_expression
@@ -89559,6 +89991,7 @@ schemas:
       id: qvars
       type:
         _class: Expressir::Model::DataTypes::List
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_variable
@@ -89578,6 +90011,7 @@ schemas:
         bound2:
           _class: Expressir::Model::References::SimpleReference
           id: "?"
+        unique: false
         base_type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_function

@@ -17,6 +17,7 @@ jobs:
       - name: Build the expressir-core extension
         working-directory: ext/expressir_core
         run: |
+          gem install rb_sys
           ruby extconf.rb
           RB_SYS_CARGO_PROFILE=release make
       - name: Smoke test the bridge
@@ -24,10 +25,14 @@ jobs:
           bundle install --jobs 4
           bundle exec ruby -e '
             $LOAD_PATH.unshift "lib"
-            require "expressir/core"
-            raise "native unavailable" unless Expressir::Core::NATIVE_AVAILABLE
+            require "expressir"
+            raise "native unavailable" unless Expressir::Express::Core::NATIVE_AVAILABLE
             require "json"
-            m = JSON.parse(Expressir::Core.model_json("spec/syntax/multiple.exp"))
-            raise "bad model" unless m["schemas"].first["name"] == "multiple_schema"
+            m = JSON.parse(Expressir::Core.parse_to_model_hash(
+              File.read("spec/syntax/multiple.exp"), "spec/syntax/multiple.exp"))
+            raise "bad model" unless m["schemas"].first["id"] == "multiple_schema"
+            model = Expressir::Express::Parser.from_file(
+              "spec/syntax/multiple.exp", use_core: true)
+            raise "core path hydration failed" unless model.schemas.first.id == "multiple_schema"
             puts "bridge OK"
           '

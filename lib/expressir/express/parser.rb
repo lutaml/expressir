@@ -312,13 +312,13 @@ compiled_set: nil, &progress)
         end
         return nil unless set.matches_sources(physical) == true
 
-        # The artifact wire is pre-remark; the overlay carries them
-        # (plus header remarks and remark-derived structures), so the
-        # RemarkAttacher never runs on a warm load.
         models = []
         while (pair = set.next)
           wire_path, model = pair
           file = physical[wire_path]
+          # The artifact wire is pre-remark; the overlay carries them
+          # (plus header remarks and remark-derived structures), so the
+          # RemarkAttacher never runs on a warm load.
           model.wire_parents
           finalize_loaded_file(model, nil, wire_path,
                                include_source: include_source)

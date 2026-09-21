@@ -929,7 +929,10 @@ module Expressir
         return unless node
         return unless node.is_a?(Model::ModelElement)
         # An empty remark body carries no content; storing it produced
-        # remarks == [""] entries (GH-363).
+        # remarks == [""] entries (GH-363). Bare `--IPn:` informal
+        # propositions keep their declarations through
+        # create_or_find_informal_proposition, which does not run through
+        # here — only the redundant empty-body storage drops.
         return if text.nil? || text.strip.empty?
 
         if supports_remarks?(node)

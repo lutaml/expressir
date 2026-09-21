@@ -1,6 +1,13 @@
 # 04 — Concatenated EXPRESS artifact (expressir#247)
 
-**Status: NOT STARTED**
+**Status: SHIPPED (2026-09-21)** — `Expressir::Express::Concatenator`
+(closure + writer + one-call `call`), eeng-semantics ordering and
+section format (alphabetical, `-- NAME (file)` separators, verbatim
+source copies); specs: synthetic closure/round-trip + ENV-gated eeng
+differential (byte-identical sections vs `--concat_schema` for
+description_assignment ARM). Golden oracle outputs committed for ARM
+and MIM. During this stage the small-input USE FROM parse bug was
+found and reported as expressir#373.
 
 ## Goal
 

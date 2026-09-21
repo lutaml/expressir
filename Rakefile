@@ -14,3 +14,5 @@ task default: %i[spec rubocop]
 require "yard"
 
 YARD::Rake::YardocTask.new
+
+Dir.glob(File.expand_path("lib/tasks/*.rake", __dir__)).sort.each { |task| load task }

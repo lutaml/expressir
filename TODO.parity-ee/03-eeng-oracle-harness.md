@@ -26,3 +26,8 @@ smrl-xml, dot, checks) for differential validation of our ports.
 
 One command regenerates the golden corpus; at least arm/mim pretty +
 flat + concatenated outputs exist for 10 modules and 10 resources.
+
+## Tests
+
+Refreshes the expected outputs consumed by 11's imported specs; the
+qual-* drivers are the oracle's entry points.

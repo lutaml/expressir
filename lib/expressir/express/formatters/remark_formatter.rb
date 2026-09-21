@@ -158,8 +158,10 @@ module Expressir
         # single-line statement is where appending puts them back. Opener
         # remarks are excluded: those belong on the first line rather than
         # after the closing keyword, and {#format_opener_remarks} emits them.
+        # Mid-keyword remarks (ELSE / OTHERWISE regions) are excluded too:
+        # {#format_mid_keyword_remarks} emits them after their keyword.
         def format_inline_statement_remarks(node)
-          formatted_inline_remarks(node) { |remark| !remark.opener? }
+          formatted_inline_remarks(node) { |remark| remark.region.nil? }
         end
 
         # Remarks that trailed the opening line of a statement spanning
@@ -169,8 +171,15 @@ module Expressir
           formatted_inline_remarks(node, &:opener?)
         end
 
+        # Remarks that trailed a mid-construct keyword of `node` — the ELSE
+        # line of an IF, the OTHERWISE line of a CASE — emitted after that
+        # keyword, where they were written.
+        def format_mid_keyword_remarks(node, region)
+          formatted_inline_remarks(node) { |remark| remark.inline_region?(region) }
+        end
+
         # The inline remarks of a node that the given block accepts, formatted
-        # and joined. The two callers partition the same collection, so every
+        # and joined. The callers partition the same collection, so every
         # inline remark is emitted by exactly one of them.
         def formatted_inline_remarks(node, &)
           return "" if @no_remarks

@@ -98,6 +98,8 @@ module Expressir
                    "OTHERWISE",
                    " ",
                    ":",
+                   format_mid_keyword_remarks(node,
+                                              Model::RemarkPlacement::OTHERWISE_REGION),
                  ].join,
                  indent(format(node.otherwise_statement)),
                ]
@@ -167,7 +169,11 @@ module Expressir
             *(then_trailing if has_else),
             *if has_else
                [
-                 "ELSE",
+                 [
+                   "ELSE",
+                   format_mid_keyword_remarks(node,
+                                              Model::RemarkPlacement::ELSE_REGION),
+                 ].join,
                  indent(node.else_statements.map { |x| format(x) }.join("\n")),
                ].join("\n")
              end,

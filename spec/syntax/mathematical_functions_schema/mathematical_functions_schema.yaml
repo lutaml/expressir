@@ -32593,6 +32593,11 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.outside
           statements:
           - _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: Centre at lower left corner
+              format: tail
+              placement: inline
+              region: else
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: GREATER_THAN
@@ -32712,9 +32717,6 @@ schemas:
                   id: ymin_in
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.ymin_in
             - _class: Expressir::Model::Statements::ProcedureCall
-              untagged_remarks:
-              - text: Centre at lower left corner
-                format: tail
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -33073,6 +33075,11 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.outside
           statements:
           - _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: Centre at lower right corner
+              format: tail
+              placement: inline
+              region: else
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: GREATER_THAN
@@ -33192,9 +33199,6 @@ schemas:
                   id: ymin_in
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.ymin_in
             - _class: Expressir::Model::Statements::ProcedureCall
-              untagged_remarks:
-              - text: Centre at lower right corner
-                format: tail
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -33538,6 +33542,11 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.outside
           statements:
           - _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: Centre at lower left corner
+              format: tail
+              placement: inline
+              region: else
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: GREATER_THAN
@@ -33657,9 +33666,6 @@ schemas:
                   id: ymax_in
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.ymax_in
             - _class: Expressir::Model::Statements::ProcedureCall
-              untagged_remarks:
-              - text: Centre at lower left corner
-                format: tail
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -34024,6 +34030,11 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.outside
           statements:
           - _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: Centre at lower right corner
+              format: tail
+              placement: inline
+              region: else
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: GREATER_THAN
@@ -34143,9 +34154,6 @@ schemas:
                   id: ymax_in
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.ymax_in
             - _class: Expressir::Model::Statements::ProcedureCall
-              untagged_remarks:
-              - text: Centre at lower right corner
-                format: tail
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -38021,6 +38029,10 @@ schemas:
       - text: Analyse cases by existence of max distance and direction limits
         format: tail
         placement: leading
+      - text: Not max_exists(ritp)
+        format: tail
+        placement: inline
+        region: else
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -38051,6 +38063,8 @@ schemas:
         untagged_remarks:
         - text: direction range < 2*PI
           format: tail
+          placement: inline
+          region: else
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -41595,9 +41609,6 @@ schemas:
             id: closed
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.open_closed.closed
       - _class: Expressir::Model::Statements::Assignment
-        untagged_remarks:
-        - text: Not max_exists(ritp)
-          format: tail
         ref:
           _class: Expressir::Model::References::SimpleReference
           id: ritv
@@ -41663,6 +41674,8 @@ schemas:
         untagged_remarks:
         - text: direction range < 2*PI
           format: tail
+          placement: inline
+          region: else
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL

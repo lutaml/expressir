@@ -30,6 +30,13 @@ module Expressir
 
       # Region of an INLINE remark that trailed a compound statement's opener.
       OPENER_REGION = "opener"
+
+      # Regions of INLINE remarks that trailed a mid-construct keyword line —
+      # `ELSE -- why` or `OTHERWISE : -- why`. The owning construct is the
+      # enclosing IF / CASE, and the remark belongs back after that keyword,
+      # not after the construct's closing END_.
+      ELSE_REGION = "else"
+      OTHERWISE_REGION = "otherwise"
     end
   end
 end

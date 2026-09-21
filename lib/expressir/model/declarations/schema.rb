@@ -160,7 +160,7 @@ module Expressir
           # item list: implicit interfacing through USE is unfiltered
           # (eeng :use-only → :use-from recursion finds any id in the
           # foreign schema's use scope).
-          own + schema.interfaces.filter_map do |foreign_iface|
+          own + Array(schema.interfaces).filter_map do |foreign_iface|
             next nil unless foreign_iface.kind == Interface::USE
 
             foreign_items = items_for_interface(foreign_iface,

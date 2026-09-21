@@ -26,6 +26,7 @@ RSpec.describe Expressir::Express::Parser, "compiled schema set" do
 
     cold = described_class.from_files(files, compiled_set: set_path)
     expect(File.exist?(set_path)).to be(true)
+    expect(File.exist?("#{set_path}.remarks.json")).to be(true)
     cold_hashes = cold.files.map(&:to_hash)
 
     warm = described_class.from_files(files, compiled_set: set_path)

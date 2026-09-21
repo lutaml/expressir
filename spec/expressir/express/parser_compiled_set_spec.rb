@@ -27,10 +27,18 @@ RSpec.describe Expressir::Express::Parser, "compiled schema set" do
     cold = described_class.from_files(files, compiled_set: set_path)
     expect(File.exist?(set_path)).to be(true)
     expect(File.exist?("#{set_path}.remarks.json")).to be(true)
+    expect(File.exist?("#{set_path}.graph.json")).to be(true)
     cold_hashes = cold.files.map(&:to_hash)
 
     warm = described_class.from_files(files, compiled_set: set_path)
     expect(warm.files.map(&:to_hash)).to eq(cold_hashes)
+
+    warm_graph = warm.item_graph
+    expect(warm_graph).not_to be(nil)
+    expect(warm_graph.nodes.size).to eq(cold.item_graph.nodes.size)
+    expect(warm_graph.subtype_edges.sort).to eq(cold.item_graph.subtype_edges.sort)
+    expect(warm_graph.dependencies_of(warm.schemas.first.id))
+      .to eq(cold.item_graph.dependencies_of(cold.schemas.first.id))
   end
 
   it "rejects an artifact whose sources changed" do

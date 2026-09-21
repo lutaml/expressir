@@ -156,7 +156,12 @@ compiled_set: nil, &progress)
 
         repository = build_repository(all_exp_files, skip_references: skip_references)
         if set_path && !skip_references && File.exist?(set_path)
-          RefsOverlay.write(set_path, all_exp_files.compact)
+          files = all_exp_files.compact
+          RefsOverlay.write(set_path, files)
+          graph = Model::Indexes::ItemGraph.new(repository)
+          repository.item_graph = graph
+          require "json"
+          File.write("#{set_path}.graph.json", JSON.generate(graph.tables))
         end
 
         repository
@@ -333,6 +338,12 @@ compiled_set: nil, &progress)
         RemarkOverlay.apply(path, models)
 
         repository = build_repository(models, skip_references: true)
+        graph_path = "#{path}.graph.json"
+        if File.exist?(graph_path)
+          require "json"
+          repository.item_graph =
+            Model::Indexes::ItemGraph.from_tables(JSON.parse(File.read(graph_path)))
+        end
         if skip_references
           repository
         elsif RefsOverlay.apply(path, models)

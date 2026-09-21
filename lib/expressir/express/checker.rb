@@ -10,7 +10,9 @@ module Expressir
     #   check-schema-interface-redundant
     #   check-schema-iface-resource-duplicate
     #   check-subtype-ref
-    #   check-where-name-pattern
+    #   check-subtype-cycle
+    #   check-duplicate-declaration
+    #   check-where-name-pattern   (entity, type, rule)
     #   check-unique-name-pattern
     #   check-unresolved-ref   (aggregate of eeng type/entity unparsed notes)
     #   check-select-extended-type
@@ -22,13 +24,23 @@ module Expressir
 
       WHERE_LABEL = /\AWR\d+\z/i
       UNIQUE_LABEL = /\AUR\d+\z/i
+      DECL_COLLECTIONS = %i[types entities functions procedures constants rules
+                            subtype_constraints].freeze
 
       attr_reader :notes
 
       def initialize(repository)
         @repository = repository
         @notes = []
-        @by_name = repository.schemas.compact.to_h { |s| [s.id.safe_downcase, s] }
+        # Case-folded index to LISTS of schemas: EXPRESS schema ids are
+        # case-insensitive, and two schemas differing only in case are
+        # distinct declarations that must not silently overwrite each other.
+        @by_name = {}
+        repository.schemas.compact.each do |schema|
+          next unless schema.id
+
+          (@by_name[schema.id.safe_downcase] ||= []) << schema
+        end
       end
 
       def check
@@ -65,17 +77,39 @@ module Expressir
       end
 
       def check_schema(schema)
+        check_duplicates(schema)
         check_interfaces(schema)
         schema.entities.each { |e| check_entity(schema, e) }
         schema.types.each { |t| check_type(schema, t) }
+        schema.types.each { |t| check_where_rules(schema, t, t.where_rules) }
         schema.rules.each { |r| check_where_rules(schema, r, r.where_rules) }
-        schema.functions.each { |f| check_where_rules(schema, f, f.where_rules) if f.respond_to?(:where_rules) }
-        schema.procedures.each { |p| check_where_rules(schema, p, p.where_rules) if p.respond_to?(:where_rules) }
         check_unresolved_refs(schema)
       end
 
+      # Two declarations in one schema sharing a (case-insensitive) name is
+      # invalid EXPRESS — the second can never be referenced.
+      def check_duplicates(schema)
+        seen = {}
+        DECL_COLLECTIONS.each do |coll|
+          Array(schema.public_send(coll)).each do |decl|
+            next unless decl.respond_to?(:id) && decl.id
+
+            key = decl.id.safe_downcase
+            if seen.key?(key)
+              note!(:check_duplicate_declaration, :error, schema,
+                    "duplicate declaration '#{decl.id}' (also declared in " \
+                    "#{seen[key]})", decl)
+            else
+              seen[key] = coll.to_s
+            end
+          end
+        end
+      end
+
       # eeng: check-schema-interface-redundant +
-      #       check-schema-iface-resource-duplicate
+      #       check-schema-iface-resource-duplicate.
+      # USE FROM and REFERENCE FROM are different clauses with different
+      # semantics; only interfaces of the SAME kind are compared.
       def check_interfaces(schema)
         ifaces = Array(schema.interfaces)
         ifaces.each_with_index do |iface, i|
@@ -85,23 +119,24 @@ module Expressir
           later = ifaces[(i + 1)..] || []
           later.each do |other|
             next unless iface_schema_name(other)&.safe_downcase == target.safe_downcase
+            next unless other.kind == iface.kind
 
             a = resource_names(iface)
             b = resource_names(other)
             if a.empty? || b.empty? || (b - a).empty?
               note!(:check_schema_interface_redundant, :warning, schema,
-                    "redundant interface to #{target}", other)
+                    "redundant #{iface.kind} interface to #{target}", other)
             else
               dup = a & b
               next if dup.empty?
 
               note!(:check_schema_iface_resource_duplicate, :warning, schema,
-                    "duplicate resources #{dup.join(', ')} on interface to #{target}",
-                    other)
+                    "duplicate resources #{dup.join(', ')} on #{iface.kind} " \
+                    "interface to #{target}", other)
             end
           end
 
-          foreign = @by_name[target.safe_downcase]
+          foreign = resolve_schema(target)
           unless foreign
             note!(:check_unresolved_ref, :error, schema,
                   "interface schema '#{target}' not found", iface)
@@ -130,8 +165,7 @@ module Expressir
 
       def foreign_decl?(schema, name)
         key = name.safe_downcase
-        %i[types entities functions procedures constants rules
-           subtype_constraints].any? do |coll|
+        DECL_COLLECTIONS.any? do |coll|
           Array(schema.public_send(coll)).any? { |d| d.id&.safe_downcase == key }
         end
       end
@@ -144,6 +178,7 @@ module Expressir
           note!(:check_subtype_ref, :error, schema,
                 "ENTITY #{entity.id}: subtype '#{id}' not found", entity)
         end
+        check_subtype_cycles(schema, entity)
 
         check_where_rules(schema, entity, entity.where_rules)
         Array(entity.unique_rules).each do |ur|
@@ -151,6 +186,36 @@ module Expressir
 
           note!(:check_unique_name_pattern, :warning, schema,
                 "ENTITY #{entity.id}: UNIQUE label '#{ur.id}' is not UR<n>", ur)
+        end
+      end
+
+      # Follow SUBTYPE OF edges from +entity+; re-reaching a node already on
+      # the path is a cycle (self-subtyping included).
+      def check_subtype_cycles(schema, entity)
+        path = [entity]
+        seen_on_path = { entity.id.safe_downcase => true }
+        frontier = Array(entity.subtype_of).filter_map do |ref|
+          id = ref.is_a?(String) ? ref : ref.id
+          find_entity(schema, id) if id
+        end
+        until frontier.empty?
+          current = frontier.pop
+          key = current.id.safe_downcase
+          if seen_on_path[key]
+            note!(:check_subtype_cycle, :error, schema,
+                  "ENTITY #{entity.id}: subtype inheritance cycle through " \
+                  "'#{current.id}'", entity)
+            return
+          end
+          seen_on_path[key] = true
+          path << current
+          Array(current.subtype_of).each do |ref|
+            id = ref.is_a?(String) ? ref : ref.id
+            next unless id
+
+            nxt = find_entity(schema, id)
+            frontier << nxt if nxt
+          end
         end
       end
 
@@ -183,18 +248,42 @@ module Expressir
       # Walk SimpleReferences whose base_path was never filled in by the
       # resolver — the expressir equivalent of eeng's unparsed-type notes.
       def check_unresolved_refs(schema)
+        aliases = alias_map(schema)
         each_node(schema) do |node|
           next unless node.is_a?(Model::References::SimpleReference)
           next if node.base_path
           next if node.parent.is_a?(Model::Declarations::InterfaceItem)
           next if node.parent.is_a?(Model::References::AttributeReference)
           next if node.id.nil? || builtin?(node.id)
+          next if aliases.key?(node.id.safe_downcase)
 
           # Skip self-ids of declarations (entity/type names as the decl itself)
           next if declaration_id?(schema, node)
 
           note!(:check_unresolved_ref, :error, schema,
                 "unresolved reference '#{node.id}'", node)
+        end
+      end
+
+      # `USE FROM s (orig AS alias)` makes `alias` the locally visible name;
+      # references written with the alias are resolved, not unresolved.
+      # Maps alias downcase => [foreign schema, original downcase].
+      def alias_map(schema)
+        @alias_maps ||= {}.compare_by_identity
+        @alias_maps[schema] ||= begin
+          map = {}
+          Array(schema.interfaces).each do |iface|
+            foreign = resolve_schema(iface_schema_name(iface))
+            next unless foreign
+
+            Array(iface.items).each do |item|
+              original = item.ref.is_a?(String) ? item.ref : item.ref&.id
+              next unless original && item.id
+
+              map[item.id.safe_downcase] = [foreign, original.safe_downcase]
+            end
+          end
+          map
         end
       end
 
@@ -216,10 +305,29 @@ module Expressir
         BUILTINS.include?(id.safe_downcase)
       end
 
+      # Resolve a schema id case-insensitively, preferring the exact-case
+      # match when several folded ids collide (they are distinct schemas).
+      def resolve_schema(name)
+        return nil unless name
+
+        group = @by_name[name.safe_downcase]
+        return nil unless group
+
+        group.find { |s| s.id == name } || group.first
+      end
+
       def find_entity(schema, id)
         key = id.safe_downcase
-        schema.entities.find { |e| e.id.safe_downcase == key } ||
-          visible_entities(schema).find { |e| e.id.safe_downcase == key }
+        own = schema.entities.find { |e| e.id.safe_downcase == key }
+        return own if own
+
+        # interface AS-renames: the alias names a foreign declaration.
+        if (aliased = alias_map(schema)[key])
+          foreign, original = aliased
+          return foreign.entities.find { |e| e.id.safe_downcase == original }
+        end
+
+        visible_entities(schema).find { |e| e.id.safe_downcase == key }
       end
 
       def resolve_type(schema, ref)
@@ -227,34 +335,40 @@ module Expressir
         return false unless id
 
         key = id.safe_downcase
-        schema.types.any? { |t| t.id.safe_downcase == key } ||
-          visible_types(schema).any? { |t| t.id.safe_downcase == key }
+        own = schema.types.find { |t| t.id.safe_downcase == key }
+        return true if own
+
+        if (aliased = alias_map(schema)[key])
+          foreign, original = aliased
+          return foreign.types.any? { |t| t.id.safe_downcase == original }
+        end
+
+        visible_types(schema).any? { |t| t.id.safe_downcase == key }
       end
 
       def ref_id(ref)
         ref.is_a?(String) ? ref : ref&.id
       end
 
-      def visible_entities(schema)
+      # Foreign declarations visible through +schema+'s interfaces. With an
+      # item list, the LISTED names are AS-imported: match the originals.
+      def visible_from(schema, collection)
         Array(schema.interfaces).flat_map do |iface|
-          foreign = @by_name[iface_schema_name(iface)&.safe_downcase]
+          foreign = resolve_schema(iface_schema_name(iface))
           next [] unless foreign
 
           names = resource_names(iface)
-          ents = foreign.entities
-          names.empty? ? ents : ents.select { |e| names.include?(e.id.safe_downcase) }
+          decls = Array(foreign.public_send(collection))
+          names.empty? ? decls : decls.select { |d| names.include?(d.id.safe_downcase) }
         end
       end
 
-      def visible_types(schema)
-        Array(schema.interfaces).flat_map do |iface|
-          foreign = @by_name[iface_schema_name(iface)&.safe_downcase]
-          next [] unless foreign
+      def visible_entities(schema)
+        visible_from(schema, :entities)
+      end
 
-          names = resource_names(iface)
-          types = foreign.types
-          names.empty? ? types : types.select { |t| names.include?(t.id.safe_downcase) }
-        end
+      def visible_types(schema)
+        visible_from(schema, :types)
       end
 
       def each_node(root)

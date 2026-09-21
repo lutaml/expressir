@@ -9,8 +9,10 @@ module Expressir
         exit_with_error "schema for #{path} not found in closure" unless root
 
         longform_name = options[:longform_name] || "#{root.id}_lf"
+        extenders = options[:extenders] == "none" ? :none : :all
         flat = Expressir::Express::Shtolo.new(root, repository,
-                                             longform_name: longform_name).flatten.schema
+                                             longform_name: longform_name,
+                                             extenders: extenders).flatten.schema
         text = Expressir::Express::Formatter.format(flat)
 
         if options[:output]

@@ -28,11 +28,17 @@ module Expressir
 
       # `root_schema` — the resolved root schema node.
       # `repository`  — must hold the full interface closure.
-      def initialize(root_schema, repository, longform_name: nil)
+      # `extenders`   — :all (default, the WG12 requirement) folds every
+      #                 extensible SELECT/ENUMERATION extension found in the
+      #                 closure into its base type (Annex G.2.3/G.2.4);
+      #                 :none leaves extensible types exactly as declared —
+      #                 the shape eengine's default --flat emits.
+      def initialize(root_schema, repository, longform_name: nil,
+                     extenders: :all)
         @root = root_schema
         @repository = repository
         @longform_name = longform_name || @root.id
-        @renames = {}          # munged/alias name => original name
+        @extenders = extenders
         @reference_entities = [] # G.1.6 entities
       end
 
@@ -70,21 +76,39 @@ module Expressir
 
       # ---- G.1 stage 1 ----
 
+      # Two-phase copy: plan every declaration's final id across the whole
+      # closure FIRST (G.NM.1 clashes are only known once every schema has
+      # been seen), then copy+rewrite each declaration against the complete
+      # map. Rewriting as we copy left stale references in declarations
+      # copied before a later clash was munged.
       def build_artifact
+        schemas = [@root, *closure.values.reject { |s| s.equal?(@root) }]
+        plan = plan_ids(schemas)
+
         declarations = []
-        seen = {}
-
-        # Root first (primary schema), then supporting schemas.
-        [@root, *closure.values.reject { |s| s.equal?(@root) }].each do |schema|
+        schemas.each do |schema|
           rename_map = renames_for(schema)
+          # Resolution order for a reference in this schema: its own local
+          # declarations (which may be munged), then interface aliases
+          # resolved through the referenced declaration's final id, then
+          # the global munge map for names the schema doesn't declare.
+          full = plan.global.dup
+          plan.own(schema).each { |k, final| full[k] = final }
+          rename_map.each do |alias_name, original|
+            resolved = plan.own(schema)[original.safe_downcase] ||
+                       plan.global[original.safe_downcase] || original
+            full[alias_name.safe_downcase] = resolved
+          end
 
-          schema.constants.each { |d| declarations << copy_decl(d, rename_map, seen) }
-          schema.types.each { |d| declarations << copy_decl(d, rename_map, seen) }
-          schema.entities.each { |d| declarations << copy_decl(d, rename_map, seen) }
-          schema.subtype_constraints.each { |d| declarations << copy_decl(d, rename_map, seen) }
-          schema.functions.each { |d| declarations << copy_decl(d, rename_map, seen) }
-          schema.procedures.each { |d| declarations << copy_decl(d, rename_map, seen) }
-          schema.rules.each { |d| declarations << copy_decl(d, rename_map, seen) }
+          all_decls(schema).each do |decl|
+            copy = deep_copy(decl)
+            rewrite_references(copy, full)
+            if decl.respond_to?(:id) && decl.id &&
+               (final = plan.own(schema)[decl.id.safe_downcase])
+              copy.id = final
+            end
+            declarations << copy
+          end
 
           # G.1.2: interfaces themselves dissolve; REFERENCE entities
           # keep dependent-instantiability semantics (G.1.6).
@@ -116,6 +140,46 @@ module Expressir
         )
       end
 
+      def all_decls(schema)
+        schema.constants + schema.types + schema.entities +
+          schema.subtype_constraints + schema.functions +
+          schema.rules + schema.procedures
+      end
+
+      IdPlan = Struct.new(:global, :own_by_schema, keyword_init: true) do
+        def own(schema)
+          own_by_schema[schema] || {}
+        end
+      end
+
+      # G.NM.1: the first schema in closure order to declare a name keeps
+      # it; every later declaration of the same name is prefixed with ITS
+      # OWN schema's id, and the global map redirects the bare name so
+      # declarations from third schemas resolve to the first occurrence.
+      def plan_ids(schemas)
+        seen_first = {}      # downcase id => owning schema (first occurrence)
+        global = {}          # downcase id => munged final
+        own_by_schema = {}   # schema => {downcase id => final id}
+        schemas.each do |schema|
+          own = {}
+          all_decls(schema).each do |decl|
+            next unless decl.respond_to?(:id) && decl.id
+
+            key = decl.id.safe_downcase
+            if seen_first.key?(key)
+              final = "#{schema.id.safe_downcase}_dot_#{decl.id}"
+              own[key] = final
+              global[key] = final
+            else
+              seen_first[key] = schema
+              own[key] = decl.id
+            end
+          end
+          own_by_schema[schema] = own
+        end
+        IdPlan.new(global: global, own_by_schema: own_by_schema)
+      end
+
       # Alias → original map applied when copying `schema`'s
       # declarations: the aliases are declared by the schema's own
       # interface items (`USE FROM s (orig AS alias)`, G.1.3).
@@ -140,51 +204,29 @@ module Expressir
         original
       end
 
-      def copy_decl(decl, rename_map, seen)
-        copy = deep_copy(decl)
-        @renames.each_key { |from| rewrite_references(copy, from, @renames[from]) }
-        rename_map.each do |alias_name, original|
-          rewrite_references(copy, alias_name, original)
-        end
-        if copy.respond_to?(:id) && copy.id
-          munged = munge(copy.id, seen)
-          if munged != copy.id
-            @renames[copy.id.safe_downcase] = munged
-            rewrite_references(copy, copy.id, munged)
-            copy.id = munged
-          end
-          seen[copy.id.safe_downcase] = true
-        end
-        copy
-      end
-
-      # G.NM.1: clash ⇒ `<schema>_dot_<name>`.
-      def munge(id, seen)
-        return id unless seen.key?(id.safe_downcase)
-
-        owner = owner_schema_of(id) || "longform"
-        "#{owner.safe_downcase}_dot_#{id}"
-      end
-
-      def owner_schema_of(id)
-        closure.each_value do |schema|
-          return schema.id if schema.safe_children.any? { |c| c.id&.safe_downcase == id.safe_downcase }
-        end
-        nil
-      end
-
       def deep_copy(obj)
+        sever = []
+        node = obj
+        while node.respond_to?(:parent) && node.parent
+          sever << node
+          node = node.parent
+        end
+        saved = sever.map { |n| n.parent }
+        sever.each { |n| n.parent = nil }
         Marshal.load(Marshal.dump(obj))
-      rescue StandardError
-        obj.dup
+      ensure
+        sever.each_with_index { |n, i| n.parent = saved[i] }
       end
 
-      # Rewrite SimpleReference ids per the rename map, expressions and
-      # types included.
-      def rewrite_references(node, from, to)
+      # Rewrite SimpleReference ids against a rename map in ONE tree walk
+      # (each declaration is walked once, whatever the map's size — walking
+      # once per rename made flattening quadratic in the closure).
+      # Map keys are downcased old names, values the final names.
+      def rewrite_references(node, map)
         return unless node.is_a?(Model::ModelElement)
 
-        if node.is_a?(Model::References::SimpleReference) && node.id&.safe_downcase == from
+        if node.is_a?(Model::References::SimpleReference) && node.id &&
+           (to = map[node.id.safe_downcase])
           node.id = preserve_case(node.id, to)
         end
         node.class.attributes.each_key do |attr|
@@ -192,8 +234,8 @@ module Expressir
 
           value = node.public_send(attr)
           case value
-          when Array then value.each { |item| rewrite_references(item, from, to) }
-          when Model::ModelElement then rewrite_references(value, from, to)
+          when Array then value.each { |item| rewrite_references(item, map) }
+          when Model::ModelElement then rewrite_references(value, map)
           end
         end
       end
@@ -233,8 +275,10 @@ module Expressir
       def build_longform
         artifact = build_artifact
 
-        resolve_extensible_enumerations!(artifact)
-        resolve_extensible_selects!(artifact)
+        if @extenders == :all
+          resolve_extensible_enumerations!(artifact)
+          resolve_extensible_selects!(artifact)
+        end
         eliminate_subtype_constraints!(artifact)
         convert_abstract_entities!(artifact)
         convert_generic_entities!(artifact)
@@ -281,6 +325,20 @@ module Expressir
           t.underlying_type.is_a?(Model::DataTypes::Select) && t.underlying_type.extensible
         end.each do |base|
           sel = base.underlying_type
+
+          # all-extenders for GENERIC_ENTITY selects (WG12 requirement,
+          # #32): the extenders are the entity types themselves — fold in
+          # every entity the artifact carries, so the longform select is
+          # complete against the closure. Flags stay as declared: the
+          # extensible/generic-entity markers are part of the shortform's
+          # semantics and are not expressir's to drop.
+          if sel.generic_entity
+            sel.items = schema.entities.map do |e|
+              Model::References::SimpleReference.new(id: e.id)
+            end
+            next
+          end
+
           extensions = schema.types.select do |t|
             t.underlying_type.is_a?(Model::DataTypes::Select) &&
               !t.underlying_type.extensible &&
@@ -353,8 +411,9 @@ module Expressir
       end
 
       def combine_andor(left, right)
-        Expressir::Model::Expressions::BinaryExpression.new(
-          operator: "ANDOR", operand1: left, operand2: right
+        Model::SupertypeExpressions::BinarySupertypeExpression.new(
+          operator: Model::SupertypeExpressions::BinarySupertypeExpression::ANDOR,
+          operand1: left, operand2: right
         )
       rescue StandardError
         left

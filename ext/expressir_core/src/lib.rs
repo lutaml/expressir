@@ -404,7 +404,7 @@ fn value_to_ruby(ruby: &Ruby, cache: &mut ClassCache, wire: &Wire) -> Result<mag
             let klass = cache.resolve(ruby, class_name)?;
             let attrs = RHash::new();
             for (key, item) in map {
-                attrs.aset(ruby.str_new(key), value_to_ruby(ruby, cache, item)?)?;
+                attrs.aset(ruby.sym_new(key.as_str()), value_to_ruby(ruby, cache, item)?)?;
             }
             klass.funcall::<_, _, magnus::Value>("instantiate", (attrs,))
         }

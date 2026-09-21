@@ -211,10 +211,13 @@ Commands:
   expressir benchmark-cache FILE_OR_YAML       # Benchmark schema loading with caching
   expressir changes SUBCOMMAND                 # Commands for EXPRESS Changes files
   expressir clean PATH                         # Strip remarks and prettify EXPRESS schema at PATH
+  expressir expand PATH                        # Concatenate the interface closure into one .exp
+  expressir flatten PATH                       # Flatten the interface closure into an ISO 10303-11:1994 longform schema
   expressir format PATH                        # pretty print EXPRESS schema located at PATH
   expressir help [COMMAND]                     # Describe available commands or one specific command
   expressir validate load *PATH                # validate EXPRESS schema located at PATH
   expressir validate ascii PATH                # Validate EXPRESS files for ASCII-only content (excluding remarks)
+  expressir validate check *PATHS              # eeng check-p11 semantic checks
   expressir coverage *PATH                     # List EXPRESS entities and check documentation coverage
   expressir version                            # Expressir Version
 ----
@@ -508,6 +511,48 @@ expressir clean schemas/resources/action_schema/action_schema.exp --output clean
 | `--output PATH` | Path to save the cleaned schema (optional, defaults to stdout)
 |===
 
+=== Expand schema (concatenated artifact)
+
+The `expand` command flattens the interface closure of a root EXPRESS schema
+into a single concatenated artifact (one section per source schema, ordered
+alphabetically — the same shape eeng emits for `--concat_schema`).
+
+[source, sh]
+----
+expressir expand schemas/resources/action_schema/action_schema.exp \
+  --output action-concatenated.exp
+----
+
+[options="header"]
+|===
+| Option | Description
+| `--output PATH`, `-o PATH` | Write the artifact to PATH (defaults to stdout)
+|===
+
+The closure is resolved by scanning `USE FROM` / `REFERENCE FROM` names in the
+root source and looking them up in the same directory.
+
+=== Flatten schema (SHTOLO longform)
+
+The `flatten` command converts a STEPmod-style multi-schema root into a single
+ISO 10303-11:1994 "longform" schema (expressir#32). It runs the Annex G
+conversion locally: interface-closure copy with rename resolution and name
+munging, then extensible enum/select resolution, subtype-constraint
+elimination, RENAMED→DERIVE, GENERIC_ENTITY→GENERIC.
+
+[source, sh]
+----
+expressir flatten schemas/resources/action_schema/action_schema.exp \
+  --output action_lf.exp --longform_name action_schema_lf
+----
+
+[options="header"]
+|===
+| Option | Description
+| `--output PATH`, `-o PATH` | Write the longform schema to PATH (defaults to stdout)
+| `--longform_name ID` | Identifier for the resulting SCHEMA (default: `<root>_lf`)
+|===
+
 === Validate schema
 
 The `validate load` command performs validation checks on EXPRESS schema files.
@@ -535,6 +580,26 @@ The command reports any schemas that:
 * Are missing a version string
 
 If all validations pass, it will display "Validation passed for all EXPRESS schemas."
+
+=== Validate semantic checks (eeng check-p11)
+
+The `validate check` command runs the eeng `check-p11` note subset
+implemented in `Expressir::Express::Checker`: redundant interfaces,
+duplicate interface resources, unresolved interface schema/resource
+refs, SUBTYPE OF targets, SELECT/ENUM BASED_ON targets, and WHERE/UNIQUE
+label patterns.
+
+[source, sh]
+----
+# Check a single file
+expressir validate check schemas/resources/action_schema/action_schema.exp
+
+# Check all .exp files under a directory
+expressir validate check schemas/resources/
+
+# Exit 1 when any :error note fires
+expressir validate check schemas/resources/action_schema/action_schema.exp
+----
 
 === Validate ASCII content
 

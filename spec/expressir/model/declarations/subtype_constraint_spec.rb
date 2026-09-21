@@ -66,6 +66,23 @@ RSpec.describe Expressir::Model::Declarations::SubtypeConstraint do
     end
   end
 
+  describe "parse path" do
+    it "populates total_over from TOTAL_OVER (entity_ref list)" do
+      src = <<~EXP
+        SCHEMA root;
+        ENTITY person; name : STRING; END_ENTITY;
+        ENTITY employee SUBTYPE OF (person); staff_no : STRING; END_ENTITY;
+        SUBTYPE_CONSTRAINT person_sc FOR person;
+          TOTAL_OVER (person, employee);
+        END_SUBTYPE_CONSTRAINT;
+        END_SCHEMA;
+      EXP
+      file = Expressir::Express::Parser.from_exp(src, skip_references: true)
+      sc = file.schemas.first.subtype_constraints.first
+      expect(sc.total_over.map(&:id)).to eq(%w[person employee])
+    end
+  end
+
   describe "inheritance" do
     it "inherits from ModelElement" do
       expect(subtype_constraint).to be_a Expressir::Model::ModelElement

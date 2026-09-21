@@ -79,6 +79,22 @@ module Expressir
       def ascii(path)
         ValidateAscii.new(options).run(path)
       end
+
+      desc "check *PATHS", "Run eeng check-p11 semantic checks"
+      long_desc <<~DESC
+        Walks one or more EXPRESS files (or directories of .exp) and
+        reports the eeng check-p11 note subset covered by Checker:
+        redundant interfaces, duplicate resources, unresolved interface
+        schema/ref, SUBTYPE OF targets, SELECT/ENUM BASED_ON, and
+        WHERE/UNIQUE label patterns.
+
+        Exits 1 when any error-severity note fires.
+      DESC
+      method_option :json, type: :boolean, default: false,
+                           desc: "Emit the report as JSON (errors + warnings)"
+      def check(*paths)
+        Check.new(options).run(*paths)
+      end
     end
   end
 end

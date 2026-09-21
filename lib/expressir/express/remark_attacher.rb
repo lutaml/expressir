@@ -249,7 +249,18 @@ module Expressir
         # here means the remark is an inline tail (code; -- note). The
         # end-line check is restricted to statements: container end_lines are
         # child-derived approximations that can collide with comment lines.
-        return inline_target(remark, @node_index.starting_at(line)) if inline_remark?(remark)
+        if inline_remark?(remark)
+          target, placement, region = inline_target(remark,
+                                                    @node_index.starting_at(line))
+          return [target, placement, region] if target
+
+          # A remark trailing a mid-construct keyword (`ELSE -- why`) starts
+          # nothing and closes nothing; handled before the legacy fallthrough,
+          # which would hand it to the enclosing construct unplaced — where
+          # nothing renders it.
+          mid = mid_keyword_inline_target(remark)
+          return mid if mid
+        end
 
         # A closing keyword on the next code line is decisive: the comment
         # closes that body. Without this check the comment would instead be
@@ -286,21 +297,116 @@ module Expressir
         !content[0...opener].strip.empty?
       end
 
-      # A comment trailing code on its line belongs to the statement that
-      # ends closest before it: `x := 1; -- why`. Only single-line statements
-      # qualify, because appending to a statement spanning several lines
-      # would move the remark down to its closing keyword.
+      # A comment trailing code on its line belongs to the statement it
+      # follows: `x := 1; -- why`, or the opener of a compound one, as in
+      # `IF x THEN -- why`.
+      #
+      # Multi-line statements were once excluded here, because appending a
+      # remark to one would carry it down to its closing keyword. They are
+      # admitted now that the formatter can put an opener remark back on the
+      # first line; the OPENER_REGION on the returned placement is what tells
+      # it to, and without that region the old appending behaviour stands.
       def inline_target(remark, nodes)
-        owner = nodes
-          .select do |n|
-            n[:node].is_a?(Model::Statement) &&
-              n[:line] == remark.line && n[:end_line] == remark.line &&
-              n[:position] && n[:position] < remark.position
-          end
-          .max_by { |n| n[:position] + n[:node].source.to_s.length }
+        started_here = nodes.select do |n|
+          n[:node].is_a?(Model::TakesInlineRemark) &&
+            n[:line] == remark.line &&
+            n[:position] && n[:position] < remark.position
+        end
+
+        # Of the two that began here, whichever starts later is the one the
+        # remark follows: `x := 0; IF n > 0 THEN -- why` trails the IF.
+        began = [single_line_owner(started_here, remark.line),
+                 opener_owner(started_here, remark.line)]
+          .compact.max_by { |n| n[:position] }
+
+        owner = began || closing_owner(nodes, remark)
         return [nil, nil, nil] unless owner
 
-        [owner[:node], Model::RemarkPlacement::INLINE, nil]
+        [owner[:node], Model::RemarkPlacement::INLINE,
+         opener_region(owner, remark.line)]
+      end
+
+      # A node beginning and ending on the remark's line. Ranked by where it
+      # ends, so of several sharing the line the outermost complete one wins:
+      # `CASE n OF 1 : x := 2; END_CASE; -- why` trails the CASE, not its
+      # action.
+      def single_line_owner(candidates, line)
+        candidates
+          .select { |n| n[:end_line] == line }
+          .max_by { |n| n[:position] + n[:node].source.to_s.length }
+      end
+
+      # A node whose opener is on the remark's line but which continues past
+      # it. Ranked by where it STARTS, not where it ends: such a node's source
+      # spans its whole body, so ranking by end would let an enclosing block
+      # outrank the one the remark actually follows.
+      def opener_owner(candidates, line)
+        candidates
+          .select { |n| n[:end_line] && n[:end_line] > line }
+          .max_by { |n| n[:position] }
+      end
+
+      # Nothing began on the remark's line, so it may still be closing one
+      # that began earlier:
+      #
+      #     REFERENCE FROM x
+      #       (a, b); -- why
+      #
+      # Only reached as a fallback. Were it folded into the main lookup, an
+      # enclosing block would become a candidate for every remark inside it,
+      # since a node's end line is derived from its children.
+      def closing_owner(nodes, remark)
+        nodes
+          .select do |n|
+            n[:node].is_a?(Model::TakesInlineRemark) &&
+              n[:end_line] == remark.line && n[:line] &&
+              n[:line] < remark.line &&
+              n[:position] && n[:position] < remark.position
+          end
+          .max_by { |n| n[:position] }
+      end
+
+      # A remark trailing a node that closes on its line follows the whole
+      # node, so it is written back the way an ordinary inline remark is. One
+      # that continues past the line trailed the node's opener instead, and
+      # belongs back there rather than after the closing keyword.
+      def opener_region(owner, line)
+        return nil unless owner[:end_line] && owner[:end_line] > line
+
+        Model::RemarkPlacement::OPENER_REGION
+      end
+
+      # Lines beginning with a mid-construct keyword. The keyword closes
+      # nothing and opens nothing, but the remark trailing it belongs to the
+      # construct it branches — written back after the keyword, not after the
+      # construct's END_.
+      MID_KEYWORD_REGIONS = {
+        /\AELSE\b/i => [Model::Statements::If,
+                        Model::RemarkPlacement::ELSE_REGION],
+        /\AOTHERWISE\b/i => [Model::Statements::Case,
+                             Model::RemarkPlacement::OTHERWISE_REGION],
+      }.freeze
+
+      # Attach `ELSE -- why` / `OTHERWISE : -- why` to the innermost
+      # enclosing IF / CASE with INLINE placement and the keyword's region.
+      # Returns [nil, nil, nil] when the line head is no mid-construct
+      # keyword or no construct of the right kind spans the line.
+      def mid_keyword_inline_target(remark)
+        content = line_content_for(remark.line).to_s
+        opener = content.index("--")
+        return [nil, nil, nil] unless opener
+
+        owner = MID_KEYWORD_REGIONS.find { |pattern, _| content[0...opener].strip.match?(pattern) }
+        return [nil, nil, nil] unless owner
+
+        klass, region = owner[1]
+        innermost = @node_index.nodes.select do |n|
+          n[:node].is_a?(klass) && n[:line] && n[:end_line] &&
+            n[:line] < remark.line && n[:end_line] > remark.line
+        end.max_by { |n| n[:line] }
+        return [nil, nil, nil] unless innermost
+
+        [innermost[:node], Model::RemarkPlacement::INLINE, region]
       end
 
       # Which closing keyword ends which region of which owner. A comment
@@ -867,7 +973,10 @@ module Expressir
         return unless node
         return unless node.is_a?(Model::ModelElement)
         # An empty remark body carries no content; storing it produced
-        # remarks == [""] entries (GH-363).
+        # remarks == [""] entries (GH-363). Bare `--IPn:` informal
+        # propositions keep their declarations through
+        # create_or_find_informal_proposition, which does not run through
+        # here — only the redundant empty-body storage drops.
         return if text.nil? || text.strip.empty?
 
         if supports_remarks?(node)

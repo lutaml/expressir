@@ -9,11 +9,6 @@ schemas:
     functions. The context for these mathematical functions is provided by other parts
     of ISO 10303 and the applications which use this schema. Only the unitless, purely
     mathematical aspects of mathematical functions are considered in this schema.
-  - ISO 13584-20
-  - ISO 13584-20
-  - ISO 10303-41
-  - ISO 10303-41
-  - ISO 10303-42
   - mathematical_functions_schema
   remark_items:
   - _class: Expressir::Model::Declarations::RemarkItem
@@ -259,16 +254,6 @@ schemas:
     remarks:
     - data/resource_docs/mathematical_constructs/resource.xml
   untagged_remarks:
-  - text: ISO 13584-20
-    format: tail
-  - text: ISO 13584-20
-    format: tail
-  - text: ISO 10303-41
-    format: tail
-  - text: ISO 10303-41
-    format: tail
-  - text: ISO 10303-42
-    format: tail
   - text: mathematical_functions_schema
     format: tail
   file: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp
@@ -365,6 +350,11 @@ schemas:
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: variable_semantics
+    untagged_remarks:
+    - text: ISO 13584-20
+      format: tail
+      placement: inline
+      region: opener
   - _class: Expressir::Model::Declarations::Interface
     kind: REFERENCE
     schema:
@@ -713,6 +703,11 @@ schemas:
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: xor_expression
+    untagged_remarks:
+    - text: ISO 13584-20
+      format: tail
+      placement: inline
+      region: opener
   - _class: Expressir::Model::Declarations::Interface
     kind: REFERENCE
     schema:
@@ -727,6 +722,11 @@ schemas:
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: text
+    untagged_remarks:
+    - text: ISO 10303-41
+      format: tail
+      placement: inline
+      region: opener
   - _class: Expressir::Model::Declarations::Interface
     kind: REFERENCE
     schema:
@@ -737,6 +737,11 @@ schemas:
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: externally_defined_item
+    untagged_remarks:
+    - text: ISO 10303-41
+      format: tail
+      placement: inline
+      region: opener
   - _class: Expressir::Model::Declarations::Interface
     kind: REFERENCE
     schema:
@@ -763,6 +768,11 @@ schemas:
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: volume
+    untagged_remarks:
+    - text: ISO 10303-42
+      format: tail
+      placement: inline
+      region: opener
   constants:
   - _class: Expressir::Model::Declarations::Constant
     id: schema_prefix
@@ -16402,6 +16412,8 @@ schemas:
       untagged_remarks:
       - text: Note that sp1 finite already handled.
         format: tail
+        placement: inline
+        region: opener
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -16420,6 +16432,8 @@ schemas:
         untagged_remarks:
         - text: Note that sp2 finite already handled.
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -16475,6 +16489,8 @@ schemas:
       untagged_remarks:
       - text: Note that sp1 finite already handled.
         format: tail
+        placement: inline
+        region: opener
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -16493,6 +16509,8 @@ schemas:
         untagged_remarks:
         - text: Note that sp2 finite already handled.
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -16548,6 +16566,8 @@ schemas:
       untagged_remarks:
       - text: Note sp1 finite already handled.
         format: tail
+        placement: inline
+        region: opener
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -16566,6 +16586,8 @@ schemas:
         untagged_remarks:
         - text: Note sp2 finite already handled.
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -32482,6 +32504,8 @@ schemas:
         untagged_remarks:
         - text: Consider lower left corner
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: is_ymin
@@ -32569,6 +32593,11 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.outside
           statements:
           - _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: Centre at lower left corner
+              format: tail
+              placement: inline
+              region: else
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: GREATER_THAN
@@ -32688,9 +32717,6 @@ schemas:
                   id: ymin_in
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.ymin_in
             - _class: Expressir::Model::Statements::ProcedureCall
-              untagged_remarks:
-              - text: Centre at lower left corner
-                format: tail
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -32813,6 +32839,8 @@ schemas:
           untagged_remarks:
           - text: Consider points near (xmin, -infinity)
             format: tail
+            placement: inline
+            region: opener
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: LESS_THAN_OR_EQUAL
@@ -32878,6 +32906,8 @@ schemas:
         untagged_remarks:
         - text: Consider points near (xmin, +infinity)
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: AND
@@ -32956,6 +32986,8 @@ schemas:
         untagged_remarks:
         - text: Consider lower right corner
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: is_xmax
@@ -33043,6 +33075,11 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.outside
           statements:
           - _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: Centre at lower right corner
+              format: tail
+              placement: inline
+              region: else
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: GREATER_THAN
@@ -33162,9 +33199,6 @@ schemas:
                   id: ymin_in
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.ymin_in
             - _class: Expressir::Model::Statements::ProcedureCall
-              untagged_remarks:
-              - text: Centre at lower right corner
-                format: tail
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -33287,6 +33321,8 @@ schemas:
           untagged_remarks:
           - text: Consider points near (+infinity, ymin)
             format: tail
+            placement: inline
+            region: opener
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: LESS_THAN_OR_EQUAL
@@ -33343,6 +33379,8 @@ schemas:
         untagged_remarks:
         - text: Consider points near (-infinity, ymin)
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: AND
@@ -33415,6 +33453,8 @@ schemas:
         untagged_remarks:
         - text: Consider upper right corner
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: is_ymax
@@ -33502,6 +33542,11 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.outside
           statements:
           - _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: Centre at lower left corner
+              format: tail
+              placement: inline
+              region: else
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: GREATER_THAN
@@ -33621,9 +33666,6 @@ schemas:
                   id: ymax_in
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.ymax_in
             - _class: Expressir::Model::Statements::ProcedureCall
-              untagged_remarks:
-              - text: Centre at lower left corner
-                format: tail
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -33752,6 +33794,8 @@ schemas:
           untagged_remarks:
           - text: Consider points near (xmax, +infinity)
             format: tail
+            placement: inline
+            region: opener
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: GREATER_THAN_OR_EQUAL
@@ -33814,6 +33858,8 @@ schemas:
         untagged_remarks:
         - text: Consider points near (xmax, -infinity)
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: AND
@@ -33895,6 +33941,8 @@ schemas:
         untagged_remarks:
         - text: Consider upper left corner
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: is_xmin
@@ -33982,6 +34030,11 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.outside
           statements:
           - _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: Centre at lower right corner
+              format: tail
+              placement: inline
+              region: else
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: GREATER_THAN
@@ -34101,9 +34154,6 @@ schemas:
                   id: ymax_in
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.ymax_in
             - _class: Expressir::Model::Statements::ProcedureCall
-              untagged_remarks:
-              - text: Centre at lower right corner
-                format: tail
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -34226,6 +34276,8 @@ schemas:
           untagged_remarks:
           - text: Consider points near (-infinity, ymax)
             format: tail
+            placement: inline
+            region: opener
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: GREATER_THAN_OR_EQUAL
@@ -34282,6 +34334,8 @@ schemas:
         untagged_remarks:
         - text: Consider points near (+infinity, ymax)
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: AND
@@ -34348,6 +34402,8 @@ schemas:
       untagged_remarks:
       - text: Change direction origin from ab back to zero
         format: tail
+        placement: inline
+        region: opener
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: outside
@@ -37973,6 +38029,10 @@ schemas:
       - text: Analyse cases by existence of max distance and direction limits
         format: tail
         placement: leading
+      - text: Not max_exists(ritp)
+        format: tail
+        placement: inline
+        region: else
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -38003,6 +38063,8 @@ schemas:
         untagged_remarks:
         - text: direction range < 2*PI
           format: tail
+          placement: inline
+          region: else
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -38645,6 +38707,8 @@ schemas:
                 untagged_remarks:
                 - text: in the slot
                   format: tail
+                  placement: inline
+                  region: opener
                 expression:
                   _class: Expressir::Model::Expressions::BinaryExpression
                   operator: AND
@@ -38845,6 +38909,8 @@ schemas:
                 untagged_remarks:
                 - text: Special cases when aligned with slot
                   format: tail
+                  placement: inline
+                  region: opener
                 expression:
                   _class: Expressir::Model::References::SimpleReference
                   id: inn
@@ -40317,6 +40383,8 @@ schemas:
             untagged_remarks:
             - text: use nearest point on line segment
               format: tail
+              placement: inline
+              region: opener
             expression:
               _class: Expressir::Model::Expressions::Interval
               low:
@@ -40420,6 +40488,8 @@ schemas:
             untagged_remarks:
             - text: try nearest point on line segment
               format: tail
+              placement: inline
+              region: opener
             expression:
               _class: Expressir::Model::Expressions::Interval
               low:
@@ -40725,6 +40795,8 @@ schemas:
             placement: leading
           - text: outside outer circle
             format: tail
+            placement: inline
+            region: opener
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: GREATER_THAN_OR_EQUAL
@@ -41537,9 +41609,6 @@ schemas:
             id: closed
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.open_closed.closed
       - _class: Expressir::Model::Statements::Assignment
-        untagged_remarks:
-        - text: Not max_exists(ritp)
-          format: tail
         ref:
           _class: Expressir::Model::References::SimpleReference
           id: ritv
@@ -41605,6 +41674,8 @@ schemas:
         untagged_remarks:
         - text: direction range < 2*PI
           format: tail
+          placement: inline
+          region: else
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -41667,6 +41738,8 @@ schemas:
           untagged_remarks:
           - text: already excluded if not aligned with slot
             format: tail
+            placement: inline
+            region: opener
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: GREATER_THAN
@@ -41828,6 +41901,8 @@ schemas:
             untagged_remarks:
             - text: Special cases when aligned with slot
               format: tail
+              placement: inline
+              region: opener
             expression:
               _class: Expressir::Model::Expressions::UnaryExpression
               operator: NOT
@@ -42665,6 +42740,8 @@ schemas:
             untagged_remarks:
             - text: use nearest point on aitp.min ray
               format: tail
+              placement: inline
+              region: opener
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: LESS_THAN
@@ -42763,6 +42840,8 @@ schemas:
             untagged_remarks:
             - text: try nearest point on aitp.max ray
               format: tail
+              placement: inline
+              region: opener
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: LESS_THAN
@@ -43906,6 +43985,8 @@ schemas:
         untagged_remarks:
         - text: quadrant to upper right
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -44286,6 +44367,8 @@ schemas:
         untagged_remarks:
         - text: quadrant to upper left
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -44672,6 +44755,8 @@ schemas:
         untagged_remarks:
         - text: quadrant to lower left
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -45055,6 +45140,8 @@ schemas:
         untagged_remarks:
         - text: quadrant to lower right
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -45456,6 +45543,8 @@ schemas:
         untagged_remarks:
         - text: upper half space
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -45654,6 +45743,8 @@ schemas:
         untagged_remarks:
         - text: left half space
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -45858,6 +45949,8 @@ schemas:
         untagged_remarks:
         - text: lower half space
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL
@@ -46059,6 +46152,8 @@ schemas:
         untagged_remarks:
         - text: right half space
           format: tail
+          placement: inline
+          region: opener
         expression:
           _class: Expressir::Model::Expressions::BinaryExpression
           operator: EQUAL

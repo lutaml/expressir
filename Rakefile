@@ -15,6 +15,8 @@ require "yard"
 
 YARD::Rake::YardocTask.new
 
+Dir.glob(File.expand_path("lib/tasks/*.rake", __dir__)).sort.each { |task| load task }
+
 desc "Regenerate the EXPRESS grammar JSON embedded in expressir-rs"
 task :"expressir:grammar:dump" do
   require "expressir/express/grammar/parser"
@@ -24,3 +26,4 @@ task :"expressir:grammar:dump" do
   File.write(path, "#{json}\n")
   puts "wrote #{path}"
 end
+

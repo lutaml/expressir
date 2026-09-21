@@ -125,7 +125,7 @@ module Expressir
 
           # For scope containers: exclude last remark ONLY if it's a tail remark (END_* remark)
           # Keep all embedded remarks
-          if is_scope_container && preamble_remarks.length > 1
+          if is_scope_container && preamble_remarks.length >= 1
             last_remark = preamble_remarks.last
             # Only exclude if it's a tail remark
             preamble_remarks = preamble_remarks[0..-2] if last_remark.tail?
@@ -154,15 +154,39 @@ module Expressir
           end
         end
 
-        # Remarks written after their statement on the same line. Attachment
-        # only assigns these to single-line statements, so appending keeps
-        # them on that statement's line.
+        # Remarks written after their statement on the same line, which for a
+        # single-line statement is where appending puts them back. Opener
+        # remarks are excluded: those belong on the first line rather than
+        # after the closing keyword, and {#format_opener_remarks} emits them.
+        # Mid-keyword remarks (ELSE / OTHERWISE regions) are excluded too:
+        # {#format_mid_keyword_remarks} emits them after their keyword.
         def format_inline_statement_remarks(node)
+          formatted_inline_remarks(node) { |remark| remark.region.nil? }
+        end
+
+        # Remarks that trailed the opening line of a statement spanning
+        # several lines, as in `IF x THEN -- why`. Where they are written back
+        # is Formatter#format's business, not this method's.
+        def format_opener_remarks(node)
+          formatted_inline_remarks(node, &:opener?)
+        end
+
+        # Remarks that trailed a mid-construct keyword of `node` — the ELSE
+        # line of an IF, the OTHERWISE line of a CASE — emitted after that
+        # keyword, where they were written.
+        def format_mid_keyword_remarks(node, region)
+          formatted_inline_remarks(node) { |remark| remark.inline_region?(region) }
+        end
+
+        # The inline remarks of a node that the given block accepts, formatted
+        # and joined. The callers partition the same collection, so every
+        # inline remark is emitted by exactly one of them.
+        def formatted_inline_remarks(node, &)
           return "" if @no_remarks
-          return "" unless node.is_a?(Model::Statement)
+          return "" unless node.is_a?(Model::TakesInlineRemark)
 
           Array(node.untagged_remarks).filter_map do |remark|
-            next unless remark.inline?
+            next unless remark.inline? && yield(remark)
 
             formatted = format_untagged_remark(remark)
             formatted unless formatted.empty?

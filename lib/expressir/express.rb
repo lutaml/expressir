@@ -12,6 +12,8 @@ module Expressir
     autoload :Cache, "#{__dir__}/express/cache"
     autoload :Core, "#{__dir__}/express/core"
     autoload :RemarkOverlay, "#{__dir__}/express/remark_overlay"
+    autoload :ModelTraversal, "#{__dir__}/express/model_traversal"
+    autoload :RefsOverlay, "#{__dir__}/express/refs_overlay"
     autoload :Error, "#{__dir__}/express/error"
     autoload :Formatter, "#{__dir__}/express/formatter"
     autoload :Formatters, "#{__dir__}/express/formatters"

@@ -15,42 +15,17 @@ module Expressir
       CAPTURED = %w[remarks remark_items informal_propositions untagged_remarks header].freeze
 
       class << self
-        # Mirrors {ModelVisitor} traversal (every typed attribute,
-        # statements included), threading a structural key.
-        def each_node(node, key, &block)
-          yield node, key
-          return unless node.is_a?(Model::ModelElement)
-
-          node.class.attributes.each_key do |attr|
-            next if Model::ModelElement::SKIP_ATTRIBUTES.include?(attr)
-
-            value = node.public_send(attr)
-            case value
-            when Array
-              value.each_with_index do |item, index|
-                next unless item.is_a?(Model::ModelElement)
-
-                each_node(item, "#{key}/#{attr}[#{index}]", &block)
-              end
-            when Model::ModelElement
-              each_node(value, "#{key}/#{attr}", &block)
-            end
-          end
-        end
-
         def write(set_path, models)
           overlay = {}
-          models.each_with_index do |model, index|
-            each_node(model, "model[#{index}]") do |node, key|
-              entry = {}
-              CAPTURED.each do |attr|
-                next unless node.respond_to?(attr)
+          ModelTraversal.each_model(models) do |node, key|
+            entry = {}
+            CAPTURED.each do |attr|
+              next unless node.respond_to?(attr)
 
-                value = node.public_send(attr)
-                entry[attr] = value if attr == "header" ? value : value&.any?
-              end
-              overlay[key] = entry if entry.any?
+              value = node.public_send(attr)
+              entry[attr] = value if attr == "header" ? value : value&.any?
             end
+            overlay[key] = entry if entry.any?
           end
           return if overlay.empty?
 
@@ -88,22 +63,20 @@ module Expressir
 
           require "json"
           overlay = JSON.parse(File.read(overlay_path))
-          models.each_with_index do |model, index|
-            each_node(model, "model[#{index}]") do |node, key|
-              entry = overlay[key]
-              next unless entry
+          ModelTraversal.each_model(models) do |node, key|
+            entry = overlay[key]
+            next unless entry
 
-              CAPTURED.each do |attr|
-                setter = :"#{attr}="
-                next unless entry[attr] && node.respond_to?(setter)
+            CAPTURED.each do |attr|
+              setter = :"#{attr}="
+              next unless entry[attr] && node.respond_to?(setter)
 
-                node.public_send(setter, entry[attr])
-                # The writer casts JSON hashes into model objects; wire
-                # the cast collection (the attacher parents every
-                # created node and resets the child-id memo — reference
-                # resolution relies on both).
-                wire_overlay_value(node, node.public_send(attr))
-              end
+              node.public_send(setter, entry[attr])
+              # The writer casts JSON hashes into model objects; wire
+              # the cast collection (the attacher parents every
+              # created node and resets the child-id memo — reference
+              # resolution relies on both).
+              wire_overlay_value(node, node.public_send(attr))
             end
           end
         end

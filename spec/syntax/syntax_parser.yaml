@@ -643,6 +643,9 @@ schemas:
       id: empty_entity
       base_path: spec/syntax/syntax.exp.syntax_schema.empty_entity
     abstract: false
+    total_over:
+    - _class: Expressir::Model::References::SimpleReference
+      id: a
   - _class: Expressir::Model::Declarations::SubtypeConstraint
     id: supertype_expression_subtype_constraint
     applies_to:

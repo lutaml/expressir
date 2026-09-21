@@ -28,22 +28,22 @@ require "spec_helper"
 # should.
 round_trips = {
   "spec/fixtures/examples/autonomous_vehicle_navigation_schema.exp" =>
-    { traced: 29, tagged: 20, escapes: 1 },
+    { traced: 29, tagged: 20, escapes: 0 },
   "spec/fixtures/examples/geometry_schema.exp" =>
     { traced: 28, tagged: 20, escapes: 0 },
   "spec/fixtures/examples/nested_functions_test_schema.exp" =>
-    { traced: 10, tagged: 0, escapes: 1 },
-  # Nine, because this fixture is a deliberate spread of schema-level
-  # remarks: before and after the constant block, before a type, and two
-  # outside SCHEMA entirely.
+    { traced: 10, tagged: 0, escapes: 0 },
+  # This fixture is a deliberate spread of schema-level remarks: before and
+  # after the constant block, before a type, and two outside SCHEMA entirely.
+  # One remark still escapes to the file across a round trip; the rest hold.
   "spec/fixtures/examples/tail_remarks_test_schema.exp" =>
-    { traced: 33, tagged: 7, escapes: 9 },
+    { traced: 33, tagged: 7, escapes: 1 },
   "spec/fixtures/function_body_remarks.exp" =>
     { traced: 13, tagged: 0, escapes: 0 },
   "spec/syntax/remark.exp" =>
     { traced: 134, tagged: 134, escapes: 0 },
   "spec/syntax/syntax.exp" =>
-    { traced: 22, tagged: 0, escapes: 2 },
+    { traced: 22, tagged: 0, escapes: 0 },
 }.freeze
 
 RSpec.describe Expressir::Express::Formatter do

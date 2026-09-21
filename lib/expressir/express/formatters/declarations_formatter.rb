@@ -607,6 +607,7 @@ module Expressir
             [
               "END_SCHEMA",
               ";",
+              format_end_scope_remark(node),
             ].join,
           ].join("\n")
         end

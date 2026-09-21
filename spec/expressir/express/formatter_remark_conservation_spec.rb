@@ -30,19 +30,13 @@ round_trips = {
   "spec/fixtures/examples/geometry_schema.exp" => {
     lost: {}, tagged_lost: 20, tagged_survivors: []
   },
-  # Remarks sitting between schema-level declarations.
+  # Schema-level remarks between declarations survive: they attach to the
+  # nearest preceding declaration and render from it.
   "spec/fixtures/examples/nested_functions_test_schema.exp" => {
-    lost: {
-      "Another top-level function (should be included in coverage)" => 1,
-      "Simple entity for the rule" => 1,
-      "Top-level function (should be included in coverage)" => 1,
-      "Top-level rule with inner function" => 1,
-    },
-    tagged_lost: 0, tagged_survivors: []
+    lost: {}, tagged_lost: 0, tagged_survivors: []
   },
   "spec/fixtures/function_body_remarks.exp" => {
-    lost: { "BETWEEN-FUNCTIONS schema level comment" => 1 },
-    tagged_lost: 0, tagged_survivors: []
+    lost: {}, tagged_lost: 0, tagged_survivors: []
   },
   "spec/syntax/syntax.exp" => {
     lost: {
@@ -51,20 +45,19 @@ round_trips = {
       "function call or entity constructor expressions" => 1,
       "function expressions" => 1, "operator expressions" => 1,
       "query expressions" => 1, "reference expressions" => 1,
-      "schema" => 1, "statements" => 1, "types" => 1
+      "schema" => 1, "statements" => 1
     },
     tagged_lost: 0, tagged_survivors: []
   },
-  # Schema-level remarks, plus two that sit outside SCHEMA entirely.
+  # Schema-level remarks, plus two that sit outside SCHEMA entirely. Remarks
+  # between schema-level declarations and the tail remark after END_SCHEMA now
+  # survive; what remains lost are the mid-declaration and file-head ones with
+  # no owner that renders them.
   "spec/fixtures/examples/tail_remarks_test_schema.exp" => {
     lost: {
-      "Final untagged tail remark at end of file" => 1,
       "Untagged tail remark after constant" => 1,
-      "Untagged tail remark after constants block" => 1,
       "Untagged tail remark after enum item" => 1,
       "Untagged tail remark at very beginning of file" => 1,
-      "Untagged tail remark before constants" => 1,
-      "Untagged tail remark before type definition" => 1,
     },
     tagged_lost: 6, tagged_survivors: []
   },

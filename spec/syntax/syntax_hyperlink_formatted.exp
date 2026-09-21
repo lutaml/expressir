@@ -202,6 +202,7 @@ SUBTYPE_CONSTRAINT abstract_supertype_subtype_constraint FOR empty_entity;
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT total_over_subtype_constraint FOR empty_entity;
+  TOTAL_OVER(a);
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT supertype_expression_subtype_constraint FOR empty_entity;
@@ -908,4 +909,4 @@ PROCEDURE expressions;
   END_LOCAL;
 END_PROCEDURE; -- interval expressions
 
-END_SCHEMA;
+END_SCHEMA; -- types

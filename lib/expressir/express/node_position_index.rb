@@ -144,13 +144,13 @@ module Expressir
       # preferring same-line starts/ends, then smallest containing span.
       # Skips nodes that cannot own such a remark; see {#remark_scope?}.
       def nearest_node_to(remark_line)
-same_start = starting_at(remark_line)
+        same_start = starting_at(remark_line).select { |n| remark_scope?(n[:node]) }
         return same_start.last[:node] if same_start.any?
 
-        same_end = ending_at(remark_line)
+        same_end = ending_at(remark_line).select { |n| remark_scope?(n[:node]) }
         return same_end.last[:node] if same_end.any?
 
-        containing = spanning(remark_line)
+        containing = spanning(remark_line).select { |n| remark_scope?(n[:node]) }
 
         if containing.any?
           exp_file_node = containing.find { |n| n[:node].is_a?(Model::ExpFile) }
@@ -167,7 +167,7 @@ same_start = starting_at(remark_line)
           candidates = containing if candidates.empty?
           candidates.min_by { |n| n[:end_line] - n[:line] }[:node]
         else
-before = semantic_ending_before(remark_line)
+          before = semantic_ending_before(remark_line)
           if before.any?
             before.max_by { |n| n[:end_line] }[:node]
           else
@@ -215,8 +215,21 @@ before = semantic_ending_before(remark_line)
       end
 
       def semantic?(node)
-        !node.is_a?(Model::Repository) && !node.is_a?(Model::Cache) &&
-          !node.is_a?(Model::Declarations::Interface)
+        !node.is_a?(Model::Repository) && !node.is_a?(Model::Cache)
+      end
+
+      # Whether a node can own a remark sitting on a line of its own.
+      # Distinct from Model::TakesInlineRemark, which asks whether a node can
+      # own a remark written AFTER it on the same line: a statement answers
+      # yes to both; an interface clause only to that one.
+      #
+      # An interface clause is indexed (so a remark trailing it can find it
+      # via the same-line lookup), but it encloses nothing: an own-line
+      # remark below `REFERENCE FROM x;` introduces whatever comes next, and
+      # giving it to the clause would both misplace it and lose it, since
+      # nothing renders remarks there.
+      def remark_scope?(node)
+        semantic?(node) && !node.is_a?(Model::Declarations::Interface)
       end
 
       def build_sorted_nodes

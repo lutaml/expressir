@@ -125,7 +125,7 @@ module Expressir
 
           # For scope containers: exclude last remark ONLY if it's a tail remark (END_* remark)
           # Keep all embedded remarks
-          if is_scope_container && preamble_remarks.length > 1
+          if is_scope_container && preamble_remarks.length >= 1
             last_remark = preamble_remarks.last
             # Only exclude if it's a tail remark
             preamble_remarks = preamble_remarks[0..-2] if last_remark.tail?

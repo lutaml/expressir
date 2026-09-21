@@ -726,6 +726,7 @@ schemas:
     - text: ISO 10303-41
       format: tail
       placement: inline
+      region: opener
   - _class: Expressir::Model::Declarations::Interface
     kind: REFERENCE
     schema:
@@ -740,6 +741,7 @@ schemas:
     - text: ISO 10303-41
       format: tail
       placement: inline
+      region: opener
   - _class: Expressir::Model::Declarations::Interface
     kind: REFERENCE
     schema:

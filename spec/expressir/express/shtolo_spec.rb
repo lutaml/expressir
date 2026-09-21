@@ -150,4 +150,50 @@ RSpec.describe Expressir::Express::Shtolo do
       expect(longform.interfaces).to be_empty
     end
   end
+
+  describe "all-extenders option" do
+    it "folds closure entities into an empty GENERIC_ENTITY extensible select" do
+      sources = {
+        "support" => <<~EXP,
+          SCHEMA support;
+          ENTITY base_thing; y : STRING; END_ENTITY;
+          END_SCHEMA;
+        EXP
+        "root" => <<~EXP
+          SCHEMA root;
+          USE FROM support (base_thing);
+          TYPE pick = EXTENSIBLE GENERIC_ENTITY SELECT; END_TYPE;
+          ENTITY thing_one SUBTYPE OF (base_thing); a : STRING; END_ENTITY;
+          ENTITY thing_two SUBTYPE OF (base_thing); b : STRING; END_ENTITY;
+          END_SCHEMA;
+        EXP
+      }
+      repository, @files = parse_repository(sources)
+      lf = flatten(schema_of(repository, "root"), repository)
+
+      pick = lf.types.find { |t| t.id == "pick" }
+      items = pick.underlying_type.items.map(&:id).map(&:downcase)
+      aggregate_failures do
+        expect(pick.underlying_type.generic_entity).to be_truthy
+        expect(items).to include("thing_one", "thing_two", "base_thing")
+      end
+    end
+
+    it "extenders: none leaves the extensible select as declared" do
+      sources = {
+        "root" => <<~EXP
+          SCHEMA root;
+          ENTITY thing_one; a : STRING; END_ENTITY;
+          TYPE pick = EXTENSIBLE GENERIC_ENTITY SELECT; END_TYPE;
+          END_SCHEMA;
+        EXP
+      }
+      repository, @files = parse_repository(sources)
+      lf = Expressir::Express::Shtolo.new(schema_of(repository, "root"),
+                                          repository,
+                                          extenders: :none).flatten.schema
+      pick = lf.types.find { |t| t.id == "pick" }
+      expect(pick.underlying_type.items).to be_empty
+    end
+  end
 end

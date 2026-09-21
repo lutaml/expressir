@@ -9,6 +9,7 @@ module Expressir
     autoload :Builders, "#{__dir__}/express/builders"
 
     # Core classes (autoloaded for lazy loading)
+    autoload :Concatenator, "#{__dir__}/express/concatenator"
     autoload :Cache, "#{__dir__}/express/cache"
     autoload :Error, "#{__dir__}/express/error"
     autoload :Formatter, "#{__dir__}/express/formatter"

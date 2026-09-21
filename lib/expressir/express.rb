@@ -17,6 +17,7 @@ module Expressir
     autoload :Formatters, "#{__dir__}/express/formatters"
     autoload :Grammar, "#{__dir__}/express/grammar"
     autoload :HyperlinkFormatter, "#{__dir__}/express/hyperlink_formatter"
+    autoload :InterfaceDot, "#{__dir__}/express/interface_dot"
     autoload :LineMap, "#{__dir__}/express/line_map"
     autoload :Listing, "#{__dir__}/express/listing"
     autoload :ModelVisitor, "#{__dir__}/express/model_visitor"

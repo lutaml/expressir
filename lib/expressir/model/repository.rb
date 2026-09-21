@@ -60,10 +60,12 @@ reference_index: nil)
         schemas&.each { |schema| @_schemas << schema }
       end
 
-      # Get all schemas (from both files and direct storage)
+      # Get all schemas (from both files and direct storage).
+      # Files that failed to parse are nil in `files` — a parse failure must
+      # not crash schema enumeration with a NoMethodError from in here.
       # @return [Array<Declarations::Schema>]
       def schemas
-        file_schemas = files&.flat_map(&:schemas)&.compact || []
+        file_schemas = files.compact.flat_map(&:schemas).compact
         file_schemas + @_schemas
       end
 

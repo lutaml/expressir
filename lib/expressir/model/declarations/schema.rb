@@ -132,8 +132,11 @@ module Expressir
         def items_for_interface(interface, visited_schemas)
           schema = foreign_schema(interface.schema.id.safe_downcase)
           return [] unless schema
-          return [] if visited_schemas.key?(schema.id.safe_downcase) &&
-                       interface.items.empty?
+          # Visited means this schema's contribution is already in the
+          # caller's result: re-entering — mutual USE FROM included —
+          # recursed forever when the interface carried an item list
+          # (the old guard only fired for the list-less form).
+          return [] if visited_schemas.key?(schema.id.safe_downcase)
 
           visited_schemas[schema.id.safe_downcase] = true
 

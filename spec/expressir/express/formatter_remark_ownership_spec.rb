@@ -26,11 +26,17 @@ require "spec_helper"
 # `remark.exp` reporting no moves while none of its remarks were read.
 # Adding a comment to a shared fixture should not fail these; losing coverage
 # should.
+# The traced and tagged floors dropped by 20 with the GH-363 empty-remark
+# guard: each of these fixtures carries 20 `--IPn:` informal-proposition
+# declarations whose scanner entries have empty bodies. The propositions
+# themselves still attach via create_or_find_informal_proposition; what the
+# guard removes is the redundant empty-body remark storage, which the
+# formatter never rendered and the trace previously counted.
 round_trips = {
   "spec/fixtures/examples/autonomous_vehicle_navigation_schema.exp" =>
-    { traced: 29, tagged: 20, escapes: 0 },
+    { traced: 9, tagged: 0, escapes: 0 },
   "spec/fixtures/examples/geometry_schema.exp" =>
-    { traced: 28, tagged: 20, escapes: 0 },
+    { traced: 8, tagged: 0, escapes: 0 },
   "spec/fixtures/examples/nested_functions_test_schema.exp" =>
     { traced: 10, tagged: 0, escapes: 0 },
   # This fixture is a deliberate spread of schema-level remarks: before and

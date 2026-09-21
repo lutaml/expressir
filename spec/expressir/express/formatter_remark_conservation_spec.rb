@@ -33,22 +33,28 @@ round_trips = {
   # their REFERENCE FROM lines now survive. What remains is 20 `--IPn:`
   # informal proposition declarations each, which the formatter never emits.
   #
-  # Embedded: the file header, which sits outside SCHEMA, and the blocks
-  # introducing the interface clause and the first TYPE. The block
-  # introducing an ENTITY is the one that survives.
+  # Embedded: only the file header block is lost. The blocks introducing the
+  # interface clause, the first TYPE, and the ENTITY all survive.
   "spec/fixtures/examples/autonomous_vehicle_navigation_schema.exp" => {
     lost: {}, tagged_lost: 20, tagged_survivors: [],
-    embedded_lost: 3,
-    embedded_survivors: [[nil, "VR spatial computing additions  next 3 entities"]]
+    embedded_lost: 1,
+    embedded_survivors: [
+      [nil, "for immersive geometry added volume_with_faces"],
+      [nil, "VR spatial computing TYPE additions"],
+      [nil, "VR spatial computing additions  next 3 entities"],
+    ]
   },
   "spec/fixtures/examples/geometry_schema.exp" => {
     lost: {}, tagged_lost: 20, tagged_survivors: [],
-    embedded_lost: 3,
-    embedded_survivors: [[nil, "VR spatial computing additions  next 3 entities"]]
+    embedded_lost: 1,
+    embedded_survivors: [
+      [nil, "for immersive geometry added volume_with_faces"],
+      [nil, "VR spatial computing TYPE additions"],
+      [nil, "VR spatial computing additions  next 3 entities"],
+    ]
   },
   # Schema-level remarks between declarations survive: they attach to the
   # nearest preceding declaration and render from it.
-  "spec/fixtures/examples/nested_functions_test_schema.exp" => {
   "spec/fixtures/examples/nested_functions_test_schema.exp" => {
     lost: {}, tagged_lost: 0, tagged_survivors: [],
     embedded_lost: 0, embedded_survivors: []

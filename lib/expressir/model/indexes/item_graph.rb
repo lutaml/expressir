@@ -21,6 +21,31 @@ module Expressir
           build(repository)
         end
 
+        # Plain tables for artifact persistence — node keys only, no
+        # model references. `ItemGraph.from_tables` is the zero-model
+        # counterpart used on warm loads.
+        def tables
+          {
+            "nodes" => @nodes.keys,
+            "subtype_of" => @subtype_of.reject { |_, parents| parents.empty? },
+            "dependencies" => @dependencies.reject { |_, deps| deps.empty? },
+          }
+        end
+
+        def self.from_tables(tables)
+          graph = allocate
+          graph.instance_variable_set(:@nodes, tables["nodes"].to_h { |k| [k, nil] })
+          graph.instance_variable_set(
+            :@subtype_of,
+            Hash.new { |h, k| h[k] = [] }.update(tables["subtype_of"] || {}),
+          )
+          graph.instance_variable_set(
+            :@dependencies,
+            Hash.new { |h, k| h[k] = [] }.update(tables["dependencies"] || {}),
+          )
+          graph
+        end
+
         def include?(path)
           @nodes.key?(canonical(path))
         end
@@ -45,9 +70,10 @@ module Expressir
         end
 
         # Schemas whose items `schema` imports (USE FROM / REFERENCE
-        # FROM), direct only.
+        # FROM), direct only. Accepts a schema object or its id.
         def dependencies_of(schema)
-          @dependencies[schema.id.safe_downcase].dup
+          schema_id = schema.respond_to?(:id) ? schema.id : schema.to_s
+          @dependencies[schema_id.safe_downcase].dup
         end
 
         def subtype_edges

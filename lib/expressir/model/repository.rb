@@ -24,6 +24,10 @@ module Expressir
       # Index instances (lazy-loaded)
       attr_reader :entity_index, :type_index, :reference_index
 
+      # Item-level graph; loaded from the compiled-set artifact on
+      # warm starts, built on demand otherwise.
+      attr_accessor :item_graph
+
       # Restore deserialized indexes (used by Package::Reader)
       def restore_indexes(entity_index: nil, type_index: nil,
 reference_index: nil)

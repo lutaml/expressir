@@ -49,13 +49,22 @@ module Expressir
         errors.empty?
       end
 
-      def report(io = $stdout)
+      def write_report(io = $stdout)
         notes.each do |n|
           io.puts "[#{n.severity}] #{n.id}: #{n.message}"
         end
         io.puts "#{errors.size} error(s), #{warnings.size} warning(s)"
-        valid?
+        io
       end
+
+      BUILTINS = %w[
+        integer real number string binary boolean logical generic
+        generic_entity aggregate array bag list set
+        true false unknown self const_e pi
+        abs acos asin atan cos exp format hibound hiindex length
+        log log2 log10 lobound loindex nvl odd rolesof sin sizeof
+        sqrt tan typeof usedin value value_in value_unique exists
+      ].freeze
 
       private
 
@@ -198,19 +207,10 @@ module Expressir
         end
       end
 
-      def declaration_id?(schema, node)
+      def declaration_id?(_schema, node)
         parent = node.parent
         parent.respond_to?(:id) && parent.id&.safe_downcase == node.id.safe_downcase
       end
-
-      BUILTINS = %w[
-        integer real number string binary boolean logical generic
-        generic_entity aggregate array bag list set
-        true false unknown self const_e pi
-        abs acos asin atan cos exp format hibound hiindex length
-        log log2 log10 lobound loindex nvl odd rolesof sin sizeof
-        sqrt tan typeof usedin value value_in value_unique exists
-      ].freeze
 
       def builtin?(id)
         BUILTINS.include?(id.safe_downcase)

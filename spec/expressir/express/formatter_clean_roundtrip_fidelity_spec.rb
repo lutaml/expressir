@@ -7,7 +7,7 @@ require "spec_helper"
 # Round-trip fidelity fixes reported against `expressir clean`
 # (GH-338, GH-339, GH-340, GH-341, GH-363): clean output must be
 # semantically identical EXPRESS.
-RSpec.describe Expressir::Express::Formatter, "clean round-trip fidelity" do
+RSpec.describe Expressir::Express::Formatter do # clean round-trip fidelity (GH-338..341, GH-363)
   def format_schema(source)
     file = Tempfile.new(%w[repro .exp])
     file.write(source)

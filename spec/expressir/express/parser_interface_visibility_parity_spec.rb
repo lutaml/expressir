@@ -6,7 +6,7 @@ require "tempfile"
 # Cross-file and transitive USE visibility, matching eeng's resolution
 # ladder (kernel/find-declaration.lisp: :local → :use-only transitive
 # → :use-from, with a cycle guard). TODO.parity-ee/06.
-RSpec.describe Expressir::Express::Parser, "interface visibility parity" do
+RSpec.describe Expressir::Express::Parser do # interface visibility parity (TODO.parity-ee/06)
   let(:sources) do
     {
       "resource_schema" => <<~EXP,
@@ -24,7 +24,7 @@ RSpec.describe Expressir::Express::Parser, "interface visibility parity" do
         END_ENTITY;
         END_SCHEMA;
       EXP
-      "top_schema" => <<~EXP
+      "top_schema" => <<~EXP,
         SCHEMA top_schema;
         USE FROM middle_schema (middle_holder);
         ENTITY top_user;
@@ -43,18 +43,19 @@ RSpec.describe Expressir::Express::Parser, "interface visibility parity" do
       f.close
       f
     end
-    Expressir::Express::Parser.from_files(files.map(&:path)).tap do
-      @tempfiles = files
+    described_class.from_files(files.map(&:path)).tap do
+      files
     end
   end
-
-  after { @tempfiles&.each(&:unlink) }
-
   let(:top_user) do
     repository.schemas
-              .find { |s| s.id == "top_schema" }
-              .entities.find { |e| e.id == "top_user" }
+      .find { |s| s.id == "top_schema" }
+      .entities.find { |e| e.id == "top_user" }
   end
+
+  let(:tempfiles) { [] }
+
+  after { tempfiles.each(&:unlink) }
 
   it "resolves a reference to an item USEd from another file" do
     expect(top_user.attributes[0].type.base_path).to include("middle_schema.middle_holder")
@@ -78,7 +79,7 @@ RSpec.describe Expressir::Express::Parser, "interface visibility parity" do
     cycle.write("SCHEMA cycle_schema;\nUSE FROM middle_schema (middle_holder);\nUSE FROM resource_schema (resource_thing);\nENTITY cyc;\n  x : resource_thing;\nEND_ENTITY;\nEND_SCHEMA;\n")
     cycle.close
     begin
-      repo = Expressir::Express::Parser.from_files(files.map(&:path) + [cycle.path])
+      repo = described_class.from_files(files.map(&:path) + [cycle.path])
       cyc = repo.schemas.find { |s| s.id == "cycle_schema" }
       expect(cyc.entities.first.attributes[0].type.base_path).to include("resource_schema.resource_thing")
     ensure

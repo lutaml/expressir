@@ -32,7 +32,7 @@ module Expressir
         @root = root_schema
         @repository = repository
         @longform_name = longform_name || @root.id
-        @renames = {}          # munged/alias name => original name
+        @renames = {} # munged/alias name => original name
         @reference_entities = [] # G.1.6 entities
       end
 
@@ -93,7 +93,7 @@ module Expressir
 
             iface.items.each do |item|
               original = original_name(item, schema)
-              next unless (decl = closure[original]&.entities&.find { |e| e.id == original })
+              next unless closure[original]&.entities&.find { |e| e.id == original }
 
               @reference_entities << original.safe_downcase
             end
@@ -112,7 +112,7 @@ module Expressir
           subtype_constraints: declarations.grep(Model::Declarations::SubtypeConstraint).compact,
           functions: declarations.grep(Model::Declarations::Function).compact,
           procedures: declarations.grep(Model::Declarations::Procedure).compact,
-          rules: declarations.grep(Model::Declarations::Rule).compact
+          rules: declarations.grep(Model::Declarations::Rule).compact,
         )
       end
 
@@ -127,7 +127,7 @@ module Expressir
             next unless original
 
             map[item.id.safe_downcase] = original if item.id &&
-                                                    item.id.safe_downcase != original.safe_downcase
+              item.id.safe_downcase != original.safe_downcase
           end
         end
         map
@@ -255,7 +255,7 @@ module Expressir
               t.underlying_type.based_on&.id&.safe_downcase == base.id.safe_downcase
           end
           merged = enum.items.map(&:id) +
-                   extensions.flat_map { |x| x.underlying_type.items.map(&:id) }
+            extensions.flat_map { |x| x.underlying_type.items.map(&:id) }
           enum.items = merged.uniq.map { |id| Model::DataTypes::EnumerationItem.new(id: id) }
           enum.extensible = false
           enum.based_on = nil
@@ -264,12 +264,12 @@ module Expressir
             ext_items = ext.underlying_type.items.map(&:id)
             exclusions = merged - ext_items
             ext.underlying_type = Model::DataTypes::Enumeration.new(
-              items: enum.items
+              items: enum.items,
             )
             ext.where_rules = exclusions.each_with_index.map do |item, i|
               Model::Declarations::WhereRule.new(
                 id: "wr#{i + 1}",
-                expression: parse_expression("SELF <> #{item};")
+                expression: parse_expression("SELF <> #{item};"),
               )
             end
           end
@@ -287,7 +287,7 @@ module Expressir
               t.underlying_type.based_on&.id&.safe_downcase == base.id.safe_downcase
           end
           merged_items = sel.items +
-                         extensions.flat_map { |x| x.underlying_type.items }
+            extensions.flat_map { |x| x.underlying_type.items }
           seen_ids = {}
           uniq = merged_items.select do |item|
             key = item.id.safe_downcase
@@ -304,12 +304,12 @@ module Expressir
             exclusions = uniq.reject { |i| keep.include?(i.id.upcase) }
             base_ref = "#{@longform_name.upcase}.#{base.id.upcase}"
             ext.underlying_type = Model::DataTypes::Select.new(
-              items: sel.items.map { |i| Model::References::SimpleReference.new(id: i.id) }
+              items: sel.items.map { |i| Model::References::SimpleReference.new(id: i.id) },
             )
             ext.where_rules = exclusions.each_with_index.map do |item, i|
               Model::Declarations::WhereRule.new(
                 id: "wr#{i + 1}",
-                expression: parse_expression("NOT ('#{base_ref}.#{item.id.upcase}' IN TYPEOF(SELF));")
+                expression: parse_expression("NOT ('#{base_ref}.#{item.id.upcase}' IN TYPEOF(SELF));"),
               )
             end
           end
@@ -354,7 +354,7 @@ module Expressir
 
       def combine_andor(left, right)
         Expressir::Model::Expressions::BinaryExpression.new(
-          operator: "ANDOR", operand1: left, operand2: right
+          operator: "ANDOR", operand1: left, operand2: right,
         )
       rescue StandardError
         left
@@ -402,7 +402,7 @@ module Expressir
             entity.attributes[i] = Model::Declarations::DerivedAttribute.new(
               id: attr.id || old_name,
               type: attr.type,
-              expression: parse_expression("SELF\\#{supertype}.#{old_name}")
+              expression: parse_expression("SELF\\#{supertype}.#{old_name}"),
             )
           end
         end
@@ -434,7 +434,7 @@ module Expressir
       end
 
       # Attribute-driven structural traversal over the whole subtree.
-      def each_node(root, &block)
+      def each_node(root, &)
         stack = [root]
         until stack.empty?
           node = stack.pop

@@ -116,7 +116,7 @@ module Expressir
       def self.from_files(files, skip_references: nil, include_source: nil,
 root_path: nil, use_native: nil, max_processes: nil,
 compiled_set: nil, &progress)
-        set_path = compiled_set || ENV["EXPRESSIR_COMPILED_SET"]
+        set_path = compiled_set || ENV.fetch("EXPRESSIR_COMPILED_SET", nil)
         if set_path && core_set_available?
           repo = from_compiled_set(set_path, files,
                                    skip_references: skip_references,
@@ -318,8 +318,9 @@ compiled_set: nil, &progress)
         set = begin
           ::Expressir::Core::Set.open(path)
         rescue StandardError
-          return nil
+          nil
         end
+        return nil if set.nil?
         return nil unless set.matches_sources(physical) == true
 
         models = []
@@ -344,16 +345,15 @@ compiled_set: nil, &progress)
           repository.item_graph =
             Model::Indexes::ItemGraph.from_tables(JSON.parse(File.read(graph_path)))
         end
-        if skip_references
-          repository
-        elsif RefsOverlay.apply(path, models)
-          repository
+        if skip_references || RefsOverlay.apply_to(path, models)
+          # Either explicitly skipping resolution or the compiled-set
+          # refs sidecar already re-bound the references.
         else
           Expressir::Benchmark.measure_references do
             ResolveReferencesModelVisitor.new.visit(repository)
           end
-          repository
         end
+        repository
       end
       private_class_method :from_compiled_set
 

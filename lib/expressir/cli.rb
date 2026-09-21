@@ -44,7 +44,7 @@ module Expressir
                            aliases: "-o",
                            desc: "Output file path (defaults to stdout)"
     method_option :longform_name, type: :string,
-                                 desc: "Longform SCHEMA id (default: <root>_lf)"
+                                  desc: "Longform SCHEMA id (default: <root>_lf)"
     def flatten(path)
       Expressir::Commands::Flatten.new(options).run(path)
     end

@@ -3,7 +3,7 @@
 require "spec_helper"
 require "tmpdir"
 
-RSpec.describe Expressir::Express::Parser, "compiled schema set" do
+RSpec.describe Expressir::Express::Parser do # compiled schema set
   let(:files) do
     %w[syntax syntax_formatted remark].filter_map do |stem|
       path = File.expand_path("../../syntax/#{stem}.exp", __dir__)
@@ -12,9 +12,9 @@ RSpec.describe Expressir::Express::Parser, "compiled schema set" do
   end
   let(:set_path) { File.expand_path("tmp_compiled_set.exscs", Dir.tmpdir) }
 
-  before { File.delete(set_path) if File.exist?(set_path) }
+  before { FileUtils.rm_f(set_path) }
 
-  after { File.delete(set_path) if File.exist?(set_path) }
+  after { FileUtils.rm_f(set_path) }
 
   def core_available?
     Expressir::Express::Core::NATIVE_AVAILABLE &&
@@ -34,7 +34,7 @@ RSpec.describe Expressir::Express::Parser, "compiled schema set" do
     expect(warm.files.map(&:to_hash)).to eq(cold_hashes)
 
     warm_graph = warm.item_graph
-    expect(warm_graph).not_to be(nil)
+    expect(warm_graph).not_to be_nil
     expect(warm_graph.nodes.size).to eq(cold.item_graph.nodes.size)
     expect(warm_graph.subtype_edges.sort).to eq(cold.item_graph.subtype_edges.sort)
     expect(warm_graph.dependencies_of(warm.schemas.first.id))
@@ -50,7 +50,7 @@ RSpec.describe Expressir::Express::Parser, "compiled schema set" do
     expect(set.matches_sources(read_paths)).to be(true)
 
     original = File.read(files[0])
-    File.write(files[0], original + "\n-- staleness probe\n")
+    File.write(files[0], "#{original}\n-- staleness probe\n")
     begin
       expect(set.matches_sources(read_paths)).to be(false)
     ensure

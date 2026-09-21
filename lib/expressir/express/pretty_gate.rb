@@ -17,9 +17,9 @@ module Expressir
             {
               kind: i.kind,
               schema: (i.schema.is_a?(String) ? i.schema : i.schema&.id)&.safe_downcase,
-              items: Array(i.items).map do |it|
-                ref = it.ref.is_a?(String) ? it.ref : it.ref&.id
-                [it.id&.safe_downcase, ref&.safe_downcase]
+              items: Array(i.items).map do |entry|
+                ref = entry.ref.is_a?(String) ? entry.ref : entry.ref&.id
+                [entry.id&.safe_downcase, ref&.safe_downcase]
               end.sort,
             }
           end,
@@ -31,13 +31,13 @@ module Expressir
           procedures: ids_of(schema.procedures),
           rules: ids_of(schema.rules),
           entity_attrs: Array(schema.entities).to_h do |e|
-            [e.id.safe_downcase, Array(e.attributes).map { |a| a.id&.safe_downcase }.compact.sort]
+            [e.id.safe_downcase, Array(e.attributes).filter_map { |a| a.id&.safe_downcase }.sort]
           end,
         }
       end
 
       def self.ids_of(coll)
-        Array(coll).map { |d| d.id&.safe_downcase }.compact.sort
+        Array(coll).filter_map { |d| d.id&.safe_downcase }.sort
       end
 
       def self.check_file(path)

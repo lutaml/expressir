@@ -111,19 +111,17 @@ RSpec.describe Expressir::Express::Formatter do
     # the surviving set exactly: a different copy departing is a different
     # distribution, and it fails here even though the totals are unchanged.
     #
-    # In all three the departing copy is the one with no placement recorded.
-    # A place is the tuple [path, placement, region].
+    # In both the departing copy is the one with no placement recorded.
+    # A place is the tuple [path, placement, region]. A third relocation —
+    # a `derived` copy on a Return statement — was fixed by the
+    # single-attachment change and left this table.
     let(:known_lost_copies) do
       { ["Should be unreachable.", "tail", false] =>
           "functions[14]Declarations::Function(compatible_spaces)/" \
           "statements[13]Statements::If",
         ["Should be unreachable", "tail", false] =>
           "functions[144]Declarations::Function(subspace_of)/" \
-          "statements[14]Statements::If",
-        ["derived", "tail", false] =>
-          "functions[57]Declarations::Function" \
-          "(make_abstracted_expression_function)/" \
-          "statements[0]Statements::Return" }
+          "statements[14]Statements::If" }
         .transform_values { |path| { ["#{schema_prefix}#{path}", nil, nil] => 1 } }
     end
 
@@ -166,8 +164,11 @@ RSpec.describe Expressir::Express::Formatter do
       # The identity, not just the count. Counting alone would let the known
       # escape be fixed while a different remark started escaping, and
       # conservation would not notice either.
-      expect(escapes.map(&:first))
-        .to eq([["mathematical_functions_schema", "tail", false]])
+      #
+      # Empty since the single-attachment change: the schema-level tail
+      # remark that used to escape to the file on reparse now holds. If a
+      # remark starts escaping again, this names it.
+      expect(escapes.map(&:first)).to eq([])
 
       # `moved` is keyed by [text, format, tagged], so listing the three
       # identities alone would pin which texts may appear here, not what kind

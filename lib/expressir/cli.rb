@@ -29,6 +29,26 @@ module Expressir
       Expressir::Commands::Clean.new(options).run(path)
     end
 
+    desc "expand PATH",
+         "Concatenate the interface closure of PATH into one .exp artifact"
+    method_option :output, type: :string,
+                           aliases: "-o",
+                           desc: "Output file path (defaults to stdout)"
+    def expand(path)
+      Expressir::Commands::Expand.new(options).run(path)
+    end
+
+    desc "flatten PATH",
+         "Flatten the interface closure of PATH into an ISO 10303-11:1994 longform schema"
+    method_option :output, type: :string,
+                           aliases: "-o",
+                           desc: "Output file path (defaults to stdout)"
+    method_option :longform_name, type: :string,
+                                 desc: "Longform SCHEMA id (default: <root>_lf)"
+    def flatten(path)
+      Expressir::Commands::Flatten.new(options).run(path)
+    end
+
     desc "benchmark FILE_OR_YAML",
          "Benchmark schema loading performance for a file or list of files from YAML"
     method_option :ips, type: :boolean,

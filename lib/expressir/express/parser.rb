@@ -286,6 +286,7 @@ compiled_set: nil, &progress)
         if compiled_set_out && !results.value?(nil)
           stream.write_set(compiled_set_out, physical,
                            Expressir::Version::VERSION)
+          RemarkOverlay.write(compiled_set_out, results.values.compact)
         end
 
         wire_paths.map { |wire_path| results[wire_path] }
@@ -311,17 +312,20 @@ compiled_set: nil, &progress)
         end
         return nil unless set.matches_sources(physical) == true
 
+        # The artifact wire is pre-remark; the overlay carries them
+        # (plus header remarks and remark-derived structures), so the
+        # RemarkAttacher never runs on a warm load.
         models = []
         while (pair = set.next)
           wire_path, model = pair
           file = physical[wire_path]
-          source = file ? strip_bom(File.read(file)) : nil
           model.wire_parents
-          finalize_loaded_file(model, source, wire_path,
+          finalize_loaded_file(model, nil, wire_path,
                                include_source: include_source)
           models << model
           progress&.call(file || wire_path, model.schemas, nil)
         end
+        RemarkOverlay.apply(path, models)
 
         build_repository(models, skip_references: skip_references)
       end

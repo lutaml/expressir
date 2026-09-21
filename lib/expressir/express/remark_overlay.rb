@@ -58,6 +58,30 @@ module Expressir
           File.write("#{set_path}.remarks.json", JSON.generate(overlay))
         end
 
+        # Recursively parent restored nodes and invalidate id-memos so
+        # find()/resolve_path_in_scope sees them, exactly as the
+        # RemarkAttacher's own bookkeeping does.
+        def wire_overlay_value(parent, value)
+          case value
+          when Array
+            value.each { |item| wire_overlay_value(parent, item) }
+          when Model::ModelElement
+            parent_value = parent.is_a?(Model::ModelElement) ? parent : nil
+            value.parent = parent_value if value.respond_to?(:parent=)
+            if parent_value&.respond_to?(:reset_children_by_id)
+              parent_value.reset_children_by_id
+            end
+            value.class.attributes.each_key do |attr|
+              next if Model::ModelElement::SKIP_ATTRIBUTES.include?(attr) || attr == :parent
+
+              inner = value.public_send(attr)
+              next unless inner.is_a?(Model::ModelElement) || inner.is_a?(Array)
+
+              wire_overlay_value(value, inner)
+            end
+          end
+        end
+
         def apply(set_path, models)
           overlay_path = "#{set_path}.remarks.json"
           return unless File.exist?(overlay_path)
@@ -74,6 +98,11 @@ module Expressir
                 next unless entry[attr] && node.respond_to?(setter)
 
                 node.public_send(setter, entry[attr])
+                # The writer casts JSON hashes into model objects; wire
+                # the cast collection (the attacher parents every
+                # created node and resets the child-id memo — reference
+                # resolution relies on both).
+                wire_overlay_value(node, node.public_send(attr))
               end
             end
           end

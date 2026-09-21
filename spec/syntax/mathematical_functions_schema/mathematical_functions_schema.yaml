@@ -9,11 +9,6 @@ schemas:
     functions. The context for these mathematical functions is provided by other parts
     of ISO 10303 and the applications which use this schema. Only the unitless, purely
     mathematical aspects of mathematical functions are considered in this schema.
-  - ISO 13584-20
-  - ISO 13584-20
-  - ISO 10303-41
-  - ISO 10303-41
-  - ISO 10303-42
   - mathematical_functions_schema
   remark_items:
   - _class: Expressir::Model::Declarations::RemarkItem
@@ -259,16 +254,6 @@ schemas:
     remarks:
     - data/resource_docs/mathematical_constructs/resource.xml
   untagged_remarks:
-  - text: ISO 13584-20
-    format: tail
-  - text: ISO 13584-20
-    format: tail
-  - text: ISO 10303-41
-    format: tail
-  - text: ISO 10303-41
-    format: tail
-  - text: ISO 10303-42
-    format: tail
   - text: mathematical_functions_schema
     format: tail
   file: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp
@@ -32372,7 +32357,6 @@ schemas:
               untagged_remarks:
               - text: Centre at lower left corner
                 format: tail
-                placement: inline
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -32853,7 +32837,6 @@ schemas:
               untagged_remarks:
               - text: Centre at lower right corner
                 format: tail
-                placement: inline
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -33319,7 +33302,6 @@ schemas:
               untagged_remarks:
               - text: Centre at lower left corner
                 format: tail
-                placement: inline
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -33806,7 +33788,6 @@ schemas:
               untagged_remarks:
               - text: Centre at lower right corner
                 format: tail
-                placement: inline
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: angle_minmax
@@ -41259,7 +41240,6 @@ schemas:
         untagged_remarks:
         - text: Not max_exists(ritp)
           format: tail
-          placement: inline
         ref:
           _class: Expressir::Model::References::SimpleReference
           id: ritv
@@ -55074,7 +55054,6 @@ schemas:
       untagged_remarks:
       - text: derived
         format: tail
-        placement: inline
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: COMBINE
@@ -56344,7 +56323,6 @@ schemas:
       untagged_remarks:
       - text: derived
         format: tail
-        placement: inline
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: COMBINE

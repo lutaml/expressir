@@ -53,6 +53,15 @@ module Expressir
         inline? && region == RemarkPlacement::OPENER_REGION
       end
 
+      # Check if this INLINE remark belongs after a mid-construct keyword of
+      # its owning construct — `ELSE -- why`, `OTHERWISE : -- why` — rather
+      # than after the statement's closing keyword.
+      # @param name [Symbol, String] a RemarkPlacement region constant
+      # @return [Boolean]
+      def inline_region?(name)
+        inline? && region == name.to_s
+      end
+
       # Check if this remark closes the given body of its owning node
       # @param name [Symbol, String] region attribute name
       # @return [Boolean]

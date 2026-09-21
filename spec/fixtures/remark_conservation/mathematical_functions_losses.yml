@@ -13,15 +13,11 @@ derive_elementary_function_domain: 1
 derive_elementary_function_range: 1
 Include distance in max collection: 1
 Identify base direction with respect to which all relevant directions lie: 1
-Centre at lower left corner: 2
-Centre at lower right corner: 2
 Construct imag_constraint: 1
 Construct cartesian region: 1
 enclose_pregion_in_cregion: 1
-direction range < 2*PI: 2
 Using base direction midway in prgn, compute all directions using: 2
 values which ensure a3 < a2 and a0 < a1 algebraically.: 2
-Not max_exists(ritp): 1
 Construct polar region: 1
 mem_of_vs: 1
 equal_maths_values: 1

@@ -249,7 +249,18 @@ module Expressir
         # here means the remark is an inline tail (code; -- note). The
         # end-line check is restricted to statements: container end_lines are
         # child-derived approximations that can collide with comment lines.
-        return inline_target(remark, @node_index.starting_at(line)) if inline_remark?(remark)
+        if inline_remark?(remark)
+          target, placement, region = inline_target(remark,
+                                                    @node_index.starting_at(line))
+          return [target, placement, region] if target
+
+          # A remark trailing a mid-construct keyword (`ELSE -- why`) starts
+          # nothing and closes nothing; handled before the legacy fallthrough,
+          # which would hand it to the enclosing construct unplaced — where
+          # nothing renders it.
+          mid = mid_keyword_inline_target(remark)
+          return mid if mid
+        end
 
         # A closing keyword on the next code line is decisive: the comment
         # closes that body. Without this check the comment would instead be
@@ -363,6 +374,39 @@ module Expressir
         return nil unless owner[:end_line] && owner[:end_line] > line
 
         Model::RemarkPlacement::OPENER_REGION
+      end
+
+      # Lines beginning with a mid-construct keyword. The keyword closes
+      # nothing and opens nothing, but the remark trailing it belongs to the
+      # construct it branches — written back after the keyword, not after the
+      # construct's END_.
+      MID_KEYWORD_REGIONS = {
+        /\AELSE\b/i => [Model::Statements::If,
+                        Model::RemarkPlacement::ELSE_REGION],
+        /\AOTHERWISE\b/i => [Model::Statements::Case,
+                             Model::RemarkPlacement::OTHERWISE_REGION],
+      }.freeze
+
+      # Attach `ELSE -- why` / `OTHERWISE : -- why` to the innermost
+      # enclosing IF / CASE with INLINE placement and the keyword's region.
+      # Returns [nil, nil, nil] when the line head is no mid-construct
+      # keyword or no construct of the right kind spans the line.
+      def mid_keyword_inline_target(remark)
+        content = line_content_for(remark.line).to_s
+        opener = content.index("--")
+        return [nil, nil, nil] unless opener
+
+        owner = MID_KEYWORD_REGIONS.find { |pattern, _| content[0...opener].strip.match?(pattern) }
+        return [nil, nil, nil] unless owner
+
+        klass, region = owner[1]
+        innermost = @node_index.nodes.select do |n|
+          n[:node].is_a?(klass) && n[:line] && n[:end_line] &&
+            n[:line] < remark.line && n[:end_line] > remark.line
+        end.max_by { |n| n[:line] }
+        return [nil, nil, nil] unless innermost
+
+        [innermost[:node], Model::RemarkPlacement::INLINE, region]
       end
 
       # Which closing keyword ends which region of which owner. A comment

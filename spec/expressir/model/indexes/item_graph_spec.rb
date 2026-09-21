@@ -17,9 +17,12 @@ RSpec.describe Expressir::Model::Indexes::ItemGraph do
 
   it "records subtype edges and computes transitive closures" do
     expect(graph.subtype_edges.size).to be > 1
-    any_child = graph.subtype_edges.sample.first
-    closure = graph.supertypes(any_child)
-    closure.each { |p| expect(graph.include?(p)).to be(true) }
+    # Closure members must be graph nodes; sample only from edges whose
+    # parent resolved inside this repository (external supertypes —
+    # e.g. geometric_representation_item — are intentionally absent).
+    child, = graph.subtype_edges.find { |_, parent| graph.include?(parent) }
+    expect(child).not_to be_nil
+    graph.supertypes(child).each { |p| expect(graph.include?(p)).to be(true) }
   end
 
   it "records interface dependencies between schemas" do

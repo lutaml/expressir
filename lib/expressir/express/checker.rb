@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "set"
+
 module Expressir
   module Express
     # Semantic checks modeled on eeng kernel/check.lisp + check-notes.lisp
@@ -247,8 +249,12 @@ module Expressir
 
       # Walk SimpleReferences whose base_path was never filled in by the
       # resolver — the expressir equivalent of eeng's unparsed-type notes.
+      # Locally bound identifiers are not unresolved: QUERY variables,
+      # REPEAT control variables, attribute names visible in the schema,
+      # and the `?` of aggregate bounds (#396).
       def check_unresolved_refs(schema)
         aliases = alias_map(schema)
+        bound = bound_identifiers(schema)
         each_node(schema) do |node|
           next unless node.is_a?(Model::References::SimpleReference)
           next if node.base_path
@@ -256,12 +262,39 @@ module Expressir
           next if node.parent.is_a?(Model::References::AttributeReference)
           next if node.id.nil? || builtin?(node.id)
           next if aliases.key?(node.id.safe_downcase)
+          next if bound.include?(node.id.safe_downcase)
 
           # Skip self-ids of declarations (entity/type names as the decl itself)
           next if declaration_id?(schema, node)
 
           note!(:check_unresolved_ref, :error, schema,
                 "unresolved reference '#{node.id}'", node)
+        end
+      end
+
+      # Names the schema's own constructs bind: QUERY variables, REPEAT
+      # control variables, attribute names of every entity (including the
+      # inherited ones visible through SUBTYPE OF — an over-approximation on
+      # purpose, so the error-severity walk never flags a legal identifier).
+      def bound_identifiers(schema)
+        @bound_identifiers ||= {}.compare_by_identity
+        @bound_identifiers[schema] ||= begin
+          bound = Set.new(["?"])
+          each_node(schema) do |node|
+            case node
+            when Model::Expressions::QueryExpression, Model::Statements::Repeat
+              bound << node.id.safe_downcase if node.respond_to?(:id) && node.id
+            end
+          end
+          schema.entities.each { |e| collect_attribute_names(e, bound) }
+          visible_entities(schema).each { |e| collect_attribute_names(e, bound) }
+          bound
+        end
+      end
+
+      def collect_attribute_names(entity, bound)
+        Array(entity.attributes).each do |attr|
+          bound << attr.id.safe_downcase if attr.respond_to?(:id) && attr.id
         end
       end
 

@@ -27,7 +27,7 @@ RSpec.describe Expressir::Express::Formatter, "eeng parity" do
     file.write(source)
     file.close
     begin
-      model = Expressir::Express::Parser.from_file(file.path, use_core: false)
+      model = Expressir::Express::Parser.from_file(file.path)
       described_class.format(model.schemas.first)
     ensure
       file.unlink

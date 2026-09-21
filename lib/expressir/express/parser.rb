@@ -154,7 +154,12 @@ compiled_set: nil, &progress)
                           end
                         end
 
-        build_repository(all_exp_files, skip_references: skip_references)
+        repository = build_repository(all_exp_files, skip_references: skip_references)
+        if set_path && !skip_references && File.exist?(set_path)
+          RefsOverlay.write(set_path, all_exp_files.compact)
+        end
+
+        repository
       end
 
       # Core path: the Rust extension parses and emits the model hash
@@ -327,7 +332,17 @@ compiled_set: nil, &progress)
         end
         RemarkOverlay.apply(path, models)
 
-        build_repository(models, skip_references: skip_references)
+        repository = build_repository(models, skip_references: true)
+        if skip_references
+          repository
+        elsif RefsOverlay.apply(path, models)
+          repository
+        else
+          Expressir::Benchmark.measure_references do
+            ResolveReferencesModelVisitor.new.visit(repository)
+          end
+          repository
+        end
       end
       private_class_method :from_compiled_set
 

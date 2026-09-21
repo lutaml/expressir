@@ -90,6 +90,8 @@ module Expressir
 
         Exits 1 when any error-severity note fires.
       DESC
+      method_option :json, type: :boolean, default: false,
+                           desc: "Emit the report as JSON (errors + warnings)"
       def check(*paths)
         Check.new(options).run(*paths)
       end

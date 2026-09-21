@@ -1,3 +1,5 @@
+require "json"
+
 module Expressir
   module Commands
     # `validate check` — semantic checks modeled on eeng check-p11 note
@@ -16,12 +18,29 @@ module Expressir
         repository = Expressir::Express::Parser.from_files(files)
         result = Expressir::Express::Checker.new(repository).check
 
-        result.notes.each { |n| say "[#{n.severity}] #{n.id}: #{n.message}" }
-        say "#{result.errors.size} error(s), #{result.warnings.size} warning(s)"
+        if options[:json]
+          say JSON.generate(
+            valid: result.valid?,
+            errors: serialize(result.errors),
+            warnings: serialize(result.warnings),
+          )
+        else
+          result.notes.each { |n| say "[#{n.severity}] #{n.id}: #{n.message}" }
+          say "#{result.errors.size} error(s), #{result.warnings.size} warning(s)"
+        end
 
         return if result.valid?
 
         raise Thor::Error, "schema check produced #{result.errors.size} error(s)"
+      end
+
+      private
+
+      def serialize(notes)
+        notes.map do |n|
+          { id: n.id.to_s, severity: n.severity.to_s, schema: n.schema,
+            message: n.message }
+        end
       end
     end
   end

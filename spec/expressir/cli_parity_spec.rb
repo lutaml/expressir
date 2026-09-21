@@ -128,5 +128,20 @@ RSpec.describe Expressir::Cli do
       _out, code = capture(["validate", "check", good])
       expect(code).to eq(0)
     end
+
+    it "emits JSON when --json is passed" do
+      bad = write_source("bad", <<~EXP)
+        SCHEMA bad;
+        USE FROM missing (e);
+        END_SCHEMA;
+      EXP
+      out, _code = capture(["validate", "check", "--json", bad])
+      parsed = JSON.parse(out)
+      aggregate_failures do
+        expect(parsed["valid"]).to be(false)
+        expect(parsed["errors"]).to be_an(Array)
+        expect(parsed["errors"]).not_to be_empty
+      end
+    end
   end
 end

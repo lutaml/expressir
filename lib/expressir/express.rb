@@ -26,6 +26,7 @@ module Expressir
     autoload :RemarkScanner, "#{__dir__}/express/remark_scanner"
     autoload :ResolveReferencesModelVisitor,
              "#{__dir__}/express/resolve_references_model_visitor"
+    autoload :Shtolo, "#{__dir__}/express/shtolo"
     autoload :SchemaBlockScanner, "#{__dir__}/express/schema_block_scanner"
     autoload :SchemaHeadFormatter, "#{__dir__}/express/schema_head_formatter"
     autoload :SchemaSourceFormatter, "#{__dir__}/express/schema_source_formatter"

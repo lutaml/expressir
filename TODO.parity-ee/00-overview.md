@@ -46,4 +46,13 @@ indexes + reference graph (37.7k subtype edges, interfaces, closures),
 differently) · 03 eeng oracle harness · 04 concatenation (#247) ·
 05 SHTOLO longform flatten (#32) · 06 interface scheduling parity ·
 07 semantic checks port · 08 pretty-print round-trip gate ·
-09 SMRL index + listing · 10 interface dot graph
+09 SMRL index + listing · 10 interface dot graph ·
+11 import the eeng test suite (scripts/ drivers, docs/issues bugs,
+SHTOLO paper, BNFs, DTDs)
+
+## Additional eeng assets (via 11)
+
+`scripts/*.sh` — 14 release-suite drivers (qual/pretty/xml/dot);
+`docs/issues/` — bug corpus incl. a shtolo old-vs-new differential;
+`docs/` — SHTOLO paper PDF, Part 11/14/21 BNFs, XML DTDs,
+interface/qualify notes; `00check.txt` — check design notes.

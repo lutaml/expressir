@@ -46,3 +46,8 @@ preserved as rules, pruned unreachable declarations.
 - All Annex G fixtures green; SMRL corpus flatten completes with zero
   unexplained diffs vs the 1994 profile.
 - `expressir shtolo <manifest> -o longform.exp` ships.
+
+## Tests
+
+bug39's shtolo old-vs-new outputs (see 11) are an additional
+differential: eeng shtolo vs stepcode exppp vs us.

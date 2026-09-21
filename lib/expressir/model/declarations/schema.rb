@@ -118,29 +118,68 @@ module Expressir
         def interfaced_items
           return [] unless parent
 
+          visited_schemas = {}
           interfaces.flat_map do |interface|
-            schema = parent.children_by_id[interface.schema.id.safe_downcase]
-            next [] unless schema
-
-            safe_children = schema.safe_children
-            children_by_id = safe_children.each_with_object({}) do |child, hash|
-              hash[child.id.safe_downcase] = child if child.id
-            end
-
-            if interface.items.empty?
-              safe_children.map do |base_item|
-                create_interfaced_item(base_item.id, base_item)
-              end
-            else
-              interface.items.filter_map do |item|
-                base_item = children_by_id[item.ref.id.safe_downcase]
-                if base_item
-                  create_interfaced_item(item.id || base_item.id,
-                                         base_item)
-                end
-              end
-            end
+            items_for_interface(interface, visited_schemas)
           end.compact
+        end
+
+        private
+
+        # Direct items of one interface plus the items visible through
+        # the foreign schema's own USE interfaces (transitive USE
+        # visibility, eeng :use-only → :use-from recursion).
+        def items_for_interface(interface, visited_schemas)
+          schema = foreign_schema(interface.schema.id.safe_downcase)
+          return [] unless schema
+          return [] if visited_schemas.key?(schema.id.safe_downcase) &&
+                       interface.items.empty?
+
+          visited_schemas[schema.id.safe_downcase] = true
+
+          safe_children = schema.safe_children
+          children_by_id = safe_children.each_with_object({}) do |child, hash|
+            hash[child.id.safe_downcase] = child if child.id
+          end
+
+          own = if interface.items.empty?
+                  safe_children.map do |base_item|
+                    create_interfaced_item(base_item.id, base_item)
+                  end
+                else
+                  interface.items.filter_map do |item|
+                    base_item = children_by_id[item.ref.id.safe_downcase]
+                    if base_item
+                      create_interfaced_item(item.id || base_item.id,
+                                             base_item)
+                    end
+                  end
+                end
+
+          # Transitive items are not restricted by this interface's
+          # item list: implicit interfacing through USE is unfiltered
+          # (eeng :use-only → :use-from recursion finds any id in the
+          # foreign schema's use scope).
+          own + schema.interfaces.filter_map do |foreign_iface|
+            next nil unless foreign_iface.kind == Interface::USE
+
+            foreign_items = items_for_interface(foreign_iface,
+                                                visited_schemas)
+            foreign_items.empty? ? nil : foreign_items
+          end.flatten
+        end
+
+        # Find a foreign schema by name: same file first, then the
+        # enclosing repository (expressir's compiled/batch repository).
+        def foreign_schema(name)
+          current = parent
+          while current
+            return current.children_by_id[name] if current.respond_to?(:children_by_id) &&
+                                                   current.children_by_id[name]
+
+            current = current.is_a?(ModelElement) ? current.parent : nil
+          end
+          nil
         end
       end
     end

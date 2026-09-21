@@ -1,6 +1,16 @@
 # 06 — Interface loading/resolution parity with eeng scheduling
 
-**Status: NOT STARTED**
+**Status: SHIPPED (2026-09-21) — the resolution-side fix.**
+`Schema#interfaced_items` is now repository-aware (foreign schemas
+found through the parent chain into the enclosing repository) and
+transitively USE-aware (items USEd by the foreign schema are visible,
+unfiltered per the implicit-interfacing rule, cycle-guarded by a
+visited-schema set). Probe results before/after: direct cross-file
+item ref resolved; transitive-USE item resolved; interface cycle
+terminates. Spec: `interface_visibility_spec.rb` (3 examples);
+express suite 321/0. Remaining: unresolved-resource diagnostics and
+USE-vs-REFERENCE error severity (eeng hard-errors; we warn) — folded
+into 07's checker.
 
 ## Goal
 

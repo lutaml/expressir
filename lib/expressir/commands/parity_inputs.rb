@@ -29,31 +29,32 @@ module Expressir
       end
 
       # Schema-name → path map for the STEPmod checkout around +root_path+,
-      # built once per invocation. Falls back to the file's own directory
-      # when there is no schemas/ ancestor.
+      # built once per invocation. The index root is the nearest ancestor
+      # directory NAMED `schemas` (wg12-step layout:
+      # `schemas/modules/<module>/mim.exp`), and entries key on the schema
+      # name declared inside each file — module files are `arm.exp` /
+      # `mim.exp`, so basenames cannot be the key. Falls back to the file's
+      # own directory when there is no schemas/ ancestor.
       def schema_index(root_path)
-        dir = File.expand_path(root_path)
+        dir = File.dirname(File.expand_path(root_path))
         root = nil
-        loop do
-          candidate = File.join(File.dirname(dir), "schemas")
-          if File.directory?(candidate)
-            root = candidate
-            break
-          end
-          parent = File.dirname(File.dirname(dir))
-          break if parent == File.dirname(dir) || parent == "/"
+        until dir == "/" || File.basename(dir) == "schemas"
+          parent = File.dirname(dir)
+          break if parent == dir
 
           dir = parent
         end
-        return same_dir_index(root_path) unless root
+        return same_dir_index(root_path) unless File.basename(dir) == "schemas"
 
         @@indexes ||= {}
-        @@indexes[root] ||= begin
+        @@indexes[dir] ||= begin
           h = {}
-          Find.find(root) do |path|
+          Find.find(dir) do |path|
             next unless path.end_with?(".exp")
 
-            h[File.basename(path, ".exp").downcase] = path
+            declared = File.read(path)[/\bSCHEMA\s+(\w+)/i, 1]
+            h[declared.downcase] = path if declared
+            h[File.basename(path, ".exp").downcase] ||= path
           end
           h
         end

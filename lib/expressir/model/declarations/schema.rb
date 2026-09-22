@@ -59,6 +59,7 @@ module Expressir
         liquid do
           map :header, to: :header
           map :formatted, to: :formatted
+          map :formatted_hyperlinked, to: :formatted_hyperlinked
           map :source, to: :source
           map :source_hyperlinked, to: :source_hyperlinked
           map :full_source, to: :full_source
@@ -109,6 +110,13 @@ module Expressir
         # (#255) — the hyperlinked counterpart of #source.
         def source_hyperlinked
           Expressir::Express::SchemaSourceFormatter.format(self)
+        end
+
+        # FULL schema text with cross-references rendered as hyperlinks
+        # — what a schema document page renders (#255): every line of
+        # the schema, live links included.
+        def formatted_hyperlinked
+          @formatted_hyperlinked ||= Expressir::Express::SourceFormatter.format(self)
         end
 
         private

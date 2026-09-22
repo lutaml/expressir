@@ -48,22 +48,22 @@ RSpec.describe Expressir::Express::InterfaceDot do
       expect(text).to include("digraph interfaces {")
       expect(text).to include("edge [color=blue]")
       expect(text).to include("edge [color=green]")
-      expect(text).to match(/root -> mid \[arrowhead=normal\]/)
-      expect(text).to match(/mid -> leaf \[arrowhead=curve\]/)
-      expect(text).to match(/root -> leaf \[arrowhead=curve\]/)
+      expect(text).to include("root -> mid [arrowhead=normal]")
+      expect(text).to include("mid -> leaf [arrowhead=curve]")
+      expect(text).to include("root -> leaf [arrowhead=curve]")
     end
   end
 
   it "honors iface: :use to drop REFERENCE edges" do
     text = described_class.new(root, repository, iface: :use).write
     expect(text).not_to include("color=green")
-    expect(text).not_to match(/root -> leaf/)
-    expect(text).to match(/root -> mid/)
+    expect(text).not_to include("root -> leaf")
+    expect(text).to include("root -> mid")
   end
 
   it "honors depth to bound the walk" do
     text = described_class.new(root, repository, depth: 1).write
-    expect(text).to match(/root -> mid/)
-    expect(text).not_to match(/mid -> leaf/)
+    expect(text).to include("root -> mid")
+    expect(text).not_to include("mid -> leaf")
   end
 end

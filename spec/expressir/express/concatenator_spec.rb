@@ -20,7 +20,7 @@ RSpec.describe Expressir::Express::Concatenator do
         END_ENTITY;
         END_SCHEMA;
       EXP
-      "beta_schema" => <<~EXP
+      "beta_schema" => <<~EXP,
         SCHEMA beta_schema;
         TYPE beta_kind = ENUMERATION OF (beta_one, beta_two); END_TYPE;
         ENTITY beta_entity;
@@ -39,13 +39,14 @@ RSpec.describe Expressir::Express::Concatenator do
       f
     end
     Expressir::Express::Parser.from_files(files.map(&:path), skip_references: true).tap do
-      @tempfiles = files
+      files
     end
   end
-
-  after { @tempfiles&.each(&:unlink) }
-
   let(:root) { repository.schemas.find { |s| s.id == "zeta_schema" } }
+
+  let(:tempfiles) { [] }
+
+  after { tempfiles.each(&:unlink) }
 
   it "computes the transitive interface closure, alphabetical" do
     names = described_class.closure(root, repository).map(&:id)
@@ -74,7 +75,7 @@ RSpec.describe Expressir::Express::Concatenator do
     end
   end
 
-  describe "eeng oracle differential", if: ENV["EENG_PARITY"] do
+  describe "eeng oracle differential", if: ENV.fetch("EENG_PARITY", nil) do
     let(:oracle) do
       File.read(File.expand_path("../../fixtures/eeng/oracle/description-assignment-arm-concatenated.exp", __dir__))
     end

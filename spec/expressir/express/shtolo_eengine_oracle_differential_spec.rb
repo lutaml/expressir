@@ -20,7 +20,7 @@ require "open3"
 # longform generated with `extenders: :none` must be declaration-for-
 # declaration equivalent to the reference root schema. The all-extenders
 # folding (Annex G.2.3/G.2.4) is pinned separately below.
-RSpec.describe "eengine oracle differential", if: ENV["EENG_ORACLE"] && ENV["STEPMOD"] do
+RSpec.describe Expressir::Express::Shtolo, if: ENV.fetch("EENG_ORACLE", nil) && ENV.fetch("STEPMOD", nil) do # eengine oracle differential
   let(:eengine) { ENV.fetch("EENG_ORACLE") }
   let(:stepmod) { File.join(ENV.fetch("STEPMOD"), "schemas") }
   let(:module_dir) { File.join(stepmod, "modules/description_assignment") }
@@ -38,7 +38,7 @@ RSpec.describe "eengine oracle differential", if: ENV["EENG_ORACLE"] && ENV["STE
 
   def stepmod_index
     @stepmod_index ||= Dir.glob(File.join(stepmod, "**", "*.exp"))
-                          .to_h { |p| [File.basename(p, ".exp").downcase, p] }
+      .to_h { |p| [File.basename(p, ".exp").downcase, p] }
   end
 
   # Transitive USE/REFERENCE closure of the module, by schema name.
@@ -53,15 +53,15 @@ RSpec.describe "eengine oracle differential", if: ENV["EENG_ORACLE"] && ENV["STE
 
       seen[name] = path
       File.read(path).scan(/(?:USE|REFERENCE)\s+FROM\s+(\w+)/i)
-          .flatten.each { |d| queue << d.downcase }
+        .flatten.each { |d| queue << d.downcase }
     end
     seen.values
   end
 
   def our_longform(root_path, out_dir, extenders:)
     repo = Expressir::Express::Parser.from_files(closure_paths(root_path),
-                                                skip_references: true,
-                                                max_processes: 1)
+                                                 skip_references: true,
+                                                 max_processes: 1)
     name = File.read(root_path)[/\bSCHEMA\s+(\w+)/, 1]
     root = repo.schemas.find { |s| s.id&.downcase == name.downcase }
     raise "root schema #{name} missing" unless root
@@ -101,7 +101,7 @@ RSpec.describe "eengine oracle differential", if: ENV["EENG_ORACLE"] && ENV["STE
       diffs = compare_differences(trial, reference,
                                   "description_assignment_arm")
       expect(diffs).to be_empty,
-                      "eengine --compare reported differences:\n#{diffs.join("\n")}"
+                       "eengine --compare reported differences:\n#{diffs.join("\n")}"
     end
   end
 
@@ -119,7 +119,7 @@ RSpec.describe "eengine oracle differential", if: ENV["EENG_ORACLE"] && ENV["STE
       select_block = text[/TYPE description_item = .*?END_TYPE;/m]
       expect(select_block).not_to be_nil
       expect(select_block).to match(/SELECT\s*\(/),
-                                  "extenders were not folded:\n#{select_block}"
+                              "extenders were not folded:\n#{select_block}"
     end
   end
 end

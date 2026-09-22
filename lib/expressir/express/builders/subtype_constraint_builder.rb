@@ -22,7 +22,7 @@ module Expressir
             abstract = !body[:abstract_supertype].nil?
             if body[:total_over].is_a?(Hash)
               refs = body[:total_over][:list_of_entity_ref] ||
-                     body[:total_over][:entity_ref]
+                body[:total_over][:entity_ref]
               total_over = Builder.build_children(Builder.ensure_array(refs))
             end
             # Wrap supertype_expression in its node type so Builder.build dispatches correctly

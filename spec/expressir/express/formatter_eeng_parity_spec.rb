@@ -8,7 +8,7 @@ require "tempfile"
 # (spec/fixtures/eeng/issues) — the formatter behavior eeng settled
 # on after each bug, anchored by the old-vs-new shtolo outputs
 # recorded in bug39.
-RSpec.describe Expressir::Express::Formatter, "eeng parity" do
+RSpec.describe Expressir::Express::Formatter do # eeng parity (bug39/bug40 corpus)
   let(:source) do
     <<~EXP
       SCHEMA s;
@@ -65,7 +65,7 @@ RSpec.describe Expressir::Express::Formatter, "eeng parity" do
     # bug40 tracked the same QUERY expression for pretty output; the
     # new-shtolo text is the accepted form.
     expect(formatted).to include(
-      "WR1: SIZEOF(QUERY(sf <* stratum_feature_implementation | sf.resident_stratum :<>: stratum_feature_implementation[1].resident_stratum)) = 0;"
+      "WR1: SIZEOF(QUERY(sf <* stratum_feature_implementation | sf.resident_stratum :<>: stratum_feature_implementation[1].resident_stratum)) = 0;",
     )
   end
 end

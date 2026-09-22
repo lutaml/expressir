@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "set"
-
 module Expressir
   module Express
     # Semantic checks modeled on eeng kernel/check.lisp + check-notes.lisp
@@ -19,7 +17,6 @@ module Expressir
     #   check-unresolved-ref   (aggregate of eeng type/entity unparsed notes)
     #   check-select-extended-type
     #   check-enumeration-extended-type
-    #   check-self-schema-reference   (#125)
     #
     # Severity: :error stops a clean SHTOLO run; :warning is advisory.
     class Checker
@@ -69,8 +66,17 @@ module Expressir
           io.puts "[#{n.severity}] #{n.id}: #{n.message}"
         end
         io.puts "#{errors.size} error(s), #{warnings.size} warning(s)"
-        valid?
+        io
       end
+
+      BUILTINS = %w[
+        integer real number string binary boolean logical generic
+        generic_entity aggregate array bag list set
+        true false unknown self const_e pi
+        abs acos asin atan cos exp format hibound hiindex length
+        log log2 log10 lobound loindex nvl odd rolesof sin sizeof
+        sqrt tan typeof usedin value value_in value_unique exists
+      ].freeze
 
       private
 
@@ -83,38 +89,12 @@ module Expressir
         check_duplicates(schema)
         check_interfaces(schema)
         schema.entities.each { |e| check_entity(schema, e) }
-        schema.types.each { |t| check_type(schema, t) }
-        schema.types.each { |t| check_where_rules(schema, t, t.where_rules) }
-        schema.rules.each { |r| check_where_rules(schema, r, r.where_rules) }
-        check_self_schema_references(schema)
-        check_unresolved_refs(schema)
-      end
-
-      # #125: a string literal qualified by the CURRENT schema's name
-      # (`'THIS_SCHEMA.ITEM'` in TYPEOF lists) is technically incorrect —
-      # warn with the true defining schema when the item comes from
-      # elsewhere in the closure.
-      def check_self_schema_references(schema)
-        return unless schema.id
-
-        SelfSchemaReference.matches(schema).each do |match|
-          message =
-            case match.status
-            when :local
-              "'#{match.literal.value}': item '#{match.item}' is declared " \
-                "in this schema — drop the '#{schema.id}.' prefix"
-            when :foreign
-              "'#{match.literal.value}': do you mean " \
-                "'#{match.source_schema.id.upcase}.#{match.item.upcase}'? " \
-                "The item is declared in #{match.source_schema.id}, not in " \
-                "#{schema.id}"
-            else
-              "'#{match.literal.value}': item '#{match.item}' was not found " \
-                "in this schema or the loaded closure"
-            end
-          note!(:check_self_schema_reference, :warning, schema, message,
-                match.literal)
+        schema.types.each do |t|
+          check_type(schema, t)
+          check_where_rules(schema, t, t.where_rules)
         end
+        schema.rules.each { |r| check_where_rules(schema, r, r.where_rules) }
+        check_unresolved_refs(schema)
       end
 
       # Two declarations in one schema sharing a (case-insensitive) name is
@@ -220,43 +200,34 @@ module Expressir
         end
       end
 
-      # Follow SUBTYPE OF edges from +entity+. Only re-reaching a node that
-      # is ON THE CURRENT PATH is a cycle (self-subtyping included);
-      # convergent branches (diamonds) are not — they re-meet off-path.
-      # `no_cycle_from` memoizes negatives so the walk stays linear.
+      # Follow SUBTYPE OF edges from +entity+; re-reaching a node already on
+      # the path is a cycle (self-subtyping included).
       def check_subtype_cycles(schema, entity)
-        cycle_found = walk_subtypes(schema, entity,
-                                    { entity.id.safe_downcase => true }, {})
-        return unless cycle_found
-
-        note!(:check_subtype_cycle, :error, schema,
-              "ENTITY #{entity.id}: subtype inheritance cycle through " \
-              "'#{entity.id}'", entity)
-      end
-
-      def walk_subtypes(schema, entity, on_path, no_cycle_from)
-        key = entity.id.safe_downcase
-        Array(entity.subtype_of).each do |ref|
+        path = [entity]
+        seen_on_path = { entity.id.safe_downcase => true }
+        frontier = Array(entity.subtype_of).filter_map do |ref|
           id = ref.is_a?(String) ? ref : ref.id
-          next unless id
-
-          nxt = find_entity(schema, id)
-          next unless nxt
-
-          nxt_key = nxt.id.safe_downcase
-          return true if on_path.key?(nxt_key)
-          next if no_cycle_from.key?(nxt_key)
-
-          on_path[nxt_key] = true
-          if walk_subtypes(schema, nxt, on_path, no_cycle_from)
-            no_cycle_from[key] = true
-            return true
-          end
-          on_path.delete(nxt_key)
-          no_cycle_from[nxt_key] = true
+          find_entity(schema, id) if id
         end
-        no_cycle_from[key] = true
-        false
+        until frontier.empty?
+          current = frontier.pop
+          key = current.id.safe_downcase
+          if seen_on_path[key]
+            note!(:check_subtype_cycle, :error, schema,
+                  "ENTITY #{entity.id}: subtype inheritance cycle through " \
+                  "'#{current.id}'", entity)
+            return
+          end
+          seen_on_path[key] = true
+          path << current
+          Array(current.subtype_of).each do |ref|
+            id = ref.is_a?(String) ? ref : ref.id
+            next unless id
+
+            nxt = find_entity(schema, id)
+            frontier << nxt if nxt
+          end
+        end
       end
 
       def check_where_rules(schema, owner, rules)
@@ -358,20 +329,10 @@ module Expressir
         end
       end
 
-      def declaration_id?(schema, node)
+      def declaration_id?(_schema, node)
         parent = node.parent
         parent.respond_to?(:id) && parent.id&.safe_downcase == node.id.safe_downcase
       end
-
-      BUILTINS = %w[
-        integer real number string binary boolean logical generic
-        generic_entity aggregate array bag list set
-        true false unknown self const_e pi
-        abs acos asin atan blength cos exp format hibound hiindex length
-        log log2 log10 lobound loindex nvl odd rolesof sin sizeof
-        sqrt tan typeof usedin value value_in value_unique exists
-        insert remove
-      ].freeze
 
       def builtin?(id)
         BUILTINS.include?(id.safe_downcase)

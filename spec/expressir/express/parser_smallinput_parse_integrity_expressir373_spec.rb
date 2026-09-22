@@ -7,7 +7,7 @@ require "spec_helper"
 # certain byte sizes (~<70B, non-monotonic). Fixed by parsanol's tree
 # parity / EOF scan work (parsanol-ruby 1.3.45, parsanol-rs 0.8.2);
 # these examples pin the window so a parser regression surfaces here.
-RSpec.describe "small-input parse integrity (expressir#373)" do
+RSpec.describe Expressir::Express::Parser do # small-input parse integrity (expressir#373)
   {
     "single-line entity" =>
       ["SCHEMA a;\nENTITY e; x : STRING; END_ENTITY;\nEND_SCHEMA;\n", %w[e]],
@@ -21,7 +21,7 @@ RSpec.describe "small-input parse integrity (expressir#373)" do
       ["SCHEMA a;\nEND_SCHEMA;\n", []],
   }.each do |label, (src, expected_entities)|
     it "parses #{label} (#{src.bytesize}B) without token overrun" do
-      exp = Expressir::Express::Parser.from_exp(src, skip_references: true)
+      exp = described_class.from_exp(src, skip_references: true)
       schema = exp.schemas.first
       expect(schema.id).to eq("a")
       expect(schema.entities.map(&:id)).to eq(expected_entities)
@@ -32,8 +32,8 @@ RSpec.describe "small-input parse integrity (expressir#373)" do
     results = (22..120).step(7).map do |n|
       pad = " " * [n - 30, 0].max
       src = "SCHEMA a;\nUSE FROM b (c);#{pad}\nEND_SCHEMA;\n"
-      Expressir::Express::Parser.from_exp(src, skip_references: true)
-                             .schemas.first.id
+      described_class.from_exp(src, skip_references: true)
+        .schemas.first.id
     rescue StandardError
       nil
     end

@@ -13,8 +13,8 @@ module Expressir
         longform_name = options[:longform_name] || "#{root.id}_lf"
         extenders = options[:extenders] == "none" ? :none : :all
         flat = Expressir::Express::Shtolo.new(root, repository,
-                                             longform_name: longform_name,
-                                             extenders: extenders).flatten.schema
+                                              longform_name: longform_name,
+                                              extenders: extenders).flatten.schema
         text = Expressir::Express::Formatter.format(flat)
 
         if options[:output]

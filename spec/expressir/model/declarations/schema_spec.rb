@@ -294,6 +294,15 @@ RSpec.describe Expressir::Model::Declarations::Schema do
       end
     end
 
+    it "returns the FULL schema text hyperlinked" do
+      aggregate_failures do
+        expect(faces_b.formatted_hyperlinked).to include("SCHEMA faces_b")
+        expect(faces_b.formatted_hyperlinked).to include("ENTITY b_spline")
+        expect(faces_b.formatted_hyperlinked)
+          .to match(/\{\{\{<<express:[^,]+\.surface_model,surface_model>>\}\}\}/)
+      end
+    end
+
     it "exposes both faces through the Liquid Drop" do
       plain = Liquid::Template.parse("{{ schema.source }}").render("schema" => faces_b)
       hyperlinked = Liquid::Template

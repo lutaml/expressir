@@ -10,6 +10,8 @@ module Expressir
 
     # Core classes (autoloaded for lazy loading)
     autoload :Cache, "#{__dir__}/express/cache"
+    autoload :AdocHyperlinkFormatter, "#{__dir__}/express/adoc_hyperlink_formatter"
+    autoload :AdocSourceFormatter, "#{__dir__}/express/adoc_source_formatter"
     autoload :Checker, "#{__dir__}/express/checker"
     autoload :Concatenator, "#{__dir__}/express/concatenator"
     autoload :Core, "#{__dir__}/express/core"

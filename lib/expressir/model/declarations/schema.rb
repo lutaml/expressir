@@ -60,6 +60,7 @@ module Expressir
           map :header, to: :header
           map :formatted, to: :formatted
           map :formatted_hyperlinked, to: :formatted_hyperlinked
+          map :formatted_hyperlinked_adoc, to: :formatted_hyperlinked_adoc
           map :source, to: :source
           map :source_hyperlinked, to: :source_hyperlinked
           map :full_source, to: :full_source
@@ -117,6 +118,13 @@ module Expressir
         # the schema, live links included.
         def formatted_hyperlinked
           @formatted_hyperlinked ||= Expressir::Express::SourceFormatter.format(self)
+        end
+
+        # FULL schema text with cross-references as AsciiDoc xref macros
+        # (+<<schema.item,item>>+) — drop-in for a schema document page
+        # rendered through a +subs="+macros"+ source block.
+        def formatted_hyperlinked_adoc
+          @formatted_hyperlinked_adoc ||= Expressir::Express::AdocSourceFormatter.format(self)
         end
 
         private

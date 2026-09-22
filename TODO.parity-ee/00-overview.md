@@ -56,3 +56,21 @@ SHTOLO paper, BNFs, DTDs)
 `docs/issues/` — bug corpus incl. a shtolo old-vs-new differential;
 `docs/` — SHTOLO paper PDF, Part 11/14/21 BNFs, XML DTDs,
 interface/qualify notes; `00check.txt` — check design notes.
+
+## Phase 2 — full eengine parity (2026-09-22, user-directed)
+
+| # | plan | status |
+|---|---|---|
+| 12 | full check-p11 catalog port | planned |
+| 13 | population / Part 21 validation | planned |
+| 14 | SHTOLO completion (Annex G + corpus differential) | in progress |
+| 15 | Part 28 XML + SMRL index | planned |
+| 16 | schema compare & patch | planned |
+| 17 | official test-case incorporation | standing structure |
+
+Execution order: 14 (finish Shtolo) → 12 (checks) → 15 (XML index)
+→ 16 (compare) → 13 (population, biggest). Each slice ships a PR and
+a patch release as it lands ("release as we go"). Reference repos:
+`~/src/external/exp-engine-engine` (oracle), `~/src/mn/iso-10303-11`
+(normative text), `~/src/mn/iso-10303-detached-docs` (Parts 21/28
+sources and fixtures).

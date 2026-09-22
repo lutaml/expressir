@@ -274,6 +274,7 @@ module Expressir
 
       def build_longform
         artifact = build_artifact
+        prune!(artifact)
 
         if @extenders == :all
           resolve_extensible_enumerations!(artifact)
@@ -286,6 +287,123 @@ module Expressir
         rewrite_qualified_strings!(artifact)
 
         artifact
+      end
+
+      # G.1.9 prune pass: the artifact keeps only what stays visible
+      # and reachable. Runs before the stage-2 rewrites so they never
+      # see declarations the longform would drop.
+      def prune!(schema)
+        visible_ids = visible_declaration_ids(schema)
+
+        # rules whose parameter entities are not all visible
+        schema.rules = schema.rules.reject do |rule|
+          Array(rule.applies_to).any? do |ref|
+            id = ref.is_a?(String) ? ref : ref.id
+            id && !visible_ids.key?(id.safe_downcase)
+          end
+        end
+
+        # select items pointing at declarations the artifact lacks
+        schema.types.each do |type|
+          next unless type.underlying_type.is_a?(Model::DataTypes::Select)
+
+          items = Array(type.underlying_type.items)
+          kept = items.select do |item|
+            item.id.nil? || visible_ids.key?(item.id.safe_downcase)
+          end
+          # An emptied select disappears from the representation
+          # (annex G.1.9 s1/s2/s3 example).
+          type.underlying_type.items = kept unless kept.empty? && items.empty?
+          if kept.empty? && !items.empty?
+            type.underlying_type = nil
+          end
+        end
+        schema.types = schema.types.reject { |t| t.underlying_type.nil? }
+
+        # functions/procedures nothing calls, to fixpoint (a helper only
+        # a dropped function called is itself unreachable)
+        loop do
+          called = called_ids(schema)
+          drop = schema.functions.any? { |f| !called[f.id.safe_downcase] } ||
+            schema.procedures.any? { |p| !called[p.id.safe_downcase] }
+          break unless drop
+
+          schema.functions = schema.functions.select { |f| called[f.id.safe_downcase] }
+          schema.procedures = schema.procedures.select { |p| called[p.id.safe_downcase] }
+        end
+
+        prune_supertype_expressions!(schema, visible_ids)
+      end
+
+      def visible_declaration_ids(schema)
+        all_decls(schema).each_with_object({}) do |decl, hash|
+          hash[decl.id.safe_downcase] = true if decl.respond_to?(:id) && decl.id
+        end
+      end
+
+      # Every identifier a FunctionCall site names, across the
+      # artifact's surviving declarations.
+      def called_ids(schema)
+        called = {}
+        each_node(schema) do |node|
+          next unless node.is_a?(Model::Expressions::FunctionCall)
+
+          ref = node.function
+          id = ref.is_a?(String) ? ref : ref&.id
+          called[id.safe_downcase] = true if id
+        end
+        called
+      end
+
+      # Annex C reductions over supertype expressions: references to
+      # invisible entities leave ONEOF; ONEOF(a) => a; AND/OR sides
+      # that become empty collapse; a vacuous expression deletes the
+      # constraint.
+      def prune_supertype_expressions!(schema, visible_ids)
+        keep = []
+        schema.subtype_constraints.each do |constraint|
+          expr = constraint.supertype_expression
+          if expr.nil?
+            # total-over-only constraints carry no expression; stage 2
+            # turns their TOTAL_OVER into a rule.
+            keep << constraint
+            next
+          end
+          reduced = reduce_supertype_expression(expr, visible_ids)
+          # Annex C: a vacuous expression deletes the constraint.
+          next if reduced.nil?
+
+          constraint.supertype_expression = reduced
+          keep << constraint
+        end
+        schema.subtype_constraints = keep
+      end
+
+      def reduce_supertype_expression(expr, visible_ids)
+        case expr
+        when Model::SupertypeExpressions::OneofSupertypeExpression
+          refs = Array(expr.operands).select do |ref|
+            id = ref.is_a?(String) ? ref : ref.id
+            id.nil? || visible_ids.key?(id.safe_downcase)
+          end
+          return nil if refs.empty?
+
+          refs.one? ? refs.first : reset_oneof(expr, refs)
+        when Model::SupertypeExpressions::BinarySupertypeExpression
+          left = reduce_supertype_expression(expr.operands[0], visible_ids)
+          right = reduce_supertype_expression(expr.operands[1], visible_ids)
+          return nil if left.nil? && right.nil?
+
+          left || right
+        else
+          expr
+        end
+      end
+
+      def reset_oneof(expr, refs)
+        copy = deep_copy(expr)
+        copy.operands = refs
+        copy
       end
 
       def resolve_extensible_enumerations!(schema)

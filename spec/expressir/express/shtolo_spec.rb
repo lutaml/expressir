@@ -178,7 +178,81 @@ RSpec.describe Expressir::Express::Shtolo do
         expect(items).to include("thing_one", "thing_two", "base_thing")
       end
     end
+  end
 
+  describe "G.1.9 prune pass" do
+    it "drops rules whose parameter entities are not visible" do
+      sources = { "root" => <<~EXP }
+        SCHEMA root;
+        ENTITY e; x : STRING; END_ENTITY;
+        RULE ghost_rule FOR (missing_entity); WHERE wr1 : TRUE; END_RULE;
+        RULE good_rule FOR (e); WHERE wr1 : TRUE; END_RULE;
+        END_SCHEMA;
+      EXP
+      repository, files = parse_repository(sources)
+      longform = flatten(schema_of(repository, "root"), repository)
+      files.each(&:unlink)
+      expect(longform.rules.map(&:id)).to eq(["good_rule"])
+    end
+
+    it "prunes invisible select items and drops emptied selects" do
+      sources = { "root" => <<~EXP }
+        SCHEMA root;
+        TYPE visible_type = STRING; END_TYPE;
+        TYPE mixed = SELECT (visible_type, ghost_type); END_TYPE;
+        TYPE emptied = SELECT (ghost_type); END_TYPE;
+        END_SCHEMA;
+      EXP
+      repository, files = parse_repository(sources)
+      longform = flatten(schema_of(repository, "root"), repository)
+      files.each(&:unlink)
+      mixed = longform.types.find { |t| t.id == "mixed" }
+      items = mixed.underlying_type.items.map(&:id)
+      expect(items).to eq(["visible_type"])
+      expect(longform.types.map(&:id)).not_to include("emptied")
+    end
+
+    it "drops functions and procedures nothing calls, keeping the chain" do
+      sources = { "root" => <<~EXP }
+        SCHEMA root;
+        FUNCTION helper(a : INTEGER) : INTEGER; RETURN (a + 1); END_FUNCTION;
+        FUNCTION used(x : INTEGER) : INTEGER; RETURN (helper(x)); END_FUNCTION;
+        PROCEDURE orphan; END_PROCEDURE;
+        ENTITY e; a : INTEGER; WHERE wr1 : used(a) > 0; END_ENTITY;
+        END_SCHEMA;
+      EXP
+      repository, files = parse_repository(sources)
+      longform = flatten(schema_of(repository, "root"), repository)
+      files.each(&:unlink)
+      expect(longform.functions.map(&:id)).to contain_exactly("helper", "used")
+      expect(longform.procedures).to be_empty
+    end
+
+    it "reduces ONEOF over invisible members per Annex C" do
+      sources = { "root" => <<~EXP }
+        SCHEMA root;
+        ENTITY r; END_ENTITY;
+        ENTITY a; END_ENTITY;
+        ENTITY b; END_ENTITY;
+        SUBTYPE_CONSTRAINT sc FOR r;
+          ONEOF(a, ghost, b);
+        END_SUBTYPE_CONSTRAINT;
+        END_SCHEMA;
+      EXP
+      repository, files = parse_repository(sources)
+      longform = flatten(schema_of(repository, "root"), repository)
+      files.each(&:unlink)
+      text = Expressir::Express::Formatter.format(longform)
+      aggregate_failures do
+        expect(text).to include("ONEOF")
+        expect(text).to include("a")
+        expect(text).to include("b")
+        expect(text).not_to include("ghost")
+      end
+    end
+  end
+
+  describe "all-extenders option" do
     it "extenders: none leaves the extensible select as declared" do
       sources = {
         "root" => <<~EXP,

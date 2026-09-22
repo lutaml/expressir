@@ -213,6 +213,7 @@ Commands:
   expressir clean PATH                         # Strip remarks and prettify EXPRESS schema at PATH
   expressir expand PATH                        # Concatenate the interface closure into one .exp
   expressir flatten PATH                       # Flatten the interface closure into an ISO 10303-11:1994 longform schema
+  expressir fix PATH                           # Rewrite self-schema-qualified references (#125)
   expressir format PATH                        # pretty print EXPRESS schema located at PATH
   expressir help [COMMAND]                     # Describe available commands or one specific command
   expressir validate load *PATH                # validate EXPRESS schema located at PATH
@@ -527,10 +528,18 @@ expressir expand schemas/resources/action_schema/action_schema.exp \
 |===
 | Option | Description
 | `--output PATH`, `-o PATH` | Write the artifact to PATH (defaults to stdout)
+| `--manifest PATH` | ELF schema manifest YAML defining where schemas live (primary
+  resolution mode)
+| `--stepmod DIR` | STEPmod checkout root — explicit opt-in to directory-convention
+  resolution as the fallback
 |===
 
 The closure is resolved by scanning `USE FROM` / `REFERENCE FROM` names in the
-root source and looking them up in the same directory.
+root source. Schema resolution order: `--manifest PATH` (an ELF schema
+manifest — explicit, layout-independent) first; `--stepmod DIR` (the STEPmod
+directory convention) as an explicit fallback; otherwise the file's own
+directory, with a failed lookup warning and pointing at the two explicit
+modes.
 
 === Flatten schema (SHTOLO longform)
 
@@ -551,7 +560,34 @@ expressir flatten schemas/resources/action_schema/action_schema.exp \
 | Option | Description
 | `--output PATH`, `-o PATH` | Write the longform schema to PATH (defaults to stdout)
 | `--longform_name ID` | Identifier for the resulting SCHEMA (default: `<root>_lf`)
+| `--extenders all|none` | `all` (default, the WG12 requirement): fold every extensible
+  SELECT/ENUMERATION extension in the closure into its base type — for
+  `EXTENSIBLE GENERIC_ENTITY SELECT` that means every entity the closure
+  carries. `none`: leave extensible types exactly as declared.
+| `--manifest PATH` | ELF schema manifest YAML defining where schemas live (primary
+  resolution mode)
+| `--stepmod DIR` | STEPmod checkout root — explicit opt-in to directory-convention
+  resolution as the fallback
 |===
+
+The longform output is verified against Express Engine: for
+`description_assignment`, `eengine --compare` of our longform against
+eengine's own reference artifact reports *No differences detected*
+(`spec/expressir/express/shtolo_eengine_oracle_differential_spec.rb`).
+
+=== Fix schema (self-schema references)
+
+The `fix` command rewrites string literals that qualify an item with the
+CURRENT schema's name — `'THIS_SCHEMA.ITEM'` inside THIS_SCHEMA is
+technically incorrect: the item usually comes from another schema,
+imported implicitly through a USEd supertype. Local items drop the
+prefix; foreign items gain their true defining schema
+(`'GEOMETRY_SCHEMA.B_SPLINE_SURFACE'`); unknown items are left untouched.
+
+[source, sh]
+----
+expressir fix schemas/aic_topologically_bounded_surface.exp   --output fixed.exp
+----
 
 === Validate schema
 
@@ -596,6 +632,10 @@ expressir validate check schemas/resources/action_schema/action_schema.exp
 
 # Check all .exp files under a directory
 expressir validate check schemas/resources/
+
+# Resolve the closure through an ELF schema manifest (or --stepmod DIR)
+expressir validate check modules/description_assignment/mim.exp \
+  --manifest schemas-srl.yaml
 
 # Exit 1 when any :error note fires
 expressir validate check schemas/resources/action_schema/action_schema.exp

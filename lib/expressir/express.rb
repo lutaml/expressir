@@ -38,6 +38,8 @@ module Expressir
     autoload :Shtolo, "#{__dir__}/express/shtolo"
     autoload :SchemaBlockScanner, "#{__dir__}/express/schema_block_scanner"
     autoload :SchemaHeadFormatter, "#{__dir__}/express/schema_head_formatter"
+    autoload :SchemaPlainSourceFormatter,
+             "#{__dir__}/express/schema_plain_source_formatter"
     autoload :SchemaSourceFormatter, "#{__dir__}/express/schema_source_formatter"
     autoload :ScopeResolver, "#{__dir__}/express/scope_resolver"
     autoload :SourceFormatter, "#{__dir__}/express/source_formatter"

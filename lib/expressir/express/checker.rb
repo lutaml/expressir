@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "set"
-
 module Expressir
   module Express
     # Semantic checks modeled on eeng kernel/check.lisp + check-notes.lisp
@@ -68,8 +66,18 @@ module Expressir
           io.puts "[#{n.severity}] #{n.id}: #{n.message}"
         end
         io.puts "#{errors.size} error(s), #{warnings.size} warning(s)"
-        valid?
+        io
       end
+
+      BUILTINS = %w[
+        integer real number string binary boolean logical generic
+        generic_entity aggregate array bag list set
+        true false unknown self const_e pi
+        abs acos asin atan cos exp format hibound hiindex length
+        log log2 log10 lobound loindex nvl odd rolesof sin sizeof
+        sqrt tan typeof usedin value value_in value_unique exists
+        blength insert remove
+      ].freeze
 
       private
 
@@ -82,8 +90,10 @@ module Expressir
         check_duplicates(schema)
         check_interfaces(schema)
         schema.entities.each { |e| check_entity(schema, e) }
-        schema.types.each { |t| check_type(schema, t) }
-        schema.types.each { |t| check_where_rules(schema, t, t.where_rules) }
+        schema.types.each do |t|
+          check_type(schema, t)
+          check_where_rules(schema, t, t.where_rules)
+        end
         schema.rules.each { |r| check_where_rules(schema, r, r.where_rules) }
         check_unresolved_refs(schema)
       end
@@ -194,31 +204,41 @@ module Expressir
       # Follow SUBTYPE OF edges from +entity+; re-reaching a node already on
       # the path is a cycle (self-subtyping included).
       def check_subtype_cycles(schema, entity)
-        path = [entity]
-        seen_on_path = { entity.id.safe_downcase => true }
-        frontier = Array(entity.subtype_of).filter_map do |ref|
-          id = ref.is_a?(String) ? ref : ref.id
-          find_entity(schema, id) if id
-        end
-        until frontier.empty?
-          current = frontier.pop
-          key = current.id.safe_downcase
-          if seen_on_path[key]
+        # DFS over SUBTYPE OF edges from `entity`. A cycle is a back-edge
+        # to a node on the current path; convergent branches (diamond
+        # inheritance) share ancestors without cycling, so nodes already
+        # proven cycle-free are memoized and revisited branches are
+        # skipped (#411).
+        path = []
+        on_path = {}
+        proven = {}
+
+        walk = lambda do |node|
+          key = node.id.safe_downcase
+          if on_path[key]
             note!(:check_subtype_cycle, :error, schema,
                   "ENTITY #{entity.id}: subtype inheritance cycle through " \
-                  "'#{current.id}'", entity)
-            return
+                  "'#{node.id}'", entity)
+            return true
           end
-          seen_on_path[key] = true
-          path << current
-          Array(current.subtype_of).each do |ref|
-            id = ref.is_a?(String) ? ref : ref.id
-            next unless id
+          return false if proven[key]
 
-            nxt = find_entity(schema, id)
-            frontier << nxt if nxt
+          path << node
+          on_path[key] = true
+          found = Array(node.subtype_of).any? do |ref|
+            id = ref.is_a?(String) ? ref : ref.id
+            next false unless id
+
+            parent = find_entity(schema, id)
+            parent && walk.call(parent)
           end
+          proven[key] = true unless found
+          path.pop
+          on_path.delete(key)
+          found
         end
+
+        walk.call(entity)
       end
 
       def check_where_rules(schema, owner, rules)
@@ -320,19 +340,10 @@ module Expressir
         end
       end
 
-      def declaration_id?(schema, node)
+      def declaration_id?(_schema, node)
         parent = node.parent
         parent.respond_to?(:id) && parent.id&.safe_downcase == node.id.safe_downcase
       end
-
-      BUILTINS = %w[
-        integer real number string binary boolean logical generic
-        generic_entity aggregate array bag list set
-        true false unknown self const_e pi
-        abs acos asin atan cos exp format hibound hiindex length
-        log log2 log10 lobound loindex nvl odd rolesof sin sizeof
-        sqrt tan typeof usedin value value_in value_unique exists
-      ].freeze
 
       def builtin?(id)
         BUILTINS.include?(id.safe_downcase)

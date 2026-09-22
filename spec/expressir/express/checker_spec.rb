@@ -18,12 +18,17 @@ RSpec.describe Expressir::Express::Checker do
     [repository, files]
   end
 
+  def files
+    @files ||= []
+  end
+
   after do
-    (@files || []).each(&:unlink)
+    files.each(&:unlink)
   end
 
   def check(sources)
-    repository, @files = parse_repository(sources)
+    repository, parsed = parse_repository(sources)
+    files.concat(parsed)
     described_class.new(repository).check
   end
 
@@ -83,7 +88,7 @@ RSpec.describe Expressir::Express::Checker do
       )
       note = result.errors.find { |n| n.id == :check_unresolved_ref }
       expect(note).not_to be_nil
-      expect(note.message).to match(/missing/)
+      expect(note.message).to include("missing")
     end
   end
 
@@ -207,5 +212,73 @@ RSpec.describe Expressir::Express::Checker do
       )
       expect(result).to be_valid
     end
+  end
+
+  # GH-411: convergent (diamond) inheritance is not a cycle.
+  it "does not report a cycle for diamond inheritance" do
+    repository, = parse_repository(
+      "d" => <<~EXP,
+        SCHEMA d;
+          ENTITY root;
+            x : STRING;
+          END_ENTITY;
+          ENTITY left SUBTYPE OF (root);
+            a : STRING;
+          END_ENTITY;
+          ENTITY right SUBTYPE OF (root);
+            b : STRING;
+          END_ENTITY;
+          ENTITY bottom SUBTYPE OF (left, right);
+            c : STRING;
+          END_ENTITY;
+        END_SCHEMA;
+      EXP
+    )
+    expect(described_class.new(repository).check).to be_valid
+  end
+
+  it "still reports a genuine subtype cycle" do
+    repository, = parse_repository(
+      "c" => <<~EXP,
+        SCHEMA c;
+          ENTITY a SUBTYPE OF (b);
+            x : STRING;
+          END_ENTITY;
+          ENTITY b SUBTYPE OF (a);
+            y : STRING;
+          END_ENTITY;
+        END_SCHEMA;
+      EXP
+    )
+    result = described_class.new(repository).check
+    expect(result).not_to be_valid
+    expect(result.errors.map(&:id)).to include(:check_subtype_cycle)
+  end
+
+  # GH-412: ISO 10303-11 built-in procedures BLENGTH/INSERT/REMOVE were
+  # reported as unresolved references.
+  it "accepts calls to BLENGTH, INSERT and REMOVE" do
+    repository, = parse_repository(
+      "m" => <<~EXP,
+        SCHEMA m;
+          ENTITY tagged;
+            tag   : BINARY;
+          WHERE
+            WR1 : BLENGTH(tag) > 0;
+          END_ENTITY;
+          FUNCTION f(es : SET [0:?] OF tagged) : INTEGER;
+            LOCAL
+              acc : LIST [0:?] OF tagged := [];
+            END_LOCAL;
+            INSERT(acc, es[1], 0);
+            REMOVE(acc, 1);
+            RETURN (1);
+          END_FUNCTION;
+        END_SCHEMA;
+      EXP
+    )
+    result = described_class.new(repository).check
+    unresolved = result.errors.select { |e| e.id == :check_unresolved_ref }
+    expect(unresolved).to be_empty
   end
 end

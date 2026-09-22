@@ -125,7 +125,12 @@ compiled_set: nil, &progress)
           return repo if repo
         end
 
-        all_exp_files = if batch_available? && files.size > 1
+        # EXPRESSIR_BATCH=0 escapes the native batch workers: their
+        # Rust threads crash the process under some loads (SIGILL in
+        # the mpmc recv park — see GH batch-crash report); sequential
+        # parsing is slower but proven stable.
+        batch_disabled = ENV["EXPRESSIR_BATCH"] == "0"
+        all_exp_files = if batch_available? && !batch_disabled && files.size > 1
                           from_files_batch(
                             files, include_source: include_source,
                                    root_path: root_path,

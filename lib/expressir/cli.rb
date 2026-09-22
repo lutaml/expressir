@@ -29,6 +29,15 @@ module Expressir
       Expressir::Commands::Clean.new(options).run(path)
     end
 
+    desc "fix PATH",
+         "Rewrite self-schema-qualified references (#125) in the EXPRESS schema at PATH"
+    method_option :output, type: :string,
+                           aliases: "-o",
+                           desc: "Output file path (defaults to stdout)"
+    def fix(path)
+      Expressir::Commands::Fix.new(options).run(path)
+    end
+
     desc "expand PATH",
          "Concatenate the interface closure of PATH into one .exp artifact"
     method_option :output, type: :string,

@@ -19,6 +19,7 @@ module Expressir
     #   check-unresolved-ref   (aggregate of eeng type/entity unparsed notes)
     #   check-select-extended-type
     #   check-enumeration-extended-type
+    #   check-self-schema-reference   (#125)
     #
     # Severity: :error stops a clean SHTOLO run; :warning is advisory.
     class Checker
@@ -85,7 +86,35 @@ module Expressir
         schema.types.each { |t| check_type(schema, t) }
         schema.types.each { |t| check_where_rules(schema, t, t.where_rules) }
         schema.rules.each { |r| check_where_rules(schema, r, r.where_rules) }
+        check_self_schema_references(schema)
         check_unresolved_refs(schema)
+      end
+
+      # #125: a string literal qualified by the CURRENT schema's name
+      # (`'THIS_SCHEMA.ITEM'` in TYPEOF lists) is technically incorrect —
+      # warn with the true defining schema when the item comes from
+      # elsewhere in the closure.
+      def check_self_schema_references(schema)
+        return unless schema.id
+
+        SelfSchemaReference.matches(schema).each do |match|
+          message =
+            case match.status
+            when :local
+              "'#{match.literal.value}': item '#{match.item}' is declared " \
+                "in this schema — drop the '#{schema.id}.' prefix"
+            when :foreign
+              "'#{match.literal.value}': do you mean " \
+                "'#{match.source_schema.id.upcase}.#{match.item.upcase}'? " \
+                "The item is declared in #{match.source_schema.id}, not in " \
+                "#{schema.id}"
+            else
+              "'#{match.literal.value}': item '#{match.item}' was not found " \
+                "in this schema or the loaded closure"
+            end
+          note!(:check_self_schema_reference, :warning, schema, message,
+                match.literal)
+        end
       end
 
       # Two declarations in one schema sharing a (case-insensitive) name is

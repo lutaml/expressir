@@ -9,6 +9,11 @@ Gem::Specification.new do |spec|
   spec.email         = ["open.source@ribose.com"]
 
   spec.summary       = "ISO EXPRESS parser and tools in Ruby."
+
+  spec.post_install_message = <<~EOM
+    expressir 1.4.x is END-OF-LIFE and receives no further maintenance.
+    Please upgrade to expressir >= 2.4: https://github.com/lutaml/expressir
+  EOM
   spec.description   = "Expressir (“EXPRESS in Ruby”) is a Ruby parser for EXPRESS and a set of Ruby tools for accessing ISO EXPRESS data models."
   spec.homepage      = "https://github.com/lutaml/expressir"
   spec.license       = "MIT"
@@ -30,7 +35,7 @@ Gem::Specification.new do |spec|
 
   spec.extensions = File.join(*%w(ext express_parser extconf.rb))
 
-  spec.add_runtime_dependency "rice", "~> 4.2"
+  spec.add_runtime_dependency "rice", ">= 4.2", "< 4.12"
   spec.add_runtime_dependency "thor", "~> 1.0"
   spec.add_development_dependency "antlr4-native", "~> 2.2"
   spec.add_development_dependency "asciidoctor", "~> 2.0.13"

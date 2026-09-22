@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "stringio"
 require "tempfile"
 
-RSpec.describe "expressir fix (#125)" do
+RSpec.describe Expressir::Commands::Fix do
   def write_schema(dir, name, src)
     path = File.join(dir, name)
     File.write(path, src)
@@ -14,7 +13,7 @@ RSpec.describe "expressir fix (#125)" do
   it "rewrites self-schema references and writes the corrected file" do
     dir = Dir.mktmpdir("fix-")
     @dir = dir
-    support = write_schema(dir, "support_schema.exp", <<~EXP)
+    write_schema(dir, "support_schema.exp", <<~EXP)
       SCHEMA support_schema;
       TYPE label = STRING; END_TYPE;
       END_SCHEMA;
@@ -31,13 +30,9 @@ RSpec.describe "expressir fix (#125)" do
     EXP
     out = File.join(dir, "fixed.exp")
 
-    orig_stdout = $stdout
-    $stdout = StringIO.new
-    begin
+    expect do
       Expressir::Cli.start(["fix", "--output", out, root])
-    ensure
-      $stdout = orig_stdout
-    end
+    end.to output(/fixed; written to/).to_stdout
 
     fixed = File.read(out)
     aggregate_failures do

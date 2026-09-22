@@ -13,3 +13,6 @@ AllCops:
   Exclude:
     - 'vendor/**/*'
     - 'metanorma-mirror-*/**/*'
+
+Lint/UnusedMethodArgument:
+  AllowUnusedKeywordArguments: true

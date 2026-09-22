@@ -114,8 +114,8 @@ module Expressir
       # @yield [filename, schemas, error] Optional block called for each file
       # @return [Model::Repository] Repository containing all parsed ExpFiles
       def self.from_files(files, skip_references: nil, include_source: nil,
-root_path: nil, use_native: nil, max_processes: nil,
-compiled_set: nil, &progress)
+                          root_path: nil, use_native: nil, max_processes: nil,
+                          compiled_set: nil, &progress)
         set_path = compiled_set || ENV.fetch("EXPRESSIR_COMPILED_SET", nil)
         if set_path && core_set_available?
           repo = from_compiled_set(set_path, files,

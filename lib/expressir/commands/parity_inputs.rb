@@ -12,7 +12,7 @@ module Expressir
       # looked up by schema name: first in the file's own directory, then
       # across the enclosing STEPmod checkout (the nearest ancestor holding
       # a `schemas/` directory, e.g. resources/ and modules/ trees).
-      def closure_paths(root_path)
+      def closure_paths(root_path, manifest: nil, stepmod: nil)
         index = schema_index(root_path)
         seen = { File.basename(root_path, ".exp").downcase => root_path }
         queue = [File.basename(root_path, ".exp").downcase]
@@ -37,7 +37,6 @@ module Expressir
       # own directory when there is no schemas/ ancestor.
       def schema_index(root_path)
         dir = File.dirname(File.expand_path(root_path))
-        nil
         until dir == "/" || File.basename(dir) == "schemas"
           parent = File.dirname(dir)
           break if parent == dir
@@ -72,10 +71,13 @@ module Expressir
           source.scan(/\bREFERENCE\s+FROM\s+(\w+)/i).flatten.uniq
       end
 
-      def root_schema(root_path)
+      # manifest:/stepmod: are accepted for the ELF-manifest resolver
+      # contract; the directory-index fallback ignores them until that
+      # resolver lands.
+      def root_schema(root_path, manifest: nil, stepmod: nil)
         name = File.read(root_path)[/\bSCHEMA\s+(\w+)/, 1]
-        repo = Expressir::Express::Parser.from_files(closure_paths(root_path),
-                                                     max_processes: 1)
+        cp = closure_paths(root_path)
+        repo = Expressir::Express::Parser.from_files(cp, max_processes: 1)
         [repo.schemas.find { |s| s.id == name }, repo]
       end
     end

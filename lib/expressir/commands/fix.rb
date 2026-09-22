@@ -10,10 +10,11 @@ module Expressir
         # --stepmod) so SelfSchemaReference can resolve where each item
         # truly comes from.
         files = ParityInputs.closure_paths(
-          path, manifest: options[:manifest], stepmod: options[:stepmod],
+          path, manifest: options[:manifest], stepmod: options[:stepmod]
         ).select { |f| File.exist?(f) }
-        repository = Expressir::Express::Parser.from_files(files,
-                                                          skip_references: true)
+        repository = Expressir::Express::Parser.from_files(
+          files, skip_references: true
+        )
         total = repository.schemas.sum do |schema|
           Expressir::Express::SelfSchemaReference.fix!(schema)
         end

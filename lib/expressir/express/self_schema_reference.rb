@@ -57,7 +57,7 @@ module Expressir
         matches(schema).count do |match|
           replacement = case match.status
                         when :local then match.item
-                        when :foreign then
+                        when :foreign
                           "#{match.source_schema.id}.#{match.item}"
                         else next false
                         end

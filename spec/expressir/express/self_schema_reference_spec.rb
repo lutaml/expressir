@@ -16,8 +16,9 @@ RSpec.describe Expressir::Express::SelfSchemaReference do
       f.close
       f
     end
-    repository = Expressir::Express::Parser.from_files(files.map(&:path),
-                                                      skip_references: true)
+    repository = Expressir::Express::Parser.from_files(
+      files.map(&:path), skip_references: true
+    )
     [repository, files]
   end
 
@@ -37,7 +38,7 @@ RSpec.describe Expressir::Express::SelfSchemaReference do
         TYPE bottom_curve = b_spline_curve; END_TYPE;
         END_SCHEMA;
       EXP
-      "aic" => <<~EXP
+      "aic" => <<~EXP,
         SCHEMA aic_topologically_bounded_surface;
         USE FROM geometry_schema (
           b_spline_curve_with_knots,
@@ -60,7 +61,7 @@ RSpec.describe Expressir::Express::SelfSchemaReference do
     aic = repository.schemas.find { |s| s.id.start_with?("aic_") }
 
     matches = described_class.matches(aic)
-    items = matches.map(&:item).map(&:downcase)
+    items = matches.map { |x| x.item.downcase }
     aggregate_failures do
       expect(items).to include("elementary_surface", "b_spline_surface")
       expect(matches.filter_map(&:source_schema).map(&:id).uniq)

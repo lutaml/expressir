@@ -18,6 +18,13 @@ module Expressir
           end
         end.uniq
         repository = Expressir::Express::Parser.from_files(files)
+        # A file that failed to parse is a nil entry: it must fail the run,
+        # not pass silently as a "clean" schema (#413).
+        failed = repository.files.count(&:nil?)
+        if failed.positive?
+          raise Thor::Error, "#{failed} file(s) failed to parse"
+        end
+
         result = Expressir::Express::Checker.new(repository).check
 
         if options[:json]

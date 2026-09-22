@@ -96,19 +96,20 @@ module Expressir
         end
 
         def build(repository)
+          # Nodes register before their subtype edges: subtype references
+          # may be unresolved (the declaring schema is not in the
+          # repository), and an edge to a node that does not exist would
+          # surface as a phantom path in supertype closures.
+          edges = []
           repository.schemas.each do |schema|
             schema_id = schema.id.safe_downcase
             schema.entities.to_a.each do |entity|
-              key = canonical(entity.path) || "#{schema_id}.#{entity.id.safe_downcase}"
+              key = node_key(schema_id, entity)
               @nodes[key] = entity
-              entity.subtype_of.to_a.each do |ref|
-                parent = ref.base_path ? canonical(ref.base_path) : "#{schema_id}.#{ref.id.safe_downcase}"
-                @subtype_of[key] << parent if parent
-              end
+              edges << [key, schema_id, entity]
             end
             schema.types.to_a.each do |type|
-              key = canonical(type.path) || "#{schema_id}.#{type.id.safe_downcase}"
-              @nodes[key] = type
+              @nodes[node_key(schema_id, type)] = type
             end
             schema.interfaces.to_a.each do |interface|
               target = interface.schema.is_a?(String) ? interface.schema : interface.schema&.id
@@ -117,6 +118,16 @@ module Expressir
               @dependencies[schema_id] << target.safe_downcase
             end
           end
+          edges.each do |key, schema_id, entity|
+            entity.subtype_of.to_a.each do |ref|
+              parent = ref.base_path ? canonical(ref.base_path) : "#{schema_id}.#{ref.id.safe_downcase}"
+              @subtype_of[key] << parent if parent && @nodes.key?(parent)
+            end
+          end
+        end
+
+        def node_key(schema_id, element)
+          canonical(element.path) || "#{schema_id}.#{element.id.safe_downcase}"
         end
       end
     end

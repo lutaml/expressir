@@ -1,4 +1,6 @@
 require "spec_helper"
+require "tempfile"
+require "liquid"
 
 RSpec.describe Expressir::Model::Declarations::Schema do
   let(:interface) do
@@ -240,6 +242,68 @@ RSpec.describe Expressir::Model::Declarations::Schema do
       interfaced_items = children.grep(Expressir::Model::Declarations::InterfacedItem)
       expect(interfaced_items.size).to eq 1
       expect(interfaced_items.first.id).to eq "renamed_type"
+    end
+  end
+
+  describe "#source and #source_hyperlinked (#255)" do
+    # Two files: HyperlinkFormatter suppresses links whose target lives in
+    # the same file as the reference (same-document anchors), so the
+    # cross-schema marker only appears across the file boundary.
+    let(:faces_b) do
+      file_a = Tempfile.new(["schema_faces_a", ".exp"])
+      file_b = Tempfile.new(["schema_faces_b", ".exp"])
+      begin
+        file_a.write(<<~EXP)
+          SCHEMA faces_a;
+          TYPE surface_model = STRING; END_TYPE;
+          END_SCHEMA;
+        EXP
+        file_a.close
+        file_b.write(<<~EXP)
+          SCHEMA faces_b;
+          USE FROM faces_a (surface_model);
+          ENTITY b_spline;
+            model : surface_model;
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+        file_b.close
+        repository = Expressir::Express::Parser.from_files([file_a.path, file_b.path])
+        repository.schemas.find { |s| s.id == "faces_b" }
+      ensure
+        file_a.unlink
+        file_b.unlink
+      end
+    end
+
+    it "returns the schema head without hyperlinks" do
+      aggregate_failures do
+        expect(faces_b.source).to include("SCHEMA faces_b")
+        expect(faces_b.source).to include("USE FROM faces_a")
+        expect(faces_b.source).not_to include("ENTITY b_spline")
+        expect(faces_b.source).not_to include("<<express:")
+      end
+    end
+
+    it "returns the schema head with cross-schema links hyperlinked" do
+      aggregate_failures do
+        expect(faces_b.source_hyperlinked).to include("SCHEMA faces_b")
+        expect(faces_b.source_hyperlinked).not_to include("ENTITY b_spline")
+        expect(faces_b.source_hyperlinked)
+          .to match(/\{\{\{<<express:[^,]+\.surface_model,surface_model>>\}\}\}/)
+      end
+    end
+
+    it "exposes both faces through the Liquid Drop" do
+      plain = Liquid::Template.parse("{{ schema.source }}").render("schema" => faces_b)
+      hyperlinked = Liquid::Template
+        .parse("{{ schema.source_hyperlinked }}").render("schema" => faces_b)
+      aggregate_failures do
+        expect(plain).to include("SCHEMA faces_b")
+        expect(plain).not_to include("ENTITY b_spline")
+        expect(plain).not_to include("<<express:")
+        expect(hyperlinked).to match(/<<express:[^,]+\.surface_model,surface_model>>/)
+      end
     end
   end
 end

@@ -60,6 +60,7 @@ module Expressir
           map :header, to: :header
           map :formatted, to: :formatted
           map :source, to: :source
+          map :source_hyperlinked, to: :source_hyperlinked
           map :full_source, to: :full_source
           map :children, to: :children
           map :safe_children, to: :safe_children
@@ -96,8 +97,18 @@ module Expressir
           @formatted ||= format(no_remarks: false)
         end
 
+        # Schema head text without hyperlinks (#255) — the `source` face
+        # templates call for the verbatim schema declaration block.
+        # Deliberately NOT @source: that ivar holds the raw source span
+        # lutaml-model's `source=` stores when include_source is on.
         def source
-          @source ||= Expressir::Express::SchemaSourceFormatter.format(self)
+          @plain_source ||= Expressir::Express::SchemaPlainSourceFormatter.format(self) # rubocop:disable Naming/MemoizedInstanceVariableName
+        end
+
+        # Schema head text with cross-references rendered as hyperlinks
+        # (#255) — the hyperlinked counterpart of #source.
+        def source_hyperlinked
+          Expressir::Express::SchemaSourceFormatter.format(self)
         end
 
         private

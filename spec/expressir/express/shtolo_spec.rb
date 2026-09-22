@@ -252,7 +252,7 @@ RSpec.describe Expressir::Express::Shtolo do
     end
   end
 
-  describe "all-extenders option" do
+  describe "extenders: :none" do
     it "extenders: none leaves the extensible select as declared" do
       sources = {
         "root" => <<~EXP,

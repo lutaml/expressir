@@ -307,7 +307,7 @@ RSpec.describe Expressir::Model::Declarations::Schema do
       aggregate_failures do
         expect(faces_b.formatted_hyperlinked_adoc).to include("ENTITY b_spline")
         expect(faces_b.formatted_hyperlinked_adoc)
-          .to match(/<<faces_a\.surface_model,surface_model>>/)
+          .to include("<<faces_a.surface_model,surface_model>>")
         expect(faces_b.formatted_hyperlinked_adoc).not_to include("{{{")
       end
     end

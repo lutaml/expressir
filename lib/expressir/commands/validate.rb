@@ -92,6 +92,12 @@ module Expressir
       DESC
       method_option :json, type: :boolean, default: false,
                            desc: "Emit the report as JSON (errors + warnings)"
+      method_option :manifest, type: :string,
+                               desc: "ELF schema manifest YAML defining where schemas live " \
+                                     "(primary resolution mode)"
+      method_option :stepmod, type: :string,
+                              desc: "STEPmod checkout root — explicit opt-in to directory-" \
+                                    "convention resolution as the fallback"
       def check(*paths)
         Check.new(options).run(*paths)
       end

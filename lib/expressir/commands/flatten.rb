@@ -5,7 +5,9 @@ module Expressir
     # Equivalent to eeng's `--flat -mode _longform`.
     class Flatten < Base
       def run(path)
-        root, repository = ParityInputs.root_schema(path)
+        root, repository = ParityInputs.root_schema(
+          path, manifest: options[:manifest], stepmod: options[:stepmod],
+        )
         exit_with_error "schema for #{path} not found in closure" unless root
 
         longform_name = options[:longform_name] || "#{root.id}_lf"

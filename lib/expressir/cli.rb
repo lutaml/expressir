@@ -34,6 +34,12 @@ module Expressir
     method_option :output, type: :string,
                            aliases: "-o",
                            desc: "Output file path (defaults to stdout)"
+    method_option :manifest, type: :string,
+                             desc: "ELF schema manifest YAML defining where schemas live " \
+                                   "(primary resolution mode)"
+    method_option :stepmod, type: :string,
+                            desc: "STEPmod checkout root — explicit opt-in to directory-" \
+                                  "convention resolution as the fallback"
     def expand(path)
       Expressir::Commands::Expand.new(options).run(path)
     end
@@ -49,6 +55,12 @@ module Expressir
                               desc: "Extensible type handling: 'all' (default, fold every " \
                                     "extender in the closure per Annex G.2.3/G.2.4) or " \
                                     "'none' (leave extensible types as declared)"
+    method_option :manifest, type: :string,
+                             desc: "ELF schema manifest YAML defining where schemas live " \
+                                   "(primary resolution mode)"
+    method_option :stepmod, type: :string,
+                            desc: "STEPmod checkout root — explicit opt-in to directory-" \
+                                  "convention resolution as the fallback"
     def flatten(path)
       Expressir::Commands::Flatten.new(options).run(path)
     end

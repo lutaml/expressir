@@ -12,7 +12,9 @@ module Expressir
           if File.directory?(p)
             Dir["#{p}/**/*.exp"]
           else
-            ParityInputs.closure_paths(p).select { |f| File.exist?(f) }
+            ParityInputs.closure_paths(
+              p, manifest: options[:manifest], stepmod: options[:stepmod],
+            ).select { |f| File.exist?(f) }
           end
         end.uniq
         repository = Expressir::Express::Parser.from_files(files)

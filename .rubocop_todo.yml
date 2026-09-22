@@ -144,6 +144,7 @@ Performance/MapMethodChain:
 RSpec/AnyInstance:
   Exclude:
     - 'spec/expressir/commands/package_edge_cases_spec.rb'
+    - 'spec/expressir/express/remark_attacher_performance_spec.rb'
 
 # Offense count: 11
 # Configuration parameters: Prefixes, AllowedPatterns.

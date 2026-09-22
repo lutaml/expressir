@@ -43,7 +43,7 @@ module Expressir
           when Model::ModelElement
             parent_value = parent.is_a?(Model::ModelElement) ? parent : nil
             value.parent = parent_value if value.respond_to?(:parent=)
-            if parent_value&.respond_to?(:reset_children_by_id)
+            if parent_value.respond_to?(:reset_children_by_id)
               parent_value.reset_children_by_id
             end
             value.class.attributes.each_key do |attr|

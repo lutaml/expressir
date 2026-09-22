@@ -167,7 +167,7 @@ module Expressir
 
       def arm_mode?(schema)
         id = schema.id.to_s.downcase
-        id.end_with?("arm") || id.end_with?("arm_lf")
+        id.end_with?("arm", "arm_lf")
       end
     end
   end

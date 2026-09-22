@@ -50,7 +50,7 @@ module Expressir
       # each model.
       def self.parse_batch(jobs, workers: 0)
         unless ::Expressir::Core.respond_to?(:const_defined?) &&
-               ::Expressir::Core.const_defined?(:BatchStream)
+            ::Expressir::Core.const_defined?(:BatchStream)
           raise NotImplementedError,
                 "batch compile unavailable; parse files individually"
         end

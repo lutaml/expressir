@@ -5,92 +5,59 @@ module Expressir
     # Common parser/discovery helpers shared by parity CLI commands
     # (expand, flatten, check) — they all need: list of files in the
     # interface closure of a root file, and the root schema parsed.
-    #
-    # Schema resolution order (per the ELF schema manifest directive):
-    #   1. `--manifest PATH` — an ELF schema manifest explicitly defines
-    #      where each schema lives; this is the primary mode.
-    #   2. `--stepmod DIR` — explicit opt-in to the STEPmod directory
-    #      convention (`schemas/**/<name>.exp`) as the fallback.
-    #   3. Otherwise the file's own directory is used; a lookup failure
-    #      warns and points at the two explicit modes.
     module ParityInputs
       module_function
 
-      # Resolve the transitive interface closure of +root_path+. The queue
-      # holds paths and `seen` guards by schema name: mutual USE FROM
-      # cycles must terminate (this loop once span rounds forever on them,
-      # re-reading the same files).
-      def closure_paths(root_path, manifest: nil, stepmod: nil)
-        index = schema_index(root_path, manifest: manifest, stepmod: stepmod)
+      # Resolve the transitive interface closure of +root_path+. Deps are
+      # looked up by schema name: first in the file's own directory, then
+      # across the enclosing STEPmod checkout (the nearest ancestor holding
+      # a `schemas/` directory, e.g. resources/ and modules/ trees).
+      def closure_paths(root_path)
+        index = schema_index(root_path)
         seen = { File.basename(root_path, ".exp").downcase => root_path }
-        missing = []
-        queue = [root_path]
+        queue = [File.basename(root_path, ".exp").downcase]
         until queue.empty?
-          closure_names(File.read(queue.shift)).each do |dep|
-            name = dep.downcase
-            next if seen.key?(name)
+          name = queue.shift
+          path = seen[name] || index[name]
+          next unless path
+          next if seen.key?(name) && seen[name] != root_path
 
-            path = index&.[](name)
-            unless path
-              missing << name
-              seen[name] = nil
-              next
-            end
-
-            seen[name] = path
-            queue << path
-          end
+          seen[name] = path
+          closure_names(File.read(path)).each { |d| queue << d.downcase }
         end
-        unless missing.empty?
-          warn "expressir: schema(s) not found: #{missing.uniq.join(', ')}" \
-               "#{resolver_hint(manifest, stepmod)}"
-        end
-        seen.values.compact.uniq
+        seen.values.uniq
       end
 
-      def resolver_hint(manifest, stepmod)
-        if manifest
-          " (not in schema manifest #{manifest})"
-        elsif stepmod
-          " (not found under STEPmod root #{stepmod})"
-        else
-          " - provide --manifest PATH (ELF schema manifest) or " \
-            "--stepmod DIR to resolve them"
-        end
-      end
-
-      # Schema-name → path index from the ELF schema manifest.
-      def manifest_index(manifest_path)
-        manifest = Expressir::SchemaManifest.from_file(manifest_path)
-        manifest.schemas.to_h do |entry|
-          [entry.id.downcase, entry.path]
-        end
-      rescue StandardError => e
-        warn "expressir: could not load schema manifest #{manifest_path}: #{e.message}"
+      # Schema-name → path map for the STEPmod checkout around +root_path+,
+      # built once per invocation. The index root is the nearest ancestor
+      # directory NAMED `schemas` (wg12-step layout:
+      # `schemas/modules/<module>/mim.exp`), and entries key on the schema
+      # name declared inside each file — module files are `arm.exp` /
+      # `mim.exp`, so basenames cannot be the key. Falls back to the file's
+      # own directory when there is no schemas/ ancestor.
+      def schema_index(root_path)
+        dir = File.dirname(File.expand_path(root_path))
         nil
-      end
+        until dir == "/" || File.basename(dir) == "schemas"
+          parent = File.dirname(dir)
+          break if parent == dir
 
-      # Schema-name → path index over a STEPmod checkout root (the
-      # directory holding `schemas/`, or that directory itself).
-      def stepmod_index(stepmod_dir)
-        root = File.join(File.expand_path(stepmod_dir), "schemas")
-        root = File.expand_path(stepmod_dir) unless File.directory?(root)
-        h = {}
-        Find.find(root) do |path|
-          next unless path.end_with?(".exp")
-
-          declared = File.read(path)[/\bSCHEMA\s+(\w+)/i, 1]
-          h[declared.downcase] = path if declared
-          h[File.basename(path, ".exp").downcase] ||= path
+          dir = parent
         end
-        h
-      end
+        return same_dir_index(root_path) unless File.basename(dir) == "schemas"
 
-      def schema_index(root_path, manifest: nil, stepmod: nil)
-        return manifest_index(manifest) if manifest
-        return stepmod_index(stepmod) if stepmod
+        @@indexes ||= {}
+        @@indexes[dir] ||= begin
+          h = {}
+          Find.find(dir) do |path|
+            next unless path.end_with?(".exp")
 
-        same_dir_index(root_path)
+            declared = File.read(path)[/\bSCHEMA\s+(\w+)/i, 1]
+            h[declared.downcase] = path if declared
+            h[File.basename(path, ".exp").downcase] ||= path
+          end
+          h
+        end
       end
 
       def same_dir_index(root_path)
@@ -100,26 +67,16 @@ module Expressir
         end
       end
 
-      # Interface names declared by +source+. Remark text is stripped
-      # first: prose like "use from the main schema" must not spawn
-      # phantom dependencies.
       def closure_names(source)
-        code = source.gsub(/--[^\n]*/, "").gsub(/\(\*.*?\*\)/m, "")
-        code.scan(/\bUSE\s+FROM\s+(\w+)/i).flatten.uniq +
-          code.scan(/\bREFERENCE\s+FROM\s+(\w+)/i).flatten.uniq
+        source.scan(/\bUSE\s+FROM\s+(\w+)/i).flatten.uniq +
+          source.scan(/\bREFERENCE\s+FROM\s+(\w+)/i).flatten.uniq
       end
 
-      def root_schema(root_path, manifest: nil, stepmod: nil)
+      def root_schema(root_path)
         name = File.read(root_path)[/\bSCHEMA\s+(\w+)/, 1]
-        # skip_references: longform generation and checking run their own
-        # resolution; resolving every reference of a large closure here made
-        # flatten crawl (minutes vs seconds).
-        repo = Expressir::Express::Parser.from_files(
-          closure_paths(root_path, manifest: manifest, stepmod: stepmod),
-          skip_references: true,
-          max_processes: 1,
-        )
-        [repo.schemas.find { |s| s.id&.downcase == name&.downcase }, repo]
+        repo = Expressir::Express::Parser.from_files(closure_paths(root_path),
+                                                     max_processes: 1)
+        [repo.schemas.find { |s| s.id == name }, repo]
       end
     end
   end

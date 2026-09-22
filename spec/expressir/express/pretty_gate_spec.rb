@@ -4,9 +4,9 @@ require "spec_helper"
 
 # Corpus-scale pretty round-trip gate (parity-ee stage 08).
 # parse → Formatter → re-parse; structural fingerprint must match.
-RSpec.describe Expressir::Express::PrettyGate do
-  EXAMPLES = Dir[File.expand_path("../../fixtures/examples/*.exp", __dir__)].sort.freeze
+EXAMPLES = Dir[File.expand_path("../../fixtures/examples/*.exp", __dir__)].freeze
 
+RSpec.describe Expressir::Express::PrettyGate do
   it "has example fixtures to gate" do
     expect(EXAMPLES).not_to be_empty
   end
@@ -17,6 +17,7 @@ RSpec.describe Expressir::Express::PrettyGate do
       if result.error
         raise "parse/format failed for #{path}: #{result.error.class}: #{result.error.message}"
       end
+
       expect(result.after).to eq(result.before), lambda {
         diff_keys = result.before.zip(result.after).flat_map do |b, a|
           (b.keys | a.keys).reject { |k| b[k] == a[k] }

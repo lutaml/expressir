@@ -9,14 +9,15 @@ require "tempfile"
 # spec only verifies CLI plumbing: -o writes file vs stdout, exit code,
 # error propagation.
 RSpec.describe Expressir::Cli do
+  let(:tmpdirs) { [] }
+
   let(:support_dir) do
     d = Dir.mktmpdir("exp-cmd-")
-    @tmpdirs << d
+    tmpdirs << d
     d
   end
 
-  before { @tmpdirs = [] }
-  after { @tmpdirs&.each { |d| FileUtils.remove_entry(d) } }
+  after { tmpdirs.each { |d| FileUtils.remove_entry(d) } }
 
   def write_source(name, src)
     path = File.join(support_dir, "#{name}.exp")
@@ -99,7 +100,7 @@ RSpec.describe Expressir::Cli do
         text = File.read(out_path)
         expect(text).to include("SCHEMA root_lf;")
         expect(text).to include("ENTITY e;")
-        expect(text).not_to match(/USE FROM/)
+        expect(text).not_to include("USE FROM")
       end
     end
   end

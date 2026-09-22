@@ -12,3 +12,4 @@ AllCops:
   NewCops: enable
   Exclude:
     - 'vendor/**/*'
+    - 'metanorma-mirror-*/**/*'

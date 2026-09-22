@@ -59,7 +59,7 @@ module Expressir
                            aliases: "-o",
                            desc: "Output file path (defaults to stdout)"
     method_option :longform_name, type: :string,
-                                 desc: "Longform SCHEMA id (default: <root>_lf)"
+                                  desc: "Longform SCHEMA id (default: <root>_lf)"
     method_option :extenders, type: :string,
                               desc: "Extensible type handling: 'all' (default, fold every " \
                                     "extender in the closure per Annex G.2.3/G.2.4) or " \

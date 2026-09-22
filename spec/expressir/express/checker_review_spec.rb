@@ -17,12 +17,17 @@ RSpec.describe Expressir::Express::Checker do
     [repository, files]
   end
 
+  def files
+    @files ||= []
+  end
+
   after do
-    (@files || []).each(&:unlink)
+    files.each(&:unlink)
   end
 
   def check(sources)
-    repository, @files = parse_repository(sources)
+    repository, parsed = parse_repository(sources)
+    files.concat(parsed)
     described_class.new(repository).check
   end
 
@@ -76,11 +81,7 @@ RSpec.describe Expressir::Express::Checker do
       cycles = result.errors.select { |n| n.id == :check_subtype_cycle }
       aggregate_failures do
         expect(cycles.map(&:schema)).to all(eq("a"))
-        expect(cycles.map(&:message)).to match_array [
-          a_string_matching(/ENTITY p: .* 'p'/),
-          a_string_matching(/ENTITY q: .* 'q'/),
-          a_string_matching(/ENTITY selfie: .* 'selfie'/),
-        ]
+        expect(cycles.map(&:message)).to contain_exactly(a_string_matching(/ENTITY p: .* 'p'/), a_string_matching(/ENTITY q: .* 'q'/), a_string_matching(/ENTITY selfie: .* 'selfie'/))
       end
     end
 
@@ -177,7 +178,8 @@ RSpec.describe Expressir::Express::Checker do
           END_SCHEMA;
         EXP
       }
-      repository, @files = parse_repository(sources)
+      repository, parsed = parse_repository(sources)
+      files.concat(parsed)
       expect { described_class.new(repository).check }.not_to raise_error
     end
   end
@@ -230,97 +232,50 @@ RSpec.describe Expressir::Express::Checker do
       expect(subtype_notes).to be_empty
     end
   end
-end
 
-RSpec.describe "check_unresolved_ref vs locally bound identifiers (#396)" do
-  it "accepts the Libes mini2 longform that eep -t accepts" do
-    src = <<~EXP
-      SCHEMA mini2_lf;
-      ENTITY shape
-        SUPERTYPE OF (circle);
-        nm : STRING;
-      END_ENTITY;
-      ENTITY circle
-        SUBTYPE OF (shape);
-        r : REAL;
-      WHERE
-        WR1 : r > 0.0;
-      END_ENTITY;
-      ENTITY small_circle
-        SUBTYPE OF (circle);
-      WHERE
-        WR1 : r < 1.0;
-      END_ENTITY;
-      FUNCTION pick(cs : LIST [0:?] OF small_circle) : INTEGER;
-        LOCAL
-          n : INTEGER := 0;
-        END_LOCAL;
-        REPEAT i := 1 TO SIZEOF(cs);
-          n := n + cs[i].r;
-        END_REPEAT;
-        RETURN (SIZEOF(QUERY(q <* cs | q\\circle.r > 0.5)) + n);
-      END_FUNCTION;
-      END_SCHEMA;
-    EXP
-    file = Tempfile.new(["mini2_lf", ".exp"])
-    file.write(src)
-    file.close
-    begin
-      repo = Expressir::Express::Parser.from_files([file.path])
-      result = Expressir::Express::Checker.new(repo).check
-      aggregate_failures do
-        expect(result.notes).to be_empty
-        expect(result).to be_valid
+  describe "check_unresolved_ref vs locally bound identifiers (#396)" do
+    it "accepts the Libes mini2 longform that eep -t accepts" do
+      src = <<~EXP
+        SCHEMA mini2_lf;
+        ENTITY shape
+          SUPERTYPE OF (circle);
+          nm : STRING;
+        END_ENTITY;
+        ENTITY circle
+          SUBTYPE OF (shape);
+          r : REAL;
+        WHERE
+          WR1 : r > 0.0;
+        END_ENTITY;
+        ENTITY small_circle
+          SUBTYPE OF (circle);
+        WHERE
+          WR1 : r < 1.0;
+        END_ENTITY;
+        FUNCTION pick(cs : LIST [0:?] OF small_circle) : INTEGER;
+          LOCAL
+            n : INTEGER := 0;
+          END_LOCAL;
+          REPEAT i := 1 TO SIZEOF(cs);
+            n := n + cs[i].r;
+          END_REPEAT;
+          RETURN (SIZEOF(QUERY(q <* cs | q\\circle.r > 0.5)) + n);
+        END_FUNCTION;
+        END_SCHEMA;
+      EXP
+      file = Tempfile.new(["mini2_lf", ".exp"])
+      file.write(src)
+      file.close
+      begin
+        repo = Expressir::Express::Parser.from_files([file.path])
+        result = described_class.new(repo).check
+        aggregate_failures do
+          expect(result.notes).to be_empty
+          expect(result).to be_valid
+        end
+      ensure
+        file.unlink
       end
-    ensure
-      file.unlink
-    end
-  end
-end
-
-
-RSpec.describe "check_unresolved_ref vs locally bound identifiers (#396)" do
-  it "accepts the Libes mini2 longform that eep -t accepts" do
-    src = <<~EXP
-      SCHEMA mini2_lf;
-      ENTITY shape
-        SUPERTYPE OF (circle);
-        nm : STRING;
-      END_ENTITY;
-      ENTITY circle
-        SUBTYPE OF (shape);
-        r : REAL;
-      WHERE
-        WR1 : r > 0.0;
-      END_ENTITY;
-      ENTITY small_circle
-        SUBTYPE OF (circle);
-      WHERE
-        WR1 : r < 1.0;
-      END_ENTITY;
-      FUNCTION pick(cs : LIST [0:?] OF small_circle) : INTEGER;
-        LOCAL
-          n : INTEGER := 0;
-        END_LOCAL;
-        REPEAT i := 1 TO SIZEOF(cs);
-          n := n + cs[i].r;
-        END_REPEAT;
-        RETURN (SIZEOF(QUERY(q <* cs | q\\circle.r > 0.5)) + n);
-      END_FUNCTION;
-      END_SCHEMA;
-    EXP
-    file = Tempfile.new(["mini2_lf", ".exp"])
-    file.write(src)
-    file.close
-    begin
-      repo = Expressir::Express::Parser.from_files([file.path])
-      result = Expressir::Express::Checker.new(repo).check
-      aggregate_failures do
-        expect(result.notes).to be_empty
-        expect(result).to be_valid
-      end
-    ensure
-      file.unlink
     end
   end
 end

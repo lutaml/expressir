@@ -124,8 +124,6 @@ module Expressir
           end.compact
         end
 
-        private
-
         # Direct items of one interface plus the items visible through
         # the foreign schema's own USE interfaces (transitive USE
         # visibility, eeng :use-only → :use-from recursion).
@@ -178,7 +176,7 @@ module Expressir
           current = parent
           while current
             return current.children_by_id[name] if current.respond_to?(:children_by_id) &&
-                                                   current.children_by_id[name]
+              current.children_by_id[name]
 
             current = current.is_a?(ModelElement) ? current.parent : nil
           end

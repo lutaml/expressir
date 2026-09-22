@@ -47,6 +47,12 @@ module Expressir
         self
       end
 
+      IdPlan = Struct.new(:global, :own_by_schema, keyword_init: true) do
+        def own(schema)
+          own_by_schema[schema] || {}
+        end
+      end
+
       private
 
       # ---- interface closure (same semantics as Concatenator) ----
@@ -96,7 +102,7 @@ module Expressir
           plan.own(schema).each { |k, final| full[k] = final }
           rename_map.each do |alias_name, original|
             resolved = plan.own(schema)[original.safe_downcase] ||
-                       plan.global[original.safe_downcase] || original
+              plan.global[original.safe_downcase] || original
             full[alias_name.safe_downcase] = resolved
           end
 
@@ -104,7 +110,7 @@ module Expressir
             copy = deep_copy(decl)
             rewrite_references(copy, full)
             if decl.respond_to?(:id) && decl.id &&
-               (final = plan.own(schema)[decl.id.safe_downcase])
+                (final = plan.own(schema)[decl.id.safe_downcase])
               copy.id = final
             end
             declarations << copy
@@ -117,7 +123,7 @@ module Expressir
 
             iface.items.each do |item|
               original = original_name(item, schema)
-              next unless (decl = closure[original]&.entities&.find { |e| e.id == original })
+              next unless closure[original]&.entities&.find { |e| e.id == original }
 
               @reference_entities << original.safe_downcase
             end
@@ -136,7 +142,7 @@ module Expressir
           subtype_constraints: declarations.grep(Model::Declarations::SubtypeConstraint).compact,
           functions: declarations.grep(Model::Declarations::Function).compact,
           procedures: declarations.grep(Model::Declarations::Procedure).compact,
-          rules: declarations.grep(Model::Declarations::Rule).compact
+          rules: declarations.grep(Model::Declarations::Rule).compact,
         )
       end
 
@@ -144,12 +150,6 @@ module Expressir
         schema.constants + schema.types + schema.entities +
           schema.subtype_constraints + schema.functions +
           schema.rules + schema.procedures
-      end
-
-      IdPlan = Struct.new(:global, :own_by_schema, keyword_init: true) do
-        def own(schema)
-          own_by_schema[schema] || {}
-        end
       end
 
       # G.NM.1: the first schema in closure order to declare a name keeps
@@ -191,7 +191,7 @@ module Expressir
             next unless original
 
             map[item.id.safe_downcase] = original if item.id &&
-                                                    item.id.safe_downcase != original.safe_downcase
+              item.id.safe_downcase != original.safe_downcase
           end
         end
         map
@@ -211,7 +211,7 @@ module Expressir
           sever << node
           node = node.parent
         end
-        saved = sever.map { |n| n.parent }
+        saved = sever.map(&:parent)
         sever.each { |n| n.parent = nil }
         Marshal.load(Marshal.dump(obj))
       ensure
@@ -226,7 +226,7 @@ module Expressir
         return unless node.is_a?(Model::ModelElement)
 
         if node.is_a?(Model::References::SimpleReference) && node.id &&
-           (to = map[node.id.safe_downcase])
+            (to = map[node.id.safe_downcase])
           node.id = preserve_case(node.id, to)
         end
         node.class.attributes.each_key do |attr|
@@ -299,7 +299,7 @@ module Expressir
               t.underlying_type.based_on&.id&.safe_downcase == base.id.safe_downcase
           end
           merged = enum.items.map(&:id) +
-                   extensions.flat_map { |x| x.underlying_type.items.map(&:id) }
+            extensions.flat_map { |x| x.underlying_type.items.map(&:id) }
           enum.items = merged.uniq.map { |id| Model::DataTypes::EnumerationItem.new(id: id) }
           enum.extensible = false
           enum.based_on = nil
@@ -308,12 +308,12 @@ module Expressir
             ext_items = ext.underlying_type.items.map(&:id)
             exclusions = merged - ext_items
             ext.underlying_type = Model::DataTypes::Enumeration.new(
-              items: enum.items
+              items: enum.items,
             )
             ext.where_rules = exclusions.each_with_index.map do |item, i|
               Model::Declarations::WhereRule.new(
                 id: "wr#{i + 1}",
-                expression: parse_expression("SELF <> #{item};")
+                expression: parse_expression("SELF <> #{item};"),
               )
             end
           end
@@ -345,7 +345,7 @@ module Expressir
               t.underlying_type.based_on&.id&.safe_downcase == base.id.safe_downcase
           end
           merged_items = sel.items +
-                         extensions.flat_map { |x| x.underlying_type.items }
+            extensions.flat_map { |x| x.underlying_type.items }
           seen_ids = {}
           uniq = merged_items.select do |item|
             key = item.id.safe_downcase
@@ -362,12 +362,12 @@ module Expressir
             exclusions = uniq.reject { |i| keep.include?(i.id.upcase) }
             base_ref = "#{@longform_name.upcase}.#{base.id.upcase}"
             ext.underlying_type = Model::DataTypes::Select.new(
-              items: sel.items.map { |i| Model::References::SimpleReference.new(id: i.id) }
+              items: sel.items.map { |i| Model::References::SimpleReference.new(id: i.id) },
             )
             ext.where_rules = exclusions.each_with_index.map do |item, i|
               Model::Declarations::WhereRule.new(
                 id: "wr#{i + 1}",
-                expression: parse_expression("NOT ('#{base_ref}.#{item.id.upcase}' IN TYPEOF(SELF));")
+                expression: parse_expression("NOT ('#{base_ref}.#{item.id.upcase}' IN TYPEOF(SELF));"),
               )
             end
           end
@@ -461,7 +461,7 @@ module Expressir
             entity.attributes[i] = Model::Declarations::DerivedAttribute.new(
               id: attr.id || old_name,
               type: attr.type,
-              expression: parse_expression("SELF\\#{supertype}.#{old_name}")
+              expression: parse_expression("SELF\\#{supertype}.#{old_name}"),
             )
           end
         end
@@ -493,7 +493,7 @@ module Expressir
       end
 
       # Attribute-driven structural traversal over the whole subtree.
-      def each_node(root, &block)
+      def each_node(root, &)
         stack = [root]
         until stack.empty?
           node = stack.pop

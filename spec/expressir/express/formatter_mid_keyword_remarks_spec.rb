@@ -42,7 +42,7 @@ RSpec.describe Expressir::Express::Formatter do
       expect(reparsed.to_s).to include("-- else branch note")
 
       if_stmt = model.schemas.first.functions.first.statements
-                    .find { |s| s.is_a?(Expressir::Model::Statements::If) }
+        .find { |s| s.is_a?(Expressir::Model::Statements::If) }
       remark = if_stmt.untagged_remarks.first
       expect(remark.placement).to eq(Expressir::Model::RemarkPlacement::INLINE)
       expect(remark.region).to eq(Expressir::Model::RemarkPlacement::ELSE_REGION)

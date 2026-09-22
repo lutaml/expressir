@@ -29,7 +29,7 @@ RSpec.describe Expressir::Express::Shtolo do
     it "rewrites references from the alias to the original" do
       sources = {
         "second_schema" => "SCHEMA second_schema;\nENTITY alfred;\n  a1 : STRING;\nEND_ENTITY;\nENTITY bert;\n  b1 : STRING;\nEND_ENTITY;\nEND_SCHEMA;\n",
-        "sch_schema" => "SCHEMA sch_schema;\nUSE FROM second_schema (alfred AS alf, bert AS herbert);\nENTITY joe;\n  attr1 : alf;\n  attr2 : herbert;\nEND_ENTITY;\nEND_SCHEMA;\n"
+        "sch_schema" => "SCHEMA sch_schema;\nUSE FROM second_schema (alfred AS alf, bert AS herbert);\nENTITY joe;\n  attr1 : alf;\n  attr2 : herbert;\nEND_ENTITY;\nEND_SCHEMA;\n",
       }
       repository, files = parse_repository(sources)
       longform = flatten(schema_of(repository, "sch_schema"), repository)
@@ -48,7 +48,7 @@ RSpec.describe Expressir::Express::Shtolo do
     it "prefixes clashing declarations with schema_dot_" do
       sources = {
         "farming" => "SCHEMA farming;\nUSE FROM s1_schema (creature);\nENTITY farming_dot_dog SUBTYPE OF (creature);\n  x : STRING;\nEND_ENTITY;\nEND_SCHEMA;\n",
-        "s1_schema" => "SCHEMA s1_schema;\nENTITY creature;\n  y : STRING;\nEND_ENTITY;\nENTITY dog;\n  z : STRING;\nEND_ENTITY;\nEND_SCHEMA;\n"
+        "s1_schema" => "SCHEMA s1_schema;\nENTITY creature;\n  y : STRING;\nEND_ENTITY;\nENTITY dog;\n  z : STRING;\nEND_ENTITY;\nEND_SCHEMA;\n",
       }
       repository, files = parse_repository(sources)
       longform = flatten(schema_of(repository, "farming"), repository)
@@ -63,7 +63,7 @@ RSpec.describe Expressir::Express::Shtolo do
     it "produces a schema with no interfaces and parses back" do
       sources = {
         "root_schema" => "SCHEMA root_schema;\nUSE FROM support_schema (identifier);\nENTITY root_entity;\n  id : identifier;\nEND_ENTITY;\nEND_SCHEMA;\n",
-        "support_schema" => "SCHEMA support_schema;\nTYPE identifier = STRING; END_TYPE;\nEND_SCHEMA;\n"
+        "support_schema" => "SCHEMA support_schema;\nTYPE identifier = STRING; END_TYPE;\nEND_SCHEMA;\n",
       }
       repository, files = parse_repository(sources)
       longform = flatten(schema_of(repository, "root_schema"), repository)
@@ -86,7 +86,7 @@ RSpec.describe Expressir::Express::Shtolo do
 
     it "G.2.5 eliminates subtype constraints and emits a TOTAL_OVER rule" do
       sources = {
-        "root" => <<~EXP
+        "root" => <<~EXP,
           SCHEMA root;
           ENTITY person; name : STRING; END_ENTITY;
           ENTITY employee SUBTYPE OF (person); staff_no : STRING; END_ENTITY;
@@ -108,7 +108,7 @@ RSpec.describe Expressir::Express::Shtolo do
 
     it "G.2.7 converts RENAMED attributes to DERIVE" do
       sources = {
-        "root" => <<~EXP
+        "root" => <<~EXP,
           SCHEMA root;
           ENTITY person; name : STRING; END_ENTITY;
           ENTITY employee SUBTYPE OF (person);
@@ -127,16 +127,16 @@ RSpec.describe Expressir::Express::Shtolo do
         expect(derived).not_to be_nil
         expect(derived.id).to eq("id")
         text = Expressir::Express::Formatter.format(longform)
-        expect(text).to match(/DERIVE/)
-        expect(text).to match(/SELF\\person\.name/)
+        expect(text).to include("DERIVE")
+        expect(text).to include('SELF\person.name')
       end
     end
   end
 
-  describe "eeng oracle differential", if: ENV["EENG_PARITY"] do
+  describe "eeng oracle differential", if: ENV.fetch("EENG_PARITY", nil) do
     it "flattens description_assignment MIM with the same declaration set" do
       stepmod = ENV["STEPMOD"] || "/Users/mulgogi/src/mn/iso-10303"
-      mim = File.join(stepmod, "schemas/modules/description_assignment/mim.exp")
+      File.join(stepmod, "schemas/modules/description_assignment/mim.exp")
       oracle = File.read(File.expand_path("../../fixtures/eeng/oracle/description-assignment-mim-concatenated.exp", __dir__))
 
       # Universe: every schema in the oracle closure.
@@ -159,7 +159,7 @@ RSpec.describe Expressir::Express::Shtolo do
           ENTITY base_thing; y : STRING; END_ENTITY;
           END_SCHEMA;
         EXP
-        "root" => <<~EXP
+        "root" => <<~EXP,
           SCHEMA root;
           USE FROM support (base_thing);
           TYPE pick = EXTENSIBLE GENERIC_ENTITY SELECT; END_TYPE;
@@ -172,7 +172,7 @@ RSpec.describe Expressir::Express::Shtolo do
       lf = flatten(schema_of(repository, "root"), repository)
 
       pick = lf.types.find { |t| t.id == "pick" }
-      items = pick.underlying_type.items.map(&:id).map(&:downcase)
+      items = pick.underlying_type.items.map { |x| x.id.downcase }
       aggregate_failures do
         expect(pick.underlying_type.generic_entity).to be_truthy
         expect(items).to include("thing_one", "thing_two", "base_thing")
@@ -181,7 +181,7 @@ RSpec.describe Expressir::Express::Shtolo do
 
     it "extenders: none leaves the extensible select as declared" do
       sources = {
-        "root" => <<~EXP
+        "root" => <<~EXP,
           SCHEMA root;
           ENTITY thing_one; a : STRING; END_ENTITY;
           TYPE pick = EXTENSIBLE GENERIC_ENTITY SELECT; END_TYPE;
@@ -189,9 +189,9 @@ RSpec.describe Expressir::Express::Shtolo do
         EXP
       }
       repository, @files = parse_repository(sources)
-      lf = Expressir::Express::Shtolo.new(schema_of(repository, "root"),
-                                          repository,
-                                          extenders: :none).flatten.schema
+      lf = described_class.new(schema_of(repository, "root"),
+                               repository,
+                               extenders: :none).flatten.schema
       pick = lf.types.find { |t| t.id == "pick" }
       expect(pick.underlying_type.items).to be_empty
     end

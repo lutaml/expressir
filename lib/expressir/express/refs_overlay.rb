@@ -24,12 +24,13 @@ module Expressir
         File.write("#{set_path}.refs.json", JSON.generate(refs))
       end
 
-      # Returns true when the overlay was applied (caller then skips
-      # the resolver); false when absent — caller falls back to
-      # resolving.
-      def apply(set_path, models)
+      # Re-binds resolved references from the compiled-set refs
+      # sidecar. Returns the sidecar path when it was applied (caller
+      # then skips the resolver); nil when absent — caller falls back
+      # to resolving.
+      def apply_to(set_path, models)
         refs_path = "#{set_path}.refs.json"
-        return false unless File.exist?(refs_path)
+        return nil unless File.exist?(refs_path)
 
         require "json"
         refs = JSON.parse(File.read(refs_path))
@@ -39,7 +40,7 @@ module Expressir
           base_path = refs[key]
           node.base_path = base_path unless base_path.nil?
         end
-        true
+        refs_path
       end
     end
   end

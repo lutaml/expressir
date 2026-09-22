@@ -4,15 +4,14 @@ require "spec_helper"
 require "tempfile"
 
 # Review findings #397 and #406.
-RSpec.describe "repository parse-failure and mutual-USE handling" do
+RSpec.describe Expressir::Express::Parser do # review findings #397/#406
   def write_sources(sources)
-    files = sources.map do |name, source|
+    sources.map do |name, source|
       f = Tempfile.new(["#{name}1", ".exp"])
       f.write(source)
       f.close
       f
     end
-    files
   end
 
   describe "#406 parse failures do not crash Repository#schemas" do
@@ -24,7 +23,7 @@ RSpec.describe "repository parse-failure and mutual-USE handling" do
       good.write("SCHEMA good;\nENTITY e;\n  x : STRING;\nEND_ENTITY;\nEND_SCHEMA;\n")
       good.close
 
-      repo = Expressir::Express::Parser.from_files([file.path, good.path])
+      repo = described_class.from_files([file.path, good.path])
       aggregate_failures do
         expect(repo.schemas.map(&:id)).to eq(["good"])
         expect(repo.files.count(nil)).to eq(1)
@@ -54,10 +53,10 @@ RSpec.describe "repository parse-failure and mutual-USE handling" do
           END_SCHEMA;
         EXP
       )
-      repo = Expressir::Express::Parser.from_files(files.map(&:path),
-                                                  skip_references: true)
+      repo = described_class.from_files(files.map(&:path),
+                                        skip_references: true)
       aggregate_failures do
-        expect(repo.schemas.map(&:id).map(&:downcase))
+        expect(repo.schemas.map { |s| s.id.downcase })
           .to contain_exactly("a", "b")
       end
       files.each(&:unlink)
@@ -82,8 +81,8 @@ RSpec.describe "repository parse-failure and mutual-USE handling" do
           END_SCHEMA;
         EXP
       )
-      repo = Expressir::Express::Parser.from_files(files.map(&:path),
-                                                  skip_references: true)
+      repo = described_class.from_files(files.map(&:path),
+                                        skip_references: true)
       schema_a = repo.schemas.find { |s| s.id.downcase == "a" }
       children = schema_a.children
       expect(children.map(&:id)).to include("x", "y")

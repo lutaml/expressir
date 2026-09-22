@@ -18,12 +18,17 @@ RSpec.describe Expressir::Express::Checker do
     [repository, files]
   end
 
+  def files
+    @files ||= []
+  end
+
   after do
-    (@files || []).each(&:unlink)
+    files.each(&:unlink)
   end
 
   def check(sources)
-    repository, @files = parse_repository(sources)
+    repository, parsed = parse_repository(sources)
+    files.concat(parsed)
     described_class.new(repository).check
   end
 
@@ -83,7 +88,7 @@ RSpec.describe Expressir::Express::Checker do
       )
       note = result.errors.find { |n| n.id == :check_unresolved_ref }
       expect(note).not_to be_nil
-      expect(note.message).to match(/missing/)
+      expect(note.message).to include("missing")
     end
   end
 

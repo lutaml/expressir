@@ -303,6 +303,15 @@ RSpec.describe Expressir::Model::Declarations::Schema do
       end
     end
 
+    it "returns the FULL schema text with AsciiDoc xref macros" do
+      aggregate_failures do
+        expect(faces_b.formatted_hyperlinked_adoc).to include("ENTITY b_spline")
+        expect(faces_b.formatted_hyperlinked_adoc)
+          .to match(/<<faces_a\.surface_model,surface_model>>/)
+        expect(faces_b.formatted_hyperlinked_adoc).not_to include("{{{")
+      end
+    end
+
     it "exposes both faces through the Liquid Drop" do
       plain = Liquid::Template.parse("{{ schema.source }}").render("schema" => faces_b)
       hyperlinked = Liquid::Template

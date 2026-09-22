@@ -76,6 +76,7 @@ module Expressir
         abs acos asin atan cos exp format hibound hiindex length
         log log2 log10 lobound loindex nvl odd rolesof sin sizeof
         sqrt tan typeof usedin value value_in value_unique exists
+        blength insert remove
       ].freeze
 
       private
@@ -88,6 +89,7 @@ module Expressir
       def check_schema(schema)
         check_duplicates(schema)
         check_interfaces(schema)
+        check_self_schema_reference(schema)
         schema.entities.each { |e| check_entity(schema, e) }
         schema.types.each do |t|
           check_type(schema, t)
@@ -95,6 +97,24 @@ module Expressir
         end
         schema.rules.each { |r| check_where_rules(schema, r, r.where_rules) }
         check_unresolved_refs(schema)
+      end
+
+      # Self-qualified literals naming the CURRENT schema (#125): local
+      # items must not be prefixed, foreign items must name their true
+      # defining schema (ISO 10303-11 scope rules).
+      def check_self_schema_reference(schema)
+        SelfSchemaReference.matches(schema).each do |match|
+          case match.status
+          when :local
+            note!(:check_self_schema_reference, :warning, schema,
+                  "self-qualified '#{schema.id}.#{match.item}' — " \
+                  "'#{match.item}' is local; drop the prefix", match.literal)
+          when :foreign
+            note!(:check_self_schema_reference, :warning, schema,
+                  "self-qualified '#{schema.id}.#{match.item}' — item is " \
+                  "defined in '#{match.source_schema.id}'", match.literal)
+          end
+        end
       end
 
       # Two declarations in one schema sharing a (case-insensitive) name is
@@ -200,34 +220,45 @@ module Expressir
         end
       end
 
-      # Follow SUBTYPE OF edges from +entity+; re-reaching a node already on
-      # the path is a cycle (self-subtyping included).
+      # Cycle detection over SUBTYPE OF edges: per-path tracking with a
+      # proven-acyclic memo, so convergent (diamond) branches are not
+      # misread as cycles (#411).
       def check_subtype_cycles(schema, entity)
-        path = [entity]
-        seen_on_path = { entity.id.safe_downcase => true }
-        frontier = Array(entity.subtype_of).filter_map do |ref|
-          id = ref.is_a?(String) ? ref : ref.id
-          find_entity(schema, id) if id
-        end
-        until frontier.empty?
-          current = frontier.pop
-          key = current.id.safe_downcase
-          if seen_on_path[key]
-            note!(:check_subtype_cycle, :error, schema,
-                  "ENTITY #{entity.id}: subtype inheritance cycle through " \
-                  "'#{current.id}'", entity)
-            return
-          end
-          seen_on_path[key] = true
-          path << current
-          Array(current.subtype_of).each do |ref|
-            id = ref.is_a?(String) ? ref : ref.id
-            next unless id
+        walk_subtype_edges(schema, entity, entity,
+                           [entity.id.safe_downcase], subtype_clean_memo(schema))
+      end
 
-            nxt = find_entity(schema, id)
-            frontier << nxt if nxt
+      def subtype_clean_memo(schema)
+        (@subtype_clean ||= {})[schema] ||= {}
+      end
+
+      # Returns true when a cycle is reachable from +node+; +path_keys+ is
+      # the current DFS chain and +clean+ memoizes nodes proven acyclic.
+      def walk_subtype_edges(schema, start, node, path_keys, clean)
+        cyclic = false
+        Array(node.subtype_of).each do |ref|
+          id = ref.is_a?(String) ? ref : ref.id
+          next unless id
+
+          nxt = find_entity(schema, id)
+          next unless nxt
+
+          key = nxt.id.safe_downcase
+          if path_keys.include?(key)
+            note!(:check_subtype_cycle, :error, schema,
+                  "ENTITY #{start.id}: subtype inheritance cycle through " \
+                  "'#{nxt.id}'", start)
+            cyclic = true
+          elsif clean[key]
+            next
+          else
+            cyclic ||= walk_subtype_edges(
+              schema, start, nxt, path_keys + [key], clean
+            )
           end
         end
+        clean[node.id.safe_downcase] = true unless cyclic
+        cyclic
       end
 
       def check_where_rules(schema, owner, rules)

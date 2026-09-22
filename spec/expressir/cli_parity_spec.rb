@@ -144,5 +144,16 @@ RSpec.describe Expressir::Cli do
         expect(parsed["errors"]).not_to be_empty
       end
     end
+
+    it "fails on an unparseable file instead of reporting clean (#413)" do
+      bad = write_source("bad", "SCHEMA bad;\nENTITY e\n  NOT EXPRESS ((( ;\n")
+      out = nil
+      code = nil
+      expect do
+        out, code = capture(["validate", "check", bad])
+      end.to output(/failed to parse/).to_stderr
+      expect(code).to eq(1)
+      expect(out).not_to include("0 error(s)")
+    end
   end
 end

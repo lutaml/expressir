@@ -13,7 +13,7 @@ module Expressir
             Dir["#{p}/**/*.exp"]
           else
             ParityInputs.closure_paths(
-              p, manifest: options[:manifest], stepmod: options[:stepmod],
+              p, manifest: options[:manifest], stepmod: options[:stepmod]
             ).select { |f| File.exist?(f) }
           end
         end.uniq

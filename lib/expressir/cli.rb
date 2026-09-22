@@ -18,14 +18,14 @@ module Expressir
     method_option :provenance, type: :boolean,
                                desc: "Include provenance information (ELF profile only)",
                                default: true
-    def format(path)
+    def format(path, _thor_options = nil)
       Expressir::Commands::Format.new(options).run(path)
     end
 
     desc "clean PATH", "Strip remarks and prettify EXPRESS schema at PATH"
     method_option :output, type: :string,
                            desc: "Output file path (defaults to stdout)"
-    def clean(path)
+    def clean(path, _thor_options = nil)
       Expressir::Commands::Clean.new(options).run(path)
     end
 
@@ -34,7 +34,7 @@ module Expressir
     method_option :output, type: :string,
                            aliases: "-o",
                            desc: "Output file path (defaults to stdout)"
-    def fix(path)
+    def fix(path, _thor_options = nil)
       Expressir::Commands::Fix.new(options).run(path)
     end
 
@@ -49,7 +49,7 @@ module Expressir
     method_option :stepmod, type: :string,
                             desc: "STEPmod checkout root — explicit opt-in to directory-" \
                                   "convention resolution as the fallback"
-    def expand(path)
+    def expand(path, _thor_options = nil)
       Expressir::Commands::Expand.new(options).run(path)
     end
 
@@ -70,7 +70,7 @@ module Expressir
     method_option :stepmod, type: :string,
                             desc: "STEPmod checkout root — explicit opt-in to directory-" \
                                   "convention resolution as the fallback"
-    def flatten(path)
+    def flatten(path, _thor_options = nil)
       Expressir::Commands::Flatten.new(options).run(path)
     end
 
@@ -82,7 +82,7 @@ module Expressir
     method_option :save, type: :boolean, desc: "Save benchmark results to file"
     method_option :format, type: :string,
                            desc: "Output format (json, csv, default)"
-    def benchmark(path)
+    def benchmark(path, _thor_options = nil)
       Expressir::Commands::Benchmark.new(options).run(path)
     end
 
@@ -95,7 +95,7 @@ module Expressir
                            desc: "Output format (json, csv, default)"
     method_option :cache_path, type: :string,
                                desc: "Path to store the cache file"
-    def benchmark_cache(path)
+    def benchmark_cache(path, _thor_options = nil)
       Expressir::Commands::BenchmarkCache.new(options).run(path)
     end
 

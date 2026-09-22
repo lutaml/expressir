@@ -6,7 +6,7 @@ module Expressir
     class Flatten < Base
       def run(path)
         root, repository = ParityInputs.root_schema(
-          path, manifest: options[:manifest], stepmod: options[:stepmod],
+          path, manifest: options[:manifest], stepmod: options[:stepmod]
         )
         exit_with_error "schema for #{path} not found in closure" unless root
 

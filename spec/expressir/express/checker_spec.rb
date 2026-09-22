@@ -194,6 +194,71 @@ RSpec.describe Expressir::Express::Checker do
     end
   end
 
+  describe "check-subtype-cycle (#411)" do
+    it "does not report a cycle for convergent (diamond) branches" do
+      result = check(
+        "d" => <<~EXP,
+          SCHEMA d;
+          ENTITY root;
+            x : STRING;
+          END_ENTITY;
+          ENTITY left SUBTYPE OF (root);
+            a : STRING;
+          END_ENTITY;
+          ENTITY right SUBTYPE OF (root);
+            b : STRING;
+          END_ENTITY;
+          ENTITY bottom SUBTYPE OF (left, right);
+            c : STRING;
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id)).not_to include(:check_subtype_cycle)
+    end
+
+    it "still reports true cycles" do
+      result = check(
+        "d" => <<~EXP,
+          SCHEMA d;
+          ENTITY p SUBTYPE OF (q);
+            x : STRING;
+          END_ENTITY;
+          ENTITY q SUBTYPE OF (p);
+            y : STRING;
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id)).to include(:check_subtype_cycle)
+    end
+  end
+
+  describe "check-unresolved-ref built-in coverage (#412)" do
+    it "does not flag blength, insert, or remove as unresolved" do
+      result = check(
+        "d" => <<~EXP,
+          SCHEMA d;
+          ENTITY e;
+            items : LIST [0:?] OF e;
+          END_ENTITY;
+          FUNCTION f(items : LIST [0:?] OF e) : INTEGER;
+            LOCAL n : INTEGER := 0; END_LOCAL;
+            IF SIZEOF(items) > 0 THEN
+              n := BLENGTH(items);
+            END_IF;
+            INSERT(items, e(''));
+            REMOVE(items);
+            RETURN (n);
+          END_FUNCTION;
+          END_SCHEMA;
+        EXP
+      )
+      unresolved = result.errors.select { |n| n.message =~ /blength|insert|remove/i }
+      expect(unresolved).to be_empty
+    end
+  end
+
   describe "clean schema" do
     it "reports no errors for a self-contained schema" do
       result = check(

@@ -5,7 +5,9 @@ module Expressir
     # `--concat_schema` over the root schema's closure.
     class Expand < Base
       def run(path)
-        root, repository = ParityInputs.root_schema(path)
+        root, repository = ParityInputs.root_schema(
+          path, manifest: options[:manifest], stepmod: options[:stepmod],
+        )
         exit_with_error "schema for #{path} not found in closure" unless root
 
         closure = Expressir::Express::Concatenator.closure(root, repository)

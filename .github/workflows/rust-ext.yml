@@ -18,6 +18,7 @@ jobs:
       - name: Build the expressir-core extension
         working-directory: ext/expressir_core
         run: |
+          gem install rb_sys
           ruby extconf.rb
           RB_SYS_CARGO_PROFILE=release make
       - name: Smoke test the bridge

@@ -220,34 +220,43 @@ module Expressir
         end
       end
 
-      # Follow SUBTYPE OF edges from +entity+; re-reaching a node already on
-      # the path is a cycle (self-subtyping included).
+      # Follow SUBTYPE OF edges from +entity+. Only re-reaching a node that
+      # is ON THE CURRENT PATH is a cycle (self-subtyping included);
+      # convergent branches (diamonds) are not — they re-meet off-path.
+      # `no_cycle_from` memoizes negatives so the walk stays linear.
       def check_subtype_cycles(schema, entity)
-        path = [entity]
-        seen_on_path = { entity.id.safe_downcase => true }
-        frontier = Array(entity.subtype_of).filter_map do |ref|
-          id = ref.is_a?(String) ? ref : ref.id
-          find_entity(schema, id) if id
-        end
-        until frontier.empty?
-          current = frontier.pop
-          key = current.id.safe_downcase
-          if seen_on_path[key]
-            note!(:check_subtype_cycle, :error, schema,
-                  "ENTITY #{entity.id}: subtype inheritance cycle through " \
-                  "'#{current.id}'", entity)
-            return
-          end
-          seen_on_path[key] = true
-          path << current
-          Array(current.subtype_of).each do |ref|
-            id = ref.is_a?(String) ? ref : ref.id
-            next unless id
+        cycle_found = walk_subtypes(schema, entity,
+                                    { entity.id.safe_downcase => true }, {})
+        return unless cycle_found
 
-            nxt = find_entity(schema, id)
-            frontier << nxt if nxt
+        note!(:check_subtype_cycle, :error, schema,
+              "ENTITY #{entity.id}: subtype inheritance cycle through " \
+              "'#{entity.id}'", entity)
+      end
+
+      def walk_subtypes(schema, entity, on_path, no_cycle_from)
+        key = entity.id.safe_downcase
+        Array(entity.subtype_of).each do |ref|
+          id = ref.is_a?(String) ? ref : ref.id
+          next unless id
+
+          nxt = find_entity(schema, id)
+          next unless nxt
+
+          nxt_key = nxt.id.safe_downcase
+          return true if on_path.key?(nxt_key)
+          next if no_cycle_from.key?(nxt_key)
+
+          on_path[nxt_key] = true
+          if walk_subtypes(schema, nxt, on_path, no_cycle_from)
+            no_cycle_from[key] = true
+            return true
           end
+          on_path.delete(nxt_key)
+          no_cycle_from[nxt_key] = true
         end
+        no_cycle_from[key] = true
+        false
       end
 
       def check_where_rules(schema, owner, rules)
@@ -358,9 +367,10 @@ module Expressir
         integer real number string binary boolean logical generic
         generic_entity aggregate array bag list set
         true false unknown self const_e pi
-        abs acos asin atan cos exp format hibound hiindex length
+        abs acos asin atan blength cos exp format hibound hiindex length
         log log2 log10 lobound loindex nvl odd rolesof sin sizeof
         sqrt tan typeof usedin value value_in value_unique exists
+        insert remove
       ].freeze
 
       def builtin?(id)

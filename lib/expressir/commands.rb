@@ -8,6 +8,7 @@ module Expressir
     autoload :Clean, "#{__dir__}/commands/clean"
     autoload :Coverage, "#{__dir__}/commands/coverage"
     autoload :Expand, "#{__dir__}/commands/expand"
+    autoload :Fix, "#{__dir__}/commands/fix"
     autoload :Flatten, "#{__dir__}/commands/flatten"
     autoload :Format, "#{__dir__}/commands/format"
     autoload :ParityInputs, "#{__dir__}/commands/parity_inputs"

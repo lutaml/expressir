@@ -1,0 +1,141 @@
+# frozen_string_literal: true
+
+module Expressir
+  # MIM application-element mapping model (expressir#88,
+  # TODO.parity-ee 18): the typed reader for the `mapping.yaml` files
+  # each STEP module carries, and validation of the
+  # `<<express:SCHEMA.ITEM,ITEM>>` links they contain against a
+  # resolved ARM/MIM repository.
+  #
+  # The model is lutaml-model Serializable — the yaml face is the
+  # module corpus format (top-level `ae` + `sc` keys); fields the
+  # corpus carries that v1 does not model (alt_map, descriptions)
+  # are ignored by the mapping and survive round-trips untouched in
+  # the source files.
+  module Mapping
+    EXPRESS_LINK = /<<express:([^,>]+)(?:,([^>]+))?>>/
+
+    class ReferencePath < Lutaml::Model::Serializable
+      attribute :content, :string
+
+      key_value do
+        map "content", to: :content
+      end
+    end
+
+    class AttributeMapping < Lutaml::Model::Serializable
+      attribute :attribute, :string
+      attribute :aimelt, :string
+      attribute :inherited_from_entity, :string
+      attribute :assertion_to, :string
+      attribute :refpath, ReferencePath
+
+      key_value do
+        map "attribute", to: :attribute
+        map "aimelt", to: :aimelt
+        map "inherited_from_entity", to: :inherited_from_entity
+        map "assertion_to", to: :assertion_to
+        map "refpath", to: :refpath
+      end
+    end
+
+    class ApplicationElement < Lutaml::Model::Serializable
+      attribute :entity, :string
+      attribute :aimelt, :string
+      attribute :extensible, :string
+      attribute :original_module, :string
+      attribute :refpath, ReferencePath
+      attribute :aa, AttributeMapping, collection: true
+
+      key_value do
+        map "entity", to: :entity
+        map "aimelt", to: :aimelt
+        map "extensible", to: :extensible
+        map "original_module", to: :original_module
+        map "refpath", to: :refpath
+        map "aa", to: :aa
+      end
+    end
+
+    class SubtypeConstraintMapping < Lutaml::Model::Serializable
+      attribute :constraint, :string
+      attribute :entity, :string
+
+      key_value do
+        map "constraint", to: :constraint
+        map "entity", to: :entity
+      end
+    end
+
+    class Document < Lutaml::Model::Serializable
+      attribute :ae, ApplicationElement, collection: true
+      attribute :sc, SubtypeConstraintMapping, collection: true
+
+      key_value do
+        map "ae", to: :ae
+        map "sc", to: :sc
+      end
+    end
+
+    UnknownLink = Struct.new(:text, :schema, :item, keyword_init: true)
+
+    module_function
+
+    # @param path [String] path to a module mapping.yaml
+    # @return [Document]
+    def load_file(path)
+      Document.from_yaml(File.read(path))
+    end
+
+    # Every `<<express:...>>` link in the document, as
+    # [schema_id, item_id] pairs (duplicates preserved).
+    def links(document)
+      values(document).flat_map do |value|
+        value.to_s.scan(EXPRESS_LINK).map do |path, _id|
+          parts = path.split(".")
+          [parts[-2], parts[-1]]
+        end
+      end
+    end
+
+    # Links whose schema or item cannot be found in +repository+.
+    # A link with no item part resolves against schema presence only.
+    def unknown_links(document, repository)
+      known = repository.schemas.to_h do |schema|
+        [schema.id.safe_downcase, schema]
+      end
+      links(document).filter_map do |schema_id, item_id|
+        schema = known[schema_id&.safe_downcase]
+        if schema.nil?
+          next UnknownLink.new(text: "#{schema_id}.#{item_id}",
+                               schema: schema_id, item: item_id)
+        end
+        next if item_id.nil?
+
+        unless item_declared?(schema, item_id)
+          next UnknownLink.new(text: "#{schema_id}.#{item_id}",
+                               schema: schema_id, item: item_id)
+        end
+
+        nil
+      end
+    end
+
+    def item_declared?(schema, item_id)
+      key = item_id.safe_downcase
+      %i[types entities functions procedures rules constants
+         subtype_constraints].any? do |coll|
+        Array(schema.public_send(coll)).any? do |decl|
+          decl.respond_to?(:id) && decl.id&.safe_downcase == key
+        end
+      end
+    end
+
+    def values(document)
+      document.ae.to_a.flat_map do |element|
+        [element.entity, element.aimelt] +
+          element.aa.to_a.flat_map { |aa| [aa.attribute, aa.aimelt] }
+      end.compact
+    end
+  end
+end

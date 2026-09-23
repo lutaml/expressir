@@ -76,12 +76,12 @@ RSpec.describe Expressir::Commands::ParityInputs do
       end
     end
 
-    it "warns with a resolver hint when a dependency is missing" do
+    it "raises with a resolver hint when a dependency is missing (#449: exit nonzero)" do
       Dir.mktmpdir("resolver") do |dir|
         root = write(dir, "mim.exp", mim_body)
         expect do
           described_class.closure_paths(root)
-        end.to output(/m_arm.*--manifest/).to_stderr
+        end.to raise_error(Thor::Error, /m_arm.*--manifest/)
       end
     end
   end
@@ -89,11 +89,11 @@ RSpec.describe Expressir::Commands::ParityInputs do
   describe ".root_schema" do
     it "parses the root schema without resolving references" do
       Dir.mktmpdir("resolver") do |dir|
-        root = write(dir, "mim.exp", mim_body)
+        root = write(dir, "solo.exp", "SCHEMA solo;\nENTITY e; x : STRING; END_ENTITY;\nEND_SCHEMA;\n")
         root_schema, repo = described_class.root_schema(root)
         aggregate_failures do
-          expect(root_schema.id).to eq("m_mim")
-          expect(repo.files.first.schemas.first.id).to eq("m_mim")
+          expect(root_schema.id).to eq("solo")
+          expect(repo.files.first.schemas.first.id).to eq("solo")
         end
       end
     end

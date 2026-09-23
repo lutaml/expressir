@@ -293,32 +293,31 @@ RSpec.describe Expressir::Express::Checker do
   end
 
   describe "check-select-named-type" do
-    it "flags a select item naming an entity" do
+    it "accepts select items naming entities (#438: named_types include entities)" do
       result = check(
         "d" => <<~EXP,
-          SCHEMA d;
-          ENTITY e;
-            x : STRING;
-          END_ENTITY;
-          TYPE pick = SELECT (e);
-          END_TYPE;
-          END_SCHEMA;
-        EXP
-      )
-      expect(result.errors.map(&:id)).to include(:check_select_named_type)
-    end
-
-    it "accepts select items naming types" do
-      result = check(
-        "d" => <<~EXP,
-          SCHEMA d;
-          TYPE label = STRING; END_TYPE;
-          TYPE pick = SELECT (label);
+          SCHEMA sel;
+          ENTITY person; name : STRING; END_ENTITY;
+          ENTITY organization; name : STRING; END_ENTITY;
+          TYPE party = SELECT (person, organization);
           END_TYPE;
           END_SCHEMA;
         EXP
       )
       expect(result.errors.map(&:id)).not_to include(:check_select_named_type)
+    end
+
+    it "flags select items naming neither a type nor an entity" do
+      result = check(
+        "d" => <<~EXP,
+          SCHEMA sel;
+          TYPE label = STRING; END_TYPE;
+          TYPE bad = SELECT (label, no_such_thing);
+          END_TYPE;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id)).to include(:check_select_named_type)
     end
   end
 

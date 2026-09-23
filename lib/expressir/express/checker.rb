@@ -307,20 +307,32 @@ module Expressir
 
         Array(type.underlying_type.items).each do |item|
           next if item.id.nil?
-          next if find_type(schema, item.id)
-          next if find_entity(schema, item.id).nil? # unresolved handled elsewhere
+          next if select_item_resolves?(schema, item.id)
 
           note!(:check_select_named_type, :error, schema,
-                "TYPE #{type.id}: select item '#{item.id}' is an entity, " \
-                "not a named type", type)
+                "In the SELECT TYPE #{type.id}, '#{item.id}' does not " \
+                "name an existing TYPE or ENTITY", type)
         end
       end
 
       def find_type(schema, id)
         key = id.safe_downcase
-        return schema.types.find { |t| t.id.safe_downcase == key } if schema
+        schema.types.find { |t| t.id.safe_downcase == key }
+      end
 
-        nil
+      # ISO 10303-11 rule 258: select_list items are named_types —
+      # entity_ref | type_ref. The item is fine when it names either,
+      # in this schema or any repository schema (interface-visible).
+      def select_item_resolves?(schema, id)
+        return true if find_entity(schema, id)
+        return true if schema.types.to_a.any? { |t| t.id.safe_downcase == id.safe_downcase }
+
+        @by_name.each_value.any? do |group|
+          group.any? do |other|
+            other.types.to_a.any? { |t| t.id.safe_downcase == id.safe_downcase } ||
+              other.entities.to_a.any? { |e| e.id.safe_downcase == id.safe_downcase }
+          end
+        end
       end
 
       # eeng declared-kind probe: :type when a TYPE of that name is

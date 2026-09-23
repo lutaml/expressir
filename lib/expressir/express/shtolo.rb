@@ -33,12 +33,21 @@ module Expressir
       #                 closure into its base type (Annex G.2.3/G.2.4);
       #                 :none leaves extensible types exactly as declared —
       #                 the shape eengine's default --flat emits.
+      # `prune`        — true (default) runs the G.1.9 prune pass;
+      #                 false keeps the artifact's full declaration set.
+      # `stage`        — :longform (default) runs the G.2 rewrites;
+      #                 :artifact stops after stage 1 — the annex's
+      #                 intermediate schema, the shape eengine's
+      #                 --concat_schema output corresponds to (copy
+      #                 pass, no prune, no 1994 rewrite).
       def initialize(root_schema, repository, longform_name: nil,
-                     extenders: :all)
+                     extenders: :all, prune: true, stage: :longform)
         @root = root_schema
         @repository = repository
         @longform_name = longform_name || @root.id
         @extenders = extenders
+        @prune = prune
+        @stage = stage
         @reference_entities = [] # G.1.6 entities
       end
 
@@ -274,7 +283,8 @@ module Expressir
 
       def build_longform
         artifact = build_artifact
-        prune!(artifact)
+        prune!(artifact) if @prune
+        return artifact if @stage == :artifact
 
         if @extenders == :all
           resolve_extensible_enumerations!(artifact)

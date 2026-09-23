@@ -17,8 +17,3 @@ serde_json = "1.0"
 # is built by rb_sys with its own cargo invocation.
 [workspace]
 
-# Same magnus/rb-sys pins as parsanol-ruby (Ruby 4.0 support).
-[patch.crates-io]
-magnus = { git = "https://github.com/matsadler/magnus", rev = "9407bd9" }
-magnus-macros = { git = "https://github.com/matsadler/magnus", rev = "9407bd9" }
-rb-sys = { git = "https://github.com/oxidize-rb/rb-sys.git", rev = "daa12b6521a0c442a705d7f9a929029119aab1d6" }

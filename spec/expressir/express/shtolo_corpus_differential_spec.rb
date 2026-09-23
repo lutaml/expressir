@@ -32,8 +32,8 @@ require "tmpdir"
 RSpec.describe Expressir::Express::Shtolo, :production_scale do
   let(:eeng) do
     ENV.fetch("EENG_BIN", nil) ||
-      File.expand_path("~/src/external/exp-engine-engine/eengine-5.0.20-Beta1-mac00sbcl",
-                       __dir__)
+      [File.expand_path("~/src/external/exp-engine-engine/eengine-5.0.20-Beta1-mac00sbcl",
+                        __dir__), "eengine"].find { |candidate| File.executable?(candidate) || !candidate.include?("/") }
   end
 
   let(:stepmod) do
@@ -108,8 +108,8 @@ RSpec.describe Expressir::Express::Shtolo, :production_scale do
   end
 
   def flatten_trial(arm, dir)
-    files = Expressir::Commands::ParityInputs.closure_paths(arm)
-      .select { |f| File.exist?(f) }
+    files = Expressir::Commands::ParityInputs
+      .closure_paths(arm, stepmod: stepmod).select { |f| File.exist?(f) }
     repo = Expressir::Express::Parser.from_files(files)
     name = "#{File.basename(File.dirname(arm)).downcase}_arm"
     root = repo.schemas.find { |s| s.id.safe_downcase == name }
@@ -124,9 +124,11 @@ RSpec.describe Expressir::Express::Shtolo, :production_scale do
 
   # {kind => {downcased name => formatted body}} across all schemas.
   # A name-only diff cannot see changed WHERE rules or attribute
-  # types; bodies can. Bodies compare CASE-INSENSITIVELY: eengine's
-  # writers lowercase identifiers, expressir preserves declared case,
-  # and the differential is after structure, not letter case.
+  # types; bodies can. Bodies compare CASE-INSENSITIVELY (eengine's
+  # writers lowercase identifiers) and with remark lines stripped:
+  # eengine's concatenation interleaves `-- <schema> (path)`
+  # separator comments, which land on the following declaration when
+  # re-parsed and are not part of the declaration.
   def declaration_bodies(path)
     repo = Expressir::Express::Parser.from_files([path])
     bodies = Hash.new { |h, k| h[k] = {} }
@@ -136,6 +138,7 @@ RSpec.describe Expressir::Express::Shtolo, :production_scale do
           next unless decl.respond_to?(:id) && decl.id
 
           body = Expressir::Express::Formatter.format(decl)
+            .gsub(/^\s*--[^\n]*\n?/, "")
           bodies[kind][decl.id.safe_downcase] = body.downcase
         end
       end

@@ -45,6 +45,7 @@ module Expressir
     autoload :SchemaSourceFormatter, "#{__dir__}/express/schema_source_formatter"
     autoload :ScopeResolver, "#{__dir__}/express/scope_resolver"
     autoload :SmrlXml, "#{__dir__}/express/smrl_xml"
+    autoload :Xsd, "#{__dir__}/express/xsd"
     autoload :SourceFormatter, "#{__dir__}/express/source_formatter"
     autoload :StreamingBuilder, "#{__dir__}/express/streaming_builder"
   end

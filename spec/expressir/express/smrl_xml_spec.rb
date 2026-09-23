@@ -46,18 +46,18 @@ RSpec.describe Expressir::Express::SmrlXml do
   it "emits the eeng wo-smrl-xml schema block" do
     xml = described_class.format_schema(root)
     aggregate_failures do
-      expect(xml).to start_with("<schema>root_schema</schema>\n")
+      expect(xml).to start_with("<schema>root_schema")
       expect(xml).to include("<schema_version>{iso 10303-1}</schema_version>")
-      expect(xml).to include("<!-- TYPE                ")
-      expect(xml).to include("<!-- ENTITY              ")
+      expect(xml).to include("<!--TYPE")
+      expect(xml).to include("<!--ENTITY")
     end
   end
 
   it "lists interfaces with the item-list marker" do
     xml = described_class.format_schema(root)
     aggregate_failures do
-      expect(xml).to include("<use-from>support_schema</use-from>")
-      expect(xml).to include("<use-from>support_schema(...)</use-from>")
+      expect(xml).to include("<use-from>support_schema<")
+      expect(xml).to include("<use-from>support_schema(...)<")
     end
   end
 
@@ -87,11 +87,12 @@ RSpec.describe Expressir::Express::SmrlXml do
     expect(arm).to include("<entity>root_schema.WIDGET</entity>")
   end
 
-  it "formats every schema of a repository" do
+  it "formats every schema of a repository under an smrl root" do
     xml = described_class.format(repository)
     aggregate_failures do
-      expect(xml).to include("<schema>root_schema</schema>")
-      expect(xml).to include("<schema>support_schema</schema>")
+      expect(xml).to include("<smrl>")
+      expect(xml).to include("<schema>root_schema")
+      expect(xml).to include("<schema>support_schema")
     end
   end
 

@@ -7,15 +7,25 @@ require "tmpdir"
 # Corpus differential for the SHTOLO flattener (TODO.parity-ee/14):
 # for every module ARM in the STEPmod checkout, flatten it OUR way and
 # compare against eengine's own concatenated reference. The primary
-# gate is parser-level (we read eengine's reference file and diff the
-# declaration sets ourselves); eengine's --concat_compare verdict is
-# honored as a second signal wherever its report printer survives.
+# gate is parser-level AND body-level: we read eengine's reference
+# file with our parser and diff every declaration's formatted text —
+# names, kinds, and bodies. eengine's --concat_compare verdict is a
+# second signal where its report printer survives.
 #
-# eeng 5.0.20-Beta1 is the oracle binary — 5.1.0's cleanup rejects
-# these files ("Unable to neutralize NIL"), and its compare printer
-# dies with an unbound INTERFACE-ADD-VALUE slot on some genuine
-# differences. MIM concatenates exceed the oracle's pass-2 parser, so
-# the corpus is the ARM set.
+# ORACLE_CRASH IS NOT PARITY: eengine's report printer dies with an
+# unbound INTERFACE-ADD-VALUE slot whenever the compare finds an
+# interface-level difference it cannot print — and the artifact-stage
+# trial deliberately has no interfaces, so eeng almost always finds
+# one. Crashed modules are classified :unverified (eengine confirmed
+# nothing) and reported in the failure message; the body-level diff
+# is what actually gates. The printer bug exists in 5.0.20-Beta1,
+# 5.1.0, and 5.2.8 alike. MIM concatenates exceed the oracle's pass-2
+# parser, so the corpus is the ARM set.
+#
+# Interfaces are excluded from the body diff BY DESIGN: the artifact
+# stage produces one merged schema with the interface closure already
+# dissolved into it, while eeng's concatenation keeps interface
+# clauses per schema.
 #
 # Runs only when the oracle exists and SHTOLO_CORPUS is set; module
 # count bounded by SHTOLO_CORPUS_LIMIT (default 10).
@@ -37,14 +47,17 @@ RSpec.describe Expressir::Express::Shtolo, :production_scale do
     File.exist?(list) ? File.readlines(list).map(&:strip).reject(&:empty?) : []
   end
 
+  def kinds
+    %i[types entities functions procedures rules constants]
+  end
+
   before do
     skip "oracle binary not present" unless File.executable?(eeng)
     skip "STEPmod checkout not present" unless File.directory?(stepmod)
     skip "set SHTOLO_CORPUS=1 to run" unless ENV["SHTOLO_CORPUS"]
   end
 
-  it "carries the same declarations as eengine's concatenated reference" do
-    acceptable = %i[same oracle_crash]
+  it "carries the same declarations and bodies as eengine's reference" do
     verdicts = Hash.new(0)
     failures = []
 
@@ -53,7 +66,8 @@ RSpec.describe Expressir::Express::Shtolo, :production_scale do
       if File.exist?(arm)
         verdict = compare_module(arm)
         verdicts[verdict] += 1
-        failures << "#{name}(#{verdict})" unless acceptable.include?(verdict)
+        ok = %i[same unverified]
+        failures << "#{name}(#{verdict})" unless ok.include?(verdict)
       else
         verdicts[:missing] += 1
       end
@@ -63,9 +77,11 @@ RSpec.describe Expressir::Express::Shtolo, :production_scale do
                         "verdicts #{verdicts.inspect}; failing modules: #{failures.join(', ')}"
   end
 
-  # :same          declaration sets match AND eengine agrees
-  # :oracle_crash  sets match; eengine's own printer crashed (its bug)
-  # :different     sets disagree — a real parity gap
+  # :same          bodies match AND eengine agrees
+  # :unverified    our body-level diff is clean but eengine's compare
+  #                crashed before rendering its verdict (its printer
+  #                bug) — reported, never treated as pass evidence
+  # :different     declarations or bodies disagree — a real parity gap
   # :concat_error / :flatten_error  pipeline failures
   def compare_module(arm)
     Dir.mktmpdir("shtolo-corpus") do |dir|
@@ -75,11 +91,11 @@ RSpec.describe Expressir::Express::Shtolo, :production_scale do
       trial = flatten_trial(arm, dir)
       return :flatten_error unless trial
 
-      return :different unless declaration_sets_equal?(trial, reference)
+      return :different unless declaration_bodies_equal?(trial, reference)
 
       out = run_eeng("--concat_compare", "-mode", "arm_concatenated",
                      "-trial_schema", trial, "-reference_schema", reference)
-      return :oracle_crash if out.nil? || out.include?(";; Error")
+      return :unverified if out.nil? || out.include?(";; Error")
 
       out.include?("** No differences detected **") ? :same : :different
     end
@@ -106,22 +122,29 @@ RSpec.describe Expressir::Express::Shtolo, :production_scale do
     trial
   end
 
-  def declaration_set(path)
-    kinds = %i[types entities functions procedures rules constants]
+  # {kind => {downcased name => formatted body}} across all schemas.
+  # A name-only diff cannot see changed WHERE rules or attribute
+  # types; bodies can. Bodies compare CASE-INSENSITIVELY: eengine's
+  # writers lowercase identifiers, expressir preserves declared case,
+  # and the differential is after structure, not letter case.
+  def declaration_bodies(path)
     repo = Expressir::Express::Parser.from_files([path])
-    set = Hash.new { |h, k| h[k] = Set.new }
+    bodies = Hash.new { |h, k| h[k] = {} }
     repo.schemas.each do |schema|
       kinds.each do |kind|
         Array(schema.public_send(kind)).each do |decl|
-          set[kind] << decl.id.safe_downcase if decl.respond_to?(:id) && decl.id
+          next unless decl.respond_to?(:id) && decl.id
+
+          body = Expressir::Express::Formatter.format(decl)
+          bodies[kind][decl.id.safe_downcase] = body.downcase
         end
       end
     end
-    set
+    bodies
   end
 
-  def declaration_sets_equal?(trial, reference)
-    declaration_set(trial) == declaration_set(reference)
+  def declaration_bodies_equal?(trial, reference)
+    declaration_bodies(trial) == declaration_bodies(reference)
   end
 
   def run_eeng(*args)

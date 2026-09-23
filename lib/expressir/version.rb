@@ -3,6 +3,6 @@ module Expressir
   # autoload it (Ruby autoload only works for module/class constants, not
   # for string constants like `Expressir::VERSION`).
   module Version
-    VERSION = "2.4.10".freeze
+    VERSION = "2.4.11".freeze
   end
 end

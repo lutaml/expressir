@@ -1,46 +1,101 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "fileutils"
 require "tmpdir"
 
-# Review finding #398: the STEPmod schema index must (1) find the ancestor
-# directory named `schemas` from any depth below it, and (2) key entries on
-# the declared schema name — wg12-step module files are arm.exp / mim.exp.
 RSpec.describe Expressir::Commands::ParityInputs do
-  let(:dir) { Dir.mktmpdir("stepmod-") }
-
-  after { FileUtils.remove_entry(dir) }
-
-  def write(rel_path, content)
-    path = File.join(dir, rel_path)
-    FileUtils.mkdir_p(File.dirname(path))
-    File.write(path, content)
-    path
+  def write(dir, name, body)
+    File.write(File.join(dir, name), body)
+    File.join(dir, name)
   end
 
-  it "finds the schemas root from below modules/ and keys on schema names" do
-    write("schemas/modules/ap_tool/arm.exp",
-          "SCHEMA Ap_tool_arm;\nUSE FROM support_resource_schema (label);\n" \
-          "ENTITY base;\n  x : STRING;\nEND_ENTITY;\nEND_SCHEMA;\n")
-    write("schemas/modules/ap_tool/mim.exp",
-          "SCHEMA Ap_tool_mim;\nUSE FROM Ap_tool_arm (base);\n" \
-          "ENTITY part;\n  y : base;\nEND_ENTITY;\nEND_SCHEMA;\n")
-    write("schemas/resources/support_resource_schema/support_resource_schema.exp",
-          "SCHEMA support_resource_schema;\nTYPE label = STRING; END_TYPE;\nEND_SCHEMA;\n")
+  def arm_body
+    <<~EXP
+      SCHEMA m_arm;
+      ENTITY thing; a : STRING; END_ENTITY;
+      END_SCHEMA;
+    EXP
+  end
 
-    mim = File.join(dir, "schemas/modules/ap_tool/mim.exp")
-    paths = described_class.closure_paths(mim)
+  def mim_body
+    <<~EXP
+      SCHEMA m_mim;
+      USE FROM m_arm (thing);
+      ENTITY thing; a : STRING; END_ENTITY;
+      END_SCHEMA;
+    EXP
+  end
 
-    aggregate_failures do
-      expect(paths).to include(mim)
-      expect(paths).to include(
-        File.join(dir, "schemas/modules/ap_tool/arm.exp"),
-      )
-      expect(paths).to include(
-        File.join(dir, "schemas/resources/support_resource_schema/" \
-                       "support_resource_schema.exp"),
-      )
+  describe ".closure_paths" do
+    it "resolves through an ELF schema manifest first" do
+      Dir.mktmpdir("resolver") do |dir|
+        arm = write(dir, "arm_anywhere.exp", arm_body)
+        mim = write(dir, "mim_anywhere.exp", mim_body)
+        manifest = File.join(dir, "manifest.yaml")
+        File.write(manifest, <<~YAML)
+          ---
+          schemas:
+            m_arm:
+              path: #{arm}
+            m_mim:
+              path: #{mim}
+        YAML
+        root = write(dir, "mim.exp", mim_body)
+
+        paths = described_class.closure_paths(root, manifest: manifest)
+        expect(paths).to include(arm)
+      end
+    end
+
+    it "resolves through a STEPmod root as the fallback" do
+      Dir.mktmpdir("resolver") do |dir|
+        schemas = File.join(dir, "schemas")
+        FileUtils.mkdir_p(schemas)
+        arm = write(schemas, "m_arm.exp", arm_body)
+        _ = write(schemas, "m_mim.exp", mim_body)
+        root = write(schemas, "mim.exp", mim_body)
+
+        paths = described_class.closure_paths(root, stepmod: dir)
+        # m_arm.exp / m_mim.exp live under schemas/ with names that only
+        # the stepmod directory convention can resolve
+        expect(paths).to include(arm)
+      end
+    end
+
+    it "strips remarks before scanning interface names" do
+      Dir.mktmpdir("resolver") do |dir|
+        root = write(dir, "plain.exp", <<~EXP)
+          SCHEMA plain;
+          -- use from the main schema
+          ENTITY e; x : STRING; END_ENTITY;
+          END_SCHEMA;
+        EXP
+
+        paths = described_class.closure_paths(root)
+        expect(paths).to eq([root])
+      end
+    end
+
+    it "warns with a resolver hint when a dependency is missing" do
+      Dir.mktmpdir("resolver") do |dir|
+        root = write(dir, "mim.exp", mim_body)
+        expect do
+          described_class.closure_paths(root)
+        end.to output(/m_arm.*--manifest/).to_stderr
+      end
+    end
+  end
+
+  describe ".root_schema" do
+    it "parses the root schema without resolving references" do
+      Dir.mktmpdir("resolver") do |dir|
+        root = write(dir, "mim.exp", mim_body)
+        root_schema, repo = described_class.root_schema(root)
+        aggregate_failures do
+          expect(root_schema.id).to eq("m_mim")
+          expect(repo.files.first.schemas.first.id).to eq("m_mim")
+        end
+      end
     end
   end
 end

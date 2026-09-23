@@ -109,7 +109,9 @@ RSpec.describe Expressir::Cli do
     it "exits 1 when a check fires" do
       bad = write_source("bad", <<~EXP)
         SCHEMA bad;
-        USE FROM missing (e);
+        ENTITY e;
+          items : LIST [5:2] OF STRING;
+        END_ENTITY;
         END_SCHEMA;
       EXP
       _out, code = capture(["validate", "check", bad])
@@ -133,7 +135,9 @@ RSpec.describe Expressir::Cli do
     it "emits JSON when --json is passed" do
       bad = write_source("bad", <<~EXP)
         SCHEMA bad;
-        USE FROM missing (e);
+        ENTITY e;
+          items : LIST [5:2] OF STRING;
+        END_ENTITY;
         END_SCHEMA;
       EXP
       out, _code = capture(["validate", "check", "--json", bad])

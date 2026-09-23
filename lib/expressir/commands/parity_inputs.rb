@@ -1,4 +1,5 @@
 require "find"
+require "thor"
 
 module Expressir
   module Commands
@@ -42,8 +43,9 @@ module Expressir
           end
         end
         unless missing.empty?
-          warn "expressir: schema(s) not found: #{missing.uniq.join(', ')}" \
-               "#{resolver_hint(manifest, stepmod)}"
+          raise Thor::Error,
+                "expressir: schema(s) not found: #{missing.uniq.join(', ')}" \
+                "#{resolver_hint(manifest, stepmod)}"
         end
         seen.values.compact.uniq
       end
@@ -90,14 +92,37 @@ module Expressir
         return manifest_index(manifest) if manifest
         return stepmod_index(stepmod) if stepmod
 
-        same_dir_index(root_path)
+        # Default: the file's own directory plus, when the root sits
+        # inside a STEPmod checkout, its enclosing `schemas/` tree —
+        # the layout wg12-step modules live in.
+        index = same_dir_index(root_path)
+        ancestor = ancestor_schemas_dir(root_path)
+        index.update(stepmod_index(File.dirname(ancestor))) if ancestor
+        index
+      end
+
+      # Nearest ancestor directory NAMED `schemas`, or nil.
+      def ancestor_schemas_dir(root_path)
+        dir = File.dirname(File.expand_path(root_path))
+        until dir == "/"
+          return dir if File.basename(dir) == "schemas"
+
+          dir = File.dirname(dir)
+        end
+        nil
       end
 
       def same_dir_index(root_path)
         dir = File.dirname(File.expand_path(root_path))
-        Dir.glob(File.join(dir, "*.exp")).to_h do |p|
-          [File.basename(p, ".exp").downcase, p]
+        h = {}
+        Dir.glob(File.join(dir, "*.exp")).each do |path|
+          # index by DECLARED schema name first (a file named arm.exp
+          # may declare schema m_arm), basename as fallback
+          declared = File.read(path)[/\bSCHEMA\s+(\w+)/i, 1]
+          h[declared.downcase] = path if declared
+          h[File.basename(path, ".exp").downcase] ||= path
         end
+        h
       end
 
       # Interface names declared by +source+. Remark text is stripped

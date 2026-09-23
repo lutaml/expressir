@@ -24,5 +24,7 @@ module Expressir
     autoload :Version, "#{__dir__}/commands/version"
     autoload :Package, "#{__dir__}/commands/package"
     autoload :Manifest, "#{__dir__}/commands/manifest"
+    autoload :MappingValidate, "#{__dir__}/commands/mapping_validate"
+    autoload :Xsd, "#{__dir__}/commands/xsd"
   end
 end

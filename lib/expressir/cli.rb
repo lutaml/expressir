@@ -99,6 +99,18 @@ module Expressir
       Expressir::Commands::BenchmarkCache.new(options).run(path)
     end
 
+    desc "mapping_validate PATH", "Validate <<express:...>> links in a module mapping.yaml against its ARM/MIM closure"
+    def mapping_validate(path)
+      Expressir::Commands::MappingValidate.new(options).run(path)
+    end
+
+    desc "xsd PATH", "Write an XML Schema rendering of the EXPRESS schema at PATH"
+    method_option :output, type: :string, aliases: "-o",
+                           desc: "Output file path (defaults to stdout)"
+    def xsd(path)
+      Expressir::Commands::Xsd.new(options).run(path)
+    end
+
     desc "validate SUBCOMMAND", "EXPRESS schema validation commands"
     subcommand "validate", Expressir::Commands::Validate
 

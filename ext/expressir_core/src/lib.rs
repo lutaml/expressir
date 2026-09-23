@@ -304,6 +304,45 @@ fn set_count(_ruby: &Ruby, reader: &SetReader) -> usize {
     reader.set.files.len()
 }
 
+/// Every wire path in the artifact, in artifact order — no hydration.
+fn set_wire_paths(_ruby: &Ruby, reader: &SetReader) -> Result<magnus::Value, Error> {
+    let paths = RArray::with_capacity(reader.set.files.len());
+    for file in &reader.set.files {
+        paths.push(ruby_str(_ruby, &file.wire_path))?;
+    }
+    Ok(paths.as_value())
+}
+
+fn ruby_str(ruby: &Ruby, s: &str) -> magnus::Value {
+    ruby.str_new(s).as_value()
+}
+
+/// `[wire_path, model]` for ONE file, addressed by wire path — the
+/// lazy-access path (M2): callers hydrate only the schemas a render
+/// touches instead of the whole set.
+fn set_hydrate_one(ruby: &Ruby, reader: &SetReader, wire_path: String) -> Result<magnus::Value, Error> {
+    let file = reader
+        .set
+        .files
+        .iter()
+        .find(|f| f.wire_path == wire_path)
+        .ok_or_else(|| {
+            Error::new(
+                ruby.exception_runtime_error(),
+                format!("wire path {wire_path} not in compiled set"),
+            )
+        })?;
+    let wire = file.wire().map_err(|e| {
+        Error::new(ruby.exception_runtime_error(), format!("{}: {e}", file.wire_path))
+    })?;
+    let mut cache = reader.cache.lock().expect("class cache");
+    let model = value_to_ruby(ruby, &mut cache, &wire)?;
+    let pair = RArray::with_capacity(2);
+    pair.push(ruby.str_new(&file.wire_path))?;
+    pair.push(model)?;
+    Ok(pair.as_value())
+}
+
 /// `[wire_path, model]` for the next file in artifact order, nil at
 /// the end.
 fn set_next(ruby: &Ruby, reader: &SetReader) -> Result<magnus::Value, Error> {
@@ -441,6 +480,8 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     set_class.define_method("digest", method!(set_digest, 0))?;
     set_class.define_method("count", method!(set_count, 0))?;
     set_class.define_method("next", method!(set_next, 0))?;
+    set_class.define_method("wire_paths", method!(set_wire_paths, 0))?;
+    set_class.define_method("hydrate_one", method!(set_hydrate_one, 1))?;
     set_class.define_method("matches_sources", method!(set_matches_sources, 1))?;
     Ok(())
 }

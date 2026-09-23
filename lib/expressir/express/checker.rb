@@ -93,6 +93,7 @@ module Expressir
         schema.entities.each { |e| check_entity(schema, e) }
         schema.types.each do |t|
           check_type(schema, t)
+          check_select_items(schema, t)
           check_where_rules(schema, t, t.where_rules)
         end
         schema.rules.each { |r| check_where_rules(schema, r, r.where_rules) }
@@ -208,7 +209,15 @@ module Expressir
 
           note!(:check_subtype_ref, :error, schema,
                 "ENTITY #{entity.id}: subtype '#{id}' not found", entity)
+          next unless declared_kind(schema, id) == :type
+
+          # eeng check-subtypeof-invalid: the name exists but is not
+          # an entity, so it cannot be a supertype.
+          note!(:check_subtypeof_invalid, :error, schema,
+                "ENTITY #{entity.id}: subtype '#{id}' is a TYPE, " \
+                "not an entity", entity)
         end
+        check_supertype_refs(schema, entity)
         check_subtype_cycles(schema, entity)
 
         check_where_rules(schema, entity, entity.where_rules)
@@ -259,6 +268,66 @@ module Expressir
         end
         clean[node.id.safe_downcase] = true unless cyclic
         cyclic
+      end
+
+      # eeng check-supertype-ref: every entity named in the SUPERTYPE
+      # expression must resolve to an entity of this schema.
+      def check_supertype_refs(schema, entity)
+        expr = entity.supertype_expression
+        return unless expr
+
+        each_reference(expr) do |ref|
+          id = ref.id
+          next if id.nil? || find_entity(schema, id)
+
+          note!(:check_supertype_ref, :error, schema,
+                "ENTITY #{entity.id}: supertype '#{id}' not found", entity)
+        end
+      end
+
+      def each_reference(node, &)
+        case node
+        when Model::References::SimpleReference then yield node
+        when Model::ModelElement
+          node.class.attributes.each_key do |attr|
+            next if Model::ModelElement::SKIP_ATTRIBUTES.include?(attr) || attr == :parent
+
+            value = node.public_send(attr)
+            case value
+            when Array then value.each { |item| each_reference(item, &) }
+            when Model::ModelElement then each_reference(value, &)
+            end
+          end
+        end
+      end
+
+      # eeng check-select-named-type: SELECT items must name types.
+      def check_select_items(schema, type)
+        return unless type.underlying_type.is_a?(Model::DataTypes::Select)
+
+        Array(type.underlying_type.items).each do |item|
+          next if item.id.nil?
+          next if find_type(schema, item.id)
+          next if find_entity(schema, item.id).nil? # unresolved handled elsewhere
+
+          note!(:check_select_named_type, :error, schema,
+                "TYPE #{type.id}: select item '#{item.id}' is an entity, " \
+                "not a named type", type)
+        end
+      end
+
+      def find_type(schema, id)
+        key = id.safe_downcase
+        return schema.types.find { |t| t.id.safe_downcase == key } if schema
+
+        nil
+      end
+
+      # eeng declared-kind probe: :type when a TYPE of that name is
+      # visible in the schema (used to separate not-found from
+      # not-an-entity in subtype diagnostics).
+      def declared_kind(schema, id)
+        :type if find_type(schema, id)
       end
 
       def check_where_rules(schema, owner, rules)

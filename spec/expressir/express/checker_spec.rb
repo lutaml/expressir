@@ -259,6 +259,69 @@ RSpec.describe Expressir::Express::Checker do
     end
   end
 
+  describe "check-subtypeof-invalid" do
+    it "flags a SUBTYPE OF naming a TYPE" do
+      result = check(
+        "d" => <<~EXP,
+          SCHEMA d;
+          TYPE thing = STRING; END_TYPE;
+          ENTITY e SUBTYPE OF (thing);
+            x : STRING;
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id)).to include(:check_subtypeof_invalid)
+    end
+  end
+
+  describe "check-supertype-ref" do
+    it "flags an unknown entity in the SUPERTYPE expression" do
+      result = check(
+        "d" => <<~EXP,
+          SCHEMA d;
+          ENTITY base ABSTRACT SUPERTYPE OF (ONEOF(a, ghost));
+          END_ENTITY;
+          ENTITY a SUBTYPE OF (base);
+            x : STRING;
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id)).to include(:check_supertype_ref)
+    end
+  end
+
+  describe "check-select-named-type" do
+    it "flags a select item naming an entity" do
+      result = check(
+        "d" => <<~EXP,
+          SCHEMA d;
+          ENTITY e;
+            x : STRING;
+          END_ENTITY;
+          TYPE pick = SELECT (e);
+          END_TYPE;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id)).to include(:check_select_named_type)
+    end
+
+    it "accepts select items naming types" do
+      result = check(
+        "d" => <<~EXP,
+          SCHEMA d;
+          TYPE label = STRING; END_TYPE;
+          TYPE pick = SELECT (label);
+          END_TYPE;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id)).not_to include(:check_select_named_type)
+    end
+  end
+
   describe "clean schema" do
     it "reports no errors for a self-contained schema" do
       result = check(

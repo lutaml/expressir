@@ -351,13 +351,17 @@ module Expressir
         end
       end
 
-      # Every identifier a call site names, across the artifact's
-      # surviving declarations: FunctionCall for functions and
-      # ProcedureCall statements for procedures. (A zero-argument
-      # function reference written bare is not represented as a
-      # FunctionCall by the parser and is counted via any SimpleReference
-      # miss — accepted v1 blind spot, see tranche notes.)
+      # Every identifier a call site or reference names, across the
+      # artifact's surviving declarations: FunctionCall for functions,
+      # ProcedureCall statements for procedures, and ANY SimpleReference
+      # naming a schema function/procedure — a zero-argument function
+      # used bare (`v < limit_value`) parses as a plain reference, not
+      # a FunctionCall, and dropping it would leave the longform with a
+      # dangling call. Over-retaining is safe: prune only decides what
+      # may be dropped.
       def called_ids(schema)
+        invocable = (schema.functions.to_a + schema.procedures.to_a)
+          .map { |d| d.id.safe_downcase }
         called = {}
         each_node(schema) do |node|
           id = nil
@@ -366,8 +370,10 @@ module Expressir
             id = node.function.is_a?(String) ? node.function : node.function&.id
           when Expressir::Model::Statements::ProcedureCall
             id = node.procedure.is_a?(String) ? node.procedure : node.procedure&.id
+          when Model::References::SimpleReference
+            id = node.id
           end
-          called[id.safe_downcase] = true if id
+          called[id.safe_downcase] = true if id && invocable.include?(id.safe_downcase)
         end
         called
       end

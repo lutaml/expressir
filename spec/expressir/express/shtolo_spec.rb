@@ -297,6 +297,23 @@ RSpec.describe Expressir::Express::Shtolo do
     end
   end
 
+  describe "G.1.9 bare zero-arg function references (#439 follow-up)" do
+    it "keeps a bare zero-argument function used in a WHERE rule" do
+      sources = { "d" => <<~EXP }
+        SCHEMA d;
+        FUNCTION limit_value : INTEGER;
+          RETURN (10);
+        END_FUNCTION;
+        ENTITY e; v : INTEGER; WHERE wr1 : v < limit_value; END_ENTITY;
+        END_SCHEMA;
+      EXP
+      repository, files = parse_repository(sources)
+      longform = flatten(schema_of(repository, "d"), repository)
+      files.each(&:unlink)
+      expect(longform.functions.map(&:id)).to eq(["limit_value"])
+    end
+  end
+
   describe "extenders: :none" do
     it "extenders: none leaves the extensible select as declared" do
       sources = {

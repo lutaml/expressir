@@ -97,6 +97,11 @@ module Expressir
           check_where_rules(schema, t, t.where_rules)
         end
         schema.rules.each { |r| check_where_rules(schema, r, r.where_rules) }
+        schema.entities.each do |entity|
+          check_aggregate_bounds(schema, entity)
+          check_attrib_name_fun(schema, entity)
+        end
+        check_string_references(schema)
         check_unresolved_refs(schema)
       end
 
@@ -340,6 +345,82 @@ module Expressir
       # not-an-entity in subtype diagnostics).
       def declared_kind(schema, id)
         :type if find_type(schema, id)
+      end
+
+      # eeng check-agg-type: a two-bound aggregate whose lower bound
+      # exceeds its upper bound is invalid.
+      def check_aggregate_bounds(schema, entity)
+        entity.attributes.to_a.each do |attr|
+          type = attr.type
+          next unless type.respond_to?(:bound1) && type.respond_to?(:bound2)
+
+          lower = integer_bound(type.bound1)
+          upper = integer_bound(type.bound2)
+          next if lower.nil? || upper.nil?
+          next if lower <= upper
+
+          note!(:check_agg_type, :error, schema,
+                "ENTITY #{entity.id}: aggregate '#{attr.id}' bounds " \
+                "[#{lower}:#{upper}] are inverted", attr)
+        end
+      end
+
+      def integer_bound(bound)
+        return nil unless bound.is_a?(Model::Literals::Integer)
+
+        bound.value.to_i
+      rescue StandardError
+        nil
+      end
+
+      # eeng check-attrib-name-fun: an attribute sharing its name with
+      # a function of the same schema can never be referenced cleanly.
+      def check_attrib_name_fun(schema, entity)
+        funs = schema.functions.to_a.map { |f| f.id.safe_downcase }
+        entity.attributes.to_a.each do |attr|
+          next unless attr.id && funs.include?(attr.id.safe_downcase)
+
+          note!(:check_attrib_name_fun, :warning, schema,
+                "ENTITY #{entity.id}: attribute '#{attr.id}' shadows a " \
+                "function of the same name", attr)
+        end
+      end
+
+      # eeng check-string-no-entity: string literals of the shape
+      # 'SCHEMA.ITEM' whose SCHEMA is known in the repository but whose
+      # ITEM is not declared in it (the TYPEOF idiom).
+      def check_string_references(schema)
+        known = @by_name
+        each_string(schema) do |literal, value|
+          match = /\A(\w+)\.(\w+)\z/.match(value)
+          next unless match
+
+          schema_id = match[1].safe_downcase
+          item_id = match[2].safe_downcase
+          target = known[schema_id]&.find { |s| s.id.safe_downcase == schema_id }
+          next unless target
+          next if Expressir::Express::SelfSchemaReference.declared?(target, item_id)
+
+          note!(:check_string_no_entity, :warning, schema,
+                "string '#{value}' references '#{item_id}' which is not " \
+                "declared in schema '#{target.id}'", literal)
+        end
+      end
+
+      def each_string(node, &)
+        case node
+        when Model::Literals::String then yield node, node.value
+        when Model::ModelElement
+          node.class.attributes.each_key do |attr|
+            next if Model::ModelElement::SKIP_ATTRIBUTES.include?(attr) || attr == :parent
+
+            value = node.public_send(attr)
+            case value
+            when Array then value.each { |item| each_string(item, &) }
+            when Model::ModelElement then each_string(value, &)
+            end
+          end
+        end
       end
 
       def check_where_rules(schema, owner, rules)

@@ -321,6 +321,75 @@ RSpec.describe Expressir::Express::Checker do
     end
   end
 
+  describe "check-agg-type" do
+    it "flags inverted aggregate bounds" do
+      result = check(
+        "d" => <<~EXP,
+          SCHEMA d;
+          ENTITY e;
+            items : LIST [5:2] OF STRING;
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id)).to include(:check_agg_type)
+    end
+
+    it "accepts ordered aggregate bounds" do
+      result = check(
+        "d" => <<~EXP,
+          SCHEMA d;
+          ENTITY e;
+            items : LIST [2:5] OF STRING;
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id)).not_to include(:check_agg_type)
+    end
+  end
+
+  describe "check-attrib-name-fun" do
+    it "warns when an attribute shadows a function name" do
+      result = check(
+        "d" => <<~EXP,
+          SCHEMA d;
+          ENTITY e;
+            weight : INTEGER;
+          END_ENTITY;
+          FUNCTION weight(x : INTEGER) : INTEGER;
+            RETURN (x);
+          END_FUNCTION;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.warnings.map(&:id)).to include(:check_attrib_name_fun)
+    end
+  end
+
+  describe "check-string-no-entity" do
+    it "flags 'SCHEMA.ITEM' strings whose item is not declared" do
+      result = check(
+        "a" => <<~EXP,
+          SCHEMA a;
+          USE FROM b (thing);
+          ENTITY e;
+            x : STRING;
+          WHERE
+            wr1 : TYPEOF(x) <> 'B.GHOST';
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+        "b" => <<~EXP,
+          SCHEMA b;
+          ENTITY thing; y : STRING; END_ENTITY;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.warnings.map(&:id)).to include(:check_string_no_entity)
+    end
+  end
+
   describe "clean schema" do
     it "reports no errors for a self-contained schema" do
       result = check(

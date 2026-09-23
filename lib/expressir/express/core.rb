@@ -43,6 +43,24 @@ module Expressir
         ::Expressir::Core.parse_to_model(source, path)
       end
 
+      # Lazy handle over a compiled-set artifact (M2): `wire_paths`
+      # lists the set's files without hydrating anything; `hydrate_one`
+      # builds a single file's model on demand. Renderers that touch
+      # one schema per page hydrate one schema per page instead of the
+      # whole repository.
+      def self.lazy_set(path)
+        unless NATIVE_AVAILABLE
+          raise NotImplementedError,
+                "lazy set unavailable without the native extension"
+        end
+        unless ::Expressir::Core.const_defined?(:Set) &&
+            ::Expressir::Core::Set.method_defined?(:hydrate_one)
+          raise NotImplementedError, "lazy set unavailable; ext too old"
+        end
+
+        ::Expressir::Core::Set.open(path)
+      end
+
       # Compile many files concurrently: jobs are [read_path,
       # wire_path] pairs; the block receives (wire_path, model, error)
       # per job in completion order. Workers run on native threads, so

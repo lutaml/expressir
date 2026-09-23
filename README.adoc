@@ -215,6 +215,8 @@ Commands:
   expressir flatten PATH                       # Flatten the interface closure into an ISO 10303-11:1994 longform schema
   expressir fix PATH                           # Rewrite self-schema-qualified references (#125)
   expressir format PATH                        # pretty print EXPRESS schema located at PATH
+  expressir mapping_validate PATH              # Validate <<express:...>> links in a module mapping.yaml against its ARM/MIM closure
+  expressir xsd PATH -o OUT.xsd                # Write an XML Schema rendering of the EXPRESS schema at PATH
   expressir help [COMMAND]                     # Describe available commands or one specific command
   expressir validate load *PATH                # validate EXPRESS schema located at PATH
   expressir validate ascii PATH                # Validate EXPRESS files for ASCII-only content (excluding remarks)
@@ -1266,7 +1268,38 @@ The default text output displays:
 This helps identify areas of your EXPRESS schemas that need documentation
 improvement.
 
-=== EXPRESS Changes files
+=== Schema hyperlinked source faces
+
+`Schema#source`, `Schema#source_hyperlinked`, and
+`Schema#formatted_hyperlinked(_adoc)` render a schema head or the full
+schema with cross-references either verbatim or as links (the adoc
+variant emits `<<schema.item,item>>` xref macros — render inside a
+`[source,subs="+macros"]` block for live links; see the
+`Expressir::Express::SmrlXml` and `Expressir::Express::Xsd` writers
+for the XML faces).
+
+== MIM mapping validation (mapping.yaml)
+
+`expressir mapping_validate PATH` loads a module `mapping.yaml`
+(lutaml-model typed: `Expressir::Mapping::Document`) and resolves every
+`<<express:SCHEMA.ITEM,ITEM>>` link against the ARM/MIM interface
+closure, reporting links whose schema or item is unknown.
+
+== XML faces
+
+- `Expressir::Express::SmrlXml.format(repository)` — the SMRL index
+  block per schema (eeng wo-smrl-xml shape).
+- `Expressir::Express::Xsd.format(schema)` — an XML Schema rendering
+  (entities as element/complexType, substitutionGroup for subtypes,
+  enumeration facets).
+
+== Lazy compiled-set access
+
+`Expressir::Express::Core.lazy_set(artifact)` lists a compiled set's
+wire paths without hydrating and hydrates individual files on demand —
+renderers that touch one schema per page hydrate one schema per page.
+
+== EXPRESS Changes files
 
 Expressir provides commands for working with EXPRESS Changes files that track
 schema modifications across versions.

@@ -3,60 +3,77 @@
 module Expressir
   module Express
     # SMRL index XML writer — the shape eengine's wo-smrl-xml.lisp
-    # emits (the data layer of the STEP Module Resource Library
-    # document set, expressir #276 / TODO.parity-ee 15).
+    # produces (the data layer of the STEP Module Resource Library
+    # document set, expressir #276 / TODO.parity-ee 15), built with
+    # moxml's node API — no hand-serialized XML strings.
     #
-    # Per schema, in eeng's exact layout:
-    #   <schema>downcased_name</schema>
-    #      <schema_version>...</schema_version>      (when present)
-    #     <!-- TYPE n --> ... count comments
-    #     <use-from>schema(...)</use-from>           (per interface)
-    #     <constant>name</constant>                  (sorted)
-    #     <type>SCHEMA.name</type> ... declarations in kind order
-    #     (types, entities, subtype_constraints, functions, rules,
-    #     procedures), alphabetical inside each kind. In ARM mode
-    #     entity names keep their declared case upcased, matching
-    #     eeng's ARM rendering.
+    # Per schema: downcased <schema> id, <schema_version> when
+    # present, per-kind count comments, <use_from> per interface
+    # (item-list marker), sorted <constant> names, then declarations
+    # in eeng's kind order (types, entities, subtype_constraints,
+    # functions, rules, procedures), alphabetical inside each kind,
+    # schema-qualified names; ARM mode upcases entity names.
+    #
+    # format        — one document with an <smrl> root, one <schema>
+    #                 element per repository schema.
+    # format_schema — a standalone document whose root is the schema
+    #                 element (the per-file fragment eeng emits).
     module SmrlXml
       module_function
 
-      # @param repository [Model::Repository, #schemas]
-      # @param mode [Symbol] :resource (default), :arm, :mim — the
-      #   eeng -mode whose case conventions apply to entity names
-      # @return [String] the concatenated schema blocks
       def format(repository, mode: :resource)
         schemas = repository.respond_to?(:schemas) ? repository.schemas : Array(repository)
-        schemas.map { |schema| format_schema(schema, mode: mode) }.join
+        ctx = Moxml::Context.new
+        doc = ctx.create_document
+        root = doc.create_element("smrl")
+        doc.add_child(root)
+        schemas.each { |schema| root.add_child(schema_element(doc, schema, mode)) }
+        doc.to_xml
       end
 
       def format_schema(schema, mode: :resource)
-        out = +""
-        out << "<schema>#{schema.id.downcase}</schema>\n"
+        ctx = Moxml::Context.new
+        doc = ctx.create_document
+        doc.add_child(schema_element(doc, schema, mode))
+        doc.to_xml
+      end
+
+      def schema_element(doc, schema, mode)
+        element = doc.create_element("schema")
+        element.add_child(doc.create_text(schema.id.downcase))
         if schema.version&.value
-          out << "   <schema_version>#{schema.version.value}</schema_version>\n"
+          version = doc.create_element("schema_version")
+          version.add_child(doc.create_text(schema.version.value))
+          element.add_child(version)
         end
         counts = declaration_counts(schema)
         %i[type entity function procedure rule subtype_constraint].each do |kind|
           label = kind.to_s.split("_").map(&:upcase).join("_")
-          out << Kernel.format("  <!-- %-19s %4d -->\n", label, counts[kind])
+          element.add_child(doc.create_comment(Kernel.format("%-19s %4d",
+                                                             label, counts[kind])))
         end
-
         interfaces(schema).each do |iface|
-          item_list = iface.items.to_a.empty? ? "" : "(...)"
-          out << "    <use-from>#{iface.schema.id.downcase}#{item_list}</use-from>\n"
+          items = iface.items.to_a.empty? ? "" : "(...)"
+          add_text_element(doc, element, "use-from",
+                           "#{iface.schema.id.downcase}#{items}")
         end
-
         constants(schema).each do |decl|
-          out << "  <constant>#{decl.id.downcase}</constant>\n"
+          add_text_element(doc, element, "constant", decl.id.downcase)
         end
-
         declarations(schema).each do |kind, decls|
           tag = kind.to_s.tr("_", "-")
           decls.each do |decl|
-            out << "  <#{tag}>#{schema.id}.#{name_for(kind, decl.id, mode)}</#{tag}>\n"
+            add_text_element(doc, element, tag,
+                             "#{schema.id}.#{name_for(kind, decl.id, mode)}")
           end
         end
-        out
+        element
+      end
+
+      def add_text_element(doc, parent, tag, text)
+        node = doc.create_element(tag)
+        node.add_child(doc.create_text(text))
+        parent.add_child(node)
       end
 
       # eeng's entity casing: ARM mode upcases entity names; every
@@ -94,7 +111,6 @@ module Expressir
         rules: :rule,
         procedures: :procedure,
       }.freeze
-      private_constant :COLL_BY_KIND
 
       def declarations(schema)
         COLL_BY_KIND.filter_map do |coll, kind|

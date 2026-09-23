@@ -290,7 +290,7 @@ module Expressir
         end
       end
 
-      def each_reference(node, &)
+      def each_reference(node, &block)
         case node
         when Model::References::SimpleReference then yield node
         when Model::ModelElement
@@ -299,8 +299,8 @@ module Expressir
 
             value = node.public_send(attr)
             case value
-            when Array then value.each { |item| each_reference(item, &) }
-            when Model::ModelElement then each_reference(value, &)
+            when Array then value.each { |item| each_reference(item, &block) }
+            when Model::ModelElement then each_reference(value, &block)
             end
           end
         end
@@ -407,7 +407,7 @@ module Expressir
         end
       end
 
-      def each_string(node, &)
+      def each_string(node, &block)
         case node
         when Model::Literals::String then yield node, node.value
         when Model::ModelElement
@@ -416,8 +416,8 @@ module Expressir
 
             value = node.public_send(attr)
             case value
-            when Array then value.each { |item| each_string(item, &) }
-            when Model::ModelElement then each_string(value, &)
+            when Array then value.each { |item| each_string(item, &block) }
+            when Model::ModelElement then each_string(value, &block)
             end
           end
         end

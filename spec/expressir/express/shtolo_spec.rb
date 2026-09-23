@@ -252,6 +252,51 @@ RSpec.describe Expressir::Express::Shtolo do
     end
   end
 
+  describe "G.1.9 prune edge cases (#439)" do
+    it "reduces SUBTYPE_CONSTRAINTs with AND without crashing" do
+      sources = { "d" => <<~EXP }
+        SCHEMA d;
+        ENTITY r; END_ENTITY;
+        ENTITY a SUBTYPE OF (r); END_ENTITY;
+        ENTITY b SUBTYPE OF (r); END_ENTITY;
+        ENTITY c SUBTYPE OF (r); END_ENTITY;
+        SUBTYPE_CONSTRAINT sc FOR r;
+          ONEOF(a, b) AND c;
+        END_SUBTYPE_CONSTRAINT;
+        END_SCHEMA;
+      EXP
+      repository, files = parse_repository(sources)
+      longform = flatten(schema_of(repository, "d"), repository)
+      files.each(&:unlink)
+      text = Expressir::Express::Formatter.format(longform)
+      aggregate_failures do
+        expect(text).to include("a")
+        expect(text).to include("c")
+      end
+    end
+
+    it "keeps called procedures" do
+      sources = { "d" => <<~EXP }
+        SCHEMA d;
+        ENTITY e; v : INTEGER; WHERE wr1 : f(v) > 0; END_ENTITY;
+        PROCEDURE bump(VAR x : INTEGER); x := x + 1; END_PROCEDURE;
+        FUNCTION f(a : INTEGER) : INTEGER;
+          LOCAL y : INTEGER := a; END_LOCAL;
+          bump(y);
+          RETURN (y);
+        END_FUNCTION;
+        END_SCHEMA;
+      EXP
+      repository, files = parse_repository(sources)
+      longform = flatten(schema_of(repository, "d"), repository)
+      files.each(&:unlink)
+      aggregate_failures do
+        expect(longform.functions.map(&:id)).to eq(["f"])
+        expect(longform.procedures.map(&:id)).to eq(["bump"])
+      end
+    end
+  end
+
   describe "extenders: :none" do
     it "extenders: none leaves the extensible select as declared" do
       sources = {

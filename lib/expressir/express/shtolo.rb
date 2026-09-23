@@ -351,15 +351,22 @@ module Expressir
         end
       end
 
-      # Every identifier a FunctionCall site names, across the
-      # artifact's surviving declarations.
+      # Every identifier a call site names, across the artifact's
+      # surviving declarations: FunctionCall for functions and
+      # ProcedureCall statements for procedures. (A zero-argument
+      # function reference written bare is not represented as a
+      # FunctionCall by the parser and is counted via any SimpleReference
+      # miss — accepted v1 blind spot, see tranche notes.)
       def called_ids(schema)
         called = {}
         each_node(schema) do |node|
-          next unless node.is_a?(Model::Expressions::FunctionCall)
-
-          ref = node.function
-          id = ref.is_a?(String) ? ref : ref&.id
+          id = nil
+          case node
+          when Expressir::Model::Expressions::FunctionCall
+            id = node.function.is_a?(String) ? node.function : node.function&.id
+          when Expressir::Model::Statements::ProcedureCall
+            id = node.procedure.is_a?(String) ? node.procedure : node.procedure&.id
+          end
           called[id.safe_downcase] = true if id
         end
         called
@@ -392,19 +399,28 @@ module Expressir
       def reduce_supertype_expression(expr, visible_ids)
         case expr
         when Model::SupertypeExpressions::OneofSupertypeExpression
-          refs = Array(expr.operands).select do |ref|
-            id = ref.is_a?(String) ? ref : ref.id
-            id.nil? || visible_ids.key?(id.safe_downcase)
+          reduced = expr.operands.filter_map do |operand|
+            reduce_supertype_expression(operand, visible_ids)
           end
-          return nil if refs.empty?
+          return nil if reduced.empty?
 
-          refs.one? ? refs.first : reset_oneof(expr, refs)
+          reduced.one? ? reduced.first : reset_oneof(expr, reduced)
         when Model::SupertypeExpressions::BinarySupertypeExpression
-          left = reduce_supertype_expression(expr.operands[0], visible_ids)
-          right = reduce_supertype_expression(expr.operands[1], visible_ids)
-          return nil if left.nil? && right.nil?
+          left = reduce_supertype_expression(expr.operand1, visible_ids)
+          right = reduce_supertype_expression(expr.operand2, visible_ids)
+          if left.nil?
+            return right
+          end
+          if right.nil?
+            return left
+          end
 
-          left || right
+          rebuild_binary(expr, left, right)
+        when Model::References::SimpleReference
+          id = expr.id
+          return nil if id && !visible_ids.key?(id.safe_downcase)
+
+          expr
         else
           expr
         end
@@ -413,6 +429,13 @@ module Expressir
       def reset_oneof(expr, refs)
         copy = deep_copy(expr)
         copy.operands = refs
+        copy
+      end
+
+      def rebuild_binary(expr, left, right)
+        copy = deep_copy(expr)
+        copy.operand1 = left
+        copy.operand2 = right
         copy
       end
 

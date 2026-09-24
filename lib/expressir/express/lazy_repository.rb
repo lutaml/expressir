@@ -21,7 +21,7 @@ module Expressir
       # @param read_paths [Hash{String => String}] wire path => source path
       def initialize(set_path, read_paths = {})
         @set_path = set_path
-        @set = Expressir::Core::Set.open(set_path)
+        @set = Core.lazy_set(set_path)
         @read_paths = read_paths
         @wire_paths = @set.wire_paths
         @mutex = Mutex.new

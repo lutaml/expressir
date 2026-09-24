@@ -6,6 +6,10 @@ require "tempfile"
 # M2 slice 2: schemas hydrate per-file, on first touch — rendering one
 # schema costs one hydration, not the whole repository.
 RSpec.describe Expressir::Express::LazyRepository do
+  before do
+    skip "native extension not compiled" unless Expressir::Express::Core::NATIVE_AVAILABLE
+  end
+
   # Real files in a kept tmpdir: Tempfile GC-deletes its path, which
   # would make the parity example's eager re-parse hit ENOENT.
   let(:artifact) do

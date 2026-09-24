@@ -89,6 +89,8 @@ RSpec.describe Expressir::Express::Shtolo, :production_scale do
 
   let(:eeng) do
     [ENV.fetch("EENG_BIN", nil),
+     # `rake oracle:fetch` caches the pinned expresslang release here
+     File.expand_path("../../../tmp/oracle/eengine", __dir__),
      File.expand_path("~/src/external/exp-engine-engine/eengine-5.0.20-Beta1-mac00sbcl",
                       __dir__)]
       .compact.find { |candidate| File.executable?(candidate) } ||
@@ -117,7 +119,8 @@ RSpec.describe Expressir::Express::Shtolo, :production_scale do
       raise "EENG_BIN=#{bin} is not an executable"
     end
 
-    skip "oracle binary not present (set EENG_BIN or put eengine on PATH)" unless eeng
+    skip "oracle binary not present (run bundle exec rake oracle:fetch, "\
+         "set EENG_BIN, or put eengine on PATH)" unless eeng
     skip "STEPmod checkout not present at #{stepmod} (set STEPMOD_ROOT)" unless File.directory?(stepmod)
     skip "set SHTOLO_CORPUS=1 to run" unless ENV["SHTOLO_CORPUS"]
   end

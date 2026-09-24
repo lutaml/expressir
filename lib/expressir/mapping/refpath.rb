@@ -153,34 +153,40 @@ module Expressir
         by_name = name_index(repository)
         issues = []
         prev = nil
+        last_qualified = nil
         path.steps.each_with_index do |step, pos|
-          if MARKERS.include?(step.operator)
-            prev = nil
-            next
-          end
+          # markers never break the running link, mirroring parse
+          next if MARKERS.include?(step.operator)
 
-          issues.concat(check_step(step, pos, prev, by_name))
+          issues.concat(check_step(step, pos, prev, last_qualified, by_name))
           prev = step if step.name
+          last_qualified = step if step.name && step.attribute
         end
         issues
       end
 
+      EXPRESS_BUILTINS = %w[NUMBER INTEGER REAL STRING BOOLEAN LOGICAL
+                            BINARY].freeze
+      private_constant :EXPRESS_BUILTINS
+
       def name_index(repository)
+        index = EXPRESS_BUILTINS.to_h { |b| [b.downcase, [nil, nil]] }
         repository.schemas.flat_map do |schema|
           DECLARATION_COLLECTIONS.flat_map do |coll|
             Array(schema.public_send(coll))
               .select { |d| d.respond_to?(:id) && d.id }
               .map { |d| [d.id.safe_downcase, [schema, d]] }
           end
-        end.to_h
+        end.each { |pair| index[pair[0]] = pair[1] }
+        index
       end
 
-      def check_step(step, pos, prev, by_name)
+      def check_step(step, pos, prev, last_qualified, by_name)
         found = by_name[step.name&.safe_downcase]
         return [Issue.new(step: pos, message: "unknown type '#{step.name}'")] unless found
 
         issues = attribute_issues(step, pos, found[1], by_name)
-        issues.concat(link_issues(step, pos, prev, by_name))
+        issues.concat(link_issues(step, pos, prev, last_qualified, by_name))
         issues
       end
 
@@ -239,7 +245,7 @@ module Expressir
                             "aggregate but carries [#{step.index}]")]
       end
 
-      def link_issues(step, pos, prev, by_name)
+      def link_issues(step, pos, prev, last_qualified, by_name)
         return [] unless LINKS.include?(step.operator)
         unless prev && step.name
           return [Issue.new(step: pos,
@@ -247,7 +253,8 @@ module Expressir
         end
 
         case step.operator
-        when "->", "<-" then attribute_link_issues(step, pos, prev)
+        when "->", "<-"
+          attribute_link_issues(step, pos, prev, last_qualified)
         when "<=" then subtype_link_issues(step, pos, prev, by_name)
         when "=>" then supertype_link_issues(step, pos, prev, by_name)
         end
@@ -255,18 +262,26 @@ module Expressir
 
       # `->`: the attribute-qualified node precedes the operator;
       # `<-`: it follows (the entity before <- is referenced BY the
-      # attribute after it).
-      def attribute_link_issues(step, pos, prev)
-        qualified = step.operator == "->" ? prev : step
-        side = step.operator == "->" ? "before" : "after"
-        unless qualified&.attribute
-          return [Issue.new(step: pos,
-                            message: "'#{step.operator}' requires an " \
-                                     "attribute-qualified node #{side} it, " \
-                                     "got '#{qualified&.name}'")]
+      # attribute after it). An aggregate dereference `[i]` keeps the
+      # running attribute owner qualified for the next link
+      # (`attr -> list_type[i] -> element_type`).
+      def attribute_link_issues(step, pos, prev, last_qualified)
+        if step.operator == "->"
+          qualified = prev&.attribute ? prev : (prev&.index ? last_qualified : nil)
+          unless qualified&.attribute
+            return [Issue.new(step: pos,
+                              message: "'->' requires an attribute-qualified " \
+                                       "node before it, got '#{prev&.name}'")]
+          end
+
+          return []
         end
 
-        []
+        return [] if step.attribute
+
+        [Issue.new(step: pos,
+                   message: "'<-' requires an attribute-qualified node " \
+                            "after it, got '#{step.name}'")]
       end
 
       # `a <= b`: a is a subtype of b.

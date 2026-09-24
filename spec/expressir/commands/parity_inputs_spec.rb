@@ -84,6 +84,39 @@ RSpec.describe Expressir::Commands::ParityInputs do
         end.to raise_error(Thor::Error, /m_arm.*--manifest/)
       end
     end
+
+    it "raises when an explicitly given manifest cannot be loaded, even with no dependencies (#455)" do
+      Dir.mktmpdir("resolver") do |dir|
+        root = write(dir, "plain.exp", "SCHEMA plain;\nENTITY e; x : STRING; END_ENTITY;\nEND_SCHEMA;\n")
+        expect do
+          described_class.closure_paths(root, manifest: File.join(dir, "missing.yaml"))
+        end.to raise_error(Thor::Error, /could not load schema manifest .*missing\.yaml/)
+      end
+    end
+
+    it "prefers a same-directory declaration over an enclosing schemas/ tree (#455)" do
+      Dir.mktmpdir("resolver") do |dir|
+        schemas = File.join(dir, "schemas")
+        local = File.join(schemas, "sub")
+        FileUtils.mkdir_p(local)
+        # The tree's m_arm is found by declared name; the local file
+        # provides m_arm through its basename, so the two indexes
+        # genuinely disagree on which path m_arm resolves to.
+        tree_arm = write(schemas, "m_arm.exp", arm_body)
+        local_arm = write(local, "m_arm.exp", <<~EXP)
+          SCHEMA m_zebra;
+          ENTITY local_marker; b : STRING; END_ENTITY;
+          END_SCHEMA;
+        EXP
+        root = write(local, "mim.exp", mim_body)
+
+        paths = described_class.closure_paths(root)
+        aggregate_failures do
+          expect(paths).to include(local_arm)
+          expect(paths).not_to include(tree_arm)
+        end
+      end
+    end
   end
 
   describe ".root_schema" do

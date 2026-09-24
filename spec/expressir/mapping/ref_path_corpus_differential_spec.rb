@@ -12,6 +12,12 @@ require "tmpdir"
 #
 # Opt-in: REFPATH_CORPUS=1 with the checkout at STEPMOD_ROOT (default
 # ~/src/mn/iso-10303). Module count bounded by REFPATH_CORPUS_LIMIT.
+# Genuine drift already found in the corpus (mapping references a
+# type no shipped schema declares). New entries only via a finding.
+KNOWN_DRIFT_MODULES = [
+  "annotated_3d_model_equivalence_inspection_result",
+].freeze
+
 RSpec.describe Expressir::Mapping::RefPath, :production_scale do
   let(:stepmod) do
     ENV.fetch("STEPMOD_ROOT", nil) || File.expand_path("~/src/mn/iso-10303", __dir__)
@@ -23,12 +29,6 @@ RSpec.describe Expressir::Mapping::RefPath, :production_scale do
     skip "STEPmod checkout not present at #{stepmod} (set STEPMOD_ROOT)" unless File.directory?(stepmod)
     skip "set REFPATH_CORPUS=1 to run" unless ENV["REFPATH_CORPUS"]
   end
-
-  # Genuine drift already found in the corpus (mapping references a
-  # type no shipped schema declares). New entries only via a finding.
-  KNOWN_DRIFT = [
-    "annotated_3d_model_equivalence_inspection_result",
-  ].freeze
 
   it "validates every reference path in the module corpus" do
     modules = Dir.children(File.join(stepmod, "schemas/modules")).sort
@@ -52,7 +52,7 @@ RSpec.describe Expressir::Mapping::RefPath, :production_scale do
           parse_errors << "#{name} #{location}: #{error}"
         end
         described_class.validate(parsed, repo).each do |issue|
-          next if KNOWN_DRIFT.include?(name)
+          next if KNOWN_DRIFT_MODULES.include?(name)
 
           failures << "#{name} #{location} [step #{issue.step}]: #{issue.message}"
         end

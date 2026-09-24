@@ -89,6 +89,7 @@ RSpec.describe Expressir::Mapping::RefPath do
         expect(path.parse_errors).to be_empty
         target = path.steps.find { |s| s.operator == "=" }
         expect(target.name).to eq("geometric_model")
+        expect(path.steps.first.name).to eq("inspected_equivalence_element_select")
       end
     end
 
@@ -169,6 +170,16 @@ RSpec.describe Expressir::Mapping::RefPath do
     it "flags an index over a non-aggregate attribute" do
       expect(issues("base.name[i] -> target", repository).first.message)
         .to include("is not an aggregate")
+    end
+
+    it "keeps the running link across a brace block (#88 corpus)" do
+      # corpus shape: attr -> {type.name = 'x'} then the supertype walk
+      expect(issues("sub.ref ->\n{base.name = 'x'}\nbase", repository))
+        .to be_empty
+    end
+
+    it "resolves EXPRESS built-in types as = targets" do
+      expect(issues("base.name = BOOLEAN", repository)).to be_empty
     end
 
     it "flags a link with no preceding node" do

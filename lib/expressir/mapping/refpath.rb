@@ -253,11 +253,17 @@ module Expressir
         end
       end
 
-      def attribute_link_issues(_step, pos, prev)
-        unless prev.attribute
+      # `->`: the attribute-qualified node precedes the operator;
+      # `<-`: it follows (the entity before <- is referenced BY the
+      # attribute after it).
+      def attribute_link_issues(step, pos, prev)
+        qualified = step.operator == "->" ? prev : step
+        side = step.operator == "->" ? "before" : "after"
+        unless qualified&.attribute
           return [Issue.new(step: pos,
-                            message: "'->' requires an attribute-qualified " \
-                                     "node before it, got '#{prev.name}'")]
+                            message: "'#{step.operator}' requires an " \
+                                     "attribute-qualified node #{side} it, " \
+                                     "got '#{qualified&.name}'")]
         end
 
         []

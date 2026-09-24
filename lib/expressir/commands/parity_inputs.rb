@@ -61,15 +61,18 @@ module Expressir
         end
       end
 
-      # Schema-name → path index from the ELF schema manifest.
+      # Schema-name → path index from the ELF schema manifest. An
+      # explicitly given manifest that cannot be loaded is fatal (#455):
+      # when the root has no interface dependencies the lookup would
+      # never consult the index, so a typo'd --manifest would exit 0.
       def manifest_index(manifest_path)
         manifest = Expressir::SchemaManifest.from_file(manifest_path)
         manifest.schemas.to_h do |entry|
           [entry.id.downcase, entry.path]
         end
       rescue StandardError => e
-        warn "expressir: could not load schema manifest #{manifest_path}: #{e.message}"
-        nil
+        raise Thor::Error,
+              "expressir: could not load schema manifest #{manifest_path}: #{e.message}"
       end
 
       # Schema-name → path index over a STEPmod checkout root (the
@@ -94,10 +97,16 @@ module Expressir
 
         # Default: the file's own directory plus, when the root sits
         # inside a STEPmod checkout, its enclosing `schemas/` tree —
-        # the layout wg12-step modules live in.
+        # the layout wg12-step modules live in. Same-directory
+        # declarations win over tree hits for the same schema name:
+        # the file next to the root is the intentional one (#455).
         index = same_dir_index(root_path)
         ancestor = ancestor_schemas_dir(root_path)
-        index.update(stepmod_index(File.dirname(ancestor))) if ancestor
+        if ancestor
+          tree = stepmod_index(File.dirname(ancestor))
+          tree.update(index)
+          index = tree
+        end
         index
       end
 

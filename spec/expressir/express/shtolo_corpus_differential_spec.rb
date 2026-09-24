@@ -4,6 +4,61 @@ require "spec_helper"
 require "open3"
 require "tmpdir"
 
+# Filesystem-aware helpers for the corpus differential below, kept
+# module-level so they can be tested directly.
+module ShtoloCorpusDifferential
+  module_function
+
+  # Resolve a bare `eengine` through PATH. File.executable? alone only
+  # sees the current directory (#454), which made the differential skip
+  # on machines with eengine installed and on PATH.
+  def eengine_on_path
+    ENV.fetch("PATH", "").split(File::PATH_SEPARATOR)
+      .map { |dir| File.join(dir, "eengine") }
+      .find { |candidate| File.executable?(candidate) }
+  end
+
+  # Removes `--` comments from formatted EXPRESS, leading or trailing,
+  # without touching string literals. eengine's concatenation separators
+  # sit at the end of the PRECEDING declaration's last line (#454), so a
+  # line-anchored strip misses them — while a blind `--[^\n]*` strip
+  # would cut a `--` inside a string literal.
+  def strip_express_comments(text)
+    text.each_line.map { |line| strip_line_comments(line) }.join
+  end
+
+  def strip_line_comments(line)
+    out = +""
+    in_string = false
+    i = 0
+    while i < line.length
+      ch = line[i]
+      if in_string
+        out << ch
+        if ch == "'"
+          if line[i + 1] == "'"
+            out << "'"
+            i += 1
+          else
+            in_string = false
+          end
+        end
+      elsif ch == "'"
+        in_string = true
+        out << ch
+      elsif ch == "-" && line[i + 1] == "-"
+        break
+      else
+        out << ch
+      end
+      i += 1
+    end
+    out = out.sub(/[ \t]+\z/, "")
+    out << "\n" if line.end_with?("\n") && !out.end_with?("\n")
+    out
+  end
+end
+
 # Corpus differential for the SHTOLO flattener (TODO.parity-ee/14):
 # for every module ARM in the STEPmod checkout, flatten it OUR way and
 # compare against eengine's own concatenated reference. The primary
@@ -30,10 +85,14 @@ require "tmpdir"
 # Runs only when the oracle exists and SHTOLO_CORPUS is set; module
 # count bounded by SHTOLO_CORPUS_LIMIT (default 10).
 RSpec.describe Expressir::Express::Shtolo, :production_scale do
+  include ShtoloCorpusDifferential
+
   let(:eeng) do
-    ENV.fetch("EENG_BIN", nil) ||
-      [File.expand_path("~/src/external/exp-engine-engine/eengine-5.0.20-Beta1-mac00sbcl",
-                        __dir__), "eengine"].find { |candidate| File.executable?(candidate) || !candidate.include?("/") }
+    [ENV.fetch("EENG_BIN", nil),
+     File.expand_path("~/src/external/exp-engine-engine/eengine-5.0.20-Beta1-mac00sbcl",
+                      __dir__)]
+      .compact.find { |candidate| File.executable?(candidate) } ||
+      ShtoloCorpusDifferential.eengine_on_path
   end
 
   let(:stepmod) do
@@ -52,8 +111,14 @@ RSpec.describe Expressir::Express::Shtolo, :production_scale do
   end
 
   before do
-    skip "oracle binary not present" unless File.executable?(eeng)
-    skip "STEPmod checkout not present" unless File.directory?(stepmod)
+    # An explicitly pointed-at oracle that is missing is a config
+    # error, not a reason to skip silently (#454).
+    if (bin = ENV.fetch("EENG_BIN", nil)) && !File.executable?(bin)
+      raise "EENG_BIN=#{bin} is not an executable"
+    end
+
+    skip "oracle binary not present (set EENG_BIN or put eengine on PATH)" unless eeng
+    skip "STEPmod checkout not present at #{stepmod} (set STEPMOD_ROOT)" unless File.directory?(stepmod)
     skip "set SHTOLO_CORPUS=1 to run" unless ENV["SHTOLO_CORPUS"]
   end
 
@@ -125,10 +190,9 @@ RSpec.describe Expressir::Express::Shtolo, :production_scale do
   # {kind => {downcased name => formatted body}} across all schemas.
   # A name-only diff cannot see changed WHERE rules or attribute
   # types; bodies can. Bodies compare CASE-INSENSITIVELY (eengine's
-  # writers lowercase identifiers) and with remark lines stripped:
-  # eengine's concatenation interleaves `-- <schema> (path)`
-  # separator comments, which land on the following declaration when
-  # re-parsed and are not part of the declaration.
+  # writers lowercase identifiers) and with comments stripped: both
+  # eengine's `-- <schema> (path)` separators and our remark overlay
+  # are annotation, not declaration content.
   def declaration_bodies(path)
     repo = Expressir::Express::Parser.from_files([path])
     bodies = Hash.new { |h, k| h[k] = {} }
@@ -138,8 +202,8 @@ RSpec.describe Expressir::Express::Shtolo, :production_scale do
           next unless decl.respond_to?(:id) && decl.id
 
           body = Expressir::Express::Formatter.format(decl)
-            .gsub(/^\s*--[^\n]*\n?/, "")
-          bodies[kind][decl.id.safe_downcase] = body.downcase
+          bodies[kind][decl.id.safe_downcase] =
+            strip_express_comments(body).downcase
         end
       end
     end

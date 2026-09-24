@@ -2,26 +2,46 @@
 
 module Expressir
   module Commands
-    # `expressir mapping validate` (#88): load a module mapping.yaml
-    # and resolve every <<express:...>> link against the ARM/MIM
-    # interface closure. Exits 1 when unknown links remain.
+    # `expressir mapping validate` (#88): load a module mapping.yaml,
+    # resolve every <<express:...>> link and every reference path
+    # against the ARM/MIM interface closure. Exits 1 when unknown
+    # links or refpath issues remain.
     class MappingValidate < Base
       def run(path)
         document = Expressir::Mapping.load_file(path)
-        unknown = Expressir::Mapping.unknown_links(document, repository_for(path))
+        repository = repository_for(path)
 
-        if unknown.empty?
-          say "all links resolve"
-          return
-        end
-
+        unknown = Expressir::Mapping.unknown_links(document, repository)
         unknown.each do |link|
           say "unknown: #{link.text}"
         end
-        raise Thor::Error, "#{unknown.size} unknown link(s)"
+
+        issues = refpath_issues(document, repository)
+        issues.each do |location, issue|
+          say "refpath #{location} [step #{issue.step}]: #{issue.message}"
+        end
+
+        total = unknown.size + issues.size
+        unless total.zero?
+          raise Thor::Error, "#{unknown.size} unknown link(s), " \
+                             "#{issues.size} refpath issue(s)"
+        end
+
+        say "all links and reference paths resolve"
       end
 
       private
+
+      def refpath_issues(document, repository)
+        Expressir::Mapping.refpaths(document).flat_map do |location, content|
+          parsed = Expressir::Mapping::RefPath.parse(content)
+          parsed.parse_errors.map do |error|
+            [location, Expressir::Mapping::RefPath::Issue.new(step: nil,
+                                                              message: error)]
+          end + Expressir::Mapping::RefPath.validate(parsed, repository)
+            .map { |issue| [location, issue] }
+        end
+      end
 
       def repository_for(path)
         dir = File.dirname(File.expand_path(path))

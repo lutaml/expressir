@@ -136,8 +136,16 @@ module Expressir
     def values(document)
       document.ae.to_a.flat_map do |element|
         [element.entity, element.aimelt] +
-          element.aa.to_a.flat_map { |aa| [aa.attribute, aa.aimelt] }
-      end.compact
+          element.aa.to_a.flat_map do |aa|
+            [aa.attribute, aa.aimelt, aa.assertion_to]
+          end
+      end.compact + subtype_constraint_values(document)
+    end
+
+    # Every declaration reference in the sc entries (#460): the
+    # constraint name and the entity it constrains.
+    def subtype_constraint_values(document)
+      document.sc.to_a.flat_map { |sc| [sc.constraint, sc.entity] }.compact
     end
 
     # Every reference path in the document as [location, content]

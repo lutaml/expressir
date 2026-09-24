@@ -172,6 +172,21 @@ RSpec.describe Expressir::Mapping::RefPath do
         .to include("is not an aggregate")
     end
 
+    it "resolves an annotated EXPRESS link node (#460)" do
+      expect(issues("<<express:test.base,base>>\nbase.name = 'x'", repository))
+        .to be_empty
+    end
+
+    it "flags a link node naming an unknown schema" do
+      expect(issues("<<express:ghost.base,base>>", repository).first.message)
+        .to include("unknown schema 'ghost'")
+    end
+
+    it "flags a link node whose item is not declared" do
+      expect(issues("<<express:test.nothere,nothere>>", repository).first.message)
+        .to include("does not declare 'nothere'")
+    end
+
     it "keeps the running link across a brace block (#88 corpus)" do
       # corpus shape: attr -> {type.name = 'x'} then the supertype walk
       expect(issues("sub.ref ->\n{base.name = 'x'}\nbase", repository))

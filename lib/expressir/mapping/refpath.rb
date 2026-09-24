@@ -261,7 +261,11 @@ module Expressir
       # (`attr -> list_type[i] -> element_type`).
       def attribute_link_issues(step, pos, prev, last_qualified)
         if step.operator == "->"
-          qualified = prev&.attribute ? prev : (prev&.index ? last_qualified : nil)
+          qualified = if prev&.attribute
+                        prev
+                      else
+                        (prev&.index ? last_qualified : nil)
+                      end
           unless qualified&.attribute
             return [Issue.new(step: pos,
                               message: "'->' requires an attribute-qualified " \

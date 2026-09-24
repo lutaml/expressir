@@ -64,9 +64,41 @@ RSpec.describe Expressir::Mapping::RefPath do
       end
     end
 
-    it "records a parse error for a constraint without a literal" do
+    it "records a parse error for a constraint with nothing after it" do
       path = parse("entity.attr = ")
-      expect(path.parse_errors).to include(/without a string literal/)
+      expect(path.parse_errors).to include(/nothing after it/)
+    end
+
+    it "parses the parenthesized type-alternative form from the corpus" do
+      path = parse(<<~PATH)
+        global_unit_assigned_context.units[i] ->
+        unit
+        (unit = named_unit
+        named_unit)
+      PATH
+      aggregate_failures do
+        expect(path.parse_errors).to be_empty
+        expect(path.steps.map(&:operator)).to include("=")
+        expect(path.steps.find { |s| s.operator == "=" }.name).to eq("named_unit")
+      end
+    end
+
+    it "keeps a pending link across /MAPPING_OF(X)/ wrappers" do
+      path = parse("inspected_equivalence_element_select =\n/MAPPING_OF(geometric_model)/")
+      aggregate_failures do
+        expect(path.parse_errors).to be_empty
+        target = path.steps.find { |s| s.operator == "=" }
+        expect(target.name).to eq("geometric_model")
+      end
+    end
+
+    it "parses the <- reverse reference link" do
+      path = parse("! {<- name_attribute.named_item}")
+      aggregate_failures do
+        expect(path.parse_errors).to be_empty
+        expect(path.steps.map(&:operator)).to eq(["!", "{", "<-", "}"])
+        expect(path.steps[2].name).to eq("name_attribute")
+      end
     end
 
     it "round-trips through the lutaml-model wire face" do

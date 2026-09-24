@@ -12,17 +12,25 @@ module Expressir
     #   path       := step+
     #   step       := [link] node [index] [constraint]
     #               | MARKER
-    #   link       := "->" | "<=" | "=>"     (relation to the previous node)
+    #   link       := "->" | "<-" | "<=" | "=>" | "=" NAME
+    #                                            (relation to the previous node)
     #   node       := NAME ["." ATTRIBUTE]
     #   index      := "[" ("i" | DIGITS) "]"
-    #   MARKER     := "{" | "}" | "[" | "]"  (grouping; no node semantics)
+    #   MARKER     := "{" | "}" | "[" | "]" | "(" | ")" | ":" | "|" | "!"
+    #               | "," | "/" | "*"           (grouping/annotation; no
+    #                                            node semantics; never
+    #                                            breaks a pending link)
     #   constraint := "=" STRING
     #
     # Operator semantics per the module conventions:
     #   ->   the attribute named before -> references the entity or
     #        select type named after ->
+    #   <-   the attribute named before <- is referenced by the type
+    #        named after <-
     #   <=   the entity named before <= is a subtype of the entity after
     #   =>   the entity named before => is a supertype of the entity after
+    #   =    the node before = is of the type named after (used inside
+    #        parenthesized alternatives, e.g. `(unit = named_unit)`)
     #   [i]  the attribute named before [i] is an aggregate; any element
     #        of that aggregate is referred to
     module RefPath
@@ -54,9 +62,10 @@ module Expressir
         end
       end
 
-      TOKEN = /->|<=|=>|[{}\[\]=]|'(?:''|[^'])*'|\w+(?:\.\w+)?/
-      MARKERS = ["{", "}", "[", "]"].freeze
-      LINKS = ["->", "<=", "=>"].freeze
+      TOKEN = /->|<-|<=|=>|[{}\[\]()=:|!,*\/]|'(?:''|[^'])*'|\w+(?:\.\w+)?/
+      MARKERS = ["{", "}", "[", "]", "(", ")", ":", "|", "!", ",", "/",
+                 "*"].freeze
+      LINKS = ["->", "<-", "<=", "=>"].freeze
       DECLARATION_COLLECTIONS = %i[types entities].freeze
       private_constant :TOKEN, :MARKERS, :LINKS, :DECLARATION_COLLECTIONS
 
@@ -71,6 +80,7 @@ module Expressir
         steps = []
         errors = []
         pending_link = nil
+        pending_type_assign = false
         i = 0
         while i < tokens.length
           token = tokens[i]
@@ -82,8 +92,13 @@ module Expressir
             if literal&.start_with?("'")
               attach(steps, errors, :literal, literal)
               i += 1
+            elsif literal.nil?
+              errors << "constraint '=' with nothing after it"
             else
-              errors << "constraint '=' without a string literal"
+              # `x = Type` type assignment: the following node (however
+              # many markers it sits behind, e.g. /MAPPING_OF(X)/)
+              # carries the "=" link.
+              pending_type_assign = true
             end
           when "["
             if index_token?(tokens[i + 1])
@@ -96,9 +111,17 @@ module Expressir
             steps << Step.new(operator: token)
           else
             name, _, attribute = token.partition(".")
-            steps << Step.new(operator: pending_link, name: name,
-                              attribute: attribute.empty? ? nil : attribute)
-            pending_link = nil
+            if name.casecmp("MAPPING_OF").zero? && tokens[i + 1] == "("
+              # notation wrapper: /MAPPING_OF(X)/ refers to X; the
+              # wrapper itself carries no node semantics
+              steps << Step.new(operator: token)
+            else
+              operator = pending_link || ("=" if pending_type_assign)
+              steps << Step.new(operator: operator, name: name,
+                                attribute: attribute.empty? ? nil : attribute)
+              pending_link = nil
+              pending_type_assign = false
+            end
           end
           i += 1
         end
@@ -224,7 +247,7 @@ module Expressir
         end
 
         case step.operator
-        when "->" then attribute_link_issues(step, pos, prev)
+        when "->", "<-" then attribute_link_issues(step, pos, prev)
         when "<=" then subtype_link_issues(step, pos, prev, by_name)
         when "=>" then supertype_link_issues(step, pos, prev, by_name)
         end

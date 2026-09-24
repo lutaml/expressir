@@ -15,6 +15,10 @@ module Expressir
     #   link       := "->" | "<-" | "<=" | "=>" | "=" NAME
     #                                            (relation to the previous node)
     #   node       := NAME ["." ATTRIBUTE]
+    #               | LINK                    (<<express:SCHEMA.ITEM,ITEM>>,
+    #                                          #460: a link may stand
+    #                                          wherever a declaration
+    #                                          is referenced)
     #   index      := "[" ("i" | DIGITS) "]"
     #   MARKER     := "{" | "}" | "[" | "]" | "(" | ")" | ":" | "|" | "!"
     #               | "," | "/" | "*"           (grouping/annotation; no
@@ -42,6 +46,8 @@ module Expressir
         attribute :attribute, :string
         attribute :index, :string
         attribute :literal, :string
+        # annotated EXPRESS link form: <<express:SCHEMA.ITEM,ITEM>>
+        attribute :link, :string
 
         key_value do
           map "operator", to: :operator
@@ -49,6 +55,7 @@ module Expressir
           map "attribute", to: :attribute
           map "index", to: :index
           map "literal", to: :literal
+          map "link", to: :link
         end
       end
 
@@ -62,7 +69,10 @@ module Expressir
         end
       end
 
-      TOKEN = /->|<-|<=|=>|[{}\[\]()=:|!,*\/]|'(?:''|[^'])*'|\w+(?:\.\w+)?/
+      EXPRESS_LINK_PATH = /\A<<express:([^,>]+)(?:,[^>]+)?>>\z/
+      private_constant :EXPRESS_LINK_PATH
+
+      TOKEN = /<<express:[^,>]+(?:,[^>]+)?>>|->|<-|<=|=>|[{}\[\]()=:|!,*\/]|'(?:''|[^'])*'|\w+(?:\.\w+)?/
       MARKERS = ["{", "}", "[", "]", "(", ")", ":", "|", "!", ",", "/",
                  "*", "MAPPING_OF"].freeze
       LINKS = ["->", "<-", "<=", "=>"].freeze
@@ -109,6 +119,10 @@ module Expressir
             end
           when *MARKERS
             steps << Step.new(operator: token)
+          when /\A<<express:/
+            steps << Step.new(operator: pending_link, link: token)
+            pending_link = nil
+            pending_type_assign = false
           else
             name, _, attribute = token.partition(".")
             operator = pending_link || ("=" if pending_type_assign)
@@ -152,8 +166,12 @@ module Expressir
           # markers never break the running link, mirroring parse
           next if MARKERS.include?(step.operator)
 
-          issues.concat(check_step(step, pos, prev, last_qualified, by_name))
-          prev = step if step.name
+          if step.link
+            issues.concat(check_link_step(step, pos, repository))
+          else
+            issues.concat(check_step(step, pos, prev, last_qualified, by_name))
+          end
+          prev = step if step.name || step.link
           last_qualified = step if step.name && step.attribute
         end
         issues
@@ -173,6 +191,28 @@ module Expressir
           end
         end.each { |pair| index[pair[0]] = pair[1] }
         index
+      end
+
+      # Annotated EXPRESS link node: <<express:SCHEMA.ITEM,ITEM>>
+      # (item part optional) resolves against the repository (#460).
+      def check_link_step(step, pos, repository)
+        parts = step.link.match(EXPRESS_LINK_PATH)
+        return [Issue.new(step: pos, message: "malformed link '#{step.link}'")] unless parts
+
+        schema_id, item_id = parts[1].split(".", 2).compact
+        schema = repository.schemas
+          .find { |s| s.id&.safe_downcase == schema_id&.safe_downcase }
+        unless schema
+          return [Issue.new(step: pos,
+                            message: "unknown schema '#{schema_id}' in #{step.link}")]
+        end
+
+        return [] if item_id.nil?
+        return [] if Expressir::Mapping.item_declared?(schema, item_id)
+
+        [Issue.new(step: pos,
+                   message: "schema '#{schema_id}' does not declare " \
+                            "'#{item_id}' (#{step.link})")]
       end
 
       def check_step(step, pos, prev, last_qualified, by_name)

@@ -43,6 +43,43 @@ RSpec.describe Expressir::Commands::MappingValidate do
     end
   end
 
+  it "passes when reference paths resolve against the schemas" do
+    Dir.mktmpdir("mapping-cli") do |dir|
+      write_module(dir, <<~YAML)
+        ---
+        ae:
+        - entity: <<express:m_arm.thing,thing>>
+          aimelt: <<express:m_mim.thing,thing>>
+          refpath:
+            content: |-
+              thing
+              thing.a -> thing
+        sc: []
+      YAML
+      expect do
+        described_class.new({}).run(File.join(dir, "mapping.yaml"))
+      end.not_to raise_error
+    end
+  end
+
+  it "raises on a reference path naming an unknown type (#88)" do
+    Dir.mktmpdir("mapping-cli") do |dir|
+      write_module(dir, <<~YAML)
+        ---
+        ae:
+        - entity: <<express:m_arm.thing,thing>>
+          aimelt: <<express:m_mim.thing,thing>>
+          refpath:
+            content: |-
+              ghost_type <= thing
+        sc: []
+      YAML
+      expect do
+        described_class.new({}).run(File.join(dir, "mapping.yaml"))
+      end.to raise_error(Thor::Error, /1 refpath issue/)
+    end
+  end
+
   it "raises when no arm/mim sits next to the mapping" do
     Dir.mktmpdir("mapping-cli") do |dir|
       File.write(File.join(dir, "mapping.yaml"), "---\nae: []\nsc: []\n")

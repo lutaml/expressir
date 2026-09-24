@@ -13,6 +13,8 @@ module Expressir
   # are ignored by the mapping and survive round-trips untouched in
   # the source files.
   module Mapping
+    autoload :RefPath, "#{__dir__}/mapping/refpath"
+
     EXPRESS_LINK = /<<express:([^,>]+)(?:,([^>]+))?>>/
 
     class ReferencePath < Lutaml::Model::Serializable
@@ -136,6 +138,24 @@ module Expressir
         [element.entity, element.aimelt] +
           element.aa.to_a.flat_map { |aa| [aa.attribute, aa.aimelt] }
       end.compact
+    end
+
+    # Every reference path in the document as [location, content]
+    # pairs; location names the application element (and attribute,
+    # for attribute-level paths) the path belongs to.
+    def refpaths(document)
+      document.ae.to_a.flat_map do |element|
+        entries = []
+        if element.refpath&.content
+          entries << [element.entity.to_s, element.refpath.content]
+        end
+        element.aa.to_a.each do |aa|
+          next unless aa.refpath&.content
+
+          entries << ["#{element.entity}.#{aa.attribute}", aa.refpath.content]
+        end
+        entries
+      end
     end
   end
 end

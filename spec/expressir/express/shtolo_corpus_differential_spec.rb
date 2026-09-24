@@ -119,8 +119,10 @@ RSpec.describe Expressir::Express::Shtolo, :production_scale do
       raise "EENG_BIN=#{bin} is not an executable"
     end
 
-    skip "oracle binary not present (run bundle exec rake oracle:fetch, "\
-         "set EENG_BIN, or put eengine on PATH)" unless eeng
+    unless eeng
+      skip "oracle binary not present (run bundle exec rake oracle:fetch, " \
+           "set EENG_BIN, or put eengine on PATH)"
+    end
     skip "STEPmod checkout not present at #{stepmod} (set STEPMOD_ROOT)" unless File.directory?(stepmod)
     skip "set SHTOLO_CORPUS=1 to run" unless ENV["SHTOLO_CORPUS"]
   end

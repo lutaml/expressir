@@ -64,7 +64,7 @@ module Expressir
 
       TOKEN = /->|<-|<=|=>|[{}\[\]()=:|!,*\/]|'(?:''|[^'])*'|\w+(?:\.\w+)?/
       MARKERS = ["{", "}", "[", "]", "(", ")", ":", "|", "!", ",", "/",
-                 "*"].freeze
+                 "*", "MAPPING_OF"].freeze
       LINKS = ["->", "<-", "<=", "=>"].freeze
       DECLARATION_COLLECTIONS = %i[types entities].freeze
       private_constant :TOKEN, :MARKERS, :LINKS, :DECLARATION_COLLECTIONS
@@ -111,17 +111,11 @@ module Expressir
             steps << Step.new(operator: token)
           else
             name, _, attribute = token.partition(".")
-            if name.casecmp("MAPPING_OF").zero? && tokens[i + 1] == "("
-              # notation wrapper: /MAPPING_OF(X)/ refers to X; the
-              # wrapper itself carries no node semantics
-              steps << Step.new(operator: token)
-            else
-              operator = pending_link || ("=" if pending_type_assign)
-              steps << Step.new(operator: operator, name: name,
-                                attribute: attribute.empty? ? nil : attribute)
-              pending_link = nil
-              pending_type_assign = false
-            end
+            operator = pending_link || ("=" if pending_type_assign)
+            steps << Step.new(operator: operator, name: name,
+                              attribute: attribute.empty? ? nil : attribute)
+            pending_link = nil
+            pending_type_assign = false
           end
           i += 1
         end

@@ -175,6 +175,16 @@ RSpec.describe Expressir::Mapping::RefPath do
       expect(issues("-> target", repository).first.message)
         .to include("no preceding node")
     end
+
+    it "accepts the <- form with the attribute after the operator" do
+      # corpus shape: entity <- other.attribute — other references entity
+      expect(issues("target <- sub.ref", repository)).to be_empty
+    end
+
+    it "flags <- whose following node is not attribute-qualified" do
+      expect(issues("target <- base", repository).first.message)
+        .to include("attribute-qualified node after it, got 'base'")
+    end
   end
 
   describe "against the real corpus" do

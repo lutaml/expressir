@@ -44,6 +44,7 @@ module Expressir
              "#{__dir__}/express/schema_plain_source_formatter"
     autoload :SchemaSourceFormatter, "#{__dir__}/express/schema_source_formatter"
     autoload :ScopeResolver, "#{__dir__}/express/scope_resolver"
+    autoload :LazyRepository, "#{__dir__}/express/lazy_repository"
     autoload :SmrlXml, "#{__dir__}/express/smrl_xml"
     autoload :Xsd, "#{__dir__}/express/xsd"
     autoload :SourceFormatter, "#{__dir__}/express/source_formatter"

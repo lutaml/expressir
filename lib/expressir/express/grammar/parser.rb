@@ -147,10 +147,14 @@ module Expressir
           (tABSTRACT >> tSUPERTYPE >> subtypeConstraint.maybe).as(:abstractSupertypeDeclaration)
         end
         # ISO 10303-11 abstract_supertype_constraint = ABSTRACT ';' —
-        # the ABSTRACT SUPERTYPE ';' form belongs to entity headers
-        # (abstractSupertypeDeclaration), not subtype constraint bodies.
+        # tolerated nonstandard variant: ABSTRACT SUPERTYPE ';' (real
+        # corpora ship it; longest-first so PEG stays deterministic).
+        # The entity-header forms live in abstractSupertypeDeclaration.
         rule(:abstractSupertype) do
-          (tABSTRACT >> op_delim).as(:abstractSupertype)
+          (
+            (tABSTRACT >> tSUPERTYPE >> op_delim) |
+            (tABSTRACT >> op_delim)
+          ).as(:abstractSupertype)
         end
         rule(:actualParameterList) do
           (op_leftparen >> (parameter >> (op_comma >> parameter).repeat).as(:listOf_parameter).maybe >> op_rightparen)

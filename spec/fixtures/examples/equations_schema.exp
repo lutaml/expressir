@@ -202,7 +202,7 @@ INVERSE
 END_ENTITY;
 
 SUBTYPE_CONSTRAINT sc1_sgem_behaviour_model FOR sgem_behaviour_model;
-  ABSTRACT SUPERTYPE;
+  ABSTRACT;
   ONEOF(demand_response_model,
         power_flow_model,
         load_forecasting_model,

@@ -2,10 +2,21 @@
 
 require "mkmf"
 
+# mkmf's dummy_makefile emits no targets, which rubygems' `make` run
+# rejects ("No targets. Stop.") and fails the install; a real no-op
+# makefile keeps every fallback path installing cleanly.
+def write_noop_makefile
+  File.write("Makefile", <<~MK)
+    all:
+    install:
+    clean:
+  MK
+end
+
 # The Rust extension only builds against MRI's C API. Other engines
 # fall back to the pure-Ruby parser path and must install cleanly.
 if RUBY_ENGINE != "ruby" || ENV["EXPRESSIR_CORE"] == "0"
-  File.write("Makefile", dummy_makefile("").to_s)
+  write_noop_makefile
   warn "expressir: skipping the Rust core extension on #{RUBY_ENGINE}"
   exit 0
 end
@@ -14,7 +25,7 @@ end
 # toolchain; rb-sys cannot bridge the two, so skip there too (windows
 # installs fall back to the pure-Ruby parser).
 if RUBY_PLATFORM.include?("mingw")
-  File.write("Makefile", dummy_makefile("").to_s)
+  write_noop_makefile
   warn "expressir: skipping the Rust core extension on mingw (msvc " \
        "toolchain mismatch)"
   exit 0
@@ -25,7 +36,7 @@ end
 # (Expressir::Core::NATIVE_AVAILABLE stays false). Prebuilt platform
 # gems are the follow-up so cargo-less MRI installs get binaries too.
 unless find_executable("cargo")
-  File.write("Makefile", dummy_makefile("").to_s)
+  write_noop_makefile
   warn "expressir: cargo not found — skipping the Rust core extension " \
        "(Expressir::Core falls back to the Ruby parser)"
   exit 0

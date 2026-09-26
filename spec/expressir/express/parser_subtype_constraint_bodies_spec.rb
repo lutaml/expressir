@@ -67,6 +67,23 @@ RSpec.describe Expressir::Express::Parser do
     expect(parse(formatted).schemas.first.subtype_constraints.first.abstract).to be(true)
   end
 
+  it "tolerates the nonstandard ABSTRACT SUPERTYPE body form (real corpora)" do
+    repo = parse(<<~EXP)
+      SCHEMA m;
+      ENTITY e; END_ENTITY;
+      SUBTYPE_CONSTRAINT c FOR e;
+        ABSTRACT SUPERTYPE;
+      END_SUBTYPE_CONSTRAINT;
+      END_SCHEMA;
+    EXP
+    sc = repo.schemas.first.subtype_constraints.first
+    aggregate_failures do
+      expect(sc.abstract).to be(true)
+      formatted = Expressir::Express::Formatter.format(sc)
+      expect(formatted).not_to include("SUPERTYPE")
+    end
+  end
+
   it "keeps ABSTRACT SUPERTYPE in entity headers" do
     repo = parse("SCHEMA n;\nENTITY e ABSTRACT SUPERTYPE; END_ENTITY;\nEND_SCHEMA;\n")
     expect(repo.schemas.first.entities.first.abstract).to be(true)

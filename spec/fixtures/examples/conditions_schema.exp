@@ -155,7 +155,7 @@ ENTITY sbec_control_data
 END_ENTITY;
 
 SUBTYPE_CONSTRAINT sc1_sbec_control_data FOR sbec_control_data;
-  ABSTRACT SUPERTYPE;
+  ABSTRACT;
 END_SUBTYPE_CONSTRAINT;
 
 ENTITY sbec_control_data_global

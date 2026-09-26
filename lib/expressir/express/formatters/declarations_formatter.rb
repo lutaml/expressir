@@ -632,11 +632,11 @@ module Expressir
               format(node.applies_to),
               ";",
             ].join,
+            # ISO 10303-11: abstract_supertype_constraint = ABSTRACT ';' —
+            # the ABSTRACT SUPERTYPE form is entity-header syntax.
             *if node.abstract
                indent([
                  "ABSTRACT",
-                 " ",
-                 "SUPERTYPE",
                  ";",
                ].join)
              end,

@@ -10,6 +10,16 @@ if RUBY_ENGINE != "ruby" || ENV["EXPRESSIR_CORE"] == "0"
   exit 0
 end
 
+# Windows rubies are mingw-built while rustup defaults to the msvc
+# toolchain; rb-sys cannot bridge the two, so skip there too (windows
+# installs fall back to the pure-Ruby parser).
+if Gem::Platform.local.os == "mingw32"
+  File.write("Makefile", dummy_makefile("").to_s)
+  warn "expressir: skipping the Rust core extension on mingw (msvc " \
+       "toolchain mismatch)"
+  exit 0
+end
+
 # Pure-Ruby fallback when no Rust toolchain is available: the gem must
 # install and keep working without the native core
 # (Expressir::Core::NATIVE_AVAILABLE stays false). Prebuilt platform

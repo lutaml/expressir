@@ -31,6 +31,12 @@ Gem::Specification.new do |spec|
     end
   end
 
+  # Build the Rust core extension at install time. extconf.rb fails
+  # soft (dummy Makefile) wherever cargo is unavailable, so installs
+  # without a Rust toolchain fall back to the pure-Ruby parser.
+  spec.extensions = ["ext/expressir_core/extconf.rb"]
+  spec.add_dependency "rb_sys", "~> 0.9.130"
+
   spec.add_dependency "base64"
   spec.add_dependency "benchmark"
   spec.add_dependency "benchmark-ips"

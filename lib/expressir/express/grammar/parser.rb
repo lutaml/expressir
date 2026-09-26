@@ -146,8 +146,11 @@ module Expressir
         rule(:abstractSupertypeDeclaration) do
           (tABSTRACT >> tSUPERTYPE >> subtypeConstraint.maybe).as(:abstractSupertypeDeclaration)
         end
+        # ISO 10303-11 abstract_supertype_constraint = ABSTRACT ';' —
+        # the ABSTRACT SUPERTYPE ';' form belongs to entity headers
+        # (abstractSupertypeDeclaration), not subtype constraint bodies.
         rule(:abstractSupertype) do
-          (tABSTRACT >> tSUPERTYPE >> op_delim).as(:abstractSupertype)
+          (tABSTRACT >> op_delim).as(:abstractSupertype)
         end
         rule(:actualParameterList) do
           (op_leftparen >> (parameter >> (op_comma >> parameter).repeat).as(:listOf_parameter).maybe >> op_rightparen)

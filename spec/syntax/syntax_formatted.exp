@@ -198,7 +198,7 @@ SUBTYPE_CONSTRAINT empty_subtype_constraint FOR empty_entity;
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT abstract_supertype_subtype_constraint FOR empty_entity;
-  ABSTRACT SUPERTYPE;
+  ABSTRACT;
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT total_over_subtype_constraint FOR empty_entity;

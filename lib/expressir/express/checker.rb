@@ -17,6 +17,9 @@ module Expressir
     #   check-unresolved-ref   (aggregate of eeng type/entity unparsed notes)
     #   check-select-extended-type
     #   check-enumeration-extended-type
+    #   check-inverse-entity/-attrib-ref/-inverse/-derive (tranche 3)
+    #   qualified-attrib-group-not-found/-not-ancestor,
+    #   qualified-attrib-attr-not-found (tranche 3)
     #
     # Severity: :error stops a clean SHTOLO run; :warning is advisory.
     class Checker
@@ -226,6 +229,8 @@ module Expressir
         check_subtype_cycles(schema, entity)
 
         check_where_rules(schema, entity, entity.where_rules)
+        check_inverse_attributes(schema, entity)
+        check_group_references(schema, entity)
         Array(entity.unique_rules).each do |ur|
           next if ur.id.nil? || ur.id.match?(UNIQUE_LABEL)
 
@@ -288,6 +293,193 @@ module Expressir
           note!(:check_supertype_ref, :error, schema,
                 "ENTITY #{entity.id}: supertype '#{id}' not found", entity)
         end
+      end
+
+      # eeng check-inverse-* (ISO 10303-11 9.2.1.4): every INVERSE
+      # attribute must name a real entity and pair with a real
+      # attribute on it — one that is neither DERIVE nor itself an
+      # INVERSE — whose domain includes the owning entity (through
+      # subtype relations and nested aggregates). check-inverse-agg
+      # (only SET/BAG may aggregate an inverse) is structurally
+      # impossible here: the grammar rejects other aggregate kinds.
+      def check_inverse_attributes(schema, entity)
+        entity.attributes.to_a
+          .grep(Model::Declarations::InverseAttribute)
+          .each { |inv| check_inverse_attribute(schema, entity, inv) }
+      end
+
+      def check_inverse_attribute(schema, entity, inv)
+        target = inverse_target(schema, inv)
+        if target.nil?
+          note!(:check_inverse_entity, :error, schema,
+                "ENTITY #{entity.id}: INVERSE '#{inv.id}' target " \
+                "'#{inverse_target_id(inv)}' is not an entity", inv)
+          return
+        end
+
+        attr_id = inverse_paired_attr_id(inv)
+        if attr_id.nil?
+          note!(:check_inverse_attrib_ref, :error, schema,
+                "ENTITY #{entity.id}: INVERSE '#{inv.id}' names no " \
+                "attribute after FOR", inv)
+          return
+        end
+
+        owner = inverse_attr_owner(schema, inv, target)
+        paired = owner && attribute_on_closure(schema, owner, attr_id)
+        if paired.nil?
+          note!(:check_inverse_attrib_ref, :error, schema,
+                "ENTITY #{entity.id}: INVERSE '#{inv.id}': entity " \
+                "'#{owner&.id || target.id}' has no attribute '#{attr_id}'", inv)
+          return
+        end
+
+        if paired.is_a?(Model::Declarations::InverseAttribute)
+          note!(:check_inverse_inverse, :error, schema,
+                "ENTITY #{entity.id}: INVERSE '#{inv.id}' pairs with " \
+                "'#{owner.id}.#{attr_id}', which is itself an INVERSE", inv)
+        elsif paired.kind == Expressir::Model::Declarations::Attribute::DERIVED
+          note!(:check_inverse_derive, :error, schema,
+                "ENTITY #{entity.id}: INVERSE '#{inv.id}' pairs with " \
+                "'#{owner.id}.#{attr_id}', which is a DERIVE", inv)
+        end
+      end
+
+      def inverse_target(schema, inv)
+        type = inv.type
+        type = type.base_type if type.respond_to?(:base_type)
+        return nil unless type.respond_to?(:id)
+
+        find_entity(schema, ref_id(type))
+      end
+
+      def inverse_target_id(inv)
+        type = inv.type
+        type = type.base_type if type.respond_to?(:base_type)
+        ref_id(type)
+      end
+
+      # The entity the FOR-attribute lives on: the qualified
+      # `e.a FOR` form overrides the type's entity.
+      def inverse_attr_owner(schema, inv, target)
+        expr = inv.expression
+        if expr.is_a?(Model::References::AttributeReference) &&
+            expr.ref.respond_to?(:id)
+          find_entity(schema, ref_id(expr.ref)) || target
+        else
+          target
+        end
+      end
+
+      def inverse_paired_attr_id(inv)
+        expr = inv.expression
+        return ref_id(expr) if expr.respond_to?(:id)
+
+        expr.respond_to?(:attribute) ? ref_id(expr.attribute) : nil
+      end
+
+      # Attribute on +entity+ or any of its supertype ancestors.
+      def attribute_on_closure(schema, entity, attr_id)
+        key = attr_id.safe_downcase
+        seen = {}.compare_by_identity
+        queue = [entity]
+        until queue.empty?
+          current = queue.shift
+          next if seen[current]
+
+          seen[current] = true
+          hit = Array(current.attributes).find do |a|
+            a.id&.safe_downcase == key
+          end
+          return hit if hit
+
+          Array(current.subtype_of).each do |ref|
+            id = ref_id(ref)
+            queue << find_entity(schema, id) if id
+          end
+        end
+        nil
+      end
+
+      # eeng qualified-attrib-* (ISO 10303-11 12.7.4). The group must
+      # resolve to an entity and the qualified attribute must exist on
+      # it. The ANCESTRY requirement applies only to redeclared
+      # attributes (SELF\T.attr as an attribute declaration) — eeng
+      # checks exactly those; TYPEOF-guarded sibling views in
+      # expressions (geometry_schema's SELF\subface.parent_face) are
+      # standard corpus usage and are not flagged.
+      def check_group_references(schema, entity)
+        closure = supertype_closure_ids(schema, entity)
+        closure << entity.id if entity.id
+        redeclared = {}.compare_by_identity
+        entity.attributes.to_a.each do |attr|
+          sa = attr.supertype_attribute
+          next unless sa.is_a?(Model::References::AttributeReference) &&
+            sa.ref.is_a?(Model::References::GroupReference)
+
+          redeclared[sa.ref] = true
+          group = sa.ref
+          target = resolve_group(schema, entity, group)
+          next if target.nil?
+          next if closure.include?(ref_id(group.entity)&.safe_downcase)
+
+          note!(:qualified_attrib_group_not_ancestor, :error, schema,
+                "ENTITY #{entity.id}: SELF\\'#{ref_id(group.entity)}' " \
+                "is not a supertype of #{entity.id}", group)
+        end
+
+        each_node(entity) do |node|
+          next unless node.is_a?(Model::References::GroupReference)
+          next if redeclared[node]
+
+          target = resolve_group(schema, entity, node)
+          next if target.nil?
+
+          parent = node.parent
+          attr_id = parent.respond_to?(:attribute) ? ref_id(parent.attribute) : nil
+          next if attr_id.nil?
+          next if Array(target.attributes).any? do |a|
+            a.id&.safe_downcase == attr_id.safe_downcase
+          end
+
+          note!(:qualified_attrib_attr_not_found, :error, schema,
+                "ENTITY #{entity.id}: '#{ref_id(node.entity)}.#{attr_id}': " \
+                "'#{ref_id(node.entity)}' has no attribute '#{attr_id}'", node)
+        end
+      end
+
+      # Resolve a group qualifier's entity, noting
+      # qualified-attrib-group-not-found when it does not resolve.
+      def resolve_group(schema, entity, node)
+        group_id = ref_id(node.entity)
+        target = group_id && find_entity(schema, group_id)
+        return target if target
+
+        note!(:qualified_attrib_group_not_found, :error, schema,
+              "ENTITY #{entity.id}: group '#{group_id}' in a qualified " \
+              "attribute does not resolve to an entity", node)
+        nil
+      end
+
+      def supertype_closure_ids(schema, entity)
+        seen = {}.compare_by_identity
+        queue = [entity]
+        ids = []
+        until queue.empty?
+          current = queue.shift
+          next if seen[current]
+
+          seen[current] = true
+          Array(current.subtype_of).each do |ref|
+            id = ref_id(ref)
+            next if id.nil?
+
+            ids << id
+            parent = find_entity(schema, id)
+            queue << parent if parent
+          end
+        end
+        ids
       end
 
       def each_reference(node, &block)

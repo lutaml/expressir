@@ -30,14 +30,14 @@ land here with a coverage decision before its release ships.
 | check-string-no-attribute | string references unknown ATTRIBUTE | 🔜 tranche 2 |
 | check-string-reference | generic string reference validity | 🔜 tranche 2 |
 | check-fun-return-type | invalid function return type | 🔜 tranche 3 |
-| check-inverse-entity | INVERSE target not an entity | 🔜 tranche 3 |
-| check-inverse-derive | INVERSE contradicts DERIVE | 🔜 tranche 3 |
-| check-inverse-inverse | INVERSE ↔ INVERSE conflict | 🔜 tranche 3 |
-| check-inverse-attrib-ref | INVERSE attribute ref not found | 🔜 tranche 3 |
-| check-inverse-agg | INVERSE aggregate misuse | 🔜 tranche 3 |
-| qualified-attrib-group-not-found | SELF\Group group not found | 🔜 tranche 3 |
-| qualified-attrib-group-not-ancestor | SELF\Group group not an ancestor | 🔜 tranche 3 |
-| qualified-attrib-attr-not-found | SELF\Group.attr attr not found | 🔜 tranche 3 |
+| check-inverse-entity | INVERSE target not an entity | ✅ `check_inverse_entity` (tranche 3) |
+| check-inverse-derive | INVERSE contradicts DERIVE | ✅ `check_inverse_derive` (tranche 3) |
+| check-inverse-inverse | INVERSE ↔ INVERSE conflict | ✅ `check_inverse_inverse` (tranche 3) |
+| check-inverse-attrib-ref | INVERSE attribute ref not found | ✅ `check_inverse_attrib_ref` (tranche 3; walks the supertype closure — superset of eeng's own-attributes lookup) |
+| check-inverse-agg | INVERSE aggregate misuse | ◐ n/a — the grammar only parses SET/BAG inverse aggregates (parser errors first) |
+| qualified-attrib-group-not-found | SELF\Group group not found | ✅ `resolve_group` (tranche 3) |
+| qualified-attrib-group-not-ancestor | SELF\Group group not an ancestor | ✅ redeclaration groups only, exactly eeng's `%%inheritance!` scope — TYPEOF-guarded expression views (SELF\subface) are not flagged (tranche 3) |
+| qualified-attrib-attr-not-found | SELF\Group.attr attr not found | ✅ expression group qualifiers, own-attributes scope (tranche 3) |
 | check-declaration | (wrapper — notes aggregation, not a check) | — n/a |
 
 Tranches:

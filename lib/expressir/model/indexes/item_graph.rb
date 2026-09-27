@@ -80,6 +80,56 @@ module Expressir
           @subtype_of.flat_map { |child, parents| parents.map { |p| [child, p] } }
         end
 
+        # Direct subtypes of an entity (the inverse of subtype_of).
+        def subtypes(path)
+          key = canonical(path)
+          return [] unless @nodes.key?(key)
+
+          @subtype_of.select { |_child, parents| parents.include?(key) }.keys
+        end
+
+        # Transitive subtype closure of an entity (everything below it
+        # in the hierarchy), breadth-first and cycle-safe.
+        def transitive_subtypes(path)
+          key = canonical(path)
+          return [] unless @nodes.key?(key)
+
+          seen = {}
+          queue = subtypes(key)
+          until queue.empty?
+            current = queue.shift
+            next if seen[current]
+
+            seen[current] = true
+            queue.concat(subtypes(current))
+          end
+          seen.keys
+        end
+
+        # Transitive interface closure of a schema — every schema it
+        # depends on, directly or through intermediates. Cycle-safe.
+        def dependency_closure(schema)
+          schema_id = schema.respond_to?(:id) ? schema.id : schema.to_s
+          seen = {}
+          queue = dependencies_of(schema_id).dup
+          until queue.empty?
+            current = queue.shift
+            next if seen[current]
+
+            seen[current] = true
+            queue.concat(@dependencies[current] || [])
+          end
+          seen.keys
+        end
+
+        # Schemas that import `schema` (USE FROM / REFERENCE FROM it),
+        # direct only — the "used by" direction for doc generation.
+        def dependents_of(schema)
+          schema_id = schema.respond_to?(:id) ? schema.id : schema.to_s
+          key = schema_id.safe_downcase
+          @dependencies.select { |_from, deps| deps.include?(key) }.keys
+        end
+
         def cross_schema_subtype_edges
           subtype_edges.count { |child, parent| child.split(".")[0] != parent.split(".")[0] }
         end

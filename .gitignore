@@ -48,3 +48,8 @@ CLAUDE.md
 Cargo.lock
 /ext/expressir_core/target/
 /ext/expressir_core/*.bundle
+
+# prebuilt binding staged by rake-compiler for platform gems
+/lib/expressir/expressir_core.bundle
+/lib/expressir/expressir_core.so
+/lib/expressir/expressir_core.dll

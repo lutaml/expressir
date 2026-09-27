@@ -1,0 +1,183 @@
+# Prebuilt platform gems (TODO.suma-improvements/01), following the
+# parsanol-ruby gem-build pattern: oxidize-rb cross-gem builds
+# per-platform gems in rake-compiler-dock containers, smoke jobs install
+# them on real runners, and tag pushes publish to rubygems.
+name: native-gems
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, "cross-gem/*", "pkg/*"]
+    tags: ["v*"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci-data:
+    runs-on: ubuntu-22.04
+    outputs:
+      result: ${{ steps.fetch.outputs.result }}
+    steps:
+      - id: fetch
+        uses: oxidize-rb/actions/fetch-ci-data@v1
+        with:
+          supported-ruby-platforms: |
+            exclude: [x64-mingw32]
+          stable-ruby-versions: |
+            only: [3.2, 3.3, 3.4, 4.0]
+
+  native:
+    name: Build native gems
+    needs: ci-data
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby-platform: ${{ fromJSON(needs.ci-data.outputs.result).supported-ruby-platforms }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+
+      - uses: oxidize-rb/actions/cross-gem@v1
+        id: cross-gem
+        env:
+          EXPRESSIR_CORE_FORCE: "1"
+        with:
+          platform: ${{ matrix.ruby-platform }}
+          ruby-versions: "3.2,3.3,3.4,4.0"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cross-gem-${{ matrix.ruby-platform }}
+          path: ${{ steps.cross-gem.outputs.gem-path }}
+          if-no-files-found: error
+
+  smoke-linux:
+    name: Smoke test Linux x86_64
+    needs: native
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+      - uses: actions/download-artifact@v4
+        with:
+          name: cross-gem-x86_64-linux
+          path: pkg/
+      - run: |
+          gem install pkg/expressir-*.gem --no-document
+          ruby .github/scripts/test_installed_gem.rb
+
+  smoke-linux-arm:
+    name: Smoke test Linux ARM64
+    needs: native
+    runs-on: ubuntu-22.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+      - uses: actions/download-artifact@v4
+        with:
+          name: cross-gem-aarch64-linux
+          path: pkg/
+      - run: |
+          gem install pkg/expressir-*.gem --no-document
+          ruby .github/scripts/test_installed_gem.rb
+
+  smoke-macos-arm:
+    name: Smoke test macOS ARM64
+    needs: native
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+      - uses: actions/download-artifact@v4
+        with:
+          name: cross-gem-arm64-darwin
+          path: pkg/
+      - run: |
+          gem install pkg/expressir-*.gem --no-document
+          ruby .github/scripts/test_installed_gem.rb
+
+  smoke-macos-intel:
+    name: Smoke test macOS x86_64
+    needs: native
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+      - uses: actions/download-artifact@v4
+        with:
+          name: cross-gem-x86_64-darwin
+          path: pkg/
+      - run: |
+          gem install pkg/expressir-*.gem --no-document
+          ruby .github/scripts/test_installed_gem.rb
+
+  smoke-windows:
+    name: Smoke test Windows x64
+    needs: native
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+      - uses: actions/download-artifact@v4
+        with:
+          name: cross-gem-x64-mingw-ucrt
+          path: pkg/
+      - run: |
+          gem install pkg/expressir-*.gem --no-document
+          ruby .github/scripts/test_installed_gem.rb
+
+  source:
+    name: Build source gem
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oxidize-rb/actions/setup-ruby-and-rust@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+          cargo-cache: true
+      - run: bundle exec rake build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-gem
+          path: pkg/*.gem
+          if-no-files-found: error
+
+  release:
+    name: Release gems to rubygems
+    needs: [native, smoke-linux, smoke-linux-arm, smoke-macos-arm, smoke-macos-intel, smoke-windows, source]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-22.04
+    environment: release
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: pkg/
+          pattern: cross-gem-*
+          merge-multiple: true
+      - name: Push to rubygems
+        env:
+          GEM_HOST_API_KEY: ${{ secrets.LUTAML_CI_RUBYGEMS_API_KEY }}
+        run: |
+          for gem in pkg/expressir-*.gem; do
+            gem push "$gem"
+          done

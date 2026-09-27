@@ -41,6 +41,36 @@ RSpec.describe Expressir::Express::Parser do # compiled schema set
       .to eq(cold.item_graph.dependencies_of(cold.schemas.first.id))
   end
 
+  it "writes and warm-loads the artifact on the sequential path" do
+    skip "native extension with compiled-set support required" unless core_available?
+
+    single = [files.first]
+    cold = described_class.from_files(single, compiled_set: set_path)
+    expect(File.exist?(set_path)).to be(true)
+    expect(File.exist?("#{set_path}.remarks.json")).to be(true)
+    expect(File.exist?("#{set_path}.graph.json")).to be(true)
+    cold_hashes = cold.files.map(&:to_hash)
+
+    warm = described_class.from_files(single, compiled_set: set_path)
+    expect(warm.files.map(&:to_hash)).to eq(cold_hashes)
+  end
+
+  it "writes and warm-loads the artifact when the batch is disabled" do
+    skip "native extension with compiled-set support required" unless core_available?
+
+    ENV["EXPRESSIR_BATCH"] = "0"
+    begin
+      cold = described_class.from_files(files, compiled_set: set_path)
+      expect(File.exist?(set_path)).to be(true)
+      cold_hashes = cold.files.map(&:to_hash)
+    ensure
+      ENV.delete("EXPRESSIR_BATCH")
+    end
+
+    warm = described_class.from_files(files, compiled_set: set_path)
+    expect(warm.files.map(&:to_hash)).to eq(cold_hashes)
+  end
+
   it "rejects an artifact whose sources changed" do
     skip "native extension with compiled-set support required" unless core_available?
 

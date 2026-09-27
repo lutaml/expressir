@@ -160,6 +160,10 @@ module Expressir
                         end
 
         repository = build_repository(all_exp_files, skip_references: skip_references)
+        if set_path && !skip_references && !File.exist?(set_path) &&
+            core_set_available? && !all_exp_files.include?(nil)
+          write_compiled_set(set_path, files, all_exp_files, root_path)
+        end
         if set_path && !skip_references && File.exist?(set_path)
           files = all_exp_files.compact
           RefsOverlay.write(set_path, files)
@@ -382,6 +386,47 @@ include_source: nil, root_path: nil, use_native: nil, &block)
 
         all_exp_files
       end
+
+      # Artifact write for the non-batch paths (single file,
+      # EXPRESSIR_BATCH=0, small sequential sets): serializes the
+      # parsed models through Core.write_set, producing the same
+      # artifact shape the batch path writes natively. The wire is
+      # pre-remark — RemarkOverlay.write carries the remark-derived
+      # attributes, exactly as it does for the batch path.
+      def self.write_compiled_set(set_path, files, exp_files, root_path)
+        require "digest"
+        require "json"
+        schema_file_for = lambda do |file|
+          root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
+        end
+        entries = files.zip(exp_files).map do |file, exp_file|
+          [schema_file_for.call(file),
+           Digest::SHA256.file(file.to_s).hexdigest,
+           JSON.generate(strip_remark_wire(exp_file.to_hash))]
+        end
+        ::Expressir::Core.write_set(set_path, entries, Expressir::Version::VERSION)
+        RemarkOverlay.write(set_path, exp_files)
+      end
+      private_class_method :write_compiled_set
+
+      # Deep copy of a serialized model without the RemarkOverlay
+      # attributes: the artifact wire carries only the parsed model;
+      # untagged remarks are plain hashes that the Rust hydrator
+      # cannot instantiate, and every remark-derived value belongs to
+      # the overlay anyway.
+      def self.strip_remark_wire(node)
+        case node
+        when Hash
+          node.each_with_object({}) do |(key, value), out|
+            out[key] = strip_remark_wire(value) unless RemarkOverlay::CAPTURED.include?(key)
+          end
+        when Array
+          node.map { |value| strip_remark_wire(value) }
+        else
+          node
+        end
+      end
+      private_class_method :strip_remark_wire
 
       def self.build_repository(all_exp_files, skip_references: nil)
         repository = Model::Repository.new(files: all_exp_files)

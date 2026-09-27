@@ -24,7 +24,10 @@ end
 # Windows rubies are mingw-built while rustup defaults to the msvc
 # toolchain; rb-sys cannot bridge the two, so skip there too (windows
 # installs fall back to the pure-Ruby parser).
-if RUBY_PLATFORM.include?("mingw")
+# Local mingw rubies pair with an msvc-default cargo and cannot build;
+# cross-gem containers carry the coherent gnu toolchain, so the skip is
+# bypassable there (EXPRESSIR_CORE_FORCE=1).
+if RUBY_PLATFORM.include?("mingw") && ENV["EXPRESSIR_CORE_FORCE"] != "1"
   write_noop_makefile
   warn "expressir: skipping the Rust core extension on mingw (msvc " \
        "toolchain mismatch)"

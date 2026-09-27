@@ -71,4 +71,66 @@ RSpec.describe Expressir::Express::Xsd do
   it "resolves attribute types to schema-local defined types" do
     expect(xml).to include("<xs:element name=\"name\" type=\"label\"")
   end
+
+  it "derives subtypes from their supertype through xs:extension" do
+    aggregate_failures do
+      expect(xml).to include("<xs:complexContent>")
+      expect(xml).to include("<xs:extension base=\"base\">")
+    end
+  end
+
+  context "with a select type (v2, expressir #276)" do
+    let(:schema_source) do
+      <<~EXP
+        SCHEMA demo;
+        TYPE color = ENUMERATION OF (red, green); END_TYPE;
+        TYPE label = STRING; END_TYPE;
+        TYPE choice = SELECT (widget, gadget, color, label); END_TYPE;
+        ENTITY widget; name : label; END_ENTITY;
+        ENTITY gadget; shade : color; END_ENTITY;
+        ENTITY holder; pick : choice; picks : LIST [0:?] OF choice; END_ENTITY;
+        ENTITY mix SUBTYPE OF (widget, gadget); extra : label; END_ENTITY;
+        END_SCHEMA;
+      EXP
+    end
+
+    it "maps a select to a complexType with a choice over its members" do
+      aggregate_failures do
+        expect(xml).to include("<xs:complexType name=\"choice\">")
+        expect(xml).to include("<xs:choice>")
+      end
+    end
+
+    it "references entity members through their global elements" do
+      aggregate_failures do
+        expect(xml).to include("<xs:element ref=\"widget\"")
+        expect(xml).to include("<xs:element ref=\"gadget\"")
+      end
+    end
+
+    it "carries defined-type members by name and type" do
+      aggregate_failures do
+        expect(xml).to include("<xs:element name=\"color\" type=\"color\"")
+        expect(xml).to include("<xs:element name=\"label\" type=\"label\"")
+      end
+    end
+
+    it "types select-valued attributes with the select complexType" do
+      aggregate_failures do
+        expect(xml).to include("<xs:element name=\"pick\" type=\"choice\"")
+        expect(xml).to include(
+          "<xs:element name=\"picks\" type=\"choice\" maxOccurs=\"unbounded\"",
+        )
+      end
+    end
+
+    it "carries later parents' attributes for multiple inheritance" do
+      mix = xml[/<xs:complexType name="mix">.*?<\/xs:complexType>/m]
+      aggregate_failures do
+        expect(mix).to include("<xs:extension base=\"widget\">")
+        expect(mix).to include("<xs:element name=\"extra\" type=\"label\"")
+        expect(mix).to include("<xs:element name=\"shade\" type=\"color\"")
+      end
+    end
+  end
 end

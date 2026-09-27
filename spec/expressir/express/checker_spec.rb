@@ -390,6 +390,168 @@ RSpec.describe Expressir::Express::Checker do
     end
   end
 
+  describe "check-inverse-entity" do
+    it "flags an INVERSE target that is not an entity" do
+      result = check(
+        "a" => <<~EXP,
+          SCHEMA a;
+          TYPE label = STRING;
+          END_TYPE;
+          ENTITY holder;
+            id : STRING;
+          INVERSE
+            inv : label FOR id;
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id)).to include(:check_inverse_entity)
+    end
+  end
+
+  describe "check-inverse-attrib-ref" do
+    it "flags an INVERSE naming a missing attribute" do
+      result = check(
+        "a" => <<~EXP,
+          SCHEMA a;
+          ENTITY holder;
+            id : STRING;
+          INVERSE
+            inv : holder FOR ghost;
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id)).to include(:check_inverse_attrib_ref)
+    end
+  end
+
+  describe "check-inverse-derive" do
+    it "flags an INVERSE pairing with a DERIVE attribute" do
+      result = check(
+        "a" => <<~EXP,
+          SCHEMA a;
+          ENTITY holder;
+            id : STRING;
+          DERIVE
+            dv : STRING := 'x';
+          INVERSE
+            inv : holder FOR dv;
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id)).to include(:check_inverse_derive)
+    end
+  end
+
+  describe "check-inverse-inverse" do
+    it "flags an INVERSE pairing with another INVERSE" do
+      result = check(
+        "a" => <<~EXP,
+          SCHEMA a;
+          ENTITY pair;
+            dr : pair;
+          INVERSE
+            back : pair FOR dr;
+            bad : pair FOR back;
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id)).to include(:check_inverse_inverse)
+    end
+  end
+
+  describe "qualified-attrib-group-not-found" do
+    it "flags a group qualifier that resolves to no entity" do
+      result = check(
+        "a" => <<~EXP,
+          SCHEMA a;
+          ENTITY holder;
+            id : STRING;
+          WHERE
+            WR1: EXISTS(SELF\\ghost.g);
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id))
+        .to include(:qualified_attrib_group_not_found)
+    end
+  end
+
+  describe "qualified-attrib-group-not-ancestor" do
+    it "flags a redeclared SELF group outside the supertype chain" do
+      result = check(
+        "a" => <<~EXP,
+          SCHEMA a;
+          ENTITY base;
+            n : STRING;
+          END_ENTITY;
+          ENTITY other;
+            k : STRING;
+          END_ENTITY;
+          ENTITY adopter SUBTYPE OF (base);
+            SELF\\other.k RENAMED stolen : STRING;
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id))
+        .to include(:qualified_attrib_group_not_ancestor)
+    end
+  end
+
+  describe "qualified-attrib-attr-not-found" do
+    it "flags a group qualifier naming a missing attribute" do
+      result = check(
+        "a" => <<~EXP,
+          SCHEMA a;
+          ENTITY base;
+            n : STRING;
+          END_ENTITY;
+          ENTITY sub SUBTYPE OF (base);
+          WHERE
+            WR1: EXISTS(SELF\\base.ghost);
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+      )
+      expect(result.errors.map(&:id))
+        .to include(:qualified_attrib_attr_not_found)
+    end
+  end
+
+  describe "SELF group and INVERSE clean forms" do
+    it "accepts valid qualifiers and inverse pairings" do
+      result = check(
+        "a" => <<~EXP,
+          SCHEMA a;
+          ENTITY base;
+            n : STRING;
+          END_ENTITY;
+          ENTITY sub SUBTYPE OF (base);
+            dr : sub;
+          DERIVE
+            dv : STRING := SELF\\base.n;
+          INVERSE
+            back : sub FOR dr;
+          WHERE
+            WR1: EXISTS(SELF\\base.n);
+          END_ENTITY;
+          END_SCHEMA;
+        EXP
+      )
+      tranche3 = %i[check_inverse_entity check_inverse_attrib_ref
+                    check_inverse_inverse check_inverse_derive
+                    qualified_attrib_group_not_found
+                    qualified_attrib_group_not_ancestor
+                    qualified_attrib_attr_not_found]
+      expect(result.notes.map(&:id) & tranche3).to be_empty
+    end
+  end
+
   describe "clean schema" do
     it "reports no errors for a self-contained schema" do
       result = check(

@@ -21,13 +21,13 @@ if RUBY_ENGINE != "ruby" || ENV["EXPRESSIR_CORE"] == "0"
   exit 0
 end
 
-# Windows rubies are mingw-built while rustup defaults to the msvc
-# toolchain; rb-sys cannot bridge the two, so skip there too (windows
-# installs fall back to the pure-Ruby parser).
 # Local mingw rubies pair with an msvc-default cargo and cannot build;
-# cross-gem containers carry the coherent gnu toolchain, so the skip is
-# bypassable there (EXPRESSIR_CORE_FORCE=1).
-if RUBY_PLATFORM.include?("mingw") && ENV["EXPRESSIR_CORE_FORCE"] != "1"
+# cross-build environments (rake-compiler sets RUBY_CC_VERSION there —
+# extconf runs under the cross mingw ruby) carry the coherent gnu
+# toolchain and MUST build: the prebuilt platform gems come from them.
+# EXPRESSIR_CORE_FORCE=1 remains the manual override.
+if RUBY_PLATFORM.include?("mingw") && ENV["EXPRESSIR_CORE_FORCE"] != "1" &&
+    !ENV.key?("RUBY_CC_VERSION")
   write_noop_makefile
   warn "expressir: skipping the Rust core extension on mingw (msvc " \
        "toolchain mismatch)"

@@ -35,8 +35,14 @@ begin
                 "ext/expressir_core/target/#{triple}/release/libexpressir_core.{so,dylib}"].first
       raise "binding artifact not found for #{plat} (#{triple})" unless art
 
-      cp art, "lib/expressir/"
-      spec.files << "lib/expressir/#{File.basename(art)}"
+      # core.rb requires "expressir/expressir_core", so the staged file
+      # must sit at the canonical Ruby extension path/name — cargo's
+      # lib- prefixed or .dll/.dylib-suffixed names are renamed to
+      # expressir_core.so (Ruby's require accepts .so on every target:
+      # DLEXT on linux/windows, DLEXT2 on darwin).
+      dest = "lib/expressir/expressir_core.so"
+      cp art, dest
+      spec.files << dest
     end
   end
 rescue LoadError

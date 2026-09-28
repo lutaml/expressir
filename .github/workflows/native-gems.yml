@@ -52,7 +52,12 @@ jobs:
           EXPRESSIR_CORE_FORCE: "1"
         with:
           platform: ${{ matrix.ruby-platform }}
-          ruby-versions: "3.2,3.3,3.4,4.0"
+          # Dock images provision cross rubies for 3.2-3.4 only; a 4.0
+          # leg silently falls back to the dock's host toolchain and
+          # fails linking (or worse, links against the wrong ruby).
+          # Ruby 4.0 users on these platforms get the pure-Ruby parser
+          # fallback until the images ship 4.0 cross rubies.
+          ruby-versions: "3.2,3.3,3.4"
 
       - uses: actions/upload-artifact@v4
         with:

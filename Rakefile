@@ -1,19 +1,32 @@
 # frozen_string_literal: true
 
 require "bundler/gem_tasks"
-require "rspec/core/rake_task"
 
-RSpec::Core::RakeTask.new(:spec)
+# Dev-tool tasks are optional: the rake-compiler-dock bundle carries
+# production dependencies only, and cross-gem builds must still load
+# the Rakefile.
+begin
+  require "rspec/core/rake_task"
 
-require "rubocop/rake_task"
+  RSpec::Core::RakeTask.new(:spec)
+rescue LoadError
+end
 
-RuboCop::RakeTask.new
+begin
+  require "rubocop/rake_task"
+
+  RuboCop::RakeTask.new
+rescue LoadError
+end
 
 task default: %i[spec rubocop]
 
-require "yard"
+begin
+  require "yard"
 
-YARD::Rake::YardocTask.new
+  YARD::Rake::YardocTask.new
+rescue LoadError
+end
 
 Dir.glob(File.expand_path("lib/tasks/*.rake", __dir__)).each { |task| load task }
 

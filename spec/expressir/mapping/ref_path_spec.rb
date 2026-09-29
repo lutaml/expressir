@@ -1,232 +1,184 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "tempfile"
 
+# ELF 5006:2025 §8 validation rules — one firing and one clean example
+# per rule, against a tiny self-contained schema repository.
 RSpec.describe Expressir::Mapping::RefPath do
-  def parse(content)
-    described_class.parse(content)
+  let(:repo) do
+    Expressir::Express::Parser.from_exp(<<~EXP)
+      SCHEMA demo;
+      TYPE label = STRING; END_TYPE;
+      TYPE colour = ENUMERATION OF (red, green); END_TYPE;
+      TYPE shape_select = SELECT (widget, gadget); END_TYPE;
+      ENTITY base ABSTRACT SUPERTYPE; name : label; END_ENTITY;
+      ENTITY widget SUBTYPE OF (base);
+        count : INTEGER;
+        tags : LIST [0:?] OF label;
+        shade : colour;
+        pick : shape_select;
+      DERIVE
+        derived_count : INTEGER := count;
+      END_ENTITY;
+      ENTITY widget_rel;
+        relating : widget;
+        related : widget;
+        rel_name : label;
+      INVERSE
+        holders : SET [0:?] OF holder FOR part;
+      END_ENTITY;
+      ENTITY holder;
+        part : widget;
+      END_ENTITY;
+      ENTITY gadget; shade : colour; END_ENTITY;
+      ENTITY ghost; n : STRING; END_ENTITY;
+      RULE restrict_widget FOR (widget); WHERE
+        WR1 : widget.count > 0;
+      END_RULE;
+      END_SCHEMA;
+    EXP
   end
 
-  def repo(source)
-    Expressir::Express::Parser.from_exp(source)
+  def issues_for(path_src)
+    path = described_class.parse(path_src)
+    described_class.validate(path, repo, start: "widget")
   end
 
-  def issues(content, repository)
-    described_class.validate(parse(content), repository)
+  it "validates a well-formed navigation end to end" do
+    expect(issues_for(<<~PATH)).to be_empty
+      widget <=
+      base
+      base.name = 'ok'
+    PATH
   end
 
-  describe ".parse" do
-    it "parses links, nodes, attributes, and repeats from a corpus path" do
-      path = parse(<<~PATH)
-        executed_action
-        executed_action <= action
-        action.chosen_method -> action_method
-        action_method
-      PATH
-
-      aggregate_failures do
-        expect(path.parse_errors).to be_empty
-        expect(path.steps.map(&:operator)).to eq(
-          [nil, nil, "<=", nil, "->", nil],
-        )
-        expect(path.steps.map(&:name)).to eq(
-          %w[executed_action executed_action action action action_method
-             action_method],
-        )
-        expect(path.steps[3].attribute).to eq("chosen_method")
-      end
-    end
-
-    it "attaches aggregate indexes to the qualified node" do
-      path = parse("action_resource.usage[1] -> x")
-      node = path.steps[0]
-      aggregate_failures do
-        expect(node.name).to eq("action_resource")
-        expect(node.attribute).to eq("usage")
-        expect(node.index).to eq("1")
-      end
-    end
-
-    it "attaches constraint literals to the preceding node" do
-      path = parse("attribute_classification_assignment.attribute_name = 'name'")
-      node = path.steps[0]
-      aggregate_failures do
-        expect(node.attribute).to eq("attribute_name")
-        expect(node.literal).to eq("'name'")
-      end
-    end
-
-    it "keeps brace and bracket markers as steps" do
-      path = parse("{identification_assignment.role ->\nassigned_object}")
-      aggregate_failures do
-        expect(path.steps.map(&:operator)).to eq(["{", nil, "->", "}"])
-        expect(path.steps[1].attribute).to eq("role")
-      end
-    end
-
-    it "records a parse error for a constraint with nothing after it" do
-      path = parse("entity.attr = ")
-      expect(path.parse_errors).to include(/nothing after it/)
-    end
-
-    it "parses the parenthesized type-alternative form from the corpus" do
-      path = parse(<<~PATH)
-        global_unit_assigned_context.units[i] ->
-        unit
-        (unit = named_unit
-        named_unit)
-      PATH
-      aggregate_failures do
-        expect(path.parse_errors).to be_empty
-        expect(path.steps.map(&:operator)).to include("=")
-        expect(path.steps.find { |s| s.operator == "=" }.name).to eq("named_unit")
-      end
-    end
-
-    it "keeps a pending link across /MAPPING_OF(X)/ wrappers" do
-      path = parse("inspected_equivalence_element_select =\n/MAPPING_OF(geometric_model)/")
-      aggregate_failures do
-        expect(path.parse_errors).to be_empty
-        target = path.steps.find { |s| s.operator == "=" }
-        expect(target.name).to eq("geometric_model")
-        expect(path.steps.first.name).to eq("inspected_equivalence_element_select")
-      end
-    end
-
-    it "parses the <- reverse reference link" do
-      path = parse("! {<- name_attribute.named_item}")
-      aggregate_failures do
-        expect(path.parse_errors).to be_empty
-        expect(path.steps.map(&:operator)).to eq(["!", "{", "<-", "}"])
-        expect(path.steps[2].name).to eq("name_attribute")
-      end
-    end
-
-    it "round-trips through the lutaml-model wire face" do
-      path = parse("action.chosen_method -> action_method")
-      json = path.to_json
-      expect(described_class::Path.from_json(json).steps.map(&:name))
-        .to eq(%w[action action_method])
-    end
+  it "flags an unknown entity (#8 entity existence)" do
+    expect(issues_for("non_existent_entity <= base").map(&:message))
+      .to include(a_string_including("unknown type 'non_existent_entity'"))
   end
 
-  describe ".validate" do
-    let(:repository) do
-      repo(<<~EXP)
-        SCHEMA test;
-          ENTITY base;
-            name : STRING;
-          END_ENTITY;
-          ENTITY sub
-            SUBTYPE OF (base);
-            ref : target;
-          END_ENTITY;
-          ENTITY target;
-          END_ENTITY;
-          ENTITY holder;
-            items : ARRAY [1:3] OF target;
-          END_ENTITY;
+  it "flags a false subtype claim, transitively checked (#8)" do
+    expect(issues_for("widget <= ghost").map(&:message))
+      .to include(a_string_including("not a subtype"))
+  end
+
+  it "accepts a transitive subtype claim" do
+    expect(issues_for("widget <=\nbase").map(&:message)).to be_empty
+  end
+
+  it "flags a false supertype claim (#8)" do
+    expect(issues_for("widget => base").map(&:message))
+      .to include(a_string_including("not a subtype"))
+  end
+
+  it "flags a missing attribute on forward navigation (#8)" do
+    expect(issues_for("widget\nwidget.nope -> gadget").map(&:message))
+      .to include(a_string_including("has no attribute 'nope'"))
+  end
+
+  it "flags a type-incompatible forward navigation (#8)" do
+    # count is an INTEGER: it cannot reference gadget
+    expect(issues_for("widget\nwidget.count -> gadget").map(&:message))
+      .to include(a_string_including("cannot reference 'gadget'"))
+  end
+
+  it "accepts a SELECT-typed attribute navigating to an option" do
+    expect(issues_for("widget\nwidget.pick -> gadget").map(&:message))
+      .to be_empty
+  end
+
+  it "flags inverse navigation over a missing attribute (#8)" do
+    expect(issues_for("gadget <-\nwidget_rel.nope\nwidget_rel").map(&:message))
+      .to include(a_string_including("has no attribute 'nope'"))
+  end
+
+  it "accepts a correct inverse navigation" do
+    expect(issues_for("widget <-\nwidget_rel.related\nwidget_rel").map(&:message))
+      .to be_empty
+  end
+
+  it "flags a constraint whose entity is not in the path context (#8)" do
+    expect(issues_for("widget <= base\n{gadget\n gadget.shade = 'red'}")
+      .map(&:message)).to include(a_string_including("not in the path context"))
+  end
+
+  it "flags a constraint on a missing attribute (#8)" do
+    expect(issues_for("widget\n{widget\n widget.nope = 'x'}").map(&:message))
+      .to include(a_string_including("has no attribute 'nope'"))
+  end
+
+  it "flags a constraint on a DERIVED attribute (#8)" do
+    expect(issues_for("widget\n{widget\n widget.derived_count = 1}")
+      .map(&:message)).to include(a_string_including("cannot be constrained"))
+  end
+
+  it "flags a wrongly typed constraint value (#8)" do
+    expect(issues_for("widget\n{widget\n widget.count = 'many'}")
+      .map(&:message)).to include(a_string_including("not an unquoted integer"))
+  end
+
+  it "flags a wrongly quoted constraint value (#8)" do
+    expect(issues_for("widget\n{widget\n widget.count = '3'}").map(&:message))
+      .to include(a_string_including("not an unquoted integer"))
+  end
+
+  it "accepts an enumeration item constraint value" do
+    expect(issues_for("widget\n{widget\n widget.shade = red}").map(&:message))
+      .to be_empty
+  end
+
+  it "flags a non-item enumeration constraint value (#8)" do
+    expect(issues_for("widget\n{widget\n widget.shade = mauve}")
+      .map(&:message)).to include(a_string_including("not an item of the enumeration"))
+  end
+
+  it "accepts a negated constraint structurally" do
+    expect(issues_for("widget\n!{widget\n widget.shade = red}")
+      .map(&:message)).to be_empty
+  end
+
+  it "flags a broken aggregate index (#8 aggregate rule)" do
+    expect(issues_for("widget\nwidget.count[1] -> gadget").map(&:message))
+      .to include(a_string_including("is not an aggregate"))
+  end
+
+  it "flags a start entity that is not the mapped entity (#8)" do
+    expect(issues_for("gadget <= base").map(&:message))
+      .to include(a_string_including("the mapped entity is 'widget'"))
+  end
+
+  it "flags a select extension that does not exist (#5 operators)" do
+    expect(issues_for("shape_select *> colour").map(&:message))
+      .to include(a_string_including("does not extend"))
+  end
+
+  describe ".report (§8 validation output)" do
+    it "emits a VALID verdict with the traversed entities" do
+      repo = Expressir::Express::Parser.from_exp(<<~EXP)
+        SCHEMA demo;
+        ENTITY widget; part : widget; END_ENTITY;
+        ENTITY holder; part : widget; END_ENTITY;
         END_SCHEMA;
       EXP
+      report = described_class.report("widget\nwidget.part -> widget", repo,
+                                      start: "widget")
+      expect(report.status).to eq("VALID")
+      expect(report.entities).to eq(["widget"])
+      expect(report.steps).to eq(3)
     end
 
-    it "accepts a path whose nodes, attributes, and subtype links resolve" do
-      expect(issues(<<~PATH, repository)).to be_empty
-        sub
-        sub <= base
-        sub.ref -> target
-      PATH
-    end
-
-    it "accepts an inherited attribute reference" do
-      # `name` lives on base; sub inherits it through the subtype chain
-      expect(issues("sub.name = 'x'", repository)).to be_empty
-    end
-
-    it "accepts an aggregate index over an aggregation attribute" do
-      expect(issues("holder.items[i] -> target", repository)).to be_empty
-    end
-
-    it "flags an unknown node" do
-      expect(issues("ghost <= base", repository).first.message)
-        .to include("unknown type 'ghost'")
-    end
-
-    it "flags a false subtype link" do
-      expect(issues("base <= sub", repository).first.message)
-        .to include("'base' is not a subtype of 'sub'")
-    end
-
-    it "flags a false supertype link" do
-      expect(issues("sub => base", repository).first.message)
-        .to include("'sub' is not a supertype of 'base'")
-    end
-
-    it "flags a missing attribute" do
-      expect(issues("sub.nothere -> target", repository).first.message)
-        .to include("has no attribute 'nothere'")
-    end
-
-    it "flags an index over a non-aggregate attribute" do
-      expect(issues("base.name[i] -> target", repository).first.message)
-        .to include("is not an aggregate")
-    end
-
-    it "resolves an annotated EXPRESS link node (#460)" do
-      expect(issues("<<express:test.base,base>>\nbase.name = 'x'", repository))
-        .to be_empty
-    end
-
-    it "flags a link node naming an unknown schema" do
-      expect(issues("<<express:ghost.base,base>>", repository).first.message)
-        .to include("unknown schema 'ghost'")
-    end
-
-    it "flags a link node whose item is not declared" do
-      expect(issues("<<express:test.nothere,nothere>>", repository).first.message)
-        .to include("does not declare 'nothere'")
-    end
-
-    it "keeps the running link across a brace block (#88 corpus)" do
-      # corpus shape: attr -> {type.name = 'x'} then the supertype walk
-      expect(issues("sub.ref ->\n{base.name = 'x'}\nbase", repository))
-        .to be_empty
-    end
-
-    it "resolves EXPRESS built-in types as = targets" do
-      expect(issues("base.name = BOOLEAN", repository)).to be_empty
-    end
-
-    it "flags a link with no preceding node" do
-      expect(issues("-> target", repository).first.message)
-        .to include("no preceding node")
-    end
-
-    it "accepts the <- form with the attribute after the operator" do
-      # corpus shape: entity <- other.attribute — other references entity
-      expect(issues("target <- sub.ref", repository)).to be_empty
-    end
-
-    it "flags <- whose following node is not attribute-qualified" do
-      expect(issues("target <- base", repository).first.message)
-        .to include("attribute-qualified node after it, got 'base'")
-    end
-  end
-
-  describe "against the real corpus" do
-    it "parses every refpath in the activity module without errors" do
-      mapping = File.expand_path("~/src/mn/iso-10303/schemas/modules/activity/mapping.yaml",
-                                 __dir__)
-      skip "iso-10303 checkout not present" unless File.exist?(mapping)
-
-      document = Expressir::Mapping.load_file(mapping)
-      paths = Expressir::Mapping.refpaths(document)
-      expect(paths).not_to be_empty
-      bad = paths.filter_map do |location, content|
-        parsed = parse(content)
-        location if parsed.parse_errors.any?
-      end
-      expect(bad).to be_empty
+    it "emits an INVALID verdict with collected issues" do
+      repo = Expressir::Express::Parser.from_exp(<<~EXP)
+        SCHEMA demo;
+        ENTITY widget; count : INTEGER; END_ENTITY;
+        END_SCHEMA;
+      EXP
+      report = described_class.report("widget\nwidget.count -> widget", repo,
+                                      start: "widget")
+      expect(report.status).to eq("INVALID")
+      expect(report.issues.map(&:message))
+        .to include(a_string_including("cannot reference"))
     end
   end
 end

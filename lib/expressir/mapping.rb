@@ -41,12 +41,33 @@ module Expressir
       end
     end
 
+    # An alternative mapping for an application element (corpus
+    # `alt_map:` entries): the same ARM concept mapped through a
+    # different MIM route, with its own reference path and rules.
+    class AltMap < Lutaml::Model::Serializable
+      attribute :id, :string
+      attribute :description, ReferencePath
+      attribute :aimelt, :string
+      attribute :refpath, ReferencePath
+      attribute :rules, ReferencePath
+
+      key_value do
+        map "id", to: :id
+        map "description", to: :description
+        map "aimelt", to: :aimelt
+        map "refpath", to: :refpath
+        map "rules", to: :rules
+      end
+    end
+
     class ApplicationElement < Lutaml::Model::Serializable
       attribute :entity, :string
       attribute :aimelt, :string
       attribute :extensible, :string
       attribute :original_module, :string
       attribute :refpath, ReferencePath
+      attribute :rules, ReferencePath
+      attribute :alt_map, AltMap, collection: true
       attribute :aa, AttributeMapping, collection: true
 
       key_value do
@@ -55,6 +76,8 @@ module Expressir
         map "extensible", to: :extensible
         map "original_module", to: :original_module
         map "refpath", to: :refpath
+        map "rules", to: :rules
+        map "alt_map", to: :alt_map
         map "aa", to: :aa
       end
     end
@@ -138,6 +161,9 @@ module Expressir
         [element.entity, element.aimelt] +
           element.aa.to_a.flat_map do |aa|
             [aa.attribute, aa.aimelt, aa.assertion_to]
+          end +
+          element.alt_map.to_a.flat_map do |alt|
+            [alt.aimelt, alt.description&.content]
           end
       end.compact + subtype_constraint_values(document)
     end
@@ -162,7 +188,65 @@ module Expressir
 
           entries << ["#{element.entity}.#{aa.attribute}", aa.refpath.content]
         end
+        element.alt_map.to_a.each do |alt|
+          next unless alt.refpath&.content
+
+          label = alt.id ? "#{element.entity}[#{alt.id}]" : element.entity.to_s
+          entries << [label, alt.refpath.content]
+        end
         entries
+      end
+    end
+
+    # Every `rules:` value in the document as [mapped entity, rule
+    # name, location label] triples — the rules-list reference
+    # position. The mapped entity is the ae entity's declared name
+    # (the item of its annotated link).
+    def rules_positions(document)
+      document.ae.to_a.flat_map do |element|
+        entity = entity_item(element.entity)
+        positions = []
+        if element.rules&.content
+          positions << [entity, element.rules.content, element.entity.to_s]
+        end
+        element.alt_map.to_a.each do |alt|
+          next unless alt.rules&.content
+
+          positions << [entity, alt.rules.content,
+                        "#{element.entity}[#{alt.id}]"]
+        end
+        positions
+      end
+    end
+
+    # The declared item of an annotated link value
+    # (<<express:SCHEMA.ITEM,ITEM>> → ITEM; bare value → itself).
+    def entity_item(value)
+      match = value.to_s.match(EXPRESS_LINK)
+      match ? match[2] || match[1].split(".").last : value.to_s
+    end
+
+    # ELF 5006 §8 rules-list validation: each named rule must be a
+    # global RULE in the repository whose FOR list includes the mapped
+    # entity (rule declarations are schema-level).
+    def rule_issues(document, repository)
+      rules_by_name = repository.schemas.flat_map(&:rules)
+        .select { |r| r.respond_to?(:id) && r.id }
+        .to_h { |r| [r.id.safe_downcase, r] }
+      rules_positions(document).filter_map do |entity, rule, _label|
+        decl = rules_by_name[rule.safe_downcase]
+        next if decl.nil? == false && entity.nil?
+        next if decl && for_list_includes?(decl, entity)
+
+        UnknownLink.new(text: "#{entity}.#{rule}", schema: entity,
+                        item: rule)
+      end
+    end
+
+    def for_list_includes?(rule_decl, entity)
+      Array(rule_decl.applies_to).any? do |ref|
+        id = ref.respond_to?(:id) ? ref.id : ref.to_s
+        id&.safe_downcase == entity.safe_downcase
       end
     end
   end

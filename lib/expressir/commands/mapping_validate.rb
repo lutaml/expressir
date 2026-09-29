@@ -21,10 +21,16 @@ module Expressir
           say "refpath #{location} [step #{issue.step}]: #{issue.message}"
         end
 
-        total = unknown.size + issues.size
+        rule_issues = Expressir::Mapping.rule_issues(document, repository)
+        rule_issues.each do |missing|
+          say "unknown rule: #{missing.text}"
+        end
+
+        total = unknown.size + issues.size + rule_issues.size
         unless total.zero?
           raise Thor::Error, "#{unknown.size} unknown link(s), " \
-                             "#{issues.size} refpath issue(s)"
+                             "#{issues.size} refpath issue(s), " \
+                             "#{rule_issues.size} unknown rule(s)"
         end
 
         say "all links and reference paths resolve"
@@ -35,10 +41,12 @@ module Expressir
       def refpath_issues(document, repository)
         Expressir::Mapping.refpaths(document).flat_map do |location, content|
           parsed = Expressir::Mapping::RefPath.parse(content)
+          start = Expressir::Mapping.entity_item(location)
           parsed.parse_errors.map do |error|
             [location, Expressir::Mapping::RefPath::Issue.new(step: nil,
                                                               message: error)]
-          end + Expressir::Mapping::RefPath.validate(parsed, repository)
+          end + Expressir::Mapping::RefPath.validate(parsed, repository,
+                                                     start: start)
             .map { |issue| [location, issue] }
         end
       end

@@ -7,9 +7,9 @@ require "thor"
 RSpec.describe Expressir::Commands::MappingValidate do
   def write_module(dir, mapping_body)
     File.write(File.join(dir, "arm.exp"),
-               "SCHEMA m_arm;\nENTITY thing; a : STRING; END_ENTITY;\nEND_SCHEMA;\n")
+               "SCHEMA m_arm;\nENTITY thing; a : STRING; parent : thing; END_ENTITY;\nEND_SCHEMA;\n")
     File.write(File.join(dir, "mim.exp"),
-               "SCHEMA m_mim;\nUSE FROM m_arm (thing);\nENTITY thing; a : STRING; END_ENTITY;\nEND_SCHEMA;\n")
+               "SCHEMA m_mim;\nUSE FROM m_arm (thing);\nENTITY thing; a : STRING; parent : thing; END_ENTITY;\nEND_SCHEMA;\n")
     File.write(File.join(dir, "mapping.yaml"), mapping_body)
   end
 
@@ -53,7 +53,7 @@ RSpec.describe Expressir::Commands::MappingValidate do
           refpath:
             content: |-
               thing
-              thing.a -> thing
+              thing.parent -> thing
         sc: []
       YAML
       expect do
@@ -76,7 +76,7 @@ RSpec.describe Expressir::Commands::MappingValidate do
       YAML
       expect do
         described_class.new({}).run(File.join(dir, "mapping.yaml"))
-      end.to raise_error(Thor::Error, /1 refpath issue/)
+      end.to raise_error(Thor::Error, /2 refpath issue/)
     end
   end
 

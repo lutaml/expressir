@@ -71,6 +71,18 @@ RSpec.describe Expressir::Express::Parser do # compiled schema set
     expect(warm.files.map(&:to_hash)).to eq(cold_hashes)
   end
 
+  it "warns and skips the artifact write when the core extension is absent" do
+    skip "native extension present; stubbing exercises the absent path" if core_available?
+    set_path = File.expand_path("tmp_compiled_set_absent.exscs", Dir.tmpdir)
+    allow(described_class).to receive(:core_set_available?).and_return(false)
+    expect do
+      described_class.from_files([files.first], compiled_set: set_path)
+    end.to output(/compiled-set write to .* skipped.*expressir-core native extension is unavailable/).to_stderr
+    expect(File.exist?(set_path)).to be(false)
+  ensure
+    FileUtils.rm_f(set_path)
+  end
+
   it "rejects an artifact whose sources changed" do
     skip "native extension with compiled-set support required" unless core_available?
 

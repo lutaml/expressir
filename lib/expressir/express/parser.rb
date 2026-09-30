@@ -161,8 +161,13 @@ module Expressir
 
         repository = build_repository(all_exp_files, skip_references: skip_references)
         if set_path && !skip_references && !File.exist?(set_path) &&
-            core_set_available? && !all_exp_files.include?(nil)
-          write_compiled_set(set_path, files, all_exp_files, root_path)
+            !all_exp_files.include?(nil)
+          if core_set_available?
+            write_compiled_set(set_path, files, all_exp_files, root_path)
+          else
+            warn "expressir: compiled-set write to #{set_path} skipped: " \
+                 "the expressir-core native extension is unavailable"
+          end
         end
         if set_path && !skip_references && File.exist?(set_path)
           files = all_exp_files.compact
@@ -247,7 +252,6 @@ module Expressir
       def self.core_set_available?
         Core::NATIVE_AVAILABLE && ::Expressir::Core.const_defined?(:Set, false)
       end
-      private_class_method :core_set_available?
 
       # Concurrent core-path parse: workers compile in the background
       # while this thread hydrates, attaches remarks, and reports

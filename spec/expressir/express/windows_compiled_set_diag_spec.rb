@@ -23,6 +23,10 @@ RSpec.describe "windows compiled-set diagnostics" do
     puts "diag batch_available?=#{Expressir::Express::Parser.batch_available?}" rescue puts "diag batch_available? raised: #{$!.message}"
     puts "diag Core.write_set=#{Expressir::Core.respond_to?(:write_set)}"
 
+    unless Expressir::Express::Core::NATIVE_AVAILABLE
+      skip "native extension required for the compiled-set write"
+    end
+
     set_path = File.join(dir, "schema-closure.exscs")
     repo = Expressir::Express::Parser.from_files(files, compiled_set: set_path)
     puts "diag repo=#{repo.class}"

@@ -24,6 +24,11 @@ Gem::Specification.new do |spec|
   spec.metadata["rubygems_mfa_required"] = "true"
 
   spec.required_ruby_version = Gem::Requirement.new(">= 3.2.0")
+  # Source gem builds on the ruby platform; declaring it keeps
+  # rake-compiler's `gem` task from rebuilding the extension for the
+  # host ruby during cross builds (rb-sys then sees a windows
+  # CARGO_BUILD_TARGET with linux headers and refuses).
+  spec.platform = Gem::Platform::RUBY
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     `git ls-files -z`.split("\x0").reject do |f|

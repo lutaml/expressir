@@ -7,43 +7,16 @@
 # artifact in lib/expressir/, which core.rb's first require finds.
 begin
   require "rb_sys/extensiontask"
-  require "rb_sys/toolchain_info"
 
   gemspec = Gem::Specification.load("expressir.gemspec")
 
   RbSys::ExtensionTask.new("expressir_core", gemspec) do |ext|
     ext.lib_dir = "lib/expressir"
-
-    ext.cross_compiling do |spec|
-      next if spec.platform == Gem::Platform::RUBY
-
-      plat = spec.platform.to_s
-      triple = begin
-        RbSys::ToolchainInfo::DATA.fetch(plat).fetch("rust-target")
-      rescue KeyError
-        { "arm-linux-musl" => "arm-unknown-linux-musleabihf" }.fetch(plat)
-      end
-
-      # rb-sys's cargo build already ran for the cross target; stage the
-      # artifact from the tree (rake-compiler stages callback-added files).
-      # rb_sys uses a per-package target dir unless the crate is a
-      # workspace member (then the root target/ holds artifacts) — glob
-      # both layouts.
-      art = Dir["target/#{triple}/release/expressir_core.{so,dylib,dll}",
-                "target/#{triple}/release/libexpressir_core.{so,dylib}",
-                "ext/expressir_core/target/#{triple}/release/expressir_core.{so,dylib,dll}",
-                "ext/expressir_core/target/#{triple}/release/libexpressir_core.{so,dylib}"].first
-      raise "binding artifact not found for #{plat} (#{triple})" unless art
-
-      # core.rb requires "expressir/expressir_core", so the staged file
-      # must sit at the canonical Ruby extension path/name — cargo's
-      # lib- prefixed or .dll/.dylib-suffixed names are renamed to
-      # expressir_core.so (Ruby's require accepts .so on every target:
-      # DLEXT on linux/windows, DLEXT2 on darwin).
-      dest = "lib/expressir/expressir_core.so"
-      cp art, dest
-      spec.files << dest
-    end
+    # rb-sys stages the cross-built artifact itself; a manual cp into
+    # lib_dir here would claim the file rake-compiler's own
+    # copy:expressir_core:<host-platform> task owns, and the cross gem's
+    # dependency chain would then force a host-ruby build (rb-sys
+    # refuses windows bindings from linux headers).
   end
 rescue LoadError
   # rake-compiler/rb_sys not installed (consumer checkouts); the native

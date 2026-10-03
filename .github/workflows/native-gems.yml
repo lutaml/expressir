@@ -192,7 +192,7 @@ jobs:
           name: source-gem
       # OIDC trusted publishing - the repo has no rubygems API-key secret;
       # release.yml publishes through the same exchange.
-      - uses: rubygems/configure-rubygems-credentials@v2
+      - uses: rubygems/configure-rubygems-credentials@v2.1.0
       - name: Push to rubygems
         run: |
           for gem in pkg/expressir-*.gem; do

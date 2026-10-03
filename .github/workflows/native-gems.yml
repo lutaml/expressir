@@ -177,7 +177,8 @@ jobs:
     # workflow copy, so fixes cannot reach them any other way).
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-22.04
-    environment: release
+    # No environment: the rubygems.org trusted publisher for native-gems.yml
+    # is registered without one; an environment claim would fail the match.
     permissions:
       id-token: write
     steps:

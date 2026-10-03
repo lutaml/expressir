@@ -26,4 +26,9 @@ sc = Expressir::Express::Parser.from_exp(src).schemas.first.subtype_constraints.
 abort "FAIL: subtype constraint ABSTRACT body (#462)" unless sc&.abstract == true
 puts "#462 form: ok"
 
+# The platform gems force-build the Rust compiled-set writer; a leg that
+# shipped a non-loadable expressir_core would otherwise pass this smoke.
+abort "FAIL: core_set_available is false" unless Expressir::Express::Parser.core_set_available?
+puts "compiled-set core: ok"
+
 puts "SMOKE OK"

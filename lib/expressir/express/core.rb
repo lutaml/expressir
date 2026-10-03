@@ -13,10 +13,21 @@ module Expressir
         true
       rescue LoadError
         begin
-          require_relative "../../../ext/expressir_core/expressir_core"
+          # Platform gems carry the fat-binary layout
+          # (lib/expressir/<major.minor>/expressir_core.so); rubygems
+          # does not resolve versioned dirs under a nested require path,
+          # so the version segment is explicit - same contract as
+          # parsanol's loader.
+          ruby_version = RUBY_VERSION.split(".").take(2).join(".")
+          require "expressir/#{ruby_version}/expressir_core"
           true
         rescue LoadError
-          false
+          begin
+            require_relative "../../../ext/expressir_core/expressir_core"
+            true
+          rescue LoadError
+            false
+          end
         end
       end
 

@@ -197,5 +197,8 @@ jobs:
       - name: Push to rubygems
         run: |
           for gem in pkg/expressir-*.gem; do
-            gem push "$gem"
+            # Idempotent: a gem already on rubygems (e.g. the source gem
+            # shipped by release.yml ahead of the platform run) is a skip,
+            # not a failure.
+            gem push "$gem" || echo "::warning::$(basename "$gem") already published or rejected; continuing"
           done

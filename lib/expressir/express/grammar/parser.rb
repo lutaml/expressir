@@ -614,7 +614,13 @@ module Expressir
           (unaryOp >> simpleFactorExpression).as(:simpleFactorUnaryExpression)
         end
         rule(:simpleId) do
-          anyKeyword.absent? >> cts((match["a-zA-Z_"] >> match["a-zA-Z0-9_"].repeat).as(:str)).as(:simpleId)
+          # One quantified Re, not lead >> tail-repeat: under skip
+          # injection the DSL interleaves trivia before the tail
+          # repetition, so a two-atom ident would absorb the following
+          # whitespace-separated identifier ("RULE r FOR (e)" parses
+          # "r FOR" as one simpleId). A quantified Re consumes the
+          # whole identifier in a single step — parsanol GH-69.
+          anyKeyword.absent? >> cts(match("[a-zA-Z_][a-zA-Z0-9_]*").as(:str)).as(:simpleId)
         end
         rule(:simpleStringLiteral) do
           cts((str("'") >> (str("'").absent? >> any).repeat >> str("'")).as(:str)).as(:simpleStringLiteral)

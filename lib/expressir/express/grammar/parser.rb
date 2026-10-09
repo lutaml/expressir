@@ -27,6 +27,16 @@ module Expressir
         # Files above this use parse_fresh which has no packrat cache
         LARGE_FILE_THRESHOLD = 1024 * 1024 # 1 MB
 
+        # Whitespace rides the engine's injected trivia (parsanol-ruby
+        # #180's source-preserving mode, 1.3.82+): each unit records
+        # verbatim under :space and attaches to the next Named capture.
+        # Remarks stay OUT of the skip rule — they are product data,
+        # captured by the tailRemark/embeddedRemark rules and attached
+        # by RemarkScanner; tail remarks attach backward, the engine's
+        # next-capture channel is the wrong direction for them.
+        rule(:trivia) { match[" \r\n\t\f"].repeat(1) }
+        skip(:trivia, whitespace: :space)
+
         # Get cached parser instance (thread-safe)
         # Reusing the parser avoids the overhead of reinitializing all rule definitions
         def self.cached_parser

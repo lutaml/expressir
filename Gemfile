@@ -9,6 +9,10 @@ gem "irb"
 gem "lutaml-model", github: "lutaml/lutaml-model", branch: "main"
 gem "openssl", "~> 3.0"
 gem "rake"
+# bisect vehicle (#487): replay the last-green combo exactly —
+# expressir d5d5c27 (2026-09-23) with parsanol pinned to 1.3.53,
+# the version that run resolved. Dev-bundle pin only.
+gem "parsanol", "1.3.53"
 gem "rspec"
 gem "rubocop"
 gem "rubocop-performance"

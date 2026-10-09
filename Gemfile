@@ -10,6 +10,11 @@ gem "lutaml-model", "0.8.76"
 gem "openssl", "~> 3.0"
 gem "rake"
 gem "rake-compiler"
+# yeptris mingw hang (#487): builds 0.6.20+ hang at FFI attach on
+# windows (the last-green run of 2026-09-23 resolved 0.6.19). Dev-bundle
+# pin until a yeptris release fixes the mingw build; the expressir
+# gemspec carries no yeptris constraint of its own.
+gem "yeptris", "0.6.19"
 gem "rspec"
 gem "rubocop"
 gem "rubocop-performance"

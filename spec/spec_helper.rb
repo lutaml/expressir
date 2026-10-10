@@ -1,5 +1,12 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
+# leptris 1.9.242+ mingw builds hang at native attach on windows (the
+# windows sibling of leptris/leptris#1623): the rake matrix jobs have
+# hit the 6h runner limit since the bundle moved to the leptris 1.9.3xx
+# line (expressir#487). The pure-Ruby fallback avoids the attach; the
+# gem line stays untouched.
+ENV["LEPTRIS_NO_NATIVE"] = "1" if Gem.win_platform?
+
 require "bundler/setup"
 require "expressir"
 require "yaml"

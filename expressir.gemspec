@@ -51,7 +51,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "moxml"
   spec.add_dependency "nokogiri", "~> 1.19"
   spec.add_dependency "paint"
-  spec.add_dependency "parsanol", "~> 1.3.9", ">= 1.3.9"
+  spec.add_dependency "parsanol", "~> 1.3.9", ">= 1.3.89"
   spec.add_dependency "ruby-progressbar", "~> 1.11"
   spec.add_dependency "rubyzip", "~> 3.7"
   spec.add_dependency "table_tennis"

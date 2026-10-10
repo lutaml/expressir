@@ -35,7 +35,13 @@ module Expressir
         # by RemarkScanner; tail remarks attach backward, the engine's
         # next-capture channel is the wrong direction for them.
         rule(:trivia) { match[" \r\n\t\f"].repeat(1) }
-        skip(:trivia, whitespace: :space)
+        # exempt (parsanol#195, shipped 1.3.89): token rules whose bodies
+        # manage their own internals — injection before a char-class tail
+        # repetition absorbs the following token across whitespace
+        # ("RULE r FOR" parsed as one simpleId). simpleId additionally
+        # matches as a single quantified Re, which needs no exemption;
+        # the two mechanisms agree and stay for defense in depth.
+        skip(:trivia, whitespace: :space, exempt: %i[simpleId digits])
 
         # Get cached parser instance (thread-safe)
         # Reusing the parser avoids the overhead of reinitializing all rule definitions

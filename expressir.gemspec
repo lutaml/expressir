@@ -42,7 +42,7 @@ Gem::Specification.new do |spec|
   spec.extensions = ["ext/expressir_core/extconf.rb"]
   spec.add_dependency "rb_sys", "~> 0.9.130"
 
-  spec.add_dependency "base64", ">= 1.1"
+  spec.add_dependency "base64", ">= 0.1.0"
   spec.add_dependency "benchmark"
   spec.add_dependency "benchmark-ips"
   spec.add_dependency "csv"

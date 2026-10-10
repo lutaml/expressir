@@ -42,18 +42,18 @@ Gem::Specification.new do |spec|
   spec.extensions = ["ext/expressir_core/extconf.rb"]
   spec.add_dependency "rb_sys", "~> 0.9.130"
 
-  spec.add_dependency "base64"
+  spec.add_dependency "base64", ">= 1.1"
   spec.add_dependency "benchmark"
   spec.add_dependency "benchmark-ips"
   spec.add_dependency "csv"
-  spec.add_dependency "liquid"
+  spec.add_dependency "liquid", "~> 5"
   spec.add_dependency "lutaml-model", "~> 0.8.76"
   spec.add_dependency "moxml"
-  spec.add_dependency "nokogiri"
+  spec.add_dependency "nokogiri", "~> 1.19"
   spec.add_dependency "paint"
   spec.add_dependency "parsanol", "~> 1.3.9", ">= 1.3.9"
   spec.add_dependency "ruby-progressbar", "~> 1.11"
-  spec.add_dependency "rubyzip"
+  spec.add_dependency "rubyzip", "~> 3.7"
   spec.add_dependency "table_tennis"
   spec.add_dependency "thor", "~> 1.0"
   # Native YAML/JSON engine (lutaml-model opt-in by bundle contents)

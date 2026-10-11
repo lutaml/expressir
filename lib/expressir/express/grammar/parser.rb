@@ -56,6 +56,15 @@ module Expressir
 
         # Check if native parsing is available
         def self.native_available?
+          # parsanol 1.3.54+ x64-mingw builds deadlock inside the native
+          # parse at runtime: the library loads (early examples run) but
+          # the first parse never returns (expressir#487 — every windows
+          # rake run since 2026-09-29 hit the 6h limit; the control at
+          # green-era leptris/moxml/yeptris still hangs, parsanol 1.3.53
+          # was green). The pure-Ruby engine is correct, so windows falls
+          # back to it until parsanol fixes the mingw build.
+          return false if Gem.win_platform?
+
           return @native_available unless @native_available.nil?
 
           @native_available = begin

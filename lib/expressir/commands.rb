@@ -21,7 +21,7 @@ module Expressir
     autoload :Changes, "#{__dir__}/commands/changes"
     autoload :ChangesValidate, "#{__dir__}/commands/changes_validate"
     autoload :ChangesImportEengine, "#{__dir__}/commands/changes_import_eengine"
-    autoload :Version, "#{__dir__}/commands/version"
+    autoload :Version, "#{__dir__}/commands/version_command"
     autoload :Package, "#{__dir__}/commands/package"
     autoload :Manifest, "#{__dir__}/commands/manifest"
     autoload :MappingValidate, "#{__dir__}/commands/mapping_validate"

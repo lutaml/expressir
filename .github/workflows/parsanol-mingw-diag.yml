@@ -12,6 +12,10 @@ on:
     branches: [diag/parsanol-mingw-hang]
   workflow_dispatch:
 
+concurrency:
+  group: parsanol-mingw-diag
+  cancel-in-progress: true
+
 jobs:
   ladder:
     name: mingw ladder (parsanol ${{ matrix.parsanol }})

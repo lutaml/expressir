@@ -20,13 +20,13 @@ puts "small fixture: #{SMALL} (#{File.size(SMALL)} bytes)"
 puts "large fixture: #{LARGE} (#{File.size(LARGE)} bytes)"
 
 PROBES = {
-  "load" => [60, <<~R],
+  "load" => [60, <<~'R'],
     require "parsanol"
     spec = Gem.loaded_specs["parsanol"]
     puts "parsanol=#{spec.full_name} platform=#{spec.platform}"
     puts "native_available=#{Parsanol::Native.available?}"
   R
-  "tiny_parse" => [90, <<~R],
+  "tiny_parse" => [90, <<~'R'],
     require "parsanol"
     k = Class.new(Parsanol::Parser) do
       rule(:digit) { match['0-9'] }
@@ -36,21 +36,21 @@ PROBES = {
     end
     puts "tiny_parse=#{k.new.parse('1 + 2', mode: :native).inspect}"
   R
-  "serialize_grammar" => [180, <<~R],
+  "serialize_grammar" => [180, <<~'R'],
     require "expressir"
     require "parsanol"
     atom = Expressir::Express::Grammar::Parser.new.syntax
     json = Parsanol::Native.serialize_grammar(atom)
     puts "grammar_json_bytes=#{json.bytesize}"
   R
-  "parse_small" => [180, <<~R],
+  "parse_small" => [180, <<~'R'],
     require "expressir"
     require "parsanol"
     atom = Expressir::Express::Grammar::Parser.new.syntax
     src = File.read(ENV["LADDER_SMALL"])
     puts "native_parse_small=#{!Parsanol::Native.parse(atom, src).nil?} src_bytes=#{src.bytesize}"
   R
-  "parse_large" => [300, <<~R],
+  "parse_large" => [300, <<~'R'],
     require "expressir"
     require "parsanol"
     atom = Expressir::Express::Grammar::Parser.new.syntax
@@ -61,7 +61,7 @@ PROBES = {
   # The real hang's shape is expressir >= 30d028a1: dozens of sequential
   # native parses (parity/STEPmod specs parse every fixture). One big
   # parse is green in parsanol's own smoke; a LOOP is the untested shape.
-  "parse_many" => [600, <<~R],
+  "parse_many" => [600, <<~'R'],
     require "expressir"
     require "parsanol"
     atom = Expressir::Express::Grammar::Parser.new.syntax
@@ -71,12 +71,16 @@ PROBES = {
       $stdout.puts "  parse_many: #{done}/#{files.size} next=#{File.basename(f)}"
       $stdout.flush
       src = File.read(f)
-      Parsanol::Native.parse(atom, src)
+      begin
+        Parsanol::Native.parse(atom, src)
+      rescue Parsanol::ParseFailed => e
+        $stdout.puts "  parse_many: skip #{File.basename(f)} (#{e.class})"
+      end
       done += 1
     end
     puts "parse_many_completed=#{done}/#{files.size}"
   R
-  "ruby_parse_control" => [300, <<~R],
+  "ruby_parse_control" => [300, <<~'R'],
     require "expressir"
     t = Time.now
     repo = Expressir::Express::Parser.from_file(ENV["LADDER_LARGE"], use_native: false, use_core: false)

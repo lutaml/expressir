@@ -47,7 +47,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "benchmark-ips"
   spec.add_dependency "csv"
   spec.add_dependency "liquid", "~> 5"
-  spec.add_dependency "liquid"
   spec.add_dependency "lutaml-model", "~> 0.8.50"
   spec.add_dependency "moxml"
   spec.add_dependency "nokogiri", "~> 1.19"

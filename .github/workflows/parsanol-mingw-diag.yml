@@ -1,0 +1,50 @@
+# parsanol-ruby#205 diagnostic: the x64-mingw-ucrt native deadlock at
+# the first heavy native parse (expressir#487). Each probe runs in its
+# own child process with a hard timeout; on hang the parent samples CPU
+# (spin vs block), captures a minidump when procdump is present, kills
+# the child, and moves on. The matrix pins parsanol versions to bisect
+# the 1.3.53 -> 1.3.91 window; every leg must resolve the PRECOMPILED
+# x64-mingw-ucrt gem (the load probe prints the platform).
+name: parsanol-mingw-diag
+
+on:
+  push:
+    branches: [diag/parsanol-mingw-hang]
+  workflow_dispatch:
+
+jobs:
+  ladder:
+    name: mingw ladder (parsanol ${{ matrix.parsanol }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        parsanol: ["1.3.53", "1.3.56", "1.3.91"]
+    env:
+      PARSANOL_PIN: ${{ matrix.parsanol }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: false
+
+      - name: Pin parsanol and install
+        shell: pwsh
+        run: |
+          Add-Content -Path Gemfile -Value "gem 'parsanol', '= $env:PARSANOL_PIN'"
+          bundle config set --local frozen false
+          bundle install --jobs 3
+          bundle info parsanol
+
+      - name: Run mingw hang ladder
+        shell: pwsh
+        run: bundle exec ruby .github/diag/parsanol_mingw_ladder.rb
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mingw-diag-parsanol-${{ matrix.parsanol }}
+          path: dumps/
+          if-no-files-found: ignore

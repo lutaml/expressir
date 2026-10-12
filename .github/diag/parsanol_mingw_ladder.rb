@@ -17,61 +17,31 @@ DUMPS = File.join(__dir__, "..", "..", "dumps").freeze
 FileUtils.mkdir_p(DUMPS)
 
 PROBES = {
-  # calibration: the exts load and parse in a bare child
+  # calibration
   "load" => [60, <<~'R'],
     require "expressir"
-    spec = Gem.loaded_specs["parsanol"]
-    puts "parsanol=#{spec.full_name} platform=#{spec.platform}"
-    puts "parsanol_native=#{Parsanol::Native.available?}"
     puts "core_native=#{Expressir::Express::Core::NATIVE_AVAILABLE}"
+    puts "batch_available=#{Expressir::Express::Parser.batch_available? rescue 'n/a'}"
   R
-  # the CLI require chain alone — no dispatch, no rspec
-  "cli_require_only" => [120, <<~'R'],
+  # THE repro candidate: from_files with >1 file routes to the native
+  # batch workers (BatchStream -> std threads -> mpsc recv park).
+  # Bare child, no rspec. Expect HANG on mingw if the batch park is
+  # the defect.
+  "batch_bare" => [300, <<~'R'],
+    require "expressir"
+    files = %w[spec/syntax/single.exp spec/syntax/derived_attribute.exp]
     t = Time.now
+    repo = Expressir::Express::Parser.from_files(files, skip_references: true)
+    puts "batch_bare_ok=#{!repo.nil?} schemas=#{repo.schemas.size} seconds=#{(Time.now - t).round(1)}"
+  R
+  # control: the documented escape hatch routes to sequential parsing
+  "batch_escape" => [300, <<~'R'],
+    ENV["EXPRESSIR_BATCH"] = "0"
     require "expressir"
-    require "expressir/cli"
-    puts "cli_require_only=true seconds=#{(Time.now - t).round(1)}"
-  R
-  # exactly what the suite hangs in: in-process Cli.start with a
-  # captured $stdout, in a bare child (no rspec)
-  "cli_version" => [180, <<~'R'],
-    require "expressir"
-    require "expressir/cli"
-    sio = StringIO.new
-    orig = $stdout
-    $stdout = sio
-    Expressir::Cli.start(["version"])
-    $stdout = orig
-    puts "cli_version_output=#{sio.string.strip.inspect}"
-  R
-  # rspec itself on a trivial spec — boots the harness, no expressir
-  "rspec_boot" => [180, <<~'R'],
-    require "tmpdir"
-    dir = File.join(Dir.tmpdir, "ladder_spec")
-    Dir.mkdir(dir) unless Dir.exist?(dir)
-    File.write(File.join(dir, "boot_spec.rb"), <<~SPEC)
-      require "rspec"
-      RSpec.describe "boot" do
-        it "passes" do
-          expect(1).to eq(1)
-        end
-      end
-    SPEC
-    ok = system("bundle", "exec", "rspec", File.join(dir, "boot_spec.rb"),
-                "--format", "progress", "--no-color")
-    puts "rspec_boot_exit=#{ok}"
-  R
-  # the exact spec file the suite dies in
-  "rspec_version_spec" => [600, <<~'R'],
-    ok = system("bundle", "exec", "rspec", "spec/acceptance/version_spec.rb",
-                "--format", "progress", "--no-color")
-    puts "rspec_version_spec_exit=#{ok}"
-  R
-  # the other in-process-Cli.start spec family
-  "rspec_cli_parity" => [600, <<~'R'],
-    ok = system("bundle", "exec", "rspec", "spec/expressir/cli_parity_spec.rb",
-                "--format", "progress", "--no-color")
-    puts "rspec_cli_parity_exit=#{ok}"
+    files = %w[spec/syntax/single.exp spec/syntax/derived_attribute.exp]
+    t = Time.now
+    repo = Expressir::Express::Parser.from_files(files, skip_references: true)
+    puts "batch_escape_ok=#{!repo.nil?} schemas=#{repo.schemas.size} seconds=#{(Time.now - t).round(1)}"
   R
 }.freeze
 
@@ -90,7 +60,15 @@ end
 
 def find_procdump
   out = `where.exe procdump 2>NUL`.strip
-  out.empty? ? nil : out.lines.first.strip
+  return out.lines.first.strip unless out.empty?
+
+  candidates = Dir.glob([
+    "C:/ProgramData/chocolatey/bin/procdump.exe",
+    "C:/ProgramData/chocolatey/lib/sysinternals/tools/procdump.exe",
+    "C:/Sysinternals/procdump.exe",
+    "C:/Tools/Sysinternals/procdump.exe",
+  ])
+  candidates.find { |c| File.exist?(c) }
 end
 
 failed = []

@@ -1,134 +1,77 @@
 # frozen_string_literal: true
 
-# parsanol-ruby#205 mingw hang ladder. Each probe runs in a child
-# process so a hang cannot take the parent down; the parent enforces a
-# hard timeout, samples the child's CPU twice (a climbing delta means a
-# busy loop, a flat delta a blocked wait), captures a minidump via
-# procdump when available, then kills and records.
+# parsanol-ruby#205 mingw hang ladder, v4. v2 proved parsanol's own
+# ext clean under load; v3 proved the expressir_core path clean under
+# bare sequential parses (53/53) on BOTH expressir-rs pins, while the
+# rspec harness hung (BLOCKED). The suite's hang decodes to
+# spec/acceptance/version_spec.rb's "displays the current version" —
+# an in-process Expressir::Cli.start under a captured $stdout. v4
+# bisects that shape, streaming each child's output live so a hang
+# shows exactly where it stopped.
 require "rbconfig"
 require "fileutils"
+require "stringio"
 
 RUBY = RbConfig.ruby
 DUMPS = File.join(__dir__, "..", "..", "dumps").freeze
 FileUtils.mkdir_p(DUMPS)
 
-LARGE = Dir.glob(File.join(__dir__, "..", "..", "spec", "**", "*.exp"))
-            .max_by { |f| File.size(f) }
-SMALL = File.join(__dir__, "..", "..", "spec", "syntax", "derived_attribute.exp")
-
-puts "small fixture: #{SMALL} (#{File.size(SMALL)} bytes)"
-puts "large fixture: #{LARGE} (#{File.size(LARGE)} bytes)"
-
 PROBES = {
+  # calibration: the exts load and parse in a bare child
   "load" => [60, <<~'R'],
-    require "parsanol"
+    require "expressir"
     spec = Gem.loaded_specs["parsanol"]
     puts "parsanol=#{spec.full_name} platform=#{spec.platform}"
-    puts "native_available=#{Parsanol::Native.available?}"
+    puts "parsanol_native=#{Parsanol::Native.available?}"
+    puts "core_native=#{Expressir::Express::Core::NATIVE_AVAILABLE}"
   R
-  "tiny_parse" => [90, <<~'R'],
-    require "parsanol"
-    k = Class.new(Parsanol::Parser) do
-      rule(:digit) { match['0-9'] }
-      rule(:number) { digit.repeat(1).as(:n) }
-      rule(:expr) { number >> match[' '].repeat >> match['+'] >> match[' '].repeat >> number }
-      root :expr
-    end
-    puts "tiny_parse=#{k.new.parse('1 + 2', mode: :native).inspect}"
-  R
-  "serialize_grammar" => [180, <<~'R'],
+  # the CLI require chain alone — no dispatch, no rspec
+  "cli_require_only" => [120, <<~'R'],
+    t = Time.now
     require "expressir"
-    require "parsanol"
-    atom = Expressir::Express::Grammar::Parser.new.syntax
-    json = Parsanol::Native.serialize_grammar(atom)
-    puts "grammar_json_bytes=#{json.bytesize}"
+    require "expressir/cli"
+    puts "cli_require_only=true seconds=#{(Time.now - t).round(1)}"
   R
-  "parse_small" => [180, <<~'R'],
+  # exactly what the suite hangs in: in-process Cli.start with a
+  # captured $stdout, in a bare child (no rspec)
+  "cli_version" => [180, <<~'R'],
     require "expressir"
-    require "parsanol"
-    atom = Expressir::Express::Grammar::Parser.new.syntax
-    src = File.read(ENV["LADDER_SMALL"])
-    puts "native_parse_small=#{!Parsanol::Native.parse(atom, src).nil?} src_bytes=#{src.bytesize}"
+    require "expressir/cli"
+    sio = StringIO.new
+    orig = $stdout
+    $stdout = sio
+    Expressir::Cli.start(["version"])
+    $stdout = orig
+    puts "cli_version_output=#{sio.string.strip.inspect}"
   R
-  "parse_large" => [300, <<~'R'],
-    require "expressir"
-    require "parsanol"
-    atom = Expressir::Express::Grammar::Parser.new.syntax
-    src = File.read(ENV["LADDER_LARGE"])
-    res = src.bytesize > 1024 * 1024 ? Parsanol::Native.parse_fresh(atom, src) : Parsanol::Native.parse(atom, src)
-    puts "native_parse_large=#{!res.nil?} src_bytes=#{src.bytesize}"
-  R
-  # The real hang's shape is expressir >= 30d028a1: dozens of sequential
-  # native parses (parity/STEPmod specs parse every fixture). One big
-  # parse is green in parsanol's own smoke; a LOOP is the untested shape.
-  "parse_many" => [600, <<~'R'],
-    require "expressir"
-    require "parsanol"
-    atom = Expressir::Express::Grammar::Parser.new.syntax
-    files = Dir.glob(File.join(ENV["LADDER_ROOT"], "spec", "**", "*.exp")).sort
-    done = 0
-    files.each do |f|
-      $stdout.puts "  parse_many: #{done}/#{files.size} next=#{File.basename(f)}"
-      $stdout.flush
-      src = File.read(f)
-      begin
-        Parsanol::Native.parse(atom, src)
-      rescue Parsanol::ParseFailed => e
-        $stdout.puts "  parse_many: skip #{File.basename(f)} (#{e.class})"
+  # rspec itself on a trivial spec — boots the harness, no expressir
+  "rspec_boot" => [180, <<~'R'],
+    require "tmpdir"
+    dir = File.join(Dir.tmpdir, "ladder_spec")
+    Dir.mkdir(dir) unless Dir.exist?(dir)
+    File.write(File.join(dir, "boot_spec.rb"), <<~SPEC)
+      require "rspec"
+      RSpec.describe "boot" do
+        it "passes" do
+          expect(1).to eq(1)
+        end
       end
-      done += 1
-    end
-    puts "parse_many_completed=#{done}/#{files.size}"
-  R
-  "ruby_parse_control" => [300, <<~'R'],
-    require "expressir"
-    t = Time.now
-    repo = Expressir::Express::Parser.from_file(ENV["LADDER_LARGE"], use_native: false, use_core: false)
-    puts "ruby_parse_control=#{!repo.nil?} seconds=#{(Time.now - t).round(1)}"
-  R
-  # Core-path rungs (expressir's OWN native, expressir_core.so — the
-  # surface from_file uses by default and the one expressir CI hangs
-  # in). use_core defaults on, so these go through the Rust core.
-  "core_parse_small" => [180, <<~'R'],
-    require "expressir"
-    puts "core_native_available=#{Expressir::Express::Core::NATIVE_AVAILABLE}"
-    t = Time.now
-    repo = Expressir::Express::Parser.from_file(ENV["LADDER_SMALL"])
-    puts "core_parse_small=#{!repo.nil?} seconds=#{(Time.now - t).round(1)}"
-  R
-  "core_parse_large" => [300, <<~'R'],
-    require "expressir"
-    t = Time.now
-    repo = Expressir::Express::Parser.from_file(ENV["LADDER_LARGE"])
-    puts "core_parse_large=#{!repo.nil?} seconds=#{(Time.now - t).round(1)}"
-  R
-  "core_parse_many" => [600, <<~'R'],
-    require "expressir"
-    files = Dir.glob(File.join(ENV["LADDER_ROOT"], "spec", "**", "*.exp")).sort
-    done = 0
-    files.each do |f|
-      $stdout.puts "  core_parse_many: #{done}/#{files.size} next=#{File.basename(f)}"
-      $stdout.flush
-      begin
-        Expressir::Express::Parser.from_file(f)
-      rescue StandardError => e
-        $stdout.puts "  core_parse_many: skip #{File.basename(f)} (#{e.class})"
-      end
-      done += 1
-    end
-    puts "core_parse_many_completed=#{done}/#{files.size}"
-  R
-  # The specs that flipped in the onset window (#449): if the core rungs
-  # above stay green, the hang may need the rspec harness around them.
-  "spec_parity" => [600, <<~'R'],
-    files = %w[
-      spec/expressir_spec.rb
-      spec/expressir/cli_parity_spec.rb
-      spec/expressir/commands/parity_inputs_spec.rb
-    ].select { |f| File.exist?(f) }
-    ok = system("bundle", "exec", "rspec", *files,
+    SPEC
+    ok = system("bundle", "exec", "rspec", File.join(dir, "boot_spec.rb"),
                 "--format", "progress", "--no-color")
-    puts "spec_parity_exit=#{ok}"
+    puts "rspec_boot_exit=#{ok}"
+  R
+  # the exact spec file the suite dies in
+  "rspec_version_spec" => [600, <<~'R'],
+    ok = system("bundle", "exec", "rspec", "spec/acceptance/version_spec.rb",
+                "--format", "progress", "--no-color")
+    puts "rspec_version_spec_exit=#{ok}"
+  R
+  # the other in-process-Cli.start spec family
+  "rspec_cli_parity" => [600, <<~'R'],
+    ok = system("bundle", "exec", "rspec", "spec/expressir/cli_parity_spec.rb",
+                "--format", "progress", "--no-color")
+    puts "rspec_cli_parity_exit=#{ok}"
   R
 }.freeze
 
@@ -155,19 +98,33 @@ failed = []
 PROBES.each do |name, (timeout, code)|
   puts ""
   puts "== #{name} (timeout #{timeout}s)"
-  env = { "LADDER_SMALL" => SMALL, "LADDER_LARGE" => LARGE,
-          "LADDER_ROOT" => File.expand_path(File.join(__dir__, "..", "..")) }
+  $stdout.flush
+  env = { "LADDER_ROOT" => File.expand_path(File.join(__dir__, "..", "..")) }
   r, w = IO.pipe
   t0 = Time.now
   pid = Process.spawn(env, RUBY, "-e", code, out: w, err: w)
   w.close
-  reader = Thread.new { r.read }
-  if reader.join(timeout)
-    _status = Process.waitpid2(pid)[1]
-    puts reader.value
-    puts "   done in #{(Time.now - t0).round(1)}s"
-  else
-    puts "   HUNG after #{timeout}s"
+  buffer = []
+  reader = Thread.new do
+    r.each_line do |line|
+      buffer << line
+      print "   | #{line}"
+      $stdout.flush
+    end
+  rescue StandardError
+    nil
+  end
+  deadline = t0 + timeout
+  hung = false
+  while reader.alive?
+    if Time.now > deadline
+      hung = true
+      break
+    end
+    sleep 2
+  end
+  if hung
+    puts "   HUNG after #{timeout}s (last output above)"
     cpu0 = sample_cpu(pid)
     sleep 5
     cpu1 = sample_cpu(pid)
@@ -185,6 +142,9 @@ PROBES.each do |name, (timeout, code)|
     Process.waitpid(pid)
     reader.kill
     failed << name
+  else
+    Process.waitpid2(pid)
+    puts "   done in #{(Time.now - t0).round(1)}s"
   end
 end
 

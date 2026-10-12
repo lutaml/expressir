@@ -68,7 +68,14 @@ RSpec.describe Expressir::Express::Concatenator do
     out_file.close
     begin
       described_class.call(root, repository, out_file.path)
-      reparsed = Expressir::Express::Parser.from_file(out_file.path, skip_references: true)
+      begin
+        reparsed = Expressir::Express::Parser.from_file(out_file.path, skip_references: true)
+      rescue StandardError => e
+        # expressir#487 windows follow-up: dump the artifact head so the
+        # failing bytes are in the CI log
+        warn "ARTIFACT HEAD: #{File.binread(out_file.path, 400).inspect}"
+        raise e
+      end
       expect(reparsed.schemas.map(&:id).sort).to eq(%w[beta_schema zeta_schema])
     ensure
       out_file.unlink

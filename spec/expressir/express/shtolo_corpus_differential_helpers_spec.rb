@@ -22,6 +22,8 @@ RSpec.describe ShtoloCorpusDifferential do
   end
 
   it "resolves a bare eengine name through PATH" do
+    skip "POSIX PATH exec: windows resolves executables through the PATHEXT extensions, not bare names" if Gem.win_platform?
+
     Dir.mktmpdir do |dir|
       bin = File.join(dir, "eengine")
       File.write(bin, "#!/bin/sh\n")

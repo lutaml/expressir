@@ -80,6 +80,26 @@ PROBES = {
     end
     puts "parse_many_churn_completed=#{done}/#{files.size} junk=#{junk.length}"
   R
+  # the same expand WITHOUT rspec: if this hangs, the trigger is the
+  # Cli/expand/parse shape alone and rspec is irrelevant
+  "cli_expand_bare" => [300, <<~'R'],
+    $stdout.sync = true
+    require "tmpdir"
+    require "stringio"
+    require "expressir"
+    require "expressir/cli"
+    work = Dir.mktmpdir
+    File.write(File.join(work, "support.exp"),
+               "SCHEMA support;\nTYPE label = STRING; END_TYPE;\nEND_SCHEMA;\n")
+    root = File.join(work, "root.exp")
+    File.write(root, "SCHEMA root;\nUSE FROM support (label);\nEND_SCHEMA;\n")
+    sio = StringIO.new
+    orig = $stdout
+    $stdout = sio
+    Expressir::Cli.start(["expand", root])
+    $stdout = orig
+    puts "cli_expand_bare_ok=#{sio.string.include?('root')}"
+  R
   # the known-hang control, now unbuffered: in-process rspec driving
   # cli_parity's shape — the hang's exact example is visible live
   "rspec_cli_parity_sync" => [600, <<~'R'],
@@ -187,11 +207,19 @@ PROBES.each do |name, (timeout, code)|
          "(#{(cpu1 - cpu0).round(2)} delta: #{(cpu1 - cpu0) > 0.5 ? 'SPINNING' : 'BLOCKED'})"
     puts "   threads: #{sample_threads(pid).join(' | ')}"
     dump = File.join(DUMPS, "#{name}.dmp")
-    if (pd = find_procdump)
-      puts "   procdump: #{`#{pd.inspect} -accepteula -mm #{pid} #{dump.inspect} 2>&1`}"
-      puts "   dump: #{dump} (#{File.exist?(dump) ? File.size(dump) : 'missing'})"
+    stacks = File.join(DUMPS, "#{name}_stacks.txt")
+    cdb = "C:/Program Files (x86)/Windows Kits/10/Debuggers/x64/cdb.exe"
+    if File.exist?(cdb)
+      out = `"#{cdb}" -p #{pid} -c "~*kb 120; qd" -logo "#{stacks}" 2>&1`
+      puts "   cdb: exited #{$?.exitstatus} (#{File.exist?(stacks) ? File.size(stacks) : 0} bytes logged)"
     else
-      puts "   procdump not found; no dump"
+      puts "   cdb not present; trying procdump"
+      if (pd = find_procdump)
+        puts "   procdump: #{`#{pd.inspect} -accepteula -mm #{pid} #{dump.inspect} 2>&1`}"
+        puts "   dump: #{dump} (#{File.exist?(dump) ? File.size(dump) : 'missing'})"
+      else
+        puts "   procdump not found; no dump"
+      end
     end
     Process.kill("KILL", pid)
     Process.waitpid(pid)

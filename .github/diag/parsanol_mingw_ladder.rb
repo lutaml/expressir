@@ -16,32 +16,106 @@ RUBY = RbConfig.ruby
 DUMPS = File.join(__dir__, "..", "..", "dumps").freeze
 FileUtils.mkdir_p(DUMPS)
 
+LARGE = Dir.glob(File.join(__dir__, "..", "..", "spec", "**", "*.exp"))
+            .max_by { |f| File.size(f) }
+SMALL = File.join(__dir__, "..", "..", "spec", "syntax", "derived_attribute.exp")
+
 PROBES = {
   # calibration
   "load" => [60, <<~'R'],
     require "expressir"
     puts "core_native=#{Expressir::Express::Core::NATIVE_AVAILABLE}"
-    puts "batch_available=#{Expressir::Express::Parser.batch_available? rescue 'n/a'}"
+    puts "parsanol_native=#{Parsanol::Native.available?}"
   R
-  # THE repro candidate: from_files with >1 file routes to the native
-  # batch workers (BatchStream -> std threads -> mpsc recv park).
-  # Bare child, no rspec. Expect HANG on mingw if the batch park is
-  # the defect.
-  "batch_bare" => [300, <<~'R'],
-    require "expressir"
-    files = %w[spec/syntax/single.exp spec/syntax/derived_attribute.exp]
-    t = Time.now
-    repo = Expressir::Express::Parser.from_files(files, skip_references: true)
-    puts "batch_bare_ok=#{!repo.nil?} schemas=#{repo.schemas.size} seconds=#{(Time.now - t).round(1)}"
+  # documents that the core never loads on rake-style runs (gemspec
+  # has no extensions entry) — v4/v5 "core" rungs were the parsanol
+  # path all along
+  "core_load_debug" => [120, <<~'R'],
+    begin
+      require "expressir/expressir_core"
+      puts "core_require=OK"
+    rescue LoadError, StandardError => e
+      puts "core_require_failed=#{e.class}: #{e.message}"
+    end
+    gem_dir = Gem.loaded_specs["expressir"].gem_dir
+    ext_dir = File.join(gem_dir, "ext", "expressir_core")
+    puts "ext_built_artifacts=#{Dir.glob(File.join(ext_dir, '*.{so,dll,bundle}')).length}"
   R
-  # control: the documented escape hatch routes to sequential parsing
-  "batch_escape" => [300, <<~'R'],
-    ENV["EXPRESSIR_BATCH"] = "0"
+  # parsanol-native parse under GC pressure: rspec grows the heap and
+  # the native arena's xmallocs (rb-sys global-allocator) can trigger
+  # GC mid-parse — the rspec-vs-bare discriminator
+  "parse_large_gc_pressure" => [600, <<~'R'],
+    $stdout.sync = true
     require "expressir"
-    files = %w[spec/syntax/single.exp spec/syntax/derived_attribute.exp]
-    t = Time.now
-    repo = Expressir::Express::Parser.from_files(files, skip_references: true)
-    puts "batch_escape_ok=#{!repo.nil?} schemas=#{repo.schemas.size} seconds=#{(Time.now - t).round(1)}"
+    atom = Expressir::Express::Grammar::Parser.new.syntax
+    src = File.read(ENV["LADDER_LARGE"])
+    2.times do |i|
+      junk = Array.new(50_000) { "x" * 2048 }
+      GC.start
+      t = Time.now
+      Parsanol::Native.parse(atom, src)
+      puts "gc_pressure_round=#{i} ok seconds=#{(Time.now - t).round(1)}"
+      junk = nil
+      GC.start
+    end
+    puts "parse_large_gc_pressure=done"
+  R
+  # the full fixture loop AFTER heap churn (mid-parse GC probability)
+  "parse_many_churn" => [600, <<~'R'],
+    $stdout.sync = true
+    require "expressir"
+    junk = Array.new(100_000) { "y" * 2048 }
+    atom = Expressir::Express::Grammar::Parser.new.syntax
+    files = Dir.glob(File.join(ENV["LADDER_ROOT"], "spec", "**", "*.exp")).sort
+    done = 0
+    files.each do |f|
+      $stdout.puts "  parse_many_churn: #{done}/#{files.size} next=#{File.basename(f)}"
+      $stdout.flush
+      begin
+        Parsanol::Native.parse(atom, File.read(f))
+      rescue Parsanol::ParseFailed
+        nil
+      end
+      done += 1
+    end
+    puts "parse_many_churn_completed=#{done}/#{files.size} junk=#{junk.length}"
+  R
+  # the known-hang control, now unbuffered: in-process rspec driving
+  # cli_parity's shape — the hang's exact example is visible live
+  "rspec_cli_parity_sync" => [600, <<~'R'],
+    $stdout.sync = true
+    require "tmpdir"
+    spec = <<~SPEC
+      require "spec_helper"
+      require "stringio"
+      RSpec.describe "cli parity minimal" do
+        it "expands a closure in-process" do
+          work = Dir.mktmpdir
+          File.write(File.join(work, "support.exp"),
+                     "SCHEMA support;\nTYPE label = STRING; END_TYPE;\nEND_SCHEMA;\n")
+          root = File.join(work, "root.exp")
+          File.write(root, "SCHEMA root;\nUSE FROM support (label);\nEND_SCHEMA;\n")
+          out, code = nil, nil
+          orig = $stdout
+          $stdout = StringIO.new
+          begin
+            Expressir::Cli.start(["expand", root])
+            out = $stdout.string
+            code = 0
+          ensure
+            $stdout = orig
+          end
+          expect(code).to eq(0)
+          expect(out).to include("root")
+        end
+      end
+    SPEC
+    path = File.join(Dir.mktmpdir, "cli_parity_min_spec.rb")
+    File.write(path, spec)
+    ARGV.replace(["--format", "progress", "--no-color", path])
+    require "rspec"
+    RSpec::Core::Runner.invoke
+    puts "rspec_cli_parity_sync_done=#{$?.success?}"
   R
 }.freeze
 
@@ -77,7 +151,10 @@ PROBES.each do |name, (timeout, code)|
   puts ""
   puts "== #{name} (timeout #{timeout}s)"
   $stdout.flush
-  env = { "LADDER_ROOT" => File.expand_path(File.join(__dir__, "..", "..")) }
+  env = {
+    "LADDER_ROOT" => File.expand_path(File.join(__dir__, "..", "..")),
+    "LADDER_SMALL" => SMALL, "LADDER_LARGE" => LARGE,
+  }
   r, w = IO.pipe
   t0 = Time.now
   pid = Process.spawn(env, RUBY, "-e", code, out: w, err: w)

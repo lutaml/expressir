@@ -41,7 +41,13 @@ module Expressir
         # ("RULE r FOR" parsed as one simpleId). simpleId additionally
         # matches as a single quantified Re, which needs no exemption;
         # the two mechanisms agree and stay for defense in depth.
-        skip(:trivia, whitespace: :space, exempt: %i[simpleId digits])
+        # The whitespace/remark rules manage their own trivia end to end
+        # (they ARE the trivia surface for remarks); injection around
+        # them breaks consecutive remark lines on the Ruby engine
+        # ("-- X\n--\nSCHEMA ..." failed - the #487 windows follow-up,
+        # parsanol-ruby#195 family).
+        skip(:trivia, whitespace: :space,
+             exempt: %i[simpleId digits spaces space embeddedRemark tailRemark])
 
         # Get cached parser instance (thread-safe)
         # Reusing the parser avoids the overhead of reinitializing all rule definitions

@@ -47,7 +47,7 @@ module Expressir
         # ("-- X\n--\nSCHEMA ..." failed - the #487 windows follow-up,
         # parsanol-ruby#195 family).
         skip(:trivia, whitespace: :space,
-             exempt: %i[simpleId digits spaces space embeddedRemark tailRemark])
+                      exempt: %i[simpleId digits spaces space embeddedRemark tailRemark])
 
         # Get cached parser instance (thread-safe)
         # Reusing the parser avoids the overhead of reinitializing all rule definitions

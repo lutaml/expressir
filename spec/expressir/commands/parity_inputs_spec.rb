@@ -119,6 +119,31 @@ RSpec.describe Expressir::Commands::ParityInputs do
     end
   end
 
+  describe ".ancestor_schemas_dir" do
+    it "terminates and returns nil when no ancestor directory is named schemas" do
+      # expressir#487: the walk used "/" as its sentinel, but dirname's
+      # fixed point on windows is the drive root ("D:/"), so this
+      # spanned forever at 100% CPU there. On POSIX the fixed point is
+      # "/" and both sentinels agree - this only bites windows, so it
+      # is the windows leg's regression guard too.
+      Dir.mktmpdir("no_schemas") do |dir|
+        root = write(dir, "solo.exp", arm_body)
+        expect(described_class.ancestor_schemas_dir(root)).to be_nil
+      end
+    end
+
+    it "finds the nearest ancestor directory named schemas" do
+      Dir.mktmpdir("resolver") do |top|
+        schemas = File.join(top, "schemas")
+        Dir.mkdir(schemas)
+        inner = File.join(schemas, "wg12")
+        Dir.mkdir(inner)
+        root = write(inner, "arm.exp", arm_body)
+        expect(described_class.ancestor_schemas_dir(root)).to eq(schemas)
+      end
+    end
+  end
+
   describe ".root_schema" do
     it "parses the root schema without resolving references" do
       Dir.mktmpdir("resolver") do |dir|

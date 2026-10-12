@@ -113,7 +113,12 @@ module Expressir
       # Nearest ancestor directory NAMED `schemas`, or nil.
       def ancestor_schemas_dir(root_path)
         dir = File.dirname(File.expand_path(root_path))
-        until dir == "/"
+        # Terminate on the dirname fixed point, not on "/": dirname
+        # never crosses the filesystem root, which is "/" on POSIX but
+        # the drive root ("D:/") on windows - comparing against "/"
+        # alone never fires there, and every schema_index call spun at
+        # 100% CPU forever (expressir#487).
+        until dir == File.dirname(dir)
           return dir if File.basename(dir) == "schemas"
 
           dir = File.dirname(dir)

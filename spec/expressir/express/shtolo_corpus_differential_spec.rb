@@ -13,8 +13,12 @@ module ShtoloCorpusDifferential
   # sees the current directory (#454), which made the differential skip
   # on machines with eengine installed and on PATH.
   def eengine_on_path
+    names = ["eengine"]
+    # Windows executability is extension-driven, so an eengine.exe on
+    # PATH is invisible to a bare-name probe (#487 follow-up).
+    names.concat(ENV.fetch("PATHEXT", ".exe;.bat;.cmd").split(";")) if Gem.win_platform?
     ENV.fetch("PATH", "").split(File::PATH_SEPARATOR)
-      .map { |dir| File.join(dir, "eengine") }
+      .flat_map { |dir| names.map { |name| File.join(dir, name) } }
       .find { |candidate| File.executable?(candidate) }
   end
 

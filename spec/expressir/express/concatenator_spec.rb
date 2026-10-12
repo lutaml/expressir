@@ -68,7 +68,19 @@ RSpec.describe Expressir::Express::Concatenator do
     out_file.close
     begin
       described_class.call(root, repository, out_file.path)
-      reparsed = Expressir::Express::Parser.from_file(out_file.path, skip_references: true)
+      begin
+        reparsed = Expressir::Express::Parser.from_file(out_file.path, skip_references: true)
+      rescue Expressir::Express::Error::SchemaParseFailure
+        # Windows CI: the reparse fails at an artifact line whose
+        # bytes differ per platform - dump the neighborhood so the
+        # next run shows exactly what is there (#487 follow-up).
+        File.readlines(out_file.path).each_with_index do |line, i|
+          next unless (12..20).cover?(i + 1)
+
+          warn format("artifact:%3d %p", i + 1, line)
+        end
+        raise
+      end
       expect(reparsed.schemas.map(&:id).sort).to eq(%w[beta_schema zeta_schema])
     ensure
       out_file.unlink

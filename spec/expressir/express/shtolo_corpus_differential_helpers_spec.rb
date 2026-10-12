@@ -23,9 +23,14 @@ RSpec.describe ShtoloCorpusDifferential do
 
   it "resolves a bare eengine name through PATH" do
     Dir.mktmpdir do |dir|
-      bin = File.join(dir, "eengine")
-      File.write(bin, "#!/bin/sh\n")
-      FileUtils.chmod("+x", bin)
+      # Windows executability is extension-driven: an extensionless
+      # script is never executable, so the probe file carries the
+      # platform's real suffix (#487 follow-up - this spec failed by
+      # construction on windows CI).
+      name = Gem.win_platform? ? "eengine.exe" : "eengine"
+      bin = File.join(dir, name)
+      File.binwrite(bin, Gem.win_platform? ? "MZ\x90\x00" : "#!/bin/sh\n")
+      FileUtils.chmod("+x", bin) unless Gem.win_platform?
       old = ENV.fetch("PATH", nil)
       ENV["PATH"] = dir
       begin

@@ -113,7 +113,12 @@ module Expressir
       # Nearest ancestor directory NAMED `schemas`, or nil.
       def ancestor_schemas_dir(root_path)
         dir = File.dirname(File.expand_path(root_path))
-        until dir == "/"
+        # dirname reaches a fixed point at the filesystem root: "/" on
+        # POSIX, "D:/" (or a UNC root) on windows. Comparing against "/"
+        # alone spun forever on windows - every rake run since this
+        # shipped (e0f6651, 2026-09-24) burned the full 6h runner
+        # budget in the first expand example (#487).
+        until dir == "/" || dir == File.dirname(dir)
           return dir if File.basename(dir) == "schemas"
 
           dir = File.dirname(dir)

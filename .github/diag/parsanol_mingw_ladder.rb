@@ -86,6 +86,50 @@ PROBES = {
     repo = Expressir::Express::Parser.from_file(ENV["LADDER_LARGE"], use_native: false, use_core: false)
     puts "ruby_parse_control=#{!repo.nil?} seconds=#{(Time.now - t).round(1)}"
   R
+  # Core-path rungs (expressir's OWN native, expressir_core.so — the
+  # surface from_file uses by default and the one expressir CI hangs
+  # in). use_core defaults on, so these go through the Rust core.
+  "core_parse_small" => [180, <<~'R'],
+    require "expressir"
+    puts "core_native_available=#{Expressir::Express::Core::NATIVE_AVAILABLE}"
+    t = Time.now
+    repo = Expressir::Express::Parser.from_file(ENV["LADDER_SMALL"])
+    puts "core_parse_small=#{!repo.nil?} seconds=#{(Time.now - t).round(1)}"
+  R
+  "core_parse_large" => [300, <<~'R'],
+    require "expressir"
+    t = Time.now
+    repo = Expressir::Express::Parser.from_file(ENV["LADDER_LARGE"])
+    puts "core_parse_large=#{!repo.nil?} seconds=#{(Time.now - t).round(1)}"
+  R
+  "core_parse_many" => [600, <<~'R'],
+    require "expressir"
+    files = Dir.glob(File.join(ENV["LADDER_ROOT"], "spec", "**", "*.exp")).sort
+    done = 0
+    files.each do |f|
+      $stdout.puts "  core_parse_many: #{done}/#{files.size} next=#{File.basename(f)}"
+      $stdout.flush
+      begin
+        Expressir::Express::Parser.from_file(f)
+      rescue StandardError => e
+        $stdout.puts "  core_parse_many: skip #{File.basename(f)} (#{e.class})"
+      end
+      done += 1
+    end
+    puts "core_parse_many_completed=#{done}/#{files.size}"
+  R
+  # The specs that flipped in the onset window (#449): if the core rungs
+  # above stay green, the hang may need the rspec harness around them.
+  "spec_parity" => [600, <<~'R'],
+    files = %w[
+      spec/expressir_spec.rb
+      spec/expressir/cli_parity_spec.rb
+      spec/expressir/commands/parity_inputs_spec.rb
+    ].select { |f| File.exist?(f) }
+    ok = system("bundle", "exec", "rspec", *files,
+                "--format", "progress", "--no-color")
+    puts "spec_parity_exit=#{ok}"
+  R
 }.freeze
 
 def powershell(cmd)

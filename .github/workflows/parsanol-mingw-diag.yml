@@ -2,9 +2,10 @@
 # the first heavy native parse (expressir#487). Each probe runs in its
 # own child process with a hard timeout; on hang the parent samples CPU
 # (spin vs block), captures a minidump when procdump is present, kills
-# the child, and moves on. The matrix pins parsanol versions to bisect
-# the 1.3.53 -> 1.3.91 window; every leg must resolve the PRECOMPILED
-# x64-mingw-ucrt gem (the load probe prints the platform).
+# the child, and moves on. Ladder v2 proved parsanol's own precompiled
+# ext clean even under load, so the axis is now the expressir-rs core
+# tag (v0.1.3 = parsanol 0.8.8 engine vs v0.1.4 = 0.8.9, magnus 0.9 in
+# both) with the rungs driving the core path (from_file defaults).
 name: parsanol-mingw-diag
 
 on:
@@ -18,14 +19,14 @@ concurrency:
 
 jobs:
   ladder:
-    name: mingw ladder (parsanol ${{ matrix.parsanol }})
+    name: mingw ladder (expressir-rs ${{ matrix.core_pin }})
     runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        parsanol: ["1.3.53", "1.3.56", "1.3.91"]
+        core_pin: ["v0.1.3", "v0.1.4"]
     env:
-      PARSANOL_PIN: ${{ matrix.parsanol }}
+      CORE_PIN: ${{ matrix.core_pin }}
     steps:
       - uses: actions/checkout@v4
 
@@ -34,10 +35,11 @@ jobs:
           ruby-version: "3.3"
           bundler-cache: false
 
-      - name: Pin parsanol and install
+      - name: Pin expressir-rs core and install
         shell: pwsh
         run: |
-          Add-Content -Path Gemfile -Value "gem 'parsanol', '= $env:PARSANOL_PIN'"
+          (Get-Content ext/expressir_core/Cargo.toml) -replace 'tag = "v0\.1\.\d+"', ('tag = "' + $env:CORE_PIN + '"') | Set-Content ext/expressir_core/Cargo.toml
+          Select-String -Path ext/expressir_core/Cargo.toml -Pattern "tag|parsanol|magnus"
           bundle config set --local frozen false
           bundle install --jobs 3
           bundle info parsanol
@@ -49,6 +51,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: mingw-diag-parsanol-${{ matrix.parsanol }}
+          name: mingw-diag-core-${{ matrix.core_pin }}
           path: dumps/
           if-no-files-found: ignore

@@ -8,14 +8,8 @@ module Expressir
     # extraction). Available when the native extension is built;
     # callers fall back to the pure-Ruby parser otherwise.
     #
-    # Windows is excluded along with parsanol's native engine
-    # (Grammar::Parser.native_available?): the core embeds the
-    # parsanol-rs parse stack, whose x64-mingw build deadlocks the
-    # same way at first parse (expressir#487) - the compiled
-    # extension is present, so the gate is explicit rather than a
-    # LoadError consequence.
     module Core
-      NATIVE_AVAILABLE = !Gem.win_platform? && begin
+      NATIVE_AVAILABLE = begin
         require "expressir/expressir_core"
         true
       rescue LoadError

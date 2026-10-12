@@ -27,9 +27,11 @@ RSpec.describe ShtoloCorpusDifferential do
       # script is never executable, so the probe file carries the
       # platform's real suffix (#487 follow-up - this spec failed by
       # construction on windows CI).
-      name = Gem.win_platform? ? "eengine.exe" : "eengine"
+      # .bat, not a fake .exe: a 4-byte "MZ" file trips Defender on the
+      # runners and executable? comes back false.
+      name = Gem.win_platform? ? "eengine.bat" : "eengine"
       bin = File.join(dir, name)
-      File.binwrite(bin, Gem.win_platform? ? "MZ\x90\x00" : "#!/bin/sh\n")
+      File.binwrite(bin, Gem.win_platform? ? "@echo off\r\n" : "#!/bin/sh\n")
       FileUtils.chmod("+x", bin) unless Gem.win_platform?
       old = ENV.fetch("PATH", nil)
       ENV["PATH"] = dir

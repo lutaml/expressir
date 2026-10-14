@@ -1,15 +1,12 @@
-# 07 — Part 28 XML: select mapping v2 (#276)
+# 07 — Part 28 XML: select mapping v2 (#276) — DONE
 
-## Goal
-Full ISO 10303-28 EXPRESS-to-XML beyond the v1 skeleton
-(lib/expressir/express/xsd.rb): proper SELECT mapping (currently
-xs:anyType), aggregate/optional fidelity, schema-level structure.
+Shipped: the ISO 10303-28 SELECT mapping lives in
+lib/expressir/express/xsd.rb (complexType + xs:choice, entity members
+as global-element refs, defined-type members by name+type, extensible-
+empty fallback to sequence) and is covered by spec/expressir/express/
+xsd_spec.rb. The CLI exposes both halves: `expressir xsd` and
+`expressir xml-index` (#503).
 
-## Steps
-- ISO 10303-28 mapping rules for SELECT types (union/member semantics)
-- apply on top of xsd.rb's element/complexType generation
-- validate generated XSDs against the ISO 10303-28 conformance examples
-
-## Acceptance
-- a select-typed attribute renders per the standard (not xs:anyType)
-- the v1 examples still generate unchanged except where v2 improves them
+Remaining escalation (moved to parity-ee 17 scope): validating the
+generated XSDs against the Part 28 reference corpus — the detached
+docs carry the standard text only, not the reference XSDs.

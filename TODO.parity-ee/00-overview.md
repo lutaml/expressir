@@ -64,7 +64,7 @@ interface/qualify notes; `00check.txt` — check design notes.
 | 12 | full check-p11 catalog port | planned |
 | 13 | population / Part 21 validation | planned |
 | 14 | SHTOLO completion (Annex G + corpus differential) | in progress |
-| 15 | Part 28 XML + SMRL index | planned |
+| 15 | Part 28 XML + SMRL index | done (SMRL index + express2xsd shipped, #276; reference-XSD diff harness escalated to 17) |
 | 16 | schema compare & patch | planned |
 | 17 | official test-case incorporation | standing structure |
 

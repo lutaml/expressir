@@ -111,6 +111,13 @@ module Expressir
       Expressir::Commands::Xsd.new(options).run(path)
     end
 
+    desc "xml-index DIR", "Write the SMRL index XML for every EXPRESS schema under DIR"
+    method_option :output, type: :string, aliases: "-o",
+                           desc: "Output file path (defaults to stdout)"
+    def xml_index(path)
+      Expressir::Commands::SmrlXmlIndex.new(options).run(path)
+    end
+
     desc "validate SUBCOMMAND", "EXPRESS schema validation commands"
     subcommand "validate", Expressir::Commands::Validate
 

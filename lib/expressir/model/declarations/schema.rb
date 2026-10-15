@@ -127,6 +127,19 @@ module Expressir
           @formatted_hyperlinked_adoc ||= Expressir::Express::AdocSourceFormatter.format(self)
         end
 
+        USE_ITEM_KINDS = [
+          Expressir::Model::Declarations::Entity,
+          Expressir::Model::Declarations::Type,
+        ].freeze
+
+        REFERENCE_ITEM_KINDS = [
+          Expressir::Model::Declarations::Constant,
+          Expressir::Model::Declarations::Entity,
+          Expressir::Model::Declarations::Function,
+          Expressir::Model::Declarations::Procedure,
+          Expressir::Model::Declarations::Type,
+        ].freeze
+
         private
 
         # @param [String] id
@@ -142,6 +155,7 @@ module Expressir
         end
 
         # @return [Array<InterfacedItem>]
+
         def interfaced_items
           return [] unless parent
 
@@ -150,6 +164,11 @@ module Expressir
             items_for_interface(interface, visited_schemas)
           end.compact
         end
+
+        # ISO 10303-11 implicit interfacing: USE exposes entities and
+        # types only; REFERENCE has no implicit interfacing. Listed
+        # items follow eeng resolve-interface: use-from resolves via
+        # find-type/entity, reference-from via the 5-kind or-chain.
 
         # Direct items of one interface plus the items visible through
         # the foreign schema's own USE interfaces (transitive USE
@@ -171,16 +190,23 @@ module Expressir
           end
 
           own = if interface.items.empty?
-                  safe_children.map do |base_item|
-                    create_interfaced_item(base_item.id, base_item)
+                  if interface.kind == Interface::REFERENCE
+                    []
+                  else
+                    safe_children.filter_map do |base_item|
+                      next nil unless USE_ITEM_KINDS.any? { |k| base_item.is_a?(k) }
+
+                      create_interfaced_item(base_item.id, base_item)
+                    end
                   end
                 else
                   interface.items.filter_map do |item|
                     base_item = children_by_id[item.ref.id.safe_downcase]
-                    if base_item
-                      create_interfaced_item(item.id || base_item.id,
-                                             base_item)
-                    end
+                    next nil unless base_item
+                    next nil unless item_kind_interfacable?(interface.kind, base_item)
+
+                    create_interfaced_item(item.id || base_item.id,
+                                           base_item)
                   end
                 end
 
@@ -195,6 +221,11 @@ module Expressir
                                                 visited_schemas)
             foreign_items.empty? ? nil : foreign_items
           end.flatten
+        end
+
+        def item_kind_interfacable?(kind, node)
+          kinds = kind == Interface::REFERENCE ? REFERENCE_ITEM_KINDS : USE_ITEM_KINDS
+          kinds.any? { |k| node.is_a?(k) }
         end
 
         # Find a foreign schema by name: same file first, then the

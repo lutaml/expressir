@@ -16,14 +16,17 @@ module Expressir
 
       module_function
 
-      def validate(population, schema)
+      # `short_names` maps exchange-structure short names (ISO 10303-21,
+      # clause 12.3) to schema entity names, e.g. {"CPT" => "cartesian_point"}.
+      def validate(population, schema, short_names: nil)
+        short_names = short_names&.transform_keys(&:downcase)
         notes = []
         check_file_schema(notes, population, schema)
         population.instances.each do |id, instance|
           if instance.is_a?(ComplexRecord)
-            check_complex(notes, schema, population, id, instance)
+            check_complex(notes, schema, population, id, instance, short_names)
           else
-            check_simple(notes, schema, population, id, instance)
+            check_simple(notes, schema, population, id, instance, short_names)
           end
         end
         notes
@@ -55,8 +58,8 @@ module Expressir
               "FILE_SCHEMA '#{declared}' does not match schema '#{schema.id}'")
       end
 
-      def check_simple(notes, schema, population, id, record)
-        entity = find_entity(schema, record.keyword)
+      def check_simple(notes, schema, population, id, record, short_names)
+        entity = find_entity(schema, record.keyword, short_names)
         unless entity
           note!(notes, :p21_unknown_entity, :error, id,
                 "#{record.keyword} is not declared in schema '#{schema.id}'")
@@ -67,9 +70,9 @@ module Expressir
                      mapped_slots(entity))
       end
 
-      def check_complex(notes, schema, population, id, complex)
+      def check_complex(notes, schema, population, id, complex, short_names)
         pairs = complex.records.filter_map do |record|
-          entity = find_entity(schema, record.keyword)
+          entity = find_entity(schema, record.keyword, short_names)
           unless entity
             note!(notes, :p21_unknown_entity, :error, id,
                   "#{record.keyword} is not declared in schema '#{schema.id}'")
@@ -179,8 +182,16 @@ module Expressir
           .select { |attr| attr.instance_of?(Model::Declarations::DerivedAttribute) }
       end
 
-      def find_entity(schema, keyword)
-        Array(schema.entities).find { |entity| entity.id&.downcase == keyword.downcase }
+      def find_entity(schema, keyword, short_names = nil)
+        key = keyword.downcase
+        Array(schema.entities).find { |entity| entity.id&.downcase == key } ||
+          resolve_short_name(schema, key, short_names)
+      end
+
+      def resolve_short_name(schema, key, short_names)
+        return nil unless short_names.is_a?(Hash) && short_names[key]
+
+        find_entity(schema, short_names[key], nil)
       end
 
       def find_type(schema, keyword)

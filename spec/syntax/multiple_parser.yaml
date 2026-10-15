@@ -87,7 +87,6 @@ schemas:
     subtype_of:
     - _class: Expressir::Model::References::SimpleReference
       id: attribute_entity2
-      base_path: spec/syntax/multiple.exp.multiple_schema2.attribute_entity2
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: test
@@ -102,7 +101,6 @@ schemas:
           entity:
             _class: Expressir::Model::References::SimpleReference
             id: attribute_entity2
-            base_path: spec/syntax/multiple.exp.multiple_schema2.attribute_entity2
         attribute:
           _class: Expressir::Model::References::SimpleReference
           id: test

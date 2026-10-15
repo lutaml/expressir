@@ -82,6 +82,13 @@ module Expressir
         blength insert remove
       ].freeze
 
+      USE_ITEM_KINDS = [Model::Declarations::Entity, Model::Declarations::Type].freeze
+      REFERENCE_ITEM_KINDS = [
+        Model::Declarations::Constant, Model::Declarations::Entity,
+        Model::Declarations::Function, Model::Declarations::Procedure,
+        Model::Declarations::Type
+      ].freeze
+
       private
 
       def note!(id, severity, schema, message, node = nil)
@@ -184,12 +191,42 @@ module Expressir
           end
 
           resource_names(iface).each do |name|
-            next if foreign_decl?(foreign, name)
+            decl = foreign_declaration(foreign, name)
+            unless decl
+              note!(:check_unresolved_ref, :error, schema,
+                    "interface resource '#{name}' not in schema '#{target}'", iface)
+              next
+            end
 
-            note!(:check_unresolved_ref, :error, schema,
-                  "interface resource '#{name}' not in schema '#{target}'", iface)
+            # eeng resolve-interface: use-from resolves via
+            # find-type/entity, reference-from via the 5-kind or-chain;
+            # anything else is "Resource '~A' not found".
+            next if item_kind_interfacable?(iface.kind, decl)
+
+            note!(:check_interface_kind_restriction, :error, schema,
+                  "interface resource '#{name}' is a #{decl.class.name.split('::').last}: " + "#{iface.kind} resolves #{allowed_kinds(iface.kind)} only", iface)
           end
         end
+      end
+
+      def item_kind_interfacable?(kind, decl)
+        (kind == Model::Declarations::Interface::REFERENCE ? REFERENCE_ITEM_KINDS : USE_ITEM_KINDS)
+          .any? { |k| decl.is_a?(k) }
+      end
+
+      def allowed_kinds(kind)
+        (kind == Model::Declarations::Interface::REFERENCE ? REFERENCE_ITEM_KINDS : USE_ITEM_KINDS)
+          .map { |k| k.name.split("::").last }.join(", ")
+      end
+
+      def foreign_declaration(schema, name)
+        key = name.safe_downcase
+        DECL_COLLECTIONS.each do |coll|
+          Array(schema.public_send(coll)).each do |d|
+            return d if d.id&.safe_downcase == key
+          end
+        end
+        nil
       end
 
       def iface_schema_name(iface)

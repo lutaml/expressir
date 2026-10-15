@@ -130,16 +130,20 @@ module Expressir
           schema.interfaces.each do |iface|
             next unless iface.kind == Model::Declarations::Interface::REFERENCE
 
+            iface_schema = iface.schema.is_a?(String) ? iface.schema : iface.schema&.id
+            target = closure[iface_schema&.safe_downcase]
             iface.items.each do |item|
               original = original_name(item, schema)
-              next unless closure[original]&.entities&.find { |e| e.id == original }
+              next unless target&.entities&.find do |e|
+                e.id.safe_downcase == original.safe_downcase
+              end
 
               @reference_entities << original.safe_downcase
             end
           end
         end
 
-        declarations << build_dependent_rule if @reference_entities.any?
+        declarations.concat(build_dependent_declarations) if @reference_entities.any?
 
         Model::Declarations::Schema.new(
           id: @longform_name,
@@ -166,7 +170,18 @@ module Expressir
       # OWN schema's id, and the global map redirects the bare name so
       # declarations from third schemas resolve to the first occurrence.
       def plan_ids(schemas)
-        seen_first = {}      # downcase id => owning schema (first occurrence)
+        # G.NM.1: EVERY clashing declaration is prefixed (the annex
+        # example munges farming_dot_dog AND pet_shows_dot_dog), so the
+        # clash set is computed over the whole population first.
+        counts = Hash.new(0)
+        schemas.each do |schema|
+          all_decls(schema).each do |decl|
+            next unless decl.respond_to?(:id) && decl.id
+
+            counts[decl.id.safe_downcase] += 1
+          end
+        end
+
         global = {}          # downcase id => munged final
         own_by_schema = {}   # schema => {downcase id => final id}
         schemas.each do |schema|
@@ -175,14 +190,11 @@ module Expressir
             next unless decl.respond_to?(:id) && decl.id
 
             key = decl.id.safe_downcase
-            if seen_first.key?(key)
-              final = "#{schema.id.safe_downcase}_dot_#{decl.id}"
-              own[key] = final
-              global[key] = final
-            else
-              seen_first[key] = schema
-              own[key] = decl.id
-            end
+            own[key] = if counts[key] > 1
+                         global[key] = "#{schema.id.safe_downcase}_dot_#{decl.id}"
+                       else
+                         decl.id
+                       end
           end
           own_by_schema[schema] = own
         end
@@ -253,11 +265,20 @@ module Expressir
         current == current.upcase ? new.upcase : new
       end
 
-      # G.1.6: parse-templates keep the annex rule/function verbatim.
-      def build_dependent_rule
+      # G.1.6: parse-templates keep the annex rule/function verbatim;
+      # the pair is emitted together (the rule's WHERE calls the
+      # function, and the prune pass would drop an uncalled function).
+      def build_dependent_declarations
+        snippet = parse_schema_snippet(dependent_template_src)
+        rule = snippet.schemas.first.rules.first
+        fn = snippet.schemas.first.functions.first
+        [rule, fn].compact
+      end
+
+      def dependent_template_src
         list = @reference_entities.map(&:upcase).join(", ")
         union = @reference_entities.join("+")
-        src = <<~EXP
+        <<~EXP
           SCHEMA __dependent__;
           RULE #{DEPENDENT_RULE_NAME} FOR (#{list});
           LOCAL
@@ -270,9 +291,62 @@ module Expressir
           WHERE
             wr1: dependently_instantiated(all_instances, set_of_input_types, previous_in_chain);
           END_RULE;
+
+          FUNCTION dependently_instantiated(
+              set_of_input_instances : SET OF GENERIC:igen;
+              set_of_input_types      : SET OF STRING;
+              previous_in_chain       : LIST OF GENERIC:cgen): BOOLEAN;
+          LOCAL
+            number_of_input_instances : INTEGER;
+            number_of_referring_instances : INTEGER;
+            bag_of_referring_instances : BAG OF GENERIC:igen := [];
+            dependently_instantiated_flag : BOOLEAN;
+            previous_in_chain_plus : LIST OF GENERIC:cgen := [];
+            result : BOOLEAN := true;
+            set_of_types : SET OF STRING := [];
+          END_LOCAL;
+          IF EXISTS(set_of_input_instances) THEN
+            number_of_input_instances := SIZEOF(set_of_input_instances);
+            set_of_input_types := set_of_input_types + 'GENERIC';
+            REPEAT i := 1 TO number_of_input_instances;
+              bag_of_referring_instances := USEDIN(set_of_input_instances[i], '');
+              IF EXISTS(bag_of_referring_instances) THEN
+                number_of_referring_instances := SIZEOF(bag_of_referring_instances);
+                dependently_instantiated_flag := false;
+                REPEAT j := 1 TO number_of_referring_instances;
+                  set_of_types := TYPEOF(bag_of_referring_instances[j]);
+                  IF set_of_types <= set_of_input_types THEN
+                    IF NOT (bag_of_referring_instances[j] IN previous_in_chain) THEN
+                      previous_in_chain_plus := previous_in_chain +
+                                                set_of_input_instances[i];
+                      IF dependently_instantiated([bag_of_referring_instances[j]],
+                                                  set_of_input_types,
+                                                  previous_in_chain_plus) THEN
+                        dependently_instantiated_flag := true;
+                        ESCAPE;
+                      ELSE
+                        SKIP;
+                      END_IF;
+                    END_IF;
+                  ELSE
+                    dependently_instantiated_flag := true;
+                    ESCAPE;
+                  END_IF;
+                END_REPEAT;
+                IF NOT dependently_instantiated_flag THEN
+                  RETURN(false);
+                END_IF;
+              ELSE
+                RETURN(false);
+              END_IF;
+            END_REPEAT;
+          ELSE
+            RETURN(false);
+          END_IF;
+          RETURN(true);
+          END_FUNCTION;
           END_SCHEMA;
         EXP
-        parse_schema_snippet(src).schemas.first.rules.first
       end
 
       def parse_schema_snippet(src)
@@ -499,57 +573,95 @@ module Expressir
         end
       end
 
+      # G.2.2/G.2.4: every extensible/extending select becomes a
+      # non-extensible select whose items are the full domain in
+      # longform scope. Chains fold in dependency order (a node whose
+      # own BASED_ON is still pending is deferred), so an extending
+      # type that is itself extensible resolves against its base's
+      # folded domain.
+      # G.2.2/G.2.4: every extensible/extending select becomes a
+      # non-extensible select whose items are the full domain in
+      # longform scope. Chains fold in dependency order (a node whose
+      # own BASED_ON is still pending is deferred), so an extending
+      # type that is itself extensible resolves against its base's
+      # folded domain.
       def resolve_extensible_selects!(schema)
-        schema.types.select do |t|
-          t.underlying_type.is_a?(Model::DataTypes::Select) && t.underlying_type.extensible
-        end.each do |base|
-          sel = base.underlying_type
+        select_types = schema.types.select do |ty|
+          ty.underlying_type.is_a?(Model::DataTypes::Select)
+        end
+        select_types.select { |ty| sel_pending?(ty) }.each do |base|
+          fold_select_node(schema, select_types, base)
+        end
+      end
 
-          # all-extenders for GENERIC_ENTITY selects (WG12 requirement,
-          # #32): the extenders are the entity types themselves — fold in
-          # every entity the artifact carries, so the longform select is
-          # complete against the closure. Flags stay as declared: the
-          # extensible/generic-entity markers are part of the shortform's
-          # semantics and are not expressir's to drop.
-          if sel.generic_entity
-            sel.items = schema.entities.map do |e|
-              Model::References::SimpleReference.new(id: e.id)
-            end
-            next
+      def sel_pending?(select_type)
+        sel = select_type.underlying_type
+        sel.extensible || sel.based_on
+      end
+
+      def fold_select_node(schema, select_types, base_type)
+        sel = base_type.underlying_type
+        return unless sel_pending?(base_type)
+
+        # all-extenders for GENERIC_ENTITY selects (WG12 requirement,
+        # #32): the extenders are the entity types themselves — fold in
+        # every entity the artifact carries, so the longform select is
+        # complete against the closure. Flags stay as declared: the
+        # extensible/generic-entity markers are part of the shortform's
+        # semantics and are not expressir's to drop.
+        if sel.generic_entity && !sel.based_on
+          sel.items = schema.entities.map do |e|
+            Model::References::SimpleReference.new(id: e.id)
           end
+          return
+        end
 
-          extensions = schema.types.select do |t|
-            t.underlying_type.is_a?(Model::DataTypes::Select) &&
-              !t.underlying_type.extensible &&
-              t.underlying_type.based_on&.id&.safe_downcase == base.id.safe_downcase
+        own_items = Array(sel.items)
+        inherited = []
+        if sel.based_on
+          base_ty = select_types.find do |ty|
+            ty.id&.safe_downcase == sel.based_on&.id&.safe_downcase
           end
-          merged_items = sel.items +
-            extensions.flat_map { |x| x.underlying_type.items }
-          seen_ids = {}
-          uniq = merged_items.select do |item|
-            key = item.id.safe_downcase
-            next false if seen_ids.key?(key) || key.empty?
+          fold_select_node(schema, select_types, base_ty) if base_ty && sel_pending?(base_ty)
+          inherited = base_ty ? Array(base_ty.underlying_type.items) : []
+        end
 
-            seen_ids[key] = true
-          end
-          sel.items = uniq
-          sel.extensible = false
-          sel.based_on = nil
+        extenders = select_types.select do |ty|
+          !ty.equal?(base_type) &&
+            ty.underlying_type.based_on&.id&.safe_downcase == base_type.id&.safe_downcase
+        end
 
-          extensions.each do |ext|
-            keep = ext.underlying_type.items.map { |i| i.id.upcase }
-            exclusions = uniq.reject { |i| keep.include?(i.id.upcase) }
-            base_ref = "#{@longform_name.upcase}.#{base.id.upcase}"
-            ext.underlying_type = Model::DataTypes::Select.new(
-              items: sel.items.map { |i| Model::References::SimpleReference.new(id: i.id) },
+        merged = inherited + own_items +
+          extenders.flat_map { |ty| Array(ty.underlying_type.items) }
+        seen = {}
+        uniq = merged.select do |item|
+          key = item.id.safe_downcase
+          next false if key.empty? || seen.key?(key)
+
+          seen[key] = true
+        end
+        sel.items = uniq
+        sel.extensible = false
+        sel.based_on = nil
+
+        extenders.each do |ty|
+          ext_sel = ty.underlying_type
+          keep = Array(ext_sel.items).map { |i| i.id.upcase }
+          base_ref = "#{@longform_name.upcase}.#{base_type.id.upcase}"
+          ty.underlying_type = Model::DataTypes::Select.new(
+            items: uniq.map { |i| Model::References::SimpleReference.new(id: i.id) },
+          )
+          ext_sel_items = ty.underlying_type.items
+          exclusions = uniq.reject { |i| keep.include?(i.id.upcase) }
+          ty.where_rules = exclusions.each_with_index.map do |item, i|
+            Model::Declarations::WhereRule.new(
+              id: "wr#{i + 1}",
+              expression: parse_expression(
+                "NOT ('#{base_ref}.#{item.id.upcase}' IN TYPEOF(SELF));",
+              ),
             )
-            ext.where_rules = exclusions.each_with_index.map do |item, i|
-              Model::Declarations::WhereRule.new(
-                id: "wr#{i + 1}",
-                expression: parse_expression("NOT ('#{base_ref}.#{item.id.upcase}' IN TYPEOF(SELF));"),
-              )
-            end
           end
+          ext_sel_items
         end
       end
 
@@ -565,10 +677,7 @@ module Expressir
             entity.supertype_expression =
               entity.supertype_expression ? combine_andor(entity.supertype_expression, expr) : expr
           end
-          if entity.abstract
-            # G.2.6: abstract entity ⇒ ABSTRACT SUPERTYPE (formatter
-            # renders from abstract + supertype status).
-          end
+          entity.abstract = true if sc.abstract
           next if Array(sc.total_over).empty?
 
           rule_name = "total_over_#{sc.id}"

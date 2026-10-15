@@ -29,13 +29,13 @@ RSpec.describe Expressir::P21::Parser do
 
   it "parses simple instances with all value kinds" do
     record = population.instances["#1"]
-    expect(record.keyword).to eq("THING")
+    expect(record.keyword).to eq("DEEP")
     expect(record.params).to eq([
                                   "a string with 'quotes'",
                                   Expressir::P21::Enumeration.new("GOOD"),
                                   Expressir::P21::Binary.new("0A1F"),
-                                  :unset,
                                   :derived,
+                                  :unset,
                                 ])
   end
 

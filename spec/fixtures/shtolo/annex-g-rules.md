@@ -142,3 +142,23 @@ Coverage legend: ✅ implemented · ◐ partial · ✖ absent (grep-verified)
 (6 files). **Consequence: where eeng and Annex G disagree, the annex
 wins; eeng output is a comparison input, not the contract** (matches
 TODO.parity-ee/05).
+
+## Audited status (2026-10, feat/eengine-tasks)
+
+Live examples in `spec/expressir/express/shtolo_annex_g_rule_audit_spec.rb`:
+
+| rule | audited | expressir |
+|------|---------|-----------|
+| G.NM.2 | yes (TYPEOF string rewrite) | pass |
+| G.1.2 | yes (USE wins over REFERENCE twin) | pass |
+| G.1.5 | yes (completeness-only secondary population) | pass |
+| G.1.8 | yes (tagged remarks travel on interfaced entities) | pass |
+| G.1.10 | yes (implemented: `add_provenance_remark!`, all-or-none names) | pass |
+| G.2.3 | yes (extensible enumeration fold + exclusions) | pass |
+| G.2.4 | yes (extensible select fold) | pass |
+| G.2.6 | yes (ABSTRACT SUPERTYPE kept) | pass |
+
+Not yet audited against a worked example: G.NM.1, G.1.1, G.1.3,
+G.1.4, G.1.6 (synthesis; eeng has no `dependently_instantiated`
+source), G.1.7, G.1.9 (partial coverage via G.2.3/G.2.4), G.2.1,
+G.2.2, G.2.5.

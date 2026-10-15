@@ -295,8 +295,30 @@ module Expressir
         convert_generic_entities!(artifact)
         convert_renamed_attributes!(artifact)
         rewrite_qualified_strings!(artifact)
+        add_provenance_remark!(artifact)
 
         artifact
+      end
+
+      # G.1.10: optional embedded provenance remark — if any schema
+      # name is kept in the longform, ALL contributing schemas are
+      # recorded (`schema = <id> [schema_version_id = '<v>'];`, order
+      # insignificant).
+      def add_provenance_remark!(schema)
+        names = closure.values.map(&:id).sort
+        return if names.empty?
+
+        remarks = ["Original 2003 schemas:"] + names.map do |id|
+          contributing = closure.values.find { |s| s.id == id }
+          version = contributing&.version&.id
+          line = "schema = #{id};"
+          line = "schema = #{id} schema_version_id = '#{version}';" if version
+          line
+        end
+        schema.remark_items = [
+          Model::Declarations::RemarkItem.new(id: "provenance", remarks: remarks),
+          *Array(schema.remark_items),
+        ]
       end
 
       # G.1.9 prune pass: the artifact keeps only what stays visible

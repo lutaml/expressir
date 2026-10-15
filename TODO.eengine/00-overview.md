@@ -11,9 +11,9 @@ divergence is classified in the differential output.
 | n | task | folds | status |
 |---|------|-------|--------|
 | 01 | resolution diagnostics + USE/REFERENCE tiering | 06-remainder, 07-part | done |
-| 02 | check-p11 catalog completion | 07, 12 | done |
+| 02 | check-p11 catalog completion | 07, 12 | partial (type-resolution tranche shipped: constant/local/parameter/return; statement/body checks remain in the check.lisp diff) |
 | 03 | entity computations (inherited/derived/inverse closures) | matrix §3, 05-prereq | done |
-| 04 | SHTOLO rule audit + corpus differential | 14-remainder | done |
+| 04 | SHTOLO rule audit + corpus differential | 14-remainder | done (audit spec live; G.NM.2 + G.1.10 fixed; G.1.6 synthesis remains per annex-g-rules.md) |
 | 05 | SHTOLO longform flatten (Annex G) | 05 | done |
 | 06 | population / Part 21 reader + validation | 13 | done |
 | 07 | schema compare & patch | 16 | done |

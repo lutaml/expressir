@@ -2,7 +2,7 @@
 
 Consolidates the remaining eengine-parity tasks (formerly scattered
 across TODO.parity-ee) into one execution-ordered series. The oracle
-is eengine-5.0.20-Beta1 at `~/src/external/exp-engine-engine`; where
+is eengine-5.1.0 (GIT eeng-5.1.0) at `~/src/external/exp-engine-engine`; where
 eengine and ISO 10303-11 disagree, the standard wins and the
 divergence is classified in the differential output.
 

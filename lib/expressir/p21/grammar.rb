@@ -18,8 +18,9 @@ module Expressir
     class Grammar < Parsanol::Parser
       root(:exchange_structure)
 
-      rule(:ws?) { match[" \t\r\n"].repeat }
-      rule(:ws1) { match[" \t\r\n"].repeat(1) }
+      rule(:comment) { str("/*") >> (str("*/").absent? >> any).repeat >> str("*/") }
+      rule(:ws?) { (match[" \t\r\n"] | comment).repeat }
+      rule(:ws1) { (match[" \t\r\n"] | comment).repeat(1) }
       rule(:keyword) { match["!"].maybe >> match["A-Za-z0-9_"].repeat(1) }
       rule(:entity_instance_name) { str("#") >> match["0-9"].repeat(1) }
 

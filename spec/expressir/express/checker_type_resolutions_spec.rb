@@ -35,7 +35,7 @@ RSpec.describe Expressir::Express::Checker do
     EXP
   end
 
-  let(:notes) { Expressir::Express::Checker.new(repo).check.notes }
+  let(:notes) { described_class.new(repo).check.notes }
 
   it "keeps the clean schema free of type-resolution notes" do
     schema_name = ->(n) { n.schema.is_a?(String) ? n.schema : n.schema&.id }

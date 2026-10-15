@@ -99,6 +99,7 @@ module Expressir
       def check_schema(schema)
         check_duplicates(schema)
         check_interfaces(schema)
+        check_type_resolutions(schema)
         check_self_schema_reference(schema)
         schema.entities.each { |e| check_entity(schema, e) }
         schema.types.each do |t|
@@ -245,6 +246,85 @@ module Expressir
         DECL_COLLECTIONS.any? do |coll|
           Array(schema.public_send(coll)).any? { |d| d.id&.safe_downcase == key }
         end
+      end
+
+      # eeng check-p11 context checks (kernel/check.lisp:160-201,
+      # 299-336, 337-395): constant/local/parameter/return types must
+      # resolve to a TYPE or ENTITY visible in the schema (find-type/
+      # entity semantics - constants, functions, procedures do NOT
+      # satisfy them). Note ids are the eeng ones.
+      def check_type_resolutions(schema)
+        schema.constants.each do |constant|
+          check_type_ref(schema, Array(constant.type), :check_constant_type, constant.id, constant)
+        end
+
+        schema.functions.each do |function|
+          Array(function.parameters).each do |param|
+            check_type_ref(schema, Array(param.type), :check_parameter_type, param.id, param)
+          end
+          check_type_ref(schema, Array(function.return_type),
+                         :check_function_return_type, function.id, function)
+          Array(function.variables).each do |variable|
+            check_type_ref(schema, Array(variable.type), :check_local_type, variable.id, variable)
+          end
+        end
+
+        schema.procedures.each do |procedure|
+          Array(procedure.parameters).each do |param|
+            check_type_ref(schema, Array(param.type), :check_parameter_type, param.id, param)
+          end
+          Array(procedure.variables).each do |variable|
+            check_type_ref(schema, Array(variable.type), :check_local_type, variable.id, variable)
+          end
+        end
+
+        schema.rules.each do |rule|
+          Array(rule.applies_to).each do |entity_ref|
+            # parameter-rule: the FOR entities resolve via
+            # find-type/entity too (kernel/check.lisp:311-322)
+            check_entity_ref(schema, Array(entity_ref), :check_parameter_type, rule.id, rule)
+          end
+          Array(rule.variables).each do |variable|
+            check_type_ref(schema, Array(variable.type), :check_local_type, variable.id, variable)
+          end
+        end
+      end
+
+      def check_type_ref(schema, nodes, note_id, name, node)
+        nodes.each do |type|
+          next unless type.is_a?(Model::References::SimpleReference)
+          next if type.id.nil? || builtin?(type.id)
+          next if resolves_to_type_or_entity?(schema, type.id)
+
+          note!(note_id, :error, schema,
+                "type '#{type.id}' of '#{name}' does not resolve to a type or entity", node || type)
+        end
+      end
+
+      def check_entity_ref(schema, nodes, note_id, name, node)
+        nodes.each do |ref|
+          next unless ref.is_a?(Model::References::SimpleReference)
+          next if ref.id.nil?
+          next if resolves_to_type_or_entity?(schema, ref.id)
+
+          note!(note_id, :error, schema,
+                "entity '#{ref.id}' of '#{name}' does not resolve to a type or entity", node || ref)
+        end
+      end
+
+      def resolves_to_type_or_entity?(schema, name)
+        key = name.safe_downcase
+        schema.children.any? do |child|
+          next false unless child.id&.safe_downcase == key
+
+          child.is_a?(Model::Declarations::Type) || child.is_a?(Model::Declarations::Entity) ||
+            (child.is_a?(Model::Declarations::InterfacedItem) && interface_item_type_or_entity?(child))
+        end
+      end
+
+      def interface_item_type_or_entity?(item)
+        base = item.base_item
+        base.is_a?(Model::Declarations::Type) || base.is_a?(Model::Declarations::Entity)
       end
 
       def check_entity(schema, entity)

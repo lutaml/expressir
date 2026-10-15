@@ -108,9 +108,11 @@ module Expressir
           check_where_rules(schema, t, t.where_rules)
         end
         schema.rules.each { |r| check_where_rules(schema, r, r.where_rules) }
+        check_subtype_constraints(schema)
         schema.entities.each do |entity|
           check_aggregate_bounds(schema, entity)
           check_attrib_name_fun(schema, entity)
+          check_attribute_redeclarations(schema, entity)
         end
         check_string_references(schema)
         check_unresolved_refs(schema)
@@ -399,6 +401,75 @@ module Expressir
 
       # eeng check-supertype-ref: every entity named in the SUPERTYPE
       # expression must resolve to an entity of this schema.
+      # eeng check-p11 subtype_constraint (kernel/check.lisp:426) only
+      # checks the supertype expression; the note id matches the entity
+      # supertype path (kernel/check.lisp:523).
+      def explicit_attributes(entity)
+        Array(entity.attributes)
+          .select { |attr| attr.instance_of?(Model::Declarations::Attribute) }
+      end
+
+      def check_subtype_constraints(schema)
+        schema.subtype_constraints.each do |constraint|
+          expr = constraint.supertype_expression
+          next unless expr
+
+          each_reference(expr) do |ref|
+            id = ref.id
+            next if id.nil?
+            # Names outside this schema's scope (foreign entities of a
+            # single-file parse) cannot be verified here.
+            next unless resolves_to_type_or_entity?(schema, id)
+            next if find_entity(schema, id)
+
+            note!(:check_supertype_ref, :error, schema,
+                  "SUBTYPE_CONSTRAINT #{constraint.id}: supertype " \
+                  "'#{id}' is not an entity", constraint)
+          end
+        end
+      end
+
+      # A `SELF\<supertype>.<attr>` redeclaration must name a supertype
+      # in the inheritance closure carrying that attribute (ISO
+      # 10303-11:2004, 9.2.2.3). eeng kernel/check.lisp:255 leaves this
+      # as a TODO comment, so this check has no eeng note id.
+      def check_attribute_redeclarations(schema, entity)
+        explicit_attributes(entity).each do |attr|
+          tag = attr.supertype_attribute
+          next unless tag.is_a?(Model::References::AttributeReference)
+
+          sup_id = tag.ref&.entity&.id
+          attr_id = tag.attribute&.id
+          if sup_id.nil?
+            note!(:check_attribute_redeclaration, :error, schema,
+                  "ENTITY #{entity.id}: redeclaration of '#{attr.id}' " \
+                  "names no supertype", attr)
+            next
+          end
+
+          supertype = entity.supertype_closure
+            .find { |st| st.id&.safe_downcase == sup_id.safe_downcase }
+          if supertype.nil?
+            # The named supertype may be foreign (USE FROM) and thus
+            # outside the closure of a single-file parse; only flag it
+            # when it resolves in this scope yet is not a supertype.
+            if find_entity(schema, sup_id)
+              note!(:check_attribute_redeclaration, :error, schema,
+                    "ENTITY #{entity.id}: redeclaration '#{attr.id}' names " \
+                    "'#{sup_id}', which is not a supertype", attr)
+            end
+            next
+          end
+
+          next if explicit_attributes(supertype)
+            .any? { |candidate| candidate.id&.safe_downcase == attr_id&.safe_downcase }
+
+          note!(:check_attribute_redeclaration, :error, schema,
+                "ENTITY #{entity.id}: redeclaration '#{attr.id}': supertype " \
+                "'#{sup_id}' has no attribute '#{attr_id}'", attr)
+        end
+      end
+
       def check_supertype_refs(schema, entity)
         expr = entity.supertype_expression
         return unless expr

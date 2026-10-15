@@ -21,6 +21,19 @@ RSpec.describe Expressir::Express::Shtolo do
     [repository, files]
   end
 
+  # G.1.6 audits need REFERENCE interfaces, which the default
+  # skip_references parse drops.
+  def parse_repository_full(sources)
+    files = sources.map do |id, src|
+      f = Tempfile.new([id.to_s, ".exp"])
+      f.write(src)
+      f.close
+      f
+    end
+    repository = Expressir::Express::Parser.from_files(files.map(&:path))
+    [repository, files]
+  end
+
   def flatten(root_schema, repository)
     described_class.new(root_schema, repository).flatten.schema
   end
@@ -139,6 +152,112 @@ RSpec.describe Expressir::Express::Shtolo do
       root = longform.entities.find { |e| e.id == "root" }
       expect(root.abstract).to be_truthy
       expect(root.supertype_expression).not_to be_nil
+    end
+  end
+
+  describe "G.NM.1 name clashes" do
+    it "prefixes every clashing declaration and updates occurrences" do
+      repository, files = parse_repository(
+        "farming" => "SCHEMA farming;\nENTITY dog;\n  name : STRING;\nEND_ENTITY;\nENTITY herder;\n  dogs : SET OF dog;\nEND_ENTITY;\nEND_SCHEMA;\n",
+        "pet_shows" => "SCHEMA pet_shows;\nENTITY dog;\n  breed : STRING;\nEND_ENTITY;\nENTITY show;\n  dogs : SET [1:?] OF dog;\nEND_ENTITY;\nEND_SCHEMA;\n",
+        "main" => "SCHEMA main;\nUSE FROM farming (dog, herder);\nUSE FROM pet_shows (dog, show);\nEND_SCHEMA;\n",
+      )
+      longform = flatten(schema_of(repository, "main"), repository)
+      files.each(&:unlink)
+      ids = longform.entities.map(&:id)
+      expect(ids).to include("farming_dot_dog", "pet_shows_dot_dog")
+      # every occurrence of the clashing name is rewritten
+      herder = longform.entities.find { |e| e.id == "herder" }
+      show = longform.entities.find { |e| e.id == "show" }
+      rendered = Expressir::Express::PrettyFormatter.new.format(longform)
+      expect(rendered).to include("farming_dot_dog").and include("pet_shows_dot_dog")
+      expect(herder.attributes.first.type.base_type.id).to eq("farming_dot_dog")
+      expect(show.attributes.first.type.base_type.id).to eq("pet_shows_dot_dog")
+    end
+  end
+
+  describe "G.1.3 + G.1.4 renamed copies and no USE left" do
+    it "copies renamed items under their ORIGINAL name and drops interfaces" do
+      repository, files = parse_repository(
+        "second" => "SCHEMA second;\nENTITY alfred; END_ENTITY;\nENTITY bert; END_ENTITY;\nEND_SCHEMA;\n",
+        "sch" => "SCHEMA sch;\nUSE FROM second (alfred AS alf);\nREFERENCE FROM second (bert AS herbert);\nENTITY joe;\n  attr1 : alf;\n  attr2 : herbert;\nEND_ENTITY;\nEND_SCHEMA;\n",
+        "short" => "SCHEMA short;\nUSE FROM sch (joe);\nEND_SCHEMA;\n",
+      )
+      longform = flatten(schema_of(repository, "short"), repository)
+      files.each(&:unlink)
+      ids = longform.entities.map(&:id)
+      # G.1.3: original names, references rewritten
+      expect(ids).to include("joe", "alfred")
+      expect(Array(longform.entities.find { |e| e.id == "joe" }.attributes)
+        .map { |a| a.type.id }).to include("alfred")
+      expect(ids).not_to include("alf", "herbert")
+      # G.1.4: no USE specifications survive
+      expect(Array(longform.interfaces).select { |i| i.kind == "USE" }).to be_empty
+    end
+  end
+
+  describe "G.1.6 dependent instantiability" do
+    it "emits the annex rule and function for reference entities" do
+      repository, files = parse_repository_full(
+        "base_schema" => "SCHEMA base_schema;\nENTITY shared;\n  v : INTEGER;\nEND_ENTITY;\nEND_SCHEMA;\n",
+        "sch" => "SCHEMA sch;\nREFERENCE FROM base_schema (shared);\nENTITY viewer;\n  s : shared;\nEND_ENTITY;\nEND_SCHEMA;\n",
+      )
+      longform = flatten(schema_of(repository, "sch"), repository)
+      files.each(&:unlink)
+      rule = longform.rules.find { |r| r.id == "validate_dependently_instantiable_entity_data_types" }
+      expect(rule).not_to be_nil
+      fn = longform.functions.find { |f| f.id == "dependently_instantiated" }
+      expect(fn).not_to be_nil
+      expect(Array(rule.applies_to).map { |r| r.id&.downcase }).to include("shared")
+    end
+  end
+
+  describe "G.2.5 subtype constraints" do
+    it "turns total_over into a global rule and constraints into SUPERTYPE" do
+      repository, files = parse_repository(
+        "sch" => "SCHEMA sch;\nENTITY base; END_ENTITY;\nENTITY a SUBTYPE OF (base); END_ENTITY;\nENTITY b SUBTYPE OF (base); END_ENTITY;\nSUBTYPE_CONSTRAINT base_sc FOR base;\n  ABSTRACT SUPERTYPE;\n  TOTAL_OVER (base);\n  ONEOF (a, b);\nEND_SUBTYPE_CONSTRAINT;\nEND_SCHEMA;\n",
+      )
+      longform = flatten(schema_of(repository, "sch"), repository)
+      files.each(&:unlink)
+      rule = longform.rules.find { |r| r.id == "total_over_base_sc" }
+      expect(rule).not_to be_nil
+      expect(Array(rule.applies_to).map { |r| r.id&.downcase }).to eq(%w[base])
+      rendered = Expressir::Express::PrettyFormatter.new.format(longform)
+      # the ONEOF instantiation constraint attaches as SUPERTYPE OF on
+      # the constraint's entity; ABSTRACT moves onto the declaration
+      base = longform.entities.find { |e| e.id == "base" }
+      expect(base.abstract).to be_truthy
+      expect(rendered).to match(/ONEOF/i)
+    end
+  end
+
+  describe "G.2.2 extensible select chain" do
+    it "folds a BASED_ON select chain into the full domain" do
+      repository, files = parse_repository(
+        "sch" => "SCHEMA sch;\nTYPE leaf = EXTENSIBLE SELECT (ea, eb);\nEND_TYPE;\nTYPE branch = EXTENSIBLE SELECT BASED_ON leaf WITH (ec);\nEND_TYPE;\nENTITY ea; END_ENTITY;\nENTITY eb; END_ENTITY;\nENTITY ec; END_ENTITY;\nENTITY holder;\n  v : branch;\nEND_ENTITY;\nEND_SCHEMA;\n",
+      )
+      longform = flatten(schema_of(repository, "sch"), repository)
+      files.each(&:unlink)
+      rendered = Expressir::Express::PrettyFormatter.new.format(longform)
+      branch = longform.types.find { |t| t.id == "branch" }
+      expect(branch).not_to be_nil
+      expect(rendered).to include("ea").and include("eb").and include("ec")
+      branch_items = Array(branch.underlying_type&.items || branch.underlying_type&.selections)
+        .map { |i| i.respond_to?(:id) ? i.id : i.to_s }
+      expect(branch_items.map(&:downcase)).to include("ea", "eb", "ec")
+    end
+  end
+
+  describe "G.1.9 prune pass" do
+    it "deletes functions that no artifact declaration calls" do
+      repository, files = parse_repository(
+        "sch" => "SCHEMA sch;\nFUNCTION unused_fn(x : INTEGER) : INTEGER;\n  RETURN (x);\nEND_FUNCTION;\nFUNCTION used_fn(x : INTEGER) : INTEGER;\n  RETURN (x);\nEND_FUNCTION;\nENTITY thing;\n  a : INTEGER;\nDERIVE\n    d : INTEGER := used_fn(a);\nEND_ENTITY;\nEND_SCHEMA;\n",
+      )
+      longform = flatten(schema_of(repository, "sch"), repository)
+      files.each(&:unlink)
+      ids = longform.functions.map(&:id)
+      expect(ids).to include("used_fn")
+      expect(ids).not_to include("unused_fn")
     end
   end
 end

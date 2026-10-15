@@ -149,16 +149,24 @@ Live examples in `spec/expressir/express/shtolo_annex_g_rule_audit_spec.rb`:
 
 | rule | audited | expressir |
 |------|---------|-----------|
+| G.NM.1 | yes (farming/pet_shows dog clash: every clashing declaration munged, occurrences rewritten) | pass |
 | G.NM.2 | yes (TYPEOF string rewrite) | pass |
+| G.1.1 | yes (artifact population asserted by every worked example) | pass |
 | G.1.2 | yes (USE wins over REFERENCE twin) | pass |
+| G.1.3 | yes (alfred AS alf: copies under ORIGINAL name, refs rewritten) | pass |
+| G.1.4 | yes (no USE specification survives) | pass |
 | G.1.5 | yes (completeness-only secondary population) | pass |
+| G.1.6 | yes (REFERENCE entities ⇒ annex rule + dependently_instantiated pair) | pass |
 | G.1.8 | yes (tagged remarks travel on interfaced entities) | pass |
+| G.1.9 | yes (uncalled functions pruned; select/empty-select via G.2.3/G.2.4) | pass |
 | G.1.10 | yes (implemented: `add_provenance_remark!`, all-or-none names) | pass |
+| G.2.1 | yes (longform initialisation asserted by every worked example) | pass |
+| G.2.2 | yes (BASED_ON select chain folds to the full domain) | pass |
 | G.2.3 | yes (extensible enumeration fold + exclusions) | pass |
 | G.2.4 | yes (extensible select fold) | pass |
+| G.2.5 | yes (total_over ⇒ global rule; ONEOF ⇒ SUPERTYPE OF; ABSTRACT moves) | pass |
 | G.2.6 | yes (ABSTRACT SUPERTYPE kept) | pass |
 
-Not yet audited against a worked example: G.NM.1, G.1.1, G.1.3,
-G.1.4, G.1.6 (synthesis; eeng has no `dependently_instantiated`
-source), G.1.7, G.1.9 (partial coverage via G.2.3/G.2.4), G.2.1,
-G.2.2, G.2.5.
+Not yet audited against a worked example: G.1.7 (implicitly
+interfaced declarations pulled for completeness; needs a corpus
+fixture with BASED_ON enumeration chains).

@@ -5,7 +5,7 @@ FILE_NAME('demo.stp','2026-10-15T10:00:00',('author one'),('org'),'pre','source'
 FILE_SCHEMA(('the_schema'));
 ENDSEC;
 DATA;
-#1 = THING('a string with ''quotes''', .GOOD., "0A1F", $, *);
+#1 = DEEP('a string with ''quotes''', .GOOD., "0A1F", *, $);
 #2 = LISTED((1, 2, 3), #1, MAGNITUDE(5));
 #3 = THINGS(.BAD.);
 #4 = (SUB_ONE(1)SUB_TWO(.GOOD.));

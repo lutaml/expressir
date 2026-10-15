@@ -11,6 +11,7 @@ module Expressir
     autoload :Binary, "#{__dir__}/p21/population"
     autoload :Grammar, "#{__dir__}/p21/grammar"
     autoload :Builder, "#{__dir__}/p21/builder"
+    autoload :Validator, "#{__dir__}/p21/validator"
     autoload :Parser, "#{__dir__}/p21/parser"
   end
 end

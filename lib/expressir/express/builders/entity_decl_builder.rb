@@ -73,17 +73,17 @@ module Expressir
           if entity_body.is_a?(Hash)
             if entity_body[:explicit_attr]
               explicit_attrs = Builder.build_children(entity_body[:explicit_attr])
-              attributes.concat(explicit_attrs)
+              attributes.concat(flatten_items(explicit_attrs))
             end
 
             if entity_body[:derive_clause]
               derived = Builder.build({ derive_clause: entity_body[:derive_clause] })
-              attributes.push(derived) if derived
+              attributes.concat(flatten_items(derived))
             end
 
             if entity_body[:inverse_clause]
               inverse = Builder.build({ inverse_clause: entity_body[:inverse_clause] })
-              attributes.push(inverse) if inverse
+              attributes.concat(flatten_items(inverse))
             end
 
             if entity_body[:unique_clause]
@@ -103,12 +103,24 @@ module Expressir
             supertype_expression: supertype_expression,
             subtype_of: subtype_of,
             attributes: attributes,
-            unique_rules: [unique_rules].flatten,
-            where_rules: [where_rules].flatten,
+            unique_rules: flatten_items(unique_rules),
+            where_rules: flatten_items(where_rules),
           }
           entity_params[:abstract] = true if abstract
 
           Expressir::Model::Declarations::Entity.new(**entity_params)
+        end
+
+        private
+
+        # ExplicitAttrBuilder / DeriveClauseBuilder / InverseClauseBuilder
+        # return Arrays (one node per declaration). Call sites must splice
+        # those items into the parent list — nesting them leaves
+        # `entity.attributes` as Array-of-Array, which formatters then
+        # crash on (`undefined method 'kind' for an instance of Array`).
+        # lutaml-model 0.8.107 no longer flattens collection assignments.
+        def flatten_items(value)
+          Array(value).flatten.compact
         end
       end
     end

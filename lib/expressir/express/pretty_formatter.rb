@@ -112,20 +112,15 @@ module Expressir
       # @param node [Model::Declarations::Entity] Entity node
       # @return [String] Formatted entity
       def format_declarations_entity(node)
-        if node.attributes.nil?
-          explicit_attributes = []
-          derived_attributes = []
-          inverse_attributes = []
-        else
-          explicit_attributes = node.attributes.select do |x|
-            x.kind == Model::Declarations::Attribute::EXPLICIT
-          end
-          derived_attributes = node.attributes.select do |x|
-            x.kind == Model::Declarations::Attribute::DERIVED
-          end
-          inverse_attributes = node.attributes.select do |x|
-            x.kind == Model::Declarations::Attribute::INVERSE
-          end
+        attrs = entity_attribute_items(node)
+        explicit_attributes = attrs.select do |x|
+          x.kind == Model::Declarations::Attribute::EXPLICIT
+        end
+        derived_attributes = attrs.select do |x|
+          x.kind == Model::Declarations::Attribute::DERIVED
+        end
+        inverse_attributes = attrs.select do |x|
+          x.kind == Model::Declarations::Attribute::INVERSE
         end
 
         indent_str = " " * @config.indent

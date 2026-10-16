@@ -110,20 +110,15 @@ module Expressir
         end
 
         def format_declarations_entity(node)
-          if node.attributes.nil?
-            explicit_attributes = []
-            derived_attributes = []
-            inverse_attributes = []
-          else
-            explicit_attributes = node.attributes.select do |x|
-              x.kind == Model::Declarations::Attribute::EXPLICIT
-            end
-            derived_attributes = node.attributes.select do |x|
-              x.kind == Model::Declarations::Attribute::DERIVED
-            end
-            inverse_attributes = node.attributes.select do |x|
-              x.kind == Model::Declarations::Attribute::INVERSE
-            end
+          attrs = entity_attribute_items(node)
+          explicit_attributes = attrs.select do |x|
+            x.kind == Model::Declarations::Attribute::EXPLICIT
+          end
+          derived_attributes = attrs.select do |x|
+            x.kind == Model::Declarations::Attribute::DERIVED
+          end
+          inverse_attributes = attrs.select do |x|
+            x.kind == Model::Declarations::Attribute::INVERSE
           end
 
           indent_const = self.class.const_get(:INDENT)
@@ -229,6 +224,18 @@ module Expressir
               format_end_scope_remark(node),
             ].join,
           ].join("\n")
+        end
+
+        # Entity#attributes is the Ruby-parse layout (every attribute kind
+        # in one list). The core path parks derived/inverse in their own
+        # collections instead. Both may also arrive as Array-of-Array when
+        # a builder nested list productions. Normalize to a flat list of
+        # Attribute-like nodes before selecting on `kind`.
+        def entity_attribute_items(node)
+          items = Array(node.attributes)
+          items += Array(node.derived_attributes) if node.respond_to?(:derived_attributes)
+          items += Array(node.inverse_attributes) if node.respond_to?(:inverse_attributes)
+          items.flatten.compact.uniq(&:object_id)
         end
 
         def format_declarations_function(node)

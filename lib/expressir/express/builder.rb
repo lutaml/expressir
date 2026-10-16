@@ -186,15 +186,27 @@ module Expressir
 
             case item
             when Array
-              item.each do |sub|
-                result << build(sub) unless sub.nil?
-              end
+              item.each { |sub| append_built(result, build(sub)) unless sub.nil? }
             else
-              built = build(item)
-              result << built if built
+              append_built(result, build(item))
             end
           end
           result
+        end
+
+        # Builders for list productions (ExplicitAttrBuilder and friends)
+        # return Arrays of nodes. Splice those items into the parent list
+        # rather than nesting them — nested Arrays break every consumer
+        # that expects ModelElements (`x.kind`, tree walks, formatters).
+        def append_built(result, built)
+          case built
+          when nil
+            nil
+          when Array
+            built.each { |b| append_built(result, b) }
+          else
+            result << built
+          end
         end
 
         # Fast build methods - call registered builder directly without hash wrapping

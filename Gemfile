@@ -6,7 +6,7 @@ gemspec
 
 gem "canon"
 gem "irb"
-gem "lutaml-model", "0.8.76"
+gem "lutaml-model", "0.8.114"
 gem "openssl", "~> 3.0"
 gem "rake"
 gem "rake-compiler"

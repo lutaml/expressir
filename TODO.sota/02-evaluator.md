@@ -57,4 +57,13 @@ implementation has this (eengine's --validate is the cautionary tale).
 - Grammar bug fixed en route: `factor`'s `** rhs` capture was dropped
   by the builder (`2 ** 3 + 1` parsed as `2 + 1`); build_factor now
   emits EXPONENTIATION.
-- Steps 2-5: todo.
+- Step 2 (function interpreter + builtin set A): done — functions
+  with parameter/local binding, assignment (incl. indexed), IF/CASE,
+  WHILE/UNTIL/increment REPEAT with SKIP and env-carrying ESCAPE,
+  RETURN (falling off the end is an error per 13.7), recursion.
+  Builtins: ABS SIN COS TAN ASIN ACOS ATAN ATAN2 SQRT EXP LOG LOG2
+  LOG10 ODD LENGTH BLENGTH SIZEOF HIINDEX LOINDEX HIBOUND LOBOUND
+  EXISTS NVL VALUE, plus PI/E/CONST_E constants. NOTE: the logical
+  value symbols live in Values::LOGICAL_* constants — bare :true/
+  :false literals get rewritten to booleans by Lint/BooleanSymbol.
+- Steps 3-5: todo.

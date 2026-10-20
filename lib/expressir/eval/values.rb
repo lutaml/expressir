@@ -13,19 +13,25 @@ module Expressir
       # propagate it per clause instead of treating it as nil.
       INDETERMINATE = Object.new.freeze
 
+      # EXPRESS logical values are the symbols true/false/unknown as
+      # values, not Ruby booleans (ISO 10303-11 8.2).
+      LOGICAL_TRUE = :true # rubocop:disable Lint/BooleanSymbol
+      LOGICAL_FALSE = :false # rubocop:disable Lint/BooleanSymbol
+      LOGICAL_UNKNOWN = :unknown
+
       Logical = Struct.new(:value, keyword_init: true) do
         # The logical values are ISO 10303-11 logical literals
         # (true/false/unknown as values), not Ruby booleans.
         def self.true_value # rubocop:disable Lint/BooleanSymbol
-          new(value: true).freeze
+          new(value: LOGICAL_TRUE).freeze
         end
 
         def self.false_value # rubocop:disable Lint/BooleanSymbol
-          new(value: false).freeze
+          new(value: LOGICAL_FALSE).freeze
         end
 
         def self.unknown
-          new(value: :unknown).freeze
+          new(value: LOGICAL_UNKNOWN).freeze
         end
 
         def to_s

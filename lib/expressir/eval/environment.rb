@@ -38,6 +38,11 @@ module Expressir
       def bound?(name)
         !lookup(name).nil? || @frames.any? { |f| f.key?(name.safe_downcase) }
       end
+
+      def interpreter
+        @interpreter ||= Interpreter.new(schema: @schema,
+                                         population: @population)
+      end
     end
   end
 end

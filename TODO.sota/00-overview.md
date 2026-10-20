@@ -14,7 +14,7 @@ developer platform, and its interoperability hub.
 
 | n | task | tier | status |
 |---|------|------|--------|
-| 01 | static type checking of expressions | semantics | todo |
+| 01 | static type checking of expressions | semantics | done (tiers 1-6; :check_expr_operand_domain/:check_expr_initializer_type/:check_expr_assignment_type/:check_expr_return/:check_expr_where_boolean/:check_expr_unique_duplicate; corpus 261-slice 0 notes) |
 | 02 | evaluator — run EXPRESS (functions, WHERE rules over populations) | execution | todo |
 | 03 | conformance (Part 21 conformance corpus, property-based grammar harness, G.1.7 closure) | rigor | todo |
 | 04 | LSP + incremental platform | platform | todo |

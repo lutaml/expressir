@@ -1357,7 +1357,10 @@ module Expressir
 
           Array(current.subtype_of).each do |ref|
             id = ref_id(ref)
-            queue << find_entity(schema, id) if id
+            next unless id
+
+            target = find_entity(schema, id)
+            queue << target if target
           end
         end
         nil

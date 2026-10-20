@@ -15,6 +15,7 @@ module Expressir
     autoload :Checker, "#{__dir__}/express/checker"
     autoload :Concatenator, "#{__dir__}/express/concatenator"
     autoload :Core, "#{__dir__}/express/core"
+    autoload :Dialect, "#{__dir__}/express/dialect"
     autoload :RemarkOverlay, "#{__dir__}/express/remark_overlay"
     autoload :ModelTraversal, "#{__dir__}/express/model_traversal"
     autoload :RefsOverlay, "#{__dir__}/express/refs_overlay"

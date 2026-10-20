@@ -25,7 +25,9 @@ module Expressir
           raise Thor::Error, "#{failed} file(s) failed to parse"
         end
 
-        result = Expressir::Express::Checker.new(repository).check
+        result = Expressir::Express::Checker.new(
+          repository, dialect: options[:dialect]
+        ).check
 
         if options[:json]
           say JSON.generate(

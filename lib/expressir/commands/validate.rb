@@ -98,6 +98,9 @@ module Expressir
       method_option :stepmod, type: :string,
                               desc: "STEPmod checkout root — explicit opt-in to directory-" \
                                     "convention resolution as the fallback"
+      method_option :dialect, type: :string,
+                              desc: "ISO 10303-11 edition for dialect diagnostics: " \
+                                    "'1994' or '2004' (default: no edition notes)"
       def check(*paths)
         Check.new(options).run(*paths)
       end

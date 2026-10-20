@@ -19,7 +19,7 @@ developer platform, and its interoperability hub.
 | 03 | conformance (Part 21 conformance corpus, property-based grammar harness, G.1.7 closure) | rigor | done (P21 annex corpus + negative ladder-exclusion gate; generated round-trip harness + nightly corpus tier + rake conformance; every Annex G rule audited) |
 | 04 | LSP + incremental platform | platform | todo |
 | 05 | interop exports (JSON Schema, OWL/RDF) | interop | done (JSON Schema 2020-12 + OWL/Turtle exporters, CLI commands, decision guides; Annex H population consumer round-trip; SRL corpus tier; UML/XMI optional not shipped) |
-| 06 | dialect awareness (1994 vs 2004, amendments) | semantics | todo |
+| 06 | dialect awareness (1994 vs 2004, amendments) | semantics | done (Dialect normalize + parser/checker flag; :check_dialect_2004_only/:check_dialect_deprecated/:check_dialect_mixed; audited 2004 change list fixture with live examples; both-dialect corpus tier) |
 | 07 | reference artifacts (grammar cross-walk, published guides) | reference | todo |
 
 Dependency shape: 02 consumes 01's type tiers loosely (interleave by

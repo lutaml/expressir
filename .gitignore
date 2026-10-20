@@ -53,3 +53,6 @@ Cargo.lock
 /lib/expressir/expressir_core.bundle
 /lib/expressir/expressir_core.so
 /lib/expressir/expressir_core.dll
+
+# nightly conformance trend artifact (rake conformance:trend)
+/conformance-trend.json

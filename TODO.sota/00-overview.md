@@ -20,7 +20,7 @@ developer platform, and its interoperability hub.
 | 04 | LSP + incremental platform | platform | done (stdio LSP 3.17 server + `expressir-lsp` binary; Checker diagnostics; USE/alias definition, references, hover; cross-schema rename verified by SchemaCompare+Formatter; full reparse — expr-rs incremental API is the measured gap) |
 | 05 | interop exports (JSON Schema, OWL/RDF) | interop | done (JSON Schema 2020-12 + OWL/Turtle exporters, CLI commands, decision guides; Annex H population consumer round-trip; SRL corpus tier; UML/XMI optional not shipped) |
 | 06 | dialect awareness (1994 vs 2004, amendments) | semantics | done (Dialect normalize + parser/checker flag; :check_dialect_2004_only/:check_dialect_deprecated/:check_dialect_mixed; audited 2004 change list fixture with live examples; both-dialect corpus tier) |
-| 07 | reference artifacts (grammar cross-walk, published guides) | reference | todo |
+| 07 | reference artifacts (grammar cross-walk, published guides) | reference | done (250-rule generated cross-walk with divergence classes + sync spec; trended nightly metrics artifact; checker/p21/shtolo/evaluator/lsp guides with generated note-id catalog) |
 
 Dependency shape: 02 consumes 01's type tiers loosely (interleave by
 tier when a check needs execution semantics). 04 scaffolds

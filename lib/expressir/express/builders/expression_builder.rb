@@ -99,7 +99,15 @@ module Expressir
         def build_factor(ast_data)
           return nil unless ast_data[:simple_factor]
 
-          Builder.build_node(:simple_factor, ast_data[:simple_factor])
+          base = Builder.build_node(:simple_factor, ast_data[:simple_factor])
+          rhs = ast_data[:rhs]
+          return base unless rhs
+
+          Model::Expressions::BinaryExpression.new(
+            operator: Model::Expressions::BinaryExpression::EXPONENTIATION,
+            operand1: base,
+            operand2: Builder.build_node(:simple_factor, rhs[:simple_factor]),
+          )
         end
 
         def build_simple_factor(ast_data)

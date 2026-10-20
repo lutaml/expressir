@@ -57,7 +57,9 @@ module Expressir
       def self.from_file(file, skip_references: nil, include_source: nil,
                          root_path: nil, use_native: nil,
                          use_core: nil) # rubocop:disable Metrics/AbcSize
-        use_core = Core::NATIVE_AVAILABLE if use_core.nil?
+        # use_native: false pins the Ruby grammar path; the core path
+        # must not silently take over that request.
+        use_core = Core::NATIVE_AVAILABLE if use_core.nil? && use_native != false
         if use_core && Core::NATIVE_AVAILABLE
           return from_file_core(file, skip_references: skip_references,
                                       include_source: include_source,

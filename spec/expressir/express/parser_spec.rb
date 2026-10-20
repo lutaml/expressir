@@ -1,4 +1,5 @@
 require "spec_helper"
+require "tempfile"
 require_relative "../../../lib/expressir/express/parser"
 
 RSpec.describe Expressir::Express::Parser do
@@ -56,6 +57,23 @@ RSpec.describe Expressir::Express::Parser do
         expect(repo.schemas.length).to eq(1)
         expect(repo.schemas.first.entities.length).to eq(1)
         expect(repo.schemas.first.entities.first.id).to eq("test_entity")
+      end
+
+      it "honours use_native: false over an available core parse path" do
+        file = Tempfile.new(["ruby_path", ".exp"])
+        file.write("SCHEMA s; CONSTANT c : BOOLEAN := 4 ** 2; " \
+                   "END_CONSTANT; END_SCHEMA;")
+        file.close
+        begin
+          repo = described_class.from_file(file.path, use_native: false)
+          expression = repo.schemas.first.constants.first.expression
+          expect(expression)
+            .to be_a(Expressir::Model::Expressions::BinaryExpression)
+          expect(expression.operator)
+            .to eq(Expressir::Model::Expressions::BinaryExpression::EXPONENTIATION)
+        ensure
+          file.unlink
+        end
       end
     end
 

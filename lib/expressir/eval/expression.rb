@@ -112,9 +112,13 @@ module Expressir
         V::Aggregate.of(source.kind, kept)
       end
 
-      def evaluate_call(node, _env)
-        raise Error, "function '#{node.function&.id}' evaluation arrives " \
-                     "with TODO.sota/02 step 2"
+      def evaluate_call(node, env)
+        callee = node.function
+        name = callee.is_a?(Model::References::SimpleReference) ? callee.id : nil
+        raise Error, "unsupported call target #{callee.class.name}" unless name
+
+        arguments = Array(node.parameters).map { |arg| evaluate(arg, env) }
+        env.interpreter.call(name, arguments)
       end
 
       def evaluate_unary(node, env)
@@ -127,8 +131,8 @@ module Expressir
         when "NOT"
           logical = as_logical(operand)
           case logical.value
-          when true then V::Logical.false_value
-          when false then V::Logical.true_value
+          when V::LOGICAL_TRUE then V::Logical.false_value
+          when V::LOGICAL_FALSE then V::Logical.true_value
           else V::Logical.unknown
           end
         end
@@ -253,9 +257,9 @@ module Expressir
 
         case operator
         when "AND"
-          left.value == true && right.value == true ? V::Logical.true_value : V::Logical.false_value
+          left.value == V::LOGICAL_TRUE && right.value == V::LOGICAL_TRUE ? V::Logical.true_value : V::Logical.false_value
         when "OR"
-          left.value == true || right.value == true ? V::Logical.true_value : V::Logical.false_value
+          left.value == V::LOGICAL_TRUE || right.value == V::LOGICAL_TRUE ? V::Logical.true_value : V::Logical.false_value
         else # XOR
           left.value == right.value ? V::Logical.false_value : V::Logical.true_value
         end
@@ -268,7 +272,7 @@ module Expressir
       end
 
       def logical?(value)
-        value.is_a?(V::Logical) && value.value == true
+        value.is_a?(V::Logical) && value.value == V::LOGICAL_TRUE
       end
 
       # ---- relational (12.2) ----
@@ -287,7 +291,7 @@ module Expressir
 
       def evaluate_like(left, right)
         hit = like_match?(left, right)
-        V::Logical.new(value: hit ? true : false)
+        V::Logical.new(value: hit ? V::LOGICAL_TRUE : V::LOGICAL_FALSE)
       end
 
       def evaluate_in(element, aggregate)
@@ -299,7 +303,7 @@ module Expressir
         return V::Logical.true_value if aggregate.elements.any? { |e| values_equal?(element, e) }
 
         hole = aggregate.elements.any? { |e| indeterminate?(e) }
-        V::Logical.new(value: hole ? :unknown : false)
+        V::Logical.new(value: hole ? V::LOGICAL_UNKNOWN : V::LOGICAL_FALSE)
       end
 
       def relational_operator(operator)
@@ -319,13 +323,13 @@ module Expressir
                  when :> then ordering.positive?
                  when :">=" then ordering >= 0
                  end
-        V::Logical.new(value: result ? true : false)
+        V::Logical.new(value: result ? V::LOGICAL_TRUE : V::LOGICAL_FALSE)
       end
 
       def negate(logical)
         case logical.value
-        when true then V::Logical.false_value
-        when false then V::Logical.true_value
+        when V::LOGICAL_TRUE then V::Logical.false_value
+        when V::LOGICAL_FALSE then V::Logical.true_value
         else V::Logical.unknown
         end
       end
@@ -345,8 +349,14 @@ module Expressir
         raise Error, "cannot compare #{describe(left)} with #{describe(right)}"
       end
 
+      LOGICAL_ORDER = {
+        V::LOGICAL_FALSE => 0,
+        V::LOGICAL_UNKNOWN => 1,
+        V::LOGICAL_TRUE => 2,
+      }.freeze
+
       def logical_order(logical)
-        { false => 0, unknown: 1, true => 2 }.fetch(logical.value)
+        LOGICAL_ORDER.fetch(logical.value)
       end
 
       # ---- LIKE (12.2.5, table 11) ----

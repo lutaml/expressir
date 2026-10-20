@@ -50,8 +50,8 @@ INSTANCE_EQUAL, INSTANCE_NOT_EQUAL, AND, OR, XOR);
 | unary `+` `-` (PLUS/MINUS) | 12.1 | numeric | numeric |
 | `not` (NOT) | 12.4 | logical | logical |
 | `+` (ADDITION) | 12.1 add; 12.5.2 string concat; 12.3.2 binary concat; 12.6 union (table 17 admits aggregate+element singletons on either side) | num,num; str,str; bin,bin; agg,agg; agg,elem; elem,agg | num / str / bin / agg |
-| `-` (SUBTRACTION) | 12.1; 12.6 difference | num,num; agg,agg | num / agg |
-| `*` (MULTIPLICATION) | 12.1; 12.6 intersection | num,num; agg,agg | num / agg |
+| `-` (SUBTRACTION) | 12.1; 12.6 difference (table 18: aggregate left, element singleton right) | num,num; agg,agg; agg,elem | num / agg |
+| `*` (MULTIPLICATION) | 12.1; 12.6 intersection (both operands aggregates) | num,num; agg,agg | num / agg |
 | `/` (REAL_DIVISION) | 12.1 | numeric | real |
 | `**` (EXPONENTIATION) | 12.1 | numeric | num (int if both int) |
 | `div` `mod` | 12.1 | numeric (reals truncated) | integer |

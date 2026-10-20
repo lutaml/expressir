@@ -161,6 +161,8 @@ module Expressir
               check_unary_expression_types(schema, node)
             when Model::Expressions::Interval
               check_interval_types(schema, node)
+            when Model::References::IndexReference
+              check_index_reference_types(schema, node)
             end
           end
         end
@@ -233,11 +235,19 @@ module Expressir
           # later tier.
           "addition requires numeric, string, binary or aggregate " \
             "operands (12.1, 12.3.2, 12.5.2, 12.6)"
-        when "SUBTRACTION", "MULTIPLICATION"
+        when "SUBTRACTION"
+          return nil if numeric_pair?(left, right) ||
+            (left == :aggregate && right != :unknown) ||
+            same_pair?(left, right, :aggregate)
+
+          # 12.6 table 18: the difference's right operand may be an
+          # element singleton; the left must be an aggregate.
+          "difference requires an aggregate left operand (12.1, 12.6)"
+        when "MULTIPLICATION"
           return nil if numeric_pair?(left, right) ||
             same_pair?(left, right, :aggregate)
 
-          "operator requires numeric or aggregate operands (12.1, 12.6)"
+          "intersection requires aggregate operands (12.1, 12.6)"
         when "REAL_DIVISION", "EXPONENTIATION", "INTEGER_DIVISION", "MODULO"
           "operator requires numeric operands (12.1)" unless numeric_pair?(left, right)
         when "AND", "OR", "XOR"
@@ -377,6 +387,8 @@ module Expressir
           reference_type(schema, node, depth)
         when Model::References::AttributeReference
           attribute_reference_type(schema, node, depth)
+        when Model::References::IndexReference
+          index_element_type(schema, node, depth)
         else :unknown
         end
       end
@@ -447,6 +459,83 @@ module Expressir
         return nil unless node.is_a?(Model::References::SimpleReference)
 
         find_entity(schema, node.id.to_s)
+      end
+
+      # ---- tier 3: aggregates through indexing ----
+
+      # 12.6.1 / 12.3.1 / 12.5.1: indexing yields the aggregate's base
+      # element; string indexing yields a string; binary indexing a
+      # binary.
+      def index_element_type(schema, node, depth)
+        element = index_element_type_node(schema, node.ref, depth + 1)
+        return :unknown if element.nil?
+
+        symbol = static_type(schema, element, depth + 1)
+        return symbol unless symbol == :unknown
+
+        case element
+        when Model::DataTypes::String then :string
+        when Model::DataTypes::Binary then :binary
+        else :unknown
+        end
+      end
+
+      def index_element_type_node(schema, node, depth)
+        return nil if node.nil? || depth > 8
+
+        type_node = declared_type_node(schema, node, depth)
+        case type_node
+        when Model::DataTypes::List, Model::DataTypes::Set,
+             Model::DataTypes::Bag, Model::DataTypes::Array
+          type_node.base_type
+        when Model::DataTypes::String, Model::DataTypes::Binary
+          type_node
+        when Model::DataTypes::Select
+          nil
+        end
+      end
+
+      # The declared type NODE an expression position names (as opposed
+      # to the static_type symbol): scope environment, schema types and
+      # entities, function returns.
+      def declared_type_node(schema, node, depth)
+        case node
+        when Model::References::SimpleReference
+          key = node.id&.safe_downcase
+          return nil unless key
+
+          @current_expression_env&.[](key) ||
+            find_type(schema, node.id.to_s)&.underlying_type ||
+            (find_entity(schema, node.id) && Model::DataTypes::GenericEntity.new)
+        when Model::References::IndexReference
+          index_element_type_node(schema, node.ref, depth + 1)
+        when Model::Expressions::FunctionCall
+          function = schema_function(schema, node)
+          function&.return_type
+        end
+      end
+
+      # 12.6.1/12.3.1/12.5.1: the indexed value shall be an aggregate,
+      # string or binary; 12.6.1/12.3.1/12.5.1 + 12.1: index positions
+      # shall be numeric.
+      def check_index_reference_types(schema, node)
+        base = static_type(schema, node.ref)
+        unless undecidable?(base) || base == :aggregate ||
+            base == :string || base == :binary || base == :select
+          note!(:check_expr_operand_domain, :error, schema,
+                "indexing requires an aggregate, string or binary " \
+                "operand (12.6.1, 12.3.1, 12.5.1) (#{base})", node)
+        end
+
+        [node.index1, node.index2].compact.each do |position|
+          position_type = static_type(schema, position)
+          next if undecidable?(position_type)
+          next if NUMERIC_TYPES.include?(position_type)
+
+          note!(:check_expr_operand_domain, :error, schema,
+                "index position shall be numeric (12.6.1) " \
+                "(#{position_type})", position)
+        end
       end
 
       # Self-qualified literals naming the CURRENT schema (#125): local

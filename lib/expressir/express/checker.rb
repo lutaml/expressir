@@ -89,6 +89,30 @@ module Expressir
         Model::Declarations::Type
       ].freeze
 
+      NUMERIC_TYPES = %i[integer real number].freeze
+      LOGICAL_TYPES = %i[logical boolean].freeze
+      ORDERING_FAMILIES = {
+        numeric: NUMERIC_TYPES,
+        logical: LOGICAL_TYPES,
+        string: %i[string],
+        binary: %i[binary],
+        enum: %i[enum],
+      }.freeze
+
+      TYPE_CLASS_SYMBOLS = {
+        Model::DataTypes::Integer => :integer,
+        Model::DataTypes::Real => :real,
+        Model::DataTypes::Number => :number,
+        Model::DataTypes::String => :string,
+        Model::DataTypes::Binary => :binary,
+        Model::DataTypes::Boolean => :boolean,
+        Model::DataTypes::Logical => :logical,
+        Model::DataTypes::List => :aggregate,
+        Model::DataTypes::Set => :aggregate,
+        Model::DataTypes::Bag => :aggregate,
+        Model::DataTypes::Array => :aggregate,
+      }.freeze
+
       private
 
       def note!(id, severity, schema, message, node = nil)
@@ -116,6 +140,313 @@ module Expressir
         end
         check_string_references(schema)
         check_unresolved_refs(schema)
+        check_expression_types(schema)
+      end
+
+      # ---- TODO.sota/01 tier 2: operator domain typing ----
+      # ISO 10303-11:2004 ch.12. eengine's expression checks traverse
+      # structurally only (kernel/check.lisp), so these notes carry the
+      # new :check_expr_operand_domain id with the clause in the
+      # message. A violation is flagged only when BOTH operand types
+      # are statically known.
+
+      def check_expression_types(schema)
+        expression_scopes(schema).each do |scope|
+          @current_expression_env = expression_env(schema, scope)
+          each_node(scope) do |node|
+            case node
+            when Model::Expressions::BinaryExpression
+              check_binary_expression_types(schema, node)
+            when Model::Expressions::UnaryExpression
+              check_unary_expression_types(schema, node)
+            when Model::Expressions::Interval
+              check_interval_types(schema, node)
+            end
+          end
+        end
+        @current_expression_env = nil
+      end
+
+      def expression_scopes(schema)
+        Array(schema.constants) + Array(schema.types) +
+          Array(schema.entities) + Array(schema.functions) +
+          Array(schema.procedures) + Array(schema.rules)
+      end
+
+      # name → declared type node, for identifiers visible to the
+      # scope's expressions: the schema's constants, plus the scope's
+      # own parameters/variables/attributes.
+      def expression_env(schema, scope)
+        env = {}
+        Array(schema.constants).each do |constant|
+          env[constant.id&.safe_downcase] = constant.type if constant.id
+        end
+        case scope
+        when Model::Declarations::Entity
+          Array(scope.attributes).each do |attr|
+            env[attr.id&.safe_downcase] = attr.type if attr.id
+          end
+        when Model::Declarations::Function, Model::Declarations::Procedure
+          Array(scope.parameters).each do |param|
+            env[param.id&.safe_downcase] = param.type if param.id
+          end
+          Array(scope.variables).each do |variable|
+            env[variable.id&.safe_downcase] = variable.type if variable.id
+          end
+        when Model::Declarations::Rule
+          Array(scope.variables).each do |variable|
+            env[variable.id&.safe_downcase] = variable.type if variable.id
+          end
+        end
+        env
+      end
+
+      def check_binary_expression_types(schema, node)
+        left = static_type(schema, node.operand1)
+        right = static_type(schema, node.operand2)
+        return if undecidable?(left, right)
+
+        domain = binary_domain_violation(node.operator, left, right)
+        return unless domain
+
+        note!(:check_expr_operand_domain, :error, schema,
+              "operator '#{binary_operator_spelling(node.operator)}': " \
+              "#{domain} (#{left} vs #{right})", node)
+      end
+
+      def undecidable?(*types)
+        types.any? { |t| t.nil? || t == :unknown || t == :generic }
+      end
+
+      # nil = ok; String = the violation message body. Clauses per the
+      # TODO.sota/01 clause map.
+      def binary_domain_violation(operator, left, right)
+        case operator
+        when "ADDITION"
+          return nil if numeric_pair?(left, right) ||
+            same_pair?(left, right, :string) ||
+            same_pair?(left, right, :binary) ||
+            left == :aggregate || right == :aggregate
+
+          # 12.6 table 17: union admits an element singleton on either
+          # side of an aggregate; element↔base-type compatibility is a
+          # later tier.
+          "addition requires numeric, string, binary or aggregate " \
+            "operands (12.1, 12.3.2, 12.5.2, 12.6)"
+        when "SUBTRACTION", "MULTIPLICATION"
+          return nil if numeric_pair?(left, right) ||
+            same_pair?(left, right, :aggregate)
+
+          "operator requires numeric or aggregate operands (12.1, 12.6)"
+        when "REAL_DIVISION", "EXPONENTIATION", "INTEGER_DIVISION", "MODULO"
+          "operator requires numeric operands (12.1)" unless numeric_pair?(left, right)
+        when "AND", "OR", "XOR"
+          "logical operator requires logical operands (12.4)" unless
+            LOGICAL_TYPES.include?(left) && LOGICAL_TYPES.include?(right)
+        when "EQUAL", "NOT_EQUAL"
+          "value comparison requires comparable operands (12.2.1)" unless
+            comparable_equality?(left, right)
+        when "LESS_THAN", "LESS_THAN_OR_EQUAL", "GREATER_THAN",
+             "GREATER_THAN_OR_EQUAL"
+          if left == :aggregate || right == :aggregate
+            unless left == :aggregate && right == :aggregate
+              return "subset/superset requires aggregate operands (12.6)"
+            end
+
+            return nil
+          end
+
+          "ordering comparison requires same-family operands (12.2.1)" unless
+            same_ordering_family?(left, right)
+        when "INSTANCE_EQUAL", "INSTANCE_NOT_EQUAL"
+          unless %i[entity aggregate select].include?(left) &&
+              %i[entity aggregate select].include?(right)
+            "instance comparison requires entity or aggregate " \
+              "operands (12.2.2)"
+          end
+        when "IN"
+          "membership requires an aggregate right operand (12.2.3)" unless
+            right == :aggregate
+        when "LIKE"
+          "like requires string operands (12.2.5)" unless
+            left == :string && right == :string
+        when "COMBINE"
+          unless left == :entity && right == :entity
+            "complex entity construction requires entity operands " \
+              "(12, precedence table note)"
+          end
+        end
+      end
+
+      def numeric_pair?(left, right)
+        NUMERIC_TYPES.include?(left) && NUMERIC_TYPES.include?(right)
+      end
+
+      def same_pair?(left, right, kind)
+        left == kind && right == kind
+      end
+
+      # 12.2.1: both operands of the same comparison family, with the
+      # numeric family spanning integer/real/number; aggregate/entity/
+      # select operands compare for (in)equality only.
+      def comparable_equality?(left, right)
+        return true if %i[aggregate entity select].include?(left) &&
+          %i[aggregate entity select].include?(right)
+
+        same_ordering_family?(left, right)
+      end
+
+      def same_ordering_family?(left, right)
+        ORDERING_FAMILIES.values.any? do |family|
+          family.include?(left) && family.include?(right)
+        end
+      end
+
+      def binary_operator_spelling(symbol)
+        {
+          "ADDITION" => "+", "SUBTRACTION" => "-", "REAL_DIVISION" => "/",
+          "INTEGER_DIVISION" => "div", "MODULO" => "mod",
+          "INSTANCE_EQUAL" => ":=:", "INSTANCE_NOT_EQUAL" => ":<>:"
+        }.fetch(symbol, symbol.downcase)
+      end
+
+      def check_unary_expression_types(schema, node)
+        t = static_type(schema, node.operand)
+        return if undecidable?(t)
+
+        violation =
+          if node.operator == "NOT"
+            "not requires a logical operand (12.4)" unless
+              LOGICAL_TYPES.include?(t)
+          else
+            unless NUMERIC_TYPES.include?(t)
+              "unary '#{node.operator.downcase}' requires a numeric " \
+                "operand (12.1)"
+            end
+          end
+        return unless violation
+
+        note!(:check_expr_operand_domain, :error, schema, violation, node)
+      end
+
+      def check_interval_types(schema, node)
+        types = [node.low, node.item, node.high].map do |part|
+          static_type(schema, part)
+        end
+        return if types.any? { |t| undecidable?(t) }
+        return if types.all? { |t| same_ordering_family?(types.first, t) } ||
+          numeric_family?(*types)
+
+        note!(:check_expr_operand_domain, :error, schema,
+              "interval bounds must be mutually comparable (12.2.4) " \
+              "(#{types.join(' vs ')})", node)
+      end
+
+      def numeric_family?(*types)
+        types.all? { |t| NUMERIC_TYPES.include?(t) }
+      end
+
+      # Static type of an expression node: a symbol from the lattice
+      # in TODO.sota/01 (:unknown when not statically decidable).
+      def static_type(schema, node, depth = 0)
+        return :unknown if node.nil? || depth > 8
+        return TYPE_CLASS_SYMBOLS[node.class] if TYPE_CLASS_SYMBOLS.key?(node.class)
+
+        case node
+        when Model::Literals::Integer then :integer
+        when Model::Literals::Real then :real
+        when Model::Literals::String then :string
+        when Model::Literals::Binary then :binary
+        when Model::Literals::Logical then :logical
+        when Model::Expressions::AggregateInitializer,
+             Model::Expressions::QueryExpression then :aggregate
+        when Model::Expressions::EntityConstructor,
+             Model::References::GroupReference then :entity
+        when Model::Expressions::BinaryExpression
+          binary_result_type(schema, node, depth)
+        when Model::Expressions::FunctionCall
+          function = schema_function(schema, node)
+          return :unknown unless function
+
+          static_type(schema, function.return_type, depth + 1)
+        when Model::DataTypes::Enumeration then :enum
+        when Model::DataTypes::Select then :select
+        when Model::DataTypes::Generic, Model::DataTypes::GenericEntity
+          :generic
+        when Model::References::SimpleReference
+          reference_type(schema, node, depth)
+        when Model::References::AttributeReference
+          attribute_reference_type(schema, node, depth)
+        else :unknown
+        end
+      end
+
+      def binary_result_type(schema, node, depth)
+        case node.operator
+        when "EQUAL", "NOT_EQUAL", "LESS_THAN", "LESS_THAN_OR_EQUAL",
+             "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "IN", "LIKE",
+             "INSTANCE_EQUAL", "INSTANCE_NOT_EQUAL", "AND", "OR", "XOR"
+          :logical
+        when "ADDITION"
+          left = static_type(schema, node.operand1, depth + 1)
+          NUMERIC_TYPES.include?(left) ? left : :unknown
+        when "REAL_DIVISION" then :real
+        when "INTEGER_DIVISION", "MODULO" then :integer
+        when "EXPONENTIATION"
+          both = [node.operand1, node.operand2].map do |operand|
+            static_type(schema, operand, depth + 1)
+          end
+          both.all?(:integer) ? :integer : :unknown
+        else :unknown
+        end
+      end
+
+      def schema_function(schema, node)
+        callee = node.function
+        return nil unless callee.is_a?(Model::References::SimpleReference)
+
+        Array(schema.functions).find do |function|
+          function.id&.safe_downcase == callee.id&.safe_downcase
+        end
+      end
+
+      def reference_type(schema, node, depth)
+        key = node.id&.safe_downcase
+        return :unknown unless key
+
+        if (bound = @current_expression_env&.[](key))
+          return static_type(schema, bound, depth + 1)
+        end
+
+        declaration = find_type(schema, node.id.to_s)
+        return static_type(schema, declaration.underlying_type, depth + 1) if declaration
+
+        find_entity(schema, node.id) ? :entity : :unknown
+      end
+
+      # `color.red` parses as an AttributeReference over a reference to
+      # the enumeration TYPE (base infers :enum). An entity-typed base
+      # resolves through the entity's own attributes.
+      def attribute_reference_type(schema, node, depth)
+        base_node = node.ref
+        base = static_type(schema, base_node, depth + 1)
+        return :enum if base == :enum
+
+        entity = entity_for_reference(schema, base_node)
+        return :unknown unless entity
+
+        attr = Array(entity.attributes).find do |candidate|
+          candidate.id&.safe_downcase == node.attribute&.id&.safe_downcase
+        end
+        return :unknown unless attr
+
+        static_type(schema, attr.type, depth + 1)
+      end
+
+      def entity_for_reference(schema, node)
+        return nil unless node.is_a?(Model::References::SimpleReference)
+
+        find_entity(schema, node.id.to_s)
       end
 
       # Self-qualified literals naming the CURRENT schema (#125): local

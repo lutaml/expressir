@@ -157,6 +157,7 @@ Live examples in `spec/expressir/express/shtolo_annex_g_rule_audit_spec.rb`:
 | G.1.4 | yes (no USE specification survives) | pass |
 | G.1.5 | yes (completeness-only secondary population) | pass |
 | G.1.6 | yes (REFERENCE entities ⇒ annex rule + dependently_instantiated pair) | pass |
+| G.1.7 | yes (BASED_ON chain pulls the implicit BASE enumeration; subtyped enumerations carried for completeness) | pass |
 | G.1.8 | yes (tagged remarks travel on interfaced entities) | pass |
 | G.1.9 | yes (uncalled functions pruned; select/empty-select via G.2.3/G.2.4) | pass |
 | G.1.10 | yes (implemented: `add_provenance_remark!`, all-or-none names) | pass |
@@ -167,6 +168,4 @@ Live examples in `spec/expressir/express/shtolo_annex_g_rule_audit_spec.rb`:
 | G.2.5 | yes (total_over ⇒ global rule; ONEOF ⇒ SUPERTYPE OF; ABSTRACT moves) | pass |
 | G.2.6 | yes (ABSTRACT SUPERTYPE kept) | pass |
 
-Not yet audited against a worked example: G.1.7 (implicitly
-interfaced declarations pulled for completeness; needs a corpus
-fixture with BASED_ON enumeration chains).
+Every Annex G rule now has a live worked example.

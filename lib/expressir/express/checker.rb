@@ -151,6 +151,7 @@ module Expressir
       # are statically known.
 
       def check_expression_types(schema)
+        check_initializer_types(schema)
         expression_scopes(schema).each do |scope|
           @current_expression_env = expression_env(schema, scope)
           each_node(scope) do |node|
@@ -413,6 +414,14 @@ module Expressir
         end
       end
 
+      def builtin_symbol(name)
+        {
+          "integer" => :integer, "real" => :real, "number" => :number,
+          "string" => :string, "binary" => :binary, "boolean" => :boolean,
+          "logical" => :logical
+        }.fetch(name, :unknown)
+      end
+
       def schema_function(schema, node)
         callee = node.function
         return nil unless callee.is_a?(Model::References::SimpleReference)
@@ -425,6 +434,10 @@ module Expressir
       def reference_type(schema, node, depth)
         key = node.id&.safe_downcase
         return :unknown unless key
+
+        # builtin type names may arrive as unresolved references
+        # depending on parse layout
+        return builtin_symbol(key) if builtin?(node.id)
 
         if (bound = @current_expression_env&.[](key))
           return static_type(schema, bound, depth + 1)
@@ -536,6 +549,145 @@ module Expressir
                 "index position shall be numeric (12.6.1) " \
                 "(#{position_type})", position)
         end
+      end
+
+      # ---- tier 4: initializer compatibility (12.11) ----
+
+      # `x : T := expr` in CONSTANT, DERIVE and LOCAL: the initializer
+      # shall be compatible with the declared type (same type or a
+      # specialization, 12.11); numerics widen integer→real→number.
+      def check_initializer_types(schema)
+        initializers(schema).each do |owner, declaration|
+          @current_expression_env = if owner
+                                      expression_env(schema, owner)
+                                    else
+                                      expression_env(schema, schema)
+                                    end
+          declared = static_type(schema, declaration.type)
+          expression = declaration.expression
+          next if expression.nil? || undecidable?(declared)
+
+          expressed = static_type(schema, expression)
+          next if undecidable?(expressed)
+          next if initializer_compatible?(schema, declaration.type,
+                                          declared, expression, expressed)
+
+          note!(:check_expr_initializer_type, :error, schema,
+                "initializer #{expressed} is not compatible with the " \
+                "declared #{declared} (12.11)", declaration)
+        end
+        @current_expression_env = nil
+      end
+
+      def initializers(schema)
+        pairs = []
+        Array(schema.constants).each do |constant|
+          pairs << [nil, constant] if constant.expression
+        end
+        schema.entities.each do |entity|
+          Array(entity.attributes).each do |attr|
+            next unless attr.is_a?(Model::Declarations::Attribute) &&
+              !attr.is_a?(Model::Declarations::InverseAttribute) &&
+              attr.expression
+
+            pairs << [entity, attr]
+          end
+        end
+        schema.functions.each do |function|
+          Array(function.variables).each do |variable|
+            pairs << [function, variable] if variable.expression
+          end
+        end
+        pairs
+      end
+
+      def initializer_compatible?(schema, declared_node, declared, expression, expressed)
+        # enum and entity symbols are families, not identities — their
+        # compatibility is decided by declaration comparison below.
+        return true if declared == expressed &&
+          !%i[enum entity].include?(declared)
+        return true if declared == :number && NUMERIC_TYPES.include?(expressed)
+        return true if declared == :real && expressed == :integer
+        return true if LOGICAL_TYPES.include?(declared) &&
+          LOGICAL_TYPES.include?(expressed)
+        return true if declared == :select
+        return true if expressed == :select
+        return true if declared == :aggregate && expressed == :aggregate
+
+        # enumerations: same declared TYPE (expression enum members are
+        # AttributeReferences over the enumeration type)
+        return same_enum_declaration?(schema, declared_node, expression) if
+          declared == :enum && expressed == :enum
+
+        # entities: same entity or a specialization (12.11)
+        return entities_compatible?(schema, declared_node, expression) if
+          declared == :entity && expressed == :entity
+
+        false
+      end
+
+      # Resolve a type reference chain to its Type or Entity
+      # declaration: schema types and entities first, then the scope
+      # environment, then attribute/index member resolution.
+      def resolved_declaration(schema, node, depth = 0)
+        return nil if node.nil? || depth > 6
+
+        case node
+        when Model::Declarations::Type, Model::Declarations::Entity
+          node
+        when Model::References::SimpleReference
+          key = node.id&.safe_downcase
+          return nil unless key
+
+          bound = @current_expression_env&.[](key)
+          resolved_declaration(schema,
+                               bound || find_type(schema, node.id.to_s) ||
+                               find_entity(schema, node.id), depth + 1)
+        when Model::References::AttributeReference
+          owner = resolved_declaration(schema, node.ref, depth + 1)
+          # an enumeration member (`color.red`): the declaration is the
+          # enumeration TYPE itself
+          return owner if owner.is_a?(Model::Declarations::Type) &&
+            owner.underlying_type.is_a?(Model::DataTypes::Enumeration)
+
+          return nil unless owner.is_a?(Model::Declarations::Entity)
+
+          attr = Array(owner.attributes).find do |candidate|
+            candidate.id&.safe_downcase == node.attribute&.id&.safe_downcase
+          end
+          resolved_declaration(schema, attr&.type, depth + 1)
+        when Model::References::IndexReference
+          element = index_element_type_node(schema, node.ref, depth + 1)
+          resolved_declaration(schema, element, depth + 1)
+        when Model::References::GroupReference
+          resolved_declaration(schema, node.entity, depth + 1)
+        when Model::Expressions::FunctionCall
+          function = schema_function(schema, node)
+          resolved_declaration(schema, function&.return_type, depth + 1)
+        end
+      end
+
+      def same_enum_declaration?(schema, declared_node, expression)
+        slot_enum = resolved_declaration(schema, declared_node)
+        expr_enum = resolved_declaration(schema, expression)
+        return false unless slot_enum.is_a?(Model::Declarations::Type) &&
+          expr_enum.is_a?(Model::Declarations::Type)
+
+        slot_enum.underlying_type.is_a?(Model::DataTypes::Enumeration) &&
+          expr_enum.underlying_type.is_a?(Model::DataTypes::Enumeration) &&
+          slot_enum.id&.safe_downcase == expr_enum.id&.safe_downcase
+      end
+
+      def entities_compatible?(schema, declared_node, expression)
+        slot_entity = resolved_declaration(schema, declared_node)
+        expr_entity = resolved_declaration(schema, expression)
+        return false unless slot_entity.is_a?(Model::Declarations::Entity) &&
+          expr_entity.is_a?(Model::Declarations::Entity)
+
+        slot_entity.id&.safe_downcase == expr_entity.id&.safe_downcase ||
+          expr_entity.supertype_closure
+            .map { |e| e.id&.safe_downcase }
+            .include?(slot_entity.id&.safe_downcase)
       end
 
       # Self-qualified literals naming the CURRENT schema (#125): local

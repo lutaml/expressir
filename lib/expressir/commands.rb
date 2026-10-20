@@ -26,6 +26,8 @@ module Expressir
     autoload :Manifest, "#{__dir__}/commands/manifest"
     autoload :MappingValidate, "#{__dir__}/commands/mapping_validate"
     autoload :Xsd, "#{__dir__}/commands/xsd"
+    autoload :ExportJsonSchema, "#{__dir__}/commands/export_json_schema"
+    autoload :ExportOwl, "#{__dir__}/commands/export_owl"
     autoload :SmrlXmlIndex, "#{__dir__}/commands/smrl_xml_index"
   end
 end

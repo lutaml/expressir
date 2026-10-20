@@ -11,5 +11,7 @@ module Expressir
     autoload :Values, "#{__dir__}/eval/values"
     autoload :Environment, "#{__dir__}/eval/environment"
     autoload :Expression, "#{__dir__}/eval/expression"
+    autoload :Interpreter, "#{__dir__}/eval/interpreter"
+    autoload :Rules, "#{__dir__}/eval/rules"
   end
 end

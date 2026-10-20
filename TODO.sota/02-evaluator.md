@@ -66,4 +66,11 @@ implementation has this (eengine's --validate is the cautionary tale).
   EXISTS NVL VALUE, plus PI/E/CONST_E constants. NOTE: the logical
   value symbols live in Values::LOGICAL_* constants — bare :true/
   :false literals get rewritten to booleans by Lint/BooleanSymbol.
-- Steps 3-5: todo.
+- Step 3 (instance-aware evaluation): done — Values::Instance over
+  P21 population records with P21-data-to-value conversion (arrays →
+  aggregates, `#id` → instances, enums/binaries mapped); attribute
+  access through the Environment's Part 21 slot mapping (inherited
+  then own, same order as the P21 validator, incl. complex records);
+  TYPEOF (unqualified + schema-qualified names), USEDIN, EXISTS.
+  Fixtures: spec/fixtures/eval/population.{exp,p21}.
+- Steps 4-5: todo.

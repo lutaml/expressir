@@ -1,0 +1,61 @@
+# frozen_string_literal: true
+
+module Expressir
+  module Eval
+    # EXPRESS value model (ISO 10303-11 ch.8/12): indeterminate,
+    # logical, enumeration, binary and aggregates are dedicated
+    # values; NUMBER-family members, strings map to Ruby natives.
+    #
+    # Values are frozen; aggregate operators return new values.
+    module Values
+      # The indeterminate value `?` (ISO 10303-11 8.6? — the
+      # indeterminate sign). A singleton: comparisons and arithmetic
+      # propagate it per clause instead of treating it as nil.
+      INDETERMINATE = Object.new.freeze
+
+      Logical = Struct.new(:value, keyword_init: true) do
+        # The logical values are ISO 10303-11 logical literals
+        # (true/false/unknown as values), not Ruby booleans.
+        def self.true_value # rubocop:disable Lint/BooleanSymbol
+          new(value: true).freeze
+        end
+
+        def self.false_value # rubocop:disable Lint/BooleanSymbol
+          new(value: false).freeze
+        end
+
+        def self.unknown
+          new(value: :unknown).freeze
+        end
+
+        def to_s
+          value.to_s.upcase
+        end
+      end
+
+      Enumeration = Struct.new(:type, :item, keyword_init: true) do
+        def to_s
+          ".#{item}."
+        end
+      end
+
+      Binary = Struct.new(:bits, keyword_init: true) do
+        def to_s
+          "%#{bits}"
+        end
+      end
+
+      # kind: :list, :set, :bag or :array — union/difference/
+      # intersection semantics depend on it (12.6).
+      Aggregate = Struct.new(:kind, :elements, keyword_init: true) do
+        def self.of(kind, elements)
+          new(kind: kind, elements: elements.freeze).freeze
+        end
+
+        def size
+          elements.size
+        end
+      end
+    end
+  end
+end

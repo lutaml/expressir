@@ -73,4 +73,14 @@ implementation has this (eengine's --validate is the cautionary tale).
   then own, same order as the P21 validator, incl. complex records);
   TYPEOF (unqualified + schema-qualified names), USEDIN, EXISTS.
   Fixtures: spec/fixtures/eval/population.{exp,p21}.
-- Steps 4-5: todo.
+- Step 4 (WHERE-rule checking): done — `Expressir::Eval::Rules.check`
+  evaluates every instance's entity domain rules with SELF and the
+  mapped attributes bound (bare names and SELF\attr both resolve);
+  statuses pass/fail/unknown/error; a rule is violated only when it
+  evaluates false (9.4), indeterminate is not a violation.
+- Step 5 (differential): done as substituted — eengine's --validate
+  aborts on bare p11 (TODO.eengine/06 step 3 finding), so the
+  differential face is the mutation sweep: corrupting one instance
+  attribute fails exactly the intended rule and no other (rules spec).
+
+## Status: done

@@ -15,7 +15,7 @@ developer platform, and its interoperability hub.
 | n | task | tier | status |
 |---|------|------|--------|
 | 01 | static type checking of expressions | semantics | done (tiers 1-6; :check_expr_operand_domain/:check_expr_initializer_type/:check_expr_assignment_type/:check_expr_return/:check_expr_where_boolean/:check_expr_unique_duplicate; corpus 261-slice 0 notes) |
-| 02 | evaluator — run EXPRESS (functions, WHERE rules over populations) | execution | todo |
+| 02 | evaluator — run EXPRESS (functions, WHERE rules over populations) | execution | done (value model + ch.12 expressions, ch.13 interpreter + builtin set A, instance-aware eval over P21 populations, Rules.check with SELF; eengine validate broken — mutation-sweep differential) |
 | 03 | conformance (Part 21 conformance corpus, property-based grammar harness, G.1.7 closure) | rigor | done (P21 annex corpus + negative ladder-exclusion gate; generated round-trip harness + nightly corpus tier + rake conformance; every Annex G rule audited) |
 | 04 | LSP + incremental platform | platform | todo |
 | 05 | interop exports (JSON Schema, OWL/RDF) | interop | todo |

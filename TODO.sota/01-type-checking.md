@@ -91,5 +91,20 @@ ids citing their clauses; there is no eengine note id to keep.
   (9 examples); corpus-clean over the 265-file resource slice (255
   scanned, 0 notes) after clause 12.6 table 17's union-with-singleton
   was admitted.
-- Tiers 3-6 (aggregates, SELECT/ENUM membership, statement flow,
-  WHERE/UNIQUE structure): todo.
+- Tier 3 indexing: done — IndexReference resolves to the aggregate's
+  base element (12.6.1/12.3.1/12.5.1); index positions numeric
+  (production 236); the difference operator admits an element
+  singleton right operand with an aggregate left (12.6 table 18).
+- Tier 4 initializer compatibility: done — CONSTANT/DERIVE/LOCAL
+  initializers checked against their declared types (12.11): numeric
+  widening integer→real→number, logical/boolean family, enum identity
+  via declaration resolution, entity specialization via
+  supertype_closure, select-accepting slots, aggregate slots. Corpus
+  clean (261 schemas, 0 notes).
+- Tiers 5-6 (statement flow, WHERE/UNIQUE structure): todo.
+
+Engine finding: parsing identical source after many interleaved
+check-parse cycles in one process can diverge (attr type arrives as a
+SimpleReference instead of the builtin node) — a parsanol parse-cache
+issue, worked around in the initializer spec by checking in a fresh
+subprocess; separate investigation owed.

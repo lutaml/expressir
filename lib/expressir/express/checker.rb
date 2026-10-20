@@ -32,8 +32,9 @@ module Expressir
 
       attr_reader :notes
 
-      def initialize(repository)
+      def initialize(repository, dialect: nil)
         @repository = repository
+        @dialect = dialect.nil? ? nil : Dialect.normalize(dialect)
         @notes = []
         # Case-folded index to LISTS of schemas: EXPRESS schema ids are
         # case-insensitive, and two schemas differing only in case are
@@ -143,6 +144,74 @@ module Expressir
         check_expression_types(schema)
         check_statement_types(schema)
         check_rule_structure(schema)
+        check_dialect(schema) if @dialect
+      end
+
+      # ---- TODO.sota/06: edition awareness ----
+      # The grammar accepts both editions; the selected dialect decides
+      # which declarations are out of edition. The audited change list
+      # is spec/fixtures/dialects/iso-10303-11-2004-changes.yaml.
+      def check_dialect(schema)
+        modern = dialect_2004_constructs(schema)
+        deprecated = Array(schema.entities).select do |entity|
+          deprecated_inline_supertype?(entity)
+        end
+
+        if @dialect == Dialect::EDITION_1994
+          modern.each do |node, message|
+            note!(:check_dialect_2004_only, :error, schema,
+                  "dialect 10303-11:1994: #{message}", node)
+          end
+        else
+          deprecated.each do |entity|
+            note!(:check_dialect_deprecated, :warning, schema,
+                  "dialect 10303-11:2004: #{entity.id}: inline subtype " \
+                  "constraint syntax is deprecated; use SUBTYPE_CONSTRAINT " \
+                  "(Annex K)", entity)
+          end
+        end
+
+        return unless modern.any? && deprecated.any?
+
+        note!(:check_dialect_mixed, :warning, schema,
+              "dialect: schema mixes 2004-only declarations with " \
+              "edition-1 inline subtype constraint syntax", deprecated.first)
+      end
+
+      def dialect_2004_constructs(schema)
+        constructs = []
+        Array(schema.types).each do |type|
+          underlying = type.underlying_type
+          next unless underlying
+
+          if underlying.respond_to?(:extensible) && underlying.extensible
+            constructs << [type,
+                           "#{type.id}: EXTENSIBLE is not part of " \
+                           "ISO 10303-11:1994 (2004 edition, 8.4.1/8.4.2)"]
+          end
+          if underlying.respond_to?(:based_on) && underlying.based_on
+            constructs << [type,
+                           "#{type.id}: BASED_ON is not part of " \
+                           "ISO 10303-11:1994 (2004 edition, 8.4.1/8.4.2)"]
+          end
+          if underlying.respond_to?(:generic_entity) && underlying.generic_entity
+            constructs << [type,
+                           "#{type.id}: GENERIC_ENTITY is not part of " \
+                           "ISO 10303-11:1994 (2004 edition, 8.4.2)"]
+          end
+        end
+        Array(schema.subtype_constraints).each do |constraint|
+          constructs << [constraint,
+                         "#{constraint.id}: SUBTYPE_CONSTRAINT is not part " \
+                         "of ISO 10303-11:1994 (2004 edition, 9; Annex G)"]
+        end
+        constructs
+      end
+
+      def deprecated_inline_supertype?(entity)
+        expression = entity.supertype_expression
+        expression.is_a?(Model::SupertypeExpressions::OneofSupertypeExpression) ||
+          expression.is_a?(Model::SupertypeExpressions::BinarySupertypeExpression)
       end
 
       # ---- TODO.sota/01 tier 2: operator domain typing ----

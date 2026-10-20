@@ -56,10 +56,16 @@ module Expressir
       # @raise [Error::SchemaParseFailure] if the schema file fails to parse
       def self.from_file(file, skip_references: nil, include_source: nil,
                          root_path: nil, use_native: nil,
+<<<<<<< HEAD
                          use_core: nil) # rubocop:disable Metrics/AbcSize
         # use_native: false pins the Ruby grammar path; the core path
         # must not silently take over that request.
         use_core = Core::NATIVE_AVAILABLE if use_core.nil? && use_native != false
+=======
+                         use_core: nil, dialect: nil) # rubocop:disable Metrics/AbcSize
+        Dialect.normalize(dialect)
+        use_core = Core::NATIVE_AVAILABLE if use_core.nil?
+>>>>>>> 53810ef (Dialect: edition-aware parser/checker with an audited 2004 change list (TODO.sota/06, task complete))
         if use_core && Core::NATIVE_AVAILABLE
           return from_file_core(file, skip_references: skip_references,
                                       include_source: include_source,
@@ -117,7 +123,8 @@ module Expressir
       # @return [Model::Repository] Repository containing all parsed ExpFiles
       def self.from_files(files, skip_references: nil, include_source: nil,
                           root_path: nil, use_native: nil, max_processes: nil,
-                          compiled_set: nil, &progress)
+                          compiled_set: nil, dialect: nil, &progress)
+        Dialect.normalize(dialect)
         set_path = compiled_set || ENV.fetch("EXPRESSIR_COMPILED_SET", nil)
         if set_path && core_set_available?
           repo = from_compiled_set(set_path, files,
@@ -459,7 +466,8 @@ include_source: nil, root_path: nil, use_native: nil, &block)
       # @return [Model::ExpFile] Parsed ExpFile
       # @raise [Error::SchemaParseFailure] if the content fails to parse
       def self.from_exp(content, skip_references: nil, include_source: nil,
-                         use_native: nil, use_streaming: false)
+                         use_native: nil, use_streaming: false, dialect: nil)
+        Dialect.normalize(dialect)
         content = strip_bom(content)
         if use_streaming
           raise Error::StreamingUnsupportedError

@@ -18,6 +18,9 @@ cite their clause in the note message.
 | `check_agg_type` | 1
 | `check_attrib_name_fun` | 1
 | `check_attribute_redeclaration` | 3
+| `check_dialect_2004_only` | 1
+| `check_dialect_deprecated` | 1
+| `check_dialect_mixed` | 1
 | `check_duplicate_declaration` | 1
 | `check_enumeration_extended_type` | 1
 | `check_expr_assignment_type` | 1
@@ -49,4 +52,4 @@ cite their clause in the note message.
 | `qualified_attrib_group_not_found` | 1
 |===
 
-The catalog covers 32 note ids.
+The catalog covers 35 note ids.

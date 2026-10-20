@@ -1,0 +1,25 @@
+name: conformance
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: metanorma/iso-10303-stepmod
+          path: stepmod
+          sparse-checkout: data/resources
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+      - name: Round-trip conformance over the stepmod corpus
+        run: bundle exec rake conformance
+        env:
+          STEPMOD_DIR: ${{ github.workspace }}/stepmod

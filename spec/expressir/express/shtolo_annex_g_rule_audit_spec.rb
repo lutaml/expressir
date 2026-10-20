@@ -260,4 +260,20 @@ RSpec.describe Expressir::Express::Shtolo do
       expect(ids).not_to include("unused_fn")
     end
   end
+
+  describe "G.1.7 implicitly interfaced declarations" do
+    it "pulls the BASE enumeration of an extending type for completeness" do
+      repository, files = parse_repository(
+        "export_schema" => "SCHEMA export_schema;\nTYPE colour = EXTENSIBLE ENUMERATION;\nEND_TYPE;\nTYPE stop_light = ENUMERATION BASED_ON colour WITH (red, yellow, green);\nEND_TYPE;\nEND_SCHEMA;\n",
+        "import_schema" => "SCHEMA import_schema;\nUSE FROM export_schema (stop_light);\nTYPE canadian_flag = ENUMERATION BASED_ON colour WITH (red, white);\nEND_TYPE;\nEND_SCHEMA;\n",
+      )
+      longform = flatten(schema_of(repository, "import_schema"), repository)
+      files.each(&:unlink)
+      ids = longform.types.map(&:id)
+      # stop_light via USE; colour and canadian_flag are pulled
+      # implicitly: canadian_flag's BASED_ON references colour, which
+      # the artifact must also carry (G.1.7)
+      expect(ids).to include("stop_light", "canadian_flag", "colour")
+    end
+  end
 end

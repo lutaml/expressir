@@ -154,7 +154,10 @@ module Expressir
 
         def format_expressions_unary_expression(node)
           needs_parens = node.operand.is_a?(Model::Expressions::BinaryExpression) ||
-            node.operand.is_a?(Model::Expressions::Interval)
+            node.operand.is_a?(Model::Expressions::Interval) ||
+            # Nested unary must stay parenthesized: "- -x" is not a
+            # simple factor, and "--x" opens a comment.
+            node.operand.is_a?(Model::Expressions::UnaryExpression)
 
           [
             case node.operator

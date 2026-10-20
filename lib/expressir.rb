@@ -31,6 +31,7 @@ module Expressir
   autoload :Version, "#{__dir__}/expressir/version"
   autoload :Mapping, "#{__dir__}/expressir/mapping"
   autoload :P21, "#{__dir__}/expressir/p21"
+  autoload :Reference, "#{__dir__}/expressir/reference"
 
   # Error classes — autoload the same errors.rb file from each name.
   # The first reference triggers the load; the file defines all 21 classes.
@@ -75,6 +76,7 @@ module Expressir
   autoload :Model, "#{__dir__}/expressir/model"
   autoload :Commands, "#{__dir__}/expressir/commands"
   autoload :Changes, "#{__dir__}/expressir/changes"
+  autoload :Conformance, "#{__dir__}/expressir/conformance"
   autoload :Package, "#{__dir__}/expressir/package"
   autoload :Manifest, "#{__dir__}/expressir/manifest"
   autoload :Eengine, "#{__dir__}/expressir/eengine"

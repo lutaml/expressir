@@ -141,6 +141,8 @@ module Expressir
         check_string_references(schema)
         check_unresolved_refs(schema)
         check_expression_types(schema)
+        check_statement_types(schema)
+        check_rule_structure(schema)
       end
 
       # ---- TODO.sota/01 tier 2: operator domain typing ----
@@ -979,6 +981,137 @@ module Expressir
       def explicit_attributes(entity)
         Array(entity.attributes)
           .select { |attr| attr.instance_of?(Model::Declarations::Attribute) }
+      end
+
+      # ---- tier 5: statement flow (13.2.1, 13.5, 13.6, 13.7) ----
+
+      def statement_scopes(schema)
+        Array(schema.functions) + Array(schema.procedures) +
+          Array(schema.rules)
+      end
+
+      def check_statement_types(schema)
+        statement_scopes(schema).each do |owner|
+          @current_expression_env = expression_env(schema, owner)
+          each_node(owner) do |node|
+            case node
+            when Model::Statements::Assignment
+              check_assignment_type(schema, node)
+            when Model::Statements::If
+              check_logical_expression(schema, node.expression,
+                                       "if condition (13.5)", node)
+            when Model::Statements::Repeat
+              check_repeat_types(schema, node)
+            when Model::Statements::Return
+              check_return_type(schema, owner, node)
+            end
+          end
+        end
+        @current_expression_env = nil
+      end
+
+      def check_assignment_type(schema, node)
+        declared = static_type(schema, node.ref)
+        expressed = static_type(schema, node.expression)
+        return if undecidable?(declared, expressed)
+        return if initializer_compatible?(schema, node.ref, declared,
+                                          node.expression, expressed)
+
+        note!(:check_expr_assignment_type, :error, schema,
+              "assignment of #{expressed} to a #{declared} variable is " \
+              "not compatible (13.2.1, 12.11)", node)
+      end
+
+      def check_logical_expression(schema, expression, label, node)
+        t = static_type(schema, expression)
+        return if undecidable?(t)
+        return if LOGICAL_TYPES.include?(t)
+
+        note!(:check_expr_operand_domain, :error, schema,
+              "#{label} shall be a logical expression", node)
+      end
+
+      def check_repeat_types(schema, node)
+        [node.while_expression, node.until_expression].compact.each do |condition|
+          check_logical_expression(schema, condition,
+                                   "repeat control condition (13.6)", node)
+        end
+        [node.bound1, node.bound2, node.increment].compact.each do |bound|
+          t = static_type(schema, bound)
+          next if undecidable?(t)
+          next if NUMERIC_TYPES.include?(t)
+
+          note!(:check_expr_operand_domain, :error, schema,
+                "repeat increment control bounds shall be numeric " \
+                "(13.6.1) (#{t})", bound)
+        end
+      end
+
+      def check_return_type(schema, owner, node)
+        unless owner.is_a?(Model::Declarations::Function)
+          return unless node.expression
+
+          note!(:check_expr_return, :error, schema,
+                "a procedure return shall not specify an expression " \
+                "(13.7)", node)
+        end
+
+        expression = node.expression
+        return if expression.nil?
+        return if owner.is_a?(Model::Declarations::Function) &&
+          !owner.return_type
+
+        declared = static_type(schema, owner.return_type)
+        expressed = static_type(schema, expression)
+        return if undecidable?(declared, expressed)
+        return if initializer_compatible?(schema, owner.return_type,
+                                          declared, expression, expressed)
+
+        note!(:check_expr_return, :error, schema,
+              "return expression #{expressed} is not compatible with " \
+              "the declared return #{declared} (13.7, 12.11)", node)
+      end
+
+      # ---- tier 6: WHERE/UNIQUE structure (9.4) ----
+
+      def check_rule_structure(schema)
+        schema.entities.each do |entity|
+          check_where_booleans(schema, entity, Array(entity.where_rules))
+          check_unique_labels(schema, entity)
+        end
+        schema.types.each do |type|
+          check_where_booleans(schema, type, Array(type.where_rules))
+        end
+        schema.rules.each do |rule|
+          check_where_booleans(schema, rule, Array(rule.where_rules))
+        end
+      end
+
+      def check_where_booleans(schema, owner, where_rules)
+        @current_expression_env = expression_env(schema, owner)
+        where_rules.each do |rule|
+          t = static_type(schema, rule.expression)
+          next if undecidable?(t)
+          next if LOGICAL_TYPES.include?(t)
+
+          note!(:check_expr_where_boolean, :error, schema,
+                "WHERE '#{rule.id}' shall be a logical expression (9.4)", rule)
+        end
+        @current_expression_env = nil
+      end
+
+      def check_unique_labels(schema, entity)
+        seen = {}
+        Array(entity.unique_rules).each do |rule|
+          key = rule.id&.safe_downcase
+          next unless key
+
+          if seen[key]
+            note!(:check_expr_unique_duplicate, :error, schema,
+                  "duplicate UNIQUE label '#{rule.id}' (9.4)", rule)
+          end
+          seen[key] = true
+        end
       end
 
       def check_subtype_constraints(schema)

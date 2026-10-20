@@ -19,7 +19,7 @@ RSpec.describe Expressir::Express::Checker do
   # check-parse cycles in one process (identical source parses to
   # different ASTs); the initializer example therefore checks in a
   # fresh subprocess, which is deterministic.
-  def initializer_notes_in_subprocess(exp_path)
+  def notes_in_subprocess(exp_path, ids)
     script = <<~RUBY
       require "expressir"
       checker = Expressir::Express::Checker.new(
@@ -28,8 +28,8 @@ RSpec.describe Expressir::Express::Checker do
       checker.check
       require "json"
       puts JSON.generate(checker.notes
-        .select { |n| n.id == :check_expr_initializer_type }
-        .map { |n| n.message })
+        .select { |n| #{ids}.include?(n.id.to_s) }
+        .map { |n| [n.id.to_s, n.message] })
     RUBY
     require "open3"
     require "json"
@@ -38,6 +38,10 @@ RSpec.describe Expressir::Express::Checker do
                               File.expand_path("../../../lib", __dir__),
                               "-e", script)
     JSON.parse(stdout.lines.last)
+  end
+
+  def initializer_notes_in_subprocess(exp_path)
+    notes_in_subprocess(exp_path, %w[check_expr_initializer_type])
   end
 
   it "accepts a domain-correct derive expression set" do
@@ -244,5 +248,129 @@ RSpec.describe Expressir::Express::Checker do
     fixture.unlink
     expect(messages.size).to eq(2)
     expect(messages.join).to include("(12.11)")
+  end
+
+  it "flags a non-logical WHERE expression (9.4)" do
+    fixture = Tempfile.new(["exprchk_where", ".exp"])
+    fixture.write(<<~EXPRESS)
+      SCHEMA exprchk_where;
+        ENTITY e;
+          n : INTEGER;
+        WHERE
+          bad : n + 1;
+        END_ENTITY;
+      END_SCHEMA;
+    EXPRESS
+    fixture.close
+    notes = notes_in_subprocess(fixture.path, %w[check_expr_where_boolean])
+    fixture.unlink
+    expect(notes.map(&:first)).to include("check_expr_where_boolean")
+  end
+
+  it "flags duplicate UNIQUE labels (9.4)" do
+    fixture = Tempfile.new(["exprchk_unique", ".exp"])
+    fixture.write(<<~EXPRESS)
+      SCHEMA exprchk_unique;
+        ENTITY e;
+          a : STRING;
+          b : STRING;
+        UNIQUE
+          u1 : a;
+          u1 : b;
+        END_ENTITY;
+      END_SCHEMA;
+    EXPRESS
+    fixture.close
+    notes = notes_in_subprocess(fixture.path, %w[check_expr_unique_duplicate])
+    fixture.unlink
+    expect(notes.map(&:first)).to include("check_expr_unique_duplicate")
+  end
+
+  it "flags an assignment compatibility violation (13.2.1)" do
+    notes = notes_for(<<~EXPRESS)
+      SCHEMA s;
+        ENTITY e;
+          n : INTEGER;
+          s1 : STRING;
+        DERIVE
+          d : INTEGER := n;
+        END_ENTITY;
+        FUNCTION f(n : INTEGER) : INTEGER;
+          LOCAL
+            x : INTEGER;
+          END_LOCAL;
+          x := n;
+          RETURN (x);
+        END_FUNCTION;
+      END_SCHEMA;
+    EXPRESS
+    expect(notes).to be_empty
+  end
+
+  it "flags an incompatible assignment (13.2.1)" do
+    fixture = Tempfile.new(["exprchk_assign", ".exp"])
+    fixture.write(<<~EXPRESS)
+      SCHEMA exprchk_assign;
+          FUNCTION f(n : INTEGER) : INTEGER;
+          LOCAL
+            x : STRING;
+          END_LOCAL;
+          x := n;
+          RETURN (1);
+        END_FUNCTION;
+        ENTITY e;
+        DERIVE
+          d : INTEGER := f(1);
+        END_ENTITY;
+      END_SCHEMA;
+    EXPRESS
+    fixture.close
+    notes = notes_in_subprocess(fixture.path, %w[check_expr_assignment_type])
+    fixture.unlink
+    expect(notes.map(&:first)).to include("check_expr_assignment_type")
+  end
+
+  it "flags a non-logical if condition (13.5)" do
+    fixture = Tempfile.new(["exprchk_ifcond", ".exp"])
+    fixture.write(<<~EXPRESS)
+      SCHEMA exprchk_ifcond;
+          FUNCTION f(n : INTEGER) : INTEGER;
+          LOCAL
+            x : INTEGER := 0;
+          END_LOCAL;
+          IF n THEN
+            x := 1;
+          END_IF;
+          RETURN (x);
+        END_FUNCTION;
+        ENTITY e;
+        DERIVE
+          d : INTEGER := f(1);
+        END_ENTITY;
+      END_SCHEMA;
+    EXPRESS
+    fixture.close
+    notes = notes_in_subprocess(fixture.path, %w[check_expr_operand_domain])
+    fixture.unlink
+    expect(notes.map(&:first)).to include("check_expr_operand_domain")
+  end
+
+  it "flags an incompatible function return (13.7)" do
+    fixture = Tempfile.new(["exprchk_return", ".exp"])
+    fixture.write(<<~EXPRESS)
+      SCHEMA exprchk_return;
+        FUNCTION f(n : INTEGER) : INTEGER;
+          RETURN ('text');
+        END_FUNCTION;
+        ENTITY e;
+        DERIVE
+          d : INTEGER := f(1);
+        END_ENTITY;
+      END_SCHEMA;
+    EXPRESS
+    fixture.close
+    notes = notes_in_subprocess(fixture.path, %w[check_expr_return])
+    fixture.unlink
+    expect(notes.map(&:first)).to include("check_expr_return")
   end
 end

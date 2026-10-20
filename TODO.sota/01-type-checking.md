@@ -82,8 +82,6 @@ traverse structurally only — eengine performs NO operator-domain
 typing. These checks therefore carry new `:check_expr_operand_domain`
 ids citing their clauses; there is no eengine note id to keep.
 
-## Status: in progress
-
 - Tier 1 clause map: done (above).
 - Tier 2 operator domains: done — `Checker#check_expression_types`,
   note id `:check_expr_operand_domain` with the clause in the message;
@@ -101,7 +99,14 @@ ids citing their clauses; there is no eengine note id to keep.
   via declaration resolution, entity specialization via
   supertype_closure, select-accepting slots, aggregate slots. Corpus
   clean (261 schemas, 0 notes).
-- Tiers 5-6 (statement flow, WHERE/UNIQUE structure): todo.
+- Tier 5 statement flow: done — assignment compatibility (13.2.1),
+  if conditions logical (13.5), repeat controls (13.6), return
+  compatibility + procedure-return restriction (13.7).
+- Tier 6 WHERE/UNIQUE structure: done — WHERE expressions logical
+  (9.4), duplicate UNIQUE labels (9.4); rule FOR-entity containment
+  remains covered by bound_identifiers' deliberate over-approximation.
+
+## Status: done
 
 Engine finding: parsing identical source after many interleaved
 check-parse cycles in one process can diverge (attr type arrives as a

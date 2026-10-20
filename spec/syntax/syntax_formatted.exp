@@ -861,7 +861,7 @@ PROCEDURE expressions;
     real_division_expression : BOOLEAN := 4 / 2;
     integer_division_expression : BOOLEAN := 4 DIV 2;
     modulo_expression : BOOLEAN := 4 MOD 2;
-    exponentiation_expression : BOOLEAN := 4;
+    exponentiation_expression : BOOLEAN := 4 ** 2;
     addition_addition_expression : BOOLEAN := (4 + 2) + 1;
     subtraction_subtraction_expression : BOOLEAN := (4 - 2) - 1;
     addition_subtraction_expression : BOOLEAN := (4 + 2) - 1;

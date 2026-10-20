@@ -2931,8 +2931,14 @@ schemas:
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
-        _class: Expressir::Model::Literals::Integer
-        value: '4'
+        _class: Expressir::Model::Expressions::BinaryExpression
+        operator: EXPONENTIATION
+        operand1:
+          _class: Expressir::Model::Literals::Integer
+          value: '4'
+        operand2:
+          _class: Expressir::Model::Literals::Integer
+          value: '2'
     - _class: Expressir::Model::Declarations::Variable
       id: addition_addition_expression
       type:

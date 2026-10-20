@@ -51,6 +51,13 @@ module Expressir
         end
       end
 
+      # A Part 21 instance: the population record plus its #id.
+      Instance = Struct.new(:id, :record, keyword_init: true) do
+        def to_s
+          "##{id}"
+        end
+      end
+
       # kind: :list, :set, :bag or :array — union/difference/
       # intersection semantics depend on it (12.6).
       Aggregate = Struct.new(:kind, :elements, keyword_init: true) do

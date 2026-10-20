@@ -29,8 +29,7 @@ module Expressir
         when Model::References::AttributeReference
           evaluate_attribute_reference(node, env)
         when Model::References::IndexReference then evaluate_index(node, env)
-        when Model::References::GroupReference
-          raise Error, "instance access requires a population (step 3)"
+        when Model::References::GroupReference then evaluate_group_reference(node, env)
         else
           raise Error, "unsupported expression #{node.class.name}"
         end
@@ -47,7 +46,20 @@ module Expressir
         raise Error, "unbound identifier '#{node.id}'"
       end
 
-      # `color.red`: the base names an enumeration TYPE.
+      def evaluate_group_reference(node, env)
+        base = node.ref
+        if base.is_a?(Model::References::SimpleReference) &&
+            base.id&.safe_downcase == "self"
+          value = env.lookup("self")
+          return value if value
+
+          raise Error, "SELF requires an instance context (step 4)"
+        end
+
+        raise Error, "instance access requires a population"
+      end
+
+      # `color.red` (enumeration members) or `instance.attr`.
       def evaluate_attribute_reference(node, env)
         base = node.ref
         if base.is_a?(Model::References::SimpleReference)
@@ -58,7 +70,64 @@ module Expressir
           end
         end
 
-        raise Error, "instance attribute access requires a population (step 3)"
+        owner = evaluate(base, env)
+        if owner.is_a?(V::Instance)
+          return instance_attribute(owner, node.attribute&.id, env)
+        end
+
+        raise Error, "instance attribute access requires a population"
+      end
+
+      def instance_attribute(instance, attribute_name, env)
+        record = instance.record
+        record = simple_record_of(record, attribute_name, env) if
+          record.is_a?(Expressir::P21::ComplexRecord)
+        unless record
+          raise Error, "attribute '#{attribute_name}' is not mapped on " \
+                       "#{record.keyword}"
+        end
+
+        entity = env.entity_for_keyword(record.keyword)
+        raise Error, "unknown entity '#{record.keyword}'" unless entity
+
+        index = env.slots_for(entity)[attribute_name.safe_downcase]
+        unless index
+          raise Error, "attribute '#{attribute_name}' is not mapped on " \
+                       "'#{record.keyword}'"
+        end
+
+        instance_value(record.params[index], env)
+      end
+
+      # P21 record parameters are plain Ruby data; convert them to the
+      # evaluator's value model at the instance boundary.
+      def instance_value(raw, env)
+        case raw
+        when :unset, :derived then V::INDETERMINATE
+        when Array
+          V::Aggregate.of(:list, raw.map { |item| instance_value(item, env) })
+        when String
+          if raw.start_with?("#")
+            env.instance_for(raw) || raw
+          else
+            raw
+          end
+        when Expressir::P21::Enumeration
+          V::Enumeration.new(type: nil, item: raw.name)
+        when Expressir::P21::Binary
+          V::Binary.new(bits: raw.hex)
+        when Expressir::P21::TypedValue
+          instance_value(raw.value, env)
+        else raw
+        end
+      end
+
+      def simple_record_of(complex_record, attribute_name, env)
+        Array(complex_record.records).find do |record|
+          entity = env.entity_for_keyword(record.keyword)
+          entity &&
+            env.slots_for(entity).key?(attribute_name.safe_downcase)
+        end
       end
 
       def find_declared_type(env, name)

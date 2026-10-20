@@ -235,6 +235,8 @@ module Expressir
         when "SIZEOF", "HIINDEX", "HIBOUND" then arguments[0].elements.size
         when "LOINDEX", "LOBOUND" then 1
         when "EXISTS" then V::Logical.new(value: exists?(arguments[0]) ? V::LOGICAL_TRUE : V::LOGICAL_FALSE)
+        when "TYPEOF" then typeof_value(arguments[0])
+        when "USEDIN" then usedin_value(arguments[0], arguments[1])
         when "NVL"
           arguments[0].equal?(V::INDETERMINATE) ? arguments[1] : arguments[0]
         when "VALUE"
@@ -249,6 +251,65 @@ module Expressir
 
       def exists?(value)
         !value.equal?(V::INDETERMINATE) && !value.nil?
+      end
+
+      # TYPEOF (15.x): the type names of an instance — the record
+      # keyword plus its supertype closure, unqualified and
+      # schema-qualified (corpus rules use the qualified form).
+      def typeof_value(value)
+        return V::Aggregate.of(:set, []) unless value.is_a?(V::Instance)
+
+        keywords = if value.record.is_a?(Expressir::P21::ComplexRecord)
+                     Array(value.record.records).map(&:keyword)
+                   else
+                     [value.record.keyword]
+                   end
+        names = keywords.flat_map { |keyword| typeof_names(keyword) }
+        V::Aggregate.of(:set, names.uniq)
+      end
+
+      def typeof_names(keyword)
+        entity = Array(@schema&.entities).find do |candidate|
+          candidate.id&.safe_downcase == keyword&.safe_downcase
+        end
+        return [keyword.to_s.upcase] unless entity
+
+        ([entity] + entity.supertype_closure).flat_map do |candidate|
+          [candidate.id.upcase, "#{@schema.id.upcase}.#{candidate.id.upcase}"]
+        end.uniq
+      end
+
+      # USEDIN (15.x): instances that reference the argument.
+      def usedin_value(value, _role)
+        return V::Aggregate.of(:bag, []) unless
+          value.is_a?(V::Instance) && @population
+
+        referencing = @population.instances.filter_map do |id, record|
+          next unless record_references?(record, value.id)
+
+          V::Instance.new(id: id.delete_prefix("#"), record: record)
+        end
+        V::Aggregate.of(:bag, referencing)
+      end
+
+      def record_references?(record, target_id)
+        records = record.is_a?(Expressir::P21::ComplexRecord) ? record.records : [record]
+        reference = "##{target_id}"
+        records.any? do |partial|
+          params_reference?(partial.params, reference)
+        end
+      end
+
+      def params_reference?(params, reference)
+        Array(params).any? do |param|
+          case param
+          when String then param == reference
+          when Array then params_reference?(param, reference)
+          when Expressir::P21::TypedValue
+            params_reference?(param.value, reference)
+          else false
+          end
+        end
       end
     end
   end

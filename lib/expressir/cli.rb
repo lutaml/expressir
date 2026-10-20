@@ -111,6 +111,24 @@ module Expressir
       Expressir::Commands::Xsd.new(options).run(path)
     end
 
+    desc "export-json-schema PATH",
+         "Write a JSON Schema rendering of the first EXPRESS schema at PATH"
+    method_option :output, type: :string, aliases: "-o",
+                           desc: "Output file path (defaults to stdout)"
+    def export_json_schema(path)
+      Expressir::Commands::ExportJsonSchema.new(options).run(path)
+    end
+
+    desc "export-owl PATH",
+         "Write an OWL/Turtle rendering of the first EXPRESS schema at PATH"
+    method_option :output, type: :string, aliases: "-o",
+                           desc: "Output file path (defaults to stdout)"
+    method_option :base_iri, type: :string,
+                             desc: "Ontology IRI base (default: expressir.org/owl/<schema>#)"
+    def export_owl(path)
+      Expressir::Commands::ExportOwl.new(options).run(path)
+    end
+
     desc "xml-index DIR", "Write the SMRL index XML for every EXPRESS schema under DIR"
     method_option :output, type: :string, aliases: "-o",
                            desc: "Output file path (defaults to stdout)"

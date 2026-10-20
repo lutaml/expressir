@@ -18,7 +18,7 @@ developer platform, and its interoperability hub.
 | 02 | evaluator — run EXPRESS (functions, WHERE rules over populations) | execution | todo |
 | 03 | conformance (Part 21 conformance corpus, property-based grammar harness, G.1.7 closure) | rigor | todo |
 | 04 | LSP + incremental platform | platform | todo |
-| 05 | interop exports (JSON Schema, OWL/RDF) | interop | todo |
+| 05 | interop exports (JSON Schema, OWL/RDF) | interop | done (JSON Schema 2020-12 + OWL/Turtle exporters, CLI commands, decision guides; Annex H population consumer round-trip; SRL corpus tier; UML/XMI optional not shipped) |
 | 06 | dialect awareness (1994 vs 2004, amendments) | semantics | todo |
 | 07 | reference artifacts (grammar cross-walk, published guides) | reference | todo |
 

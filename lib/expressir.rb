@@ -79,6 +79,7 @@ module Expressir
   autoload :Manifest, "#{__dir__}/expressir/manifest"
   autoload :Eengine, "#{__dir__}/expressir/eengine"
   autoload :Interop, "#{__dir__}/expressir/interop"
+  autoload :Lsp, "#{__dir__}/expressir/lsp"
   autoload :SchemaManifest, "#{__dir__}/expressir/schema_manifest"
   autoload :SchemaManifestEntry, "#{__dir__}/expressir/schema_manifest_entry"
 

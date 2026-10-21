@@ -13,5 +13,6 @@ module Expressir
     autoload :Expression, "#{__dir__}/eval/expression"
     autoload :Interpreter, "#{__dir__}/eval/interpreter"
     autoload :Rules, "#{__dir__}/eval/rules"
+    autoload :Population, "#{__dir__}/eval/population"
   end
 end

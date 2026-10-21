@@ -8,8 +8,80 @@ module Expressir
 
       def build(tree)
         header = build_header(tree[:header_section])
-        instances = build_instances(tree[:data_section])
-        Population.new(header: header, instances: instances)
+        instances = {}
+        sections = []
+        data_sections(tree).each do |section|
+          records = build_instances(section)
+          instances.update(records)
+          sections << build_section(section, records.keys)
+        end
+        Population.new(
+          header: header, instances: instances, sections: sections,
+          anchors: build_anchors(tree[:anchor_section]),
+          references: build_references(tree[:reference_section])
+        )
+      end
+
+      # A DATA section capture: hash for a single section, array when
+      # the exchange structure carries several (ISO 10303-21 annex E).
+      def data_sections(tree)
+        sections = tree[:data_section]
+        sections = [sections] unless sections.is_a?(Array)
+        sections.compact.map do |section|
+          # The repeat's own capture nests each section one level deep.
+          inner = section[:data_section]
+          inner.is_a?(Hash) ? inner : section
+        end
+      end
+
+      Section = Struct.new(:name, :contexts, :instance_ids,
+                           keyword_init: true)
+
+      def build_section(section, instance_ids)
+        tag = section[:section_tag]
+        values = tag && parameter_list_values(tag.is_a?(Hash) ? { parameter: tag } : tag)
+        name = values && values.first.is_a?(String) ? values.first : nil
+        contexts = values && values[1].is_a?(Array) ? values[1] : []
+        Section.new(name: name, contexts: contexts, instance_ids: instance_ids)
+      end
+
+      def build_anchors(capture)
+        entries = capture.is_a?(Hash) ? [capture] : Array(capture)
+        unwrap_anchor_entries(entries).filter_map do |entry|
+          next unless entry.is_a?(Hash) && entry[:anchor_label]
+
+          value = entry[:entity_instance_name] ||
+            (entry[:unset] ? :unset : nil)
+          [entry[:anchor_label].to_s,
+           value == :unset ? :unset : "##{value.to_s.delete_prefix('#')}"]
+        end.to_h
+      end
+
+      # Parsanol captures nest one wrapper per repeat/rule level;
+      # collect the leaves that carry the anchor fields.
+      def unwrap_anchor_entries(entries)
+        entries.flat_map do |entry|
+          next [] unless entry.is_a?(Hash)
+
+          inner = entry[:anchor_entry]
+          if inner
+            unwrap_anchor_entries(inner.is_a?(Array) ? inner : [inner])
+          else
+            [entry]
+          end
+        end
+      end
+
+      def build_references(capture)
+        list = capture.nil? ? [] : capture[:instance_list]
+        entries = list.is_a?(Array) ? list : [list]
+        entries.filter_map do |entry|
+          next unless entry.is_a?(Hash) && entry[:external_reference_instance]
+
+          body = entry[:external_reference_instance]
+          ["##{body[:entity_instance_name].to_s.delete_prefix('#')}",
+           body[:external_anchor].to_s]
+        end.to_h
       end
 
       def build_header(section)
@@ -23,6 +95,8 @@ module Expressir
         list = section[:instance_list]
         entries = list.is_a?(Array) ? list : [list]
         entries.each_with_object({}) do |entry, hash|
+          next unless entry.is_a?(Hash)
+
           if (complex = entry[:complex_entity_instance])
             hash[instance_id(complex)] = build_complex(complex)
           elsif (simple = entry[:simple_entity_instance])
@@ -72,6 +146,8 @@ module Expressir
           parameter_list_values(param[:parameter_list])
         elsif param[:entity_instance_name]
           "##{param[:entity_instance_name].to_s.delete_prefix('#')}"
+        elsif param[:constant_reference]
+          param[:constant_reference].to_s
         elsif param[:number_literal]
           text = param[:number_literal].to_s
           text.match?(/[.Ee]/) ? text.to_f : text.to_i

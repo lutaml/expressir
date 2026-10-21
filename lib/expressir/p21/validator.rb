@@ -23,6 +23,7 @@ module Expressir
         typing = Typing.new(schema, short_names: short_names)
         notes = []
         check_file_schema(notes, population, schema)
+        check_sections(notes, population, schema)
         population.instances.each do |id, instance|
           if instance.is_a?(ComplexRecord)
             check_complex(notes, schema, population, id, instance,
@@ -50,6 +51,24 @@ module Expressir
       def note!(notes, id, severity, instance, message)
         notes << Note.new(id: id, severity: severity, instance: instance,
                           message: message)
+      end
+
+      # Annex E (ISO 10303-21 clause 11.2): each DATA section's schema
+      # contexts must intersect the declared schema list.
+      def check_sections(notes, population, schema)
+        known = ([schema.id] +
+          Array(population.header["FILE_SCHEMA"]).flatten)
+          .filter_map { |name| name.to_s.downcase unless name.to_s.empty? }
+        Array(population.sections).each do |section|
+          next if section.contexts.empty?
+          next if section.contexts.any? do |context|
+            known.include?(context.to_s.downcase)
+          end
+
+          note!(notes, :p21_section_context, :warning, nil,
+                "DATA section '#{section.name}' context(s) " \
+                "#{section.contexts.join(', ')} are not in the schema list")
+        end
       end
 
       def check_file_schema(notes, population, schema)
@@ -162,6 +181,9 @@ module Expressir
           return unless value.match?(/\A#\d+\z/)
 
           return if population.instances.key?(value)
+          # An id bound in the REFERENCE section names an external
+          # instance (ISO 10303-21 clause 10); resolution is remote.
+          return if population.references.key?(value)
 
           note!(notes, :p21_unknown_reference, :error, id,
                 "#{id}: reference #{value} has no instance")

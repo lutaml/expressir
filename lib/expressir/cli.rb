@@ -139,6 +139,9 @@ module Expressir
     desc "validate SUBCOMMAND", "EXPRESS schema validation commands"
     subcommand "validate", Expressir::Commands::Validate
 
+    desc "population SUBCOMMAND", "Part 21 dataset validation commands"
+    subcommand "population", Expressir::Commands::Population
+
     desc "coverage *PATH",
          "List EXPRESS entities and check documentation coverage"
     method_option :format, type: :string,

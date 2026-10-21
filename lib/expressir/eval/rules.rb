@@ -18,7 +18,6 @@ module Expressir
 
       def check(population, schema)
         population.instances.flat_map do |id, record|
-          entity_for(schema, record)
           entity = entity_for(schema, record)
           next [] unless entity
 

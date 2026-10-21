@@ -51,7 +51,7 @@ RSpec.describe Expressir::Express::Formatter do
       formatted_exp_file = Expressir.root_path.join("spec", "syntax",
                                                     "syntax_formatted.exp")
 
-      repo = Expressir::Express::Parser.from_file(exp_file, use_core: false)
+      repo = Expressir::Express::Parser.from_file(exp_file)
 
       result = described_class.format(repo)
       # File.write(formatted_exp_file, result)
@@ -82,7 +82,7 @@ RSpec.describe Expressir::Express::Formatter do
       formatted_exp_file = Expressir.root_path.join("spec", "syntax",
                                                     "syntax_hyperlink_formatted.exp")
 
-      repo = Expressir::Express::Parser.from_file(exp_file, use_core: false)
+      repo = Expressir::Express::Parser.from_file(exp_file)
 
       formatter = Class.new(Expressir::Express::Formatter) do
         include Expressir::Express::HyperlinkFormatter
@@ -99,7 +99,7 @@ RSpec.describe Expressir::Express::Formatter do
       formatted_exp_file = Expressir.root_path.join("spec", "syntax",
                                                     "multiple_hyperlink_formatted.exp")
 
-      repo = Expressir::Express::Parser.from_file(exp_file, use_core: false)
+      repo = Expressir::Express::Parser.from_file(exp_file)
 
       formatter = Class.new(Expressir::Express::Formatter) do
         include Expressir::Express::HyperlinkFormatter

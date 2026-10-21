@@ -150,7 +150,8 @@ RSpec.describe Expressir::Eval::Population do
         short_names: { "CPT" => "cartesian_point", "VX" => "vertex",
                        "ED" => "edge",
                        "ED_STRC" => "edge_logical_structure",
-                       "ED_LOOP" => "edge_loop" })
+                       "ED_LOOP" => "edge_loop" }
+      )
       expect(findings).to be_empty
     end
   end

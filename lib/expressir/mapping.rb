@@ -14,6 +14,7 @@ module Expressir
   # the source files.
   module Mapping
     autoload :RefPath, "#{__dir__}/mapping/refpath"
+    autoload :InstanceVerification, "#{__dir__}/mapping/instance_verification"
 
     EXPRESS_LINK = /<<express:([^,>]+)(?:,([^>]+))?>>/
 

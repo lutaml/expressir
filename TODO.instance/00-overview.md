@@ -34,7 +34,7 @@ and a corpus run.
 | 01 | instance typing + value/type conformance | semantics | done (P21::Typing entity closure incl. complex/ONEOF 9.2.5/9.2.5.2; slot value/type conformance :check_p21_* per ch.8/9.2.1/9.2.2.2; SELECT membership 8.4.2; Annex H clean; mutation sweeps) |
 | 02 | population-scale rule engine (UNIQUE, global rules) | execution | done (Eval::Population: typed entity bucketing, UNIQUE 9.2.2.1 across subtypes, global RULE 9.4 with FOR aggregates; 10^5-instance benchmark 29.4s deterministic) |
 | 03 | P21 ladder completion + population management + receipts | platform | done (named DATA sections + ANCHOR/REFERENCE/constants + signature lines; DatasetManifest + `population validate` + `population diff`; byte-stable JSON receipts; P28 deferred — needs the -28 derived-XML-schema program) |
-| 04 | ARM↔MIM instance mapping verification | semantics | todo |
+| 04 | ARM↔MIM instance mapping verification | semantics | done (Mapping::InstanceVerification: image-of search over P21::Typing + RefPath instance walks incl. constraints/alt_map/rules; cross-population reference correspondence; mutation-swept) |
 
 Dependency shape: 02 consumes 01's typing (rule applicability and
 SELECT scoping are typing queries). 03 is independent of 02 (files,

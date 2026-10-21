@@ -76,6 +76,7 @@ module Expressir
   autoload :Model, "#{__dir__}/expressir/model"
   autoload :Commands, "#{__dir__}/expressir/commands"
   autoload :Changes, "#{__dir__}/expressir/changes"
+  autoload :Eval, "#{__dir__}/expressir/eval"
   autoload :Conformance, "#{__dir__}/expressir/conformance"
   autoload :Package, "#{__dir__}/expressir/package"
   autoload :Manifest, "#{__dir__}/expressir/manifest"

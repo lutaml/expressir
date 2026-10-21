@@ -12,6 +12,7 @@ module Expressir
     autoload :Grammar, "#{__dir__}/p21/grammar"
     autoload :Builder, "#{__dir__}/p21/builder"
     autoload :Validator, "#{__dir__}/p21/validator"
+    autoload :Typing, "#{__dir__}/p21/typing"
     autoload :Parser, "#{__dir__}/p21/parser"
   end
 end

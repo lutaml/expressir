@@ -31,7 +31,7 @@ and a corpus run.
 
 | n | task | tier | status |
 |---|------|------|--------|
-| 01 | instance typing + value/type conformance | semantics | todo |
+| 01 | instance typing + value/type conformance | semantics | done (P21::Typing entity closure incl. complex/ONEOF 9.2.5/9.2.5.2; slot value/type conformance :check_p21_* per ch.8/9.2.1/9.2.2.2; SELECT membership 8.4.2; Annex H clean; mutation sweeps) |
 | 02 | population-scale rule engine (UNIQUE, global rules) | execution | todo |
 | 03 | P21 ladder completion + population management + receipts | platform | todo |
 | 04 | ARM↔MIM instance mapping verification | semantics | todo |

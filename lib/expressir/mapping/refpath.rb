@@ -24,10 +24,16 @@ module Expressir
     #                                          is referenced)
     #   index      := "[" ("i" | DIGITS) "]"
     #   constraint := ["!"] "{" NAME [NAME "."] "=" STRING "}"
+    #   supertype  := "||" NAME "||"          (§5 supertype entity marker)
+    #   tree       := "*" NAME "*"            (§5 relationship tree marker)
     #   MARKER     := "{" | "}" | "[" | "]" | "(" | ")" | ":" | "|" | "!"
     #               | "," | "/" | "*" | "<" | ">" (grouping/annotation;
     #                                               never breaks a
-    #                                               pending link)
+    #                                               pending link; the §5
+    #                                               required-path marker
+    #                                               "<path>" is transparent
+    #                                               — its contents validate
+    #                                               in the running context)
     #
     # Validation (ELF 5006 §8): a running path context tracks the
     # entity a path is "at"; each step must connect to it, attribute
@@ -104,7 +110,7 @@ module Expressir
       EXPRESS_LINK_PATH = /\A<<express:([^,>]+)(?:,[^>]+)?>>\z/
       private_constant :EXPRESS_LINK_PATH
 
-      TOKEN = /<<express:[^,>]+(?:,[^>]+)?>>|->|<-|<=|=>|\*>|<\*|!?\{|[{}\[\]()=:|!,*\/<>]|'(?:''|[^'])*'|\w+(?:\.\w+)?/
+      TOKEN = /<<express:[^,>]+(?:,[^>]+)?>>|->|<-|<=|=>|\*>|<\*|\|\||!?\{|[{}\[\]()=:|!,*\/<>]|'(?:''|[^'])*'|\w+(?:\.\w+)?/
       MARKERS = ["{", "}", "[", "]", "(", ")", ":", "|", "!", ",", "/",
                  "*", "<", ">", "MAPPING_OF", "!{"].freeze
       LINKS = ["->", "<-", "<=", "=>", "*>", "<*"].freeze
@@ -140,13 +146,19 @@ module Expressir
         errors = []
         pending_link = nil
         pending_type_assign = false
-        false
         i = 0
         while i < tokens.length
           token = tokens[i]
           case token
+          when "||"
+            name_token = tokens[i + 1]
+            if name_token&.match?(/\A\w+\z/) && tokens[i + 2] == "||"
+              steps << Step.new(operator: "||", name: name_token)
+              i += 2
+            else
+              errors << "supertype marker '||' without an entity name"
+            end
           when "!{"
-            true
             step, consumed = parse_constraint(tokens[i..], negated: true)
             steps << step
             i += consumed
@@ -181,6 +193,14 @@ module Expressir
               i += 2 # the index token and the closing "]"
             else
               steps << Step.new(operator: "[")
+            end
+          when "*"
+            name_token = tokens[i + 1]
+            if name_token&.match?(/\A\w+\z/) && tokens[i + 2] == "*"
+              steps << Step.new(operator: "*", name: name_token)
+              i += 2
+            else
+              steps << Step.new(operator: token)
             end
           when *MARKERS
             steps << Step.new(operator: token)
@@ -302,6 +322,14 @@ module Expressir
           when "*>", "<*"
             issues.concat(select_extension_issues(step, pos, ctx, by_name))
             ctx = step.name&.safe_downcase
+          when "||"
+            issues.concat(supertype_marker_issues(step, pos, ctx, by_name))
+            if step.name
+              seen[step.name.safe_downcase] = true
+              ctx = step.name.safe_downcase
+            end
+          when "*"
+            issues.concat(tree_marker_issues(step, pos, by_name))
           else
             issues.concat(check_step(step, pos, ctx, last_qualified, by_name))
             if step.name
@@ -493,6 +521,39 @@ module Expressir
           decl.is_a?(Model::Declarations::Type) &&
             enumeration_item?(decl.underlying_type, literal, by_name)
         end
+      end
+
+      # ELF 5006 §5 supertype entity marker: `||supertype||` names an
+      # entity that must exist and, when the path has a running
+      # context, be a supertype of (or equal to) that context entity.
+      def supertype_marker_issues(step, pos, ctx, by_name)
+        issues = []
+        entity = step.name
+        check_exists(issues, pos, entity, by_name)
+        return issues if entity.nil?
+
+        decl = by_name[entity.safe_downcase]&.last
+        return issues unless decl.is_a?(Model::Declarations::Entity)
+
+        context_decl = ctx && by_name[ctx]&.last
+        if context_decl.is_a?(Model::Declarations::Entity) &&
+            !entity_reaches?(context_decl, entity.safe_downcase, by_name,
+                             {}.compare_by_identity)
+          issues << Issue.new(step: pos,
+                              message: "'#{entity}' is not a supertype of " \
+                                       "'#{ctx}'")
+        end
+        issues
+      end
+
+      # ELF 5006 §5 relationship tree marker: `*relationship*` names an
+      # entity whose instances may assemble into a tree; the path
+      # between it and the related entities is implied, so only the
+      # entity's existence is checkable.
+      def tree_marker_issues(step, pos, by_name)
+        issues = []
+        check_exists(issues, pos, step.name, by_name)
+        issues
       end
 
       # ELF 5006 §8 navigation validation with a running context: the

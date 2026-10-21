@@ -153,6 +153,54 @@ RSpec.describe Expressir::Mapping::RefPath do
       .to include(a_string_including("does not extend"))
   end
 
+  describe "§5 supertype entity marker (||entity||)" do
+    it "accepts a supertype of the running context" do
+      expect(issues_for(<<~PATH)).to be_empty
+        widget <=
+        base
+        ||base||
+      PATH
+    end
+
+    it "flags a marker entity that is not a supertype of the context" do
+      expect(issues_for("widget <= base\n||gadget||").map(&:message))
+        .to include(a_string_including("is not a supertype of 'base'"))
+    end
+
+    it "flags an unknown marker entity" do
+      expect(issues_for("widget <= base\n||ghost_supertype||").map(&:message))
+        .to include(a_string_including("unknown type 'ghost_supertype'"))
+    end
+  end
+
+  describe "§5 relationship tree marker (*entity*)" do
+    it "accepts an existing relationship entity" do
+      expect(issues_for(<<~PATH)).to be_empty
+        widget
+        *widget_rel*
+      PATH
+    end
+
+    it "flags an unknown tree entity" do
+      expect(issues_for("widget\n*ghost_tree*").map(&:message))
+        .to include(a_string_including("unknown type 'ghost_tree'"))
+    end
+  end
+
+  describe "§5 required reference path marker (<path>)" do
+    it "validates the enclosed segment in the running context" do
+      expect(issues_for(<<~PATH)).to be_empty
+        widget
+        <widget.pick -> gadget>
+      PATH
+    end
+
+    it "flags a broken segment inside the marker" do
+      expect(issues_for("widget\n<widget.count -> widget>").map(&:message))
+        .to include(a_string_including("cannot reference 'widget'"))
+    end
+  end
+
   describe ".report (§8 validation output)" do
     it "emits a VALID verdict with the traversed entities" do
       repo = Expressir::Express::Parser.from_exp(<<~EXP)

@@ -49,4 +49,15 @@ RSpec.describe Expressir::P21::DatasetManifest do
     expect(manifest.schema_path).to eq(File.join(manifest_dir, "schema.exp"))
     expect(manifest.short_name_map).to eq("cpt" => "point")
   end
+
+  it "rejects the schema-manifest entry shape with a clear error" do
+    File.write(File.join(manifest_dir, "structured.yml"),
+               "schema: schema.exp\nrelease: r1\nfiles:\n  - path: points.p21\n")
+    expect do
+      described_class.from_file(File.join(manifest_dir, "structured.yml"))
+    end.to raise_error(
+      Expressir::ManifestValidationError,
+      /entry 0 is not a plain file path/,
+    )
+  end
 end

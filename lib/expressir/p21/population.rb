@@ -12,11 +12,15 @@ module Expressir
     # Expressir::P21::ComplexRecord, :unset, :derived, or nested
     # Arrays for lists.
     class Population
-      attr_reader :header, :instances
+      attr_reader :header, :instances, :sections, :anchors, :references
 
-      def initialize(header: {}, instances: {})
+      def initialize(header: {}, instances: {}, sections: [], anchors: {},
+                     references: {})
         @header = header
         @instances = instances
+        @sections = sections
+        @anchors = anchors
+        @references = references
       end
     end
 

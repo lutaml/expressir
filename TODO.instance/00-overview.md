@@ -33,7 +33,7 @@ and a corpus run.
 |---|------|------|--------|
 | 01 | instance typing + value/type conformance | semantics | done (P21::Typing entity closure incl. complex/ONEOF 9.2.5/9.2.5.2; slot value/type conformance :check_p21_* per ch.8/9.2.1/9.2.2.2; SELECT membership 8.4.2; Annex H clean; mutation sweeps) |
 | 02 | population-scale rule engine (UNIQUE, global rules) | execution | done (Eval::Population: typed entity bucketing, UNIQUE 9.2.2.1 across subtypes, global RULE 9.4 with FOR aggregates; 10^5-instance benchmark 29.4s deterministic) |
-| 03 | P21 ladder completion + population management + receipts | platform | todo |
+| 03 | P21 ladder completion + population management + receipts | platform | done (named DATA sections + ANCHOR/REFERENCE/constants + signature lines; DatasetManifest + `population validate` + `population diff`; byte-stable JSON receipts; P28 deferred — needs the -28 derived-XML-schema program) |
 | 04 | ARM↔MIM instance mapping verification | semantics | todo |
 
 Dependency shape: 02 consumes 01's typing (rule applicability and

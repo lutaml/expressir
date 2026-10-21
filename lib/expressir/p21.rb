@@ -13,6 +13,11 @@ module Expressir
     autoload :Builder, "#{__dir__}/p21/builder"
     autoload :Validator, "#{__dir__}/p21/validator"
     autoload :Typing, "#{__dir__}/p21/typing"
+    autoload :DatasetManifest, "#{__dir__}/p21/dataset_manifest"
+    autoload :Receipt, "#{__dir__}/p21/receipt"
+    autoload :Diff, "#{__dir__}/p21/diff"
     autoload :Parser, "#{__dir__}/p21/parser"
+    autoload :Writer, "#{__dir__}/p21/writer"
+    autoload :Json, "#{__dir__}/p21/json"
   end
 end

@@ -11,6 +11,6 @@ DATA ('ONE', ('LONGA'));
 ENDSEC;
 DATA ('TWO', ('LONGB'));
 #4=C(#2, '100 Main Street');
-#5=C(#3, '1300 Elmwood Avenue);
+#5=C(#3, '1300 Elmwood Avenue');
 ENDSEC;
 END-ISO-10303-21;

@@ -15,33 +15,24 @@ RSpec.describe Expressir::Express::Checker do
     checker.notes.select { |note| note.id == :check_expr_operand_domain }
   end
 
-  # The engine's parse cache diverges after many interleaved
-  # check-parse cycles in one process (identical source parses to
-  # different ASTs); the initializer example therefore checks in a
-  # fresh subprocess, which is deterministic.
-  def notes_in_subprocess(exp_path, ids)
-    script = <<~RUBY
-      require "expressir"
-      checker = Expressir::Express::Checker.new(
-        Expressir::Express::Parser.from_exp(File.read(#{exp_path.inspect}))
-      )
-      checker.check
-      require "json"
-      puts JSON.generate(checker.notes
-        .select { |n| #{ids}.include?(n.id.to_s) }
-        .map { |n| [n.id.to_s, n.message] })
-    RUBY
-    require "open3"
-    require "json"
-    stdout, = Open3.capture2e({ "EXPRESSIR_BATCH" => "0" },
-                              RbConfig.ruby, "-I",
-                              File.expand_path("../../../lib", __dir__),
-                              "-e", script)
-    JSON.parse(stdout.lines.last)
+  # The examples run in-process (parsanol/parsanol-ruby#261): an earlier
+  # parsanol build diverged after many interleaved check-parse cycles in
+  # one process, so these farmed out to fresh subprocesses. The
+  # interleaved-cycles isolation is pinned and green on current parsanol
+  # (1.3.9x, both engines), and these examples pass in-process in the
+  # same process as the rest of the suite.
+  def checker_notes(exp_path, ids)
+    checker = described_class.new(
+      Expressir::Express::Parser.from_exp(File.read(exp_path)),
+    )
+    checker.check
+    checker.notes
+      .select { |n| ids.include?(n.id.to_s) }
+      .map { |n| [n.id.to_s, n.message] }
   end
 
-  def initializer_notes_in_subprocess(exp_path)
-    notes_in_subprocess(exp_path, %w[check_expr_initializer_type])
+  def initializer_checker_notes(exp_path)
+    checker_notes(exp_path, %w[check_expr_initializer_type])
   end
 
   it "accepts a domain-correct derive expression set" do
@@ -244,7 +235,7 @@ RSpec.describe Expressir::Express::Checker do
       END_SCHEMA;
     EXPRESS
     fixture.close
-    messages = initializer_notes_in_subprocess(fixture.path)
+    messages = initializer_checker_notes(fixture.path)
     fixture.unlink
     expect(messages.size).to eq(2)
     expect(messages.join).to include("(12.11)")
@@ -262,7 +253,7 @@ RSpec.describe Expressir::Express::Checker do
       END_SCHEMA;
     EXPRESS
     fixture.close
-    notes = notes_in_subprocess(fixture.path, %w[check_expr_where_boolean])
+    notes = checker_notes(fixture.path, %w[check_expr_where_boolean])
     fixture.unlink
     expect(notes.map(&:first)).to include("check_expr_where_boolean")
   end
@@ -281,7 +272,7 @@ RSpec.describe Expressir::Express::Checker do
       END_SCHEMA;
     EXPRESS
     fixture.close
-    notes = notes_in_subprocess(fixture.path, %w[check_expr_unique_duplicate])
+    notes = checker_notes(fixture.path, %w[check_expr_unique_duplicate])
     fixture.unlink
     expect(notes.map(&:first)).to include("check_expr_unique_duplicate")
   end
@@ -325,7 +316,7 @@ RSpec.describe Expressir::Express::Checker do
       END_SCHEMA;
     EXPRESS
     fixture.close
-    notes = notes_in_subprocess(fixture.path, %w[check_expr_assignment_type])
+    notes = checker_notes(fixture.path, %w[check_expr_assignment_type])
     fixture.unlink
     expect(notes.map(&:first)).to include("check_expr_assignment_type")
   end
@@ -350,7 +341,7 @@ RSpec.describe Expressir::Express::Checker do
       END_SCHEMA;
     EXPRESS
     fixture.close
-    notes = notes_in_subprocess(fixture.path, %w[check_expr_operand_domain])
+    notes = checker_notes(fixture.path, %w[check_expr_operand_domain])
     fixture.unlink
     expect(notes.map(&:first)).to include("check_expr_operand_domain")
   end
@@ -369,7 +360,7 @@ RSpec.describe Expressir::Express::Checker do
       END_SCHEMA;
     EXPRESS
     fixture.close
-    notes = notes_in_subprocess(fixture.path, %w[check_expr_return])
+    notes = checker_notes(fixture.path, %w[check_expr_return])
     fixture.unlink
     expect(notes.map(&:first)).to include("check_expr_return")
   end

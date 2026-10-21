@@ -21,6 +21,7 @@ module Expressir
         def from_file(path)
           manifest = from_yaml(File.read(path))
           manifest.base_dir = File.dirname(File.expand_path(path))
+          manifest.validate_entries!
           manifest
         end
       end
@@ -39,6 +40,22 @@ module Expressir
 
       def schema_path
         File.expand_path(schema, base_dir || ".")
+      end
+
+      # Entries are plain file paths. Structured shapes (the
+      # `{path: ...}` mapping of the schema-side manifest) are a
+      # different format and must fail at load, not as a TypeError
+      # deep in path resolution.
+      def validate_entries!
+        files.to_a.each_with_index do |file, index|
+          next if file.is_a?(String)
+
+          raise Expressir::ManifestValidationError,
+                "manifest 'files' entry #{index} is not a plain file " \
+                "path; the dataset manifest takes a list of paths " \
+                "('files:\\n  - dataset.p21'), not the schema " \
+                "manifest's '{path: ...}' entries"
+        end
       end
     end
   end

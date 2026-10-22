@@ -3,6 +3,8 @@
 module Expressir
   module P28
     autoload :Uos, "#{__dir__}/p28/uos"
+    autoload :Xsd, "#{__dir__}/p28/xsd"
+
     # ISO 10303-28:2007 XML representation of EXPRESS-driven data.
     #
     # The common namespace shared by every -28 binding (annex C base

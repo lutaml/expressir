@@ -45,7 +45,8 @@ module Expressir
                prefix: default_prefix(schema))
         ctx = Moxml::Context.new
         doc = ctx.create_document
-        uos = doc.create_element("uos")
+        # 7.8: the uos element is a target-namespace global
+        uos = doc.create_element("#{prefix}:uos")
         uos.set_attributes(
           "id" => id,
           "express" => schema.id,

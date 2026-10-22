@@ -77,6 +77,8 @@ RSpec.describe Expressir::P28::Uos do
     # instance elements carry the target-namespace prefix (clause 9
     # worked example)
     expect(emitted).to include("<own:Person")
+    # 7.8: the uos element itself is the schema's qualified global
+    expect(emitted).to include("<own:uos")
 
     person = find_elem(uos, "Person")
     expect(attrs(person)["id"]).to eq("id10")

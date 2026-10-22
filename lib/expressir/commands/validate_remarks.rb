@@ -42,7 +42,7 @@ module Expressir
 
       def validate_from_paths(paths)
         violations = []
-        paths.each do |path|
+        schema_paths(paths).each do |path|
           repository = Expressir::Express::Parser.from_file(path)
           repository.schemas.each do |schema|
             violations.concat(duplicate_anchor_violations(schema, path))
@@ -62,6 +62,16 @@ module Expressir
           "anchor definition(s)",
           errors: violations,
         )
+      end
+
+      def schema_paths(paths)
+        paths.flat_map do |path|
+          if File.directory?(path)
+            Dir.glob(File.join(path, "**", "*.exp"))
+          else
+            path
+          end
+        end
       end
 
       def duplicate_anchor_violations(schema, path)

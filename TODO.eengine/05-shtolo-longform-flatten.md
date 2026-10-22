@@ -10,3 +10,10 @@ lowercases — the standard wins on divergence), add/remove-declaration
 and cleanup-interface lisps.
 
 Builds on 01 (visibility), 03 (closures), 04 (rule audit).
+
+## Status: done
+
+- `Expressir::Express::Shtolo#flatten` emits the single longform
+  schema: interface closure copied as local declarations, ORIGINAL
+  names kept with references rewritten, G.NM.1 clash munging computed
+  over the whole closure first.

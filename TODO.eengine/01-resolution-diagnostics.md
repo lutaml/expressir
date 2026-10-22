@@ -28,3 +28,9 @@ with the tiering half of 07.
 - Transitive USE chains still resolve (06's shipped behavior).
 - Cycle-guarded resolution terminates.
 - The checker flags an unresolved USE FROM resource as an error.
+
+## Status: done
+
+- Transitive USE, the cycle guard and the USE/REFERENCE visibility
+  tiers are on main, gated by
+  `spec/expressir/express/parser_interface_visibility_parity_spec.rb`.

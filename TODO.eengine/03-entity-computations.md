@@ -20,3 +20,9 @@ walks supertype chains ad hoc. Needed by Annex G.2.6 select synthesis
 
 - chain + multiple inheritance + redeclaration fixtures; the
   materialization matches a hand-computed table.
+
+## Status: done
+
+- Inherited-attribute and closure materialization lives in
+  `Expressir::Express::Shtolo` (interface closure, supertype
+  inheritance), exercised by the Annex G audit specs.

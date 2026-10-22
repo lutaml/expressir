@@ -129,7 +129,7 @@ RSpec.describe Expressir::P28::Xsd do
       # moxml adapter
       plain = emitted.gsub('xmlns:vd="URN:t:values_demo"',
                            'xmlns="URN:t:values_demo"')
-                     .gsub("<vd:", "<").gsub("</vd:", "</")
+        .gsub("<vd:", "<").gsub("</vd:", "</")
       errors = handle.validate(plain)
       expect(errors).to eq([])
 

@@ -93,7 +93,8 @@ module Expressir
         node.set_attributes("id" => instance_id(pid))
         record.params.each_with_index do |value, index|
           name = entity ? attribute_name(slots, entity, index) : nil
-          element = attribute_value_element(doc, name, value, population)
+          element = attribute_value_element(doc, name, value, population,
+                                            prefix)
           node.add_child(element) if element
         end
         node
@@ -112,7 +113,8 @@ module Expressir
           )
           part.params.each_with_index do |value, index|
             name = entity ? attribute_name(slots, entity, index) : nil
-            element = attribute_value_element(doc, name, value, population)
+            element = attribute_value_element(doc, name, value, population,
+                                              prefix)
             child.add_child(element) if element
           end
           node.add_child(child)
@@ -120,10 +122,12 @@ module Expressir
         node
       end
 
-      def attribute_value_element(doc, name, value, population)
+      def attribute_value_element(doc, name, value, population, prefix)
         case value
-        when Array then aggregate_element(doc, name, value, population)
-        when P21::TypedValue then typed_element(doc, value, population)
+        when Array then aggregate_element(doc, name, value, population,
+                                          prefix)
+        when P21::TypedValue then typed_element(doc, value, population,
+                                                prefix)
         when :unset, :derived then nil
         when String then reference_or_string_element(doc, name, value,
                                                      population)
@@ -155,13 +159,13 @@ module Expressir
       # LIST text value; entity-based aggregates carry one child per
       # component, named by the component's entity type and
       # referenced (9.2.6.1 worked example `Control_points`).
-      def aggregate_element(doc, name, values, population)
+      def aggregate_element(doc, name, values, population, prefix)
         node = doc.create_element(name ? element_name(name) : "List")
         if values.all? { |v| v.is_a?(String) && v.start_with?("#") }
           values.each do |ref|
             keyword = population.instances[ref]&.keyword
             child = doc.create_element(
-              keyword ? element_name(keyword.to_s.downcase) : "Ref",
+              "#{prefix}:#{element_name(keyword ? keyword.to_s.downcase : 'ref')}",
             )
             child.set_attributes("ref" => instance_id(ref))
             node.add_child(child)
@@ -174,10 +178,11 @@ module Expressir
 
       # A typed parameter (KEYWORD(values)) is emitted as the
       # capitalized keyword element wrapping its values.
-      def typed_element(doc, value, population)
+      def typed_element(doc, value, population, prefix)
         node = doc.create_element(element_name(value.keyword))
         value.value.each do |item|
-          element = attribute_value_element(doc, nil, item, population)
+          element = attribute_value_element(doc, nil, item, population,
+                                            prefix)
           node.add_child(element) if element
         end
         node

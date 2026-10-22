@@ -45,7 +45,6 @@ implementation has this (eengine's --validate is the cautionary tale).
 - WHERE evaluation over the Annex H population: every rule provably
   passes; a seeded-fault population fails the intended rule only.
 
-## Status: in progress
 
 - Step 1 (value model + expression core): done — `Expressir::Eval`
   (Values/Environment/Expression autoloads): ISO 10303-11 ch.12

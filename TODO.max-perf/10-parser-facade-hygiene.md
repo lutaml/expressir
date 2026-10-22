@@ -21,3 +21,7 @@ references the latter directly) — a DRY violation with a dead constant.
 
 Facade exposes only the public contract; single source for the worker-cap
 constant.
+
+## Status: done
+
+- Facade narrowed and worker-cap single-sourced; suite green (in-file record).

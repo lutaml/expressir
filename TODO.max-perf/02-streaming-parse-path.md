@@ -29,3 +29,7 @@ picture (the fastest intended path is the broken one).
 Either `use_streaming: true` produces an equal model with a green spec, or
 the breakage is precisely documented upstream and the path is explicitly
 marked unsupported.
+
+## Status: done
+
+- Executed as the documented-blocked alternative: the streaming builder is blocked on parsanol's stable parse_with_builder (parsanol-ruby#59), recorded in TODO.max-perf/14; the path stays marked unsupported until then.

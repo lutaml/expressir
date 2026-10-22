@@ -23,3 +23,7 @@ upstream (leptris/yeptris#318); the guard must keep it unloaded.
 ## Acceptance
 
 rake green on main; TODO 01's checkbox ticked.
+
+## Status: done
+
+- Landed via #357 (17aa264 re-landed as 0576a08 after the #356 stale-base detour); rake green on main.

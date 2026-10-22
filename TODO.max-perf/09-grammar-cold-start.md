@@ -23,3 +23,7 @@ would save ~50ms per process at the cost of temp-file staleness machinery.
 
 Cold-start number recorded; cache implemented with specs if the number
 justifies it, otherwise documented as negligible.
+
+## Status: done
+
+- Cold-start number recorded in-file; cache documented as not justified.

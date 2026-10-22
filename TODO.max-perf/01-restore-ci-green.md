@@ -34,3 +34,7 @@ yeptris has since released 0.6.4.1 and 0.6.5.1.
 ## Acceptance
 
 rake workflow green on main across the full platform matrix.
+
+## Status: done
+
+- rake is green on main across the full platform matrix (verified 2026-10-22, all legs pass).

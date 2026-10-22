@@ -26,3 +26,7 @@ validation:
 
 A short benchmark run prints genuine Ruby-vs-Native numbers, terminates on
 pathological files, and labels passes truthfully.
+
+## Status: done
+
+- benchmark/srl_benchmark.rb is tracked, rubocop-clean and CI-linted; CPU-time methodology recorded after the mislabeled-pass fix.

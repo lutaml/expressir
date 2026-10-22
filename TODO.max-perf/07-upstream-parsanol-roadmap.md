@@ -25,3 +25,7 @@ them. Mapping to parsanol (all upstream work; expressir only consumes):
 ## Acceptance
 
 Upstream issue filed; expressir-side dependencies on each technique noted.
+
+## Status: done
+
+- Upstreamed: parsanol-ruby#59, leptris/yeptris#318, lutaml-model#798; parsanol 1.3.28's backtracking fix adopted.

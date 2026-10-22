@@ -43,3 +43,7 @@ builder.call (upstream territory).
 Numbers table for the three stages; either a measured improvement merged or
 the cost definitively attributed to lutaml-model instantiation (which moves
 the next step upstream to lutaml-model).
+
+## Status: done
+
+- Cost definitively attributed to lutaml-model instantiation (file records the attribution).

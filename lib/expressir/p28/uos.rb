@@ -40,7 +40,7 @@ module Expressir
       # @param prefix [String] the namespace prefix for instance
       #   elements (clause 7: preprocessor-chosen)
       # @return [String] the serialized uos document
-      def emit(population, schema, id: "uos01",
+      def emit(population, schema, id: "uos01", schema_ref: nil,
                target_namespace: P28.default_target_namespace(schema.id),
                prefix: default_prefix(schema))
         ctx = Moxml::Context.new
@@ -53,6 +53,9 @@ module Expressir
           "xmlns:#{prefix}" => target_namespace,
           "xmlns:exp" => COMMON_NS,
         )
+        # 9.2.6.2: the schema attribute references the express
+        # element's id within an iso_10303_28 document
+        uos.set_attributes("schema" => schema_ref) if schema_ref
         doc.add_child(uos)
         slots = Eval::Environment.new(schema: schema)
         population.instances.each do |pid, record|

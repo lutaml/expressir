@@ -4,6 +4,7 @@ module Expressir
   module P28
     autoload :Uos, "#{__dir__}/p28/uos"
     autoload :Xsd, "#{__dir__}/p28/xsd"
+    autoload :Document, "#{__dir__}/p28/document"
 
     # ISO 10303-28:2007 XML representation of EXPRESS-driven data.
     #

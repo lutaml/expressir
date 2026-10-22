@@ -14,6 +14,7 @@ module Expressir
     autoload :ParityInputs, "#{__dir__}/commands/parity_inputs"
     autoload :Validate, "#{__dir__}/commands/validate"
     autoload :ValidateLoad, "#{__dir__}/commands/validate_load"
+    autoload :ValidateRemarks, "#{__dir__}/commands/validate_remarks"
     autoload :ValidateAscii, "#{__dir__}/commands/validate_ascii"
     autoload :NonAsciiCharacter, "#{__dir__}/commands/non_ascii_character"
     autoload :FileViolations, "#{__dir__}/commands/file_violations"

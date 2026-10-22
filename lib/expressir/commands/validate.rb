@@ -80,6 +80,13 @@ module Expressir
         ValidateAscii.new(options).run(path)
       end
 
+      desc "remarks PATH_OR_MANIFEST",
+           "Validate remark blocks: a block anchor ([[name]]) must be " \
+           "defined in a single remark scope per schema"
+      def remarks(*paths)
+        ValidateRemarks.new(options).run(paths)
+      end
+
       desc "check *PATHS", "Run eeng check-p11 semantic checks"
       long_desc <<~DESC
         Walks one or more EXPRESS files (or directories of .exp) and

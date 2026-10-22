@@ -25,3 +25,7 @@ duplicating the same orchestration (MECE violation).
 
 One multi-file loading pipeline; CLI bulk loads parse in parallel by
 default; library default remains sequential.
+
+## Status: done
+
+- Multi-file loading is one pipeline with the pool path in `Expressir::Express::ParallelFiles` (lib/expressir/express/parallel_files.rb), gated by spec/expressir/express/parallel_files_spec.rb.

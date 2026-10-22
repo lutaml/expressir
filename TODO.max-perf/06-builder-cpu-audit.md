@@ -39,3 +39,7 @@ AST-hash → lutaml-model instantiation.
 
 A numbers table attributing Ruby-side parse CPU to phases, plus either a
 measured improvement or a precise, evidence-backed next target.
+
+## Status: done
+
+- Recorded through the stage and handler audits (TODO.max-perf/08 and /14).

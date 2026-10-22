@@ -20,3 +20,7 @@ the real contract. The progress-block regression merged in #349 (double
 
 All fidelity specs green; `to_hash` of a parallel repository equals the
 sequential one for a multi-fixture corpus.
+
+## Status: done
+
+- spec/expressir/express/parallel_files_spec.rb pins pool/sequential parity incl. the from_files nil-pad regression.

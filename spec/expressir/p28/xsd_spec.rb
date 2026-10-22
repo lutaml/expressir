@@ -119,6 +119,9 @@ RSpec.describe Expressir::P28::Xsd do
 
       ctx = Moxml::Context.new
       handle = ctx.xsd(derived_local)
+      # QName/reference defects must fail compile even on engines
+      # that tolerate them at validation time
+      expect(handle.compile_error).to be_nil
       population = parse_population(<<~P21)
         ISO-10303-21;
         HEADER;

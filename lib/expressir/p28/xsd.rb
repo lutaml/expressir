@@ -123,7 +123,7 @@ module Expressir
         # (same content, local names); the default emits the
         # normative 7.7.4 import.
         if inline_base
-          inline_base_components(doc)
+          inline_base_components(doc, prefix)
         else
           root.add_child(import_node(doc, COMMON_NS, base_schema_location))
         end
@@ -142,12 +142,15 @@ module Expressir
         doc.to_xml
       end
 
-      # exp: or, in inline_base mode, the local name.
-      def exp_name(name, inline)
-        inline ? name : "exp:#{name}"
+      # exp: in the normative import form; the target-namespace
+      # prefix when inlined — an unprefixed QName in a schema with a
+      # targetNamespace resolves to the empty namespace (XSD QName
+      # rules), which stricter engines reject at compile time.
+      def exp_name(name, inline, prefix = "exp")
+        inline ? "#{prefix}:#{name}" : "exp:#{name}"
       end
 
-      def inline_base_components(doc)
+      def inline_base_components(doc, prefix)
         root = doc.root
         group = doc.create_element("xs:attributeGroup")
         group.set_attributes("name" => "instanceAttributes")
@@ -158,19 +161,23 @@ module Expressir
         root.add_child(group)
         entity = doc.create_element("xs:complexType")
         entity.set_attributes("name" => "Entity", "abstract" => "true")
-        %w[href ref proxy edo].each do |name|
+        { "href" => "xs:anyURI", "ref" => "xs:IDREF",
+          "proxy" => "xs:IDREF", "edo" => "xs:anyURI" }.each do |name, type|
           attr = doc.create_element("xs:attribute")
-          attr.set_attributes("name" => name, "type" => "xs:anyURI",
+          attr.set_attributes("name" => name, "type" => type,
                               "use" => "optional")
           entity.add_child(attr)
         end
         group_ref = doc.create_element("xs:attributeGroup")
-        group_ref.set_attributes("ref" => "instanceAttributes")
+        group_ref.set_attributes("ref" => exp_name("instanceAttributes", true,
+                                                   prefix))
         entity.add_child(group_ref)
         root.add_child(entity)
         entity_el = doc.create_element("xs:element")
-        entity_el.set_attributes("name" => "Entity", "type" => "Entity",
-                                 "abstract" => "true")
+        entity_el.set_attributes(
+          "name" => "Entity", "type" => exp_name("Entity", true, prefix),
+          "abstract" => "true"
+        )
         root.add_child(entity_el)
         hex = doc.create_element("xs:complexType")
         hex.set_attributes("name" => "hexBinary")
@@ -205,12 +212,15 @@ module Expressir
         seq.add_child(any)
         complex.add_child(seq)
         group_ref2 = doc.create_element("xs:attributeGroup")
-        group_ref2.set_attributes("ref" => "instanceAttributes")
+        group_ref2.set_attributes("ref" => exp_name("instanceAttributes", true,
+                                                    prefix))
         complex.add_child(group_ref2)
         root.add_child(complex)
         complex_el = doc.create_element("xs:element")
-        complex_el.set_attributes("name" => "complexEntity",
-                                  "type" => "complexEntity")
+        complex_el.set_attributes(
+          "name" => "complexEntity",
+          "type" => exp_name("complexEntity", true, prefix),
+        )
         root.add_child(complex_el)
         # distinct name: the derived schema declares its own uos type
         # extending this carrier, so a second global "uos" here would
@@ -230,7 +240,8 @@ module Expressir
                               "abstract" => "true")
         root.add_child(uos_el)
         edokey = doc.create_element("xs:element")
-        edokey.set_attributes("name" => "edokey", "type" => "Entity")
+        edokey.set_attributes("name" => "edokey",
+                              "type" => exp_name("Entity", true, prefix))
         root.add_child(edokey)
       end
 
@@ -298,7 +309,7 @@ module Expressir
         node.set_attributes("abstract" => "true") if entity.abstract
         content = doc.create_element("xs:complexContent")
         extension = doc.create_element("xs:extension")
-        extension.set_attributes("base" => exp_name("Entity", inline))
+        extension.set_attributes("base" => exp_name("Entity", inline, prefix))
         all_node = doc.create_element("xs:all")
         closure_attributes(entity).each do |attribute|
           accessor = accessor_node(doc, schema, prefix, attribute, inline)
@@ -317,7 +328,7 @@ module Expressir
         node.set_attributes(
           "name" => mapped(entity.id),
           "type" => "#{prefix}:#{mapped(entity.id)}",
-          "substitutionGroup" => exp_name("Entity", inline),
+          "substitutionGroup" => exp_name("Entity", inline, prefix),
         )
         node
       end
@@ -387,31 +398,31 @@ module Expressir
       # head (every entity instance element) and the complexEntity
       # carrier.
       def uos_node(doc, _schema, prefix, inline)
+        # inline mode names the carrier uos_base (the derived type
+        # is uos); the imported base schema names it exp:uos
+        carrier = inline ? "#{prefix}:uos_base" : "exp:uos"
         element = doc.create_element("xs:element")
         element.set_attributes(
           "name" => "uos",
           "type" => "#{prefix}:uos",
-          "substitutionGroup" => inline ? "uos_base" : exp_name("uos", false),
+          "substitutionGroup" => carrier,
         )
-        content = doc.create_element("xs:complexType")
         node = doc.create_element("xs:complexType")
         node.set_attributes("name" => "uos")
         complex_content = doc.create_element("xs:complexContent")
         extension = doc.create_element("xs:extension")
-        extension.set_attributes("base" => inline ? "uos_base" : exp_name("uos", false))
+        extension.set_attributes("base" => carrier)
         choice = doc.create_element("xs:choice")
         choice.set_attributes("minOccurs" => "0", "maxOccurs" => "unbounded")
         head = doc.create_element("xs:element")
-        head.set_attributes("ref" => exp_name("Entity", inline))
+        head.set_attributes("ref" => exp_name("Entity", inline, prefix))
         choice.add_child(head)
         complex = doc.create_element("xs:element")
-        complex.set_attributes("ref" => exp_name("complexEntity", inline))
+        complex.set_attributes("ref" => exp_name("complexEntity", inline, prefix))
         choice.add_child(complex)
         extension.add_child(choice)
         complex_content.add_child(extension)
         node.add_child(complex_content)
-        content.add_child(node)
-        element.add_child(content)
         [element, node]
       end
 

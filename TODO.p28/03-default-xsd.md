@@ -47,7 +47,7 @@ logical domain and the 9.3.4 `exp:complexEntity` carrier.
 - End to end: a uos emitted by the task 01 writer validates against
   the derived schema; an unknown instance element fails validation.
 
-## Status: done
+## Status: done (#532)
 
 - `Expressir::P28::Xsd.format` with the rules above; the normative
   form imports the base schema per 7.7.4, and `inline_base: true`
@@ -58,5 +58,11 @@ logical domain and the 9.3.4 `exp:complexEntity` carrier.
   widths/precisions emit no facet restrictions; SELECT accessors
   raise (the full 7.4 select machinery is future work); cross-schema
   supertypes raise rather than silently dropping attributes.
+- Engine-strictness findings folded back in: inline-mode QName
+  references are prefix-qualified (an unprefixed QName under a
+  targetNamespace resolves to the empty namespace and stricter
+  engines reject the schema at compile), the inline carrier is
+  `uos_base` (no duplicate `uos` global), and the gate asserts
+  `compile_error` is nil.
 - Spec: spec/expressir/p28/xsd_spec.rb — shapes, 7.6.2.2 omission,
   and the end-to-end validation gate with a mutation.

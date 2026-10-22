@@ -30,7 +30,7 @@ round trip is value-identical:
   produces exactly the intended value difference in the parsed
   population.
 
-## Status: done
+## Status: done (#531)
 
 - `Expressir::P28::Uos.parse` (lib/expressir/p28/uos.rb) reads a uos
   document back into a `P21::Population`: element names matched to

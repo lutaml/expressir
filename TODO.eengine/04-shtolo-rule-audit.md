@@ -30,3 +30,9 @@ Fixture note: `EXTENSIBLE_ENUMERATION` as a single composite keyword
 is not in the grammar and not in the corpus — the corpus writes
 `EXTENSIBLE ENUMERATION` (302×) / `EXTENSIBLE SELECT` (546×), both
 supported.
+
+## Status: done
+
+- `spec/fixtures/shtolo/annex-g-rules.md` records the audited
+  statuses for every Annex G rule, each with a live worked example in
+  `spec/expressir/express/shtolo_annex_g_rule_audit_spec.rb`.

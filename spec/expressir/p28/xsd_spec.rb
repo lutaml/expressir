@@ -95,23 +95,12 @@ RSpec.describe Expressir::P28::Xsd do
     expect(derived_shaped).to include('name="Base"')
   end
 
-  # Some moxml adapters ship without an XSD engine and fall back to
-  # a walker that cannot resolve the derived-schema pattern
-  # (unqualified locals under a qualified root); the gate needs a
-  # real engine, probed with exactly that pattern.
+  # The validation gate runs on the leptris engine (the mandated
+  # adapter); runners whose moxml fell back to a walker without XSD
+  # support skip it rather than failing.
   def xsd_engine?
-    ctx = Moxml::Context.new
-    handle = ctx.xsd(
-      '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" ' \
-      'targetNamespace="urn:probe" xmlns:p="urn:probe" ' \
-      'elementFormDefault="unqualified">' \
-      '<xs:element name="uos"><xs:complexType><xs:choice ' \
-      'minOccurs="0" maxOccurs="unbounded">' \
-      '<xs:element name="Thing"/></xs:choice></xs:complexType>' \
-      '</xs:element><xs:element name="Thing"/></xs:schema>',
-    )
-    handle.valid?('<p:uos xmlns:p="urn:probe"><Thing/></p:uos>')
-  rescue Moxml::Error, NotImplementedError
+    Moxml::Context.new.config.adapter.to_s.include?("Leptris")
+  rescue StandardError
     false
   end
 

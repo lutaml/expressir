@@ -2,9 +2,11 @@
 
 module Expressir
   module P28
-    # The unit of serialization writer (TODO.p28/01): a P21-shaped
-    # population emitted as a clause 9.2.2 uos element using the
-    # default binding (clause 7) encoding rules of clause 9.
+    # The unit of serialization faces (TODO.p28/01+02):
+    # `emit` writes a P21-shaped population as a clause 9.2.2 uos
+    # element and `parse` reads one back, both under the default
+    # binding (clause 7) encoding rules of clause 9, so the round
+    # trip is value-identical over the shared P21 value model.
     #
     # Encoding summary (clause ids cited at each rule):
     # - every instance is a by-value entity instance element
@@ -220,6 +222,221 @@ module Expressir
         Array(schema.entities).find do |entity|
           entity.id&.safe_downcase == keyword&.safe_downcase
         end
+      end
+
+      # ------------------------------------------------------------------
+      # The reader face (TODO.p28/02): a uos document back into a
+      # P21-shaped population, inverting the writer's encodings so
+      # the round trip is value-identical.
+      # ------------------------------------------------------------------
+
+      # @param xml [String] a uos document
+      # @param schema [Model::Declarations::Schema]
+      # @return [P21::Population]
+      def parse(xml, schema)
+        doc = Moxml::Context.new.parse(xml)
+        uos = doc.root
+        unless uos&.name == "uos"
+          raise Expressir::Error, "not a uos document (root '#{uos&.name}')"
+        end
+
+        slots = Eval::Environment.new(schema: schema)
+        instances = {}
+        elems(uos).each do |node|
+          pid = instance_pid(node)
+          instances[pid] = if node.name == "complexEntity"
+                             P21::ComplexRecord.new(
+                               elems(node).map do |role|
+                                 role_record(schema, slots, role)
+                               end,
+                             )
+                           else
+                             role_record(schema, slots, node)
+                           end
+        end
+        P21::Population.new(instances: instances)
+      end
+
+      def instance_pid(node)
+        id = attrs(node)["id"]
+        unless id
+          raise Expressir::Error,
+                "instance element '#{node.name}' has no id"
+        end
+
+        "##{id.delete_prefix('id')}"
+      end
+
+      def role_record(schema, slots, node)
+        entity = Array(schema.entities).find do |candidate|
+          candidate.id&.safe_downcase == node.name.downcase
+        end
+        unless entity
+          raise Expressir::Error,
+                "element '#{node.name}' does not match any entity of " \
+                "schema '#{schema.id}'"
+        end
+
+        keyword = entity.id.upcase
+        mapped = {}
+        elems(node).each do |accessor|
+          slot_name = accessor.name.downcase
+          index = slots.slots_for(entity)[slot_name]
+          unless index
+            raise Expressir::Error,
+                  "entity '#{keyword}' has no attribute " \
+                  "'#{accessor.name}'"
+          end
+
+          mapped[index] = attribute_value(schema, entity, slot_name,
+                                          accessor)
+        end
+        size = slots.slots_for(entity).size
+        params = Array.new(size) { |i| mapped[i] || :unset }
+        P21::Record.new(keyword, params)
+      end
+
+      # Inverse of the writer's value encodings. Logical faces come
+      # from the DECLARED type: the 9.5.2/9.5.4 texts only re-encode
+      # to the Part 21 renderings when the attribute is
+      # BOOLEAN/LOGICAL.
+      def attribute_value(schema, entity, slot_name, accessor)
+        declaration = find_attribute_decl(entity, slot_name)
+        components = elems(accessor)
+        if components.any?
+          return components.map do |component|
+            ref = attrs(component)["ref"]
+            unless ref
+              raise Expressir::Error,
+                    "component '#{component.name}' has no ref"
+            end
+
+            "##{ref.delete_prefix('id')}"
+          end
+        end
+
+        ref = attrs(accessor)["ref"] # 9.3.3 by-reference accessor
+        return "##{ref.delete_prefix('id')}" if ref
+
+        text = accessor.text
+        case value_kind(schema, declaration)
+        when :boolean then P21::Enumeration.new(logical_item(text, %w[T F]))
+        when :logical
+          P21::Enumeration.new(logical_item(text, %w[T F UNKNOWN]))
+        when :enumeration then P21::Enumeration.new(text)
+        when :binary then P21::Binary.new(text)
+        when :number then numeric(text)
+        when :list then split_list(schema, declaration, text)
+        else text
+        end
+      end
+
+      def logical_item(text, allowed)
+        item = { "true" => "T", "false" => "F",
+                 "unknown" => "UNKNOWN" }[text]
+        raise Expressir::Error, "invalid logical value '#{text}'" unless
+          allowed.include?(item)
+
+        item
+      end
+
+      def value_kind(schema, declaration)
+        type = declaration.respond_to?(:type) ? declaration.type : nil
+        case type
+        when Model::DataTypes::Boolean then :boolean
+        when Model::DataTypes::Logical then :logical
+        when Model::DataTypes::Binary then :binary
+        when Model::DataTypes::Enumeration then :enumeration
+        when Model::DataTypes::Integer, Model::DataTypes::Real,
+             Model::DataTypes::Number
+          :number
+        else
+          if type.respond_to?(:base_type) && type.base_type
+            return :list # LIST/SET/BAG/ARRAY over any base (9.8.1)
+          end
+
+          resolve_defined_type(schema, type) || :string
+        end
+      end
+
+      # EXPRESS builtins may arrive as DataTypes or as name
+      # references; both faces resolve here.
+      BUILTIN_KINDS = {
+        "binary" => :binary,
+        "boolean" => :boolean,
+        "logical" => :logical,
+        "integer" => :number,
+        "real" => :number,
+        "number" => :number,
+        "string" => :string,
+      }.freeze
+
+      # A defined TYPE's underlying kind (the writer's enumeration
+      # and aggregate faces ride on these).
+      def resolve_defined_type(schema, type)
+        case type
+        when nil then nil
+        when Model::DataTypes::Enumeration then :enumeration
+        when Model::References::SimpleReference
+          id = base_id_of(type)
+          return BUILTIN_KINDS[id&.downcase] if BUILTIN_KINDS.key?(id&.downcase)
+
+          decl = id &&
+            Array(schema.types).find do |candidate|
+              candidate.id&.safe_downcase == id
+            end
+          return nil unless decl
+
+          resolve_defined_type(schema, decl.underlying_type)
+        end
+      end
+
+      def base_id_of(type)
+        if type.respond_to?(:base_path) && type.base_path
+          type.base_path.to_s.split(".").last
+        elsif type.respond_to?(:id)
+          type.id
+        end
+      end
+
+      def numeric(text)
+        text.match?(/\A-?\d+\z/) ? text.to_i : text.to_f
+      end
+
+      # 9.8.1: whitespace LIST text; STRING components never carry
+      # whitespace (clause-ruled), so splitting is lossless.
+      def split_list(schema, declaration, text)
+        return [] if text.empty?
+
+        type = declaration.respond_to?(:type) ? declaration.type : nil
+        base = type.respond_to?(:base_type) ? type.base_type : nil
+        kind = resolve_defined_type(schema, base) || :string
+        text.split(/\s+/).map do |item|
+          case kind
+          when :enumeration then P21::Enumeration.new(item)
+          when :number then numeric(item)
+          else item
+          end
+        end
+      end
+
+      # Direct or inherited attribute declaration by name.
+      def find_attribute_decl(entity, name)
+        key = name.downcase
+        (entity.supertype_closure.to_a + [entity])
+          .flat_map { |decl| Array(decl.attributes) }
+          .find do |attr|
+            attr.instance_of?(Model::Declarations::Attribute) &&
+              attr.id&.safe_downcase == key
+          end
+      end
+
+      def elems(node)
+        node.children.grep(Moxml::Element)
+      end
+
+      def attrs(node)
+        node.attributes.to_h { |a| [a.name, a.value] }
       end
     end
   end

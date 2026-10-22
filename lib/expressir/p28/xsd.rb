@@ -85,6 +85,14 @@ module Expressir
               <xs:attributeGroup ref="exp:instanceAttributes"/>
             </xs:complexType>
             <xs:element name="complexEntity" type="exp:complexEntity"/>
+            <xs:complexType name="uos" abstract="true">
+              <xs:attribute name="id" type="xs:ID" use="optional"/>
+              <xs:attribute name="express" type="xs:string"
+                            use="optional"/>
+              <xs:attribute name="edo" type="xs:anyURI" use="optional"/>
+            </xs:complexType>
+            <xs:element name="uos" type="exp:uos" abstract="true"/>
+            <xs:element name="edokey" type="exp:Entity"/>
           </xs:schema>
         XSD
       end
@@ -128,7 +136,9 @@ module Expressir
                                           inline_base))
           root.add_child(entity_element_node(doc, prefix, entity, inline_base))
         end
-        root.add_child(uos_node(doc, schema, prefix, inline_base))
+        uos_node(doc, schema, prefix, inline_base).each do |node|
+          root.add_child(node)
+        end
         doc.to_xml
       end
 
@@ -202,6 +212,23 @@ module Expressir
         complex_el.set_attributes("name" => "complexEntity",
                                   "type" => "complexEntity")
         root.add_child(complex_el)
+        uos_type = doc.create_element("xs:complexType")
+        uos_type.set_attributes("name" => "uos", "abstract" => "true")
+        %w[id express edo].zip(%w[xs:ID xs:string xs:anyURI])
+          .each do |(name, type)|
+          attr = doc.create_element("xs:attribute")
+          attr.set_attributes("name" => name, "type" => type,
+                              "use" => "optional")
+          uos_type.add_child(attr)
+        end
+        root.add_child(uos_type)
+        uos_el = doc.create_element("xs:element")
+        uos_el.set_attributes("name" => "uos", "type" => "uos",
+                              "abstract" => "true")
+        root.add_child(uos_el)
+        edokey = doc.create_element("xs:element")
+        edokey.set_attributes("name" => "edokey", "type" => "Entity")
+        root.add_child(edokey)
       end
 
       def import_node(doc, namespace, location)
@@ -351,28 +378,38 @@ module Expressir
         content
       end
 
-      # 7.8: the context-schema specific uos element: qualified
-      # instance elements, unbounded.
-      def uos_node(doc, schema, prefix, inline)
-        node = doc.create_element("xs:element")
-        node.set_attributes("name" => "uos")
+      # 7.8: the context-schema specific uos element — in the
+      # exp:uos substitution group, extending the exp:uos carrier,
+      # with a repeating choice over the exp:Entity substitution
+      # head (every entity instance element) and the complexEntity
+      # carrier.
+      def uos_node(doc, _schema, prefix, inline)
+        element = doc.create_element("xs:element")
+        element.set_attributes(
+          "name" => "uos",
+          "type" => "#{prefix}:uos",
+          "substitutionGroup" => exp_name("uos", inline),
+        )
         content = doc.create_element("xs:complexType")
+        node = doc.create_element("xs:complexType")
+        node.set_attributes("name" => "uos")
+        complex_content = doc.create_element("xs:complexContent")
+        extension = doc.create_element("xs:extension")
+        extension.set_attributes("base" => exp_name("uos", inline))
         choice = doc.create_element("xs:choice")
         choice.set_attributes("minOccurs" => "0", "maxOccurs" => "unbounded")
-        schema.entities.to_a.each do |entity|
-          instance = doc.create_element("xs:element")
-          instance.set_attributes(
-            "name" => mapped(entity.id),
-            "type" => "#{prefix}:#{mapped(entity.id)}",
-          )
-          choice.add_child(instance)
-        end
+        head = doc.create_element("xs:element")
+        head.set_attributes("ref" => exp_name("Entity", inline))
+        choice.add_child(head)
         complex = doc.create_element("xs:element")
         complex.set_attributes("ref" => exp_name("complexEntity", inline))
         choice.add_child(complex)
-        content.add_child(choice)
-        node.add_child(content)
-        node
+        extension.add_child(choice)
+        complex_content.add_child(extension)
+        node.add_child(complex_content)
+        content.add_child(node)
+        element.add_child(content)
+        [element, node]
       end
 
       def closure_attributes(entity)

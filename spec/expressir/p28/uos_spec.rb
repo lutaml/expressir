@@ -166,7 +166,8 @@ RSpec.describe Expressir::P28::Uos do
       expect(text_of.call("Tags")).to eq("a b") # 9.8.1 LIST text
     end
 
-    it "names entity-aggregate components after their target instance" do
+    it "names entity-aggregate components after their target instance " \
+       "as qualified instance elements" do
       doc = Moxml::Context.new.parse(values_emitted)
       box = find_elem(doc.root, "Box")
       parts = find_elem(box, "Parts")

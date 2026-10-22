@@ -16,8 +16,8 @@ half, and the document envelope do not exist.
 
 | n | task | tier | status |
 |---|------|------|--------|
-| 01 | uos writer: population → clause 9 instance XML | data | todo |
-| 02 | uos reader: clause 9 instance XML → population; value-identical round trip | data | todo |
+| 01 | uos writer: population → clause 9 instance XML | data | done (#530) |
+| 02 | uos reader: clause 9 instance XML → population; value-identical round trip | data | done |
 | 03 | default XSD derivation upgraded to clause 7 (identifier rules §8.5.5, complex entities §7.x, INVERSE/DERIVED, interface imports) with the exp: common namespace | schema | in progress |
 | 04 | iso_10303_28 envelope (clauses 5 + 9.2.1, annex D document schema): embedded/referenced express, header, multiple uos | document | todo |
 | 05 | configured binding (clauses 8 + 10) | configuration | deferred — the configuration-directive layer over the default binding; its own program; the default binding is the conformance core |

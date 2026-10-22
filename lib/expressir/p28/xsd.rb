@@ -212,8 +212,11 @@ module Expressir
         complex_el.set_attributes("name" => "complexEntity",
                                   "type" => "complexEntity")
         root.add_child(complex_el)
+        # distinct name: the derived schema declares its own uos type
+        # extending this carrier, so a second global "uos" here would
+        # be a duplicate declaration
         uos_type = doc.create_element("xs:complexType")
-        uos_type.set_attributes("name" => "uos", "abstract" => "true")
+        uos_type.set_attributes("name" => "uos_base", "abstract" => "true")
         %w[id express edo].zip(%w[xs:ID xs:string xs:anyURI])
           .each do |(name, type)|
           attr = doc.create_element("xs:attribute")
@@ -223,7 +226,7 @@ module Expressir
         end
         root.add_child(uos_type)
         uos_el = doc.create_element("xs:element")
-        uos_el.set_attributes("name" => "uos", "type" => "uos",
+        uos_el.set_attributes("name" => "uos_base", "type" => "uos_base",
                               "abstract" => "true")
         root.add_child(uos_el)
         edokey = doc.create_element("xs:element")
@@ -388,14 +391,14 @@ module Expressir
         element.set_attributes(
           "name" => "uos",
           "type" => "#{prefix}:uos",
-          "substitutionGroup" => exp_name("uos", inline),
+          "substitutionGroup" => inline ? "uos_base" : exp_name("uos", false),
         )
         content = doc.create_element("xs:complexType")
         node = doc.create_element("xs:complexType")
         node.set_attributes("name" => "uos")
         complex_content = doc.create_element("xs:complexContent")
         extension = doc.create_element("xs:extension")
-        extension.set_attributes("base" => exp_name("uos", inline))
+        extension.set_attributes("base" => inline ? "uos_base" : exp_name("uos", false))
         choice = doc.create_element("xs:choice")
         choice.set_attributes("minOccurs" => "0", "maxOccurs" => "unbounded")
         head = doc.create_element("xs:element")

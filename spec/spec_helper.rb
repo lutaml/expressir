@@ -67,7 +67,6 @@ end
 require "lutaml/model"
 Lutaml::Model::Config.configure do |config|
   config.json_adapter_type = :standard
-  config.xml_adapter_type = :nokogiri
   # Pin the YAML adapter so golden-file specs do not depend on whether
   # the optional yeptris engine is in the bundle (its output omits the
   # leading "---" document marker that Psych emits).

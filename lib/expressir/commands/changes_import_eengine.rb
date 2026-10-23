@@ -86,26 +86,31 @@ module Expressir
         def extract_descriptions_from_xml(xml_content)
           return {} unless xml_content
 
-          require "nokogiri"
-          doc = Nokogiri::XML(xml_content)
+          doc = Moxml::Context.new.parse(xml_content)
 
           doc.xpath("//modified.object").each_with_object({}) do |node, result|
             name = node["name"]
-            desc_node = node.at_xpath("description")
+            desc_node = node.children.find do |child|
+              child.is_a?(Moxml::Element) && child.name == "description"
+            end
             next unless desc_node
 
-            html = desc_node.inner_html.strip
+            html = desc_node.children.map(&:to_xml).join.strip
             next if html.empty?
 
-            # Extract <li> elements or use text content
-            li_elements = Nokogiri::HTML.fragment(html).css("li")
-            result[name] = if li_elements.any?
-                             li_elements.map do |li|
-                               li.text.strip
-                             end.reject(&:empty?)
-                           else
-                             [Nokogiri::HTML.fragment(html).text.strip]
-                           end
+            result[name] = description_items(html)
+          end
+        end
+
+        # The description body is XHTML-shaped (<ul><li> lists or
+        # plain text); parsed as a wrapped XML fragment.
+        def description_items(html)
+          fragment = Moxml::Context.new.parse("<root>#{html}</root>").root
+          items = fragment.xpath(".//li")
+          if items.any?
+            items.map { |li| li.text.strip }.reject(&:empty?)
+          else
+            [fragment.text.strip]
           end
         end
 

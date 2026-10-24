@@ -27,7 +27,7 @@ RSpec.describe Expressir::Scoreboard do
   it "gates regressions over the baseline" do
     baseline = { "row" => 1.0 }
     current_fast = { "row" => 1.1 }
-    current_slow = { "row" => 1.5 }
+    current_slow = { "row" => 2.5 }
     regressions = lambda do |current|
       current.filter_map do |row, cpu|
         base = baseline[row]

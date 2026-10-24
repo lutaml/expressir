@@ -129,6 +129,13 @@ module Expressir
       Expressir::Commands::ExportOwl.new(options).run(path)
     end
 
+    desc "compare BASE REVISED", "Compare two EXPRESS files; write the schema.changes interchange report"
+    option :output, type: :string, aliases: "-o",
+                    desc: "Report path (defaults to stdout)"
+    def compare(base_path, revised_path)
+      Expressir::Commands::Compare.new(options).run(base_path, revised_path)
+    end
+
     desc "xml-index DIR", "Write the SMRL index XML for every EXPRESS schema under DIR"
     method_option :output, type: :string, aliases: "-o",
                            desc: "Output file path (defaults to stdout)"

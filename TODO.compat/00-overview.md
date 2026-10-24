@@ -1,0 +1,35 @@
+# 00 — Compatibility & capability program overview
+
+Expressir operates alongside established EXPRESS tooling in the same
+ecosystem. This program has two goals: (1) compatibility faces for
+existing toolchain invocations and interchange formats, so pipelines
+can adopt expressir incrementally without rewrites; and (2) capability
+expansion beyond what current implementations offer.
+
+Interchange formats we already read (e.g. the `schema.changes`
+comparison report) gain matching writers, so data flows both ways
+across toolchains.
+
+## Ladder
+
+| n | task | tier | status |
+|---|------|------|--------|
+| 01 | comparison interchange: `expressir compare` emitting the `schema.changes` report, round-tripping with the existing importer | compat | done |
+| 02 | compatibility guide + divergence register + `expressir doctor` workspace assessment | compat | todo |
+| 03 | cross-implementation scoreboard: interleaved A/B medians per command, published per release | compat | todo |
+| 04 | unified repository receipt: schemas + instance datasets + mapping tables in one deterministic, signing-ready artifact | capability | todo |
+| 05 | P28 configured binding (clauses 8/10) — the TODO.p28/05 promotion | capability | todo |
+| 06 | semantic change classification: breaking vs additive through the subtype graph (ISO 10303-11 Annex K policy) | capability | todo |
+| 07 | evaluator conformance matrix: ISO 10303-11 Annex B built-in coverage, mutation-tested | capability | todo |
+| 08 | WASM expressir-rs: schema + instance validation in browser/Node | capability | todo |
+
+## Standing rules
+
+- Compatibility faces mirror observable contracts (invocation shape,
+  output format, exit codes) — never the internals of other tools.
+- Every output format gets a round-trip or cross-read spec against the
+  corresponding reader we already ship.
+- Capability tasks cite the clause/annex they implement where
+  applicable; no spec-invented behaviour.
+- Divergences are registered (D-NN, the moxml register pattern), not
+  silently blessed.

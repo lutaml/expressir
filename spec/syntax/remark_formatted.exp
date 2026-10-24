@@ -58,6 +58,9 @@ RULE remark_rule FOR (remark_entity);
   LOCAL
     remark_variable : STRING;
   END_LOCAL;
+  remark_variable := QUERY(remark_query <* remark_variable | TRUE
+  --"remark_query" rule query scope - rule query
+  );
 WHERE
   WR1: TRUE;
 END_RULE;

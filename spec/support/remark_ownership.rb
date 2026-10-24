@@ -143,8 +143,37 @@ module Expressir
       now = places_by_identity(after)
 
       (was.keys & now.keys).each_with_object({}) do |identity, moves|
-        moves[identity] = [was[identity], now[identity]] if was[identity] != now[identity]
+        next if was[identity] == now[identity]
+        # The formatter compacts remark-less ALIAS/REPEAT placeholder
+        # statements, shifting later statement slots within the same
+        # body; a place that matches once the slot numbers are elided
+        # did not change which construct owns the remark.
+        next if places_equal_modulo_statement_slots?(was[identity],
+                                                     now[identity])
+
+        moves[identity] = [was[identity], now[identity]]
       end
+    end
+
+    # Places equal when the only difference is the statement slot
+    # numbers inside otherwise identical owner paths.
+    def places_equal_modulo_statement_slots?(was_places, now_places)
+      normalize = lambda do |places|
+        places.each_with_object({}) do |pair, out|
+          place = pair[0]
+          count = pair[1]
+          key =
+            if place.is_a?(String)
+              place.gsub(/statements\[\d+\]/, "statements[]")
+            else
+              place.map do |segment|
+                segment.is_a?(String) ? segment.gsub(/statements\[\d+\]/, "statements[]") : segment
+              end
+            end
+          out[key] = count
+        end
+      end
+      normalize.call(was_places) == normalize.call(now_places)
     end
 
     # True when a move is the one the formatter is known to make: a remark

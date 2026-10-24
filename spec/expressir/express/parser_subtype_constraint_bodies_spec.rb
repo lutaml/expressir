@@ -67,7 +67,7 @@ RSpec.describe Expressir::Express::Parser do
     expect(parse(formatted).schemas.first.subtype_constraints.first.abstract).to be(true)
   end
 
-  it "tolerates the nonstandard ABSTRACT SUPERTYPE body form (real corpora)" do
+  it "round trips the ABSTRACT SUPERTYPE body form (real corpora, #554)" do
     repo = parse(<<~EXP)
       SCHEMA m;
       ENTITY e; END_ENTITY;
@@ -79,8 +79,11 @@ RSpec.describe Expressir::Express::Parser do
     sc = repo.schemas.first.subtype_constraints.first
     aggregate_failures do
       expect(sc.abstract).to be(true)
+      # the body's abstract_supertype production carries SUPERTYPE
+      # (ISO 10303-11:2004 syntax 314 + 165); the full-schema round
+      # trip is pinned in formatter_corpus_fidelity_spec
       formatted = Expressir::Express::Formatter.format(sc)
-      expect(formatted).not_to include("SUPERTYPE")
+      expect(formatted).to include("ABSTRACT SUPERTYPE;")
     end
   end
 

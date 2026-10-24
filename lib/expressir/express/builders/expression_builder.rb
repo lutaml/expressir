@@ -276,14 +276,15 @@ module Expressir
                                           ast_data[:function_ref])
                      end
 
+          # nil parameters = no paren list in the source (a plain
+          # reference); [] = explicit `f()` — the formatter writes
+          # the distinction back (#556).
           params = if ast_data[:actual_parameter_list]
                      Builder.build_node(:actual_parameter_list,
                                         ast_data[:actual_parameter_list])
-                   else
-                     []
                    end
 
-          if params.empty?
+          if params.nil?
             func_ref
           else
             Expressir::Model::Expressions::FunctionCall.new(

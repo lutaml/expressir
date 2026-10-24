@@ -41,6 +41,27 @@ RSpec.describe Expressir::Commands::ValidateRemarks do
       expect(errors.join).to include("LOCAL variable `n`")
     end
 
+    it "reports a described LOCAL whose RETURN is nested in an IF" do
+      errors = violations_for(<<~EXPRESS)
+        SCHEMA sample;
+        FUNCTION f(a : INTEGER) : INTEGER;
+          LOCAL
+            n : INTEGER := 0;
+          END_LOCAL;
+          n := a;
+          IF a > 0 THEN
+            RETURN (n);
+          END_IF;
+          RETURN (a);
+          (*"sample.f.n"
+          (output) the count
+          *)
+        END_FUNCTION;
+        END_SCHEMA;
+      EXPRESS
+      expect(errors.join).to include("LOCAL variable `n`")
+    end
+
     it "passes when the described LOCAL is not referenced in RETURN" do
       expect(violations_for(<<~EXPRESS)).to be_empty
         SCHEMA sample;

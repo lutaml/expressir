@@ -130,17 +130,18 @@ module Expressir
           end
       end
 
+      # Identifiers referenced by any RETURN statement of the function,
+      # including returns nested in IF/CASE and other compound
+      # statements.
       def returned_identifiers(function)
         refs = []
         seen = {}.compare_by_identity
-        walk = lambda do |node|
+        returns = []
+        collect = lambda do |node|
           return if node.nil? || seen.key?(node)
 
           seen[node] = true
-          if node.is_a?(Expressir::Model::References::SimpleReference) &&
-              node.id
-            refs << node.id.to_s.downcase
-          end
+          returns << node if node.is_a?(Expressir::Model::Statements::Return)
           node.class.attributes.each_key do |attr|
             value = begin
               node.public_send(attr)
@@ -148,13 +149,36 @@ module Expressir
               next
             end
             Array(value).each do |child|
-              walk.call(child) if child.is_a?(Expressir::Model::ModelElement)
+              collect.call(child) if child.is_a?(Expressir::Model::ModelElement)
             end
           end
         end
-        Array(function.statements)
-          .grep(Expressir::Model::Statements::Return)
-          .each { |ret| walk.call(ret.expression) }
+        Array(function.statements).each { |statement| collect.call(statement) }
+        returns.each do |ret|
+          seen_expr = {}.compare_by_identity
+          expr_walk = lambda do |node|
+            next if node.nil? || seen_expr.key?(node)
+
+            seen_expr[node] = true
+            if node.is_a?(Expressir::Model::References::SimpleReference) &&
+                node.id
+              refs << node.id.to_s.downcase
+            end
+            node.class.attributes.each_key do |attr|
+              value = begin
+                node.public_send(attr)
+              rescue StandardError
+                next
+              end
+              Array(value).each do |child|
+                expr_walk.call(child) if child.is_a?(
+                  Expressir::Model::ModelElement,
+                )
+              end
+            end
+          end
+          expr_walk.call(ret.expression)
+        end
         refs.uniq
       end
 

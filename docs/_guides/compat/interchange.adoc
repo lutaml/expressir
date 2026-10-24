@@ -22,9 +22,8 @@ pinned in `spec/expressir/commands/compare_spec.rb`.
 
 == Registered divergences
 
-|===
 | ID | Facet | Divergence
-
+|===
 | D-01
 | entity header
 | Real-world corpora omit the entity header delimiter
@@ -67,4 +66,14 @@ pinned in `spec/expressir/commands/compare_spec.rb`.
   unaffected (the importer round trip is pinned in
   `spec/expressir/commands/compare_spec.rb`; the classification in
   `spec/expressir/express/change_classification_spec.rb`).
+
+| D-06
+| Eval built-in coverage
+| Of the ISO 10303-11 clause 15 standard functions, `FORMAT` and
+  `VALUE_UA` are not evaluated, and `ROLESOF` returns the empty set
+  (the evaluated population carries no role metadata); aggregate
+  bounds functions answer for evaluated aggregates only. The
+  generated matrix is
+  xref:eval-builtin-matrix[the eval built-in function matrix], pinned
+  in `spec/expressir/eval/builtin_matrix_spec.rb`.
 |===

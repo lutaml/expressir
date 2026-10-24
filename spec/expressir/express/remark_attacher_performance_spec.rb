@@ -63,7 +63,7 @@ RSpec.describe Expressir::Express::RemarkAttacher do
       # Best-of-3 keeps single-run jitter from breaking the bound on loaded
       # CI runners while still failing on a quadratic rebuild (~16x).
       best_time = lambda do |exp|
-        3.times.map do
+        Array.new(3) do
           GC.start
           Benchmark.realtime { Expressir::Express::Parser.from_exp(exp) }
         end.min

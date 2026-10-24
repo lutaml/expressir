@@ -155,6 +155,15 @@ module Expressir
     desc "population SUBCOMMAND", "Part 21 dataset validation commands"
     subcommand "population", Expressir::Commands::Population
 
+    desc "receipt MANIFEST",
+         "Run schema, dataset and mapping validation over one workspace " \
+         "manifest; emit the unified canonical-JSON receipt"
+    method_option :output, type: :string, aliases: "-o",
+                           desc: "Receipt path (defaults to stdout)"
+    def receipt(manifest_path)
+      Expressir::Commands::Receipt.new(options).run(manifest_path)
+    end
+
     desc "coverage *PATH",
          "List EXPRESS entities and check documentation coverage"
     method_option :format, type: :string,

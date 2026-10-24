@@ -221,7 +221,10 @@ module Expressir
         return [] unless File.exist?(svg_path)
 
         svg = File.read(svg_path)
-        svg_ids = svg.scan(SVG_HREF).flatten.map(&:strip).uniq
+        # Only numeric hyperlink identifiers are svgmap keys; named
+        # hrefs mark imported-schema regions no list item claims.
+        svg_ids = svg.scan(SVG_HREF).flatten.map(&:strip)
+                     .select { |id| id.match?(/\A\d+\z/) }.uniq
         ordinals = items[:ordinals].uniq
         [].concat(
           (ordinals - svg_ids).map do |ordinal|

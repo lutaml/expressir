@@ -104,8 +104,8 @@ module Expressir
         end
       end
 
-      def collect_whole_schema(schema, op, sections)
-        section = section_for(op)
+      def collect_whole_schema(schema, operation, sections)
+        section = section_for(operation)
         Array(schema.declarations).each do |decl|
           next unless decl.respond_to?(:id) && decl.id
 
@@ -130,7 +130,7 @@ module Expressir
         end
       end
 
-      def section_for(op)
+      def section_for(operation)
         case op
         when :added then :additions
         when :removed then :deletions

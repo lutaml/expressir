@@ -78,6 +78,7 @@ grammar are classified with one of these statuses:
 | `entityConstructor` | entity_constructor | aligned | 
 | `entityDecl` | entity_decl | aligned | 
 | `entityHead` | entity_head | aligned | 
+| `entityHeaderTail` | entity_head | decomposed | trivia plus the header delimiter, optional per D-01 (real-world corpora omit it)
 | `entityId` | entity_id | aligned | 
 | `entityRef` | entity_ref | aligned | 
 | `enumerationExtension` | enumeration_extension | aligned | 

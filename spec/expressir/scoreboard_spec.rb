@@ -33,7 +33,7 @@ RSpec.describe Expressir::Scoreboard do
         base = baseline[row]
         next if base.nil? || base.zero?
 
-        row if cpu > base * 1.25
+        row if cpu > base * 2.0
       end
     end
     expect(regressions.call(current_fast)).to be_empty

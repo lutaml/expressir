@@ -14,8 +14,8 @@ across toolchains.
 
 | n | task | tier | status |
 |---|------|------|--------|
-| 01 | comparison interchange: `expressir compare` emitting the `schema.changes` report, round-tripping with the existing importer | compat | done |
-| 02 | compatibility guide + divergence register + `expressir doctor` workspace assessment | compat | todo |
+| 01 | comparison interchange: `expressir compare` emitting the `schema.changes` report, round-tripping with the existing importer | compat | done (#536) |
+| 02 | compatibility guide + divergence register + `expressir doctor` workspace assessment | compat | done (#543) |
 | 03 | cross-implementation scoreboard: interleaved A/B medians per command, published per release | compat | todo |
 | 04 | unified repository receipt: schemas + instance datasets + mapping tables in one deterministic, signing-ready artifact | capability | todo |
 | 05 | P28 configured binding (clauses 8/10) — the TODO.p28/05 promotion | capability | todo |

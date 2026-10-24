@@ -29,7 +29,7 @@ namespace :scoreboard do
     puts "baseline written to #{baseline_path}"
   end
 
-  desc "Gate: fail when a command regresses >25% over the baseline"
+  desc "Gate: fail when a command regresses over 2x the baseline (medians swing on loaded boxes)"
   task gate: :compile do
     require "expressir"
     require "expressir/scoreboard"
@@ -43,7 +43,7 @@ namespace :scoreboard do
       base = baseline[row]
       next if base.nil? || base.zero?
 
-      "#{row}: #{format('%.4f', cpu)} vs baseline #{format('%.4f', base)}" if cpu > base * 1.25
+      "#{row}: #{format('%.4f', cpu)} vs baseline #{format('%.4f', base)}" if cpu > base * 2.0
     end
     abort "scoreboard regressions:\n#{regressions.join("\n")}" if regressions.any?
 

@@ -176,6 +176,10 @@ rules:
 - rule: entityHead
   production: entity_head
   status: aligned
+- rule: entityHeaderTail
+  production: entity_head
+  status: decomposed
+  note: trivia plus the header delimiter, optional per D-01 (real-world corpora omit it)
 - rule: entityId
   production: entity_id
   status: aligned

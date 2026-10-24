@@ -1,0 +1,52 @@
+# frozen_string_literal: true
+
+require "rake"
+require "rspec/core/rake_task"
+
+desc "Print the per-command scoreboard (CPU medians, interleaved)"
+task scoreboard: :compile do
+  require "expressir"
+  require "expressir/scoreboard"
+  puts Expressir::Scoreboard.table(Expressir::Scoreboard.run)
+end
+
+namespace :scoreboard do
+  desc "Print the scoreboard"
+  task print: :compile do
+    require "expressir"
+    require "expressir/scoreboard"
+    puts Expressir::Scoreboard.table(Expressir::Scoreboard.run)
+  end
+
+  baseline_path = "scoreboard-baseline.json"
+
+  desc "Update the committed scoreboard baseline"
+  task update: :compile do
+    require "expressir"
+    require "expressir/scoreboard"
+    File.write(baseline_path,
+               "#{JSON.pretty_generate(Expressir::Scoreboard.run)}\n")
+    puts "baseline written to #{baseline_path}"
+  end
+
+  desc "Gate: fail when a command regresses >25% over the baseline"
+  task gate: :compile do
+    require "expressir"
+    require "expressir/scoreboard"
+    unless File.exist?(baseline_path)
+      abort "no scoreboard baseline at #{baseline_path} — run rake scoreboard:update first"
+    end
+
+    baseline = JSON.parse(File.read(baseline_path))
+    current = Expressir::Scoreboard.run
+    regressions = current.filter_map do |row, cpu|
+      base = baseline[row]
+      next if base.nil? || base.zero?
+
+      "#{row}: #{format('%.4f', cpu)} vs baseline #{format('%.4f', base)}" if cpu > base * 1.25
+    end
+    abort "scoreboard regressions:\n#{regressions.join("\n")}" if regressions.any?
+
+    puts "scoreboard: no regressions over the baseline"
+  end
+end

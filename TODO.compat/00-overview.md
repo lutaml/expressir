@@ -17,11 +17,11 @@ across toolchains.
 | 01 | comparison interchange: `expressir compare` emitting the `schema.changes` report, round-tripping with the existing importer | compat | done (#536) |
 | 02 | compatibility guide + divergence register + `expressir doctor` workspace assessment | compat | done (#543) |
 | 03 | cross-implementation scoreboard: interleaved CPU medians per command (`rake scoreboard`), baseline gate (`scoreboard:gate`) | compat | done (#545) |
-| 04 | unified repository receipt: schemas + instance datasets + mapping tables in one deterministic, signing-ready artifact | capability | todo |
-| 05 | P28 configured binding (clauses 8/10) — the TODO.p28/05 promotion | capability | todo |
-| 06 | semantic change classification: breaking vs additive through the subtype graph (ISO 10303-11 Annex K policy) | capability | todo |
-| 07 | evaluator conformance matrix: ISO 10303-11 Annex B built-in coverage, mutation-tested | capability | todo |
-| 08 | WASM expressir-rs: schema + instance validation in browser/Node | capability | todo |
+| 04 | unified repository receipt: schemas + instance datasets + mapping tables in one deterministic, signing-ready artifact | capability | done (#548) |
+| 05 | P28 configured binding (clauses 8/10) — the TODO.p28/05 promotion | capability | done (#549) |
+| 06 | semantic change classification: breaking vs additive through the subtype graph (ISO 10303-11 Annex K policy) | capability | done (#550) |
+| 07 | evaluator conformance matrix: ISO 10303-11 Annex B built-in coverage, mutation-tested | capability | done (#552) |
+| 08 | WASM expressir-rs: schema + instance validation in browser/Node | capability | done (#551; expressir-rs#14) |
 
 ## Standing rules
 

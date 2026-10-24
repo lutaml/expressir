@@ -440,8 +440,10 @@ module Expressir
         end
 
         def format_declarations_rule(node)
-          # Filter out statements that only exist to hold remarks in rules
-          # (ALIAS/REPEAT with only Null sub-statements, query assignments, or Null statements)
+          # Filter out statements that only exist to hold remarks in
+          # rules (ALIAS/REPEAT with only Null sub-statements, or Null
+          # statements). A query assignment is executable rule code
+          # (#555) — it is never dropped.
           formatted_statements = []
           if node.statements&.length&.positive?
             formatted_statements = node.statements.reject do |stmt|
@@ -451,14 +453,8 @@ module Expressir
               # different content from this formatter.
               if carries_placed_remark?(stmt)
                 false
-              # Filter ALIAS/REPEAT with only Null statements
               elsif stmt.is_a?(Model::Statements::Alias) || stmt.is_a?(Model::Statements::Repeat)
                 stmt.statements&.all?(Model::Statements::Null)
-              # Filter query assignments (assignments with QueryExpression that exist only for remarks)
-              elsif stmt.is_a?(Model::Statements::Assignment) &&
-                  stmt.expression.is_a?(Model::Expressions::QueryExpression)
-                true
-              # Filter Null statements
               elsif stmt.is_a?(Model::Statements::Null)
                 true
               else
@@ -639,11 +635,16 @@ module Expressir
               format(node.applies_to),
               ";",
             ].join,
-            # ISO 10303-11: abstract_supertype_constraint = ABSTRACT ';' —
-            # the ABSTRACT SUPERTYPE form is entity-header syntax.
+            # ISO 10303-11:2004 syntax 314 subtype_constraint_body =
+            # [ abstract_supertype ] ... with syntax 165
+            # abstract_supertype = ABSTRACT SUPERTYPE ';' — the
+            # constraint body carries the SUPERTYPE keyword (unlike
+            # the entity header's abstract_supertype_constraint).
             *if node.abstract
                indent([
                  "ABSTRACT",
+                 " ",
+                 "SUPERTYPE",
                  ";",
                ].join)
              end,

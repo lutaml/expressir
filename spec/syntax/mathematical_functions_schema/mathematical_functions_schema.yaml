@@ -53745,16 +53745,22 @@ schemas:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: COMBINE
               operand1:
-                _class: Expressir::Model::References::SimpleReference
-                id: abstracted_expression_function
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.abstracted_expression_function
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: abstracted_expression_function
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.abstracted_expression_function
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_function
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_function
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
             _class: Expressir::Model::Expressions::FunctionCall
             function:
@@ -53829,14 +53835,20 @@ schemas:
                 id: lit_value
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_atom_based_literal.lit_value
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_literal
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_literal
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: simple_generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: simple_generic_expression
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_b_spline_basis
     remarks:
@@ -53907,18 +53919,26 @@ schemas:
                   id: repeated_knots
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_b_spline_basis.repeated_knots
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_function
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_function
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_b_spline_function
     remarks:
@@ -53985,12 +54005,16 @@ schemas:
                 id: bases
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_b_spline_function.bases
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: maths_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: maths_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -54146,12 +54170,16 @@ schemas:
                   id: shape
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_banded_matrix.shape
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: maths_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: maths_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -54280,12 +54308,16 @@ schemas:
                   id: shape
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_basic_sparse_matrix.shape
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: maths_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: maths_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -54342,14 +54374,20 @@ schemas:
                 id: lit_value
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_binary_literal.lit_value
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_literal
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_literal
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: simple_generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: simple_generic_expression
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_boolean_literal
     remarks:
@@ -54404,23 +54442,35 @@ schemas:
                       id: lit_value
                       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_boolean_literal.lit_value
                   operand2:
-                    _class: Expressir::Model::References::SimpleReference
-                    id: simple_boolean_expression
+                    _class: Expressir::Model::Expressions::FunctionCall
+                    function:
+                      _class: Expressir::Model::References::SimpleReference
+                      id: simple_boolean_expression
                 operand2:
-                  _class: Expressir::Model::References::SimpleReference
-                  id: boolean_expression
+                  _class: Expressir::Model::Expressions::FunctionCall
+                  function:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: boolean_expression
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: expression
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: expression
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: simple_generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: simple_generic_expression
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: generic_literal
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: generic_literal
   - _class: Expressir::Model::Declarations::Function
     id: make_cartesian_complex_number_region
     remarks:
@@ -54484,18 +54534,26 @@ schemas:
                   id: imag_constraint
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_cartesian_complex_number_region.imag_constraint
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_space
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_space
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_complex_number_literal
     remarks:
@@ -54552,14 +54610,20 @@ schemas:
                 id: ipart
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_complex_number_literal.ipart
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_literal
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_literal
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: simple_generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: simple_generic_expression
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_constant_function
     remarks:
@@ -54623,18 +54687,26 @@ schemas:
                   id: src_of_domn
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_constant_function.src_of_domn
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_function
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_function
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_cos_expression
     remarks:
@@ -54681,23 +54753,35 @@ schemas:
                   _class: Expressir::Model::Expressions::BinaryExpression
                   operator: COMBINE
                   operand1:
-                    _class: Expressir::Model::References::SimpleReference
-                    id: cos_expression
+                    _class: Expressir::Model::Expressions::FunctionCall
+                    function:
+                      _class: Expressir::Model::References::SimpleReference
+                      id: cos_expression
                   operand2:
-                    _class: Expressir::Model::References::SimpleReference
-                    id: unary_numeric_call_expression
+                    _class: Expressir::Model::Expressions::FunctionCall
+                    function:
+                      _class: Expressir::Model::References::SimpleReference
+                      id: unary_numeric_call_expression
                 operand2:
-                  _class: Expressir::Model::References::SimpleReference
-                  id: unary_numeric_expression
+                  _class: Expressir::Model::Expressions::FunctionCall
+                  function:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: unary_numeric_expression
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: numeric_expression
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: numeric_expression
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -54809,8 +54893,10 @@ schemas:
               id: operands
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_definite_integral_expression.operands
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_definite_integral_function
     remarks:
@@ -54888,12 +54974,16 @@ schemas:
                 id: upinf
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_definite_integral_function.upinf
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: maths_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: maths_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -54955,18 +55045,26 @@ schemas:
                   id: func_id
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_elementary_function.func_id
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_function
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_function
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_elementary_space
     remarks:
@@ -55019,18 +55117,26 @@ schemas:
                   id: space_id
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_elementary_space.space_id
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_space
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_space
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_environment
     remarks:
@@ -55121,16 +55227,22 @@ schemas:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: COMBINE
             operand1:
-              _class: Expressir::Model::References::SimpleReference
-              id: expression_denoted_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.expression_denoted_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: expression_denoted_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.expression_denoted_function
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: maths_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: maths_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -55204,18 +55316,26 @@ schemas:
                   id: extender
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_extended_tuple_space.extender
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_space
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_space
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_finite_function
     remarks:
@@ -55285,18 +55405,26 @@ schemas:
                   id: pairs
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_finite_function.pairs
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_function
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_function
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_finite_integer_interval
     remarks:
@@ -55356,18 +55484,26 @@ schemas:
                   id: max
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_finite_integer_interval.max
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_space
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_space
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_finite_real_interval
     remarks:
@@ -55451,18 +55587,26 @@ schemas:
                   id: maxclo
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_finite_real_interval.maxclo
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_space
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_space
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_finite_space
     remarks:
@@ -55517,18 +55661,26 @@ schemas:
                   id: members
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_finite_space.members
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_space
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_space
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_function_application
     remarks:
@@ -55626,8 +55778,10 @@ schemas:
                   id: arguments
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_function_application.arguments
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_function_space
     remarks:
@@ -55715,18 +55869,26 @@ schemas:
                   id: range_argument
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_function_space.range_argument
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_space
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_space
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_general_linear_function
     remarks:
@@ -55784,12 +55946,16 @@ schemas:
                 id: sum_index
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_general_linear_function.sum_index
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: maths_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: maths_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -55847,8 +56013,10 @@ schemas:
                     _class: Expressir::Model::Expressions::BinaryExpression
                     operator: COMBINE
                     operand1:
-                      _class: Expressir::Model::References::SimpleReference
-                      id: int_literal
+                      _class: Expressir::Model::Expressions::FunctionCall
+                      function:
+                        _class: Expressir::Model::References::SimpleReference
+                        id: int_literal
                     operand2:
                       _class: Expressir::Model::Expressions::FunctionCall
                       function:
@@ -55859,23 +56027,35 @@ schemas:
                         id: lit_value
                         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_int_literal.lit_value
                   operand2:
-                    _class: Expressir::Model::References::SimpleReference
-                    id: simple_numeric_expression
+                    _class: Expressir::Model::Expressions::FunctionCall
+                    function:
+                      _class: Expressir::Model::References::SimpleReference
+                      id: simple_numeric_expression
                 operand2:
-                  _class: Expressir::Model::References::SimpleReference
-                  id: numeric_expression
+                  _class: Expressir::Model::Expressions::FunctionCall
+                  function:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: numeric_expression
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: expression
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: expression
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: simple_generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: simple_generic_expression
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: generic_literal
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: generic_literal
   - _class: Expressir::Model::Declarations::Function
     id: make_integer_interval_from_min
     remarks:
@@ -55926,18 +56106,26 @@ schemas:
                   id: min
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_integer_interval_from_min.min
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_space
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_space
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_listed_complex_number_data
     remarks:
@@ -56038,18 +56226,26 @@ schemas:
                         _class: Expressir::Model::Literals::Integer
                         value: '2'
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_function
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_function
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_listed_data
     remarks:
@@ -56156,18 +56352,26 @@ schemas:
                         id: values
                         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_listed_data.values
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_function
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_function
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_listed_integer_data
     remarks:
@@ -56261,18 +56465,26 @@ schemas:
                         id: values
                         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_listed_integer_data.values
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_function
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_function
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_listed_product_space
     remarks:
@@ -56328,18 +56540,26 @@ schemas:
                   id: factors
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_listed_product_space.factors
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_space
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_space
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_listed_real_data
     remarks:
@@ -56433,18 +56653,26 @@ schemas:
                         id: values
                         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_listed_real_data.values
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_function
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_function
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_logical_literal
     remarks:
@@ -56492,14 +56720,20 @@ schemas:
                 id: lit_value
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_logical_literal.lit_value
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_literal
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_literal
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: simple_generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: simple_generic_expression
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_maths_enum_literal
     remarks:
@@ -56549,14 +56783,20 @@ schemas:
                 id: lit_value
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_maths_enum_literal.lit_value
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_literal
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_literal
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: simple_generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: simple_generic_expression
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_maths_real_variable
     remarks:
@@ -56620,18 +56860,26 @@ schemas:
                           _class: Expressir::Model::Expressions::BinaryExpression
                           operator: COMBINE
                           operand1:
-                            _class: Expressir::Model::References::SimpleReference
-                            id: expression
+                            _class: Expressir::Model::Expressions::FunctionCall
+                            function:
+                              _class: Expressir::Model::References::SimpleReference
+                              id: expression
                           operand2:
-                            _class: Expressir::Model::References::SimpleReference
-                            id: numeric_expression
+                            _class: Expressir::Model::Expressions::FunctionCall
+                            function:
+                              _class: Expressir::Model::References::SimpleReference
+                              id: numeric_expression
                         operand2:
-                          _class: Expressir::Model::References::SimpleReference
-                          id: simple_numeric_expression
+                          _class: Expressir::Model::Expressions::FunctionCall
+                          function:
+                            _class: Expressir::Model::References::SimpleReference
+                            id: simple_numeric_expression
                       operand2:
-                        _class: Expressir::Model::References::SimpleReference
-                        id: maths_real_variable
-                        base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_real_variable
+                        _class: Expressir::Model::Expressions::FunctionCall
+                        function:
+                          _class: Expressir::Model::References::SimpleReference
+                          id: maths_real_variable
+                          base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_real_variable
                     operand2:
                       _class: Expressir::Model::Expressions::FunctionCall
                       function:
@@ -56646,23 +56894,35 @@ schemas:
                         id: name
                         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_maths_real_variable.name
                   operand2:
-                    _class: Expressir::Model::References::SimpleReference
-                    id: generic_variable
+                    _class: Expressir::Model::Expressions::FunctionCall
+                    function:
+                      _class: Expressir::Model::References::SimpleReference
+                      id: generic_variable
                 operand2:
-                  _class: Expressir::Model::References::SimpleReference
-                  id: simple_generic_expression
+                  _class: Expressir::Model::Expressions::FunctionCall
+                  function:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: simple_generic_expression
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: generic_expression
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: generic_expression
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: real_numeric_variable
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: real_numeric_variable
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: numeric_variable
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: numeric_variable
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: variable
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: variable
   - _class: Expressir::Model::Declarations::Function
     id: make_maths_tuple_literal
     remarks:
@@ -56715,14 +56975,20 @@ schemas:
                 id: lit_value
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_maths_tuple_literal.lit_value
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_literal
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_literal
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: simple_generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: simple_generic_expression
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_mult_expression
     remarks:
@@ -56775,20 +57041,30 @@ schemas:
                 _class: Expressir::Model::Expressions::BinaryExpression
                 operator: COMBINE
                 operand1:
-                  _class: Expressir::Model::References::SimpleReference
-                  id: mult_expression
+                  _class: Expressir::Model::Expressions::FunctionCall
+                  function:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: mult_expression
                 operand2:
-                  _class: Expressir::Model::References::SimpleReference
-                  id: multiple_arity_numeric_expression
+                  _class: Expressir::Model::Expressions::FunctionCall
+                  function:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: multiple_arity_numeric_expression
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: numeric_expression
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: numeric_expression
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -56881,12 +57157,16 @@ schemas:
                 id: finfunc
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_parallel_composed_function.finfunc
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: maths_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: maths_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -56990,8 +57270,10 @@ schemas:
               id: derivand
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_partial_derivative_expression.derivand
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_partial_derivative_function
     remarks:
@@ -57069,12 +57351,16 @@ schemas:
                 id: extend
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_partial_derivative_function.extend
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: maths_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: maths_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -57158,18 +57444,26 @@ schemas:
                   id: dir_constraint
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_polar_complex_number_region.dir_constraint
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_space
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_space
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_rationalize_function
     remarks:
@@ -57210,16 +57504,22 @@ schemas:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: COMBINE
             operand1:
-              _class: Expressir::Model::References::SimpleReference
-              id: rationalize_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.rationalize_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: rationalize_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.rationalize_function
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: maths_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: maths_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -57291,18 +57591,26 @@ schemas:
                   id: minclo
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_real_interval_from_min.minclo
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_space
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_space
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_real_interval_to_max
     remarks:
@@ -57365,18 +57673,26 @@ schemas:
                   id: maxclo
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_real_interval_to_max.maxclo
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_space
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_space
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_real_literal
     remarks:
@@ -57425,8 +57741,10 @@ schemas:
                     _class: Expressir::Model::Expressions::BinaryExpression
                     operator: COMBINE
                     operand1:
-                      _class: Expressir::Model::References::SimpleReference
-                      id: real_literal
+                      _class: Expressir::Model::Expressions::FunctionCall
+                      function:
+                        _class: Expressir::Model::References::SimpleReference
+                        id: real_literal
                     operand2:
                       _class: Expressir::Model::Expressions::FunctionCall
                       function:
@@ -57437,23 +57755,35 @@ schemas:
                         id: lit_value
                         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_real_literal.lit_value
                   operand2:
-                    _class: Expressir::Model::References::SimpleReference
-                    id: simple_numeric_expression
+                    _class: Expressir::Model::Expressions::FunctionCall
+                    function:
+                      _class: Expressir::Model::References::SimpleReference
+                      id: simple_numeric_expression
                 operand2:
-                  _class: Expressir::Model::References::SimpleReference
-                  id: numeric_expression
+                  _class: Expressir::Model::Expressions::FunctionCall
+                  function:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: numeric_expression
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: expression
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: expression
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: simple_generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: simple_generic_expression
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: generic_literal
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: generic_literal
   - _class: Expressir::Model::Declarations::Function
     id: make_regular_table_function
     remarks:
@@ -57578,12 +57908,16 @@ schemas:
                   id: shape
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_regular_table_function.shape
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: maths_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: maths_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -57657,12 +57991,16 @@ schemas:
                 id: start_idxs
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_reindexed_array_function.start_idxs
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: maths_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: maths_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -57751,12 +58089,16 @@ schemas:
                 id: selected_output
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_repackaging_function.selected_output
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: maths_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: maths_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -57829,18 +58171,26 @@ schemas:
                   id: src_of_domn
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_selector_function.src_of_domn
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_function
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_function
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: make_series_composed_function
     remarks:
@@ -57889,16 +58239,22 @@ schemas:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: COMBINE
             operand1:
-              _class: Expressir::Model::References::SimpleReference
-              id: series_composed_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.series_composed_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: series_composed_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.series_composed_function
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: maths_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: maths_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -57954,23 +58310,35 @@ schemas:
                   _class: Expressir::Model::Expressions::BinaryExpression
                   operator: COMBINE
                   operand1:
-                    _class: Expressir::Model::References::SimpleReference
-                    id: sin_expression
+                    _class: Expressir::Model::Expressions::FunctionCall
+                    function:
+                      _class: Expressir::Model::References::SimpleReference
+                      id: sin_expression
                   operand2:
-                    _class: Expressir::Model::References::SimpleReference
-                    id: unary_numeric_call_expression
+                    _class: Expressir::Model::Expressions::FunctionCall
+                    function:
+                      _class: Expressir::Model::References::SimpleReference
+                      id: unary_numeric_call_expression
                 operand2:
-                  _class: Expressir::Model::References::SimpleReference
-                  id: unary_numeric_expression
+                  _class: Expressir::Model::Expressions::FunctionCall
+                  function:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: unary_numeric_expression
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: numeric_expression
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: numeric_expression
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -58098,12 +58466,16 @@ schemas:
                   id: shape
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_standard_table_function.shape
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: maths_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: maths_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -58273,12 +58645,16 @@ schemas:
                   id: shape
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_strict_triangular_matrix.shape
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: maths_function
-              base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: maths_function
+                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_function
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -58342,23 +58718,35 @@ schemas:
                       id: lit_value
                       base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_string_literal.lit_value
                   operand2:
-                    _class: Expressir::Model::References::SimpleReference
-                    id: simple_string_expression
+                    _class: Expressir::Model::Expressions::FunctionCall
+                    function:
+                      _class: Expressir::Model::References::SimpleReference
+                      id: simple_string_expression
                 operand2:
-                  _class: Expressir::Model::References::SimpleReference
-                  id: string_expression
+                  _class: Expressir::Model::Expressions::FunctionCall
+                  function:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: string_expression
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: expression
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: expression
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: simple_generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: simple_generic_expression
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: generic_literal
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: generic_literal
   - _class: Expressir::Model::Declarations::Function
     id: make_unary_minus_expression
     remarks:
@@ -58405,23 +58793,35 @@ schemas:
                   _class: Expressir::Model::Expressions::BinaryExpression
                   operator: COMBINE
                   operand1:
-                    _class: Expressir::Model::References::SimpleReference
-                    id: unary_minus_expression
+                    _class: Expressir::Model::Expressions::FunctionCall
+                    function:
+                      _class: Expressir::Model::References::SimpleReference
+                      id: unary_minus_expression
                   operand2:
-                    _class: Expressir::Model::References::SimpleReference
-                    id: unary_numeric_call_expression
+                    _class: Expressir::Model::Expressions::FunctionCall
+                    function:
+                      _class: Expressir::Model::References::SimpleReference
+                      id: unary_numeric_call_expression
                 operand2:
-                  _class: Expressir::Model::References::SimpleReference
-                  id: unary_numeric_expression
+                  _class: Expressir::Model::Expressions::FunctionCall
+                  function:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: unary_numeric_expression
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: numeric_expression
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: numeric_expression
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_expression
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_expression
         operand2:
           _class: Expressir::Model::Expressions::FunctionCall
           function:
@@ -58494,18 +58894,26 @@ schemas:
                   id: exponent
                   base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.make_uniform_product_space.exponent
               operand2:
-                _class: Expressir::Model::References::SimpleReference
-                id: maths_space
-                base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
+                _class: Expressir::Model::Expressions::FunctionCall
+                function:
+                  _class: Expressir::Model::References::SimpleReference
+                  id: maths_space
+                  base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
             operand2:
-              _class: Expressir::Model::References::SimpleReference
-              id: generic_expression
+              _class: Expressir::Model::Expressions::FunctionCall
+              function:
+                _class: Expressir::Model::References::SimpleReference
+                id: generic_expression
           operand2:
-            _class: Expressir::Model::References::SimpleReference
-            id: generic_literal
+            _class: Expressir::Model::Expressions::FunctionCall
+            function:
+              _class: Expressir::Model::References::SimpleReference
+              id: generic_literal
         operand2:
-          _class: Expressir::Model::References::SimpleReference
-          id: simple_generic_expression
+          _class: Expressir::Model::Expressions::FunctionCall
+          function:
+            _class: Expressir::Model::References::SimpleReference
+            id: simple_generic_expression
   - _class: Expressir::Model::Declarations::Function
     id: max_exists
     remarks:

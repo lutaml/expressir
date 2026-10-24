@@ -92,15 +92,17 @@ round_trips = {
     embedded_survivors: [[nil, "Untagged embedded remark"],
                          [nil, "Untagged embedded remark within entity"]]
   },
-  # All 133 remarks here are tagged. The six that survive sit inside a
-  # FUNCTION or PROCEDURE body and keep their tags; the other 127 are dropped
-  # because nothing outside a body re-emits the binding.
+  # All 133 remarks here are tagged. The seven that survive sit inside a
+  # FUNCTION, PROCEDURE or RULE body and keep their tags; the other 126 are
+  # dropped because nothing outside a body re-emits the binding. The RULE
+  # query survivor came back with #555: the rule's statements render again.
   "spec/syntax/remark.exp" => {
-    lost: {}, tagged_lost: 127,
+    lost: {}, tagged_lost: 126,
     tagged_survivors: [
       ["remark_alias", "function alias scope - function alias"],
       ["remark_repeat", "function repeat scope - function repeat"],
       ["remark_query", "function query scope - function query"],
+      ["remark_query", "rule query scope - rule query"],
       ["remark_alias", "procedure alias scope - procedure alias"],
       ["remark_repeat", "procedure repeat scope - procedure repeat"],
       ["remark_query", "procedure query scope - procedure query"],

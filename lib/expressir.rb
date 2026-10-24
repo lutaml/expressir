@@ -71,6 +71,7 @@ module Expressir
   end
 
   autoload :Benchmark, "#{__dir__}/expressir/benchmark"
+  autoload :Scoreboard, "#{__dir__}/expressir/scoreboard"
   autoload :Coverage, "#{__dir__}/expressir/coverage"
 
   autoload :Express, "#{__dir__}/expressir/express"

@@ -106,10 +106,14 @@ module Expressir
 
       def collect_whole_schema(schema, operation, sections)
         section = section_for(operation)
-        Array(schema.declarations).each do |decl|
-          next unless decl.respond_to?(:id) && decl.id
+        Expressir::Express::SchemaCompare::COLLECTIONS.each do |collection|
+          Array(schema.send(collection)).each do |decl|
+            next unless decl.respond_to?(:id) && decl.id
 
-          sections[section] << object_for(kind_of(decl), decl.id)
+            sections[section] << Expressir::Eengine::ModifiedObject.new(
+              type: KINDS[collection], name: decl.id,
+            )
+          end
         end
       end
 

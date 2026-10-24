@@ -309,7 +309,14 @@ module Expressir
           (entityHead >> entityBody >> tEND_ENTITY >> op_delim).as(:entityDecl)
         end
         rule(:entityHead) do
-          (tENTITY >> entityId >> subsuper >> op_delim).as(:entityHead)
+          # ISO 10303-11 requires the header delimiter, but real-world
+          # corpora (STEPmod resources) omit it — eengine accepts the
+          # form, and the corpus gate demands it (#537). Optional
+          # delimiter: the body's own tokens re-anchor the parse.
+          # Explicit spaces at the seam: the exempt remark rules manage
+          # their own trivia, and the header remark (-- between name
+          # and body) must be consumed here on both engines.
+          (tENTITY >> entityId >> spaces.maybe >> subsuper >> spaces.maybe >> op_delim.maybe).as(:entityHead)
         end
         rule(:entityId) { simpleId.as(:entityId) }
         rule(:entityRef) { entityId.as(:entityRef) }
@@ -689,7 +696,10 @@ module Expressir
           (entityRef | oneOf | (op_leftparen >> supertypeExpression >> op_rightparen)).as(:supertypeTerm)
         end
         rule(:syntax) do
-          (spaces.as(:spaces) >> schemaDecl.repeat(1).as(:schemaDecl) >> spaces.as(:trailer)).as(:syntax)
+          # zero-or-more: remark-only fragments (no SCHEMA wrapper)
+          # parse to an empty model so the facade raises the clean
+          # "no schema found" error (#537 part 2) instead of a dump
+          (spaces.as(:spaces) >> schemaDecl.repeat(0).as(:schemaDecl) >> spaces.as(:trailer)).as(:syntax)
         end
         rule(:tailRemark) do
           (str("--") >> (str("\n").absent? >> any).repeat >> str("\n").maybe).as(:tailRemark)

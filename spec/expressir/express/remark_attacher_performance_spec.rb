@@ -60,8 +60,17 @@ RSpec.describe Expressir::Express::RemarkAttacher do
       big_body = source.sub("SCHEMA perf_schema;\n", "").sub("END_SCHEMA;\n", "")
       big = "SCHEMA perf_schema;\n#{big_body * 4}END_SCHEMA;\n"
 
-      small_time = Benchmark.realtime { Expressir::Express::Parser.from_exp(source) }
-      big_time = Benchmark.realtime { Expressir::Express::Parser.from_exp(big) }
+      # Best-of-3 keeps single-run jitter from breaking the bound on loaded
+      # CI runners while still failing on a quadratic rebuild (~16x).
+      best_time = lambda do |exp|
+        3.times.map do
+          GC.start
+          Benchmark.realtime { Expressir::Express::Parser.from_exp(exp) }
+        end.min
+      end
+
+      small_time = best_time.call(source)
+      big_time = best_time.call(big)
 
       expect(big_time).to be < (small_time * 12)
     end

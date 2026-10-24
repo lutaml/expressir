@@ -17,6 +17,14 @@ module Expressir
   module Scoreboard
     REPS = 9
 
+    # CPU time where the platform provides it (Windows Ruby carries no
+    # CLOCK_PROCESS_CPUTIME_ID — monotonic keeps the gate usable).
+    CLOCK = if Process.const_defined?(:CLOCK_PROCESS_CPUTIME_ID)
+              Process::CLOCK_PROCESS_CPUTIME_ID
+            else
+              Process::CLOCK_MONOTONIC
+            end
+
     module_function
 
     # @return [Hash] command => { reps:, cpu: [median seconds] }
@@ -47,9 +55,9 @@ module Expressir
       warmup.times(&)
       cpu = []
       reps.times do
-        t0 = Process.clock_gettime(Process::CLOCK_PROCESS_CPUTIME_ID)
+        t0 = Process.clock_gettime(CLOCK)
         yield
-        cpu << (Process.clock_gettime(Process::CLOCK_PROCESS_CPUTIME_ID) - t0)
+        cpu << (Process.clock_gettime(CLOCK) - t0)
       end
       median(cpu)
     end

@@ -91,6 +91,15 @@ module Expressir
           exp_file = ::Expressir::Express::Builder.build_with_remarks(ast, source: source,
                                                                            include_source: include_source)
 
+          # issue #537 part 2: a remark-only fragment (no SCHEMA
+          # wrapper — e.g. conversion artifacts) parses to an empty
+          # model; report it as the missing schema it is rather than a
+          # grammar dump.
+          if Array(exp_file&.schemas).empty?
+            raise Expressir::SchemaNotFoundError,
+                  "no schema found in #{schema_file} (remark-only or empty input)"
+          end
+
           transfer_header_to_schema(exp_file, source)
 
           exp_file.path = schema_file
@@ -483,6 +492,13 @@ include_source: nil, root_path: nil, use_native: nil, &block)
         exp_file = ::Expressir::Express::Builder.build_with_remarks(ast,
                                                                     source: content,
                                                                     include_source: include_source)
+
+        # issue #537 part 2: same gate as from_file — a remark-only
+        # fragment is a missing schema, not a grammar dump
+        if Array(exp_file&.schemas).empty?
+          raise Expressir::SchemaNotFoundError,
+                "no schema found in (from string) (remark-only or empty input)"
+        end
 
         transfer_header_to_schema(exp_file, content)
 

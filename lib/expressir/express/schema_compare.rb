@@ -14,7 +14,8 @@ module Expressir
     module SchemaCompare
       # `node` carries the revised declaration for :added and :changed
       # (nil for :removed) so {SchemaPatch.apply} can rebuild.
-      Delta = Struct.new(:op, :path, :node, keyword_init: true)
+      # `classification` is set by {ChangeClassification.apply}.
+      Delta = Struct.new(:op, :path, :node, :classification, keyword_init: true)
 
       # Resolution artifacts and presentation metadata are not part of
       # a declaration's structure.

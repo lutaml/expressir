@@ -48,7 +48,9 @@ RSpec.describe Expressir::Commands::Compare do
   it "emits the schema.changes interchange shape" do
     expect(report_xml).to include("<schema.changes>")
     expect(report_xml).to include("<schema.additions>")
-    expect(report_xml).to include('<modified.object type="ENTITY" name="b">')
+    # the classif attribute rides the classification (TODO.compat/06)
+    expect(report_xml)
+      .to include('<modified.object type="ENTITY" name="b" classif="additive">')
     expect(report_xml).to include("<schema.modifications>")
   end
 

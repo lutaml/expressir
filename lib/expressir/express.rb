@@ -46,6 +46,8 @@ module Expressir
     autoload :SchemaSourceFormatter, "#{__dir__}/express/schema_source_formatter"
     autoload :SchemaCompare, "#{__dir__}/express/schema_compare"
     autoload :SchemaPatch, "#{__dir__}/express/schema_compare"
+    autoload :ChangeClassification,
+             "#{__dir__}/express/change_classification"
     autoload :ScopeResolver, "#{__dir__}/express/scope_resolver"
     autoload :LazyRepository, "#{__dir__}/express/lazy_repository"
     autoload :SmrlXml, "#{__dir__}/express/smrl_xml"

@@ -239,6 +239,19 @@ module Expressir
         when "USEDIN" then usedin_value(arguments[0], arguments[1])
         when "NVL"
           arguments[0].equal?(V::INDETERMINATE) ? arguments[1] : arguments[0]
+        when "BOUNDS"
+          # 15.6 over evaluated aggregates: the LOINDEX..HIBOUND pair
+          V::Aggregate.of(:list, [1, arguments[0].elements.size])
+        when "ROLESOF"
+          # 15.21: no role metadata in the evaluated population — the
+          # empty set (D-06)
+          V::Aggregate.of(:set, [])
+        when "VALUE_IN"
+          # 15.29: membership of a value in an aggregate of values
+          present = Array(arguments[1].elements).any? do |candidate|
+            EX.values_equal?(candidate, arguments[0])
+          end
+          V::Logical.new(value: present ? V::LOGICAL_TRUE : V::LOGICAL_FALSE)
         when "VALUE"
           return arguments[0] if arguments[0].is_a?(Numeric)
 

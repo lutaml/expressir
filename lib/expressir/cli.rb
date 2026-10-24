@@ -136,6 +136,12 @@ module Expressir
       Expressir::Commands::Compare.new(options).run(base_path, revised_path)
     end
 
+    desc "doctor DIR", "Assess a workspace for expressir readiness"
+    option :emit_manifest, type: :string, desc: "Write a starter schema manifest listing the ready schemas"
+    def doctor(path)
+      Expressir::Commands::Doctor.new(options).run(path)
+    end
+
     desc "xml-index DIR", "Write the SMRL index XML for every EXPRESS schema under DIR"
     method_option :output, type: :string, aliases: "-o",
                            desc: "Output file path (defaults to stdout)"

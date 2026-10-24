@@ -177,9 +177,9 @@ rules:
   production: entity_head
   status: aligned
 - rule: entityHeaderTail
-  production: entity_head
-  status: decomposed
-  note: trivia plus the header delimiter, optional per D-01 (real-world corpora omit it)
+  status: internal
+  note: trivia and the optional delimiter after the entity name, split
+    out of entityHead so the header tail is atomic (issue #537)
 - rule: entityId
   production: entity_id
   status: aligned

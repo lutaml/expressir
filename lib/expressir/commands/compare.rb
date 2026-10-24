@@ -131,7 +131,7 @@ module Expressir
       end
 
       def section_for(operation)
-        case op
+        case operation
         when :added then :additions
         when :removed then :deletions
         else :modifications

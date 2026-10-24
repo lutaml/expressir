@@ -311,14 +311,17 @@ module Expressir
         rule(:entityHead) do
           # ISO 10303-11 requires the header delimiter, but real-world
           # corpora (STEPmod resources) omit it — eengine accepts the
-          # form, and the corpus gate demands it (#537). Optional
-          # delimiter: the body's own tokens re-anchor the parse.
-          # Explicit spaces at the seam: the exempt remark rules manage
-          # their own trivia, and the header remark (-- between name
-          # and body) must be consumed here on both engines.
-          (tENTITY >> entityId >> spaces.maybe >> subsuper >> spaces.maybe >> op_delim.maybe).as(:entityHead)
+          # form, and the corpus gate demands it (#537). The tail is
+          # one atomic rule (trivia + optional delimiter) so the
+          # native evaluator consumes the header remark inside a
+          # single Named capture (#537: bare spaces.maybe at this
+          # seam diverges on the native engine).
+          (tENTITY >> entityId >> subsuper >> entityHeaderTail.maybe).as(:entityHead)
         end
         rule(:entityId) { simpleId.as(:entityId) }
+        rule(:entityHeaderTail) do
+          (space.repeat >> op_delim.maybe).as(:entityHeaderTail)
+        end
         rule(:entityRef) { entityId.as(:entityRef) }
         rule(:enumerationExtension) do
           (tBASED_ON >> typeRef >> (tWITH >> enumerationItems).maybe).as(:enumerationExtension)

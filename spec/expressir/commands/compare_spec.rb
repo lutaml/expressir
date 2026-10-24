@@ -8,27 +8,27 @@ require "fileutils"
 # TODO.compat/01: `expressir compare` emits the schema.changes
 # interchange report, and the existing changes importer reads it back
 # — the round trip proves the two-way street.
+OLD_EXPRESS = <<~EXPRESS
+  SCHEMA demo;
+    ENTITY a;
+      x : INTEGER;
+    END_ENTITY;
+  END_SCHEMA;
+EXPRESS
+
+NEW_EXPRESS = <<~EXPRESS
+  SCHEMA demo;
+    ENTITY a;
+      x : INTEGER;
+      y : STRING;
+    END_ENTITY;
+    ENTITY b;
+      code : INTEGER;
+    END_ENTITY;
+  END_SCHEMA;
+EXPRESS
+
 RSpec.describe Expressir::Commands::Compare do
-  OLD_EXPRESS = <<~EXPRESS
-    SCHEMA demo;
-      ENTITY a;
-        x : INTEGER;
-      END_ENTITY;
-    END_SCHEMA;
-  EXPRESS
-
-  NEW_EXPRESS = <<~EXPRESS
-    SCHEMA demo;
-      ENTITY a;
-        x : INTEGER;
-        y : STRING;
-      END_ENTITY;
-      ENTITY b;
-        code : INTEGER;
-      END_ENTITY;
-    END_SCHEMA;
-  EXPRESS
-
   def run_compare(dir)
     base = File.join(dir, "base.exp")
     revised = File.join(dir, "revised.exp")

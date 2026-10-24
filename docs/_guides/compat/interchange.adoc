@@ -57,4 +57,14 @@ pinned in `spec/expressir/commands/compare_spec.rb`.
   invert, tag-source/tag-values, notation, map, inheritance) are
   preserved without effect (ISO 10303-28 clause 8). Pinned in
   `spec/expressir/p28/configuration_spec.rb`.
+
+| D-05
+| schema.changes classification
+| The comparison report's `modified.object` elements carry a
+  `classif` attribute — breaking vs additive per the subtype graph
+  and the ISO 10303-11 Annex K deprecation policy — beyond the
+  interchange minimum. Readers that ignore unknown attributes are
+  unaffected (the importer round trip is pinned in
+  `spec/expressir/commands/compare_spec.rb`; the classification in
+  `spec/expressir/express/change_classification_spec.rb`).
 |===

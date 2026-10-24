@@ -62,6 +62,7 @@ module Expressir
         node = doc.create_element("modified.object")
         attrs = { "type" => obj.type, "name" => obj.name }
         attrs["interfaced.items"] = obj.interfaced_items if obj.interfaced_items
+        attrs["classif"] = obj.classif if obj.classif
         node.set_attributes(attrs)
         if obj.description
           desc = doc.create_element("description")
@@ -121,6 +122,7 @@ module Expressir
         Expressir::Express::SchemaCompare::COLLECTIONS.each do |collection|
           deltas = Expressir::Express::SchemaCompare
             .collection_deltas(base_schema, revised_schema, collection)
+          Expressir::Express::ChangeClassification.apply(deltas, base_schema)
           deltas.each do |delta|
             # an attribute-level delta modifies its entity: it lands
             # in modifications whatever the op
@@ -134,25 +136,27 @@ module Expressir
         end
       end
 
+      def object_for(delta, collection)
+        kind = KINDS[collection]
+        name = delta.path.split(".").last
+        object = if delta.path.split(".").size > 2
+                   # attribute-level delta: the qualified path is the name
+                   Expressir::Eengine::ModifiedObject.new(
+                     type: kind, name: delta.path,
+                     description: "attribute #{delta.op}"
+                   )
+                 else
+                   Expressir::Eengine::ModifiedObject.new(type: kind, name: name)
+                 end
+        object.classif = delta.classification&.value
+        object
+      end
+
       def section_for(operation)
         case operation
         when :added then :additions
         when :removed then :deletions
         else :modifications
-        end
-      end
-
-      def object_for(delta, collection)
-        kind = KINDS[collection]
-        name = delta.path.split(".").last
-        if delta.path.split(".").size > 2
-          # attribute-level delta: the qualified path is the name
-          Expressir::Eengine::ModifiedObject.new(
-            type: kind, name: delta.path,
-            description: "attribute #{delta.op}"
-          )
-        else
-          Expressir::Eengine::ModifiedObject.new(type: kind, name: name)
         end
       end
 

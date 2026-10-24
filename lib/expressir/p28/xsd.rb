@@ -101,11 +101,16 @@ module Expressir
       # @param target_namespace [String] the 7.7.2 namespace URI
       # @param prefix [String] the preprocessor-chosen target-namespace
       #   prefix (7.7.1)
+      # @param configuration [Configuration] clause 8 directives over
+      #   the default binding (naming convention, target namespace,
+      #   explicit renames)
       # @return [String] the serialized derived XML schema
-      def format(schema, target_namespace: P28.default_target_namespace(schema.id),
+      def format(schema, target_namespace: nil,
                  prefix: Uos.default_prefix(schema),
                  base_schema_location: "iso-10303-28-base.xsd",
-                 inline_base: false)
+                 inline_base: false, configuration: Configuration.empty)
+        target_namespace ||= configuration.target_namespace ||
+          P28.default_target_namespace(schema.id)
         ctx = Moxml::Context.new
         doc = ctx.create_document
         root = doc.create_element("xs:schema")
@@ -128,13 +133,15 @@ module Expressir
           root.add_child(import_node(doc, COMMON_NS, base_schema_location))
         end
         schema.types.to_a.each do |type|
-          node = defined_type_node(doc, schema, prefix, type, inline_base)
+          node = defined_type_node(doc, schema, prefix, type, inline_base,
+                                   configuration)
           root.add_child(node) if node
         end
         schema.entities.to_a.each do |entity|
           root.add_child(entity_type_node(doc, schema, prefix, entity,
-                                          inline_base))
-          root.add_child(entity_element_node(doc, prefix, entity, inline_base))
+                                          inline_base, configuration))
+          root.add_child(entity_element_node(doc, prefix, entity, inline_base,
+                                             configuration))
         end
         uos_node(doc, schema, prefix, inline_base).each do |node|
           root.add_child(node)
@@ -252,17 +259,39 @@ module Expressir
         node
       end
 
-      # 7.1.2 identifier mapping.
-      def mapped(express_id)
-        express_id.to_s.sub(/\A./, &:upcase)
+      # 7.1.2 identifier mapping, configured per clause 8: the
+      # naming-convention (initial-upper default) then the explicit
+      # rename, looked up by kind ("types", "entities") and pair
+      # ("Entity.attr" for attributes).
+      def mapped(express_id, config = nil, kind = nil, scope: nil)
+        base = case config&.naming_convention
+               when "camel-case"
+                 express_id.to_s.split("_").each_with_index.map do |part, i|
+                   i.zero? ? part : part.sub(/\A./, &:upcase)
+                 end.join
+               when "preserve-case"
+                 express_id.to_s
+               else
+                 express_id.to_s.sub(/\A./, &:upcase)
+               end
+        return base if config.nil?
+
+        renamed =
+          case kind
+          when :type then config.scopes.types[express_id.to_s]
+          when :entity then config.scopes.entities[express_id.to_s]
+          when :attribute then config.scopes.attributes[scope]
+          end
+        renamed || base
       end
 
       # 7.3: defined types over simple/enum/aggregates.
-      def defined_type_node(doc, schema, prefix, type, inline)
+      def defined_type_node(doc, schema, prefix, type, inline, config = nil)
         underlying = type.underlying_type
         case kind_of(schema, underlying)
         when :enumeration
-          simple_type_node(doc, prefix, type.id, "xs:string") do |restriction|
+          simple_type_node(doc, prefix, mapped(type.id, config, :type),
+                           "xs:string") do |restriction|
             underlying.items.to_a.each do |item|
               facet = doc.create_element("xs:enumeration")
               facet.set_attributes("value" => item.id.to_s)
@@ -270,16 +299,17 @@ module Expressir
             end
           end
         when :simple
-          simple_type_node(doc, prefix, type.id,
+          simple_type_node(doc, prefix, mapped(type.id, config, :type),
                            simple_type_name(schema, underlying, inline))
         when :aggregate
-          list_type_node(doc, schema, prefix, type.id, underlying, inline)
+          list_type_node(doc, schema, prefix, type.id, underlying, inline,
+                         config)
         end
       end
 
       def simple_type_node(doc, _prefix, express_id, base)
         node = doc.create_element("xs:simpleType")
-        node.set_attributes("name" => mapped(express_id))
+        node.set_attributes("name" => express_id.to_s)
         restriction = doc.create_element("xs:restriction")
         restriction.set_attributes("base" => base)
         node.add_child(restriction)
@@ -291,28 +321,33 @@ module Expressir
 
       # 7.3.2/8.2.2.3: aggregates of simple base types derive from
       # xs:list over the base's item type.
-      def list_type_node(doc, schema, _prefix, express_id, aggregate, inline)
+      def list_type_node(doc, schema, _prefix, express_id, aggregate, inline,
+                         config = nil)
         node = doc.create_element("xs:simpleType")
-        node.set_attributes("name" => mapped(express_id))
+        node.set_attributes("name" => mapped(express_id, config, :type))
         list = doc.create_element("xs:list")
         base = aggregate.base_type
-        list.set_attributes("itemType" => simple_type_name(schema, base, inline))
+        list.set_attributes(
+          "itemType" => simple_type_name(schema, base, inline, config),
+        )
         node.add_child(list)
         node
       end
 
       # 7.6.4: extension of exp:Entity, xs:all over the closure
       # union, abstract per ABSTRACT SUPERTYPE.
-      def entity_type_node(doc, schema, prefix, entity, inline)
+      def entity_type_node(doc, schema, prefix, entity, inline, config = nil)
         node = doc.create_element("xs:complexType")
-        node.set_attributes("name" => mapped(entity.id))
+        node.set_attributes("name" => mapped(entity.id, config, :entity))
         node.set_attributes("abstract" => "true") if entity.abstract
         content = doc.create_element("xs:complexContent")
         extension = doc.create_element("xs:extension")
         extension.set_attributes("base" => exp_name("Entity", inline, prefix))
         all_node = doc.create_element("xs:all")
         closure_attributes(entity).each do |attribute|
-          accessor = accessor_node(doc, schema, prefix, attribute, inline)
+          scope = "#{entity.id}.#{attribute.id}"
+          accessor = accessor_node(doc, schema, prefix, attribute, inline,
+                                   config, scope)
           all_node.add_child(accessor) if accessor
         end
         extension.add_child(all_node)
@@ -323,11 +358,12 @@ module Expressir
 
       # 7.6.5: the global instance element, in the exp:Entity
       # substitution group.
-      def entity_element_node(doc, prefix, entity, inline)
+      def entity_element_node(doc, prefix, entity, inline, config = nil)
+        name = mapped(entity.id, config, :entity)
         node = doc.create_element("xs:element")
         node.set_attributes(
-          "name" => mapped(entity.id),
-          "type" => "#{prefix}:#{mapped(entity.id)}",
+          "name" => name,
+          "type" => "#{prefix}:#{name}",
           "substitutionGroup" => exp_name("Entity", inline, prefix),
         )
         node
@@ -336,19 +372,22 @@ module Expressir
       # 7.6.3: one accessor element per mapped attribute; OPTIONAL
       # attributes are minOccurs="0"; aggregates carry their
       # occurrence bounds.
-      def accessor_node(doc, schema, prefix, attribute, inline)
+      def accessor_node(doc, schema, prefix, attribute, inline, config = nil,
+                        scope = nil)
         type = attribute.type
         optional = attribute.respond_to?(:optional) && attribute.optional
         kind = kind_of(schema, type)
         node = doc.create_element("xs:element")
-        node.set_attributes("name" => mapped(attribute.id))
+        node.set_attributes("name" => mapped(attribute.id, config, :attribute,
+                                             scope: scope))
         node.set_attributes("minOccurs" => "0") if optional
         case kind
         when :entity
           target = entity_id_of(schema, type)
-          node.set_attributes("type" => "#{prefix}:#{mapped(target)}")
+          node.set_attributes("type" => "#{prefix}:#{mapped(target, config, :entity)}")
         when :entity_aggregate
-          node.add_child(aggregate_content_node(doc, schema, prefix, type))
+          node.add_child(aggregate_content_node(doc, schema, prefix, type,
+                                                config))
         when :aggregate
           node.add_child(inline_list_node(doc, schema, type, inline))
         when :select
@@ -356,7 +395,8 @@ module Expressir
                 "SELECT accessor '#{attribute.id}' is outside the v1 " \
                 "default derivation (TODO.p28/03 boundary)"
         else
-          node.set_attributes("type" => simple_type_name(schema, type, inline))
+          node.set_attributes("type" => simple_type_name(schema, type, inline,
+                                                         config))
         end
         node
       end
@@ -375,15 +415,16 @@ module Expressir
       # Aggregates of entity base: the accessor wraps unqualified
       # component elements typed by the component entity (9.2.6.1
       # worked example shape).
-      def aggregate_content_node(doc, schema, prefix, aggregate)
+      def aggregate_content_node(doc, schema, prefix, aggregate, config = nil)
         base = aggregate.base_type
         target = entity_id_of(schema, base)
+        name = mapped(target, config, :entity)
         content = doc.create_element("xs:complexType")
         sequence = doc.create_element("xs:sequence")
         component = doc.create_element("xs:element")
         component.set_attributes(
-          "name" => mapped(target),
-          "type" => "#{prefix}:#{mapped(target)}",
+          "name" => name,
+          "type" => "#{prefix}:#{name}",
           "minOccurs" => "0",
           "maxOccurs" => "unbounded",
         )
@@ -502,7 +543,7 @@ module Expressir
       end
 
       # 7.2.1: the XML Schema data type for a simple/defined face.
-      def simple_type_name(_schema, type, inline)
+      def simple_type_name(_schema, type, inline, config = nil)
         case type
         when Model::DataTypes::Boolean then "xs:boolean"
         when Model::DataTypes::Logical then exp_name("logical", inline)
@@ -518,7 +559,7 @@ module Expressir
             return "xs:string" # xs:list-derived aggregate
           end
 
-          mapped(type_id(type)).to_s
+          mapped(type_id(type), config, :type).to_s
         end
       end
     end

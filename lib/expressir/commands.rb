@@ -27,6 +27,7 @@ module Expressir
     autoload :Compare, "#{__dir__}/commands/compare"
     autoload :Doctor, "#{__dir__}/commands/doctor"
     autoload :Population, "#{__dir__}/commands/population"
+    autoload :Receipt, "#{__dir__}/commands/receipt"
     autoload :Manifest, "#{__dir__}/commands/manifest"
     autoload :MappingValidate, "#{__dir__}/commands/mapping_validate"
     autoload :Xsd, "#{__dir__}/commands/xsd"

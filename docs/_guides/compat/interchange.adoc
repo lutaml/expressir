@@ -47,4 +47,14 @@ pinned in `spec/expressir/commands/compare_spec.rb`.
   namespace prefixes (lutaml-model#997 family). The model layer stays
   lutaml-model; `from_xml` is unaffected. Pinned in
   `spec/expressir/commands/compare_spec.rb`.
+
+| D-04
+| P28 binding configuration
+| The clause 8 configuration document is parsed in full, but the
+  derived XML schema applies only the naming-convention, target
+  namespace and explicit renames; the remaining directives (exp-type,
+  exp-attribute, content, flatten, sparse, tagless, keep, use-id,
+  invert, tag-source/tag-values, notation, map, inheritance) are
+  preserved without effect (ISO 10303-28 clause 8). Pinned in
+  `spec/expressir/p28/configuration_spec.rb`.
 |===

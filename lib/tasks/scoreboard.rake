@@ -15,10 +15,16 @@ namespace :scoreboard do
   task print: :compile do
     require "expressir"
     require "expressir/scoreboard"
-    puts Expressir::Scoreboard.table(Expressir::Scoreboard.run)
+    rows = Expressir::Scoreboard.run
+    puts Expressir::Scoreboard.table(rows)
+    if (path = ENV.fetch("SCOREBOARD_JSON", nil))
+      File.write(path, JSON.generate(rows))
+    end
   end
 
-  baseline_path = "scoreboard-baseline.json"
+  # The local baseline is machine-specific; CI points the same gate at
+  # its own committed measurement (see .github/workflows/performance-release.yml).
+  baseline_path = ENV.fetch("SCOREBOARD_BASELINE", "scoreboard-baseline.json")
 
   desc "Update the committed scoreboard baseline"
   task update: :compile do
@@ -34,7 +40,8 @@ namespace :scoreboard do
     require "expressir"
     require "expressir/scoreboard"
     unless File.exist?(baseline_path)
-      abort "no scoreboard baseline at #{baseline_path} — run rake scoreboard:update first"
+      abort "no scoreboard baseline at #{baseline_path} — " \
+            "run rake scoreboard:update (or set SCOREBOARD_BASELINE) first"
     end
 
     baseline = JSON.parse(File.read(baseline_path))

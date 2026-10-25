@@ -40,4 +40,16 @@ RSpec.describe Expressir::Express::Parser do
     expect(f.parameters).to eq([])
     expect(g.parameters).to be_nil
   end
+
+  it "parses zero-argument declarations through the core path" do
+    require "tmpdir"
+    Dir.mktmpdir("t") do |dir|
+      File.write(File.join(dir, "t.exp"),
+                 "SCHEMA t;\nFUNCTION f() : INTEGER;\nRETURN (1);\nEND_FUNCTION;\nPROCEDURE p();\nEND_PROCEDURE;\nEND_SCHEMA;\n")
+      repo = described_class.from_file(File.join(dir, "t.exp"))
+
+      expect(repo.schemas.first.functions.first.id).to eq("f")
+      expect(repo.schemas.first.procedures.first.id).to eq("p")
+    end
+  end
 end

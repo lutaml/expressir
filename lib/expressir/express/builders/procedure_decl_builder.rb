@@ -52,9 +52,16 @@ module Expressir
         private
 
         def build_parameters(head)
-          return [] unless head && head[:list_of_procedure_head_parameter]
+          # nil = no parameter parentheses in the source; [] = explicit
+          # `p()` (the list is optional within the parens, syntax 316)
+          group = head && head[:function_head_parameter_group]
+          # the parslet-compatible transform carries a failed .maybe as []
+          return nil if group.nil? || (group.respond_to?(:empty?) && group.empty?)
 
-          params_data = head[:list_of_procedure_head_parameter]
+          params_data = group[:list_of_procedure_head_parameter]
+          return [] unless params_data
+
+          params_data = head[:list_of_procedure_head_parameter] if params_data.nil?
           if params_data.is_a?(Hash)
             param_values = params_data[:procedure_head_parameter]
             params_data = param_values.is_a?(Array) ? param_values : [param_values]

@@ -54,9 +54,16 @@ module Expressir
         private
 
         def build_parameters(head)
-          return [] unless head && head[:list_of_formal_parameter]
+          # nil = no parameter parentheses in the source; [] = explicit
+          # `f()` (the list is optional within the parens, syntax 253)
+          group = head && head[:function_head_parameter_group]
+          # the parslet-compatible transform carries a failed .maybe as []
+          return nil if group.nil? || (group.respond_to?(:empty?) && group.empty?)
 
-          params_data = head[:list_of_formal_parameter]
+          params_data = group[:list_of_formal_parameter]
+          return [] unless params_data
+
+          params_data = head[:list_of_formal_parameter] if params_data.nil?
           if params_data.is_a?(Hash) && params_data[:formal_parameter]
             params_data = [params_data[:formal_parameter]]
           elsif params_data.is_a?(Array)

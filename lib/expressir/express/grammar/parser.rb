@@ -360,7 +360,9 @@ module Expressir
         end
         rule(:functionHead) do
           (tFUNCTION >> functionId >>
-           (op_leftparen >> (formalParameter >> (op_delim >> formalParameter).repeat).as(:listOf_formalParameter) >> op_rightparen).maybe >>
+           # syntax 253: the parameter list is optional within the
+           # parentheses, so FUNCTION f() is legal (#558)
+           (op_leftparen >> (formalParameter >> (op_delim >> formalParameter).repeat).as(:listOf_formalParameter).maybe >> op_rightparen).maybe.as(:function_head_parameter_group) >>
            op_colon >> parameterType >> op_delim.as(:op_delim2)).as(:functionHead)
         end
         rule(:functionId) { simpleId.as(:functionId) }
@@ -527,8 +529,10 @@ module Expressir
         end
         rule(:procedureHead) do
           (tPROCEDURE >> procedureId >>
+           # syntax 316: the parameter list is optional within the
+           # parentheses, so PROCEDURE p() is legal (#558)
            (op_leftparen >> (procedureHeadParameter >>
-                             (op_delim >> procedureHeadParameter).repeat).as(:listOf_procedureHeadParameter) >> op_rightparen).maybe >> op_delim.as(:op_delim2)).as(:procedureHead)
+                             (op_delim >> procedureHeadParameter).repeat).as(:listOf_procedureHeadParameter).maybe >> op_rightparen).maybe.as(:function_head_parameter_group) >> op_delim.as(:op_delim2)).as(:procedureHead)
         end
         rule(:procedureId) { simpleId.as(:procedureId) }
         rule(:procedureRef) { procedureId.as(:procedureRef) }

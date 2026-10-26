@@ -442,10 +442,29 @@ fn value_to_ruby(ruby: &Ruby, cache: &mut ClassCache, wire: &Wire) -> Result<mag
             })?;
             let klass = cache.resolve(ruby, class_name)?;
             let attrs = RHash::new();
+            let mut null_members: Vec<String> = Vec::new();
             for (key, item) in map {
+                if matches!(item, Wire::Null) {
+                    // instantiate coerces nil collections to []; a null
+                    // wire member means the source had no value (e.g. no
+                    // parameter parentheses, expressir#558), so it goes
+                    // through the setter afterwards, which keeps nil
+                    null_members.push(key.clone());
+                    continue;
+                }
                 attrs.aset(ruby.sym_new(key.as_str()), value_to_ruby(ruby, cache, item)?)?;
             }
-            klass.funcall::<_, _, magnus::Value>("instantiate", (attrs,))
+            let object = klass.funcall::<_, _, magnus::Value>("instantiate", (attrs,))?;
+            for key in &null_members {
+                // the compiled writers coerce nil collections to [];
+                // the raw ivar keeps the null (no parentheses in the
+                // source, expressir#558)
+                let ivar = format!("@{key}");
+                let nil = ruby.qnil().as_value();
+                let _: magnus::Value =
+                    object.funcall("instance_variable_set", (ivar.as_str(), nil))?;
+            }
+            Ok(object)
         }
     }
 }

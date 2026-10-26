@@ -889,6 +889,20 @@ module Expressir
           end
         end
 
+        # A prefixed intermediate segment (wr:WR1.ip:IP2.__note) splits
+        # wrong under the generic prefix-normalized walk below, so the
+        # segment-aware resolution handles that class: resolve the
+        # longest owned prefix (honoring the wr:/ip:/ur: prefixes
+        # find() strips) and attach the first unresolved segment as the
+        # remark item id on that node — `<rule>.wr:WR1.__note` lands a
+        # `__note` item on WR1 (#562), not a `wr` item on the rule.
+        segments = path.split(".")
+        if segments.length > 2 &&
+            segments[0..-2].any? { |segment| segment.include?(":") } && (owned = resolve_longest_owned_prefix(model, path, schema_ids))
+          parent, item_id = owned
+          return create_item_at_parent(parent, item_id)
+        end
+
         clean_path = normalize_path(path)
         parts = clean_path.split(".")
         return nil if parts.length < 2
@@ -919,6 +933,41 @@ module Expressir
 
         path_part, _, item_suffix = path.rpartition(":")
         "#{path_part}.#{item_suffix}"
+      end
+
+      # Walks the tag's segments from a schema root, honoring the
+      # prefix forms find() strips (wr:WR1, ip:IP1, ur:UR1), and
+      # returns [node, first_unresolved_segment] for the deepest node
+      # the model owns. Nil when nothing resolves.
+      def resolve_longest_owned_prefix(model, path, schema_ids)
+        candidate_paths = [path]
+        schema_ids.each do |schema_id|
+          candidate_paths << "#{schema_id}.#{path}"
+        end
+
+        candidate_paths.each do |candidate|
+          segments = candidate.split(".")
+          next if segments.empty?
+
+          owned_path = segments.first
+          node = safe_find(model, owned_path)
+          next unless node
+
+          segments[1..].each_with_index do |segment, index|
+            stepped = safe_find(model, "#{owned_path}.#{segment}")
+            # a lazily created remark item is never a path owner
+            stepped = nil if stepped.is_a?(Model::Declarations::RemarkItem)
+            if stepped.nil?
+              return [node, segment] if index.positive?
+
+              break
+            end
+            owned_path = "#{owned_path}.#{segment}"
+            node = stepped
+          end
+        end
+
+        nil
       end
 
       def create_item_at_parent(parent, item_id)

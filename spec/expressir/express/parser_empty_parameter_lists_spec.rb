@@ -52,4 +52,23 @@ RSpec.describe Expressir::Express::Parser do
       expect(repo.schemas.first.procedures.first.id).to eq("p")
     end
   end
+
+  it "distinguishes and round trips the parens on the core path" do
+    require "tmpdir"
+    source = "SCHEMA t;\nFUNCTION f() : INTEGER;\nRETURN (1);\nEND_FUNCTION;\nFUNCTION g : INTEGER;\nRETURN (1);\nEND_FUNCTION;\nPROCEDURE p();\nEND_PROCEDURE;\nPROCEDURE q;\nEND_PROCEDURE;\nEND_SCHEMA;\n"
+    Dir.mktmpdir("t") do |dir|
+      File.write(File.join(dir, "t.exp"), source)
+      repo = described_class.from_file(File.join(dir, "t.exp"))
+      f, g = repo.schemas.first.functions
+
+      expect(f.parameters).to eq([])
+      expect(g.parameters).to be_nil
+
+      out = repo.to_s
+      expect(out).to include("FUNCTION f() : INTEGER;")
+      expect(out).to include("FUNCTION g : INTEGER;")
+      expect(out).to include("PROCEDURE p();")
+      expect(out).to include("PROCEDURE q;")
+    end
+  end
 end

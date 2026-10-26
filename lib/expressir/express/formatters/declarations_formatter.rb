@@ -245,7 +245,9 @@ module Expressir
               "FUNCTION",
               " ",
               node.id,
-              *if node.parameters&.length&.positive?
+              # nil parameters = the source had no parentheses;
+              # [] = an explicit `f()` — the parens are written back
+              *if node.parameters
                  parameter_indent = indent_char * "FUNCTION #{node.id}(".length
                  [
                    "(",
@@ -371,7 +373,9 @@ module Expressir
               "PROCEDURE",
               " ",
               node.id,
-              *if node.parameters&.length&.positive?
+              # see format_declarations_function: nil = no parens,
+              # [] = explicit `p()`
+              *if node.parameters
                  parameter_indent = indent_char * "PROCEDURE #{node.id}(".length
                  [
                    "(",

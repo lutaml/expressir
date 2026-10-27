@@ -370,4 +370,37 @@ RSpec.describe Expressir::Commands::Coverage do
       end
     end
   end
+
+  describe "FUNCTION:INNER exclusion" do
+    let(:source) do
+      <<~EXP
+        SCHEMA inner_function_coverage_schema;
+          FUNCTION outer_fn (outer_param : STRING): STRING;
+            FUNCTION inner_fn (inner_param : STRING): STRING;
+              RETURN (inner_param);
+            END_FUNCTION;
+            RETURN (inner_fn(outer_param));
+          END_FUNCTION;
+        END_SCHEMA;
+      EXP
+    end
+
+    def entities_for(skip_types)
+      repo = Expressir::Express::Parser.from_exp(source)
+      schema = repo.schemas.first
+      Expressir::Coverage.find_entities(schema, skip_types)
+    end
+
+    it "counts the inner function subtree without the exclusion" do
+      ids = entities_for([]).map(&:id)
+
+      expect(ids).to contain_exactly("outer_fn", "outer_param", "inner_fn", "inner_param")
+    end
+
+    it "excludes the inner function together with its parameters" do
+      ids = entities_for(["FUNCTION:INNER"]).map(&:id)
+
+      expect(ids).to contain_exactly("outer_fn", "outer_param")
+    end
+  end
 end

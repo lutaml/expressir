@@ -465,9 +465,11 @@ module Expressir
         elsif entity_class == "Expressir::Model::Declarations::Type" && type_subtype_skips.any?
           entity_subtype = get_type_subtype(entity)
           type_subtype_skips.include?(entity_subtype)
-        # Check FUNCTION:INNER exclusions
-        elsif entity_class == "Expressir::Model::Declarations::Function" && function_subtype_skips.include?("INNER")
-          inner_function?(entity)
+        # Check FUNCTION:INNER exclusions — the whole inner-function
+        # subtree is excluded, its parameters and nested declarations
+        # included, not only the function entity itself
+        elsif function_subtype_skips.include?("INNER") && within_inner_function?(entity)
+          true
         else
           false
         end
@@ -505,6 +507,20 @@ module Expressir
       parent.is_a?(Expressir::Model::Declarations::Function) ||
         parent.is_a?(Expressir::Model::Declarations::Rule) ||
         parent.is_a?(Expressir::Model::Declarations::Procedure)
+    end
+
+    # Check if an entity is an inner function or a declaration belonging to one
+    # (its parameters, nested types, nested functions, ...)
+    # @param entity [Expressir::Model::ModelElement] The entity to check
+    # @return [Boolean] True if the entity or any of its ancestors is an inner function
+    def self.within_inner_function?(entity)
+      current = entity
+      while current
+        return true if current.is_a?(Model::Declarations::Function) && inner_function?(current)
+
+        current = current.respond_to?(:parent) ? current.parent : nil
+      end
+      false
     end
   end
 end

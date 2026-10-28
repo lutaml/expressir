@@ -372,6 +372,16 @@ module Expressir
       # 7.6.3: one accessor element per mapped attribute; OPTIONAL
       # attributes are minOccurs="0"; aggregates carry their
       # occurrence bounds.
+      #
+      # Entity-typed accessors carry the REF form (exp:Entity —
+      # content-free, the ref/href IDREF attributes): a P21
+      # entity-valued position holds a reference (#N), never inline
+      # content, and the full validated form stays on the GLOBAL
+      # entity element (substitutionGroup exp:Entity). Typing the
+      # accessor with the entity's own complexType demanded that
+      # content inside by-reference occurrences — `<Widget ref="id2"/>`
+      # could not validate (#565, exposed by leptris 1.9.383 fixing
+      # the empty-instance bypass #1860).
       def accessor_node(doc, schema, prefix, attribute, inline, config = nil,
                         scope = nil)
         type = attribute.type
@@ -383,11 +393,14 @@ module Expressir
         node.set_attributes("minOccurs" => "0") if optional
         case kind
         when :entity
-          target = entity_id_of(schema, type)
-          node.set_attributes("type" => "#{prefix}:#{mapped(target, config, :entity)}")
+          # exp:Entity is abstract — an element cannot use it as its
+          # type directly (libxml2 rejects the schema); the concrete
+          # ref form is an anonymous empty extension carrying the
+          # base's ref/href attributes.
+          node.add_child(ref_form_node(doc, inline, prefix))
         when :entity_aggregate
           node.add_child(aggregate_content_node(doc, schema, prefix, type,
-                                                config))
+                                                config, inline: inline))
         when :aggregate
           node.add_child(inline_list_node(doc, schema, type, inline))
         when :select
@@ -415,21 +428,38 @@ module Expressir
       # Aggregates of entity base: the accessor wraps unqualified
       # component elements typed by the component entity (9.2.6.1
       # worked example shape).
-      def aggregate_content_node(doc, schema, prefix, aggregate, config = nil)
+      def aggregate_content_node(doc, schema, prefix, aggregate, config = nil,
+                                 inline: false)
         base = aggregate.base_type
         target = entity_id_of(schema, base)
         name = mapped(target, config, :entity)
         content = doc.create_element("xs:complexType")
         sequence = doc.create_element("xs:sequence")
         component = doc.create_element("xs:element")
+        # Aggregate members hold REFERENCES to entity instances
+        # (P21 #N ids), so the component element carries the
+        # content-free ref form (exp:Entity) — the full validated
+        # form stays on the global entity element (#565).
         component.set_attributes(
           "name" => name,
-          "type" => "#{prefix}:#{name}",
           "minOccurs" => "0",
           "maxOccurs" => "unbounded",
         )
+        component.add_child(ref_form_node(doc, inline, prefix))
         sequence.add_child(component)
         content.add_child(sequence)
+        content
+      end
+
+      # The concrete ref form: an anonymous empty extension of
+      # exp:Entity — content-free, carrying the base's ref/href
+      # attributes. Entity-valued positions in a P21 instance hold
+      # references (#N ids), never inline content (#565).
+      def ref_form_node(doc, inline, prefix)
+        content = doc.create_element("xs:complexContent")
+        extension = doc.create_element("xs:extension")
+        extension.set_attributes("base" => exp_name("Entity", inline, prefix))
+        content.add_child(extension)
         content
       end
 

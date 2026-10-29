@@ -105,7 +105,9 @@ jobs:
           TAG=${TAG:-$(gh release view --json tagName --jq .tagName)}
           echo "Reporting against $TAG"
           gh release view "$TAG" --json body --jq .body > /tmp/body.md
-          ruby -e '
+          # bundle exec: the expressir gem is linked through the Gemfile's
+          # gemspec — bare ruby cannot load it (LoadError, 2026-10-26+ runs)
+          bundle exec ruby -e '
             require "json"
             require "expressir"
             require "expressir/scoreboard"

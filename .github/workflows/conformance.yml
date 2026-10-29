@@ -15,6 +15,10 @@ jobs:
           repository: metanorma/iso-10303-stepmod
           path: stepmod
           sparse-checkout: data/resources
+          # the stepmod corpus is a PRIVATE metanorma repo; the default
+          # GITHUB_TOKEN is scoped to lutaml/expressir and got a 404 on
+          # every scheduled run since the workflow was added (2026-10-21)
+          token: ${{ secrets.LUTAML_CI_PAT_TOKEN }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"

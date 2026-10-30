@@ -5,7 +5,7 @@ module Expressir
       # - section 13.4 Case statement
       class CaseAction < ModelElement
         child_attributes :expression
-        attribute :labels, ModelElement, collection: true
+        attribute :labels, ModelElement, collection: true, initialize_empty: true
         attribute :statement, ModelElement
         attribute :_class, :string, default: -> { self.class.name }
 

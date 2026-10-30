@@ -25,14 +25,14 @@ module Expressir
 
         attribute :file, :string
         attribute :version, SchemaVersion
-        attribute :interfaces, Interface, collection: true
-        attribute :constants, Constant, collection: true
-        attribute :types, ModelElement, collection: true
-        attribute :entities, Entity, collection: true
-        attribute :subtype_constraints, SubtypeConstraint, collection: true
-        attribute :functions, Function, collection: true
-        attribute :rules, Rule, collection: true
-        attribute :procedures, Procedure, collection: true
+        attribute :interfaces, Interface, collection: true, initialize_empty: true
+        attribute :constants, Constant, collection: true, initialize_empty: true
+        attribute :types, ModelElement, collection: true, initialize_empty: true
+        attribute :entities, Entity, collection: true, initialize_empty: true
+        attribute :subtype_constraints, SubtypeConstraint, collection: true, initialize_empty: true
+        attribute :functions, Function, collection: true, initialize_empty: true
+        attribute :rules, Rule, collection: true, initialize_empty: true
+        attribute :procedures, Procedure, collection: true, initialize_empty: true
         attribute :header, :string
         attribute :_class, :string, default: -> { self.class.name }
         attribute :selected, :boolean, default: false

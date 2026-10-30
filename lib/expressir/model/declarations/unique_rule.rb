@@ -6,7 +6,7 @@ module Expressir
       class UniqueRule < ModelElement
         include Identifier
 
-        attribute :attributes, ModelElement, collection: true
+        attribute :attributes, ModelElement, collection: true, initialize_empty: true
         attribute :_class, :string, default: -> { self.class.name }
 
         key_value do

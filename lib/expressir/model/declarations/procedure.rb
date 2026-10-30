@@ -12,15 +12,15 @@ module Expressir
                               :constants, :variables, :statements,
                               :remark_items
 
-        attribute :parameters, Parameter, collection: true
-        attribute :types, ModelElement, collection: true
-        attribute :entities, Entity, collection: true
-        attribute :subtype_constraints, SubtypeConstraint, collection: true
-        attribute :functions, Function, collection: true
-        attribute :procedures, Procedure, collection: true
-        attribute :constants, Constant, collection: true
-        attribute :variables, Variable, collection: true
-        attribute :statements, ModelElement, collection: true
+        attribute :parameters, Parameter, collection: true, initialize_empty: true
+        attribute :types, ModelElement, collection: true, initialize_empty: true
+        attribute :entities, Entity, collection: true, initialize_empty: true
+        attribute :subtype_constraints, SubtypeConstraint, collection: true, initialize_empty: true
+        attribute :functions, Function, collection: true, initialize_empty: true
+        attribute :procedures, Procedure, collection: true, initialize_empty: true
+        attribute :constants, Constant, collection: true, initialize_empty: true
+        attribute :variables, Variable, collection: true, initialize_empty: true
+        attribute :statements, ModelElement, collection: true, initialize_empty: true
         attribute :_class, :string, default: -> { self.class.name }
 
         key_value do

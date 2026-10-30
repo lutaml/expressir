@@ -75,7 +75,7 @@ module Expressir
                                   polymorphic_class: true
       attribute :source, :string
       attribute :source_offset, :integer
-      attribute :untagged_remarks, RemarkInfo, collection: true
+      attribute :untagged_remarks, RemarkInfo, collection: true, initialize_empty: true
 
       POLYMORPHIC_CLASS_MAP = {
         "Expressir::Model::Cache" => "Expressir::Model::Cache",

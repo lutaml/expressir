@@ -143,7 +143,7 @@ RSpec.describe "Formatter architecture" do
   describe "mutation-free formatting" do
     it "does not mutate nil attributes to empty arrays" do
       unique_rule = Expressir::Model::Declarations::UniqueRule.new(id: "ur1")
-      expect(unique_rule.attributes).to be_nil
+      expect(unique_rule.attributes).to eq([])
 
       entity = Expressir::Model::Declarations::Entity.new(
         id: "e",
@@ -160,7 +160,7 @@ RSpec.describe "Formatter architecture" do
       formatter = Expressir::Express::Formatter.new
       formatter.format(schema)
 
-      expect(unique_rule.attributes).to be_nil
+      expect(unique_rule.attributes).to eq([])
     end
 
     it "does not mutate nil applies_to on rule" do

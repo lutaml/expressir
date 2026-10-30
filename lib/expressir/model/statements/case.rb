@@ -15,7 +15,7 @@ module Expressir
 
         child_attributes :expression
         attribute :expression, ModelElement
-        attribute :actions, CaseAction, collection: true
+        attribute :actions, CaseAction, collection: true, initialize_empty: true
         attribute :otherwise_statement, ModelElement
         attribute :_class, :string, default: -> { self.class.name }
 

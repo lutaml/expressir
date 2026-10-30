@@ -17,7 +17,7 @@ module Expressir
       collection_attributes :schemas
 
       attribute :path, :string
-      attribute :schemas, Declarations::Schema, collection: true,
+      attribute :schemas, Declarations::Schema, collection: true, initialize_empty: true,
                                                 initialize_empty: true
       attribute :_class, :string, default: -> { self.class.name }
 

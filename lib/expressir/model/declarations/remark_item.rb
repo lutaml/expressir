@@ -7,7 +7,7 @@ module Expressir
         include HasRemarks
 
         attribute :id, :string
-        attribute :remarks, :string, collection: true
+        attribute :remarks, :string, collection: true, initialize_empty: true
         attribute :_class, :string, default: -> { self.class.name }
 
         key_value do

@@ -9,7 +9,7 @@ module Expressir
 
         collection_attributes :statements
         attribute :expression, ModelElement
-        attribute :statements, ModelElement, collection: true
+        attribute :statements, ModelElement, collection: true, initialize_empty: true
         attribute :_class, :string, default: -> { self.class.name }
 
         key_value do

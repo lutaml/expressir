@@ -8,11 +8,11 @@ module Expressir
         mod.include(HasRemarks)
 
         mod.attribute :id, :string
-        mod.attribute :remarks, :string, collection: true
+        mod.attribute :remarks, :string, collection: true, initialize_empty: true
         mod.attribute :remark_items,
-                      ::Expressir::Model::Declarations::RemarkItem, collection: true
+                      ::Expressir::Model::Declarations::RemarkItem, collection: true, initialize_empty: true
         mod.attribute :untagged_remarks, ::Expressir::Model::RemarkInfo,
-                      collection: true
+                      collection: true, initialize_empty: true
 
         mod.key_value do
           map "id", to: :id

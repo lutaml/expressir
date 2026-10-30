@@ -8,7 +8,7 @@ module Expressir
 
         attribute :applies_to, ModelElement
         attribute :abstract, :boolean
-        attribute :total_over, ModelElement, collection: true
+        attribute :total_over, ModelElement, collection: true, initialize_empty: true
         attribute :supertype_expression, ModelElement
         attribute :_class, :string, default: -> { self.class.name }
 

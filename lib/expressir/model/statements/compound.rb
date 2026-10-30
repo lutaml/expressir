@@ -7,7 +7,7 @@ module Expressir
         include Statement
 
         collection_attributes :statements
-        attribute :statements, ModelElement, collection: true
+        attribute :statements, ModelElement, collection: true, initialize_empty: true
         attribute :_class, :string, default: -> { self.class.name }
 
         key_value do

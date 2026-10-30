@@ -7,7 +7,7 @@ module Expressir
         attribute :extensible, :boolean
         attribute :generic_entity, :boolean
         attribute :based_on, ModelElement
-        attribute :items, ModelElement, collection: true
+        attribute :items, ModelElement, collection: true, initialize_empty: true
         attribute :_class, :string, default: -> { self.class.name }
 
         key_value do

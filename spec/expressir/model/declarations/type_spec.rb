@@ -164,7 +164,7 @@ RSpec.describe Expressir::Model::Declarations::Type do
       end
 
       it "handles no where rules" do
-        expect(type_without_rules.where_rules).to be_nil
+        expect(type_without_rules.where_rules).to eq([])
       end
     end
   end

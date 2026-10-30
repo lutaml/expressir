@@ -8,8 +8,8 @@ module Expressir
         include HasRemarks
 
         attribute :id, :string
-        attribute :remarks, :string, collection: true
-        attribute :remark_items, RemarkItem, collection: true
+        attribute :remarks, :string, collection: true, initialize_empty: true
+        attribute :remark_items, RemarkItem, collection: true, initialize_empty: true
         attribute :base_item, ModelElement
         attribute :_class, :string, default: -> { self.class.name }
 

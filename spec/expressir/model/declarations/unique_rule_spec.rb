@@ -168,7 +168,7 @@ RSpec.describe Expressir::Model::Declarations::UniqueRule do
       end
 
       it "handles empty rule" do
-        expect(empty_rule.attributes).to be_nil
+        expect(empty_rule.attributes).to eq([])
       end
 
       it "handles missing id" do

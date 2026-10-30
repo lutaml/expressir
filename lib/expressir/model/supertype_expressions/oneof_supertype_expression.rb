@@ -4,7 +4,7 @@ module Expressir
       # Specified in ISO 10303-11:2004
       # - section 9.2.5.2 ONEOF
       class OneofSupertypeExpression < ModelElement
-        attribute :operands, ModelElement, collection: true
+        attribute :operands, ModelElement, collection: true, initialize_empty: true
         attribute :_class, :string, default: -> { self.class.name }
 
         key_value do

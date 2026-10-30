@@ -5,7 +5,7 @@ module Expressir
       # - section 9.3 Schema
       class SchemaVersion < ModelElement
         attribute :value, :string
-        attribute :items, SchemaVersionItem, collection: true
+        attribute :items, SchemaVersionItem, collection: true, initialize_empty: true
         attribute :_class, :string, default: -> { self.class.name }
 
         key_value do

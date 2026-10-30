@@ -13,9 +13,9 @@ module Expressir
                               :remark_items
 
         attribute :underlying_type, ModelElement
-        attribute :where_rules, WhereRule, collection: true
+        attribute :where_rules, WhereRule, collection: true, initialize_empty: true
         attribute :informal_propositions, InformalPropositionRule,
-                  collection: true
+                  collection: true, initialize_empty: true
         attribute :_class, :string, default: -> { self.class.name }
 
         key_value do

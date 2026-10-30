@@ -7,7 +7,7 @@ module Expressir
         include Statement
 
         attribute :procedure, ModelElement
-        attribute :parameters, ModelElement, collection: true
+        attribute :parameters, ModelElement, collection: true, initialize_empty: true
         attribute :_class, :string, default: -> { self.class.name }
 
         key_value do

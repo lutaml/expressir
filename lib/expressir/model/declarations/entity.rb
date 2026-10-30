@@ -16,19 +16,19 @@ module Expressir
 
         attribute :abstract, :boolean
         attribute :supertype_expression, ModelElement
-        attribute :subtype_of, ModelElement, collection: true
+        attribute :subtype_of, ModelElement, collection: true, initialize_empty: true
         # Heterogeneous by design: Attribute, DerivedAttribute, and
         # InverseAttribute all live here (the builders concatenate the
         # three clauses in declaration order). The ModelElement base
         # keeps from_hash polymorphic via the _class marker, exactly
         # like the Ruby-built model.
-        attribute :attributes, ModelElement, collection: true
-        attribute :derived_attributes, DerivedAttribute, collection: true
-        attribute :inverse_attributes, InverseAttribute, collection: true
-        attribute :unique_rules, UniqueRule, collection: true
-        attribute :where_rules, WhereRule, collection: true
+        attribute :attributes, ModelElement, collection: true, initialize_empty: true
+        attribute :derived_attributes, DerivedAttribute, collection: true, initialize_empty: true
+        attribute :inverse_attributes, InverseAttribute, collection: true, initialize_empty: true
+        attribute :unique_rules, UniqueRule, collection: true, initialize_empty: true
+        attribute :where_rules, WhereRule, collection: true, initialize_empty: true
         attribute :informal_propositions, InformalPropositionRule,
-                  collection: true
+                  collection: true, initialize_empty: true
         attribute :_class, :string, default: -> { self.class.name }
 
         key_value do

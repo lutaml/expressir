@@ -12,7 +12,7 @@ module Expressir
 
         attribute :kind, :string, values: %w[USE REFERENCE]
         attribute :schema, ModelElement
-        attribute :items, InterfaceItem, collection: true
+        attribute :items, InterfaceItem, collection: true, initialize_empty: true
         attribute :_class, :string, default: -> { self.class.name }
 
         # Registers :items with the tree-walker registry: the position index

@@ -5,7 +5,7 @@ module Expressir
       # - section 12.9 Aggregate initializer
       class AggregateInitializer < ModelElement
         child_attributes :items
-        attribute :items, ModelElement, collection: true
+        attribute :items, ModelElement, collection: true, initialize_empty: true
         attribute :_class, :string, default: -> { self.class.name }
 
         key_value do

@@ -114,7 +114,9 @@ module Expressir
             return parent.attribute("select").value if parent.element? &&
               parent.name == "entity"
 
-            parent = parent.parent
+            # The walk stops at the document node: moxml 0.6 adapters do
+            # not answer #parent on it.
+            parent = parent.is_a?(Moxml::Document) ? nil : parent.parent
           end
           nil
         end

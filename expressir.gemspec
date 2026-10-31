@@ -47,7 +47,10 @@ Gem::Specification.new do |spec|
   spec.add_dependency "benchmark-ips"
   spec.add_dependency "csv"
   spec.add_dependency "liquid", "~> 5"
-  spec.add_dependency "lutaml-model", "~> 0.8.114"
+  # 0.8.151 is the first lutaml-model whose moxml constraint (>= 0.5.139,
+  # < 0.7) admits the moxml 0.6 line; earlier releases pin moxml
+  # ~> 0.5.139 and cannot co-resolve with the moxml floor below.
+  spec.add_dependency "lutaml-model", "~> 0.8.151"
   spec.add_dependency "moxml", "~> 0.6.0"
   spec.add_dependency "paint"
   spec.add_dependency "parsanol", "~> 1.3.9", ">= 1.3.89"

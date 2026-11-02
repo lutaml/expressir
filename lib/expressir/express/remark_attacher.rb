@@ -1129,8 +1129,7 @@ module Expressir
       end
 
       def safe_reset_children_by_id(obj)
-        return unless obj
-        return unless obj.is_a?(Model::ScopeContainer)
+        return unless obj.respond_to?(:reset_children_by_id)
 
         obj.reset_children_by_id
       end

@@ -64,4 +64,11 @@ RSpec.describe Expressir::Express::Parser do
     expect(items(schema.entities.first.where_rules.first))
       .to eq("__note:n1" => ["a rule note"])
   end
+
+  it "finds an id-bearing note by the path an express link uses" do
+    expect(repo.find("ref_schema.check.__note:two").remarks)
+      .to eq(["first note"])
+    expect(repo.find("ref_schema.widget.wr:WR1.__note:n1").remarks)
+      .to eq(["a rule note"])
+  end
 end

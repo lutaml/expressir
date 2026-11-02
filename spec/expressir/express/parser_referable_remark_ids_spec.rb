@@ -71,4 +71,19 @@ RSpec.describe Expressir::Express::Parser do
     expect(repo.find("ref_schema.widget.wr:WR1.__note:n1").remarks)
       .to eq(["a rule note"])
   end
+
+  it "gives figures, tables and schema-level notes their ids too" do
+    other = described_class.from_exp(<<~EXP)
+      SCHEMA s;
+      ENTITY w; size : INTEGER; END_ENTITY;
+      END_SCHEMA;
+      (*"s.w.__figure:f1" a figure *)
+      (*"s.w.__table:t1" a table *)
+      (*"s.__note:n1" a schema note *)
+    EXP
+
+    expect(other.find("s.w.__figure:f1").remarks).to eq(["a figure"])
+    expect(other.find("s.w.__table:t1").remarks).to eq(["a table"])
+    expect(other.find("s.__note:n1").remarks).to eq(["a schema note"])
+  end
 end

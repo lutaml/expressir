@@ -261,6 +261,7 @@ module Expressir
           schema.file_basename = File.basename(schema_file, ".exp")
         end
       end
+
       # The model layer declares no source_end_offset; the wire carries
       # it for the attacher, and the from_hash fallback must not see it.
       def self.strip_end_offsets!(obj)

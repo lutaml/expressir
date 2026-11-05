@@ -288,7 +288,11 @@ fn batch_next(ruby: &Ruby, stream: &BatchStream) -> Result<magnus::Value, Error>
                 .expect("wires")
                 .push((path.clone(), wire.clone()));
             let mut cache = stream.cache.lock().expect("class cache");
-            let model = value_to_ruby(ruby, &mut cache, &wire)?;
+            // The model layer declares no source_end_offset; the wire
+            // carries it for the attacher only.
+            let mut hydrate_wire = wire.clone();
+            strip_end_offsets(&mut hydrate_wire);
+            let model = value_to_ruby(ruby, &mut cache, &hydrate_wire)?;
             triple.push(model)?;
             triple.push(ruby.qnil())?;
         }
@@ -388,6 +392,10 @@ fn set_hydrate_one(ruby: &Ruby, reader: &SetReader, wire_path: String) -> Result
         Error::new(ruby.exception_runtime_error(), format!("{}: {e}", file.wire_path))
     })?;
     let mut cache = reader.cache.lock().expect("class cache");
+    // The stored wire keeps the attacher's source_end_offset; the model
+    // layer does not declare it.
+    let mut wire = wire;
+    strip_end_offsets(&mut wire);
     let model = value_to_ruby(ruby, &mut cache, &wire)?;
     let pair = RArray::with_capacity(2);
     pair.push(ruby.str_new(&file.wire_path))?;
@@ -408,6 +416,10 @@ fn set_next(ruby: &Ruby, reader: &SetReader) -> Result<magnus::Value, Error> {
         Error::new(ruby.exception_runtime_error(), format!("{}: {e}", file.wire_path))
     })?;
     let mut cache = reader.cache.lock().expect("class cache");
+    // The stored wire keeps the attacher's source_end_offset; the model
+    // layer does not declare it.
+    let mut wire = wire;
+    strip_end_offsets(&mut wire);
     let model = value_to_ruby(ruby, &mut cache, &wire)?;
     let pair = RArray::with_capacity(2);
     pair.push(ruby.str_new(&file.wire_path))?;

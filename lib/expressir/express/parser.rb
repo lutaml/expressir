@@ -208,14 +208,21 @@ module Expressir
           source = strip_bom(File.read(file))
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
+          remarks_attached = false
           exp_file =
             begin
-              Core.parse_to_model(source, schema_file).tap(&:wire_parents)
+              if Core.respond_to?(:parse_to_model_attached)
+                remarks_attached = true
+                Core.parse_to_model_attached(source, schema_file)
+                  .tap(&:wire_parents)
+              else
+                Core.parse_to_model(source, schema_file).tap(&:wire_parents)
+              end
             rescue NotImplementedError
               begin
-                Model::ExpFile.from_hash(
-                  Core.parse_to_model_hash(source, schema_file),
-                )&.tap(&:wire_parents)
+                wire = JSON.parse(Core.parse_to_model_hash(source, schema_file))
+                strip_end_offsets!(wire)
+                Model::ExpFile.from_hash(wire)&.tap(&:wire_parents)
               rescue StandardError => e
                 raise Error::SchemaParseFailure.new(schema_file, e)
               end
@@ -224,7 +231,8 @@ module Expressir
             end
 
           finalize_loaded_file(exp_file, source, schema_file,
-                               include_source: include_source)
+                               include_source: include_source,
+                               remarks_attached: remarks_attached)
 
           unless skip_references
             Expressir::Benchmark.measure_references do
@@ -240,8 +248,10 @@ module Expressir
       # Shared post-parse steps for every core-path file: remark
       # attachment, header-remark transfer, and path wiring.
       def self.finalize_loaded_file(exp_file, source, schema_file,
-                                    include_source: nil)
-        RemarkAttacher.new(source).attach(exp_file) if source && include_source != false
+                                    include_source: nil, remarks_attached: false)
+        if source && include_source != false && !remarks_attached
+          RemarkAttacher.new(source).attach(exp_file)
+        end
 
         transfer_header_to_schema(exp_file, source)
 
@@ -251,6 +261,21 @@ module Expressir
           schema.file_basename = File.basename(schema_file, ".exp")
         end
       end
+
+      # The model layer declares no source_end_offset; the wire carries
+      # it for the attacher, and the from_hash fallback must not see it.
+      def self.strip_end_offsets!(obj)
+        case obj
+        when Hash
+          obj.delete("source_end_offset")
+          obj.each_value { |value| strip_end_offsets!(value) }
+        when Array
+          obj.each { |value| strip_end_offsets!(value) }
+        end
+        obj
+      end
+      private_class_method :strip_end_offsets!
+
       private_class_method :finalize_loaded_file
 
       # Whether the native batch compiler is usable: the extension is

@@ -40,6 +40,14 @@ module Expressir
         JSON.parse(::Expressir::Core.parse_to_model_hash(source, path))
       end
 
+      # Parse EXPRESS source into the hydrated model with the remark
+      # attachment run in the core (issue #20): the wire carries the
+      # attached remarks before hydration, so the Ruby RemarkAttacher
+      # never runs on this lane.
+      def self.parse_to_model_attached(source, path)
+        ::Expressir::Core.parse_to_model_attached(source, path)
+      end
+
       # Scan remarks (issue #20): an Array of Hashes mirroring
       # RemarkScanner::Remark's fields (position, end_position, line,
       # text, tag, format), straight from the Rust scanner.

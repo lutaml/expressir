@@ -78,6 +78,27 @@ fn scan_remarks(ruby: &Ruby, source: String) -> Result<magnus::Value, Error> {
     Ok(array.as_value())
 }
 
+/// Removes `source_end_offset` from the wire before hydration: the
+/// model layer declares no such attribute, and lutaml-model's
+/// instantiate rejects unknown keys. The offsets serve the remark
+/// attacher, which has already run by the time this is called.
+fn strip_end_offsets(value: &mut Wire) {
+    match value {
+        Wire::Object(map) => {
+            map.remove("source_end_offset");
+            for (_key, item) in map.iter_mut() {
+                strip_end_offsets(item);
+            }
+        }
+        Wire::Array(items) => {
+            for item in items {
+                strip_end_offsets(item);
+            }
+        }
+        _ => {}
+    }
+}
+
 /// Resolves `Expressir::Model::*` classes by their wire `_class` name,
 /// caching each lookup (the class set is closed).
 #[derive(Default)]
@@ -267,7 +288,11 @@ fn batch_next(ruby: &Ruby, stream: &BatchStream) -> Result<magnus::Value, Error>
                 .expect("wires")
                 .push((path.clone(), wire.clone()));
             let mut cache = stream.cache.lock().expect("class cache");
-            let model = value_to_ruby(ruby, &mut cache, &wire)?;
+            // The model layer declares no source_end_offset; the wire
+            // carries it for the attacher only.
+            let mut hydrate_wire = wire.clone();
+            strip_end_offsets(&mut hydrate_wire);
+            let model = value_to_ruby(ruby, &mut cache, &hydrate_wire)?;
             triple.push(model)?;
             triple.push(ruby.qnil())?;
         }
@@ -367,6 +392,10 @@ fn set_hydrate_one(ruby: &Ruby, reader: &SetReader, wire_path: String) -> Result
         Error::new(ruby.exception_runtime_error(), format!("{}: {e}", file.wire_path))
     })?;
     let mut cache = reader.cache.lock().expect("class cache");
+    // The stored wire keeps the attacher's source_end_offset; the model
+    // layer does not declare it.
+    let mut wire = wire;
+    strip_end_offsets(&mut wire);
     let model = value_to_ruby(ruby, &mut cache, &wire)?;
     let pair = RArray::with_capacity(2);
     pair.push(ruby.str_new(&file.wire_path))?;
@@ -387,6 +416,10 @@ fn set_next(ruby: &Ruby, reader: &SetReader) -> Result<magnus::Value, Error> {
         Error::new(ruby.exception_runtime_error(), format!("{}: {e}", file.wire_path))
     })?;
     let mut cache = reader.cache.lock().expect("class cache");
+    // The stored wire keeps the attacher's source_end_offset; the model
+    // layer does not declare it.
+    let mut wire = wire;
+    strip_end_offsets(&mut wire);
     let model = value_to_ruby(ruby, &mut cache, &wire)?;
     let pair = RArray::with_capacity(2);
     pair.push(ruby.str_new(&file.wire_path))?;
@@ -465,13 +498,29 @@ fn value_to_ruby(ruby: &Ruby, cache: &mut ClassCache, wire: &Wire) -> Result<mag
             Ok(array.as_value())
         }
         Wire::Object(map) => {
-            let class_name = map.get("_class").and_then(Wire::as_str).ok_or_else(|| {
-                Error::new(
-                    ruby.exception_runtime_error(),
-                    "expressir-core: model node without _class",
-                )
-            })?;
-            let klass = cache.resolve(ruby, class_name)?;
+            // RemarkInfo wires carry no `_class` (the Ruby map does not
+            // render one); their key set is closed, so recognize them
+            // structurally and construct through the declared class.
+            let is_remark_info = !map.contains_key("_class")
+                && map
+                    .keys()
+                    .all(|k| matches!(k.as_str(), "text" | "format" | "tag" | "placement" | "region" | "source_offset"));
+            let class_name = if is_remark_info {
+                "Expressir::Model::RemarkInfo".to_string()
+            } else {
+                map.get("_class").and_then(Wire::as_str).ok_or_else(|| {
+                    let mut keys: Vec<&str> = map.keys().map(String::as_str).collect();
+                    keys.sort_unstable();
+                    Error::new(
+                        ruby.exception_runtime_error(),
+                        format!(
+                            "expressir-core: model node without _class (keys: {:?})",
+                            keys
+                        ),
+                    )
+                })?.to_string()
+            };
+            let klass = cache.resolve(ruby, &class_name)?;
             let attrs = RHash::new();
             let mut null_members: Vec<String> = Vec::new();
             for (key, item) in map {
@@ -508,6 +557,26 @@ fn model_object(ruby: &Ruby, source: String, path: String) -> Result<magnus::Val
         )
     })?;
     let wire = tree.to_model_json(&path).map_err(|e| parse_error(ruby, e))?;
+    let mut wire = wire;
+    strip_end_offsets(&mut wire);
+    let mut cache = ClassCache::default();
+    value_to_ruby(ruby, &mut cache, &wire)
+}
+
+/// `parse_to_model` with the remark attachment run in the core
+/// (issue #20): the scanner + attacher produce the attached wire before
+/// hydration, so the Ruby lane never runs RemarkAttacher.
+fn model_object_attached(ruby: &Ruby, source: String, path: String) -> Result<magnus::Value, Error> {
+    let tree = ParsedTree::parse(&source).map_err(|e| {
+        Error::new(
+            ruby.exception_runtime_error(),
+            format!("expressir-core: parse error: {e:?}"),
+        )
+    })?;
+    let mut wire = tree.to_model_json(&path).map_err(|e| parse_error(ruby, e))?;
+    expressir_rs::attach::attach_tagged_remarks(&mut wire, &source);
+    expressir_rs::attach::attach_untagged_remarks(&mut wire, &source);
+    strip_end_offsets(&mut wire);
     let mut cache = ClassCache::default();
     value_to_ruby(ruby, &mut cache, &wire)
 }
@@ -517,6 +586,7 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     let module = ruby.define_module("Expressir")?.define_module("Core")?;
     module.define_singleton_method("parse_to_model_hash", function!(model_json, 2))?;
     module.define_singleton_method("parse_to_model", function!(model_object, 2))?;
+    module.define_singleton_method("parse_to_model_attached", function!(model_object_attached, 2))?;
     module.define_singleton_method("scan_remarks", function!(scan_remarks, 1))?;
     module.define_singleton_method("write_set", function!(set_write, 3))?;
     let batch_class = module.define_class("BatchStream", ruby.class_object())?;

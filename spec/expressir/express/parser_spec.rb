@@ -3,7 +3,7 @@ require "tempfile"
 require_relative "../../../lib/expressir/express/parser"
 
 RSpec.describe Expressir::Express::Parser do
-  describe "parser infrastructure" do
+  describe "parser infrastructure", :ruby_lane do
     describe ".native_available?" do
       it "reports native parser availability" do
         # native_available? is defined on Parser::Parser (inner class)
@@ -135,7 +135,7 @@ RSpec.describe Expressir::Express::Parser do
       end.to raise_error(Errno::ENOENT)
     end
 
-    it "parses a file (single.exp)" do |_example|
+    it "parses a file (single.exp)", :ruby_lane do |_example|
       exp_file = Expressir.root_path.join("spec", "syntax", "single.exp")
       yaml_file = Expressir.root_path.join("spec", "syntax",
                                            "single_parser.yaml")
@@ -151,7 +151,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
     end
 
-    it "parses a file (multiple.exp)" do |_example|
+    it "parses a file (multiple.exp)", :ruby_lane do |_example|
       exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
       yaml_file = Expressir.root_path.join("spec", "syntax",
                                            "multiple_parser.yaml")
@@ -167,7 +167,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
     end
 
-    it "parses a file (mathematical_functions_schema.exp) with remark_items" do |_example|
+    it "parses a file (mathematical_functions_schema.exp) with remark_items", :ruby_lane do |_example|
       exp_file = Expressir.root_path.join(
         "spec", "syntax", "mathematical_functions_schema",
         "mathematical_functions_schema.exp"
@@ -188,7 +188,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
     end
 
-    it "parses a file (structural_response_definition_schema.exp) with remark_items" do |_example|
+    it "parses a file (structural_response_definition_schema.exp) with remark_items", :ruby_lane do |_example|
       exp_file = Expressir.root_path.join(
         "spec", "syntax",
         "structural_response_definition_schema",
@@ -211,7 +211,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
     end
 
-    it "parses a file (syntax.exp)" do |_example|
+    it "parses a file (syntax.exp)", :ruby_lane do |_example|
       exp_file = Expressir.root_path.join("spec", "syntax", "syntax.exp")
       yaml_file = Expressir.root_path.join("spec", "syntax",
                                            "syntax_parser.yaml")
@@ -242,7 +242,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(repo.schemas.length).to be > 0
     end
 
-    it "parses a file (remark.exp)" do |_example|
+    it "parses a file (remark.exp)", :ruby_lane do |_example|
       exp_file = Expressir.root_path.join("spec", "syntax", "remark.exp")
       yaml_file = Expressir.root_path.join("spec", "syntax",
                                            "remark_parser.yaml")
@@ -258,7 +258,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
     end
 
-    it "parses a file including original source (multiple.exp)" do |_example|
+    it "parses a file including original source (multiple.exp)", :ruby_lane do |_example|
       exp_file = Expressir.root_path.join("spec", "syntax", "multiple.exp")
 
       repo = described_class.from_file(exp_file,
@@ -326,7 +326,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(entity.source).to eq(expected_entity.strip)
     end
 
-    it "parses a file (without_ending_newline.exp)" do |_example|
+    it "parses a file (without_ending_newline.exp)", :ruby_lane do |_example|
       exp_file = Expressir.root_path.join("spec", "syntax",
                                           "without_ending_newline.exp")
       yaml_file = Expressir.root_path.join("spec", "syntax",
@@ -343,7 +343,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
     end
 
-    it "parses a file and assigns derived attributes (derived_attribute.exp)" do |_example|
+    it "parses a file and assigns derived attributes (derived_attribute.exp)", :ruby_lane do |_example|
       exp_file = Expressir.root_path.join("spec", "syntax",
                                           "derived_attribute.exp")
 
@@ -361,7 +361,7 @@ RSpec.describe Expressir::Express::Parser do
       )
     end
 
-    it "parses a file and assigns derived attributes (derived_attribute_deep.exp)" do |_example|
+    it "parses a file and assigns derived attributes (derived_attribute_deep.exp)", :ruby_lane do |_example|
       exp_file = Expressir.root_path.join("spec", "syntax",
                                           "derived_attribute_deep.exp")
 
@@ -374,7 +374,7 @@ RSpec.describe Expressir::Express::Parser do
       expect(entity.attributes.map(&:id)).to include("country_population")
     end
 
-    it "parses a file and assigns informal propositions (geometry_schema.exp)" do |_example|
+    it "parses a file and assigns informal propositions (geometry_schema.exp)", :ruby_lane do |_example|
       exp_file = Expressir.root_path.join("spec", "syntax",
                                           "geometry_schema.exp")
 

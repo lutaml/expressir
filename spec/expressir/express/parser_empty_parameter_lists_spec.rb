@@ -6,7 +6,7 @@ require "spec_helper"
 # ISO 10303-11:2004 syntax 253 (function_head) and 316
 # (procedure_head) — so `FUNCTION f() : T;` and `PROCEDURE p();`
 # parse on both engines and the empty parentheses round trip.
-RSpec.describe Expressir::Express::Parser do
+RSpec.describe Expressir::Express::Parser, :ruby_lane do
   def parse(source, **options)
     described_class.from_exp(source, **options)
   end

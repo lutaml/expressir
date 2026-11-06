@@ -103,6 +103,15 @@ module Expressir
           @cached_schema_grammar_json
         end
 
+        # Lane retirement (expressir#587): EXPRESSIR_DISABLE_RUBY_PARSE
+        # turns the Ruby parse lanes (the artifact replay and the DSL
+        # evaluation) into hard failures, so the suite can prove the
+        # native lane stands alone. The lanes remain emergency
+        # fallbacks without the env.
+        def self.ruby_parse_disabled?
+          ENV["EXPRESSIR_DISABLE_RUBY_PARSE"] == "1"
+        end
+
         # Parse using native engine with Rust-side transformation (fastest)
         #
         # This method provides ~17x speedup over pure Ruby parsing.
@@ -151,6 +160,10 @@ module Expressir
         PARG_COMPONENTS_DIR = File.join(__dir__, "parg")
 
         def self.parse_artifact(source)
+          if ruby_parse_disabled?
+            raise NotImplementedError,
+                  "Ruby parse lanes disabled (EXPRESSIR_DISABLE_RUBY_PARSE)"
+          end
           raise LoadError, "Edition-2 artifact not available" unless artifact_available?
 
           @parser_mutex.synchronize do
@@ -168,8 +181,15 @@ module Expressir
         # The Ruby-lane parse: the edition-2 artifact first, the DSL
         # parser as fallback (issue #578 STEP 4).
         def self.parse_ruby(source)
+          if ruby_parse_disabled?
+            raise NotImplementedError,
+                  "Ruby parse lanes disabled (EXPRESSIR_DISABLE_RUBY_PARSE)"
+          end
+
           parse_artifact(source)
         rescue StandardError, NotImplementedError
+          raise if ruby_parse_disabled?
+
           cached_parser.parse(source)
         end
 

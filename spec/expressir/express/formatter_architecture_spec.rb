@@ -1,6 +1,6 @@
 require "spec_helper"
 
-RSpec.describe "Formatter architecture" do
+RSpec.describe "Formatter architecture", :ruby_lane do
   describe "format registry dispatch" do
     it "dispatches Schema to format_declarations_schema" do
       registry = Expressir::Express::Formatter.format_registry

@@ -9,7 +9,7 @@ require "spec_helper"
 # format_declarations_entity raise
 #   undefined method `kind' for an instance of Array
 # (metanorma-plugin-lutaml windows ruby 3.3, expressir 2.4.33).
-RSpec.describe Expressir::Model::Declarations::Entity do
+RSpec.describe Expressir::Model::Declarations::Entity, :ruby_lane do
   let(:exp_text) do
     <<~EXP
       SCHEMA flat_attrs;

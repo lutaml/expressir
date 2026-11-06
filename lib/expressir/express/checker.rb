@@ -47,9 +47,44 @@ module Expressir
         end
       end
 
+      # Runs the checks. When the native extension exposes the core
+      # checker (issue #21), each file's model wire is checked in Rust;
+      # the findings are identical to this class's Ruby walk (gated by
+      # the checker parity suites). The Ruby walk stays as the
+      # fallback for non-native environments.
       def check
+        return check_via_core if core_check_available?
+
         @notes = []
         @repository.schemas.compact.each { |schema| check_schema(schema) }
+        self
+      end
+
+      def core_check_available?
+        Expressir::Express::Core::NATIVE_AVAILABLE &&
+          Expressir::Express::Core.respond_to?(:check_model_hash)
+      end
+
+      def check_via_core
+        # The Ruby Checker sees the whole repository (cross-file
+        # interfaces, self-schema defining schemas), so the wire keeps
+        # the repository shape when the model has one.
+        wire =
+          if @repository.respond_to?(:files)
+            {
+              "_class" => "Expressir::Model::Repository",
+              "files" => @repository.files.compact.map(&:to_hash),
+            }
+          else
+            @repository.to_hash
+          end
+        @notes = Expressir::Express::Core.check_model_hash(wire, @dialect)
+          .map do |note|
+            Note.new(
+              id: note[:id].to_sym, severity: note[:severity].to_sym,
+              schema: note[:schema], message: note[:message]
+            )
+          end
         self
       end
 

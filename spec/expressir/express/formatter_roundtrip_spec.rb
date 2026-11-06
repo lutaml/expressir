@@ -1,6 +1,6 @@
 require "spec_helper"
 
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   def assert_roundtrip(exp_text)
     repo1 = Expressir::Express::Parser.from_exp(exp_text, use_native: false)
     formatted1 = described_class.format(repo1)

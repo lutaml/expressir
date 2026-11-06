@@ -3,7 +3,7 @@
 require "spec_helper"
 require "parsanol"
 
-RSpec.describe Expressir::Express::Grammar::Parser do
+RSpec.describe Expressir::Express::Grammar::Parser, :ruby_lane do
   describe ".artifact_available?" do
     it "is true in this repo (the compiled edition-2 artifact is checked in)" do
       expect(described_class.artifact_available?).to be(true)

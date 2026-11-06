@@ -6,7 +6,7 @@ require "expressir/scoreboard"
 # TODO.compat/03: the per-command scoreboard harness. The spec keeps
 # the harness cheap (single rep, no baseline IO) — the gate itself
 # rides `rake scoreboard:gate` against the committed baseline.
-RSpec.describe Expressir::Scoreboard do
+RSpec.describe Expressir::Scoreboard, :ruby_lane do
   let(:rows) { described_class.run(reps: 1, warmup: 0) }
 
   it "measures every command row" do

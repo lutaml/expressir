@@ -44,6 +44,14 @@ RSpec.configure do |config|
   # Checks that parse a production-scale schema. They cost about a minute, so
   # `rake verify:remarks` runs them rather than the default suite.
   if ENV["EXPRESSIR_PRODUCTION_SCALE"].to_s.empty?
+    # Lane retirement (expressir#587): with the Ruby parse lanes
+    # disabled, the specs that exist to exercise those lanes as
+    # fallbacks (explicit `use_native: false`, the artifact replay)
+    # are excluded — the remaining suite must pass on the native lane
+    # alone.
+    if ENV["EXPRESSIR_DISABLE_RUBY_PARSE"] == "1"
+      config.filter_run_excluding :ruby_lane
+    end
     config.filter_run_excluding :production_scale
   end
 

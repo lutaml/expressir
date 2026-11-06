@@ -150,7 +150,7 @@ RSpec.describe Expressir::Express::Formatter do
     # A tagged remark that survives must not stand in for an untagged one that
     # did not. Both carry the text "duplicate" here, and only the tagged one is
     # written back; comparing all remarks together would report no loss at all.
-    it "does not let a surviving tagged remark mask an untagged loss" do
+    it "does not let a surviving tagged remark mask an untagged loss", :ruby_lane do
       source = <<~EXPRESS
         -- duplicate
         SCHEMA x;

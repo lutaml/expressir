@@ -13,7 +13,7 @@ require "expressir"
 # 2. Remark-only fragments (no SCHEMA wrapper — conversion artifacts)
 #    parse to an empty model and raise the clean "no schema found"
 #    error instead of a grammar dump, on both parse paths.
-RSpec.describe Expressir::Express::Parser, "#537 parser gaps (corpus gate)" do
+RSpec.describe Expressir::Express::Parser, "#537 parser gaps (corpus gate)", :ruby_lane do
   let(:corpus_header_form) do
     <<~EXPRESS
       SCHEMA s;

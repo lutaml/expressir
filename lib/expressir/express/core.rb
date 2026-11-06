@@ -48,11 +48,34 @@ module Expressir
         ::Expressir::Core.parse_to_model_attached(source, path)
       end
 
+      # Like parse_to_model_attached, but also returns the attached
+      # wire JSON string ([model, wire_json]) so the file retains a
+      # lossless handle for the Rust formatter (issue #22).
+      def self.parse_to_model_attached_with_wire(source, path)
+        unless NATIVE_AVAILABLE &&
+            ::Expressir::Core.respond_to?(:parse_to_model_attached_with_wire)
+          raise NotImplementedError, "core wire retention unavailable"
+        end
+
+        model, wire_json = ::Expressir::Core.parse_to_model_attached_with_wire(source, path)
+        model.wire_parents
+        model.core_wire = wire_json
+        model
+      end
+
       # Scan remarks (issue #20): an Array of Hashes mirroring
       # RemarkScanner::Remark's fields (position, end_position, line,
       # text, tag, format), straight from the Rust scanner.
       def self.scan_remarks(source)
         ::Expressir::Core.scan_remarks(source)
+      end
+
+      # SourceFormatter (issue #22): the rendered EXPRESS text for one
+      # file's model-hash wire, straight from the Rust formatter.
+      def self.format_model_hash(wire, no_remarks: false)
+        raise NotImplementedError, "the native extension is unavailable" unless NATIVE_AVAILABLE
+
+        ::Expressir::Core.format_model_hash(JSON.generate(wire), no_remarks)
       end
 
       # Semantic checks (issue #21): the Checker's findings over one

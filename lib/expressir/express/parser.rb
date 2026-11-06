@@ -211,9 +211,9 @@ module Expressir
           remarks_attached = false
           exp_file =
             begin
-              if Core.respond_to?(:parse_to_model_attached)
+              if Core.respond_to?(:parse_to_model_attached_with_wire)
                 remarks_attached = true
-                Core.parse_to_model_attached(source, schema_file)
+                Core.parse_to_model_attached_with_wire(source, schema_file)
                   .tap(&:wire_parents)
               else
                 Core.parse_to_model(source, schema_file).tap(&:wire_parents)

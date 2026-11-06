@@ -27,6 +27,14 @@ module Expressir
         map "schemas", to: :schemas
       end
 
+      # The model-hash wire this file was hydrated from, retained by
+      # the core parse lane (issue #22): the Rust formatter renders
+      # THIS wire, whose nil-vs-empty collections are exactly as the
+      # core emitted them (a `to_hash` round trip would drop empty
+      # collections and lose paren-less-function semantics). Not a
+      # lutaml attribute — it never serializes.
+      attr_accessor :core_wire
+
       # Returns the file path as the identifier
       # @return [String, nil] The file path or nil
       def id

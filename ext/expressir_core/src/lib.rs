@@ -581,6 +581,15 @@ fn model_object_attached(ruby: &Ruby, source: String, path: String) -> Result<ma
     value_to_ruby(ruby, &mut cache, &wire)
 }
 
+/// `format_model_hash(wire_json, no_remarks)`: the SourceFormatter
+/// over a wire (issue #22). `wire_json` is the model-hash JSON of one
+/// file; the rendered EXPRESS text comes back as a string.
+fn format_model_hash(ruby: &Ruby, wire_json: String, no_remarks: bool) -> Result<String, Error> {
+    let wire: Wire = serde_json::from_str(&wire_json)
+        .map_err(|e| Error::new(ruby.exception_arg_error(), format!("wire: {e}")))?;
+    Ok(expressir_rs::formatter::format(&wire, no_remarks))
+}
+
 /// `check_model_hash(wire_json, dialect)`: the semantic checks over a
 /// wire (issue #21). `wire_json` is the model-hash JSON of one file;
 /// findings come back as hashes with id/severity/schema/message in the
@@ -604,13 +613,52 @@ fn check_model_hash(ruby: &Ruby, wire_json: String, dialect: Option<String>) -> 
     Ok(array.as_value())
 }
 
+/// `parse_to_model_attached_with_wire(source, path)`: the attached
+/// model AND the attached wire JSON it came from. The wire lets the
+/// Ruby tier keep a lossless handle for the Rust formatter (issue
+/// #22) — a `to_hash` round trip would drop empty collections.
+fn parse_to_model_attached_with_wire(
+    ruby: &Ruby,
+    source: String,
+    path: String,
+) -> Result<magnus::Value, Error> {
+    let tree = ParsedTree::parse(&source).map_err(|e| {
+        Error::new(
+            ruby.exception_runtime_error(),
+            format!("expressir-core: parse error: {e:?}"),
+        )
+    })?;
+    let mut wire = tree.to_model_json(&path).map_err(|e| parse_error(ruby, e))?;
+    expressir_rs::attach::attach_tagged_remarks(&mut wire, &source);
+    expressir_rs::attach::attach_untagged_remarks(&mut wire, &source);
+    let mut cache = ClassCache::default();
+    let mut hydrate_wire = wire.clone();
+    strip_end_offsets(&mut hydrate_wire);
+    let model = value_to_ruby(ruby, &mut cache, &hydrate_wire)?;
+    let wire_json = serde_json::to_string(&wire).map_err(|e| {
+        Error::new(
+            ruby.exception_runtime_error(),
+            format!("wire encode {path}: {e}"),
+        )
+    })?;
+    let pair = RArray::with_capacity(2);
+    pair.push(model)?;
+    pair.push(ruby.str_new(&wire_json))?;
+    Ok(pair.as_value())
+}
+
 #[magnus::init]
 fn init(ruby: &Ruby) -> Result<(), Error> {
     let module = ruby.define_module("Expressir")?.define_module("Core")?;
     module.define_singleton_method("parse_to_model_hash", function!(model_json, 2))?;
     module.define_singleton_method("check_model_hash", function!(check_model_hash, 2))?;
+    module.define_singleton_method("format_model_hash", function!(format_model_hash, 2))?;
     module.define_singleton_method("parse_to_model", function!(model_object, 2))?;
     module.define_singleton_method("parse_to_model_attached", function!(model_object_attached, 2))?;
+    module.define_singleton_method(
+        "parse_to_model_attached_with_wire",
+        function!(parse_to_model_attached_with_wire, 2),
+    )?;
     module.define_singleton_method("scan_remarks", function!(scan_remarks, 1))?;
     module.define_singleton_method("write_set", function!(set_write, 3))?;
     let batch_class = module.define_class("BatchStream", ruby.class_object())?;

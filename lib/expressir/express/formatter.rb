@@ -73,8 +73,18 @@ module Expressir
         new.format(node)
       end
 
+      # When the native extension exposes the core formatter (issue
+      # #22), an ExpFile parsed on the core lane renders in Rust over
+      # its RETAINED wire — a to_hash round trip would drop empty
+      # collections and lose paren-less-function semantics. The base
+      # class only: subclasses (PrettyFormatter) keep the Ruby walk,
+      # which stays as the fallback everywhere else.
       def format(node)
         return "" if node.nil?
+        if node.is_a?(Model::ExpFile) && node.core_wire.is_a?(String) &&
+            base_formatter? && core_format_available?
+          return format_via_core(node)
+        end
 
         handler = self.class.format_registry[node.class]
         unless handler
@@ -83,6 +93,21 @@ module Expressir
         end
 
         place_remarks(send(handler, node), node)
+      end
+
+      def base_formatter?
+        instance_of?(Expressir::Express::Formatter)
+      end
+
+      def core_format_available?
+        Expressir::Express::Core::NATIVE_AVAILABLE &&
+          Expressir::Express::Core.respond_to?(:format_model_hash)
+      end
+
+      def format_via_core(file)
+        Expressir::Express::Core.format_model_hash(
+          JSON.parse(file.core_wire), no_remarks: @no_remarks
+        )
       end
 
       private

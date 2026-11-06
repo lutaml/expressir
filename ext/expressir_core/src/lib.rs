@@ -581,10 +581,34 @@ fn model_object_attached(ruby: &Ruby, source: String, path: String) -> Result<ma
     value_to_ruby(ruby, &mut cache, &wire)
 }
 
+/// `check_model_hash(wire_json, dialect)`: the semantic checks over a
+/// wire (issue #21). `wire_json` is the model-hash JSON of one file;
+/// findings come back as hashes with id/severity/schema/message in the
+/// checker's canonical order.
+fn check_model_hash(ruby: &Ruby, wire_json: String, dialect: Option<String>) -> Result<magnus::Value, Error> {
+    let mut wire: Wire = serde_json::from_str(&wire_json)
+        .map_err(|e| Error::new(ruby.exception_arg_error(), format!("wire: {e}")))?;
+    let notes = expressir_rs::checker::check(&mut wire, dialect.as_deref());
+    let array = ruby.ary_new_capa(notes.len());
+    for note in &notes {
+        let hash = ruby.hash_new();
+        hash.aset(ruby.sym_new("id"), ruby_str(ruby, &note.id))?;
+        hash.aset(ruby.sym_new("severity"), ruby_str(ruby, note.severity))?;
+        match &note.schema {
+            Some(schema) => hash.aset(ruby.sym_new("schema"), ruby_str(ruby, schema))?,
+            None => hash.aset(ruby.sym_new("schema"), ruby.qnil().as_value())?,
+        }
+        hash.aset(ruby.sym_new("message"), ruby_str(ruby, &note.message))?;
+        array.push(hash)?;
+    }
+    Ok(array.as_value())
+}
+
 #[magnus::init]
 fn init(ruby: &Ruby) -> Result<(), Error> {
     let module = ruby.define_module("Expressir")?.define_module("Core")?;
     module.define_singleton_method("parse_to_model_hash", function!(model_json, 2))?;
+    module.define_singleton_method("check_model_hash", function!(check_model_hash, 2))?;
     module.define_singleton_method("parse_to_model", function!(model_object, 2))?;
     module.define_singleton_method("parse_to_model_attached", function!(model_object_attached, 2))?;
     module.define_singleton_method("scan_remarks", function!(scan_remarks, 1))?;

@@ -55,6 +55,23 @@ module Expressir
         ::Expressir::Core.scan_remarks(source)
       end
 
+      # Semantic checks (issue #21): the Checker's findings over one
+      # file's model-hash wire, as an Array of Hashes with
+      # id/severity/schema/message in the checker's canonical order.
+      # `dialect` is nil or a Dialect value; the 1994 edition is
+      # translated to the short form the core expects.
+      def self.check_model_hash(wire, dialect = nil)
+        raise NotImplementedError, "the native extension is unavailable" unless NATIVE_AVAILABLE
+
+        wire_json = JSON.generate(wire)
+        core_dialect = case dialect
+                       when nil then nil
+                       when Dialect::EDITION_1994, "10303-11:1994" then "1994"
+                       else dialect.to_s
+                       end
+        ::Expressir::Core.check_model_hash(wire_json, core_dialect)
+      end
+
       # Parse EXPRESS source into the hydrated model directly: the
       # extension walks the wire definition once and constructs every
       # node through Serializable.instantiate (lutaml-model's fast

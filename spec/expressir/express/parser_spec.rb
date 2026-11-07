@@ -13,6 +13,31 @@ RSpec.describe Expressir::Express::Parser do
     end
 
     describe "native parser" do
+      it "parses an identifier named s before IN as an IN relation (#598)" do
+        content = <<~EXP
+          SCHEMA y_1;
+          FUNCTION f(s : INTEGER; t : SET OF INTEGER) : GENERIC;
+            RETURN (s IN t);
+          END_FUNCTION;
+          END_SCHEMA;
+        EXP
+
+        file = Tempfile.new(["s_in_t", ".exp"])
+        file.write(content)
+        file.close
+
+        repo = described_class.from_file(file.path)
+        expect(repo).to be_a(Expressir::Model::ExpFile)
+        fn = repo.schemas.first.functions.first
+        expr = fn.statements.first.expression
+        expect(expr).to be_a(Expressir::Model::Expressions::BinaryExpression)
+        expect(expr.operator).to eq("IN")
+        expect(expr.operand1.id).to eq("s")
+        expect(expr.operand2.id).to eq("t")
+      ensure
+        file.unlink
+      end
+
       it "parses EXPRESS content with use_native: true" do
         content = <<~EXP
           SCHEMA test_schema;

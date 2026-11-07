@@ -12,6 +12,13 @@ module Expressir
     module RemarkFormat
       TAIL = "tail"
       EMBEDDED = "embedded"
+
+      # EXPRESSdoc annotations (metanorma/annotated-express#94): the
+      # display channel, parsed only in annotations mode. `---` tail
+      # annotations take exactly three dashes; `(** ... *)` embedded
+      # annotations close with the remark closer.
+      TAIL_ANNOTATION = "tail_annotation"
+      EMBEDDED_ANNOTATION = "embedded_annotation"
     end
   end
 end

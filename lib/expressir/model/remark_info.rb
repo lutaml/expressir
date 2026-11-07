@@ -16,16 +16,30 @@ module Expressir
       attribute :region, :string
       attribute :source_offset, :integer # byte offset in source text
 
-      # Check if this is a tail remark
-      # @return [Boolean] True if format is 'tail'
+      # Check if this is a tail remark. Tail annotations sit where
+      # tails sit, so placement semantics treat them as tails; the
+      # renderer asks {#tail_annotation?} for the marker.
+      # @return [Boolean] True if format is 'tail' or 'tail_annotation'
       def tail?
-        format == RemarkFormat::TAIL
+        [RemarkFormat::TAIL, RemarkFormat::TAIL_ANNOTATION].include?(format)
       end
 
-      # Check if this is an embedded remark
-      # @return [Boolean] True if format is 'embedded'
+      # Check if this is an embedded remark or embedded annotation
+      # @return [Boolean] True if format is 'embedded' or 'embedded_annotation'
       def embedded?
-        format == RemarkFormat::EMBEDDED
+        [RemarkFormat::EMBEDDED, RemarkFormat::EMBEDDED_ANNOTATION].include?(format)
+      end
+
+      # Check if this is a `---` tail annotation
+      # @return [Boolean] True if format is 'tail_annotation'
+      def tail_annotation?
+        format == RemarkFormat::TAIL_ANNOTATION
+      end
+
+      # Check if this is a `(** ... *)` embedded annotation
+      # @return [Boolean] True if format is 'embedded_annotation'
+      def embedded_annotation?
+        format == RemarkFormat::EMBEDDED_ANNOTATION
       end
 
       # Check if this remark has a tag

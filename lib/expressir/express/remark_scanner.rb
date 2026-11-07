@@ -32,12 +32,22 @@ module Expressir
       # occupied in the original source.
       Remark = Struct.new(:position, :end_position, :line, :text, :tag,
                           :format, keyword_init: true) do
+        # Tail annotations sit where tails sit; the renderer asks
+        # #tail_annotation? for the marker.
         def tail?
-          format == Model::RemarkFormat::TAIL
+          [Model::RemarkFormat::TAIL, Model::RemarkFormat::TAIL_ANNOTATION].include?(format)
         end
 
         def embedded?
-          format == Model::RemarkFormat::EMBEDDED
+          [Model::RemarkFormat::EMBEDDED, Model::RemarkFormat::EMBEDDED_ANNOTATION].include?(format)
+        end
+
+        def tail_annotation?
+          format == Model::RemarkFormat::TAIL_ANNOTATION
+        end
+
+        def embedded_annotation?
+          format == Model::RemarkFormat::EMBEDDED_ANNOTATION
         end
 
         def tagged?
@@ -56,6 +66,12 @@ module Expressir
       EMBEDDED_CLOSE = "*)"
       STRING_QUOTE = "'"
 
+      # EXPRESSdoc annotation markers (metanorma/annotated-express#94):
+      # a `---` tail annotation takes exactly three dashes, and a `(**`
+      # embedded annotation closes with the plain remark closer.
+      TAIL_ANNOTATION_MARKER = "---"
+      EMBEDDED_ANNOTATION_OPEN = "(**"
+
       # Byte value of `)` — used to detect the `(*)` overlap pattern where
       # the embedded-remark opener `(*` and closer `*)` share the `*`.
       RPAREN_BYTE = ")".ord
@@ -67,8 +83,11 @@ module Expressir
       QUOTED_TAG = /\A"([^"]*)"\s*(.*)\z/m
 
       # @param source [String] EXPRESS source text (any encoding).
-      def initialize(source)
+      # @param annotations [Boolean] recognize the EXPRESSdoc annotation
+      #   forms (`--- note`, `(** note *)`) in addition to remarks.
+      def initialize(source, annotations: false)
         @source = source
+        @annotations = annotations
         @source_bytes = source.b
         @line_map = LineMap.new(@source_bytes)
       end
@@ -92,7 +111,7 @@ module Expressir
       end
 
       def native_scan
-        Core.scan_remarks(@source).map do |unit|
+        Core.scan_remarks(@source, annotations: @annotations).map do |unit|
           Remark.new(
             position: unit[:position],
             end_position: unit[:end_position],
@@ -124,19 +143,34 @@ module Expressir
         embedded_depth = 0
         tail_start = nil      # byte position of first content char after "--"
         tail_line = nil
+        tail_annotation = false
         embedded_start = nil  # byte position of first content char after "(*"
         embedded_line = nil
+        embedded_annotation = false
+
+        # A `---` tail annotation takes exactly three dashes, the fourth
+        # byte (if any) not a dash — dash runs of four or more stay remarks.
+        tail_annotation_at = lambda do |at|
+          return false unless @annotations
+
+          src[at, TAIL_ANNOTATION_MARKER.bytesize] == TAIL_ANNOTATION_MARKER &&
+            src.getbyte(at + TAIL_ANNOTATION_MARKER.bytesize) != "-".ord
+        end
+
+        embedded_annotation_at = lambda do |at|
+          @annotations && src[at, EMBEDDED_ANNOTATION_OPEN.bytesize] == EMBEDDED_ANNOTATION_OPEN
+        end
 
         while pos < src.bytesize
           case state
           when :in_tail
             nl = src.index("\n", pos)
             if nl
-              emit_tail(remarks, tail_start, nl, tail_line)
+              emit_tail(remarks, tail_start, nl, tail_line, tail_annotation)
               pos = nl + 1
               state = :top
             else
-              emit_tail(remarks, tail_start, src.bytesize, tail_line)
+              emit_tail(remarks, tail_start, src.bytesize, tail_line, tail_annotation)
               return remarks
             end
           when :in_embedded
@@ -154,7 +188,7 @@ module Expressir
               embedded_depth -= 1
               pos = closing + EMBEDDED_CLOSE.bytesize
               if embedded_depth.zero?
-                emit_embedded(remarks, embedded_start, closing, embedded_line)
+                emit_embedded(remarks, embedded_start, closing, embedded_line, embedded_annotation)
                 state = :top
               end
             else
@@ -194,21 +228,36 @@ module Expressir
                 # share the `*`. Emit with empty content and continue.
                 emit_embedded(remarks, next_embed + EMBEDDED_OPEN.bytesize,
                               next_embed + EMBEDDED_OPEN.bytesize,
-                              @line_map.line_number(next_embed))
+                              @line_map.line_number(next_embed), false)
                 pos = next_embed + 3
                 state = :top
               else
-                embedded_start = next_embed + EMBEDDED_OPEN.bytesize
+                # `(**` opens an annotation when annotations mode is on;
+                # the byte after `(*` is a `*`, so the `(*)` overlap can
+                # never collide with it.
+                embedded_annotation = embedded_annotation_at.call(next_embed)
+                open_len = if embedded_annotation
+                             EMBEDDED_ANNOTATION_OPEN.bytesize
+                           else
+                             EMBEDDED_OPEN.bytesize
+                           end
+                embedded_start = next_embed + open_len
                 embedded_line = @line_map.line_number(next_embed)
                 embedded_depth = 1
                 state = :in_embedded
-                pos = next_embed + EMBEDDED_OPEN.bytesize
+                pos = embedded_start
               end
             else
-              tail_start = next_tail + TAIL_MARKER.bytesize
+              tail_annotation = tail_annotation_at.call(next_tail)
+              marker_len = if tail_annotation
+                             TAIL_ANNOTATION_MARKER.bytesize
+                           else
+                             TAIL_MARKER.bytesize
+                           end
+              tail_start = next_tail + marker_len
               tail_line = @line_map.line_number(next_tail)
               state = :in_tail
-              pos = next_tail + TAIL_MARKER.bytesize
+              pos = tail_start
             end
           end
         end
@@ -216,31 +265,47 @@ module Expressir
         remarks
       end
 
-      def emit_tail(remarks, content_start, content_end, line)
+      def emit_tail(remarks, content_start, content_end, line, annotation)
         # Slice content from the original (UTF-8) source so the returned text
         # preserves the source encoding. Byte offsets come from the BINARY copy.
         raw = @source.byteslice(content_start...content_end)
         tag, content = parse_tail(raw.strip)
         remarks << Remark.new(
-          position: content_start - TAIL_MARKER.bytesize,
+          position: content_start - (if annotation
+                                       TAIL_ANNOTATION_MARKER.bytesize
+                                     else
+                                       TAIL_MARKER.bytesize
+                                     end),
           end_position: content_end,
           line: line,
           text: content,
           tag: tag,
-          format: Model::RemarkFormat::TAIL,
+          format: if annotation
+                    Model::RemarkFormat::TAIL_ANNOTATION
+                  else
+                    Model::RemarkFormat::TAIL
+                  end,
         )
       end
 
-      def emit_embedded(remarks, content_start, content_end, line)
+      def emit_embedded(remarks, content_start, content_end, line, annotation)
         raw = @source.byteslice(content_start...content_end)
         tag, content = parse_embedded(raw)
         remarks << Remark.new(
-          position: content_start - EMBEDDED_OPEN.bytesize,
+          position: content_start - (if annotation
+                                       EMBEDDED_ANNOTATION_OPEN.bytesize
+                                     else
+                                       EMBEDDED_OPEN.bytesize
+                                     end),
           end_position: content_end + EMBEDDED_CLOSE.bytesize,
           line: line,
           text: content,
           tag: tag,
-          format: Model::RemarkFormat::EMBEDDED,
+          format: if annotation
+                    Model::RemarkFormat::EMBEDDED_ANNOTATION
+                  else
+                    Model::RemarkFormat::EMBEDDED
+                  end,
         )
       end
 

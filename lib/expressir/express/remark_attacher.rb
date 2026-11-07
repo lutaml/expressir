@@ -39,8 +39,9 @@ module Expressir
       # 1-based line number(s) it appears on.
       WHERE_CLAUSE_PATTERN = /\A\s*WHERE\s+(\w+)\s*:/i
 
-      def initialize(source)
+      def initialize(source, annotations: false)
         @source = source
+        @annotations = annotations
         @attached_spans = Set.new
         @line_map = LineMap.new(source.b)
         @model = nil
@@ -52,7 +53,7 @@ module Expressir
 
       def attach(model)
         @model = model
-        remarks = RemarkScanner.new(@source).scan
+        remarks = RemarkScanner.new(@source, annotations: @annotations).scan
 
         @node_index = NodePositionIndex.new(model, @line_map)
         @scope_resolver = ScopeResolver.new(

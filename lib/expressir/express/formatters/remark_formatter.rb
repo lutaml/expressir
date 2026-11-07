@@ -41,8 +41,14 @@ module Expressir
 
           formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
 
-          if remark.tail?
+          if remark.tail_annotation?
+            "--- #{formatted_text}"
+          elsif remark.tail?
             "-- #{formatted_text}"
+          elsif remark.embedded_annotation? && text.include?("\n")
+            ["(**", formatted_text, "**)"].join("\n")
+          elsif remark.embedded_annotation?
+            "(** #{formatted_text} *)"
           elsif text.include?("\n")
             ["(*", formatted_text, "*)"].join("\n")
           else
@@ -62,7 +68,15 @@ module Expressir
           return "" if text.nil? || text.empty?
 
           formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
-          remark.tail? ? " -- #{formatted_text}" : " (* #{formatted_text} *)"
+          if remark.tail_annotation?
+            " --- #{formatted_text}"
+          elsif remark.tail?
+            " -- #{formatted_text}"
+          elsif remark.embedded_annotation?
+            " (** #{formatted_text} *)"
+          else
+            " (* #{formatted_text} *)"
+          end
         end
 
         def format_end_scope_remark(node)
@@ -82,7 +96,7 @@ module Expressir
           return "" unless remark.tail?
 
           formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
-          " -- #{formatted_text}"
+          remark.tail_annotation? ? " --- #{formatted_text}" : " -- #{formatted_text}"
         end
 
         def format_preamble_remark(remark, indent_str = "")
@@ -91,8 +105,19 @@ module Expressir
           text = remark.text
           text = "\"#{remark.tag}\" #{text}" if remark.tagged?
 
-          if remark.tail?
+          if remark.tail_annotation?
+            "#{indent_str}--- #{text}"
+          elsif remark.tail?
             "#{indent_str}-- #{text}"
+          elsif remark.embedded_annotation? && text.include?("\n")
+            lines = text.split("\n")
+            [
+              "#{indent_str}(**",
+              *lines.map { |line| "#{indent_str}  #{line.strip}" },
+              "#{indent_str}**)",
+            ].join("\n")
+          elsif remark.embedded_annotation?
+            "#{indent_str}(** #{text} *)"
           elsif text.include?("\n")
             lines = text.split("\n")
             [

@@ -54,9 +54,13 @@ module Expressir
       #   parser_core_parity_spec)
       # @return [Model::ExpFile] ExpFile containing parsed schemas
       # @raise [Error::SchemaParseFailure] if the schema file fails to parse
+      # @param annotations [Boolean] recognize EXPRESSdoc annotations
+      #   (`--- note`, `(** note *)`) in addition to remarks; they come
+      #   back with the annotation remark formats (core lane).
       def self.from_file(file, skip_references: nil, include_source: nil,
                          root_path: nil, use_native: nil,
-                         use_core: nil, dialect: nil) # rubocop:disable Metrics/AbcSize
+                         use_core: nil, dialect: nil,
+                         annotations: false) # rubocop:disable Metrics/AbcSize
         Dialect.normalize(dialect)
         # use_native: false pins the Ruby grammar path; the core path
         # must not silently take over that request.
@@ -64,7 +68,8 @@ module Expressir
         if use_core && Core::NATIVE_AVAILABLE
           return from_file_core(file, skip_references: skip_references,
                                       include_source: include_source,
-                                      root_path: root_path)
+                                      root_path: root_path,
+                                      annotations: annotations)
         end
 
         Expressir::Benchmark.measure_file(file) do
@@ -198,7 +203,8 @@ module Expressir
       # directly (lutaml wire shape); Ruby hydrates, then remark
       # attachment runs on the source as usual.
       def self.from_file_core(file, skip_references: nil,
-                              include_source: nil, root_path: nil, &block)
+                              include_source: nil, root_path: nil,
+                              annotations: false, &block)
         unless Core::NATIVE_AVAILABLE
           raise Error::StreamingUnsupportedError,
                 "core parse requires the native extension"
@@ -213,7 +219,8 @@ module Expressir
             begin
               if Core.respond_to?(:parse_to_model_attached_with_wire)
                 remarks_attached = true
-                Core.parse_to_model_attached_with_wire(source, schema_file)
+                Core.parse_to_model_attached_with_wire(source, schema_file,
+                                                       annotations: annotations)
                   .tap(&:wire_parents)
               else
                 Core.parse_to_model(source, schema_file).tap(&:wire_parents)
@@ -232,7 +239,8 @@ module Expressir
 
           finalize_loaded_file(exp_file, source, schema_file,
                                include_source: include_source,
-                               remarks_attached: remarks_attached)
+                               remarks_attached: remarks_attached,
+                               annotations: annotations)
 
           unless skip_references
             Expressir::Benchmark.measure_references do
@@ -248,9 +256,10 @@ module Expressir
       # Shared post-parse steps for every core-path file: remark
       # attachment, header-remark transfer, and path wiring.
       def self.finalize_loaded_file(exp_file, source, schema_file,
-                                    include_source: nil, remarks_attached: false)
+                                    include_source: nil, remarks_attached: false,
+                                    annotations: false)
         if source && include_source != false && !remarks_attached
-          RemarkAttacher.new(source).attach(exp_file)
+          RemarkAttacher.new(source, annotations: annotations).attach(exp_file)
         end
 
         transfer_header_to_schema(exp_file, source)

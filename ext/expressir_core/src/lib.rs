@@ -50,8 +50,12 @@ fn model_json(ruby: &Ruby, source: String, path: String) -> Result<String, Error
 /// The remark scanner (issue #20): each unit mirrors
 /// `Expressir::Express::RemarkScanner::Remark` — position,
 /// end_position, line, text, tag (nil when untagged), format.
-fn scan_remarks(ruby: &Ruby, source: String) -> Result<magnus::Value, Error> {
-    let units = expressir_rs::remark::scan(&source);
+fn scan_remarks(
+    ruby: &Ruby,
+    source: String,
+    annotations: Option<bool>,
+) -> Result<magnus::Value, Error> {
+    let units = expressir_rs::remark::scan_with(&source, annotations.unwrap_or(false));
     let array = ruby.ary_new_capa(units.len());
     for unit in &units {
         let hash = ruby.hash_new();
@@ -566,7 +570,13 @@ fn model_object(ruby: &Ruby, source: String, path: String) -> Result<magnus::Val
 /// `parse_to_model` with the remark attachment run in the core
 /// (issue #20): the scanner + attacher produce the attached wire before
 /// hydration, so the Ruby lane never runs RemarkAttacher.
-fn model_object_attached(ruby: &Ruby, source: String, path: String) -> Result<magnus::Value, Error> {
+fn model_object_attached(
+    ruby: &Ruby,
+    source: String,
+    path: String,
+    annotations: Option<bool>,
+) -> Result<magnus::Value, Error> {
+    let annotations = annotations.unwrap_or(false);
     let tree = ParsedTree::parse(&source).map_err(|e| {
         Error::new(
             ruby.exception_runtime_error(),
@@ -574,8 +584,8 @@ fn model_object_attached(ruby: &Ruby, source: String, path: String) -> Result<ma
         )
     })?;
     let mut wire = tree.to_model_json(&path).map_err(|e| parse_error(ruby, e))?;
-    expressir_rs::attach::attach_tagged_remarks(&mut wire, &source);
-    expressir_rs::attach::attach_untagged_remarks(&mut wire, &source);
+    expressir_rs::attach::attach_tagged_remarks(&mut wire, &source, annotations);
+    expressir_rs::attach::attach_untagged_remarks(&mut wire, &source, annotations);
     strip_end_offsets(&mut wire);
     let mut cache = ClassCache::default();
     value_to_ruby(ruby, &mut cache, &wire)
@@ -621,7 +631,9 @@ fn parse_to_model_attached_with_wire(
     ruby: &Ruby,
     source: String,
     path: String,
+    annotations: Option<bool>,
 ) -> Result<magnus::Value, Error> {
+    let annotations = annotations.unwrap_or(false);
     let tree = ParsedTree::parse(&source).map_err(|e| {
         Error::new(
             ruby.exception_runtime_error(),
@@ -629,8 +641,8 @@ fn parse_to_model_attached_with_wire(
         )
     })?;
     let mut wire = tree.to_model_json(&path).map_err(|e| parse_error(ruby, e))?;
-    expressir_rs::attach::attach_tagged_remarks(&mut wire, &source);
-    expressir_rs::attach::attach_untagged_remarks(&mut wire, &source);
+    expressir_rs::attach::attach_tagged_remarks(&mut wire, &source, annotations);
+    expressir_rs::attach::attach_untagged_remarks(&mut wire, &source, annotations);
     let mut cache = ClassCache::default();
     let mut hydrate_wire = wire.clone();
     strip_end_offsets(&mut hydrate_wire);
@@ -654,12 +666,12 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     module.define_singleton_method("check_model_hash", function!(check_model_hash, 2))?;
     module.define_singleton_method("format_model_hash", function!(format_model_hash, 2))?;
     module.define_singleton_method("parse_to_model", function!(model_object, 2))?;
-    module.define_singleton_method("parse_to_model_attached", function!(model_object_attached, 2))?;
+    module.define_singleton_method("parse_to_model_attached", function!(model_object_attached, 3))?;
     module.define_singleton_method(
         "parse_to_model_attached_with_wire",
-        function!(parse_to_model_attached_with_wire, 2),
+        function!(parse_to_model_attached_with_wire, 3),
     )?;
-    module.define_singleton_method("scan_remarks", function!(scan_remarks, 1))?;
+    module.define_singleton_method("scan_remarks", function!(scan_remarks, 2))?;
     module.define_singleton_method("write_set", function!(set_write, 3))?;
     let batch_class = module.define_class("BatchStream", ruby.class_object())?;
     batch_class.define_singleton_method("start", function!(batch_start, 2))?;

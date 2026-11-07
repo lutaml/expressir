@@ -44,20 +44,21 @@ module Expressir
       # attachment run in the core (issue #20): the wire carries the
       # attached remarks before hydration, so the Ruby RemarkAttacher
       # never runs on this lane.
-      def self.parse_to_model_attached(source, path)
-        ::Expressir::Core.parse_to_model_attached(source, path)
+      def self.parse_to_model_attached(source, path, annotations: false)
+        ::Expressir::Core.parse_to_model_attached(source, path, annotations)
       end
 
       # Like parse_to_model_attached, but also returns the attached
       # wire JSON string ([model, wire_json]) so the file retains a
       # lossless handle for the Rust formatter (issue #22).
-      def self.parse_to_model_attached_with_wire(source, path)
+      def self.parse_to_model_attached_with_wire(source, path, annotations: false)
         unless NATIVE_AVAILABLE &&
             ::Expressir::Core.respond_to?(:parse_to_model_attached_with_wire)
           raise NotImplementedError, "core wire retention unavailable"
         end
 
-        model, wire_json = ::Expressir::Core.parse_to_model_attached_with_wire(source, path)
+        model, wire_json =
+          ::Expressir::Core.parse_to_model_attached_with_wire(source, path, annotations)
         model.wire_parents
         model.core_wire = wire_json
         model
@@ -66,8 +67,8 @@ module Expressir
       # Scan remarks (issue #20): an Array of Hashes mirroring
       # RemarkScanner::Remark's fields (position, end_position, line,
       # text, tag, format), straight from the Rust scanner.
-      def self.scan_remarks(source)
-        ::Expressir::Core.scan_remarks(source)
+      def self.scan_remarks(source, annotations: false)
+        ::Expressir::Core.scan_remarks(source, annotations)
       end
 
       # SourceFormatter (issue #22): the rendered EXPRESS text for one

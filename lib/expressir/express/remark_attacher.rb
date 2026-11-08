@@ -211,7 +211,8 @@ module Expressir
 
           line_content = line_content_for(remark.line)
           if end_scope_line?(line_content)
-            matched_node = @node_index.node_for_end_scope_at(remark.line, line_content)
+            matched_node = @node_index.node_for_end_scope_at(remark.line, line_content) ||
+              scope_owner_for_end_line(remark.line, line_content)
             if matched_node
               add_remark(matched_node, remark.text, format: remark.format, tag: nil,
                                                     source_offset: remark.position)
@@ -239,6 +240,34 @@ module Expressir
 
       def end_scope_line?(line_content)
         line_content =~ /END_(SCHEMA|ENTITY|TYPE|FUNCTION|PROCEDURE|RULE)/i
+      end
+
+      # A comment on an END_XXX line belongs to the scope that XXX closes.
+      # Spans can miss on the grammar lane — source strings there are
+      # reconstructions whose lengths undershoot the node's real extent,
+      # so neither the end-window nor containment reaches the END line
+      # (expressir#609 drift) — so this falls back to the scope walk: the
+      # construct open at the START of the END line is the scope being
+      # closed, by construction of the map.
+      def scope_owner_for_end_line(line, line_content)
+        type = case line_content
+               when /END_SCHEMA/i then Model::Declarations::Schema
+               when /END_ENTITY/i then Model::Declarations::Entity
+               when /END_TYPE/i then Model::Declarations::Type
+               when /END_FUNCTION/i then Model::Declarations::Function
+               when /END_PROCEDURE/i then Model::Declarations::Procedure
+               when /END_RULE/i then Model::Declarations::Rule
+               end
+        active = active_scope_map[line]
+        return nil unless type.is_a?(Class) && active.is_a?(Array)
+
+        klass, opener_line = active
+        # ENTITY/TYPE openers are tracked as :other — the walk is
+        # line-accurate, so trust it for those ends.
+        return nil unless klass == type || (klass == :other && [Model::Declarations::Entity, Model::Declarations::Type].include?(type))
+
+        @node_index.starting_at(opener_line)
+          .find { |n| n[:node].is_a?(type) }&.dig(:node)
       end
 
       # Own-line body comments belong to the next statement in the same
@@ -559,6 +588,19 @@ module Expressir
         # from its closing keyword by an empty line still closes that body.
         while probe <= source_line_count
           content = line_content_for(probe).to_s.strip
+          # Embedded remark blocks (`(*"tag" ... *)`) that the renderer
+          # emits between a trailing comment and the closing keyword:
+          # skip the whole block, the keyword lies beyond it (#609).
+          if content.start_with?("(*")
+            # A single-line block carries its own "*)": only hunt for a
+            # closer when the start line does not have one.
+            unless content.include?("*)")
+              probe += 1
+              probe += 1 while probe <= source_line_count && !line_content_for(probe).to_s.include?("*)")
+            end
+            probe += 1
+            next
+          end
           break unless content.empty? || content.start_with?("--")
 
           probe += 1

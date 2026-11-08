@@ -9,7 +9,6 @@ schemas:
     functions. The context for these mathematical functions is provided by other parts
     of ISO 10303 and the applications which use this schema. Only the unitless, purely
     mathematical aspects of mathematical functions are considered in this schema.
-  - check_sparse_index_domain;
   remark_items:
   - _class: Expressir::Model::Declarations::RemarkItem
     id: __fund_cons
@@ -253,9 +252,6 @@ schemas:
     id: __schema_file
     remarks:
     - data/resource_docs/mathematical_constructs/resource.xml
-  untagged_remarks:
-  - text: check_sparse_index_domain;
-    format: tail
   file: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp
   header: |-
     ISO 10303 TC184/SC4/WG12 Ntbd
@@ -12632,6 +12628,7 @@ schemas:
       is consistent with the other attributes.
     - The index function is evaluated at (base+shape[i]) when determining the
     - upper search bound for entries of the last row or column, respectively.
+    - check_sparse_index_domain;
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -12647,6 +12644,8 @@ schemas:
       format: tail
       placement: trailing
       region: statements
+    - text: check_sparse_index_domain;
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: idxdom

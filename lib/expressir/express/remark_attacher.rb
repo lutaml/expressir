@@ -163,7 +163,13 @@ module Expressir
 
             # Strategy 3: Create implicit item for qualified paths only
             if target.nil? && tag.include?(".")
-              if containing_scope && function_rule_procedure?(containing_scope)
+              # A tag whose first segment is a schema id is already
+              # absolute: prepending the containing scope's path would
+              # double-count it, and the implicit walk would then name
+              # the item after the schema (#609 — `(*"s.f.lv"` inside f
+              # must create `lv`, not `s`).
+              absolute_tag = get_schema_ids(@model).include?(tag.split(".").first)
+              if containing_scope && function_rule_procedure?(containing_scope) && !absolute_tag
                 scope_path = build_scope_path(containing_scope)
                 if scope_path
                   target = create_implicit_remark_item(@model, "#{scope_path}.#{tag}",

@@ -59,7 +59,7 @@ RSpec.describe Expressir::Express::Formatter do # remark-item conservation (expr
     expect(markers).to eq(nodes)
     # single-line remarks render the tail form; a multi-line remark
     # renders the block form
-    expect(formatted).to include('--"sample_schema.__published_in" ISO 10303-9999:2026')
+    expect(formatted).to include('(*"sample_schema.__published_in" ISO 10303-9999:2026 *)')
     expect(formatted)
       .to include('(*"sample_schema.sample_entity.sample_attr.description"')
     expect(formatted).not_to include("/tmp")

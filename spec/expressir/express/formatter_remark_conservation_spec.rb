@@ -99,12 +99,24 @@ round_trips = {
   # The RULE query survivor came back with #555: the rule's statements
   # render again.
   "spec/syntax/remark.exp" => {
-    lost: {}, tagged_lost: 124,
+    lost: {}, tagged_lost: 125,
     # Legacy bare-tag alias pairs the canonical full-path tag replaces
     # (the item is addressed bare in the schema scope and by path in
     # the universal scope; the render emits the path form once).
     tagged_normalized: [
       ["remark_schema.remark_item", "schema scope - schema remark item"],
+    ],
+    # expressir#603 canonical: remark items re-house as embedded blocks
+    # (`(*"path" text *)`), so their two tail-sourced bindings appear
+    # here as embedded blocks. Same item, same texts — new housing.
+    embedded_normalized: [
+      ["remark_schema.remark_item", "schema scope - schema remark item"],
+      ["remark_schema.remark_item", "universal scope - schema remark item"],
+    ],
+    # expressir#603 canonical: the schema-level remark item's blocks.
+    embedded_survivors: [
+      ["remark_schema.remark_item", "schema scope - schema remark item"],
+      ["remark_schema.remark_item", "universal scope - schema remark item"],
     ],
     tagged_survivors: [
       # expressir#603: the bare-tag WHERE item now survives too
@@ -116,14 +128,13 @@ round_trips = {
       ["remark_alias", "procedure alias scope - procedure alias"],
       ["remark_repeat", "procedure repeat scope - procedure repeat"],
       ["remark_query", "procedure query scope - procedure query"],
-      # expressir#603: the schema-level remark item renders its two
-      # bindings in the canonical path form
-      ["remark_schema.remark_item", "schema scope - schema remark item"],
-      ["remark_schema.remark_item", "universal scope - schema remark item"],
+      # expressir#603: the schema-level remark item renders as embedded
+      # blocks now (see embedded_survivors), so its bindings left the
+      # tagged-tail survivor set
     ],
     # Embedded: one tagged block, on the schema. Nothing re-emits an
     # embedded binding.
-    embedded_lost: 1, embedded_survivors: []
+    embedded_lost: 1
   },
 }.freeze
 
@@ -157,8 +168,13 @@ RSpec.describe Expressir::Express::Formatter do
 
         expect(conservation.lost(source_embedded, rendered_embedded).values.sum)
           .to eq(expected[:embedded_lost])
-        expect(conservation.gained(source_embedded, rendered_embedded))
-          .to be_empty
+        # expressir#603 canonical: remark items re-house as embedded
+        # blocks (`(*"path" text *)`), so their tail-sourced bindings
+        # appear here as embedded blocks. Same item, same texts — new
+        # housing.
+        embedded_normalized = expected[:embedded_normalized] || []
+        gained_embedded = conservation.gained(source_embedded, rendered_embedded).keys
+        expect(gained_embedded - embedded_normalized).to be_empty
         expect(rendered_embedded).to eq(expected[:embedded_survivors])
       end
     end
@@ -261,7 +277,16 @@ RSpec.describe Expressir::Express::Formatter do
       rendered_embedded = conservation.embedded_pairs(rendered)
 
       expect(source_embedded.size).to eq(1139)
-      expect(rendered_embedded).to be_empty
+
+      # expressir#603 canonical: remark items render as embedded blocks
+      # now, so the rendered side carries the item blocks. Every
+      # rendered embedded remark belongs to a remark item (its tag is a
+      # schema path); every UNTAGGED embedded remark is still dropped.
+      rendered_item_blocks = rendered_embedded.select do |(tag, _), _|
+        tag&.start_with?("mathematical_functions_schema.")
+      end
+      expect(rendered_embedded - rendered_item_blocks).to be_empty
+      expect(rendered_item_blocks).not_to be_empty
     end
   end
 end

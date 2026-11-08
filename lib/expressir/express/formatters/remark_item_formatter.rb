@@ -29,15 +29,22 @@ module Expressir
             tag = tag.delete_prefix(prefix) if prefix && tag.start_with?(prefix)
           end
 
-          # One line per remark. Single-line remarks take the tail form
-          # (the dominant inline convention); multi-line text takes the
-          # block form, which a tail line cannot express.
+          # Remark items are WG12 annotation blocks: the embedded form,
+          # a block per remark, matching the source convention of the
+          # annotated corpora (the conservation pairs are embedded, so
+          # tail-form emission reads as phantom gains). Rule-context
+          # owners keep the historic bare-tag tail form.
+          if rule_context
+            return node.remarks
+                .map { |remark| "--\"#{tag}\" #{remark}" }
+                .join("\n")
+          end
           node.remarks.map do |remark|
             remark = remark.to_s
             if remark.include?("\n")
               "(*\"#{tag}\"\n#{remark}\n*)"
             else
-              "--\"#{tag}\" #{remark}"
+              "(*\"#{tag}\" #{remark} *)"
             end
           end.join("\n")
         end

@@ -20,6 +20,7 @@ UNIQUE
   UR1: remark_attribute;
 WHERE
   WR1: TRUE;
+  --"unusual_placement" placed inside WHERE clauses (or other enumerable context)
 END_ENTITY;
 
 SUBTYPE_CONSTRAINT remark_subtype_constraint FOR remark_entity;
@@ -88,4 +89,7 @@ PROCEDURE remark_procedure(remark_parameter : STRING);
   );
 END_PROCEDURE;
 
+
+(*"remark_schema.remark_item" schema scope - schema remark item *)
+(*"remark_schema.remark_item" universal scope - schema remark item *)
 END_SCHEMA;

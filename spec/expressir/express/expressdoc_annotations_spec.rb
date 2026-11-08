@@ -28,6 +28,15 @@ RSpec.describe "EXPRESSdoc annotations" do # rubocop:disable RSpec/DescribeClass
     file&.unlink
   end
 
+  # The annotation distinction is a scanner feature of the core lane
+  # (expressir#91). The grammar lane keeps its remark reading, so the
+  # specs are native-gated like the other core-lane coverage.
+  before do
+    unless Expressir::Express::Core::NATIVE_AVAILABLE
+      skip "core extension absent — annotations are a core-lane feature"
+    end
+  end
+
   def remark_formats(node, acc = [])
     Array(node.untagged_remarks).each do |remark|
       acc << remark.format if remark.respond_to?(:format) && remark.respond_to?(:text)

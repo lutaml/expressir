@@ -92,13 +92,23 @@ round_trips = {
     embedded_survivors: [[nil, "Untagged embedded remark"],
                          [nil, "Untagged embedded remark within entity"]]
   },
-  # All 133 remarks here are tagged. The seven that survive sit inside a
-  # FUNCTION, PROCEDURE or RULE body and keep their tags; the other 126 are
-  # dropped because nothing outside a body re-emits the binding. The RULE
-  # query survivor came back with #555: the rule's statements render again.
+  # All 133 remarks here are tagged. expressir#603 made the formatter
+  # re-emit remark items, so most tags now survive in their canonical
+  # form; the lost count covers the legacy bare-tag alias pairs the
+  # canonical full-path tag replaces, plus genuinely dropped bindings.
+  # The RULE query survivor came back with #555: the rule's statements
+  # render again.
   "spec/syntax/remark.exp" => {
-    lost: {}, tagged_lost: 126,
+    lost: {}, tagged_lost: 124,
+    # Legacy bare-tag alias pairs the canonical full-path tag replaces
+    # (the item is addressed bare in the schema scope and by path in
+    # the universal scope; the render emits the path form once).
+    tagged_normalized: [
+      ["remark_schema.remark_item", "schema scope - schema remark item"],
+    ],
     tagged_survivors: [
+      # expressir#603: the bare-tag WHERE item now survives too
+      ["unusual_placement", "placed inside WHERE clauses (or other enumerable context)"],
       ["remark_alias", "function alias scope - function alias"],
       ["remark_repeat", "function repeat scope - function repeat"],
       ["remark_query", "function query scope - function query"],
@@ -106,6 +116,10 @@ round_trips = {
       ["remark_alias", "procedure alias scope - procedure alias"],
       ["remark_repeat", "procedure repeat scope - procedure repeat"],
       ["remark_query", "procedure query scope - procedure query"],
+      # expressir#603: the schema-level remark item renders its two
+      # bindings in the canonical path form
+      ["remark_schema.remark_item", "schema scope - schema remark item"],
+      ["remark_schema.remark_item", "universal scope - schema remark item"],
     ],
     # Embedded: one tagged block, on the schema. Nothing re-emits an
     # embedded binding.
@@ -133,7 +147,9 @@ RSpec.describe Expressir::Express::Formatter do
           .to be_empty
         expect(conservation.lost(source_tagged, rendered_tagged).values.sum)
           .to eq(expected[:tagged_lost])
-        expect(conservation.gained(source_tagged, rendered_tagged)).to be_empty
+        normalized = expected[:tagged_normalized] || []
+        gained_tagged = conservation.gained(source_tagged, rendered_tagged).keys
+        expect(gained_tagged - normalized).to be_empty
         expect(rendered_tagged).to eq(expected[:tagged_survivors])
 
         source_embedded = conservation.embedded_pairs(source)

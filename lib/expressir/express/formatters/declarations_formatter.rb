@@ -91,6 +91,7 @@ module Expressir
              end,
             ";",
             format_inline_tail_remark(node),
+            *format_remark_items(node).map { |x| ["\n", x].join },
           ].join
         end
 
@@ -106,6 +107,7 @@ module Expressir
             " ",
             format(node.expression),
             ";",
+            *format_remark_items(node).map { |x| ["\n", x].join },
           ].join
         end
 
@@ -218,6 +220,7 @@ module Expressir
                  indent(node.where_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
+            *format_remark_items(node).map { |x| indent(x) },
             [
               "END_ENTITY",
               ";",
@@ -302,6 +305,7 @@ module Expressir
                indent(node.statements.map { |x| format(x) }.join("\n"))
              end,
             *format_trailing_region_remarks(node, :statements).map { |x| indent(x) },
+            *format_remark_items(node).map { |x| indent(x) },
             [
               "END_FUNCTION",
               ";",
@@ -347,6 +351,7 @@ module Expressir
                  node.id,
                ]
              end,
+            *format_remark_items(node).map { |x| ["\n", x].join },
           ].join
         end
 
@@ -363,6 +368,7 @@ module Expressir
             ":",
             " ",
             format(node.type),
+            *format_remark_items(node).map { |x| ["\n", x].join },
           ].join
         end
 
@@ -426,6 +432,7 @@ module Expressir
                indent(node.statements.map { |x| format(x) }.join("\n"))
              end,
             *format_trailing_region_remarks(node, :statements).map { |x| indent(x) },
+            *format_remark_items(node).map { |x| indent(x) },
             [
               "END_PROCEDURE",
               ";",
@@ -529,6 +536,7 @@ module Expressir
              end,
             # A comment after the last where rule closes the WHERE section.
             *format_trailing_region_remarks(node, :where_rules).map { |x| indent(x) },
+            *format_remark_items(node).map { |x| indent(x) },
             [
               "END_RULE",
               ";",
@@ -611,6 +619,7 @@ module Expressir
                  "",
                ]
              end,
+            *format_remark_items(node),
             [
               "END_SCHEMA",
               ";",
@@ -667,6 +676,7 @@ module Expressir
                  ";",
                ].join)
              end,
+            *format_remark_items(node).map { |x| indent(x) },
             [
               "END_SUBTYPE_CONSTRAINT",
               ";",
@@ -693,6 +703,7 @@ module Expressir
                  indent(node.where_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
+            *format_remark_items(node).map { |x| indent(x) },
             [
               "END_TYPE",
               ";",
@@ -712,6 +723,7 @@ module Expressir
              end,
             Array(node.attributes).map { |x| format(x) }.join(", "),
             ";",
+            *format_remark_items(node).map { |x| ["\n", x].join },
           ].join
         end
 
@@ -745,6 +757,7 @@ module Expressir
              end,
             format(node.expression),
             ";",
+            *format_remark_items(node).map { |x| ["\n", x].join },
           ].join
         end
 
@@ -757,6 +770,7 @@ module Expressir
                  " ",
                ].join
              end,
+            *format_remark_items(node).map { |x| ["\n", x].join },
           ].join
         end
       end

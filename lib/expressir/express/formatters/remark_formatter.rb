@@ -289,6 +289,15 @@ module Expressir
 
           remarks
         end
+
+        # The tagged remark-item blocks attached to this node
+        # (expressir#603: RemarkItem children render with their owners).
+        def format_remark_items(node)
+          return [] if @no_remarks
+          return [] unless node.respond_to?(:remark_items)
+
+          Array(node.remark_items).map { |item| format(item) }.reject(&:empty?)
+        end
       end
     end
   end

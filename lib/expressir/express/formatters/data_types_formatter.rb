@@ -182,7 +182,12 @@ module Expressir
         end
 
         def format_data_types_enumeration_item(node)
-          node.id
+          return node.id unless node.respond_to?(:remark_items) && Array(node.remark_items).any?
+
+          [
+            node.id,
+            *Array(node.remark_items).map { |item| ["\n", format(item)].join },
+          ].join
         end
 
         def format_data_types_generic_entity(node)

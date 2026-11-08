@@ -99,6 +99,68 @@ RSpec.describe Expressir::Express::RemarkAttacher do
     end
   end
 
+  describe "trailing body comments behind a rendered item block" do
+    # The renderer emits remark-item blocks AFTER the function's trailing
+    # comments, so a round trip hands the reparse a block sitting between
+    # the comment and END_FUNCTION. The closer probe must step over the
+    # block; falling through attached the comments to the NEXT function.
+    let(:source) do
+      <<~EXPRESS
+        SCHEMA demo_schema;
+        FUNCTION a : INTEGER;
+          RETURN (1);
+          -- trailing note one
+          -- trailing note two
+          (*"demo_schema.a.p" the a item *)
+        END_FUNCTION;  -- a
+
+        FUNCTION b : INTEGER;
+          RETURN (2);
+        END_FUNCTION;  -- b
+        END_SCHEMA;
+      EXPRESS
+    end
+
+    it "keeps trailing comments with their function on round trip" do
+      model = Expressir::Express::Parser.from_file(write_temp_schema(source))
+      reparsed = Expressir::Express::Parser.from_exp(model.to_s)
+      tails = reparsed.schemas[0].functions.to_h do |f|
+        [f.id, Array(f.untagged_remarks).map(&:text)]
+      end
+      expect(tails["a"]).to eq(["trailing note one", "trailing note two", "a"])
+      expect(tails["b"]).to eq(["b"])
+    end
+  end
+
+  describe "END-line tails behind a multi-line item block" do
+    it "keeps the tail with its function on round trip" do
+      source = <<~EXPRESS
+        SCHEMA demo_schema;
+        FUNCTION a : INTEGER;
+          RETURN (1);
+          -- trailing note
+          (*"demo_schema.a.p"
+
+          the a item, laid out multi-line
+
+          *)
+        END_FUNCTION;  -- a
+
+        FUNCTION b : INTEGER;
+          RETURN (2);
+        END_FUNCTION;  -- b
+        END_SCHEMA;
+      EXPRESS
+      model = Expressir::Express::Parser.from_file(write_temp_schema(source))
+      reparsed = Expressir::Express::Parser.from_exp(model.to_s)
+      tails = reparsed.schemas[0].functions.to_h do |f|
+        [f.id, Array(f.untagged_remarks).map(&:text)]
+      end
+      expect(tails["a"]).to eq(["trailing note", "a"])
+      expect(tails["b"]).to eq(["b"])
+    end
+  end
+
   def write_temp_schema(source)
     file = File.join(Dir.mktmpdir, "spec609.exp")
     File.write(file, source)

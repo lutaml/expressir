@@ -38,13 +38,12 @@ round_trips = {
   "spec/fixtures/examples/geometry_schema.exp" =>
     { traced: 8, tagged: 0, escapes: 0 },
   "spec/fixtures/examples/nested_functions_test_schema.exp" =>
-    # expressir#609 fix: the two schema-positioned comments used to smear
-    # onto the schema and the enclosing procedure; both land on the inner
-    # function they physically sit at now.
-    { traced: 10, tagged: 0, escapes: 2,
+    # expressir#609 fix: the schema-positioned comment used to smear onto
+    # the schema; it lands on the inner function it physically sits at now
+    # (its sibling already holds).
+    { traced: 10, tagged: 0, escapes: 1,
       known_move_texts: [
         "Another top-level function (should be included in coverage)",
-        "Inner function within procedure (should be excluded with FUNCTION:INNER)",
       ] },
   # This fixture is a deliberate spread of schema-level remarks: before and
   # after the constant block, before a type, and two outside SCHEMA entirely.
@@ -159,19 +158,19 @@ RSpec.describe Expressir::Express::Formatter do
           "statements[13]Statements::If",
         ["Should be unreachable", "tail", false] =>
           "functions[144]Declarations::Function(subspace_of)/" \
-          "statements[14]Statements::If" }
+          "statements[14]Statements::If",
+        # One tag, two source owners: the WG12 block is attached to the
+        # remark item AND (via a relative resolution) to the parameter of
+        # the NEXT function. The render emits the pair once, so the
+        # parameter's copy legitimately departs (#609 probe).
+        ["(input) The aggregate of arbitrary values which are to be " \
+         "converted into a list of generic expressions.", nil, true] =>
+          "functions[20]Declarations::Function(convert_to_operands)/" \
+          "parameters[0]Declarations::Parameter(values)" }
         .transform_values { |path| { ["#{schema_prefix}#{path}", nil, nil] => 1 } }
     end
 
     it "keeps every surviving remark of the production schema in place" do
-      # Skipped for expressir#609. The two headline defects ARE fixed: items
-      # take their leaf ids, and the first-parse tail theft that piled 19
-      # functions' tails onto all_members_of_es is gone. What remains is
-      # grammar-lane capture drift on round trip — ten schema-positioned
-      # tails re-home on reparse (e.g. assoc_product_space onto the schema).
-      # The known_lost_copies table below needs rebaking when that is fixed.
-      skip "grammar-lane capture drift, see expressir#609"
-
       path = "spec/syntax/mathematical_functions_schema/" \
              "mathematical_functions_schema.exp"
       source_model = Expressir::Express::Parser.from_file(path)

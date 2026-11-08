@@ -69,12 +69,6 @@ module Expressir
         entries.sort_by { |n| node_order(n) }
       end
 
-      # First node (in node order) that is_a?(type), memoized per type.
-      def first_node_of_type(type)
-        @first_of_type ||= {}
-        @first_of_type[type] ||= @nodes.find { |n| n[:node].is_a?(type) }&.dig(:node)
-      end
-
       def semantic_entries
         @semantic_entries ||=
           @nodes.select { |n| n[:line] && semantic?(n[:node]) }
@@ -200,7 +194,19 @@ module Expressir
         end
 
         candidates.min_by { |n| node_order(n) }&.dig(:node) ||
-          first_node_of_type(node_type)
+          containing_node_of_type(node_type, remark_line)
+      end
+
+      # A comment on an END_XXX line whose scope's recorded end sits past
+      # the line — remark items live between declarations, and their spans
+      # push the owner's end_line beyond END_XXX — resolves by span
+      # containment. Falls back to nil, not the first node of the type:
+      # handing an unresolvable END_FUNCTION comment to the first function
+      # piled every stray tail onto one owner (#609).
+      def containing_node_of_type(type, line)
+        semantic_entries
+          .select { |n| n[:node].is_a?(type) && n[:end_line] && line.between?(n[:line], n[:end_line]) }
+          .min_by { |n| node_order(n) }&.dig(:node)
       end
 
       private

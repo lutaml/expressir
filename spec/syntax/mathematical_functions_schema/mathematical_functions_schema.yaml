@@ -9,7 +9,7 @@ schemas:
     functions. The context for these mathematical functions is provided by other parts
     of ISO 10303 and the applications which use this schema. Only the unitless, purely
     mathematical aspects of mathematical functions are considered in this schema.
-  - mathematical_functions_schema
+  - check_sparse_index_domain;
   remark_items:
   - _class: Expressir::Model::Declarations::RemarkItem
     id: __fund_cons
@@ -254,7 +254,7 @@ schemas:
     remarks:
     - data/resource_docs/mathematical_constructs/resource.xml
   untagged_remarks:
-  - text: mathematical_functions_schema
+  - text: check_sparse_index_domain;
     format: tail
   file: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp
   header: |-
@@ -10552,25 +10552,6 @@ schemas:
 
       NOTE: This function is used by the <<express:mathematical_functions_schema.subspace_of_es,subspace_of_es>> function.
     - all_members_of_es
-    - atan2
-    - check_sparse_index_domain;
-    - check_sparse_index_to_loc
-    - compatible_intervals
-    - compatible_spaces
-    - convert_to_maths_value
-    - definite_integral_expr_check
-    - derive_elementary_function_domain
-    - derive_elementary_function_range
-    - enclose_pregion_in_cregion
-    - mem_of_vs
-    - equal_maths_values
-    - es_subspace_of_es
-    - extract_factors
-    - function_is_2d_table
-    - simplify_function_application
-    - restore_binary
-    - simplify_maths_space
-    - subspace_of
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: lv
@@ -10584,44 +10565,6 @@ schemas:
         one member can be determined not to belong, and UNKNOWN, otherwise."
     untagged_remarks:
     - text: all_members_of_es
-      format: tail
-    - text: atan2
-      format: tail
-    - text: check_sparse_index_domain;
-      format: tail
-    - text: check_sparse_index_to_loc
-      format: tail
-    - text: compatible_intervals
-      format: tail
-    - text: compatible_spaces
-      format: tail
-    - text: convert_to_maths_value
-      format: tail
-    - text: definite_integral_expr_check
-      format: tail
-    - text: derive_elementary_function_domain
-      format: tail
-    - text: derive_elementary_function_range
-      format: tail
-    - text: enclose_pregion_in_cregion
-      format: tail
-    - text: mem_of_vs
-      format: tail
-    - text: equal_maths_values
-      format: tail
-    - text: es_subspace_of_es
-      format: tail
-    - text: extract_factors
-      format: tail
-    - text: function_is_2d_table
-      format: tail
-    - text: simplify_function_application
-      format: tail
-    - text: restore_binary
-      format: tail
-    - text: simplify_maths_space
-      format: tail
-    - text: subspace_of
       format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
@@ -12483,11 +12426,15 @@ schemas:
       This function computes the direction angle to the point in the plane defined by its two real arguments. Values returned lie in the range stem:[-pi < r <= pi]. The direction angle is the signed radian measure of the angle between the positive x-axis and the ray emanating from the origin and passing through the point. Points on the positive y-axis have direction angle stem:[pi/2]. In accordance with tradition, the y-coordinate of the point is the first argument, and the x-coordinate is the second. This function returns the indeterminate value when the point is the origin.
 
       NOTE: This is the traditional "atan2" function. Unlike the traditional "atan" ("arc tangent" or "inverse tangent") function, it takes two arguments and distinguishes among all four quadrants. The argument order probably derived from thinking of it as an extension of "atan(y/x)". The EXPRESS *atan* function is a peculiar hybrid of the traditional "atan" and "atan2" functions.
+    - atan2
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The direction angle to the point."
+    untagged_remarks:
+    - text: atan2
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: "y"
@@ -13131,12 +13078,16 @@ schemas:
       This function is used in WR5 in <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>> to verify the compatibility of two of its operands. The test is whether the integer range interval of the function used as the value of attribute *index* lies within the integer domain interval of the function used as the value of attribute *loc*, except perhaps at its maximum value. This function assumes automatic repackaging between integers and one-tuples of integers will be performed as needed in any evaluator for <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>>.
 
       NOTE: This rather special requirement follows from the evaluation algorithm for <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>>.
+    - check_sparse_index_to_loc
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value indicating whether the two spaces are suitable for
         these uses in an instance of <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>>."
+    untagged_remarks:
+    - text: check_sparse_index_to_loc
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: index_range
@@ -15264,12 +15215,16 @@ schemas:
     - This function determines whether two instances of <<express:mathematical_functions_schema.maths_space,maths_space>>
       which happen to be both integer intervals or both real intervals are compatible
       or not. See <<express:mathematical_functions_schema.compatible_spaces,compatible_spaces>>.
+    - compatible_intervals
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value of FALSE is returned if it is determined that the
         intersection of the two spaces is empty. Otherwise, TRUE is returned."
+    untagged_remarks:
+    - text: compatible_intervals
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: sp1
@@ -15528,12 +15483,16 @@ schemas:
       This function defines whether two instances of <<express:mathematical_functions_schema.maths_space,maths_space>> are compatible. Two spaces are regarded as compatible if it is not "obvious" that their intersection is empty.
 
       NOTE: As more and more subtypes of <<express:mathematical_functions_schema.maths_space,maths_space>> are added to this schema it will become more and more difficult to ascertain whether the intersection of two of them is empty. Since this function is used only to eliminate nonsensical instances, it is sufficient to rule out the obvious cases and permit the non-obvious cases to be valid as instances, although, perhaps, still useless as objects.
+    - compatible_spaces
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value of FALSE is returned if it is determined that the
         intersection of the two spaces is empty. Otherwise, TRUE is returned."
+    untagged_remarks:
+    - text: compatible_spaces
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: sp1
@@ -19111,11 +19070,15 @@ schemas:
     - This function returns a <<express:mathematical_functions_schema.maths_value,maths_value>>
       equivalent to any generic value which can be represented as a <<express:mathematical_functions_schema.maths_value,maths_value>>,
       and the indeterminate value, otherwise.
+    - convert_to_maths_value
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) An equivalent value of type <<express:mathematical_functions_schema.maths_value,maths_value>>."
+    untagged_remarks:
+    - text: convert_to_maths_value
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: val
@@ -20238,12 +20201,16 @@ schemas:
       is TRUE, that the real interval is unbounded above if *upperinf* is TRUE, and
       that the values spaces of the third and fourth operands, when present, are compatible
       with the real interval.
+    - definite_integral_expr_check
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value indicating whether or not the three arguments are
         consistent with the existence of a mathematical integral."
+    untagged_remarks:
+    - text: definite_integral_expr_check
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: operands
@@ -21349,11 +21316,15 @@ schemas:
       of <<express:mathematical_functions_schema.elementary_function,elementary_function>>
       from the corresponding <<express:mathematical_functions_schema.elementary_function_enumerators,elementary_function_enumerators>>
       enumeration item value.
+    - derive_elementary_function_domain
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The constructed domain space."
+    untagged_remarks:
+    - text: derive_elementary_function_domain
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: ef_val
@@ -23820,11 +23791,15 @@ schemas:
       of <<express:mathematical_functions_schema.elementary_function,elementary_function>>
       from the corresponding <<express:mathematical_functions_schema.elementary_function_enumerators,elementary_function_enumerators>>
       enumeration item value.
+    - derive_elementary_function_range
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
-      id: mathematical_functions_schema
+      id: return
       remarks:
       - "(output) The constructed range space."
+    untagged_remarks:
+    - text: derive_elementary_function_range
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: ef_val
@@ -31141,11 +31116,8 @@ schemas:
       id: angle_minmax
       remarks:
       - Include distance in max collection
-      - parts
       untagged_remarks:
       - text: Include distance in max collection
-        format: tail
-      - text: parts
         format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
@@ -34769,12 +34741,16 @@ schemas:
       This function constructs the smallest instance of <<express:mathematical_functions_schema.cartesian_complex_number_region,cartesian_complex_number_region>> which contains a given instance of <<express:mathematical_functions_schema.polar_complex_number_region,polar_complex_number_region>>, if such an instance exists. It returns the indeterminate value if no such instance exists.
 
       NOTE: The indeterminate value is returned if the input is indeterminate or the input region extends arbitrarily far in all four cartesian directions.
+    - enclose_pregion_in_cregion
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The smallest cartesian complex region enclosing the input region,
         if any such region exists."
+    untagged_remarks:
+    - text: enclose_pregion_in_cregion
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: prgn
@@ -48596,6 +48572,8 @@ schemas:
       This function performs a value equality test on the mathematical objects represented by the two <<express:mathematical_functions_schema.maths_value,maths_value>> arguments. The value *UNKNOWN* is returned if the information available is insufficient to decide.
 
       NOTE: This function is most likely to be decisive if the inputs have already been simplified by function <<express:mathematical_functions_schema.simplify_maths_value,simplify_maths_value>>.
+    - mem_of_vs
+    - equal_maths_values
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -48603,6 +48581,11 @@ schemas:
       - "(output) *TRUE* if the mathematical objects represented are the same, *FALSE*
         if the objects are known to be different, or *UNKNOWN* if it is not easily
         decidable from the information at hand."
+    untagged_remarks:
+    - text: mem_of_vs
+      format: tail
+    - text: equal_maths_values
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: val1
@@ -49520,12 +49503,16 @@ schemas:
     remarks:
     - This function determines whether an elsementary space is a subspace of another
       elementary space, both identified by values of <<express:mathematical_functions_schema.elementary_space_enumerators,elementary_space_enumerators>>.
+    - es_subspace_of_es
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value which is TRUE if the first space is a subspace of
         the second space, and FALSE, otherwise."
+    untagged_remarks:
+    - text: es_subspace_of_es
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: es1
@@ -49766,12 +49753,16 @@ schemas:
     remarks:
     - This function forms a tuple space from a sequence of consecutive factors of
       another tuple space.
+    - extract_factors
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) The tuple space formed by taking the *m* th to *n* th factors from
         *tspace*."
+    untagged_remarks:
+    - text: extract_factors
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: tspace
@@ -52252,12 +52243,16 @@ schemas:
     - This function determines whether or not its argument is a two-dimensional table
       function. That is, whether the sole input to *func* is a pair of integers from
       a two-dimensional subscript space.
+    - function_is_2d_table
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
       remarks:
       - "(output) A BOOLEAN value which is TRUE if the input is a two-dimensional
         table function, and FALSE, otherwise."
+    untagged_remarks:
+    - text: function_is_2d_table
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: func
@@ -65371,12 +65366,19 @@ schemas:
       expression to obtain a simpler <<express:mathematical_functions_schema.maths_value,maths_value>>.
       When no simpler expression can be identified, the input expression may be returned
       unchanged.
+    - simplify_function_application
+    - restore_binary
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
-      id: mathematical_functions_schema
+      id: return
       remarks:
       - "(output) A <<express:mathematical_functions_schema.maths_value,maths_value>>
         denoting the same mathematical object as the input expression."
+    untagged_remarks:
+    - text: simplify_function_application
+      format: tail
+    - text: restore_binary
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: expr
@@ -65568,6 +65570,11 @@ schemas:
     procedures:
     - _class: Expressir::Model::Declarations::Procedure
       id: parts
+      remarks:
+      - parts
+      untagged_remarks:
+      - text: parts
+        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: c
@@ -84708,6 +84715,7 @@ schemas:
       case, an instance of <<express:mathematical_functions_schema.maths_space,maths_space>>
       is returned which denotes the same mathematical space as that denoted by the
       input.
+    - simplify_maths_space
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -84715,6 +84723,9 @@ schemas:
       - "(output) A <<express:mathematical_functions_schema.maths_space,maths_space>>
         denoting the same mathematical object as the input space, but possibly with
         a simpler structure."
+    untagged_remarks:
+    - text: simplify_maths_space
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: spc
@@ -86543,13 +86554,17 @@ schemas:
     - This function attempts to determine whether a given mathematical space is a
       subspace of another mathematical space. Where the information accessible to
       this function is not sufficient to determine the matter, UNKNOWN is returned.
+    - subspace_of
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
-      id: mathematical_functions_schema
+      id: return
       remarks:
       - "(output) A LOGICAL value which is TRUE if the first space can be determined
         to be  a subspace of the second space, FALSE if the first space can be determined
         not to be a subspace of the second space, and UNKNOWN, otherwise."
+    untagged_remarks:
+    - text: subspace_of
+      format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: space1
@@ -91529,6 +91544,7 @@ schemas:
 
       NOTE: The _actual_ value space of an expression is impractical to ascertain in general. The purpose of this function is that it gives an equivalent of "type" information for mathematical expressions.
     - values_space_of
+    - mathematical_functions_schema
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -91536,6 +91552,8 @@ schemas:
       - "(output) A space containing all possible values of the expression."
     untagged_remarks:
     - text: values_space_of
+      format: tail
+    - text: mathematical_functions_schema
       format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter

@@ -168,8 +168,11 @@ RSpec.describe Expressir::Model::Declarations::RemarkItem do
       schema.parent = repository
     end
 
-    it "formats as single-line remark" do
-      expect(remark_item.to_s).to include('--"test_schema.test_entity.remark1"')
+    it "formats as one block per remark with the text included (#603)" do
+      formatted = remark_item.to_s
+      expect(formatted).to include('(*"test_schema.test_entity.remark1"')
+      expect(formatted).to include("First remark")
+      expect(formatted).to include("Second remark")
     end
 
     it "formats as multi-line remark when remarks contain newlines" do

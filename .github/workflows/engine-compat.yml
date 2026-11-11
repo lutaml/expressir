@@ -1,0 +1,30 @@
+name: engine-compat
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  engine-compat:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+
+      # The checker is stdlib-only (json/open3/rubygems) — no bundler.
+      - name: Verify ENGINE-COMPAT.json against the ext pin and rubygems
+        run: |
+          ruby -Ilib -rexpressir/tools/check_engine_compat -e '
+            failures = Expressir::Tools::CheckEngineCompat.failures(root: Dir.pwd)
+            abort(failures.join("\n")) unless failures.empty?
+            puts "engine-compat OK"
+          '

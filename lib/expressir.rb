@@ -1,3 +1,4 @@
+require "pathname"
 require "lutaml/model"
 # Liquid is intentionally NOT required here: lutaml-model's Liquefiable
 # lazily loads it on first #to_liquid (lutaml-model#800), keeping ~170ms

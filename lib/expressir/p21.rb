@@ -9,7 +9,6 @@ module Expressir
     autoload :TypedValue, "#{__dir__}/p21/population"
     autoload :Enumeration, "#{__dir__}/p21/population"
     autoload :Binary, "#{__dir__}/p21/population"
-    autoload :Grammar, "#{__dir__}/p21/grammar"
     autoload :Builder, "#{__dir__}/p21/builder"
     autoload :Validator, "#{__dir__}/p21/validator"
     autoload :Typing, "#{__dir__}/p21/typing"

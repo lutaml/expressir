@@ -7,26 +7,20 @@ module Expressir
     #
     # The grammar ships as a compiled PARG artifact
     # (+iso-10303-21.artifact.json+, the checksummed single source of
-    # truth shared with expressir-rs; issue #625): parsing runs through
-    # the artifact when it loads, with the DSL grammar as the fallback
-    # lane. The parity spec pins the two lanes byte-identically on the
-    # annex corpus.
+    # truth shared with expressir-rs; issue #625). The artifact is the
+    # only lane: the ruby DSL grammar retired once the artifact lane
+    # had a release cycle behind it (2.4.66/2.4.67), and the baked
+    # DSL trees (spec/fixtures/p21/conformance/*.tree.json) pin the
+    # replay byte-for-byte.
     module Parser
       module_function
 
       def parse(source)
-        tree = artifact_tree(source) || Grammar.new.parse(source)
-        Builder.build(tree)
+        Builder.build(artifact_tree(source))
       end
 
       def artifact_tree(source)
         artifact.parse("exchange_structure", source)
-      rescue Parsanol::PARG::ArtifactError
-        # The artifact itself is unusable (shape/edition/binding drift):
-        # fall back to the DSL grammar lane. A genuine ParseFailed from
-        # a valid artifact propagates — malformed input fails loudly on
-        # both lanes.
-        nil
       end
 
       def artifact

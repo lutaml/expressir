@@ -1,0 +1,297 @@
+{
+  "header_section": {
+    "header_entity": [
+      {
+        "simple_record": {
+          "keyword": {
+            "value": "FILE_DESCRIPTION",
+            "offset": 22,
+            "length": 16,
+            "line": 3,
+            "column": 1
+          },
+          "parameter_list": [
+            {
+              "parameter": {
+                "parameter_list": {
+                  "parameter": {
+                    "string_literal": {
+                      "value": "'example of how to reference EXPRESS constants that define units'",
+                      "offset": 59,
+                      "length": 65,
+                      "line": 4,
+                      "column": 20
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "'4;3'",
+                  "offset": 154,
+                  "length": 5,
+                  "line": 5,
+                  "column": 28
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "simple_record": {
+          "keyword": {
+            "value": "FILE_NAME",
+            "offset": 163,
+            "length": 9,
+            "line": 7,
+            "column": 1
+          },
+          "parameter_list": [
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "'example.stp'",
+                  "offset": 185,
+                  "length": 13,
+                  "line": 8,
+                  "column": 12
+                }
+              }
+            },
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "'2013-02-09T12:37:49-05:00'",
+                  "offset": 217,
+                  "length": 27,
+                  "line": 9,
+                  "column": 18
+                }
+              }
+            },
+            {
+              "parameter": {
+                "parameter_list": {
+                  "parameter": {
+                    "string_literal": {
+                      "value": "''",
+                      "offset": 260,
+                      "length": 2,
+                      "line": 10,
+                      "column": 15
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "parameter": {
+                "parameter_list": {
+                  "parameter": {
+                    "string_literal": {
+                      "value": "''",
+                      "offset": 285,
+                      "length": 2,
+                      "line": 11,
+                      "column": 21
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "''",
+                  "offset": 317,
+                  "length": 2,
+                  "line": 12,
+                  "column": 28
+                }
+              }
+            },
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "''",
+                  "offset": 346,
+                  "length": 2,
+                  "line": 13,
+                  "column": 26
+                }
+              }
+            },
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "''",
+                  "offset": 370,
+                  "length": 2,
+                  "line": 14,
+                  "column": 21
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "simple_record": {
+          "keyword": {
+            "value": "FILE_SCHEMA",
+            "offset": 375,
+            "length": 11,
+            "line": 15,
+            "column": 1
+          },
+          "parameter_list": {
+            "parameter": {
+              "parameter_list": {
+                "parameter": {
+                  "string_literal": {
+                    "value": "'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF'",
+                    "offset": 388,
+                    "length": 49,
+                    "line": 15,
+                    "column": 14
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "data_section": [
+    {
+      "data_section": {
+        "instance_list": [
+          {
+            "complex_entity_instance": {
+              "entity_instance_name": {
+                "value": "#10",
+                "offset": 478,
+                "length": 3,
+                "line": 19,
+                "column": 1
+              },
+              "subsuper_record": [
+                {
+                  "simple_record": {
+                    "keyword": {
+                      "value": "GEOMETRIC_REPRESENTATION_CONTEXT",
+                      "offset": 486,
+                      "length": 32,
+                      "line": 20,
+                      "column": 1
+                    },
+                    "parameter_list": {
+                      "parameter": {
+                        "number_literal": {
+                          "value": "3",
+                          "offset": 519,
+                          "length": 1,
+                          "line": 20,
+                          "column": 34
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "simple_record": {
+                    "keyword": {
+                      "value": "GLOBAL_UNIT_ASSIGNED_CONTEXT",
+                      "offset": 522,
+                      "length": 28,
+                      "line": 21,
+                      "column": 1
+                    },
+                    "parameter_list": {
+                      "parameter": {
+                        "parameter_list": [
+                          {
+                            "parameter": {
+                              "constant_reference": {
+                                "value": "#IMPERIAL_LENGTH_INCH",
+                                "offset": 552,
+                                "length": 21,
+                                "line": 21,
+                                "column": 31
+                              }
+                            }
+                          },
+                          {
+                            "parameter": {
+                              "constant_reference": {
+                                "value": "#PLANE_ANGLE_RADIAN",
+                                "offset": 575,
+                                "length": 19,
+                                "line": 21,
+                                "column": 54
+                              }
+                            }
+                          },
+                          {
+                            "parameter": {
+                              "constant_reference": {
+                                "value": "#SOLID_ANGLE_STERADIAN",
+                                "offset": 596,
+                                "length": 22,
+                                "line": 21,
+                                "column": 75
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "simple_record": {
+                    "keyword": {
+                      "value": "REPRESENTATION_CONTEXT",
+                      "offset": 621,
+                      "length": 22,
+                      "line": 22,
+                      "column": 1
+                    },
+                    "parameter_list": [
+                      {
+                        "parameter": {
+                          "string_literal": {
+                            "value": "''",
+                            "offset": 644,
+                            "length": 2,
+                            "line": 22,
+                            "column": 24
+                          }
+                        }
+                      },
+                      {
+                        "parameter": {
+                          "string_literal": {
+                            "value": "'3D'",
+                            "offset": 647,
+                            "length": 4,
+                            "line": 22,
+                            "column": 27
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

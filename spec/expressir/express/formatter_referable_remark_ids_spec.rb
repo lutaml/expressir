@@ -60,11 +60,9 @@ RSpec.describe Expressir::Express::Formatter do
     context "with #{name}" do
       let(:repo) { parse_paths.fetch(name).call(source) }
 
-      before do
-        if name == "from_file" && !Expressir::Express::Core::NATIVE_AVAILABLE
-          skip "native extension not compiled"
-        end
-      end
+      # Un-gated (issue #623): plain from_file runs on whichever lane
+      # is available — the "__note" ids are a formatter contract, not
+      # a core-lane one.
 
       it "keeps the ids and the count" do
         expect(note_ids(repo)).to eq(expected)

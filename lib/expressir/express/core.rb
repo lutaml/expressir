@@ -9,7 +9,11 @@ module Expressir
     # callers fall back to the pure-Ruby parser otherwise.
     #
     module Core
-      NATIVE_AVAILABLE = begin
+      # EXPRESSIR_DISABLE_NATIVE=1 forces the pure-Ruby fallback lanes
+      # even when the extension is present: the no-native lane is a
+      # supported configuration (issue #623) — CI runs the suite on
+      # both lanes so fallback drift cannot land.
+      NATIVE_AVAILABLE = ENV["EXPRESSIR_DISABLE_NATIVE"] != "1" && begin
         require "expressir/expressir_core"
         true
       rescue LoadError
@@ -68,6 +72,8 @@ module Expressir
       # RemarkScanner::Remark's fields (position, end_position, line,
       # text, tag, format), straight from the Rust scanner.
       def self.scan_remarks(source, annotations: false)
+        raise NotImplementedError, "the native extension is unavailable" unless NATIVE_AVAILABLE
+
         ::Expressir::Core.scan_remarks(source, annotations)
       end
 

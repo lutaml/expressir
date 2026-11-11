@@ -1,0 +1,4 @@
+# Byte-exact fixture: the P21 artifact's checksums attest the
+# producer's exact bytes, so checkout line-ending conversion must
+# never touch it (windows CRLF checkouts would break the seal).
+lib/expressir/p21/iso-10303-21.artifact.json -text

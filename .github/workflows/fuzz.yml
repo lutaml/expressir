@@ -1,0 +1,49 @@
+# The differential fuzz (issue #624, mirroring parsanol's fuzz.yml):
+# date-seeded mutations over the corpus, parsed + attached + formatted
+# on both lanes (native extension, pure-Ruby fallback) with byte-exact
+# comparison. Drift is a release blocker.
+name: differential-fuzz
+
+permissions:
+  contents: read
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: "Generator seed (default: today, YYYYMMDD)"
+        required: false
+      cases:
+        description: "Number of mutated cases"
+        required: false
+        default: "120"
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    env:
+      FUZZ_SEED: ${{ github.event.inputs.seed }}
+      FUZZ_CASES: ${{ github.event.inputs.cases }}
+      FUZZ_EXPORT_DIR: ${{ github.workspace }}/fuzz-artifacts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+      - name: Default the seed to today
+        run: |
+          if [ -z "$FUZZ_SEED" ]; then
+            echo "FUZZ_SEED=$(date +%Y%m%d)" >> "$GITHUB_ENV"
+          fi
+      - name: Differential fuzz across the lanes
+        run: |
+          bundle exec rake fuzz:run 2>&1 | tee fuzz.log
+          {
+            echo '### Differential fuzz'
+            echo '```'
+            grep 'fuzz stats' fuzz.log || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

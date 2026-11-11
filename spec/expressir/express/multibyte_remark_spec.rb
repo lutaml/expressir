@@ -8,16 +8,11 @@ require "spec_helper"
 # compare sliced `trimmed[..keyword.len()]` in bytes. iso-10303 pinned
 # its corpus back to 2.4.48 over this (metanorma/iso-10303#822); the
 # byte-wise compare matches only ASCII keywords on ASCII prefixes, so
-# the attach stage handles any text. Native-gated: the scope walk is a
-# core-lane path.
+# the attach stage handles any text. Un-gated (issue #623): the spec
+# runs on whichever lane from_file picks — the core lane and the
+# pure-Ruby RemarkAttacher must both attach cleanly.
 RSpec.describe "multi-byte remark lines" do # rubocop:disable RSpec/DescribeClass
   require "tempfile"
-
-  before do
-    unless Expressir::Express::Core::NATIVE_AVAILABLE
-      skip "core extension absent — the attach scope walk is a core-lane path"
-    end
-  end
 
   let(:source) do
     <<~EXPRESS

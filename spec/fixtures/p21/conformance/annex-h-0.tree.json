@@ -1,0 +1,795 @@
+{
+  "header_section": {
+    "header_entity": [
+      {
+        "simple_record": {
+          "keyword": {
+            "value": "FILE_DESCRIPTION",
+            "offset": 22,
+            "length": 16,
+            "line": 3,
+            "column": 1
+          },
+          "parameter_list": [
+            {
+              "parameter": {
+                "parameter_list": {
+                  "parameter": {
+                    "string_literal": {
+                      "value": "'THIS FILE CONTAINS A SMALL SAMPLE STEP MODEL'",
+                      "offset": 40,
+                      "length": 46,
+                      "line": 3,
+                      "column": 19
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "'3;1'",
+                  "offset": 88,
+                  "length": 5,
+                  "line": 3,
+                  "column": 67
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "simple_record": {
+          "keyword": {
+            "value": "FILE_NAME",
+            "offset": 96,
+            "length": 9,
+            "line": 4,
+            "column": 1
+          },
+          "parameter_list": [
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "'EXAMPLE STEP FILE #1'",
+                  "offset": 106,
+                  "length": 22,
+                  "line": 4,
+                  "column": 11
+                }
+              }
+            },
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "'2013-02-11T15:30:00'",
+                  "offset": 130,
+                  "length": 21,
+                  "line": 5,
+                  "column": 1
+                }
+              }
+            },
+            {
+              "parameter": {
+                "parameter_list": [
+                  {
+                    "parameter": {
+                      "string_literal": {
+                        "value": "'JOHN DOE'",
+                        "offset": 154,
+                        "length": 10,
+                        "line": 6,
+                        "column": 2
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "string_literal": {
+                        "value": "'ACME INC.'",
+                        "offset": 166,
+                        "length": 11,
+                        "line": 7,
+                        "column": 1
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "string_literal": {
+                        "value": "'METROPOLIS USA'",
+                        "offset": 179,
+                        "length": 16,
+                        "line": 8,
+                        "column": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "parameter": {
+                "parameter_list": [
+                  {
+                    "parameter": {
+                      "string_literal": {
+                        "value": "'ACME INC. A SUBSIDIARY OF GIANT INDUSTRIES'",
+                        "offset": 199,
+                        "length": 44,
+                        "line": 9,
+                        "column": 2
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "string_literal": {
+                        "value": "'METROPOLIS USA'",
+                        "offset": 244,
+                        "length": 16,
+                        "line": 9,
+                        "column": 47
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "'CIM/STEP VERSION2'",
+                  "offset": 263,
+                  "length": 19,
+                  "line": 10,
+                  "column": 1
+                }
+              }
+            },
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "'SUPER CIM SYSTEM RELEASE 4.0'",
+                  "offset": 284,
+                  "length": 30,
+                  "line": 11,
+                  "column": 1
+                }
+              }
+            },
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "'APPROVED BY JOE BLOGGS'",
+                  "offset": 316,
+                  "length": 24,
+                  "line": 12,
+                  "column": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "simple_record": {
+          "keyword": {
+            "value": "FILE_SCHEMA",
+            "offset": 343,
+            "length": 11,
+            "line": 13,
+            "column": 1
+          },
+          "parameter_list": {
+            "parameter": {
+              "parameter_list": {
+                "parameter": {
+                  "string_literal": {
+                    "value": "'EXAMPLE_GEOMETRY'",
+                    "offset": 356,
+                    "length": 18,
+                    "line": 13,
+                    "column": 14
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "data_section": [
+    {
+      "data_section": {
+        "instance_list": [
+          {
+            "simple_entity_instance": {
+              "entity_instance_name": {
+                "value": "#1",
+                "offset": 461,
+                "length": 2,
+                "line": 19,
+                "column": 1
+              },
+              "simple_record": {
+                "keyword": {
+                  "value": "CPT",
+                  "offset": 464,
+                  "length": 3,
+                  "line": 19,
+                  "column": 4
+                },
+                "parameter_list": [
+                  {
+                    "parameter": {
+                      "number_literal": {
+                        "value": "0.0",
+                        "offset": 468,
+                        "length": 3,
+                        "line": 19,
+                        "column": 8
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "number_literal": {
+                        "value": "0.0",
+                        "offset": 472,
+                        "length": 3,
+                        "line": 19,
+                        "column": 12
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "number_literal": {
+                        "value": "0.0",
+                        "offset": 476,
+                        "length": 3,
+                        "line": 19,
+                        "column": 16
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "simple_entity_instance": {
+              "entity_instance_name": {
+                "value": "#2",
+                "offset": 524,
+                "length": 2,
+                "line": 20,
+                "column": 1
+              },
+              "simple_record": {
+                "keyword": {
+                  "value": "CPT",
+                  "offset": 527,
+                  "length": 3,
+                  "line": 20,
+                  "column": 4
+                },
+                "parameter_list": [
+                  {
+                    "parameter": {
+                      "number_literal": {
+                        "value": "0.0",
+                        "offset": 531,
+                        "length": 3,
+                        "line": 20,
+                        "column": 8
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "number_literal": {
+                        "value": "1.0",
+                        "offset": 535,
+                        "length": 3,
+                        "line": 20,
+                        "column": 12
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "number_literal": {
+                        "value": "0.0",
+                        "offset": 539,
+                        "length": 3,
+                        "line": 20,
+                        "column": 16
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "simple_entity_instance": {
+              "entity_instance_name": {
+                "value": "#3",
+                "offset": 545,
+                "length": 2,
+                "line": 21,
+                "column": 1
+              },
+              "simple_record": {
+                "keyword": {
+                  "value": "CPT",
+                  "offset": 548,
+                  "length": 3,
+                  "line": 21,
+                  "column": 4
+                },
+                "parameter_list": [
+                  {
+                    "parameter": {
+                      "number_literal": {
+                        "value": "1.0",
+                        "offset": 552,
+                        "length": 3,
+                        "line": 21,
+                        "column": 8
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "number_literal": {
+                        "value": "0.0",
+                        "offset": 556,
+                        "length": 3,
+                        "line": 21,
+                        "column": 12
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "number_literal": {
+                        "value": "0.0",
+                        "offset": 560,
+                        "length": 3,
+                        "line": 21,
+                        "column": 16
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "simple_entity_instance": {
+              "entity_instance_name": {
+                "value": "#11",
+                "offset": 566,
+                "length": 3,
+                "line": 22,
+                "column": 1
+              },
+              "simple_record": {
+                "keyword": {
+                  "value": "VX",
+                  "offset": 570,
+                  "length": 2,
+                  "line": 22,
+                  "column": 5
+                },
+                "parameter_list": {
+                  "parameter": {
+                    "entity_instance_name": {
+                      "value": "#1",
+                      "offset": 573,
+                      "length": 2,
+                      "line": 22,
+                      "column": 8
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "simple_entity_instance": {
+              "entity_instance_name": {
+                "value": "#12",
+                "offset": 620,
+                "length": 3,
+                "line": 23,
+                "column": 1
+              },
+              "simple_record": {
+                "keyword": {
+                  "value": "VX",
+                  "offset": 624,
+                  "length": 2,
+                  "line": 23,
+                  "column": 5
+                },
+                "parameter_list": {
+                  "parameter": {
+                    "entity_instance_name": {
+                      "value": "#2",
+                      "offset": 627,
+                      "length": 2,
+                      "line": 23,
+                      "column": 8
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "simple_entity_instance": {
+              "entity_instance_name": {
+                "value": "#13",
+                "offset": 632,
+                "length": 3,
+                "line": 24,
+                "column": 1
+              },
+              "simple_record": {
+                "keyword": {
+                  "value": "VX",
+                  "offset": 636,
+                  "length": 2,
+                  "line": 24,
+                  "column": 5
+                },
+                "parameter_list": {
+                  "parameter": {
+                    "entity_instance_name": {
+                      "value": "#3",
+                      "offset": 639,
+                      "length": 2,
+                      "line": 24,
+                      "column": 8
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "simple_entity_instance": {
+              "entity_instance_name": {
+                "value": "#16",
+                "offset": 644,
+                "length": 3,
+                "line": 25,
+                "column": 1
+              },
+              "simple_record": {
+                "keyword": {
+                  "value": "ED",
+                  "offset": 648,
+                  "length": 2,
+                  "line": 25,
+                  "column": 5
+                },
+                "parameter_list": [
+                  {
+                    "parameter": {
+                      "entity_instance_name": {
+                        "value": "#11",
+                        "offset": 651,
+                        "length": 3,
+                        "line": 25,
+                        "column": 8
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "entity_instance_name": {
+                        "value": "#12",
+                        "offset": 655,
+                        "length": 3,
+                        "line": 25,
+                        "column": 12
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "simple_entity_instance": {
+              "entity_instance_name": {
+                "value": "#17",
+                "offset": 697,
+                "length": 3,
+                "line": 26,
+                "column": 1
+              },
+              "simple_record": {
+                "keyword": {
+                  "value": "ED",
+                  "offset": 701,
+                  "length": 2,
+                  "line": 26,
+                  "column": 5
+                },
+                "parameter_list": [
+                  {
+                    "parameter": {
+                      "entity_instance_name": {
+                        "value": "#11",
+                        "offset": 704,
+                        "length": 3,
+                        "line": 26,
+                        "column": 8
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "entity_instance_name": {
+                        "value": "#13",
+                        "offset": 708,
+                        "length": 3,
+                        "line": 26,
+                        "column": 12
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "simple_entity_instance": {
+              "entity_instance_name": {
+                "value": "#18",
+                "offset": 714,
+                "length": 3,
+                "line": 27,
+                "column": 1
+              },
+              "simple_record": {
+                "keyword": {
+                  "value": "ED",
+                  "offset": 718,
+                  "length": 2,
+                  "line": 27,
+                  "column": 5
+                },
+                "parameter_list": [
+                  {
+                    "parameter": {
+                      "entity_instance_name": {
+                        "value": "#13",
+                        "offset": 721,
+                        "length": 3,
+                        "line": 27,
+                        "column": 8
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "entity_instance_name": {
+                        "value": "#12",
+                        "offset": 725,
+                        "length": 3,
+                        "line": 27,
+                        "column": 12
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "simple_entity_instance": {
+              "entity_instance_name": {
+                "value": "#21",
+                "offset": 731,
+                "length": 3,
+                "line": 28,
+                "column": 1
+              },
+              "simple_record": {
+                "keyword": {
+                  "value": "ED_STRC",
+                  "offset": 735,
+                  "length": 7,
+                  "line": 28,
+                  "column": 5
+                },
+                "parameter_list": [
+                  {
+                    "parameter": {
+                      "entity_instance_name": {
+                        "value": "#17",
+                        "offset": 743,
+                        "length": 3,
+                        "line": 28,
+                        "column": 13
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "enumeration": {
+                        "value": ".F.",
+                        "offset": 747,
+                        "length": 3,
+                        "line": 28,
+                        "column": 17
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "simple_entity_instance": {
+              "entity_instance_name": {
+                "value": "#22",
+                "offset": 802,
+                "length": 3,
+                "line": 29,
+                "column": 1
+              },
+              "simple_record": {
+                "keyword": {
+                  "value": "ED_STRC",
+                  "offset": 806,
+                  "length": 7,
+                  "line": 29,
+                  "column": 5
+                },
+                "parameter_list": [
+                  {
+                    "parameter": {
+                      "entity_instance_name": {
+                        "value": "#18",
+                        "offset": 814,
+                        "length": 3,
+                        "line": 29,
+                        "column": 13
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "enumeration": {
+                        "value": ".F.",
+                        "offset": 818,
+                        "length": 3,
+                        "line": 29,
+                        "column": 17
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "simple_entity_instance": {
+              "entity_instance_name": {
+                "value": "#23",
+                "offset": 824,
+                "length": 3,
+                "line": 30,
+                "column": 1
+              },
+              "simple_record": {
+                "keyword": {
+                  "value": "ED_STRC",
+                  "offset": 828,
+                  "length": 7,
+                  "line": 30,
+                  "column": 5
+                },
+                "parameter_list": [
+                  {
+                    "parameter": {
+                      "entity_instance_name": {
+                        "value": "#16",
+                        "offset": 836,
+                        "length": 3,
+                        "line": 30,
+                        "column": 13
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "enumeration": {
+                        "value": ".T.",
+                        "offset": 840,
+                        "length": 3,
+                        "line": 30,
+                        "column": 17
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "simple_entity_instance": {
+              "entity_instance_name": {
+                "value": "#24",
+                "offset": 846,
+                "length": 3,
+                "line": 31,
+                "column": 1
+              },
+              "simple_record": {
+                "keyword": {
+                  "value": "ED_LOOP",
+                  "offset": 850,
+                  "length": 7,
+                  "line": 31,
+                  "column": 5
+                },
+                "parameter_list": {
+                  "parameter": {
+                    "parameter_list": [
+                      {
+                        "parameter": {
+                          "entity_instance_name": {
+                            "value": "#21",
+                            "offset": 859,
+                            "length": 3,
+                            "line": 31,
+                            "column": 14
+                          }
+                        }
+                      },
+                      {
+                        "parameter": {
+                          "entity_instance_name": {
+                            "value": "#22",
+                            "offset": 863,
+                            "length": 3,
+                            "line": 31,
+                            "column": 18
+                          }
+                        }
+                      },
+                      {
+                        "parameter": {
+                          "entity_instance_name": {
+                            "value": "#23",
+                            "offset": 867,
+                            "length": 3,
+                            "line": 31,
+                            "column": 22
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

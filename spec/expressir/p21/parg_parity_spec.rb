@@ -6,9 +6,12 @@ require "expressir"
 
 # The P21 compile-parity gate (issue #625): the shipped PARG artifact
 # (lib/expressir/p21/iso-10303-21.artifact.json — the checksummed
-# single source of truth shared with expressir-rs) must parse the ISO
-# 10303-21 annex corpus byte-identically to the ruby DSL grammar.
-# Drift here is a release blocker for both lanes.
+# single source of truth shared with expressir-rs) must replay the
+# ruby compiler's trees byte-identically on the ISO 10303-21 annex
+# corpus. The oracle is the BAKED DSL trees (*.tree.json, captured
+# from the ruby DSL grammar before its retirement) — the rust suite
+# replays the same files. Drift here is a release blocker for both
+# compilers.
 RSpec.describe "Expressir::P21 PARG artifact parity" do # rubocop:disable RSpec/DescribeClass
   let(:artifact) do
     Parsanol::PARG::Artifact.load(
@@ -20,8 +23,10 @@ RSpec.describe "Expressir::P21 PARG artifact parity" do # rubocop:disable RSpec/
     Expressir.root_path.join("spec/fixtures/p21/conformance", name).read
   end
 
-  def dsl_tree(source)
-    Expressir::P21::Grammar.new.parse(source).to_h
+  def baked_tree(stem)
+    JSON.parse(
+      Expressir.root_path.join("spec/fixtures/p21/conformance/#{stem}.tree.json").read,
+    )
   end
 
   def artifact_tree(source)
@@ -29,13 +34,12 @@ RSpec.describe "Expressir::P21 PARG artifact parity" do # rubocop:disable RSpec/
   end
 
   %w[
-    annex-e-0.p21 annex-e-1.p21 annex-h-0.p21
-    annex-i-0.p21 annex-i-1.p21 annex-j-0.p21
-  ].each do |name|
-    it "replays the DSL tree byte-identically for #{name}" do
-      source = fixture(name)
-      expect(JSON.parse(artifact_tree(source).to_json))
-        .to eq(JSON.parse(dsl_tree(source).to_json))
+    annex-e-0 annex-e-1 annex-h-0
+    annex-i-0 annex-i-1 annex-j-0
+  ].each do |stem|
+    it "replays the baked DSL tree byte-identically for #{stem}" do
+      expect(JSON.parse(artifact_tree(fixture("#{stem}.p21")).to_json))
+        .to eq(baked_tree(stem))
     end
   end
 
@@ -47,8 +51,7 @@ RSpec.describe "Expressir::P21 PARG artifact parity" do # rubocop:disable RSpec/
 
   it "rejects a truncated exchange structure on the artifact lane" do
     truncated = "ISO-10303-21;\nHEADER;\nFILE_NAME('n');\nENDSEC;\nDATA;\n#1=E('v');\n"
-    # A valid artifact propagates the parse failure (malformed input
-    # fails loudly, on both lanes) rather than silently falling back.
+    # The artifact is the only lane: malformed input fails loudly.
     expect { artifact_tree(truncated) }.to raise_error(Parsanol::ParseFailed)
     expect { Expressir::P21::Parser.parse(truncated) }
       .to raise_error(Parsanol::ParseFailed)

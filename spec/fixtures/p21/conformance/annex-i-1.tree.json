@@ -1,0 +1,289 @@
+{
+  "header_section": {
+    "header_entity": [
+      {
+        "simple_record": {
+          "keyword": {
+            "value": "FILE_DESCRIPTION",
+            "offset": 22,
+            "length": 16,
+            "line": 3,
+            "column": 1
+          },
+          "parameter_list": [
+            {
+              "parameter": {
+                "parameter_list": {
+                  "parameter": {
+                    "string_literal": {
+                      "value": "'THIS FILE REPRESENTS A SUBSIDIARY STEP MODEL FOR FIRST FILE'",
+                      "offset": 40,
+                      "length": 61,
+                      "line": 3,
+                      "column": 19
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "'4;2'",
+                  "offset": 103,
+                  "length": 5,
+                  "line": 3,
+                  "column": 82
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "simple_record": {
+          "keyword": {
+            "value": "FILE_NAME",
+            "offset": 111,
+            "length": 9,
+            "line": 4,
+            "column": 1
+          },
+          "parameter_list": [
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "'ftp.acme.net/second_file.stp'",
+                  "offset": 121,
+                  "length": 30,
+                  "line": 4,
+                  "column": 11
+                }
+              }
+            },
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "'2013-02-11T17:30:00'",
+                  "offset": 153,
+                  "length": 21,
+                  "line": 5,
+                  "column": 1
+                }
+              }
+            },
+            {
+              "parameter": {
+                "parameter_list": [
+                  {
+                    "parameter": {
+                      "string_literal": {
+                        "value": "'JOHN DOE'",
+                        "offset": 177,
+                        "length": 10,
+                        "line": 6,
+                        "column": 2
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "string_literal": {
+                        "value": "'ACME INC.'",
+                        "offset": 189,
+                        "length": 11,
+                        "line": 7,
+                        "column": 1
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "string_literal": {
+                        "value": "'METROPOLIS USA'",
+                        "offset": 202,
+                        "length": 16,
+                        "line": 8,
+                        "column": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "parameter": {
+                "parameter_list": [
+                  {
+                    "parameter": {
+                      "string_literal": {
+                        "value": "'ACME INC. A SUBSIDIARY OF GIANT INDUSTRIES'",
+                        "offset": 222,
+                        "length": 44,
+                        "line": 9,
+                        "column": 2
+                      }
+                    }
+                  },
+                  {
+                    "parameter": {
+                      "string_literal": {
+                        "value": "'METROPOLIS USA'",
+                        "offset": 267,
+                        "length": 16,
+                        "line": 9,
+                        "column": 47
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "'CIM/STEP VERSION2'",
+                  "offset": 286,
+                  "length": 19,
+                  "line": 10,
+                  "column": 1
+                }
+              }
+            },
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "'SUPER CIM SYSTEM RELEASE 4.0'",
+                  "offset": 307,
+                  "length": 30,
+                  "line": 11,
+                  "column": 1
+                }
+              }
+            },
+            {
+              "parameter": {
+                "string_literal": {
+                  "value": "'APPROVED BY JOE WILLING'",
+                  "offset": 339,
+                  "length": 25,
+                  "line": 12,
+                  "column": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "simple_record": {
+          "keyword": {
+            "value": "FILE_SCHEMA",
+            "offset": 367,
+            "length": 11,
+            "line": 13,
+            "column": 1
+          },
+          "parameter_list": {
+            "parameter": {
+              "parameter_list": {
+                "parameter": {
+                  "string_literal": {
+                    "value": "'EXAMPLE_GEOMETRY'",
+                    "offset": 380,
+                    "length": 18,
+                    "line": 13,
+                    "column": 14
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "anchor_section": {
+    "anchor_entry": [
+      {
+        "anchor_entry": {
+          "anchor_label": {
+            "value": "vertex_1",
+            "offset": 457,
+            "length": 8,
+            "line": 17,
+            "column": 2
+          },
+          "entity_instance_name": {
+            "value": "#11",
+            "offset": 469,
+            "length": 3,
+            "line": 17,
+            "column": 14
+          }
+        }
+      }
+    ]
+  },
+  "reference_section": {
+    "instance_list": [
+      {
+        "external_reference_instance": {
+          "entity_instance_name": {
+            "value": "#1",
+            "offset": 494,
+            "length": 2,
+            "line": 21,
+            "column": 1
+          },
+          "external_anchor": {
+            "value": "<http://www.giant.com/first_file.stp#POINT_1>",
+            "offset": 499,
+            "length": 45,
+            "line": 21,
+            "column": 6
+          }
+        }
+      }
+    ]
+  },
+  "data_section": [
+    {
+      "data_section": {
+        "instance_list": [
+          {
+            "simple_entity_instance": {
+              "entity_instance_name": {
+                "value": "#11",
+                "offset": 653,
+                "length": 3,
+                "line": 28,
+                "column": 1
+              },
+              "simple_record": {
+                "keyword": {
+                  "value": "VX",
+                  "offset": 657,
+                  "length": 2,
+                  "line": 28,
+                  "column": 5
+                },
+                "parameter_list": {
+                  "parameter": {
+                    "entity_instance_name": {
+                      "value": "#1",
+                      "offset": 660,
+                      "length": 2,
+                      "line": 28,
+                      "column": 8
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

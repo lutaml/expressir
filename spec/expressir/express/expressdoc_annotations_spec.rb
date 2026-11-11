@@ -28,14 +28,10 @@ RSpec.describe "EXPRESSdoc annotations" do # rubocop:disable RSpec/DescribeClass
     file&.unlink
   end
 
-  # The annotation distinction is a scanner feature of the core lane
-  # (expressir#91). The grammar lane keeps its remark reading, so the
-  # specs are native-gated like the other core-lane coverage.
-  before do
-    unless Expressir::Express::Core::NATIVE_AVAILABLE
-      skip "core extension absent — annotations are a core-lane feature"
-    end
-  end
+  # The annotation distinction lives in the remark scanners on both
+  # lanes (expressir#91): the core scanner and the pure-Ruby
+  # RemarkScanner both take `annotations:`. Un-gated (issue #623) —
+  # whichever lane from_file picks must make the same distinction.
 
   def remark_formats(node, acc = [])
     Array(node.untagged_remarks).each do |remark|
@@ -89,6 +85,12 @@ RSpec.describe "EXPRESSdoc annotations" do # rubocop:disable RSpec/DescribeClass
   end
 
   it "scans annotations on the fallback scanner like the native one" do
+    # A cross-lane parity example: it needs BOTH scanners, so it is
+    # the one gate this file keeps (issue #623 un-gates the
+    # behavioral examples above, which run on the fallback alone).
+    unless Expressir::Express::Core::NATIVE_AVAILABLE
+      skip "cross-lane parity needs the native scanner (EXPRESSIR_DISABLE_NATIVE=1)"
+    end
     native = Expressir::Express::Core.scan_remarks(source, annotations: true).map do |unit|
       [unit[:format], unit[:text]]
     end

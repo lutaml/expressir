@@ -106,7 +106,7 @@ module Expressir
         # build so recursive build calls can read source/include_source via
         # `Builder.source` / `Builder.include_source`. The previous context
         # (if any) is restored on exit so nested builds are reentrant.
-        def build_with_remarks(ast, source: nil, include_source: nil)
+        def build_with_remarks(ast, source: nil, include_source: nil, annotations: false)
           # Trigger BuilderRegistry autoload so all AST node type handlers
           # are registered before build() runs. The reference to
           # BuilderRegistry resolves the autoload defined in express.rb.
@@ -123,7 +123,7 @@ module Expressir
           # Only attach remarks if include_source is explicitly true
           # (nil means use default behavior - attach remarks)
           if source && result && include_source != false
-            attacher = RemarkAttacher.new(source)
+            attacher = RemarkAttacher.new(source, annotations: annotations)
             attacher.attach(result)
           end
 

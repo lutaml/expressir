@@ -1,0 +1,165 @@
+{
+  "_class": "Expressir::Model::ExpFile",
+  "path": "source.exp",
+  "schemas": [
+    {
+      "_class": "Expressir::Model::Declarations::Schema",
+      "entities": [
+        {
+          "_class": "Expressir::Model::Declarations::Entity",
+          "attributes": [
+            {
+              "_class": "Expressir::Model::Declarations::Attribute",
+              "id": "name",
+              "kind": "EXPLICIT",
+              "source_end_offset": 120,
+              "source_offset": 116,
+              "type": {
+                "_class": "Expressir::Model::DataTypes::String",
+                "source_end_offset": 129,
+                "source_offset": 123
+              }
+            },
+            {
+              "_class": "Expressir::Model::Declarations::Attribute",
+              "id": "strength",
+              "kind": "EXPLICIT",
+              "source_end_offset": 143,
+              "source_offset": 135,
+              "type": {
+                "_class": "Expressir::Model::References::SimpleReference",
+                "id": "strength_value",
+                "source_end_offset": 160,
+                "source_offset": 146
+              }
+            }
+          ],
+          "id": "part",
+          "source_end_offset": 268,
+          "source_offset": 99,
+          "where_rules": [
+            {
+              "_class": "Expressir::Model::Declarations::WhereRule",
+              "expression": {
+                "_class": "Expressir::Model::Expressions::BinaryExpression",
+                "operand1": {
+                  "_class": "Expressir::Model::Expressions::FunctionCall",
+                  "function": {
+                    "_class": "Expressir::Model::References::SimpleReference",
+                    "id": "SIZEOF"
+                  },
+                  "parameters": [
+                    {
+                      "_class": "Expressir::Model::References::SimpleReference",
+                      "id": "name"
+                    }
+                  ]
+                },
+                "operand2": {
+                  "_class": "Expressir::Model::Literals::Integer",
+                  "source_end_offset": 253,
+                  "source_offset": 252,
+                  "value": "0"
+                },
+                "operator": "GREATER_THAN",
+                "source_end_offset": 253,
+                "source_offset": 237
+              },
+              "id": "wr1",
+              "source_end_offset": 254,
+              "source_offset": 231
+            }
+          ]
+        }
+      ],
+      "file": "source.exp",
+      "functions": [
+        {
+          "_class": "Expressir::Model::Declarations::Function",
+          "id": "compatible",
+          "parameters": [
+            {
+              "_class": "Expressir::Model::Declarations::Parameter",
+              "id": "a",
+              "type": {
+                "_class": "Expressir::Model::References::SimpleReference",
+                "id": "strength_value",
+                "source_end_offset": 310,
+                "source_offset": 296
+              }
+            }
+          ],
+          "return_type": {
+            "_class": "Expressir::Model::DataTypes::Boolean",
+            "source_end_offset": 321,
+            "source_offset": 314
+          },
+          "source_end_offset": 360,
+          "source_offset": 272,
+          "statements": [
+            {
+              "_class": "Expressir::Model::Statements::Return",
+              "expression": {
+                "_class": "Expressir::Model::Expressions::BinaryExpression",
+                "operand1": {
+                  "_class": "Expressir::Model::References::SimpleReference",
+                  "id": "a"
+                },
+                "operand2": {
+                  "_class": "Expressir::Model::References::SimpleReference",
+                  "id": "low",
+                  "source_end_offset": 342,
+                  "source_offset": 339
+                },
+                "operator": "NOT_EQUAL",
+                "source_end_offset": 338,
+                "source_offset": 336
+              },
+              "source_end_offset": 344,
+              "source_offset": 327
+            }
+          ]
+        }
+      ],
+      "id": "contract_matrix",
+      "interfaces": [],
+      "source_end_offset": 372,
+      "source_offset": 0,
+      "types": [
+        {
+          "_class": "Expressir::Model::Declarations::Type",
+          "id": "strength_value",
+          "source_end_offset": 95,
+          "source_offset": 26,
+          "underlying_type": {
+            "_class": "Expressir::Model::DataTypes::Enumeration",
+            "items": [
+              {
+                "_class": "Expressir::Model::DataTypes::EnumerationItem",
+                "id": "low",
+                "source_end_offset": 67,
+                "source_offset": 64
+              },
+              {
+                "_class": "Expressir::Model::DataTypes::EnumerationItem",
+                "id": "medium",
+                "source_end_offset": 75,
+                "source_offset": 69
+              },
+              {
+                "_class": "Expressir::Model::DataTypes::EnumerationItem",
+                "id": "high",
+                "source_end_offset": 81,
+                "source_offset": 77
+              }
+            ],
+            "source_end_offset": 82,
+            "source_offset": 48
+          }
+        }
+      ]
+    }
+  ],
+  "source_end_offset": 372,
+  "source_offset": 0
+}

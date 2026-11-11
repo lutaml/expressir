@@ -1,0 +1,16 @@
+SCHEMA contract_matrix;
+  TYPE strength_value = ENUMERATION OF (low, medium, high);
+  END_TYPE;
+
+  ENTITY part;
+    name : STRING;
+    strength : strength_value;
+    (*"contract_matrix.part" the primary identity *)
+    WHERE
+      wr1 : SIZEOF(name) > 0;
+  END_ENTITY;
+
+  FUNCTION compatible(a : strength_value) : BOOLEAN;
+    RETURN(a <> low);
+  END_FUNCTION;
+END_SCHEMA;

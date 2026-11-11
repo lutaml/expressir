@@ -94,7 +94,8 @@ module Expressir
           end
 
           exp_file = ::Expressir::Express::Builder.build_with_remarks(ast, source: source,
-                                                                           include_source: include_source)
+                                                                           include_source: include_source,
+                                                                           annotations: annotations)
 
           # issue #537 part 2: a remark-only fragment (no SCHEMA
           # wrapper — e.g. conversion artifacts) parses to an empty

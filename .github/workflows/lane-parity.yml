@@ -1,0 +1,38 @@
+# The lane-parity gate (issue #623): the pure-Ruby fallback is a
+# supported configuration, not a degraded one — the suite runs on
+# both lanes and the fallback lane must stay green. Drift between
+# the native lane and the fallback lane is a release blocker.
+name: lane-parity
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  native-lane:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+      - name: Suite on the native lane
+        run: bundle exec rspec spec/expressir/express spec/expressir/p21 -f progress
+
+  fallback-lane:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+      - name: Suite on the pure-Ruby fallback lane
+        run: bundle exec rspec spec/expressir/express spec/expressir/p21 -f progress
+        env:
+          EXPRESSIR_DISABLE_NATIVE: "1"

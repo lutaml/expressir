@@ -5,26 +5,28 @@
 # same source and must be byte-identical. Drift here is a release
 # blocker — canonicalization changes are invisible to parse-level
 # differentials (the parsanol rs#397 lesson).
+#
+# No file-level constants (rake double-loads rakelib); helpers stay
+# inside the task body.
 namespace :contract_matrix do
   require "json"
   require "digest"
   require "tmpdir"
 
-  MATRIX = "spec/fixtures/contract-matrix"
-  SOURCE = File.join(MATRIX, "source.exp")
-
-  def seal(shape, text)
-    path = File.join(MATRIX, shape)
-    File.write(path, text)
-    Digest::SHA256.hexdigest(text)
-  end
-
   desc "Seal the contract-matrix artifacts from the canonical lane"
   task :seal do
     require "expressir"
+    matrix = "spec/fixtures/contract-matrix"
+    source_path = File.join(matrix, "source.exp")
+
+    seal = lambda do |shape, text|
+      File.write(File.join(matrix, shape), text)
+      Digest::SHA256.hexdigest(text)
+    end
+
     Dir.mktmpdir do |dir|
       file = File.join(dir, "source.exp")
-      FileUtils.cp(SOURCE, file)
+      FileUtils.cp(source_path, file)
 
       source = File.read(file)
       wire = Expressir::Express::Core.parse_to_model_hash(source, "source.exp")
@@ -36,10 +38,10 @@ namespace :contract_matrix do
       stripped = Expressir::Express::Core.format_model_hash(attached, no_remarks: true)
 
       checksums = {
-        "model-hash wire" => seal("wire.json", JSON.pretty_generate(wire) + "\n"),
-        "attached wire" => seal("attached.json", JSON.pretty_generate(attached) + "\n"),
-        "formatted text" => seal("formatted.exp", formatted),
-        "stripped text" => seal("stripped.exp", stripped),
+        "model-hash wire" => seal.call("wire.json", "#{JSON.pretty_generate(wire)}\n"),
+        "attached wire" => seal.call("attached.json", "#{JSON.pretty_generate(attached)}\n"),
+        "formatted text" => seal.call("formatted.exp", formatted),
+        "stripped text" => seal.call("stripped.exp", stripped),
       }
 
       manifest = {
@@ -51,7 +53,7 @@ namespace :contract_matrix do
           model-hash wire attached wire formatted text stripped text
         ],
       }
-      File.write(File.join(MATRIX, "manifest.yml"), YAML.dump(manifest))
+      File.write(File.join(matrix, "manifest.yml"), YAML.dump(manifest))
       puts "sealed #{checksums.size} artifacts + manifest.yml"
     end
   end

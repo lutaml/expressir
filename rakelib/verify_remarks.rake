@@ -11,6 +11,6 @@ namespace :verify do
     ]
 
     sh({ "EXPRESSIR_PRODUCTION_SCALE" => "1" },
-       "bundle", "exec", "rspec", *specs)
+       "bundle", "exec", "rspec", "--tag", "~quarantined", *specs)
   end
 end

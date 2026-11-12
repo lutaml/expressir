@@ -39,17 +39,28 @@ module Expressir
 
         def format_expressions_binary_expression(node)
           operator_precedence = self.class.const_get(:OPERATOR_PRECEDENCE)
+          relational_precedence = self.class.const_get(:RELATIONAL_PRECEDENCE)
           # The minimal-paren policy (expressir#651 — SC4UTILITI-199):
-          # EXPRESS operators are left-associative, so a child binary
-          # expression needs parentheses only when it binds looser than
-          # the parent — strictly looser on the left (a same-precedence
-          # left child reassociates identically: `(a+b)+c` == `a+b+c`),
-          # same-or-looser on the right (`a+(b+c)` must keep its parens
-          # to preserve the tree). Higher number = looser binding.
-          op1_bin_exp = node.operand1.is_a?(Model::Expressions::BinaryExpression) &&
-            (operator_precedence[node.operand1.operator] > operator_precedence[node.operator])
-          op2_bin_exp = node.operand2.is_a?(Model::Expressions::BinaryExpression) &&
-            (operator_precedence[node.operand2.operator] >= operator_precedence[node.operator])
+          # EXPRESS's arithmetic and logical operators are left-associative,
+          # so a same-precedence child needs no parentheses on the left
+          # (`(a+b)+c` == `a+b+c`) and same-or-looser children need them on
+          # the right (`a+(b+c)` keeps its parens). The relational tier
+          # (=, <>, <, >, <=, >=, :=:, :<>:, IN, LIKE) is NON-associative —
+          # a chain re-parses to a different tree or not at all — so
+          # same-precedence children keep parentheses on BOTH sides.
+          # Higher number = looser binding.
+          parent_precedence = operator_precedence[node.operator]
+          relational = parent_precedence == relational_precedence
+          child_needs_parens = lambda do |operand, min_precedence, same_side|
+            operand.is_a?(Model::Expressions::BinaryExpression) &&
+              (
+                operator_precedence[operand.operator] >= min_precedence ||
+                (relational && same_side &&
+                 operator_precedence[operand.operator] == parent_precedence)
+              )
+          end
+          op1_bin_exp = child_needs_parens.call(node.operand1, parent_precedence + 1, true)
+          op2_bin_exp = child_needs_parens.call(node.operand2, parent_precedence, true)
 
           [
             *if op1_bin_exp

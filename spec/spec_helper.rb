@@ -52,6 +52,9 @@ RSpec.configure do |config|
     if ENV["EXPRESSIR_DISABLE_RUBY_PARSE"] == "1"
       config.filter_run_excluding :ruby_lane
     end
+    # Known-flaky examples carry :quarantined and their owning issue;
+    # run them explicitly with `--tag quarantined` until fixed.
+    config.filter_run_excluding :quarantined
     config.filter_run_excluding :production_scale
   end
 

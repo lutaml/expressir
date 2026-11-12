@@ -11,10 +11,13 @@ module Expressir
 
         def format_supertype_expressions_binary_supertype_expression(node)
           supertype_precedence = self.class.const_get(:SUPERTYPE_OPERATOR_PRECEDENCE)
+          # The minimal-paren policy (expressir#651): left child needs
+          # parens only when strictly looser; right child when
+          # same-or-looser (left-associative operators).
           op1_higher_precedence = node.operand1.is_a?(Model::SupertypeExpressions::BinarySupertypeExpression) &&
             (supertype_precedence[node.operand1.operator] > supertype_precedence[node.operator])
           op2_higher_precedence = node.operand2.is_a?(Model::SupertypeExpressions::BinarySupertypeExpression) &&
-            (supertype_precedence[node.operand2.operator] > supertype_precedence[node.operator])
+            (supertype_precedence[node.operand2.operator] >= supertype_precedence[node.operator])
 
           [
             *if op1_higher_precedence

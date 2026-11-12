@@ -43,8 +43,8 @@ namespace :fuzz do
           end
         when :rename_identifier
           lines.map! { |l| l.sub(/\b(part|compatible)\b/) { "#{Regexp.last_match(0)}_#{rng.rand(100)}" } }
-        when :splice_comment then lines.insert(rng.rand(lines.size + 1), "(* a spliced fuzz comment *)\n")
-        when :duplicate_line then lines.insert(rng.rand(lines.size + 1), lines[rng.rand(lines.size)].to_s)
+        when :splice_comment then lines.insert(rng.rand(lines.size + 1), +"(* a spliced fuzz comment *)\n")
+        when :duplicate_line then lines.insert(rng.rand(lines.size + 1), lines[rng.rand(lines.size)].to_s.dup)
         end
       end
       lines.join

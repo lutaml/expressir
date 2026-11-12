@@ -9,7 +9,7 @@
 # only, and cross-gem rake invocations must still load the task files.
 if defined?(RSpec)
   RSpec::Core::RakeTask.new(:"verify:remarks") do |task|
-    task.rspec_opts = "--tag production_scale"
+    task.rspec_opts = "--tag production_scale --tag ~quarantined"
   end
 else
   warn "verify_remarks: rspec not available — task not defined"

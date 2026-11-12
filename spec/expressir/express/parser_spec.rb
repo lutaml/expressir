@@ -198,7 +198,7 @@ RSpec.describe Expressir::Express::Parser do
     # depending on allocation layout (instrumentation probes suppress
     # it; an unrelated formatter edit exposed it on every run). The
     # #653 investigation owns the fix; untag it when it lands.
-    it "parses a file (mathematical_functions_schema.exp) with remark_items", :ruby_lane, :quarantined do |_example|
+    it "parses a file (mathematical_functions_schema.exp) with remark_items", :quarantined, :ruby_lane do |_example|
       exp_file = Expressir.root_path.join(
         "spec", "syntax", "mathematical_functions_schema",
         "mathematical_functions_schema.exp"

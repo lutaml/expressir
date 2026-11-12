@@ -90,13 +90,36 @@ RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   end
 
   describe "binary expression parenthesization" do
-    it "adds parens for same-precedence left-associative operators" do
+    # The minimal-paren policy (expressir#651, SC4UTILITI-199): EXPRESS
+    # operators are left-associative, so a same-precedence LEFT child
+    # prints without parens (`4 + 2 + 1` — reassociates identically),
+    # while the RIGHT child keeps them (`4 - (2 - 1)` — dropping them
+    # would change the tree).
+    it "prints same-precedence left chains without redundant parens" do
       repo = parse("SCHEMA t; FUNCTION f : INTEGER; " \
                    "LOCAL x : INTEGER; END_LOCAL; " \
                    "x := 4 + 2 + 1; RETURN (x); END_FUNCTION; END_SCHEMA;")
 
       formatted = described_class.format(repo)
-      expect(formatted).to include("(4 + 2) + 1")
+      expect(formatted).to include("x := 4 + 2 + 1;")
+    end
+
+    it "keeps parens for same-precedence right-nested operands" do
+      repo = parse("SCHEMA t; FUNCTION f : INTEGER; " \
+                   "LOCAL x : INTEGER; END_LOCAL; " \
+                   "x := 4 - (2 - 1); RETURN (x); END_FUNCTION; END_SCHEMA;")
+
+      formatted = described_class.format(repo)
+      expect(formatted).to include("x := 4 - (2 - 1);")
+    end
+
+    it "keeps parens for lower-precedence operands" do
+      repo = parse("SCHEMA t; FUNCTION f : BOOLEAN; " \
+                   "LOCAL x : INTEGER; END_LOCAL; " \
+                   "x := (4 + 2) * 1; RETURN (x > 0); END_FUNCTION; END_SCHEMA;")
+
+      formatted = described_class.format(repo)
+      expect(formatted).to include("x := (4 + 2) * 1;")
     end
 
     it "roundtrips chained binary expressions" do

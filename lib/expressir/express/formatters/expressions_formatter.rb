@@ -39,8 +39,15 @@ module Expressir
 
         def format_expressions_binary_expression(node)
           operator_precedence = self.class.const_get(:OPERATOR_PRECEDENCE)
+          # The minimal-paren policy (expressir#651 — SC4UTILITI-199):
+          # EXPRESS operators are left-associative, so a child binary
+          # expression needs parentheses only when it binds looser than
+          # the parent — strictly looser on the left (a same-precedence
+          # left child reassociates identically: `(a+b)+c` == `a+b+c`),
+          # same-or-looser on the right (`a+(b+c)` must keep its parens
+          # to preserve the tree). Higher number = looser binding.
           op1_bin_exp = node.operand1.is_a?(Model::Expressions::BinaryExpression) &&
-            (operator_precedence[node.operand1.operator] >= operator_precedence[node.operator])
+            (operator_precedence[node.operand1.operator] > operator_precedence[node.operator])
           op2_bin_exp = node.operand2.is_a?(Model::Expressions::BinaryExpression) &&
             (operator_precedence[node.operand2.operator] >= operator_precedence[node.operator])
 

@@ -35,6 +35,9 @@ module Expressir
       INDENT_CHAR = " ".freeze
       INDENT_WIDTH = 2
       INDENT = INDENT_CHAR * INDENT_WIDTH
+      # The relational tier is non-associative: its same-precedence
+      # children keep parentheses on both sides (expressir#651).
+      RELATIONAL_PRECEDENCE = 4
       OPERATOR_PRECEDENCE = {
         Model::Expressions::BinaryExpression::EXPONENTIATION => 1,
         Model::Expressions::BinaryExpression::MULTIPLICATION => 2,

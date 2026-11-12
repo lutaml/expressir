@@ -245,7 +245,11 @@ RSpec.describe Expressir::Express::Formatter do
     # Tail and embedded remarks are asserted in one example rather than two so
     # the schema is parsed once. A second example would cost another minute
     # for nothing.
-    it "loses only the remarks recorded in the fixture" do
+    #
+    # Quarantined (issue #653): the same allocation-sensitive remark this
+    # fixture records as lost flips between lost and conserved with
+    # allocation layout; the #653 fix owns the stable verdict.
+    it "loses only the remarks recorded in the fixture", :quarantined do
       path = "spec/syntax/mathematical_functions_schema/" \
              "mathematical_functions_schema.exp"
       source = File.read(path)

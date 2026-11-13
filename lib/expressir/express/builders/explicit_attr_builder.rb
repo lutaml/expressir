@@ -24,6 +24,7 @@ module Expressir
             Builder.build({ attribute_decl: attr_data })
           end
 
+          group = attr_decls.size > 1 ? Builder.next_declaration_group : nil
           attrs.map do |attr|
             next attr unless attr.is_a?(Expressir::Model::Declarations::Attribute)
 
@@ -32,6 +33,7 @@ module Expressir
               kind: Expressir::Model::Declarations::Attribute::EXPLICIT,
               supertype_attribute: attr.supertype_attribute,
               type: type,
+              declaration_group: group,
             }
             attr_params[:optional] = true if optional
             # Preserve source information from the intermediate object

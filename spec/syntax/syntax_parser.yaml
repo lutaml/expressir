@@ -227,11 +227,13 @@ schemas:
     attributes:
     - _class: Expressir::Model::Declarations::Attribute
       id: test
+      declaration_group: 1
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Attribute
       id: test2
+      declaration_group: 1
       kind: EXPLICIT
       type:
         _class: Expressir::Model::DataTypes::Boolean
@@ -961,10 +963,12 @@ schemas:
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: test
+      declaration_group: 2
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Parameter
       id: test2
+      declaration_group: 2
       type:
         _class: Expressir::Model::DataTypes::Boolean
     return_type:
@@ -1050,10 +1054,12 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: test
+      declaration_group: 3
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: test2
+      declaration_group: 3
       type:
         _class: Expressir::Model::DataTypes::Boolean
     statements:
@@ -1105,6 +1111,7 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: test
+      declaration_group: 4
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -1112,6 +1119,7 @@ schemas:
         value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: test2
+      declaration_group: 4
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -1237,10 +1245,12 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: test
+      declaration_group: 5
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: test2
+      declaration_group: 5
       type:
         _class: Expressir::Model::DataTypes::Boolean
     where_rules:
@@ -1302,6 +1312,7 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: test
+      declaration_group: 6
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -1309,6 +1320,7 @@ schemas:
         value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: test2
+      declaration_group: 6
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -1375,10 +1387,12 @@ schemas:
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: test
+      declaration_group: 7
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Parameter
       id: test2
+      declaration_group: 7
       type:
         _class: Expressir::Model::DataTypes::Boolean
   - _class: Expressir::Model::Declarations::Procedure
@@ -1418,11 +1432,13 @@ schemas:
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: test
+      declaration_group: 8
       var: true
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Parameter
       id: test2
+      declaration_group: 8
       var: true
       type:
         _class: Expressir::Model::DataTypes::Boolean
@@ -1483,10 +1499,12 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: test
+      declaration_group: 9
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: test2
+      declaration_group: 9
       type:
         _class: Expressir::Model::DataTypes::Boolean
   - _class: Expressir::Model::Declarations::Procedure
@@ -1521,6 +1539,7 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: test
+      declaration_group: 10
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -1528,6 +1547,7 @@ schemas:
         value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: test2
+      declaration_group: 10
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:

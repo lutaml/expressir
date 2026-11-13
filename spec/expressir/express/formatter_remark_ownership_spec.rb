@@ -38,28 +38,19 @@ round_trips = {
   "spec/fixtures/examples/geometry_schema.exp" =>
     { traced: 8, tagged: 0, escapes: 0 },
   "spec/fixtures/examples/nested_functions_test_schema.exp" =>
-    # expressir#609 fix: the schema-positioned comment used to smear onto
-    # the schema; it lands on the inner function it physically sits at now
-    # (its sibling already holds).
-    { traced: 10, tagged: 0, escapes: 1,
-      known_move_texts: [
-        "Another top-level function (should be included in coverage)",
-      ] },
+    # expressir#653: with original-span measurement every remark holds
+    # its owner across the round trip.
+    { traced: 10, tagged: 0, escapes: 0 },
   # This fixture is a deliberate spread of schema-level remarks: before and
   # after the constant block, before a type, and two outside SCHEMA entirely.
-  # One remark still escapes to the file across a round trip; the rest hold.
-  # The #609 fix adds a second escape ("Untagged tail remark after function"
-  # now renders outside its SCHEMA too) and moves "Final untagged tail remark
-  # at end of file" onto the last function — both grammar-lane capture
-  # drift, tracked in expressir#609.
+  # expressir#653: remark attachment now measures the ORIGINAL captured
+  # spans (first token through last token per rule) instead of rendered-text
+  # lengths; every remark holds its owner across the round trip and the
+  # placements are byte-identical to the core lane.
   "spec/fixtures/examples/tail_remarks_test_schema.exp" =>
-    { traced: 33, tagged: 7, escapes: 2,
-      known_move_texts: ["Final untagged tail remark at end of file"] },
-  # The between-functions comment now follows the next function's capture
-  # (grammar-lane capture drift, expressir#609) instead of the schema.
+    { traced: 33, tagged: 7, escapes: 0 },
   "spec/fixtures/function_body_remarks.exp" =>
-    { traced: 13, tagged: 0, escapes: 1,
-      known_move_texts: ["BETWEEN-FUNCTIONS schema level comment"] },
+    { traced: 13, tagged: 0, escapes: 0 },
   "spec/syntax/remark.exp" =>
     # expressir#603: the remark items render at their owners now, so
     # three tail-block remarks move (schema-level items land beside
@@ -137,28 +128,21 @@ RSpec.describe Expressir::Express::Formatter do
         "(mathematical_functions_schema)/"
     end
 
-    # Three texts that each have several copies in the schema and lose exactly
-    # one through the round trip. How many copies go missing is already pinned
-    # in `mathematical_functions_losses.yml`; what is left here is the place
-    # count changing, which `moved` reports as a move. None of them is a
-    # remark changing owner.
+    # Texts that lose exactly one copy through the round trip. How many
+    # copies go missing is already pinned in `mathematical_functions_losses.yml`;
+    # what is left here is the place count changing, which `moved` reports as
+    # a move. None of them is a remark changing owner.
     #
     # The place is pinned, not just the identity. Every copy of these texts
     # sits alone in its own place, so pinning which place loses its copy fixes
     # the surviving set exactly: a different copy departing is a different
     # distribution, and it fails here even though the totals are unchanged.
     #
-    # In both the departing copy is the one with no placement recorded.
-    # A place is the tuple [path, placement, region]. A third relocation —
-    # a `derived` copy on a Return statement — was fixed by the
-    # single-attachment change and left this table.
+    # expressir#653: the two "Should be unreachable" copies used to depart
+    # because rendered-span drift misfiled them; under original-span
+    # measurement they hold, and only this entry remains.
     let(:known_lost_copies) do
-      { ["Should be unreachable.", "tail", false] =>
-          "functions[14]Declarations::Function(compatible_spaces)/" \
-          "statements[13]Statements::If",
-        ["Should be unreachable", "tail", false] =>
-          "functions[144]Declarations::Function(subspace_of)/" \
-          "statements[14]Statements::If",
+      {
         # One tag, two source owners: the WG12 block is attached to the
         # remark item AND (via a relative resolution) to the parameter of
         # the NEXT function. The render emits the pair once, so the
@@ -166,8 +150,8 @@ RSpec.describe Expressir::Express::Formatter do
         ["(input) The aggregate of arbitrary values which are to be " \
          "converted into a list of generic expressions.", nil, true] =>
           "functions[20]Declarations::Function(convert_to_operands)/" \
-          "parameters[0]Declarations::Parameter(values)" }
-        .transform_values { |path| { ["#{schema_prefix}#{path}", nil, nil] => 1 } }
+          "parameters[0]Declarations::Parameter(values)",
+      }.transform_values { |path| { ["#{schema_prefix}#{path}", nil, nil] => 1 } }
     end
 
     it "keeps every surviving remark of the production schema in place" do

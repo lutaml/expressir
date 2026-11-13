@@ -8,12 +8,27 @@ schemas:
   - interfaces
   - constants
   - types
+  - entities
+  - subtype constraints
+  - functions
+  - rules
+  - procedures
   untagged_remarks:
   - text: interfaces
     format: tail
   - text: constants
     format: tail
   - text: types
+    format: tail
+  - text: entities
+    format: tail
+  - text: subtype constraints
+    format: tail
+  - text: functions
+    format: tail
+  - text: rules
+    format: tail
+  - text: procedures
     format: tail
   file: spec/syntax/syntax.exp
   header: schema
@@ -141,11 +156,6 @@ schemas:
         value: 'TRUE'
   - _class: Expressir::Model::Declarations::Type
     id: where_label_type
-    remarks:
-    - entities
-    untagged_remarks:
-    - text: entities
-      format: tail
     underlying_type:
       _class: Expressir::Model::DataTypes::Boolean
     where_rules:
@@ -612,11 +622,6 @@ schemas:
         value: 'TRUE'
   - _class: Expressir::Model::Declarations::Entity
     id: where_label_entity
-    remarks:
-    - subtype constraints
-    untagged_remarks:
-    - text: subtype constraints
-      format: tail
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -898,11 +903,6 @@ schemas:
           id: d
   - _class: Expressir::Model::Declarations::SubtypeConstraint
     id: supertype_expression_oneof_andor_oneof_subtype_constraint
-    remarks:
-    - functions
-    untagged_remarks:
-    - text: functions
-      format: tail
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
@@ -1101,11 +1101,6 @@ schemas:
     - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Function
     id: multiple_shorthand_variable_expression_function
-    remarks:
-    - rules
-    untagged_remarks:
-    - text: rules
-      format: tail
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     variables:
@@ -1346,11 +1341,6 @@ schemas:
         value: 'TRUE'
   - _class: Expressir::Model::Declarations::Rule
     id: where_label_rule
-    remarks:
-    - procedures
-    untagged_remarks:
-    - text: procedures
-      format: tail
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
@@ -1561,11 +1551,8 @@ schemas:
     id: statements
     remarks:
     - statements
-    - simple types
     untagged_remarks:
     - text: statements
-      format: tail
-    - text: simple types
       format: tail
     procedures:
     - _class: Expressir::Model::Declarations::Procedure
@@ -1984,15 +1971,18 @@ schemas:
   - _class: Expressir::Model::Declarations::Procedure
     id: types
     remarks:
+    - simple types
     - aggregation types
     - constructed types
-    - literal expressions
+    - generic types
     untagged_remarks:
+    - text: simple types
+      format: tail
     - text: aggregation types
       format: tail
     - text: constructed types
       format: tail
-    - text: literal expressions
+    - text: generic types
       format: tail
     types:
     - _class: Expressir::Model::Declarations::Type
@@ -2307,11 +2297,6 @@ schemas:
           id: test
     - _class: Expressir::Model::Declarations::Type
       id: enumeration_based_on_multiple_item_type
-      remarks:
-      - generic types
-      untagged_remarks:
-      - text: generic types
-        format: tail
       underlying_type:
         _class: Expressir::Model::DataTypes::Enumeration
         based_on:
@@ -2353,6 +2338,7 @@ schemas:
   - _class: Expressir::Model::Declarations::Procedure
     id: expressions
     remarks:
+    - literal expressions
     - constant expressions
     - function expressions
     - operator expressions
@@ -2360,7 +2346,10 @@ schemas:
     - function call or entity constructor expressions
     - reference expressions
     - interval expressions
+    - query expressions
     untagged_remarks:
+    - text: literal expressions
+      format: tail
     - text: constant expressions
       format: tail
     - text: function expressions
@@ -2374,6 +2363,8 @@ schemas:
     - text: reference expressions
       format: tail
     - text: interval expressions
+      format: tail
+    - text: query expressions
       format: tail
     variables:
     - _class: Expressir::Model::Declarations::Variable

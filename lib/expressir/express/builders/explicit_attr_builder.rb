@@ -42,6 +42,7 @@ module Expressir
               attr_params[:source_offset] =
                 attr.source_offset
             end
+            attr_params[:source_length] = attr.source_length if attr.source_length
             Expressir::Model::Declarations::Attribute.new(**attr_params)
           end
         end

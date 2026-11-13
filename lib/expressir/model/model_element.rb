@@ -75,6 +75,12 @@ module Expressir
                                   polymorphic_class: true
       attribute :source, :string
       attribute :source_offset, :integer
+      # Length of the ORIGINAL source span (what the parser captured,
+      # stripped), set at build time. Remark attachment must measure spans
+      # with this, not with the rendered `source`: the reader formats the
+      # node, so formatter policy changes (e.g. #652's paren policy) would
+      # drift every derived end position (#653).
+      attribute :source_length, :integer
       attribute :untagged_remarks, RemarkInfo, collection: true, initialize_empty: true
 
       POLYMORPHIC_CLASS_MAP = {
@@ -161,6 +167,7 @@ module Expressir
         # without ever appearing in to_hash — the serialized shape stays
         # identical to the Ruby-built model.
         map "source_offset", to: :source_offset, serialize: false
+        map "source_length", to: :source_length, serialize: false
       end
 
       def source

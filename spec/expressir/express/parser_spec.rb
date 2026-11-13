@@ -192,13 +192,12 @@ RSpec.describe Expressir::Express::Parser do
       expect(result).to eq(expected_result)
     end
 
-    # Quarantined (issue #653): allocation-order-sensitive remark
-    # placement on this fixture — the golden and the core lane agree,
-    # but the grammar-lane attach flips the placement of one tail remark
-    # depending on allocation layout (instrumentation probes suppress
-    # it; an unrelated formatter edit exposed it on every run). The
-    # #653 investigation owns the fix; untag it when it lands.
-    it "parses a file (mathematical_functions_schema.exp) with remark_items", :quarantined, :ruby_lane do |_example|
+    # expressir#653 fix: remark attachment measures the ORIGINAL captured
+    # spans (first token through last token per rule) instead of rendered-
+    # text lengths, so formatter policy changes can no longer move remark
+    # placement. The grammar lane is byte-identical to the core lane on
+    # this fixture; the golden is rebaked under the three-lane gate.
+    it "parses a file (mathematical_functions_schema.exp) with remark_items", :ruby_lane do |_example|
       exp_file = Expressir.root_path.join(
         "spec", "syntax", "mathematical_functions_schema",
         "mathematical_functions_schema.exp"

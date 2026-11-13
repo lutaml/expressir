@@ -248,7 +248,8 @@ RSpec.describe Expressir::Express::Formatter do
     # for nothing.
     #
     # expressir#653 fix: attachment measures the ORIGINAL captured spans,
-    # so the verdict is stable — the losses file is the core-agreed set.
+    # so the verdict is stable — the losses file is the core-agreed set,
+    # byte-identical across the ruby, native, and core lanes.
     it "loses only the remarks recorded in the fixture" do
       path = "spec/syntax/mathematical_functions_schema/" \
              "mathematical_functions_schema.exp"

@@ -134,6 +134,16 @@ module Expressir
         @node_order = nil
       end
 
+      # Measure with the ORIGINAL captured span (#653): `source` renders the
+      # node through SourceFormatter, so formatter policy changes would drift
+      # every derived end position and flip remark-attachment decisions.
+      # The captured length is the builder's stripped capture; models built
+      # without it (replays, older lanes) fall back to the rendered length.
+      # Public: RemarkAttacher ranks same-line owners with it too.
+      def self.span_length(node)
+        node.source_length || node.source.to_s.length
+      end
+
       # Returns the most-specific node whose span contains `remark_line`,
       # preferring same-line starts/ends, then smallest containing span.
       # Skips nodes that cannot own such a remark; see {#remark_scope?}.
@@ -241,8 +251,31 @@ module Expressir
       def build_sorted_nodes
         result = []
         collect_nodes(@model, result, Set.new)
+        propagate_scope_ends(result)
         result.sort_by!.with_index { |n, i| [n[:position] || Float::INFINITY, i] }
         result
+      end
+
+      # Container captures are keyword-only slices (the builder's find_slice
+      # grabs the leading keyword token), so a container's own span ends far
+      # too early. A scope's true end covers its last descendant's end:
+      # propagate child ends up over the DFS order (children are recorded
+      # after their parent, so a reverse pass settles every child before
+      # its parent reads it).
+      def propagate_scope_ends(nodes)
+        entries_by_node = {}.compare_by_identity
+        nodes.each do |entry|
+          entries_by_node[entry[:node]] = entry if entry[:line]
+        end
+
+        nodes.reverse_each do |entry|
+          owner = entry[:owner]
+          parent = entries_by_node[owner] if owner
+          next unless parent
+          next unless entry[:end_line] && parent[:end_line]
+
+          parent[:end_line] = entry[:end_line] if entry[:end_line] > parent[:end_line]
+        end
       end
 
       def collect_nodes(node, result, visited, owner: nil, collection: nil)
@@ -271,9 +304,7 @@ module Expressir
         end
 
         line = @line_map.line_number(pos)
-        source_end_line = @line_map.line_number(pos + node.source.length)
-        children_end_line = children_end_line_for(node)
-        end_line = [source_end_line, children_end_line].compact.max || source_end_line
+        end_line = @line_map.line_number(pos + self.class.span_length(node))
 
         result << { node: node, position: pos, line: line, end_line: end_line,
                     owner: owner, collection: collection }
@@ -294,26 +325,6 @@ module Expressir
           "END_TYPE", "END_FUNCTION", "END_PROCEDURE",
           "END_RULE", "END_CONSTANT", "END_VARIABLE"
         )
-      end
-
-      def children_end_line_for(node)
-        end_lines = []
-
-        if node.is_a?(Model::Declarations::Schema)
-          Array(node.children).each do |child|
-            next unless child.is_a?(Model::ModelElement) && child.source_offset && child.source
-
-            end_lines << @line_map.line_number(child.source_offset + child.source.length)
-          end
-        end
-
-        each_collection_on(node) do |item|
-          next unless item.is_a?(Model::ModelElement) && item.source_offset && item.source
-
-          end_lines << @line_map.line_number(item.source_offset + item.source.length)
-        end
-
-        end_lines.max
       end
 
       def collect_children(node, result, visited)

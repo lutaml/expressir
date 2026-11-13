@@ -9,6 +9,7 @@ schemas:
     functions. The context for these mathematical functions is provided by other parts
     of ISO 10303 and the applications which use this schema. Only the unitless, purely
     mathematical aspects of mathematical functions are considered in this schema.
+  - mathematical_functions_schema
   remark_items:
   - _class: Expressir::Model::Declarations::RemarkItem
     id: __fund_cons
@@ -252,6 +253,9 @@ schemas:
     id: __schema_file
     remarks:
     - data/resource_docs/mathematical_constructs/resource.xml
+  untagged_remarks:
+  - text: mathematical_functions_schema
+    format: tail
   file: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp
   header: |-
     ISO 10303 TC184/SC4/WG12 Ntbd
@@ -11343,12 +11347,14 @@ schemas:
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
       id: ts1
+      declaration_group: 1
       type:
         _class: Expressir::Model::References::SimpleReference
         id: tuple_space
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.tuple_space
     - _class: Expressir::Model::Declarations::Parameter
       id: ts2
+      declaration_group: 1
       type:
         _class: Expressir::Model::References::SimpleReference
         id: tuple_space
@@ -11392,6 +11398,7 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.assoc_product_space.ts2
     - _class: Expressir::Model::Declarations::Variable
       id: up1
+      declaration_group: 2
       type:
         _class: Expressir::Model::References::SimpleReference
         id: uniform_product_space
@@ -11410,6 +11417,7 @@ schemas:
           value: '1'
     - _class: Expressir::Model::Declarations::Variable
       id: up2
+      declaration_group: 2
       type:
         _class: Expressir::Model::References::SimpleReference
         id: uniform_product_space
@@ -11428,6 +11436,7 @@ schemas:
           value: '1'
     - _class: Expressir::Model::Declarations::Variable
       id: lp1
+      declaration_group: 3
       type:
         _class: Expressir::Model::References::SimpleReference
         id: listed_product_space
@@ -11438,6 +11447,7 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.the_zero_tuple_space
     - _class: Expressir::Model::Declarations::Variable
       id: lp2
+      declaration_group: 3
       type:
         _class: Expressir::Model::References::SimpleReference
         id: listed_product_space
@@ -11448,6 +11458,7 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.the_zero_tuple_space
     - _class: Expressir::Model::Declarations::Variable
       id: lps
+      declaration_group: 3
       type:
         _class: Expressir::Model::References::SimpleReference
         id: listed_product_space
@@ -11458,6 +11469,7 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.the_zero_tuple_space
     - _class: Expressir::Model::Declarations::Variable
       id: et1
+      declaration_group: 4
       type:
         _class: Expressir::Model::References::SimpleReference
         id: extended_tuple_space
@@ -11468,6 +11480,7 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.the_tuples
     - _class: Expressir::Model::Declarations::Variable
       id: et2
+      declaration_group: 4
       type:
         _class: Expressir::Model::References::SimpleReference
         id: extended_tuple_space
@@ -11478,6 +11491,7 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.the_tuples
     - _class: Expressir::Model::Declarations::Variable
       id: ets
+      declaration_group: 4
       type:
         _class: Expressir::Model::References::SimpleReference
         id: extended_tuple_space
@@ -11488,18 +11502,22 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.the_tuples
     - _class: Expressir::Model::Declarations::Variable
       id: use_up1
+      declaration_group: 5
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: use_up2
+      declaration_group: 5
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: use_lp1
+      declaration_group: 5
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: use_lp2
+      declaration_group: 5
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
@@ -11927,13 +11945,23 @@ schemas:
             expression:
               _class: Expressir::Model::Expressions::AggregateInitializer
               items:
-              - _class: Expressir::Model::References::AttributeReference
-                ref:
-                  _class: Expressir::Model::References::SimpleReference
-                  id: up1
-                attribute:
-                  _class: Expressir::Model::References::SimpleReference
-                  id: base
+              - _class: Expressir::Model::Expressions::AggregateInitializerItem
+                expression:
+                  _class: Expressir::Model::References::AttributeReference
+                  ref:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: up1
+                  attribute:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: base
+                repetition:
+                  _class: Expressir::Model::References::AttributeReference
+                  ref:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: up1
+                  attribute:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: exponent
           - _class: Expressir::Model::Statements::Assignment
             ref:
               _class: Expressir::Model::References::SimpleReference
@@ -12039,13 +12067,23 @@ schemas:
             expression:
               _class: Expressir::Model::Expressions::AggregateInitializer
               items:
-              - _class: Expressir::Model::References::AttributeReference
-                ref:
-                  _class: Expressir::Model::References::SimpleReference
-                  id: up2
-                attribute:
-                  _class: Expressir::Model::References::SimpleReference
-                  id: base
+              - _class: Expressir::Model::Expressions::AggregateInitializerItem
+                expression:
+                  _class: Expressir::Model::References::AttributeReference
+                  ref:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: up2
+                  attribute:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: base
+                repetition:
+                  _class: Expressir::Model::References::AttributeReference
+                  ref:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: up2
+                  attribute:
+                    _class: Expressir::Model::References::SimpleReference
+                    id: exponent
           - _class: Expressir::Model::Statements::Assignment
             ref:
               _class: Expressir::Model::References::SimpleReference
@@ -12436,12 +12474,14 @@ schemas:
       id: "y"
       remarks:
       - "(input) The y coordinate of the point."
+      declaration_group: 6
       type:
         _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::Parameter
       id: x
       remarks:
       - "(input) The x coordinate of the point"
+      declaration_group: 6
       type:
         _class: Expressir::Model::DataTypes::Real
     return_type:
@@ -13093,6 +13133,7 @@ schemas:
       remarks:
       - "(input) The range space of the function serving as the value of the *index*
         attribute of an instance of <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>>."
+      declaration_group: 7
       type:
         _class: Expressir::Model::References::SimpleReference
         id: tuple_space
@@ -13102,6 +13143,7 @@ schemas:
       remarks:
       - "(input) The domain space of the function serving as the value of the *loc*
         attribute of an instance of <<express:mathematical_functions_schema.basic_sparse_matrix,basic_sparse_matrix>>."
+      declaration_group: 7
       type:
         _class: Expressir::Model::References::SimpleReference
         id: tuple_space
@@ -13117,12 +13159,14 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
     - _class: Expressir::Model::Declarations::Variable
       id: idx_rng_itvl
+      declaration_group: 8
       type:
         _class: Expressir::Model::References::SimpleReference
         id: finite_integer_interval
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.finite_integer_interval
     - _class: Expressir::Model::Declarations::Variable
       id: loc_dmn_itvl
+      declaration_group: 8
       type:
         _class: Expressir::Model::References::SimpleReference
         id: finite_integer_interval
@@ -14019,6 +14063,7 @@ schemas:
       id: sp1
       remarks:
       - "(input) The first space."
+      declaration_group: 9
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
@@ -14027,6 +14072,7 @@ schemas:
       id: sp2
       remarks:
       - "(input) The second space."
+      declaration_group: 9
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
@@ -14052,46 +14098,54 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.compatible_complex_number_regions.sp1
     - _class: Expressir::Model::Declarations::Variable
       id: crgn1
+      declaration_group: 10
       type:
         _class: Expressir::Model::References::SimpleReference
         id: cartesian_complex_number_region
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.cartesian_complex_number_region
     - _class: Expressir::Model::Declarations::Variable
       id: crgn2
+      declaration_group: 10
       type:
         _class: Expressir::Model::References::SimpleReference
         id: cartesian_complex_number_region
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.cartesian_complex_number_region
     - _class: Expressir::Model::Declarations::Variable
       id: prgn1
+      declaration_group: 11
       type:
         _class: Expressir::Model::References::SimpleReference
         id: polar_complex_number_region
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.polar_complex_number_region
     - _class: Expressir::Model::Declarations::Variable
       id: prgn2
+      declaration_group: 11
       type:
         _class: Expressir::Model::References::SimpleReference
         id: polar_complex_number_region
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.polar_complex_number_region
     - _class: Expressir::Model::Declarations::Variable
       id: prgn1c2
+      declaration_group: 11
       type:
         _class: Expressir::Model::References::SimpleReference
         id: polar_complex_number_region
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.polar_complex_number_region
     - _class: Expressir::Model::Declarations::Variable
       id: prgn2c1
+      declaration_group: 11
       type:
         _class: Expressir::Model::References::SimpleReference
         id: polar_complex_number_region
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.polar_complex_number_region
     - _class: Expressir::Model::Declarations::Variable
       id: sp1_is_crgn
+      declaration_group: 12
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: sp2_is_crgn
+      declaration_group: 12
       type:
         _class: Expressir::Model::DataTypes::Boolean
     statements:
@@ -14949,6 +15003,7 @@ schemas:
       remarks:
       - "(input) The first <<express:mathematical_functions_schema.elementary_space_enumerators,elementary_space_enumerators>>
         value."
+      declaration_group: 13
       type:
         _class: Expressir::Model::References::SimpleReference
         id: elementary_space_enumerators
@@ -14958,6 +15013,7 @@ schemas:
       remarks:
       - "(input) The second <<express:mathematical_functions_schema.elementary_space_enumerators,elementary_space_enumerators>>
         value."
+      declaration_group: 13
       type:
         _class: Expressir::Model::References::SimpleReference
         id: elementary_space_enumerators
@@ -14967,10 +15023,12 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: esval1_is_numeric
+      declaration_group: 14
       type:
         _class: Expressir::Model::DataTypes::Logical
     - _class: Expressir::Model::Declarations::Variable
       id: esval2_is_numeric
+      declaration_group: 14
       type:
         _class: Expressir::Model::DataTypes::Logical
     statements:
@@ -15229,6 +15287,7 @@ schemas:
       id: sp1
       remarks:
       - "(input) The first space."
+      declaration_group: 15
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
@@ -15237,6 +15296,7 @@ schemas:
       id: sp2
       remarks:
       - "(input) The second space."
+      declaration_group: 15
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
@@ -15246,10 +15306,12 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: amin
+      declaration_group: 16
       type:
         _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::Variable
       id: amax
+      declaration_group: 16
       type:
         _class: Expressir::Model::DataTypes::Real
     statements:
@@ -15497,6 +15559,7 @@ schemas:
       id: sp1
       remarks:
       - "(input) The first space."
+      declaration_group: 17
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
@@ -15505,6 +15568,7 @@ schemas:
       id: sp2
       remarks:
       - "(input) The second space."
+      declaration_group: 17
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
@@ -15553,20 +15617,24 @@ schemas:
         value: UNKNOWN
     - _class: Expressir::Model::Declarations::Variable
       id: m
+      declaration_group: 18
       type:
         _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Variable
       id: "n"
+      declaration_group: 18
       type:
         _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Variable
       id: s1
+      declaration_group: 19
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
     - _class: Expressir::Model::Declarations::Variable
       id: s2
+      declaration_group: 19
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
@@ -17863,9 +17931,6 @@ schemas:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
     - _class: Expressir::Model::Statements::If
-      untagged_remarks:
-      - text: Should be unreachable.
-        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -18622,6 +18687,10 @@ schemas:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: Should be unreachable.
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Literals::Logical
         value: 'TRUE'
@@ -20695,10 +20764,12 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.product_space
       - _class: Expressir::Model::Declarations::Parameter
         id: idx
+        declaration_group: 20
         type:
           _class: Expressir::Model::DataTypes::Integer
       - _class: Expressir::Model::Declarations::Parameter
         id: prefix
+        declaration_group: 20
         type:
           _class: Expressir::Model::DataTypes::Integer
       - _class: Expressir::Model::Declarations::Parameter
@@ -28207,6 +28278,7 @@ schemas:
         - _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
       id: m
+      declaration_group: 21
       type:
         _class: Expressir::Model::References::SimpleReference
         id: nonnegative_integer
@@ -28216,6 +28288,7 @@ schemas:
         value: '0'
     - _class: Expressir::Model::Declarations::Variable
       id: "n"
+      declaration_group: 21
       type:
         _class: Expressir::Model::References::SimpleReference
         id: nonnegative_integer
@@ -30937,11 +31010,6 @@ schemas:
     functions:
     - _class: Expressir::Model::Declarations::Function
       id: angle
-      remarks:
-      - Determine whether a real is strictly within a real interval
-      untagged_remarks:
-      - text: Determine whether a real is strictly within a real interval
-        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: a
@@ -31113,18 +31181,15 @@ schemas:
     procedures:
     - _class: Expressir::Model::Declarations::Procedure
       id: angle_minmax
-      remarks:
-      - Include distance in max collection
-      untagged_remarks:
-      - text: Include distance in max collection
-        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: ab
+        declaration_group: 22
         type:
           _class: Expressir::Model::DataTypes::Real
       - _class: Expressir::Model::Declarations::Parameter
         id: a
+        declaration_group: 22
         type:
           _class: Expressir::Model::DataTypes::Real
       - _class: Expressir::Model::Declarations::Parameter
@@ -31133,21 +31198,25 @@ schemas:
           _class: Expressir::Model::DataTypes::Boolean
       - _class: Expressir::Model::Declarations::Parameter
         id: amin
+        declaration_group: 23
         var: true
         type:
           _class: Expressir::Model::DataTypes::Real
       - _class: Expressir::Model::Declarations::Parameter
         id: amax
+        declaration_group: 23
         var: true
         type:
           _class: Expressir::Model::DataTypes::Real
       - _class: Expressir::Model::Declarations::Parameter
         id: amin_in
+        declaration_group: 24
         var: true
         type:
           _class: Expressir::Model::DataTypes::Boolean
       - _class: Expressir::Model::Declarations::Parameter
         id: amax_in
+        declaration_group: 24
         var: true
         type:
           _class: Expressir::Model::DataTypes::Boolean
@@ -31474,34 +31543,41 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: xitv
+      declaration_group: 25
       type:
         _class: Expressir::Model::References::SimpleReference
         id: real_interval
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.real_interval
     - _class: Expressir::Model::Declarations::Variable
       id: yitv
+      declaration_group: 25
       type:
         _class: Expressir::Model::References::SimpleReference
         id: real_interval
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.real_interval
     - _class: Expressir::Model::Declarations::Variable
       id: is_xmin
+      declaration_group: 26
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: is_xmax
+      declaration_group: 26
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: is_ymin
+      declaration_group: 26
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: is_ymax
+      declaration_group: 26
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: xmin
+      declaration_group: 27
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -31509,6 +31585,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: xmax
+      declaration_group: 27
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -31516,6 +31593,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: ymin
+      declaration_group: 27
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -31523,6 +31601,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: ymax
+      declaration_group: 27
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -31530,6 +31609,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: xc
+      declaration_group: 27
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -31537,6 +31617,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: yc
+      declaration_group: 27
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -31544,6 +31625,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: xmin_in
+      declaration_group: 28
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -31551,6 +31633,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: xmax_in
+      declaration_group: 28
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -31558,6 +31641,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: ymin_in
+      declaration_group: 28
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -31565,6 +31649,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: ymax_in
+      declaration_group: 28
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -31572,6 +31657,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: rmin
+      declaration_group: 29
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -31582,6 +31668,7 @@ schemas:
           value: '1.0'
     - _class: Expressir::Model::Declarations::Variable
       id: rmax
+      declaration_group: 29
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -31609,6 +31696,7 @@ schemas:
           value: '4.0'
     - _class: Expressir::Model::Declarations::Variable
       id: rmax_exists
+      declaration_group: 30
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -31616,6 +31704,7 @@ schemas:
         value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: outside
+      declaration_group: 30
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -31623,6 +31712,7 @@ schemas:
         value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: rmin_in
+      declaration_group: 31
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -31630,6 +31720,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: rmax_in
+      declaration_group: 31
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -31637,6 +31728,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: amin_in
+      declaration_group: 31
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -31644,6 +31736,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: amax_in
+      declaration_group: 31
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -31651,6 +31744,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: ab
+      declaration_group: 32
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -31658,6 +31752,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: a
+      declaration_group: 32
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -31665,6 +31760,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: r
+      declaration_group: 32
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -31688,6 +31784,7 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.finite_real_interval
     - _class: Expressir::Model::Declarations::Variable
       id: minclo
+      declaration_group: 33
       type:
         _class: Expressir::Model::References::SimpleReference
         id: open_closed
@@ -31698,6 +31795,7 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.open_closed.open
     - _class: Expressir::Model::Declarations::Variable
       id: maxclo
+      declaration_group: 33
       type:
         _class: Expressir::Model::References::SimpleReference
         id: open_closed
@@ -31712,7 +31810,13 @@ schemas:
       - text: Find equivalent direction in range -PI < a <= PI.
         format: tail
         placement: leading
+      - text: Determine whether a real is strictly within a real interval
+        format: tail
+        placement: leading
       - text: Include direction in minmax collection
+        format: tail
+        placement: leading
+      - text: Include distance in max collection
         format: tail
         placement: leading
       - text: Include distance in min collection
@@ -32011,10 +32115,6 @@ schemas:
             id: yitv
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.yitv
     - _class: Expressir::Model::Statements::Assignment
-      untagged_remarks:
-      - text: Identify base direction with respect to which all relevant directions
-          lie
-        format: tail
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: rmax_exists
@@ -32046,6 +32146,10 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.is_ymax
     - _class: Expressir::Model::Statements::If
       untagged_remarks:
+      - text: Identify base direction with respect to which all relevant directions
+          lie
+        format: tail
+        placement: leading
       - text: within +/- 0.5*PI, or that the centre lies properly inside crgn.
         format: tail
         placement: leading
@@ -35093,6 +35197,7 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: xc
+      declaration_group: 34
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -35100,6 +35205,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: yc
+      declaration_group: 34
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -35107,6 +35213,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: xmin
+      declaration_group: 34
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -35114,6 +35221,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: xmax
+      declaration_group: 34
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -35121,6 +35229,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: ymin
+      declaration_group: 34
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -35128,6 +35237,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: ymax
+      declaration_group: 34
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -35135,18 +35245,21 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: ritv
+      declaration_group: 35
       type:
         _class: Expressir::Model::References::SimpleReference
         id: real_interval
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.real_interval
     - _class: Expressir::Model::Declarations::Variable
       id: xitv
+      declaration_group: 35
       type:
         _class: Expressir::Model::References::SimpleReference
         id: real_interval
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.real_interval
     - _class: Expressir::Model::Declarations::Variable
       id: yitv
+      declaration_group: 35
       type:
         _class: Expressir::Model::References::SimpleReference
         id: real_interval
@@ -35159,22 +35272,27 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.finite_real_interval
     - _class: Expressir::Model::Declarations::Variable
       id: xmin_exists
+      declaration_group: 36
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: xmax_exists
+      declaration_group: 36
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: ymin_exists
+      declaration_group: 36
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: ymax_exists
+      declaration_group: 36
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: xmin_in
+      declaration_group: 37
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -35182,6 +35300,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: xmax_in
+      declaration_group: 37
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -35189,6 +35308,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: ymin_in
+      declaration_group: 37
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -35196,6 +35316,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: ymax_in
+      declaration_group: 37
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -35203,6 +35324,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: a
+      declaration_group: 38
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -35210,6 +35332,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: r
+      declaration_group: 38
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -35224,6 +35347,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: min_clo
+      declaration_group: 39
       type:
         _class: Expressir::Model::References::SimpleReference
         id: open_closed
@@ -35234,6 +35358,7 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.open_closed.open
     - _class: Expressir::Model::Declarations::Variable
       id: max_clo
+      declaration_group: 39
       type:
         _class: Expressir::Model::References::SimpleReference
         id: open_closed
@@ -36213,8 +36338,6 @@ schemas:
       - text: Construct real_constraint
         format: tail
         placement: leading
-      - text: Construct imag_constraint
-        format: tail
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: xmin_exists
@@ -36381,8 +36504,9 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.the_reals
     - _class: Expressir::Model::Statements::If
       untagged_remarks:
-      - text: Construct cartesian region
+      - text: Construct imag_constraint
         format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: ymin_exists
@@ -36548,6 +36672,10 @@ schemas:
             id: the_reals
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.the_reals
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: Construct cartesian region
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -36602,11 +36730,6 @@ schemas:
     functions:
     - _class: Expressir::Model::Declarations::Function
       id: angle
-      remarks:
-      - Find proper limits for direction interval
-      untagged_remarks:
-      - text: Find proper limits for direction interval
-        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: a
@@ -36787,19 +36910,16 @@ schemas:
     procedures:
     - _class: Expressir::Model::Declarations::Procedure
       id: angle_range
-      remarks:
-      - Determine whether a direction is strictly within a direction interval
-      untagged_remarks:
-      - text: Determine whether a direction is strictly within a direction interval
-        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: amin
+        declaration_group: 40
         var: true
         type:
           _class: Expressir::Model::DataTypes::Real
       - _class: Expressir::Model::Declarations::Parameter
         id: amax
+        declaration_group: 40
         var: true
         type:
           _class: Expressir::Model::DataTypes::Real
@@ -36896,57 +37016,70 @@ schemas:
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: ab
+        declaration_group: 41
         type:
           _class: Expressir::Model::DataTypes::Real
       - _class: Expressir::Model::Declarations::Parameter
         id: a0
+        declaration_group: 41
         type:
           _class: Expressir::Model::DataTypes::Real
       - _class: Expressir::Model::Declarations::Parameter
         id: a1
+        declaration_group: 41
         type:
           _class: Expressir::Model::DataTypes::Real
       - _class: Expressir::Model::Declarations::Parameter
         id: a2
+        declaration_group: 41
         type:
           _class: Expressir::Model::DataTypes::Real
       - _class: Expressir::Model::Declarations::Parameter
         id: a3
+        declaration_group: 41
         type:
           _class: Expressir::Model::DataTypes::Real
       - _class: Expressir::Model::Declarations::Parameter
         id: in0
+        declaration_group: 42
         type:
           _class: Expressir::Model::DataTypes::Boolean
       - _class: Expressir::Model::Declarations::Parameter
         id: in1
+        declaration_group: 42
         type:
           _class: Expressir::Model::DataTypes::Boolean
       - _class: Expressir::Model::Declarations::Parameter
         id: in2
+        declaration_group: 42
         type:
           _class: Expressir::Model::DataTypes::Boolean
       - _class: Expressir::Model::Declarations::Parameter
         id: in3
+        declaration_group: 42
         type:
           _class: Expressir::Model::DataTypes::Boolean
       - _class: Expressir::Model::Declarations::Parameter
         id: amin
+        declaration_group: 43
         var: true
         type:
           _class: Expressir::Model::DataTypes::Real
       - _class: Expressir::Model::Declarations::Parameter
         id: amax
+        declaration_group: 43
         var: true
         type:
           _class: Expressir::Model::DataTypes::Real
       - _class: Expressir::Model::Declarations::Parameter
         id: amin_in
+        declaration_group: 44
         var: true
         type:
           _class: Expressir::Model::DataTypes::Boolean
       - _class: Expressir::Model::Declarations::Parameter
         id: amax_in
+        declaration_group: 44
         var: true
         type:
           _class: Expressir::Model::DataTypes::Boolean
@@ -37478,30 +37611,35 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: ritp
+      declaration_group: 45
       type:
         _class: Expressir::Model::References::SimpleReference
         id: real_interval
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.real_interval
     - _class: Expressir::Model::Declarations::Variable
       id: ritv
+      declaration_group: 45
       type:
         _class: Expressir::Model::References::SimpleReference
         id: real_interval
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.real_interval
     - _class: Expressir::Model::Declarations::Variable
       id: aitp
+      declaration_group: 46
       type:
         _class: Expressir::Model::References::SimpleReference
         id: finite_real_interval
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.finite_real_interval
     - _class: Expressir::Model::Declarations::Variable
       id: aitv
+      declaration_group: 46
       type:
         _class: Expressir::Model::References::SimpleReference
         id: finite_real_interval
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.finite_real_interval
     - _class: Expressir::Model::Declarations::Variable
       id: xp
+      declaration_group: 47
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37509,6 +37647,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: yp
+      declaration_group: 47
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37516,6 +37655,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: xc
+      declaration_group: 47
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37523,6 +37663,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: yc
+      declaration_group: 47
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37530,6 +37671,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: rmax
+      declaration_group: 47
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37537,6 +37679,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: rmin
+      declaration_group: 47
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37544,6 +37687,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: amin
+      declaration_group: 47
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37551,6 +37695,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: amax
+      declaration_group: 47
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37558,6 +37703,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: rc
+      declaration_group: 47
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37565,6 +37711,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: acp
+      declaration_group: 47
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37572,6 +37719,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: apc
+      declaration_group: 47
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37579,6 +37727,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: rmax_in
+      declaration_group: 48
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -37586,6 +37735,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: rmin_in
+      declaration_group: 48
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -37593,6 +37743,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: amin_in
+      declaration_group: 48
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -37600,6 +37751,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: amax_in
+      declaration_group: 48
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -37607,6 +37759,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: rmxp
+      declaration_group: 49
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37614,6 +37767,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: rmnp
+      declaration_group: 49
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37621,6 +37775,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: x
+      declaration_group: 49
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37628,6 +37783,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: "y"
+      declaration_group: 49
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37635,6 +37791,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: r
+      declaration_group: 49
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37642,6 +37799,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: a
+      declaration_group: 49
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37649,6 +37807,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: ab
+      declaration_group: 49
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37656,6 +37815,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: r0
+      declaration_group: 49
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37663,6 +37823,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: a0
+      declaration_group: 49
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37670,6 +37831,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: r1
+      declaration_group: 49
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37677,6 +37839,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: a1
+      declaration_group: 49
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37684,6 +37847,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: r2
+      declaration_group: 49
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37691,6 +37855,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: a2
+      declaration_group: 49
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37698,6 +37863,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: r3
+      declaration_group: 49
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37705,6 +37871,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: a3
+      declaration_group: 49
       type:
         _class: Expressir::Model::DataTypes::Real
       expression:
@@ -37712,6 +37879,7 @@ schemas:
         value: '0.0'
     - _class: Expressir::Model::Declarations::Variable
       id: in0
+      declaration_group: 50
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -37719,6 +37887,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: in1
+      declaration_group: 50
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -37726,6 +37895,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: in2
+      declaration_group: 50
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -37733,6 +37903,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: in3
+      declaration_group: 50
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -37740,6 +37911,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: inn
+      declaration_group: 50
       type:
         _class: Expressir::Model::DataTypes::Boolean
       expression:
@@ -37747,6 +37919,7 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: minclo
+      declaration_group: 51
       type:
         _class: Expressir::Model::References::SimpleReference
         id: open_closed
@@ -37757,6 +37930,7 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.open_closed.open
     - _class: Expressir::Model::Declarations::Variable
       id: maxclo
+      declaration_group: 51
       type:
         _class: Expressir::Model::References::SimpleReference
         id: open_closed
@@ -37769,6 +37943,12 @@ schemas:
     - _class: Expressir::Model::Statements::If
       untagged_remarks:
       - text: Find equivalent direction in range -PI < a <= PI.
+        format: tail
+        placement: leading
+      - text: Find proper limits for direction interval
+        format: tail
+        placement: leading
+      - text: Determine whether a direction is strictly within a direction interval
         format: tail
         placement: leading
       - text: Find min and max and related inclusion booleans among four candidates,
@@ -41111,9 +41291,6 @@ schemas:
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.amax
           else_statements:
           - _class: Expressir::Model::Statements::If
-            untagged_remarks:
-            - text: values which ensure a3 < a2 and a0 < a1 algebraically.
-              format: tail
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: GREATER_THAN
@@ -41167,10 +41344,6 @@ schemas:
                         _class: Expressir::Model::References::SimpleReference
                         id: max
             - _class: Expressir::Model::Statements::ProcedureCall
-              untagged_remarks:
-              - text: Using base direction midway in prgn, compute all directions
-                  using
-                format: tail
               procedure:
                 _class: Expressir::Model::References::SimpleReference
                 id: find_aminmax
@@ -41218,6 +41391,13 @@ schemas:
             else_statements:
             - _class: Expressir::Model::Statements::Assignment
               untagged_remarks:
+              - text: Using base direction midway in prgn, compute all directions
+                  using
+                format: tail
+                placement: leading
+              - text: values which ensure a3 < a2 and a0 < a1 algebraically.
+                format: tail
+                placement: leading
               - text: reference direction
                 format: tail
                 placement: inline
@@ -43166,9 +43346,6 @@ schemas:
                     _class: Expressir::Model::References::SimpleReference
                     id: max
         - _class: Expressir::Model::Statements::If
-          untagged_remarks:
-          - text: values which ensure a3 < a2 and a0 < a1 algebraically.
-            format: tail
           expression:
             _class: Expressir::Model::Expressions::BinaryExpression
             operator: GREATER_THAN
@@ -43182,9 +43359,6 @@ schemas:
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.rmnp
           statements:
           - _class: Expressir::Model::Statements::ProcedureCall
-            untagged_remarks:
-            - text: Using base direction midway in prgn, compute all directions using
-              format: tail
             procedure:
               _class: Expressir::Model::References::SimpleReference
               id: find_aminmax
@@ -43231,6 +43405,13 @@ schemas:
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.amax_in
           else_statements:
           - _class: Expressir::Model::Statements::Assignment
+            untagged_remarks:
+            - text: Using base direction midway in prgn, compute all directions using
+              format: tail
+              placement: leading
+            - text: values which ensure a3 < a2 and a0 < a1 algebraically.
+              format: tail
+              placement: leading
             ref:
               _class: Expressir::Model::References::SimpleReference
               id: a0
@@ -43744,9 +43925,6 @@ schemas:
           id: closed
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.open_closed.closed
     - _class: Expressir::Model::Statements::Assignment
-      untagged_remarks:
-      - text: Construct polar region
-        format: tail
       ref:
         _class: Expressir::Model::References::SimpleReference
         id: aitv
@@ -43771,6 +43949,10 @@ schemas:
           id: maxclo
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.maxclo
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: Construct polar region
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Expressions::FunctionCall
         function:
@@ -43827,34 +44009,41 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: arng
+      declaration_group: 52
       type:
         _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::Variable
       id: amin
+      declaration_group: 52
       type:
         _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::Variable
       id: xc
+      declaration_group: 52
       type:
         _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::Variable
       id: yc
+      declaration_group: 52
       type:
         _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::Variable
       id: aitv
+      declaration_group: 53
       type:
         _class: Expressir::Model::References::SimpleReference
         id: real_interval
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.real_interval
     - _class: Expressir::Model::Declarations::Variable
       id: xitv
+      declaration_group: 53
       type:
         _class: Expressir::Model::References::SimpleReference
         id: real_interval
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.real_interval
     - _class: Expressir::Model::Declarations::Variable
       id: yitv
+      declaration_group: 53
       type:
         _class: Expressir::Model::References::SimpleReference
         id: real_interval
@@ -46491,6 +46680,7 @@ schemas:
       id: fun1
       remarks:
       - "(input) The first <<express:mathematical_functions_schema.maths_function,maths_function>>."
+      declaration_group: 54
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_function
@@ -46499,6 +46689,7 @@ schemas:
       id: fun2
       remarks:
       - "(input) The second <<express:mathematical_functions_schema.maths_function,maths_function>>."
+      declaration_group: 54
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_function
@@ -46650,6 +46841,7 @@ schemas:
       id: spc1
       remarks:
       - "(input) The first <<express:mathematical_functions_schema.maths_space,maths_space>>."
+      declaration_group: 55
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
@@ -46658,6 +46850,7 @@ schemas:
       id: spc2
       remarks:
       - "(input) The second <<express:mathematical_functions_schema.maths_space,maths_space>>."
+      declaration_group: 55
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
@@ -46699,6 +46892,7 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.equal_maths_spaces.spc2
     - _class: Expressir::Model::Declarations::Variable
       id: set1
+      declaration_group: 56
       type:
         _class: Expressir::Model::DataTypes::Set
         base_type:
@@ -46707,6 +46901,7 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_value
     - _class: Expressir::Model::Declarations::Variable
       id: set2
+      declaration_group: 56
       type:
         _class: Expressir::Model::DataTypes::Set
         base_type:
@@ -46750,12 +46945,14 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
     - _class: Expressir::Model::Declarations::Variable
       id: fs1
+      declaration_group: 57
       type:
         _class: Expressir::Model::References::SimpleReference
         id: function_space
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.function_space
     - _class: Expressir::Model::Declarations::Variable
       id: fs2
+      declaration_group: 57
       type:
         _class: Expressir::Model::References::SimpleReference
         id: function_space
@@ -48571,7 +48768,6 @@ schemas:
       This function performs a value equality test on the mathematical objects represented by the two <<express:mathematical_functions_schema.maths_value,maths_value>> arguments. The value *UNKNOWN* is returned if the information available is insufficient to decide.
 
       NOTE: This function is most likely to be decisive if the inputs have already been simplified by function <<express:mathematical_functions_schema.simplify_maths_value,simplify_maths_value>>.
-    - mem_of_vs
     - equal_maths_values
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
@@ -48581,8 +48777,6 @@ schemas:
         if the objects are known to be different, or *UNKNOWN* if it is not easily
         decidable from the information at hand."
     untagged_remarks:
-    - text: mem_of_vs
-      format: tail
     - text: equal_maths_values
       format: tail
     parameters:
@@ -48590,6 +48784,7 @@ schemas:
       id: val1
       remarks:
       - "(input) The first <<express:mathematical_functions_schema.maths_value,maths_value>>."
+      declaration_group: 58
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_value
@@ -48598,6 +48793,7 @@ schemas:
       id: val2
       remarks:
       - "(input) The second <<express:mathematical_functions_schema.maths_value,maths_value>>."
+      declaration_group: 58
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_value
@@ -48607,15 +48803,22 @@ schemas:
     functions:
     - _class: Expressir::Model::Declarations::Function
       id: mem_of_vs
+      remarks:
+      - mem_of_vs
+      untagged_remarks:
+      - text: mem_of_vs
+        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: val1
+        declaration_group: 59
         type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_value
       - _class: Expressir::Model::Declarations::Parameter
         id: val2
+        declaration_group: 59
         type:
           _class: Expressir::Model::References::SimpleReference
           id: maths_value
@@ -48677,18 +48880,21 @@ schemas:
     variables:
     - _class: Expressir::Model::Declarations::Variable
       id: types1
+      declaration_group: 60
       type:
         _class: Expressir::Model::DataTypes::Set
         base_type:
           _class: Expressir::Model::DataTypes::String
     - _class: Expressir::Model::Declarations::Variable
       id: types2
+      declaration_group: 60
       type:
         _class: Expressir::Model::DataTypes::Set
         base_type:
           _class: Expressir::Model::DataTypes::String
     - _class: Expressir::Model::Declarations::Variable
       id: list1
+      declaration_group: 61
       type:
         _class: Expressir::Model::DataTypes::List
         unique: false
@@ -48698,6 +48904,7 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_value
     - _class: Expressir::Model::Declarations::Variable
       id: list2
+      declaration_group: 61
       type:
         _class: Expressir::Model::DataTypes::List
         unique: false
@@ -49517,6 +49724,7 @@ schemas:
       id: es1
       remarks:
       - "(input) The enumeration value identifying the first elementary space."
+      declaration_group: 62
       type:
         _class: Expressir::Model::References::SimpleReference
         id: elementary_space_enumerators
@@ -49525,6 +49733,7 @@ schemas:
       id: es2
       remarks:
       - "(input) The enumeration value identifying the second elementary space."
+      declaration_group: 62
       type:
         _class: Expressir::Model::References::SimpleReference
         id: elementary_space_enumerators
@@ -49775,12 +49984,14 @@ schemas:
       id: m
       remarks:
       - "(input) The index of the first factor space to be extracted."
+      declaration_group: 63
       type:
         _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Parameter
       id: "n"
       remarks:
       - "(input) The index of the last factor space to be extracted."
+      declaration_group: 63
       type:
         _class: Expressir::Model::DataTypes::Integer
     return_type:
@@ -49912,10 +50123,12 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.positive_integer
     - _class: Expressir::Model::Declarations::Variable
       id: slo
+      declaration_group: 64
       type:
         _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Variable
       id: shi
+      declaration_group: 64
       type:
         _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Variable
@@ -52279,12 +52492,14 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.product_space
     - _class: Expressir::Model::Declarations::Variable
       id: itvl1
+      declaration_group: 65
       type:
         _class: Expressir::Model::References::SimpleReference
         id: finite_integer_interval
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.finite_integer_interval
     - _class: Expressir::Model::Declarations::Variable
       id: itvl2
+      declaration_group: 65
       type:
         _class: Expressir::Model::References::SimpleReference
         id: finite_integer_interval
@@ -54567,12 +54782,14 @@ schemas:
       id: rpart
       remarks:
       - "(input) The real part of the complex number."
+      declaration_group: 66
       type:
         _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::Parameter
       id: ipart
       remarks:
       - "(input) The imaginary part of the complex number."
+      declaration_group: 66
       type:
         _class: Expressir::Model::DataTypes::Real
     return_type:
@@ -54823,6 +55040,7 @@ schemas:
       remarks:
       - "(input) The BOOLEAN indicating whether the lower limit of integration is
         negative infinity, or present as an operand."
+      declaration_group: 67
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Parameter
@@ -54830,6 +55048,7 @@ schemas:
       remarks:
       - "(input) The BOOLEAN indicating whether the upper limit of integration is
         positive infinity, or present as an operand."
+      declaration_group: 67
       type:
         _class: Expressir::Model::DataTypes::Boolean
     return_type:
@@ -54927,6 +55146,7 @@ schemas:
       remarks:
       - "(input) The BOOLEAN indicating whether the lower limit of integration is
         negative infinity. or an input."
+      declaration_group: 68
       type:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Parameter
@@ -54934,6 +55154,7 @@ schemas:
       remarks:
       - "(input) The BOOLEAN indicating whether the upper limit of integration is
         positive infinity, or an input."
+      declaration_group: 68
       type:
         _class: Expressir::Model::DataTypes::Boolean
     return_type:
@@ -59381,20 +59602,24 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.complex_number_literal
     - _class: Expressir::Model::Declarations::Variable
       id: lgcl
+      declaration_group: 69
       type:
         _class: Expressir::Model::DataTypes::Logical
     - _class: Expressir::Model::Declarations::Variable
       id: cum
+      declaration_group: 69
       type:
         _class: Expressir::Model::DataTypes::Logical
     - _class: Expressir::Model::Declarations::Variable
       id: vspc
+      declaration_group: 70
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
     - _class: Expressir::Model::Declarations::Variable
       id: sspc
+      declaration_group: 70
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
@@ -61173,9 +61398,6 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.member_of.v
             statements:
             - _class: Expressir::Model::Statements::Assignment
-              untagged_remarks:
-              - text: cum := cum AND member_of (fedex (v, i), sspc);
-                format: tail
               ref:
                 _class: Expressir::Model::References::SimpleReference
                 id: cum
@@ -61207,6 +61429,9 @@ schemas:
                     base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.member_of.sspc
             - _class: Expressir::Model::Statements::If
               untagged_remarks:
+              - text: cum := cum AND member_of (fedex (v, i), sspc);
+                format: tail
+                placement: leading
               - text: See note above for explanation of fedex()
                 format: tail
                 placement: leading
@@ -61325,9 +61550,6 @@ schemas:
                 base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.member_of.v
             statements:
             - _class: Expressir::Model::Statements::Assignment
-              untagged_remarks:
-              - text: cum := cum AND member_of (fedex (v, i), factors[i]);
-                format: tail
               ref:
                 _class: Expressir::Model::References::SimpleReference
                 id: cum
@@ -61364,6 +61586,9 @@ schemas:
                       id: i
             - _class: Expressir::Model::Statements::If
               untagged_remarks:
+              - text: cum := cum AND member_of (fedex (v, i), factors[i]);
+                format: tail
+                placement: leading
               - text: See note above for explanation of fedex()
                 format: tail
                 placement: leading
@@ -61487,10 +61712,6 @@ schemas:
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.member_of.tmp_int
             statements:
             - _class: Expressir::Model::Statements::Assignment
-              untagged_remarks:
-              - text: cum := cum AND member_of (fedex (v, i), factor_space (sspc,
-                  i));
-                format: tail
               ref:
                 _class: Expressir::Model::References::SimpleReference
                 id: cum
@@ -61530,6 +61751,10 @@ schemas:
                       id: i
             - _class: Expressir::Model::Statements::If
               untagged_remarks:
+              - text: cum := cum AND member_of (fedex (v, i), factor_space (sspc,
+                  i));
+                format: tail
+                placement: leading
               - text: See note above for explanation of fedex()
                 format: tail
                 placement: leading
@@ -65366,7 +65591,6 @@ schemas:
       When no simpler expression can be identified, the input expression may be returned
       unchanged.
     - simplify_function_application
-    - restore_binary
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -65375,8 +65599,6 @@ schemas:
         denoting the same mathematical object as the input expression."
     untagged_remarks:
     - text: simplify_function_application
-      format: tail
-    - text: restore_binary
       format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter
@@ -65431,10 +65653,12 @@ schemas:
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: x
+        declaration_group: 72
         type:
           _class: Expressir::Model::DataTypes::Real
       - _class: Expressir::Model::Declarations::Parameter
         id: "y"
+        declaration_group: 72
         type:
           _class: Expressir::Model::DataTypes::Real
       return_type:
@@ -65583,11 +65807,13 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.complex_number_literal
       - _class: Expressir::Model::Declarations::Parameter
         id: x
+        declaration_group: 71
         var: true
         type:
           _class: Expressir::Model::DataTypes::Real
       - _class: Expressir::Model::Declarations::Parameter
         id: "y"
+        declaration_group: 71
         var: true
         type:
           _class: Expressir::Model::DataTypes::Real
@@ -65669,24 +65895,28 @@ schemas:
         value: 'FALSE'
     - _class: Expressir::Model::Declarations::Variable
       id: v
+      declaration_group: 73
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_value
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_value
     - _class: Expressir::Model::Declarations::Variable
       id: v1
+      declaration_group: 73
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_value
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_value
     - _class: Expressir::Model::Declarations::Variable
       id: v2
+      declaration_group: 73
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_value
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_value
     - _class: Expressir::Model::Declarations::Variable
       id: v3
+      declaration_group: 73
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_value
@@ -65736,66 +65966,82 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
     - _class: Expressir::Model::Declarations::Variable
       id: lgc
+      declaration_group: 74
       type:
         _class: Expressir::Model::DataTypes::Logical
     - _class: Expressir::Model::Declarations::Variable
       id: cum
+      declaration_group: 74
       type:
         _class: Expressir::Model::DataTypes::Logical
     - _class: Expressir::Model::Declarations::Variable
       id: j
+      declaration_group: 75
       type:
         _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Variable
       id: k
+      declaration_group: 75
       type:
         _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Variable
       id: "n"
+      declaration_group: 75
       type:
         _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Variable
       id: p
+      declaration_group: 76
       type:
         _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::Variable
       id: q
+      declaration_group: 76
       type:
         _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::Variable
       id: r
+      declaration_group: 76
       type:
         _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::Variable
       id: s
+      declaration_group: 76
       type:
         _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::Variable
       id: t
+      declaration_group: 76
       type:
         _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::Variable
       id: u
+      declaration_group: 76
       type:
         _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::Variable
       id: str
+      declaration_group: 77
       type:
         _class: Expressir::Model::DataTypes::String
     - _class: Expressir::Model::Declarations::Variable
       id: st2
+      declaration_group: 77
       type:
         _class: Expressir::Model::DataTypes::String
     - _class: Expressir::Model::Declarations::Variable
       id: bin
+      declaration_group: 78
       type:
         _class: Expressir::Model::DataTypes::Binary
     - _class: Expressir::Model::Declarations::Variable
       id: bi2
+      declaration_group: 78
       type:
         _class: Expressir::Model::DataTypes::Binary
     - _class: Expressir::Model::Declarations::Variable
       id: tpl
+      declaration_group: 79
       type:
         _class: Expressir::Model::DataTypes::List
         unique: false
@@ -65805,6 +66051,7 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_value
     - _class: Expressir::Model::Declarations::Variable
       id: tp2
+      declaration_group: 79
       type:
         _class: Expressir::Model::DataTypes::List
         unique: false
@@ -68278,9 +68525,6 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_function_enumerators.ef_min_i
           statement:
             _class: Expressir::Model::Statements::Compound
-            untagged_remarks:
-            - text: 'ef_if_i : combined with ef_if'
-              format: tail
             statements:
             - _class: Expressir::Model::Statements::Assignment
               ref:
@@ -68495,6 +68739,10 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_function_enumerators.ef_negate_r
           statement:
             _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: 'ef_if_i : combined with ef_if'
+              format: tail
+              placement: leading
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: IN
@@ -73669,9 +73917,6 @@ schemas:
                         id: p
                         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_function_application.p
             - _class: Expressir::Model::Statements::Return
-              untagged_remarks:
-              - text: 'ef_if_c : combined with ef_if'
-                format: tail
               expression:
                 _class: Expressir::Model::Expressions::FunctionCall
                 function:
@@ -73755,6 +74000,10 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_function_enumerators.ef_subscript_s
           statement:
             _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: 'ef_if_c : combined with ef_if'
+              format: tail
+              placement: leading
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: AND
@@ -75731,9 +75980,6 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_function_enumerators.ef_size_b
           statement:
             _class: Expressir::Model::Statements::If
-            untagged_remarks:
-            - text: 'ef_if_b : combined with ef_if'
-              format: tail
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: IN
@@ -75782,6 +76028,10 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_function_enumerators.ef_subscript_t
           statement:
             _class: Expressir::Model::Statements::If
+            untagged_remarks:
+            - text: 'ef_if_b : combined with ef_if'
+              format: tail
+              placement: leading
             expression:
               _class: Expressir::Model::Expressions::BinaryExpression
               operator: AND
@@ -80069,6 +80319,11 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_generic_expression.restore_unary.expr
     - _class: Expressir::Model::Declarations::Function
       id: restore_binary
+      remarks:
+      - restore_binary
+      untagged_remarks:
+      - text: restore_binary
+        format: tail
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: expr
@@ -80077,11 +80332,13 @@ schemas:
           id: binary_generic_expression
       - _class: Expressir::Model::Declarations::Parameter
         id: opd1
+        declaration_group: 80
         type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_expression
       - _class: Expressir::Model::Declarations::Parameter
         id: opd2
+        declaration_group: 80
         type:
           _class: Expressir::Model::References::SimpleReference
           id: generic_expression
@@ -80247,12 +80504,14 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_generic_expression.expr
     - _class: Expressir::Model::Declarations::Variable
       id: v1
+      declaration_group: 81
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_value
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_value
     - _class: Expressir::Model::Declarations::Variable
       id: v2
+      declaration_group: 81
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_value
@@ -80270,11 +80529,13 @@ schemas:
         _class: Expressir::Model::Expressions::AggregateInitializer
     - _class: Expressir::Model::Declarations::Variable
       id: op1
+      declaration_group: 82
       type:
         _class: Expressir::Model::References::SimpleReference
         id: generic_expression
     - _class: Expressir::Model::Declarations::Variable
       id: op2
+      declaration_group: 82
       type:
         _class: Expressir::Model::References::SimpleReference
         id: generic_expression
@@ -80304,10 +80565,12 @@ schemas:
           id: generic_expression
     - _class: Expressir::Model::Declarations::Variable
       id: "n"
+      declaration_group: 83
       type:
         _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Variable
       id: m
+      declaration_group: 83
       type:
         _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Variable
@@ -84794,14 +85057,17 @@ schemas:
         value: 'TRUE'
     - _class: Expressir::Model::Declarations::Variable
       id: zint
+      declaration_group: 84
       type:
         _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Variable
       id: zmin
+      declaration_group: 84
       type:
         _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Variable
       id: zmax
+      declaration_group: 84
       type:
         _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Variable
@@ -86569,6 +86835,7 @@ schemas:
       id: space1
       remarks:
       - "(input) The first space."
+      declaration_group: 85
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
@@ -86577,6 +86844,7 @@ schemas:
       id: space2
       remarks:
       - "(input) The second space."
+      declaration_group: 85
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
@@ -86650,10 +86918,12 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.subspace_of.spc2
     - _class: Expressir::Model::Declarations::Variable
       id: lgcl
+      declaration_group: 86
       type:
         _class: Expressir::Model::DataTypes::Logical
     - _class: Expressir::Model::Declarations::Variable
       id: cum
+      declaration_group: 86
       type:
         _class: Expressir::Model::DataTypes::Logical
     - _class: Expressir::Model::Declarations::Variable
@@ -86664,10 +86934,12 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.elementary_space_enumerators
     - _class: Expressir::Model::Declarations::Variable
       id: bnd1
+      declaration_group: 87
       type:
         _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::Variable
       id: bnd2
+      declaration_group: 87
       type:
         _class: Expressir::Model::DataTypes::Real
     - _class: Expressir::Model::Declarations::Variable
@@ -86676,24 +86948,28 @@ schemas:
         _class: Expressir::Model::DataTypes::Integer
     - _class: Expressir::Model::Declarations::Variable
       id: sp1
+      declaration_group: 88
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
     - _class: Expressir::Model::Declarations::Variable
       id: sp2
+      declaration_group: 88
       type:
         _class: Expressir::Model::References::SimpleReference
         id: maths_space
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
     - _class: Expressir::Model::Declarations::Variable
       id: prgn1
+      declaration_group: 89
       type:
         _class: Expressir::Model::References::SimpleReference
         id: polar_complex_number_region
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.polar_complex_number_region
     - _class: Expressir::Model::Declarations::Variable
       id: prgn2
+      declaration_group: 89
       type:
         _class: Expressir::Model::References::SimpleReference
         id: polar_complex_number_region
@@ -89150,9 +89426,6 @@ schemas:
           _class: Expressir::Model::Literals::Logical
           value: 'FALSE'
     - _class: Expressir::Model::Statements::If
-      untagged_remarks:
-      - text: Should be unreachable
-        format: tail
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: IN
@@ -90091,6 +90364,10 @@ schemas:
           _class: Expressir::Model::Literals::Logical
           value: 'FALSE'
     - _class: Expressir::Model::Statements::Return
+      untagged_remarks:
+      - text: Should be unreachable
+        format: tail
+        placement: leading
       expression:
         _class: Expressir::Model::Literals::Logical
         value: UNKNOWN
@@ -90654,11 +90931,13 @@ schemas:
           id: generic_expression
     - _class: Expressir::Model::Declarations::Variable
       id: op1
+      declaration_group: 90
       type:
         _class: Expressir::Model::References::SimpleReference
         id: generic_expression
     - _class: Expressir::Model::Declarations::Variable
       id: op2
+      declaration_group: 90
       type:
         _class: Expressir::Model::References::SimpleReference
         id: generic_expression
@@ -91543,7 +91822,6 @@ schemas:
 
       NOTE: The _actual_ value space of an expression is impractical to ascertain in general. The purpose of this function is that it gives an equivalent of "type" information for mathematical expressions.
     - values_space_of
-    - mathematical_functions_schema
     remark_items:
     - _class: Expressir::Model::Declarations::RemarkItem
       id: return
@@ -91551,8 +91829,6 @@ schemas:
       - "(output) A space containing all possible values of the expression."
     untagged_remarks:
     - text: values_space_of
-      format: tail
-    - text: mathematical_functions_schema
       format: tail
     parameters:
     - _class: Expressir::Model::Declarations::Parameter

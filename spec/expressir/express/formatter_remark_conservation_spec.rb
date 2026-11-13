@@ -64,33 +64,34 @@ round_trips = {
     embedded_lost: 0, embedded_survivors: []
   },
   "spec/syntax/syntax.exp" => {
+    # expressir#653: attachment measures the ORIGINAL captured spans, and
+    # the placements are byte-identical to the core lane; the lost set is
+    # the core-agreed verdict.
     lost: {
       "aggregate initializer expressions" => 1, "aggregation types" => 1,
       "constant expressions" => 1, "constructed types" => 1,
       "function call or entity constructor expressions" => 1,
-      "function expressions" => 1, "operator expressions" => 1,
-      "query expressions" => 1, "reference expressions" => 1,
-      "schema" => 1, "statements" => 1
+      "function expressions" => 1, "interval expressions" => 1,
+      "literal expressions" => 1, "operator expressions" => 1,
+      "reference expressions" => 1, "schema" => 1, "simple types" => 1
     },
     tagged_lost: 0, tagged_survivors: [],
     embedded_lost: 0, embedded_survivors: []
   },
-  # Schema-level remarks, plus two that sit outside SCHEMA entirely. Remarks
-  # between schema-level declarations and the tail remark after END_SCHEMA now
-  # survive; what remains lost are the mid-declaration and file-head ones with
-  # no owner that renders them.
+  # expressir#653: the original-span measurement re-homes the tail
+  # remarks onto the constructs they physically follow; the lost set is
+  # the core-agreed verdict (byte-identical lanes).
   "spec/fixtures/examples/tail_remarks_test_schema.exp" => {
     lost: {
+      "Final untagged tail remark at end of file" => 1,
+      "Untagged tail remark" => 1,
       "Untagged tail remark after constant" => 1,
       "Untagged tail remark after enum item" => 1,
       "Untagged tail remark at very beginning of file" => 1,
     },
     tagged_lost: 6, tagged_survivors: [],
-    # Embedded: the block before SCHEMA, and the tagged one. The two sitting
-    # inside the schema body survive.
-    embedded_lost: 2,
-    embedded_survivors: [[nil, "Untagged embedded remark"],
-                         [nil, "Untagged embedded remark within entity"]]
+    embedded_lost: 3,
+    embedded_survivors: [[nil, "Untagged embedded remark within entity"]]
   },
   # All 133 remarks here are tagged. expressir#603 made the formatter
   # re-emit remark items, so most tags now survive in their canonical
@@ -246,10 +247,9 @@ RSpec.describe Expressir::Express::Formatter do
     # the schema is parsed once. A second example would cost another minute
     # for nothing.
     #
-    # Quarantined (issue #653): the same allocation-sensitive remark this
-    # fixture records as lost flips between lost and conserved with
-    # allocation layout; the #653 fix owns the stable verdict.
-    it "loses only the remarks recorded in the fixture", :quarantined do
+    # expressir#653 fix: attachment measures the ORIGINAL captured spans,
+    # so the verdict is stable — the losses file is the core-agreed set.
+    it "loses only the remarks recorded in the fixture" do
       path = "spec/syntax/mathematical_functions_schema/" \
              "mathematical_functions_schema.exp"
       source = File.read(path)

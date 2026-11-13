@@ -26,6 +26,11 @@ REFERENCE FROM contract_schema
 
     -- interfaces
     -- constants
+    -- types
+    -- entities
+    -- subtype constraints
+    -- functions
+    -- rules
 
 
 CONSTANT
@@ -43,7 +48,7 @@ END_TYPE;
 TYPE where_label_type = BOOLEAN;
 WHERE
   WR1: TRUE;
-END_TYPE; -- entities
+END_TYPE;
 
 ENTITY empty_entity;
 END_ENTITY;
@@ -191,7 +196,7 @@ END_ENTITY;
 ENTITY where_label_entity;
 WHERE
   WR1: TRUE;
-END_ENTITY; -- subtype constraints
+END_ENTITY;
 
 SUBTYPE_CONSTRAINT empty_subtype_constraint FOR empty_entity;
 END_SUBTYPE_CONSTRAINT;
@@ -258,7 +263,7 @@ END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT supertype_expression_oneof_andor_oneof_subtype_constraint FOR empty_entity;
   ONEOF(a, b) ANDOR ONEOF(c, d);
-END_SUBTYPE_CONSTRAINT; -- functions
+END_SUBTYPE_CONSTRAINT;
 
 FUNCTION empty_function : BOOLEAN;
   ;
@@ -340,7 +345,7 @@ FUNCTION multiple_shorthand_variable_expression_function : BOOLEAN;
     test, test2 : BOOLEAN := TRUE;
   END_LOCAL;
   ;
-END_FUNCTION; -- rules
+END_FUNCTION;
 
 RULE empty_rule FOR (empty_entity);
 WHERE
@@ -429,7 +434,7 @@ END_RULE;
 RULE where_label_rule FOR (empty_entity);
 WHERE
   WR1: TRUE;
-END_RULE; -- procedures
+END_RULE;
 
 PROCEDURE empty_procedure;
 END_PROCEDURE;
@@ -690,7 +695,7 @@ PROCEDURE statements;
   PROCEDURE skip_statement;
     SKIP;
   END_PROCEDURE;
-END_PROCEDURE; -- simple types
+END_PROCEDURE; -- statements
 
 PROCEDURE types;
   TYPE binary_type = BINARY;
@@ -782,7 +787,7 @@ PROCEDURE types;
   TYPE enumeration_based_on_multiple_item_type = ENUMERATION BASED_ON enumeration_type WITH
     (test,
      test2);
-  END_TYPE; -- generic types
+  END_TYPE;
   FUNCTION generic_type : GENERIC;
     ;
   END_FUNCTION;
@@ -795,7 +800,7 @@ PROCEDURE types;
   FUNCTION generic_entity_label_type : GENERIC_ENTITY : label;
     ;
   END_FUNCTION;
-END_PROCEDURE; -- literal expressions
+END_PROCEDURE; -- generic types
 
 PROCEDURE expressions;
   LOCAL
@@ -897,6 +902,6 @@ PROCEDURE expressions;
     lte_lte_interval_expression : BOOLEAN := {1 <= 5 <= 9};
     query_expression : BOOLEAN := QUERY(test <* test2 | TRUE);
   END_LOCAL;
-END_PROCEDURE; -- interval expressions
+END_PROCEDURE; -- query expressions
 
-END_SCHEMA; -- types
+END_SCHEMA; -- procedures

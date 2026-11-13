@@ -1,22 +1,13 @@
----
-Should be unreachable.: 1
-Should be unreachable: 1
-Identify base direction with respect to which all relevant directions lie: 1
-Construct imag_constraint: 1
-Construct cartesian region: 1
-Using base direction midway in prgn, compute all directions using: 2
-values which ensure a3 < a2 and a0 < a1 algebraically.: 2
-Construct polar region: 1
-mem_of_vs: 1
+# The remarks lost across a source→render→reparse round trip of
+# mathematical_functions_schema.exp, pinned text by text.
+#
+# expressir#653: remark attachment measures the ORIGINAL captured spans
+# (first token through last token per rule) instead of rendered-text
+# lengths, and the placements are byte-identical to the core lane. The
+# rendered-span drift used to misfile most tail remarks onto owners that
+# do not render them, inflating this list to 20 entries; the four below
+# are the core-agreed remainder.
 derived: 3
 2nd derived: 4
-cum := cum AND member_of (fedex (v, i), sspc);: 1
-cum := cum AND member_of (fedex (v, i), factors[i]);: 1
-cum := cum AND member_of (fedex (v, i), factor_space (sspc, i));: 1
-'ef_if_i : combined with ef_if': 1
-'ef_if_c : combined with ef_if': 1
-'ef_if_b : combined with ef_if': 1
 This can have multiple outputs, but the expression only: 1
 "(mem + vlist) effectively converts list to set": 1
-simplify_function_application: 1
-values_space_of: 1

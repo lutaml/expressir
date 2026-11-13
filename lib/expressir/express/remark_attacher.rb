@@ -369,7 +369,7 @@ module Expressir
       def single_line_owner(candidates, line)
         candidates
           .select { |n| n[:end_line] == line }
-          .max_by { |n| n[:position] + n[:node].source.to_s.length }
+          .max_by { |n| n[:position] + NodePositionIndex.span_length(n[:node]) }
       end
 
       # A node whose opener is on the remark's line but which continues past

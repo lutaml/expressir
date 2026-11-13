@@ -248,10 +248,41 @@ module Expressir
           slice = find_slice(data)
           return nil unless slice
 
+          # The node's FULL captured span runs from the first token to the
+          # last token's end across the rule subtree. find_slice alone
+          # returns the leading keyword for container rules (schemaDecl's
+          # first slice is the `SCHEMA` token), which made containers' spans
+          # end far too early and pushed END-scope tail remarks past their
+          # scope (#653).
+          last = last_slice(data, slice, 0)
+          text = src[slice.offset...(last.offset + last.length)]&.strip
           {
-            text: src[slice.offset...(slice.offset + slice.length)]&.strip,
+            text: text,
             offset: slice.offset,
           }
+        end
+
+        def last_slice(data, best, depth)
+          return best if depth > 12
+
+          case data
+          when Parsanol::Slice
+            (data.offset + data.length) > (best.offset + best.length) ? data : best
+          when Hash
+            data.each do |key, value|
+              next if key == :spaces
+
+              best = last_slice(value, best, depth + 1)
+            end
+            best
+          when Array
+            data.each do |item|
+              best = last_slice(item, best, depth + 1)
+            end
+            best
+          else
+            best
+          end
         end
 
         def attach_source_info(result, data)
@@ -261,6 +292,10 @@ module Expressir
           return unless source_info
 
           result.source_offset = source_info[:offset]
+          # The original span length rides on every node (independent of
+          # include_source) so remark attachment measures positions against
+          # what the parser captured, never against rendered text (#653).
+          result.source_length = source_info[:text]&.length
           result.source = source_info[:text] if include_source
         end
 

@@ -3418,8 +3418,13 @@ schemas:
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
         items:
-        - _class: Expressir::Model::Literals::Integer
-          value: '4'
+        - _class: Expressir::Model::Expressions::AggregateInitializerItem
+          expression:
+            _class: Expressir::Model::Literals::Integer
+            value: '4'
+          repetition:
+            _class: Expressir::Model::Literals::Integer
+            value: '2'
     - _class: Expressir::Model::Declarations::Variable
       id: complex_aggregate_initializer_expression
       type:
@@ -3442,14 +3447,25 @@ schemas:
       expression:
         _class: Expressir::Model::Expressions::AggregateInitializer
         items:
-        - _class: Expressir::Model::Expressions::BinaryExpression
-          operator: ADDITION
-          operand1:
-            _class: Expressir::Model::Literals::Integer
-            value: '4'
-          operand2:
-            _class: Expressir::Model::Literals::Integer
-            value: '2'
+        - _class: Expressir::Model::Expressions::AggregateInitializerItem
+          expression:
+            _class: Expressir::Model::Expressions::BinaryExpression
+            operator: ADDITION
+            operand1:
+              _class: Expressir::Model::Literals::Integer
+              value: '4'
+            operand2:
+              _class: Expressir::Model::Literals::Integer
+              value: '2'
+          repetition:
+            _class: Expressir::Model::Expressions::BinaryExpression
+            operator: ADDITION
+            operand1:
+              _class: Expressir::Model::Literals::Integer
+              value: '4'
+            operand2:
+              _class: Expressir::Model::Literals::Integer
+              value: '2'
     - _class: Expressir::Model::Declarations::Variable
       id: call_expression
       type:

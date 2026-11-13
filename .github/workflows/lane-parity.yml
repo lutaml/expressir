@@ -1,7 +1,13 @@
 # The lane-parity gate (issue #623): the pure-Ruby fallback is a
 # supported configuration, not a degraded one — the suite runs on
-# both lanes and the fallback lane must stay green. Drift between
-# the native lane and the fallback lane is a release blocker.
+# both lanes and the fallback lane must stay green. Drift between the
+# native lane and the fallback lane is a release blocker.
+#
+# The hybrid lane builds the expressir-core extension (issue #653 —
+# the native lane used to be a phantom: no ext, so the job silently
+# exercised the pure-Ruby configuration). With the ext present the
+# parser defaults to native and Core::NATIVE_AVAILABLE is true, which
+# is the shipping configuration on every supported platform.
 name: lane-parity
 
 permissions:
@@ -13,16 +19,29 @@ on:
   pull_request:
 
 jobs:
-  native-lane:
+  hybrid-lane:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"
           bundler-cache: true
-      - name: Suite on the native lane
-        run: bundle exec rspec spec/expressir/express spec/expressir/p21 -f progress
+      - name: Build the expressir-core extension
+        working-directory: ext/expressir_core
+        run: |
+          gem install rb_sys
+          ruby extconf.rb
+          RB_SYS_CARGO_PROFILE=release make
+      - name: Suite on the hybrid lane (native parse, core ext present)
+        run: |
+          bundle exec ruby -e '
+            require "expressir"
+            raise "core ext unavailable" unless Expressir::Express::Core::NATIVE_AVAILABLE
+            puts "core ext OK"
+          '
+          bundle exec rspec spec/expressir/express spec/expressir/p21 -f progress
 
   fallback-lane:
     runs-on: ubuntu-latest

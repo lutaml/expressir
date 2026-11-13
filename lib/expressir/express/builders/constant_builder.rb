@@ -49,9 +49,11 @@ module Expressir
                          Builder.build({ expression: ast_data[:expression] })
                        end
 
+          group = ids.size > 1 ? Builder.next_declaration_group : nil
           ids.flatten.compact.map do |id|
             Expressir::Model::Declarations::Variable.new(id: id, type: type,
-                                                         expression: expression)
+                                                         expression: expression,
+                                                         declaration_group: group)
           end
         end
 
@@ -76,7 +78,11 @@ module Expressir
                 end
 
           type = Builder.build_optional(ast_data[:parameter_type])
-          ids.flatten.compact.map { |id| Expressir::Model::Declarations::Parameter.new(id: id, type: type) }
+          group = ids.size > 1 ? Builder.next_declaration_group : nil
+          ids.flatten.compact.map do |id|
+            Expressir::Model::Declarations::Parameter.new(id: id, type: type,
+                                                          declaration_group: group)
+          end
         end
 
         def build_procedure_head_parameter(ast_data)
@@ -96,7 +102,8 @@ module Expressir
           if is_var
             params.map do |p|
               Expressir::Model::Declarations::Parameter.new(id: p.id,
-                                                            var: true, type: p.type)
+                                                            var: true, type: p.type,
+                                                            declaration_group: p.declaration_group)
             end
           else
             params

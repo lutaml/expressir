@@ -191,7 +191,7 @@ module Expressir
              preamble.rstrip
            end,
           *if explicit_attributes&.length&.positive?
-             indent(explicit_attributes.map { |x| format(x) }.join("\n"))
+             indent(format_grouped_declarations(explicit_attributes, method(:format_declarations_attribute)).join("\n"))
            end,
           *if derived_attributes&.length&.positive?
              [
@@ -440,9 +440,7 @@ module Expressir
                parameter_indent = " " * "FUNCTION #{node.id}(".length
                [
                  "(",
-                 node.parameters.map do |x|
-                   format(x)
-                 end.join(";\n#{parameter_indent}"),
+                 format_grouped_declarations(node.parameters, method(:format_declarations_parameter)).join(";\n#{parameter_indent}"),
                  ")",
                ].join
              end,
@@ -468,9 +466,7 @@ module Expressir
                parameter_indent = " " * "PROCEDURE #{node.id}(".length
                [
                  "(",
-                 node.parameters.map do |x|
-                   format(x)
-                 end.join(";\n#{parameter_indent}"),
+                 format_grouped_declarations(node.parameters, method(:format_declarations_parameter)).join(";\n#{parameter_indent}"),
                  ")",
                ].join
              end,
@@ -542,7 +538,7 @@ module Expressir
           *if node.variables&.length&.positive?
              indent([
                "LOCAL",
-               indent(node.variables.map { |x| format(x) }.join("\n")),
+               indent(format_grouped_declarations(node.variables, method(:format_declarations_variable)).join("\n")),
                [
                  "END_LOCAL",
                  ";",

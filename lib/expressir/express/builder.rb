@@ -117,6 +117,9 @@ module Expressir
             source: source,
             include_source: include_source,
           )
+          # One parse = one numbering space, so the same source yields the
+          # same groups regardless of process history (issue #655).
+          Thread.current[DECLARATION_GROUP_KEY] = 0
 
           result = build(ast)
 
@@ -156,6 +159,15 @@ module Expressir
           return [] if value.is_a?(Parsanol::Slice)
 
           value.is_a?(Array) ? value : [value]
+        end
+
+        DECLARATION_GROUP_KEY = :expressir_declaration_group_counter
+
+        # Issue #655: siblings of one multi-name source declaration share a
+        # group number (per-thread, unique within a parse) so the formatters
+        # can render the combined declaration the source wrote.
+        def next_declaration_group
+          Thread.current[DECLARATION_GROUP_KEY] = Thread.current[DECLARATION_GROUP_KEY].to_i + 1
         end
 
         # Build children (array of AST nodes)

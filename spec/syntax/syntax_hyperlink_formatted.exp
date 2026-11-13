@@ -87,8 +87,7 @@ ENTITY attribute_multiple_entity;
 END_ENTITY;
 
 ENTITY attribute_multiple_shorthand_entity;
-  test : BOOLEAN;
-  test2 : BOOLEAN;
+  test, test2 : BOOLEAN;
 END_ENTITY;
 
 ENTITY attribute_redeclared_entity
@@ -274,8 +273,7 @@ FUNCTION multiple_parameter_function(test : BOOLEAN;
   ;
 END_FUNCTION;
 
-FUNCTION multiple_shorthand_parameter_function(test : BOOLEAN;
-                                               test2 : BOOLEAN) : BOOLEAN;
+FUNCTION multiple_shorthand_parameter_function(test, test2 : BOOLEAN) : BOOLEAN;
   ;
 END_FUNCTION;
 
@@ -317,8 +315,7 @@ END_FUNCTION;
 
 FUNCTION multiple_shorthand_variable_function : BOOLEAN;
   LOCAL
-    test : BOOLEAN;
-    test2 : BOOLEAN;
+    test, test2 : BOOLEAN;
   END_LOCAL;
   ;
 END_FUNCTION;
@@ -340,8 +337,7 @@ END_FUNCTION;
 
 FUNCTION multiple_shorthand_variable_expression_function : BOOLEAN;
   LOCAL
-    test : BOOLEAN := TRUE;
-    test2 : BOOLEAN := TRUE;
+    test, test2 : BOOLEAN := TRUE;
   END_LOCAL;
   ;
 END_FUNCTION; -- rules
@@ -394,8 +390,7 @@ END_RULE;
 
 RULE multiple_shorthand_variable_rule FOR (empty_entity);
   LOCAL
-    test : BOOLEAN;
-    test2 : BOOLEAN;
+    test, test2 : BOOLEAN;
   END_LOCAL;
 WHERE
   TRUE;
@@ -420,8 +415,7 @@ END_RULE;
 
 RULE multiple_shorthand_variable_expression_rule FOR (empty_entity);
   LOCAL
-    test : BOOLEAN := TRUE;
-    test2 : BOOLEAN := TRUE;
+    test, test2 : BOOLEAN := TRUE;
   END_LOCAL;
 WHERE
   TRUE;
@@ -447,8 +441,7 @@ PROCEDURE multiple_parameter_procedure(test : BOOLEAN;
                                        test2 : BOOLEAN);
 END_PROCEDURE;
 
-PROCEDURE multiple_shorthand_parameter_procedure(test : BOOLEAN;
-                                                 test2 : BOOLEAN);
+PROCEDURE multiple_shorthand_parameter_procedure(test, test2 : BOOLEAN);
 END_PROCEDURE;
 
 PROCEDURE variable_parameter_procedure(VAR test : BOOLEAN);
@@ -462,8 +455,7 @@ PROCEDURE multiple_variable_parameter2_procedure(test : BOOLEAN;
                                                  VAR test2 : BOOLEAN);
 END_PROCEDURE;
 
-PROCEDURE multiple_shorthand_variable_parameter_procedure(VAR test : BOOLEAN;
-                                                          VAR test2 : BOOLEAN);
+PROCEDURE multiple_shorthand_variable_parameter_procedure(VAR test, test2 : BOOLEAN);
 END_PROCEDURE;
 
 PROCEDURE type_procedure;
@@ -499,8 +491,7 @@ END_PROCEDURE;
 
 PROCEDURE multiple_shorthand_variable_procedure;
   LOCAL
-    test : BOOLEAN;
-    test2 : BOOLEAN;
+    test, test2 : BOOLEAN;
   END_LOCAL;
 END_PROCEDURE;
 
@@ -519,8 +510,7 @@ END_PROCEDURE;
 
 PROCEDURE multiple_shorthand_variable_expression_procedure;
   LOCAL
-    test : BOOLEAN := TRUE;
-    test2 : BOOLEAN := TRUE;
+    test, test2 : BOOLEAN := TRUE;
   END_LOCAL;
 END_PROCEDURE;
 

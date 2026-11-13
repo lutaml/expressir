@@ -43,7 +43,42 @@ module Expressir
                                   :format_declarations_attribute
         end
 
-        def format_declarations_attribute(node)
+        # Issue #655: render a list of Variable/Parameter/Attribute siblings
+        # with the grouping the source wrote — `a, b : INTEGER;` as one
+        # declaration. A run is grouped only when every member carries the
+        # same declaration_group and none carries remarks or (for attributes)
+        # a renamed supertype attribute; otherwise each sibling renders per
+        # name through the regular format dispatch.
+        def format_grouped_declarations(list, formatter_method)
+          out = []
+          i = 0
+          while i < list.length
+            node = list[i]
+            group = node.declaration_group
+            members = if group && list[i + 1]&.declaration_group == group
+                        run = list[i..].take_while { |m| m.declaration_group == group }
+                        run.length > 1 && group_combinable?(run) ? run : nil
+                      end
+            if members
+              out << formatter_method.call(node, members.map(&:id))
+              i += members.length
+            else
+              out << format(node)
+              i += 1
+            end
+          end
+          out
+        end
+
+        def group_combinable?(members)
+          members.all? do |m|
+            m.remark_items.nil? || m.remark_items.empty?
+          end && members.none? do |m|
+            m.is_a?(Model::Declarations::Attribute) && m.supertype_attribute
+          end
+        end
+
+        def format_declarations_attribute(node, sibling_ids = nil)
           [
             *if node.supertype_attribute
                [
@@ -61,7 +96,7 @@ module Expressir
              end,
             *if node.id && !node.supertype_attribute
                [
-                 node.id,
+                 sibling_ids ? sibling_ids.join(", ") : node.id,
                  " ",
                ].join
              end,
@@ -194,7 +229,7 @@ module Expressir
                preamble.rstrip
              end,
             *if explicit_attributes&.length&.positive?
-               indent(explicit_attributes.map { |x| format(x) }.join("\n"))
+               indent(format_grouped_declarations(explicit_attributes, method(:format_declarations_attribute)).join("\n"))
              end,
             *if derived_attributes&.length&.positive?
                [
@@ -254,9 +289,7 @@ module Expressir
                  parameter_indent = indent_char * "FUNCTION #{node.id}(".length
                  [
                    "(",
-                   node.parameters.map do |x|
-                     format(x)
-                   end.join(";\n#{parameter_indent}"),
+                   format_grouped_declarations(node.parameters, method(:format_declarations_parameter)).join(";\n#{parameter_indent}"),
                    ")",
                  ].join
                end,
@@ -294,7 +327,7 @@ module Expressir
             *if node.variables&.length&.positive?
                indent([
                  "LOCAL",
-                 indent(node.variables.map { |x| format(x) }.join("\n")),
+                 indent(format_grouped_declarations(node.variables, method(:format_declarations_variable)).join("\n")),
                  [
                    "END_LOCAL",
                    ";",
@@ -355,7 +388,7 @@ module Expressir
           ].join
         end
 
-        def format_declarations_parameter(node)
+        def format_declarations_parameter(node, sibling_ids = nil)
           [
             *if node.var
                [
@@ -363,7 +396,7 @@ module Expressir
                  " ",
                ].join
              end,
-            node.id,
+            sibling_ids ? sibling_ids.join(", ") : node.id,
             " ",
             ":",
             " ",
@@ -385,9 +418,7 @@ module Expressir
                  parameter_indent = indent_char * "PROCEDURE #{node.id}(".length
                  [
                    "(",
-                   node.parameters.map do |x|
-                     format(x)
-                   end.join(";\n#{parameter_indent}"),
+                   format_grouped_declarations(node.parameters, method(:format_declarations_parameter)).join(";\n#{parameter_indent}"),
                    ")",
                  ].join
                end,
@@ -421,7 +452,7 @@ module Expressir
             *if node.variables&.length&.positive?
                indent([
                  "LOCAL",
-                 indent(node.variables.map { |x| format(x) }.join("\n")),
+                 indent(format_grouped_declarations(node.variables, method(:format_declarations_variable)).join("\n")),
                  [
                    "END_LOCAL",
                    ";",
@@ -515,7 +546,7 @@ module Expressir
             *if node.variables&.length&.positive?
                indent([
                  "LOCAL",
-                 indent(node.variables.map { |x| format(x) }.join("\n")),
+                 indent(format_grouped_declarations(node.variables, method(:format_declarations_variable)).join("\n")),
                  [
                    "END_LOCAL",
                    ";",
@@ -730,9 +761,9 @@ module Expressir
           ].join
         end
 
-        def format_declarations_variable(node)
+        def format_declarations_variable(node, sibling_ids = nil)
           [
-            node.id,
+            sibling_ids ? sibling_ids.join(", ") : node.id,
             " ",
             ":",
             " ",

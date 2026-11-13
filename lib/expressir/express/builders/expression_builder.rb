@@ -357,8 +357,13 @@ module Expressir
           list_data = ast_data[:list_of_element] || ast_data
           elements = if list_data.is_a?(Array)
                        list_data
-                     else
-                       list_data[:element]
+                     elsif list_data.is_a?(Hash) && list_data.key?(:element)
+                       # parsanol collapses a single repetition match to a bare
+                       # hash: `[7 : n + 1]` yields {element: {...}}, not
+                       # [{element: {...}}] like the multi-element case. Re-wrap
+                       # so the dispatch keeps the :element tag and reaches
+                       # build_element with the repetition intact (#654).
+                       [list_data]
                      end
 
           items = elements ? Builder.build_children(elements) : []

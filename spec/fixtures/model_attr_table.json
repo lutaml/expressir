@@ -1,0 +1,2724 @@
+{
+  "Expressir::Model::Cache": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "content": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "root_path": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "version": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    }
+  },
+  "Expressir::Model::DataTypes::Aggregate": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "base_type": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::DataTypes::Array": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "base_type": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "bound1": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "bound2": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "optional": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "unique": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::DataTypes::Bag": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "base_type": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "bound1": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "bound2": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::DataTypes::Binary": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "fixed": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "width": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    }
+  },
+  "Expressir::Model::DataTypes::Boolean": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::DataTypes::Enumeration": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "based_on": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "extensible": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "items": {
+      "type": "Expressir::Model::DataTypes::EnumerationItem",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::DataTypes::EnumerationItem": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::DataTypes::Generic": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::DataTypes::GenericEntity": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::DataTypes::Integer": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::DataTypes::List": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "base_type": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "bound1": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "bound2": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "unique": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::DataTypes::Logical": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::DataTypes::Number": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::DataTypes::Real": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "precision": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::DataTypes::Select": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "based_on": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "extensible": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "generic_entity": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "items": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::DataTypes::Set": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "base_type": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "bound1": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "bound2": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::DataTypes::String": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "fixed": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "width": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    }
+  },
+  "Expressir::Model::Declarations::Attribute": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "declaration_group": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "kind": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "optional": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "supertype_attribute": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "type": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::Constant": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "type": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::DerivedAttribute": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "declaration_group": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "kind": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "optional": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "supertype_attribute": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "type": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::Entity": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "abstract": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "attributes": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "derived_attributes": {
+      "type": "Expressir::Model::Declarations::DerivedAttribute",
+      "collection": true
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "informal_propositions": {
+      "type": "Expressir::Model::Declarations::InformalPropositionRule",
+      "collection": true
+    },
+    "inverse_attributes": {
+      "type": "Expressir::Model::Declarations::InverseAttribute",
+      "collection": true
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "subtype_of": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "supertype_expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "unique_rules": {
+      "type": "Expressir::Model::Declarations::UniqueRule",
+      "collection": true
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "where_rules": {
+      "type": "Expressir::Model::Declarations::WhereRule",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::Function": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "constants": {
+      "type": "Expressir::Model::Declarations::Constant",
+      "collection": true
+    },
+    "entities": {
+      "type": "Expressir::Model::Declarations::Entity",
+      "collection": true
+    },
+    "functions": {
+      "type": "Expressir::Model::Declarations::Function",
+      "collection": true
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parameters": {
+      "type": "Expressir::Model::Declarations::Parameter",
+      "collection": true
+    },
+    "procedures": {
+      "type": "Expressir::Model::Declarations::Procedure",
+      "collection": true
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "return_type": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "statements": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "subtype_constraints": {
+      "type": "Expressir::Model::Declarations::SubtypeConstraint",
+      "collection": true
+    },
+    "types": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "variables": {
+      "type": "Expressir::Model::Declarations::Variable",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::InformalPropositionRule": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::Interface": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "items": {
+      "type": "Expressir::Model::Declarations::InterfaceItem",
+      "collection": true
+    },
+    "kind": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "schema": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::InterfaceItem": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "ref": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::InterfacedItem": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "base_item": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::InverseAttribute": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "declaration_group": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "kind": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "optional": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "supertype_attribute": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "type": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::Parameter": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "declaration_group": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "type": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "var": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    }
+  },
+  "Expressir::Model::Declarations::Procedure": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "constants": {
+      "type": "Expressir::Model::Declarations::Constant",
+      "collection": true
+    },
+    "entities": {
+      "type": "Expressir::Model::Declarations::Entity",
+      "collection": true
+    },
+    "functions": {
+      "type": "Expressir::Model::Declarations::Function",
+      "collection": true
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parameters": {
+      "type": "Expressir::Model::Declarations::Parameter",
+      "collection": true
+    },
+    "procedures": {
+      "type": "Expressir::Model::Declarations::Procedure",
+      "collection": true
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "statements": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "subtype_constraints": {
+      "type": "Expressir::Model::Declarations::SubtypeConstraint",
+      "collection": true
+    },
+    "types": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "variables": {
+      "type": "Expressir::Model::Declarations::Variable",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::RemarkItem": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::Rule": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "applies_to": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "constants": {
+      "type": "Expressir::Model::Declarations::Constant",
+      "collection": true
+    },
+    "entities": {
+      "type": "Expressir::Model::Declarations::Entity",
+      "collection": true
+    },
+    "functions": {
+      "type": "Expressir::Model::Declarations::Function",
+      "collection": true
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "informal_propositions": {
+      "type": "Expressir::Model::Declarations::InformalPropositionRule",
+      "collection": true
+    },
+    "procedures": {
+      "type": "Expressir::Model::Declarations::Procedure",
+      "collection": true
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "statements": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "subtype_constraints": {
+      "type": "Expressir::Model::Declarations::SubtypeConstraint",
+      "collection": true
+    },
+    "types": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "variables": {
+      "type": "Expressir::Model::Declarations::Variable",
+      "collection": true
+    },
+    "where_rules": {
+      "type": "Expressir::Model::Declarations::WhereRule",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::Schema": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "constants": {
+      "type": "Expressir::Model::Declarations::Constant",
+      "collection": true
+    },
+    "entities": {
+      "type": "Expressir::Model::Declarations::Entity",
+      "collection": true
+    },
+    "file": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "file_basename": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "functions": {
+      "type": "Expressir::Model::Declarations::Function",
+      "collection": true
+    },
+    "header": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "interfaces": {
+      "type": "Expressir::Model::Declarations::Interface",
+      "collection": true
+    },
+    "procedures": {
+      "type": "Expressir::Model::Declarations::Procedure",
+      "collection": true
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "rules": {
+      "type": "Expressir::Model::Declarations::Rule",
+      "collection": true
+    },
+    "selected": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "subtype_constraints": {
+      "type": "Expressir::Model::Declarations::SubtypeConstraint",
+      "collection": true
+    },
+    "types": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "version": {
+      "type": "Expressir::Model::Declarations::SchemaVersion",
+      "collection": false
+    }
+  },
+  "Expressir::Model::Declarations::SchemaVersion": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "items": {
+      "type": "Expressir::Model::Declarations::SchemaVersionItem",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "value": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    }
+  },
+  "Expressir::Model::Declarations::SchemaVersionItem": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "name": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "value": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    }
+  },
+  "Expressir::Model::Declarations::SubtypeConstraint": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "abstract": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "applies_to": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "supertype_expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "total_over": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::Type": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "informal_propositions": {
+      "type": "Expressir::Model::Declarations::InformalPropositionRule",
+      "collection": true
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "underlying_type": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "where_rules": {
+      "type": "Expressir::Model::Declarations::WhereRule",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::UniqueRule": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "attributes": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::Variable": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "declaration_group": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "type": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Declarations::WhereRule": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::ExpFile": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "path": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "schemas": {
+      "type": "Expressir::Model::Declarations::Schema",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Expressions::AggregateInitializer": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "items": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Expressions::AggregateInitializerItem": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "repetition": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Expressions::BinaryExpression": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "operand1": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "operand2": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "operator": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Expressions::EntityConstructor": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "entity": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "parameters": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Expressions::FunctionCall": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "function": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "parameters": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Expressions::Interval": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "high": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "item": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "low": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "operator1": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "operator2": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Expressions::QueryExpression": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "aggregate_source": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Expressions::UnaryExpression": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "operand": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "operator": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Literals::Binary": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "value": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    }
+  },
+  "Expressir::Model::Literals::Integer": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "value": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    }
+  },
+  "Expressir::Model::Literals::Logical": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "value": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    }
+  },
+  "Expressir::Model::Literals::Real": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "value": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    }
+  },
+  "Expressir::Model::Literals::String": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "encoded": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "value": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    }
+  },
+  "Expressir::Model::ModelElement": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::References::AttributeReference": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "attribute": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "ref": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::References::GroupReference": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "entity": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "ref": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::References::IndexReference": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "index1": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "index2": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "ref": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::References::SimpleReference": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "base_path": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "ref": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::RemarkInfo": {
+    "format": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "placement": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "region": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "tag": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "text": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    }
+  },
+  "Expressir::Model::Repository": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "files": {
+      "type": "Expressir::Model::ExpFile",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Statements::Alias": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "statements": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Statements::Assignment": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "ref": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Statements::Case": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "actions": {
+      "type": "Expressir::Model::Statements::CaseAction",
+      "collection": true
+    },
+    "expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "otherwise_statement": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Statements::CaseAction": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "labels": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "statement": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Statements::Compound": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "statements": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Statements::Escape": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Statements::If": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "else_statements": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "statements": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Statements::Null": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Statements::ProcedureCall": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parameters": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "procedure": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Statements::Repeat": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "bound1": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "bound2": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "id": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "increment": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "remark_items": {
+      "type": "Expressir::Model::Declarations::RemarkItem",
+      "collection": true
+    },
+    "remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "statements": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    },
+    "until_expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "while_expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    }
+  },
+  "Expressir::Model::Statements::Return": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "expression": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::Statements::Skip": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::SupertypeExpressions::BinarySupertypeExpression": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "operand1": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "operand2": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "operator": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  },
+  "Expressir::Model::SupertypeExpressions::OneofSupertypeExpression": {
+    "_class": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "operands": {
+      "type": "Expressir::Model::ModelElement",
+      "collection": true
+    },
+    "source": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "source_length": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "source_offset": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
+    "untagged_remarks": {
+      "type": "Expressir::Model::RemarkInfo",
+      "collection": true
+    }
+  }
+}

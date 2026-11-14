@@ -1,0 +1,14 @@
+SCHEMA support_schema;
+
+TYPE support_type = LABEL;
+END_TYPE;
+
+ENTITY base_entity;
+  instances : BAG[0:?] OF base_entity;
+END_ENTITY;
+
+FUNCTION support_function(x : INTEGER) : INTEGER;
+  RETURN(x);
+END_FUNCTION;
+
+END_SCHEMA;

@@ -21,7 +21,12 @@ def puts(*); end
 parser = Expressir::Express::Grammar::Parser.cached_parser
 
 SKIP_RULE = "space"
-ATOMIC_RULES = %w[simpleId unguardedId digits spaces space embeddedRemark tailRemark].freeze
+# rs#499: the keyword rules are pure token spellings - trivia inside
+# them breaks the trailing !identifier guard (the expressir#598 family,
+# re-exposed by parsanol 0.20.12's injected-skip interleave)
+keyword_rules = File.read(File.join(__dir__, "express_keywords.parg"))
+KEYWORD_RULES = keyword_rules.scan(/^  (t[A-Z0-9_]+) =/).flatten.uniq
+ATOMIC_RULES = (%w[simpleId unguardedId digits spaces space embeddedRemark tailRemark] + KEYWORD_RULES).freeze
 RULE_NAMES = File.read(File.join(__dir__, "RULE-INVENTORY.txt"))
   .scan(/^\[ \] (\w+)$/).flatten + ["syntax"] + ["unguardedId"] +
   KEYWORDS.map { |kw| "t#{kw}" }

@@ -1,0 +1,16 @@
+SCHEMA entity_constructor_schema;
+
+ENTITY point;
+  x : REAL;
+  y : REAL;
+END_ENTITY;
+
+FUNCTION origin : point;
+  RETURN(point(0.0, 0.0));
+END_FUNCTION;
+
+FUNCTION shifted(dx : REAL) : point;
+  RETURN(point(dx, origin().y + 1.0));
+END_FUNCTION;
+
+END_SCHEMA;

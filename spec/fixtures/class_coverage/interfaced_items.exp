@@ -1,0 +1,17 @@
+SCHEMA interfaced_items_schema;
+
+USE FROM support_schema
+  (base_entity,
+   support_type AS consumer_type);
+REFERENCE FROM support_schema
+  (support_function AS consumer_function);
+
+ENTITY consumer_entity;
+  base : consumer_type;
+  DERIVE
+    name : STRING := base.name;
+  WHERE
+    WR1 : SIZEOF(base.instances) > 0;
+END_ENTITY;
+
+END_SCHEMA;

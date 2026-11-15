@@ -1,8 +1,8 @@
 {
-  "engine_commit": "f9e6133",
+  "engine_commit": "296b5b0",
   "rubygems": "2.4.68",
-  "ext": "v0.1.43",
-  "crates": "0.20.22",
+  "ext": "v0.1.44",
+  "crates": "1.5.1",
   "npm": null,
   "pypi": null,
   "released_at": "2026-11-15T14:50:00Z",

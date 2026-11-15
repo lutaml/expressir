@@ -35,7 +35,10 @@ jobs:
       # The default `rake` CI job covers the pure-Ruby parse path (no
       # extension built there); this job pins the core parse path: with the
       # extension present the parser defaults to it, so the whole suite runs
-      # against the Rust wire hydration.
+      # against the Rust wire hydration. The RSS formatter prints
+      # per-file memory growth — the suite's cross-example memory
+      # retention is a leak to fix, and this log is the map.
       - name: Run the suite on the core parse path
         run: |
-          bundle exec rspec spec/expressir spec/syntax --tag ~production_scale
+          bundle exec rspec spec/expressir spec/syntax --tag ~production_scale \
+            --require ./tools/rss_formatter --format RssFormatter --format progress

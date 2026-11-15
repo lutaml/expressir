@@ -24,7 +24,7 @@ class RssFormatter
 
     if @file
       delta = rss_mb - @start[@file]
-      puts format('RSS %-9s %+5d MB  %s', "#{rss_mb}MB", delta, @file)
+      puts format("RSS %-9s %+5d MB  %s", "#{rss_mb}MB", delta, @file)
     end
     @file = file
     @start[file] = rss_mb unless @start.key?(file)
@@ -35,9 +35,9 @@ class RssFormatter
   def close(_notification)
     if @file
       delta = rss_mb - @start[@file]
-      puts format('RSS %-9s %+5d MB  %s', "#{rss_mb}MB", delta, @file)
+      puts format("RSS %-9s %+5d MB  %s", "#{rss_mb}MB", delta, @file)
     end
-    puts format('RSS total growth: %d MB', rss_mb - @baseline)
+    puts format("RSS total growth: %d MB", rss_mb - @baseline)
   end
 
   def method_missing(*) end

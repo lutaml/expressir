@@ -600,6 +600,23 @@ fn format_model_hash(ruby: &Ruby, wire_json: String, no_remarks: bool) -> Result
     Ok(expressir_rs::formatter::format(&wire, no_remarks))
 }
 
+/// `resolve_model_hash(wire_json)`: the reference-resolution pass
+/// (expressir#635) — fills `base_path` on every reference node exactly
+/// like the Ruby ResolveReferencesModelVisitor. `wire_json` is the
+/// model-hash JSON of one file; the resolved wire comes back as a
+/// string for `from_hash` rehydration.
+fn resolve_model_hash(ruby: &Ruby, wire_json: String) -> Result<String, Error> {
+    let mut wire: Wire = serde_json::from_str(&wire_json)
+        .map_err(|e| Error::new(ruby.exception_arg_error(), format!("wire: {e}")))?;
+    expressir_rs::checker::resolve_references(&mut wire);
+    serde_json::to_string(&wire).map_err(|e| {
+        Error::new(
+            ruby.exception_runtime_error(),
+            format!("expressir-core: serialize error: {e}"),
+        )
+    })
+}
+
 /// `check_model_hash(wire_json, dialect)`: the semantic checks over a
 /// wire (issue #21). `wire_json` is the model-hash JSON of one file;
 /// findings come back as hashes with id/severity/schema/message in the
@@ -665,6 +682,7 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     module.define_singleton_method("parse_to_model_hash", function!(model_json, 2))?;
     module.define_singleton_method("check_model_hash", function!(check_model_hash, 2))?;
     module.define_singleton_method("format_model_hash", function!(format_model_hash, 2))?;
+    module.define_singleton_method("resolve_model_hash", function!(resolve_model_hash, 1))?;
     module.define_singleton_method("parse_to_model", function!(model_object, 2))?;
     module.define_singleton_method("parse_to_model_attached", function!(model_object_attached, 3))?;
     module.define_singleton_method(

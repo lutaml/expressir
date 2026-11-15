@@ -116,7 +116,7 @@ module Expressir
 
           unless skip_references
             Expressir::Benchmark.measure_references do
-              ResolveReferencesModelVisitor.new.visit(exp_file)
+              resolve_references!(exp_file)
             end
           end
 
@@ -245,7 +245,7 @@ module Expressir
 
           unless skip_references
             Expressir::Benchmark.measure_references do
-              ResolveReferencesModelVisitor.new.visit(exp_file)
+              resolve_references!(exp_file)
             end
           end
 
@@ -253,6 +253,22 @@ module Expressir
         end
       end
       private_class_method :from_file_core
+
+      # The #635 delegation contract: when the native extension is
+      # available, resolution runs in Rust over the model wire (the
+      # lutaml-model mapping is the only serialization path) and the
+      # resolved wire re-hydrates through from_hash (which preserves
+      # empty collections since #573). Otherwise the Ruby visitor runs.
+      def self.resolve_references!(exp_file)
+        if Core::NATIVE_AVAILABLE && Core.respond_to?(:resolve_model_hash)
+          wire = JSON.generate(exp_file.to_hash)
+          resolved = JSON.parse(Core.resolve_model_hash(wire))
+          return Model::ExpFile.from_hash(resolved).tap(&:wire_parents)
+        end
+        ResolveReferencesModelVisitor.new.visit(exp_file)
+        exp_file
+      end
+      private_class_method :resolve_references!
 
       # Shared post-parse steps for every core-path file: remark
       # attachment, header-remark transfer, and path wiring.

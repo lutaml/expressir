@@ -59,18 +59,16 @@ RSpec.describe Expressir::Express::Parser do
     expect(subtype_ref.base_path).to eq(".resolve_base.base_entity")
   end
 
-  # The interface expansion's visited-schema dedup keeps ONE
-  # contribution per foreign schema: a REFERENCE FROM to a schema
-  # already visited through USE FROM contributes nothing, so the
-  # referenced item stays unresolved. Both lanes share the semantic
-  # (the rs expansion mirrors the ruby/eeng guard); the follow-up for
-  # lifting the guard is tracked on the issue, not silently diverged.
-  it "leaves the second same-schema interface unresolved (the visited-schema dedup)" do
+  # expressir#667: visibilities union across interfaces — a REFERENCE
+  # FROM to a schema already visited through USE FROM still contributes
+  # (the visited dedup is per interface, bounding the transitive-USE
+  # recursion, not deduplicating sibling interfaces).
+  it "resolves the second same-schema interface (USE + REFERENCE FROM the same schema)" do
     model = described_class.from_exp(source).tap(&:wire_parents)
     user = model.schemas[1]
 
     attr_ref = user.entities[0].attributes[0].type
-    expect(attr_ref.base_path).to be_nil
+    expect(attr_ref.base_path).to eq(".resolve_base.label_type")
   end
 
   it "keeps the bound-variable shadow unresolved" do

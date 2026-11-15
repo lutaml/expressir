@@ -102,6 +102,19 @@ module Expressir
         ::Expressir::Core.check_model_hash(wire_json, core_dialect)
       end
 
+      # Reference resolution (expressir#635): the resolved model-hash
+      # wire — base_path filled on every reference node exactly like the
+      # Ruby ResolveReferencesModelVisitor. Returns the Hash for
+      # ExpFile.from_hash rehydration.
+      def self.resolve_model_hash(wire)
+        unless NATIVE_AVAILABLE &&
+            ::Expressir::Core.respond_to?(:resolve_model_hash)
+          raise NotImplementedError, "core resolution unavailable"
+        end
+
+        JSON.parse(::Expressir::Core.resolve_model_hash(JSON.generate(wire)))
+      end
+
       # Parse EXPRESS source into the hydrated model directly: the
       # extension walks the wire definition once and constructs every
       # node through Serializable.instantiate (lutaml-model's fast

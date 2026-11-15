@@ -271,13 +271,43 @@ module Expressir
       def self.resolve_references!(exp_file, source_size: nil)
         if source_size && source_size <= RESOLVE_DELEGATION_THRESHOLD &&
             Core::NATIVE_AVAILABLE && Core.respond_to?(:resolve_model_hash)
-          resolved = Core.resolve_model_hash(exp_file.to_hash)
-          return Model::ExpFile.from_hash(resolved).tap(&:wire_parents)
+          merge_base_paths!(exp_file, Core.resolve_model_hash(exp_file.to_hash))
+          return exp_file
         end
         ResolveReferencesModelVisitor.new.visit(exp_file)
         exp_file
       end
-      private_class_method :resolve_references!
+
+      # The delegation is LOSSLESS because only base_path moves: a
+      # from_hash rehydration cannot preserve the model — lutaml's
+      # to_hash drops empty collections, so a paren-less call (nil
+      # parameters, #556) would rehydrate as an empty list and the
+      # distinction would be destroyed. The resolved wire and the model
+      # walk in lockstep (to_hash serializes this exact node tree in
+      # attribute order) and each SimpleReference's base_path copies
+      # onto its model node.
+      def self.merge_base_paths!(node, wire)
+        return unless node.is_a?(Model::ModelElement) && wire.is_a?(Hash)
+
+        if node.is_a?(Model::References::SimpleReference) && wire.key?("base_path")
+          node.base_path = wire["base_path"]
+        end
+        wire.each do |key, wval|
+          next if wval.nil? || key == "_class" || key == "parent" || key == "base_path"
+
+          attr = key.to_sym
+          next unless node.respond_to?(attr)
+
+          nval = node.public_send(attr)
+          case nval
+          when Array
+            wval.each_with_index { |w, i| merge_base_paths!(nval[i], w) } if wval.is_a?(Array)
+          when Model::ModelElement
+            merge_base_paths!(nval, wval) if wval.is_a?(Hash)
+          end
+        end
+      end
+      private_class_method :resolve_references!, :merge_base_paths!
 
       # Shared post-parse steps for every core-path file: remark
       # attachment, header-remark transfer, and path wiring.

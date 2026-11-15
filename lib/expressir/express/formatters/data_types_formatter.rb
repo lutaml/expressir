@@ -182,6 +182,12 @@ module Expressir
         end
 
         def format_data_types_enumeration_item(node)
+          # no_remarks strips remark blocks everywhere else
+          # (format_remark_items, format_remark_item on the core
+          # formatter); this direct format(item) path is the one
+          # formatter that could still leak WG12 blocks into stripped
+          # output.
+          return node.id if @no_remarks
           return node.id unless node.respond_to?(:remark_items) && Array(node.remark_items).any?
 
           [

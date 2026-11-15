@@ -116,7 +116,7 @@ module Expressir
 
           unless skip_references
             Expressir::Benchmark.measure_references do
-              resolve_references!(exp_file, source_size: source&.bytesize)
+              exp_file = resolve_references!(exp_file, source_size: source&.bytesize)
             end
           end
 
@@ -245,7 +245,7 @@ module Expressir
 
           unless skip_references
             Expressir::Benchmark.measure_references do
-              resolve_references!(exp_file, source_size: source&.bytesize)
+              exp_file = resolve_references!(exp_file, source_size: source&.bytesize)
             end
           end
 
@@ -261,12 +261,15 @@ module Expressir
       # from_hash (which preserves empty collections since #573).
       # Large sources keep the Ruby visitor: the wire round trip is
       # asymptotically worse than the visitor there — the delegation
-      # measured 2.7x on the small-file suite and collapsed the
-      # large-corpus lane to a crawl (the 49-minute CI wall, vs
-      # main's 2m44s). LARGE_FILE_THRESHOLD is the same measure the
-      # grammar's fresh-parse switch uses.
+      # measured 2.7x on the small-file suite, held at geometry scale
+      # (100KB), and collapsed at schema encyclopaedia scale (the
+      # 622KB fixture's ~30MB wire made one parse take minutes: the
+      # 49-minute CI wall vs main's 2m44s). 256KB sits between the
+      # proven scales.
+      RESOLVE_DELEGATION_THRESHOLD = 256 * 1024
+
       def self.resolve_references!(exp_file, source_size: nil)
-        if source_size && source_size <= Grammar::Parser::LARGE_FILE_THRESHOLD &&
+        if source_size && source_size <= RESOLVE_DELEGATION_THRESHOLD &&
             Core::NATIVE_AVAILABLE && Core.respond_to?(:resolve_model_hash)
           resolved = Core.resolve_model_hash(exp_file.to_hash)
           return Model::ExpFile.from_hash(resolved).tap(&:wire_parents)

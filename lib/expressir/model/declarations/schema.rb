@@ -159,9 +159,14 @@ module Expressir
         def interfaced_items
           return [] unless parent
 
-          visited_schemas = {}
+          # expressir#667: the visited set is PER INTERFACE — each
+          # top-level interface expands independently (visibilities
+          # union across interfaces per ISO 10303-11, so a REFERENCE
+          # FROM to a schema already visited through USE FROM still
+          # contributes), and the fresh set bounds the transitive-USE
+          # recursion inside each expansion.
           interfaces.flat_map do |interface|
-            items_for_interface(interface, visited_schemas)
+            items_for_interface(interface, {})
           end.compact
         end
 

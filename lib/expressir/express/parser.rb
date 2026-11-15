@@ -261,8 +261,7 @@ module Expressir
       # empty collections since #573). Otherwise the Ruby visitor runs.
       def self.resolve_references!(exp_file)
         if Core::NATIVE_AVAILABLE && Core.respond_to?(:resolve_model_hash)
-          wire = JSON.generate(exp_file.to_hash)
-          resolved = JSON.parse(Core.resolve_model_hash(wire))
+          resolved = Core.resolve_model_hash(exp_file.to_hash)
           return Model::ExpFile.from_hash(resolved).tap(&:wire_parents)
         end
         ResolveReferencesModelVisitor.new.visit(exp_file)

@@ -115,6 +115,23 @@ module Expressir
         JSON.parse(::Expressir::Core.scan_ascii(JSON.generate(source), check_remarks))
       end
 
+      # The documentation-coverage engine (#644): per-schema entity rows
+      # in walk order over an attached model-hash wire — {type, name,
+      # documented, skipped} per entity, the ruby engine's exact
+      # classification (the coverage parity gate proves it).
+      def self.coverage_model_hash(wire, skip_types)
+        unless NATIVE_AVAILABLE &&
+            ::Expressir::Core.respond_to?(:coverage_model_hash)
+          raise NotImplementedError, "core coverage unavailable"
+        end
+
+        JSON.parse(
+          ::Expressir::Core.coverage_model_hash(
+            JSON.generate(wire), JSON.generate(skip_types)
+          ),
+        )
+      end
+
       # Reference resolution (expressir#635): the resolved model-hash
       # wire — base_path filled on every reference node exactly like the
       # Ruby ResolveReferencesModelVisitor. Returns the Hash for

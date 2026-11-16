@@ -270,7 +270,7 @@ RSpec.describe Expressir::Coverage do
       it "applies exclusions when specified" do
         report_without_exclusions = Expressir::Coverage::Report.from_file(sample_schema_path)
         report_with_exclusions = Expressir::Coverage::Report.from_file(
-          sample_schema_path, exclusions: ["PARAMETER", "VARIABLE"]
+          sample_schema_path, ["PARAMETER", "VARIABLE"]
         )
 
         expect(report_with_exclusions.total_entities.size).to be <= report_without_exclusions.total_entities.size
@@ -298,7 +298,7 @@ RSpec.describe Expressir::Coverage do
       it "applies exclusions when specified" do
         report_without_exclusions = Expressir::Coverage::Report.from_repository(repository)
         report_with_exclusions = Expressir::Coverage::Report.from_repository(
-          repository, exclusions: ["PARAMETER", "VARIABLE"]
+          repository, ["PARAMETER", "VARIABLE"]
         )
 
         expect(report_with_exclusions.total_entities.size).to be <= report_without_exclusions.total_entities.size

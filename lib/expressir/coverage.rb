@@ -202,6 +202,20 @@ module Expressir
       def process_repository
         return unless @repository
 
+        # The #644 delegation: when the native extension is available,
+        # the per-schema classification runs in Rust over the
+        # repository wire (same walk order, same skip semantics — the
+        # coverage parity gate proves it); the rows are zipped with the
+        # ruby-side model objects so this report stays shape-identical
+        # to the fallback. Otherwise the ruby walk runs. The capability
+        # check is the ext's own surface (::Expressir::Core — the
+        # magnus module), so a stale extension falls back instead of
+        # raising in the bridge.
+        core = Expressir::Express::Core
+        if core::NATIVE_AVAILABLE && ::Expressir::Core.respond_to?(:coverage_model_hash)
+          return process_repository_native(core)
+        end
+
         @repository.schemas.each do |schema|
           schema_report = process_schema(schema)
           @schema_reports << schema_report
@@ -214,6 +228,58 @@ module Expressir
               { schema: schema.id, entity: entity }
             end)
           end
+        end
+      end
+
+      # The native lane: one Rust call for the whole repository, each
+      # schema's rows zipped positionally with the ruby model objects
+      # (find_entities applies no skips here — the rows carry the skip
+      # decisions, and the zip length is the drift alarm).
+      def process_repository_native(core)
+        report = core.coverage_model_hash(@repository.to_hash, @skip_types)
+        rs_schemas = report["schemas"]
+        schemas = @repository.schemas
+        unless rs_schemas.size == schemas.size
+          raise "coverage delegation drift: #{rs_schemas.size} row sets " \
+                "for #{schemas.size} schemas"
+        end
+
+        schemas.each_with_index do |schema, idx|
+          rows = rs_schemas[idx]["rows"]
+          entities = Expressir::Coverage.find_entities(schema, [])
+          unless entities.size == rows.size
+            raise "coverage delegation drift: #{schema.id}: " \
+                  "#{entities.size} entities vs #{rows.size} rows"
+          end
+
+          kept = entities.each_with_index.reject { |_, i| rows[i]["skipped"] }
+          total = kept.map(&:first)
+          documented = kept.select { |_, i| rows[i]["documented"] }.map(&:first)
+          undocumented = kept.reject { |_, i| rows[i]["documented"] }.map do |_, i|
+            { "type" => rows[i]["type"], "name" => rows[i]["name"] }
+          end
+          coverage = total.empty? ? 100.0 : (documented.size.to_f / total.size) * 100
+
+          schema_file = File.expand_path(schema.file) if schema.file
+          ignored = @ignored_files.key?(schema_file)
+          matched_pattern = @ignored_files[schema_file] if ignored
+
+          @schema_reports << {
+            schema: schema,
+            total: total,
+            documented: documented,
+            undocumented: undocumented,
+            coverage: coverage,
+            ignored: ignored,
+            matched_pattern: matched_pattern,
+          }
+          next if ignored
+
+          @total_entities.concat(total)
+          @documented_entities.concat(documented)
+          @undocumented_entities.concat(undocumented.map do |row|
+            { schema: schema.id, entity: row }
+          end)
         end
       end
 

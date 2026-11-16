@@ -43,6 +43,19 @@ module Expressir
       def emit(population, schema, id: "uos01", schema_ref: nil,
                target_namespace: P28.default_target_namespace(schema.id),
                prefix: default_prefix(schema))
+        # The #640 delegation: when the native extension is available,
+        # the document is written in Rust over the population and
+        # schema wires — byte-identical to this ruby lane (the uos
+        # parity gate proves it). Otherwise the moxml walk runs.
+        core = Expressir::Express::Core
+        if core::NATIVE_AVAILABLE && ::Expressir::Core.respond_to?(:uos_xml)
+          return core.uos_xml(
+            P21::Json.to_value(population), schema.to_hash,
+            "id" => id, "schema_ref" => schema_ref,
+            "target_namespace" => target_namespace, "prefix" => prefix
+          )
+        end
+
         ctx = Moxml::Context.new
         doc = ctx.create_document
         # 7.8: the uos element is a target-namespace global

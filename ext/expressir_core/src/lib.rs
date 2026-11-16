@@ -629,6 +629,23 @@ fn coverage_model_hash(
     })
 }
 
+/// `uos_xml(population_json, schema_json, options_json)`: the clause 9
+/// uos binding writer (#640) — byte-identical to the ruby
+/// P28::Uos.emit over the same wires (the parity gate proves it).
+fn uos_xml(
+    ruby: &Ruby,
+    population_json: String,
+    schema_json: String,
+    options_json: String,
+) -> Result<String, Error> {
+    expressir_rs::p28::uos_xml_json(&population_json, &schema_json, &options_json).map_err(|e| {
+        Error::new(
+            ruby.exception_runtime_error(),
+            format!("expressir-core: uos error: {e}"),
+        )
+    })
+}
+
 /// `resolve_model_hash(wire_json)`: the reference-resolution pass
 /// (expressir#635) — fills `base_path` on every reference node exactly
 /// like the Ruby ResolveReferencesModelVisitor. `wire_json` is the
@@ -714,6 +731,7 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     module.define_singleton_method("resolve_model_hash", function!(resolve_model_hash, 1))?;
     module.define_singleton_method("scan_ascii", function!(scan_ascii, 2))?;
     module.define_singleton_method("coverage_model_hash", function!(coverage_model_hash, 2))?;
+    module.define_singleton_method("uos_xml", function!(uos_xml, 3))?;
     module.define_singleton_method("parse_to_model", function!(model_object, 2))?;
     module.define_singleton_method("parse_to_model_attached", function!(model_object_attached, 3))?;
     module.define_singleton_method(

@@ -132,6 +132,21 @@ module Expressir
         )
       end
 
+      # The clause 9 uos binding writer (#640): the XML document for one
+      # population + schema wire pair — byte-identical to the ruby
+      # P28::Uos.emit (the uos parity gate proves it).
+      def self.uos_xml(population_wire, schema_wire, options)
+        unless NATIVE_AVAILABLE && ::Expressir::Core.respond_to?(:uos_xml)
+          raise NotImplementedError, "the native uos writer is unavailable"
+        end
+
+        ::Expressir::Core.uos_xml(
+          JSON.generate(population_wire),
+          JSON.generate(schema_wire),
+          JSON.generate(options),
+        )
+      end
+
       # Reference resolution (expressir#635): the resolved model-hash
       # wire — base_path filled on every reference node exactly like the
       # Ruby ResolveReferencesModelVisitor. Returns the Hash for

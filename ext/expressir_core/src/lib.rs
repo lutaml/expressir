@@ -600,6 +600,18 @@ fn format_model_hash(ruby: &Ruby, wire_json: String, no_remarks: bool) -> Result
     Ok(expressir_rs::formatter::format(&wire, no_remarks))
 }
 
+/// `scan_ascii(source, check_remarks)`: the ASCII scan (#643) —
+/// the violation rows for one file's source, straight from the Rust
+/// engine; the JSON array comes back as a ruby string for the bridge.
+fn scan_ascii(ruby: &Ruby, source: String, check_remarks: bool) -> Result<String, Error> {
+    expressir_rs::wasm::scan_ascii_json(source, check_remarks).map_err(|e| {
+        Error::new(
+            ruby.exception_runtime_error(),
+            format!("expressir-core: scan error: {e}"),
+        )
+    })
+}
+
 /// `resolve_model_hash(wire_json)`: the reference-resolution pass
 /// (expressir#635) — fills `base_path` on every reference node exactly
 /// like the Ruby ResolveReferencesModelVisitor. `wire_json` is the
@@ -683,6 +695,7 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     module.define_singleton_method("check_model_hash", function!(check_model_hash, 2))?;
     module.define_singleton_method("format_model_hash", function!(format_model_hash, 2))?;
     module.define_singleton_method("resolve_model_hash", function!(resolve_model_hash, 1))?;
+    module.define_singleton_method("scan_ascii", function!(scan_ascii, 2))?;
     module.define_singleton_method("parse_to_model", function!(model_object, 2))?;
     module.define_singleton_method("parse_to_model_attached", function!(model_object_attached, 3))?;
     module.define_singleton_method(

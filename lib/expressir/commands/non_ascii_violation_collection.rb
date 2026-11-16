@@ -237,6 +237,17 @@ module Expressir
         file_violations = FileViolations.new(file)
         source = File.read(file, encoding: "UTF-8")
 
+        # The #643 delegation: when the native extension is available,
+        # the scan runs in Rust over the source (same masking, same
+        # classification — the differential gate proves it) and the
+        # violation hashes rebuild the ruby report objects. Otherwise
+        # the ruby walk runs.
+        core = Expressir::Express::Core
+        if core::NATIVE_AVAILABLE && core.respond_to?(:scan_ascii_source)
+          scan_source_native(file_violations, source)
+          return file_violations
+        end
+
         # With --check-remarks: scan every line including embedded remarks.
         # Without: scan code + tail remarks only — mask out embedded remark
         # regions so non-ASCII inside `(* ... *)` documentation blocks is
@@ -245,6 +256,27 @@ module Expressir
         scan_source = @check_remarks ? source : mask_embedded_remarks(source)
         scan_lines_for_non_ascii(file_violations, scan_source.lines)
         file_violations
+      end
+
+      # The native lane: one Rust call per file, the violations JSON
+      # rebuilt into the ruby violation hashes.
+      def scan_source_native(file_violations, source)
+        Expressir::Express::Core.scan_ascii_source(source, @check_remarks).each do |row|
+          details = row["char_details"].map do |detail|
+            {
+              char: detail["char"],
+              hex: detail["hex"],
+              utf8: detail["utf8"],
+              is_math: detail["is_math"],
+              replacement: detail["replacement"],
+              replacement_type: detail["replacement_type"],
+            }
+          end
+          file_violations.add_violation(
+            row["line_number"], row["column"], row["match_text"],
+            details, row["line"]
+          )
+        end
       end
 
       def process_non_ascii_char(char)

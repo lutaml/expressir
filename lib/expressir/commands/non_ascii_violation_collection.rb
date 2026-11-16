@@ -241,9 +241,11 @@ module Expressir
         # the scan runs in Rust over the source (same masking, same
         # classification — the differential gate proves it) and the
         # violation hashes rebuild the ruby report objects. Otherwise
-        # the ruby walk runs.
+        # the ruby walk runs. The capability check is the ext's own
+        # surface (::Expressir::Core — the magnus module), so a stale
+        # extension falls back instead of raising in the bridge.
         core = Expressir::Express::Core
-        if core::NATIVE_AVAILABLE && core.respond_to?(:scan_ascii_source)
+        if core::NATIVE_AVAILABLE && ::Expressir::Core.respond_to?(:scan_ascii)
           scan_source_native(file_violations, source)
           return file_violations
         end

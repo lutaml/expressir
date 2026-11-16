@@ -612,6 +612,23 @@ fn scan_ascii(ruby: &Ruby, source: String, check_remarks: bool) -> Result<String
     })
 }
 
+/// `coverage_model_hash(wire_json, skip_types_json)`: the
+/// documentation-coverage engine (#644/#645) — per-schema entity rows
+/// in walk order over an attached model-hash wire; the JSON report
+/// comes back as a ruby string for the bridge.
+fn coverage_model_hash(
+    ruby: &Ruby,
+    wire_json: String,
+    skip_types_json: String,
+) -> Result<String, Error> {
+    expressir_rs::coverage::coverage_model_json(&wire_json, &skip_types_json).map_err(|e| {
+        Error::new(
+            ruby.exception_runtime_error(),
+            format!("expressir-core: coverage error: {e}"),
+        )
+    })
+}
+
 /// `resolve_model_hash(wire_json)`: the reference-resolution pass
 /// (expressir#635) — fills `base_path` on every reference node exactly
 /// like the Ruby ResolveReferencesModelVisitor. `wire_json` is the
@@ -696,6 +713,7 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     module.define_singleton_method("format_model_hash", function!(format_model_hash, 2))?;
     module.define_singleton_method("resolve_model_hash", function!(resolve_model_hash, 1))?;
     module.define_singleton_method("scan_ascii", function!(scan_ascii, 2))?;
+    module.define_singleton_method("coverage_model_hash", function!(coverage_model_hash, 2))?;
     module.define_singleton_method("parse_to_model", function!(model_object, 2))?;
     module.define_singleton_method("parse_to_model_attached", function!(model_object_attached, 3))?;
     module.define_singleton_method(

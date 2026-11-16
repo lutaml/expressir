@@ -43,6 +43,15 @@ module Expressir
       # @param schema [Model::Declarations::Schema]
       # @return [String] the serialized xs:schema document
       def format(schema)
+        # The #641 delegation: when the native extension is available,
+        # the document is written in Rust over the schema wire —
+        # byte-identical to this ruby lane (the xsd parity gate proves
+        # it). Otherwise the moxml walk runs.
+        core = Expressir::Express::Core
+        if core::NATIVE_AVAILABLE && ::Expressir::Core.respond_to?(:xsd_xml)
+          return core.xsd_xml(schema.to_hash)
+        end
+
         ctx = Moxml::Context.new
         doc = ctx.create_document
         root = doc.create_element("xs:schema")

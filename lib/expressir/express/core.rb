@@ -147,6 +147,17 @@ module Expressir
         )
       end
 
+      # The EXPRESS → XML Schema writer (#641): the xs:schema document
+      # for one schema wire — byte-identical to the ruby
+      # Expressir::Express::Xsd.format (the xsd parity gate proves it).
+      def self.xsd_xml(schema_wire)
+        unless NATIVE_AVAILABLE && ::Expressir::Core.respond_to?(:xsd_xml)
+          raise NotImplementedError, "the native xsd writer is unavailable"
+        end
+
+        ::Expressir::Core.xsd_xml(JSON.generate(schema_wire))
+      end
+
       # Reference resolution (expressir#635): the resolved model-hash
       # wire — base_path filled on every reference node exactly like the
       # Ruby ResolveReferencesModelVisitor. Returns the Hash for

@@ -102,6 +102,19 @@ module Expressir
         ::Expressir::Core.check_model_hash(wire_json, core_dialect)
       end
 
+      # The ASCII scan (#643): the violation rows for one file's source
+      # — run, line, character column, char details with replacement
+      # suggestions. Mirrors NonAsciiViolationCollection's scan exactly
+      # (the differential gate proves it).
+      def self.scan_ascii_source(source, check_remarks)
+        unless NATIVE_AVAILABLE &&
+            ::Expressir::Core.respond_to?(:scan_ascii)
+          raise NotImplementedError, "the native scan is unavailable"
+        end
+
+        JSON.parse(::Expressir::Core.scan_ascii(JSON.generate(source), check_remarks))
+      end
+
       # Reference resolution (expressir#635): the resolved model-hash
       # wire — base_path filled on every reference node exactly like the
       # Ruby ResolveReferencesModelVisitor. Returns the Hash for

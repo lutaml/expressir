@@ -50,14 +50,14 @@ Gem::Specification.new do |spec|
   # 0.8.151 is the first lutaml-model whose moxml constraint (>= 0.5.139,
   # < 0.7) admits the moxml 0.6 line; earlier releases pin moxml
   # ~> 0.5.139 and cannot co-resolve with the moxml floor below.
-  spec.add_dependency "lutaml-model", "~> 0.8.159"
-  spec.add_dependency "moxml", "~> 0.6.0"
+  spec.add_dependency "lutaml-model", "~> 0.8.175"
+  spec.add_dependency "moxml", "~> 0.6.14"
   spec.add_dependency "paint"
-  spec.add_dependency "parsanol", "~> 1.3.130"
+  spec.add_dependency "parsanol", "~> 1.5.1"
   spec.add_dependency "ruby-progressbar", "~> 1.11"
   spec.add_dependency "rubyzip", "~> 3.7"
   spec.add_dependency "table_tennis"
   spec.add_dependency "thor", "~> 1.0"
   # Native YAML/JSON engine (lutaml-model opt-in by bundle contents)
-  spec.add_dependency "yeptris", "~> 0.6.1"
+  spec.add_dependency "yeptris", "~> 0.6.69"
 end

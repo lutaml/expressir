@@ -646,6 +646,18 @@ fn uos_xml(
     })
 }
 
+/// `xsd_xml(schema_json)`: the EXPRESS → XML Schema writer (#641) —
+/// byte-identical to the ruby Expressir::Express::Xsd.format over the
+/// same wire (the xsd parity gate proves it).
+fn xsd_xml(ruby: &Ruby, schema_json: String) -> Result<String, Error> {
+    expressir_rs::xsd::xsd_xml_json(&schema_json).map_err(|e| {
+        Error::new(
+            ruby.exception_runtime_error(),
+            format!("expressir-core: xsd error: {e}"),
+        )
+    })
+}
+
 /// `resolve_model_hash(wire_json)`: the reference-resolution pass
 /// (expressir#635) — fills `base_path` on every reference node exactly
 /// like the Ruby ResolveReferencesModelVisitor. `wire_json` is the
@@ -732,6 +744,7 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     module.define_singleton_method("scan_ascii", function!(scan_ascii, 2))?;
     module.define_singleton_method("coverage_model_hash", function!(coverage_model_hash, 2))?;
     module.define_singleton_method("uos_xml", function!(uos_xml, 3))?;
+    module.define_singleton_method("xsd_xml", function!(xsd_xml, 1))?;
     module.define_singleton_method("parse_to_model", function!(model_object, 2))?;
     module.define_singleton_method("parse_to_model_attached", function!(model_object_attached, 3))?;
     module.define_singleton_method(

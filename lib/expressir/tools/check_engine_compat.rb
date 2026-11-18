@@ -20,7 +20,9 @@ module Expressir
     #    CI runs on the bump commit before the tag publish catches up).
     module CheckEngineCompat
       MANIFEST = "ENGINE-COMPAT.json"
-      PIN_RE = /expressir-rs = \{ git = "([^"]+)", tag = "([^"]+)" \}/
+      # The dep KEY is the crate name ("expressir" since the crate
+      # rename); match on the git URL so the name can evolve.
+      PIN_RE = /= \{ git = "([^"]*expressir-rs)", tag = "([^"]+)" \}/
 
       module_function
 

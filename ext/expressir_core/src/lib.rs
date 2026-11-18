@@ -13,9 +13,9 @@ use std::collections::HashMap;
 use std::sync::mpsc::Receiver;
 use std::sync::Mutex;
 
-use expressir_rs::batch::{self, BatchOutcome};
-use expressir_rs::compiled_set::{CompiledFile, CompiledSet};
-use expressir_rs::ParsedTree;
+use expressir::batch::{self, BatchOutcome};
+use expressir::compiled_set::{CompiledFile, CompiledSet};
+use expressir::ParsedTree;
 use magnus::{function, method};
 use magnus::prelude::*;
 use magnus::typed_data::DataTypeBuilder;
@@ -24,7 +24,7 @@ use magnus::IntoValue;
 use magnus::{DataType, DataTypeFunctions, Error, RArray, RClass, RHash, RModule, Ruby, TypedData};
 use serde_json::Value as Wire;
 
-fn parse_error(ruby: &Ruby, e: expressir_rs::model_json::ModelJsonError) -> Error {
+fn parse_error(ruby: &Ruby, e: expressir::model_json::ModelJsonError) -> Error {
     Error::new(
         ruby.exception_runtime_error(),
         format!("expressir-core: parse error: {e:?}"),
@@ -55,7 +55,7 @@ fn scan_remarks(
     source: String,
     annotations: Option<bool>,
 ) -> Result<magnus::Value, Error> {
-    let units = expressir_rs::remark::scan_with(&source, annotations.unwrap_or(false));
+    let units = expressir::remark::scan_with(&source, annotations.unwrap_or(false));
     let array = ruby.ary_new_capa(units.len());
     for unit in &units {
         let hash = ruby.hash_new();
@@ -260,7 +260,7 @@ fn batch_write_set(
             wire_json,
         });
     }
-    let set = CompiledSet::build(files, &expressir_version, &expressir_rs::grammar_digest());
+    let set = CompiledSet::build(files, &expressir_version, &expressir::grammar_digest());
     set.write_to(&out_path).map_err(|e| {
         Error::new(
             ruby.exception_io_error(),
@@ -271,7 +271,7 @@ fn batch_write_set(
 }
 
 fn compiled_set_file_sha(path: &str) -> String {
-    expressir_rs::compiled_set::file_sha256(path)
+    expressir::compiled_set::file_sha256(path)
 }
 
 /// `[wire_path, model, nil]` / `[wire_path, nil, message]`, or nil when
@@ -472,7 +472,7 @@ fn set_write(
             wire_json,
         });
     }
-    let set = CompiledSet::build(files, &expressir_version, &expressir_rs::grammar_digest());
+    let set = CompiledSet::build(files, &expressir_version, &expressir::grammar_digest());
     set.write_to(&out_path).map_err(|e| {
         Error::new(
             ruby.exception_io_error(),
@@ -584,8 +584,8 @@ fn model_object_attached(
         )
     })?;
     let mut wire = tree.to_model_json(&path).map_err(|e| parse_error(ruby, e))?;
-    expressir_rs::attach::attach_tagged_remarks(&mut wire, &source, annotations);
-    expressir_rs::attach::attach_untagged_remarks(&mut wire, &source, annotations);
+    expressir::attach::attach_tagged_remarks(&mut wire, &source, annotations);
+    expressir::attach::attach_untagged_remarks(&mut wire, &source, annotations);
     strip_end_offsets(&mut wire);
     let mut cache = ClassCache::default();
     value_to_ruby(ruby, &mut cache, &wire)
@@ -597,14 +597,14 @@ fn model_object_attached(
 fn format_model_hash(ruby: &Ruby, wire_json: String, no_remarks: bool) -> Result<String, Error> {
     let wire: Wire = serde_json::from_str(&wire_json)
         .map_err(|e| Error::new(ruby.exception_arg_error(), format!("wire: {e}")))?;
-    Ok(expressir_rs::formatter::format(&wire, no_remarks))
+    Ok(expressir::formatter::format(&wire, no_remarks))
 }
 
 /// `scan_ascii(source, check_remarks)`: the ASCII scan (#643) —
 /// the violation rows for one file's source, straight from the Rust
 /// engine; the JSON array comes back as a ruby string for the bridge.
 fn scan_ascii(ruby: &Ruby, source: String, check_remarks: bool) -> Result<String, Error> {
-    expressir_rs::wasm::scan_ascii_json(source, check_remarks).map_err(|e| {
+    expressir::wasm::scan_ascii_json(source, check_remarks).map_err(|e| {
         Error::new(
             ruby.exception_runtime_error(),
             format!("expressir-core: scan error: {e}"),
@@ -621,7 +621,7 @@ fn coverage_model_hash(
     wire_json: String,
     skip_types_json: String,
 ) -> Result<String, Error> {
-    expressir_rs::coverage::coverage_model_json(&wire_json, &skip_types_json).map_err(|e| {
+    expressir::coverage::coverage_model_json(&wire_json, &skip_types_json).map_err(|e| {
         Error::new(
             ruby.exception_runtime_error(),
             format!("expressir-core: coverage error: {e}"),
@@ -638,7 +638,7 @@ fn uos_xml(
     schema_json: String,
     options_json: String,
 ) -> Result<String, Error> {
-    expressir_rs::p28::uos_xml_json(&population_json, &schema_json, &options_json).map_err(|e| {
+    expressir::p28::uos_xml_json(&population_json, &schema_json, &options_json).map_err(|e| {
         Error::new(
             ruby.exception_runtime_error(),
             format!("expressir-core: uos error: {e}"),
@@ -650,7 +650,7 @@ fn uos_xml(
 /// byte-identical to the ruby Expressir::Express::Xsd.format over the
 /// same wire (the xsd parity gate proves it).
 fn xsd_xml(ruby: &Ruby, schema_json: String) -> Result<String, Error> {
-    expressir_rs::xsd::xsd_xml_json(&schema_json).map_err(|e| {
+    expressir::xsd::xsd_xml_json(&schema_json).map_err(|e| {
         Error::new(
             ruby.exception_runtime_error(),
             format!("expressir-core: xsd error: {e}"),
@@ -666,7 +666,7 @@ fn xsd_xml(ruby: &Ruby, schema_json: String) -> Result<String, Error> {
 fn resolve_model_hash(ruby: &Ruby, wire_json: String) -> Result<String, Error> {
     let mut wire: Wire = serde_json::from_str(&wire_json)
         .map_err(|e| Error::new(ruby.exception_arg_error(), format!("wire: {e}")))?;
-    expressir_rs::checker::resolve_references(&mut wire);
+    expressir::checker::resolve_references(&mut wire);
     serde_json::to_string(&wire).map_err(|e| {
         Error::new(
             ruby.exception_runtime_error(),
@@ -682,7 +682,7 @@ fn resolve_model_hash(ruby: &Ruby, wire_json: String) -> Result<String, Error> {
 fn check_model_hash(ruby: &Ruby, wire_json: String, dialect: Option<String>) -> Result<magnus::Value, Error> {
     let mut wire: Wire = serde_json::from_str(&wire_json)
         .map_err(|e| Error::new(ruby.exception_arg_error(), format!("wire: {e}")))?;
-    let notes = expressir_rs::checker::check(&mut wire, dialect.as_deref());
+    let notes = expressir::checker::check(&mut wire, dialect.as_deref());
     let array = ruby.ary_new_capa(notes.len());
     for note in &notes {
         let hash = ruby.hash_new();
@@ -716,8 +716,8 @@ fn parse_to_model_attached_with_wire(
         )
     })?;
     let mut wire = tree.to_model_json(&path).map_err(|e| parse_error(ruby, e))?;
-    expressir_rs::attach::attach_tagged_remarks(&mut wire, &source, annotations);
-    expressir_rs::attach::attach_untagged_remarks(&mut wire, &source, annotations);
+    expressir::attach::attach_tagged_remarks(&mut wire, &source, annotations);
+    expressir::attach::attach_untagged_remarks(&mut wire, &source, annotations);
     let mut cache = ClassCache::default();
     let mut hydrate_wire = wire.clone();
     strip_end_offsets(&mut hydrate_wire);
@@ -737,17 +737,17 @@ fn parse_to_model_attached_with_wire(
 // The LSP engines (expressir#646): document text in, the engine's
 // JSON rows out — the same faces the rs LSP gates differential-pin.
 fn lsp_symbols(ruby: &Ruby, source: String) -> Result<String, Error> {
-    expressir_rs::lsp::symbols_json(&source)
+    expressir::lsp::symbols_json(&source)
         .map_err(|e| Error::new(ruby.exception_runtime_error(), e))
 }
 
 fn lsp_inventory(ruby: &Ruby, source: String) -> Result<String, Error> {
-    expressir_rs::lsp::inventory_json(&source)
+    expressir::lsp::inventory_json(&source)
         .map_err(|e| Error::new(ruby.exception_runtime_error(), e))
 }
 
 fn lsp_rename_edits(ruby: &Ruby, source: String, path: String) -> Result<String, Error> {
-    expressir_rs::lsp::rename_edits_json(&source, &path)
+    expressir::lsp::rename_edits_json(&source, &path)
         .map_err(|e| Error::new(ruby.exception_runtime_error(), e))
 }
 

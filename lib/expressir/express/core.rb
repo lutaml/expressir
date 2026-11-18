@@ -171,6 +171,41 @@ module Expressir
         JSON.parse(::Expressir::Core.resolve_model_hash(JSON.generate(wire)))
       end
 
+
+      # The LSP document-symbol rows (#646): one native pass over a
+      # document's text — {name, kind, span_line, span_end_line,
+      # sel_start, sel_len} per row, the ruby walk's exact output
+      # (the rs lsp_symbols gate differential-pins the engine).
+      def self.lsp_symbols(source)
+        unless NATIVE_AVAILABLE && ::Expressir::Core.respond_to?(:lsp_symbols)
+          raise NotImplementedError, "the native symbols engine is unavailable"
+        end
+
+        JSON.parse(::Expressir::Core.lsp_symbols(source))
+      end
+
+      # The LSP navigation inventory (#646 PR-2): declarations and
+      # references over a resolved document — the rows the Workspace
+      # consumes for definition/references/rename support.
+      def self.lsp_inventory(source)
+        unless NATIVE_AVAILABLE && ::Expressir::Core.respond_to?(:lsp_inventory)
+          raise NotImplementedError, "the native inventory engine is unavailable"
+        end
+
+        JSON.parse(::Expressir::Core.lsp_inventory(source))
+      end
+
+      # The LSP rename edits (#646 PR-3): the required byte-exact edit
+      # rows for a declaration rename — {start, end, newText} per
+      # TextEdit over the document's references and declaration.
+      def self.lsp_rename_edits(source, path)
+        unless NATIVE_AVAILABLE && ::Expressir::Core.respond_to?(:lsp_rename_edits)
+          raise NotImplementedError, "the native rename engine is unavailable"
+        end
+
+        JSON.parse(::Expressir::Core.lsp_rename_edits(source, path))
+      end
+
       # Parse EXPRESS source into the hydrated model directly: the
       # extension walks the wire definition once and constructs every
       # node through Serializable.instantiate (lutaml-model's fast

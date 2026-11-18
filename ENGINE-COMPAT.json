@@ -1,10 +1,10 @@
 {
-  "engine_commit": "3a42d40",
+  "engine_commit": "3b4136d",
   "rubygems": "2.4.69",
-  "ext": "v0.1.48",
+  "ext": "v0.1.51",
   "crates": "1.5.1",
   "npm": null,
   "pypi": null,
-  "released_at": "2026-11-16T03:10:00Z",
-  "_comment": "expressir#618 \u2014 the engine-compat manifest, mirroring parsanol-rs#423. Maps the expressir gem train to the expressir-rs ext tag and its engine commit; the null fields fill as the crates/npm/pypi tiers land (expressir#619/#622/#621). tools/check_engine_compat.rb verifies the pairings in CI; every release train updates this file."
+  "released_at": "2026-11-18T00:00:00Z",
+  "_comment": "expressir#618 — the engine-compat manifest, mirroring parsanol-rs#423. Maps the expressir gem train to the expressir-rs ext tag and its engine commit; the null fields fill as the crates/npm/pypi tiers land (expressir#619/#622/#621). tools/check_engine_compat.rb verifies the pairings in CI; every release train updates this file."
 }

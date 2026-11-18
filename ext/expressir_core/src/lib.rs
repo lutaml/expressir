@@ -734,6 +734,23 @@ fn parse_to_model_attached_with_wire(
     Ok(pair.as_value())
 }
 
+// The LSP engines (expressir#646): document text in, the engine's
+// JSON rows out — the same faces the rs LSP gates differential-pin.
+fn lsp_symbols(ruby: &Ruby, source: String) -> Result<String, Error> {
+    expressir_rs::lsp::symbols_json(&source)
+        .map_err(|e| Error::new(ruby.exception_runtime_error(), e))
+}
+
+fn lsp_inventory(ruby: &Ruby, source: String) -> Result<String, Error> {
+    expressir_rs::lsp::inventory_json(&source)
+        .map_err(|e| Error::new(ruby.exception_runtime_error(), e))
+}
+
+fn lsp_rename_edits(ruby: &Ruby, source: String, path: String) -> Result<String, Error> {
+    expressir_rs::lsp::rename_edits_json(&source, &path)
+        .map_err(|e| Error::new(ruby.exception_runtime_error(), e))
+}
+
 #[magnus::init]
 fn init(ruby: &Ruby) -> Result<(), Error> {
     let module = ruby.define_module("Expressir")?.define_module("Core")?;
@@ -752,6 +769,9 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
         function!(parse_to_model_attached_with_wire, 3),
     )?;
     module.define_singleton_method("scan_remarks", function!(scan_remarks, 2))?;
+    module.define_singleton_method("lsp_symbols", function!(lsp_symbols, 1))?;
+    module.define_singleton_method("lsp_inventory", function!(lsp_inventory, 1))?;
+    module.define_singleton_method("lsp_rename_edits", function!(lsp_rename_edits, 2))?;
     module.define_singleton_method("write_set", function!(set_write, 3))?;
     let batch_class = module.define_class("BatchStream", ruby.class_object())?;
     batch_class.define_singleton_method("start", function!(batch_start, 2))?;

@@ -294,6 +294,9 @@ module Expressir
       end
 
       def rename_edits(declaring_document, declaration, new_name)
+        return native_rename_edits(declaring_document, declaration, new_name) if
+          native_rename_available?
+
         edits = {}
         add_edit(edits, declaring_document, declaration, new_name)
 
@@ -304,6 +307,40 @@ module Expressir
           end
         end
         edits
+      end
+
+      # The native rename (#646 PR-3): the declaring document's local
+      # match set (the declaration plus its id-matching references)
+      # from the engine; the cross-document interface walk stays
+      # ruby-side — the single-document engine cannot see it.
+      def native_rename_edits(declaring_document, declaration, new_name)
+        edits = {}
+        list = (edits[declaring_document.uri] ||= [])
+        path = declaration.respond_to?(:path) ? declaration.path : nil
+        if path
+          Expressir::Express::Core.lsp_rename_edits(
+            declaring_document.text, path
+          ).each do |row|
+            range = declaring_document.range(row["sel_start"], row["sel_len"])
+            list << { "range" => range, "newText" => new_name }
+          end
+        end
+        @documents.each_value do |document|
+          next if document.equal?(declaring_document)
+
+          document.schemas.each do |schema|
+            rename_references(document, schema, declaration, new_name, edits)
+            rename_interface_items(document, schema, declaration, new_name, edits)
+          end
+        end
+        edits
+      end
+
+      def native_rename_available?
+        Expressir::Core::NATIVE_AVAILABLE &&
+          ::Expressir::Core.respond_to?(:lsp_rename_edits)
+      rescue NameError
+        false
       end
 
       def rename_references(document, schema, declaration, new_name, edits)

@@ -58,6 +58,8 @@ module Expressir
       def symbols
         return [] unless @file
 
+        return native_symbols if native_symbols_available?
+
         position_index.nodes.filter_map do |entry|
           node = entry[:node]
           kind = SYMBOL_KINDS[node.class]
@@ -70,6 +72,31 @@ module Expressir
             "selectionRange" => range_for(node),
           }
         end
+      end
+
+      # The native symbol rows (#646): the engine produces the walk's
+      # facts (name, kind, span lines, selection byte + length); the
+      # LSP shapes stay ruby-side.
+      def native_symbols
+        Expressir::Express::Core.lsp_symbols(@text).filter_map do |row|
+          start_line = row["span_line"]
+          next unless start_line
+
+          sel_start = row["sel_start"]
+          {
+            "name" => row["name"],
+            "kind" => row["kind"],
+            "range" => line_range(start_line, row["span_end_line"] || start_line),
+            "selectionRange" => range(sel_start, row["sel_len"] || 1),
+          }
+        end
+      end
+
+      def native_symbols_available?
+        Expressir::Core::NATIVE_AVAILABLE &&
+          ::Expressir::Core.respond_to?(:lsp_symbols)
+      rescue NameError
+        false
       end
 
       def reference_nodes

@@ -262,6 +262,27 @@ RSpec.describe Expressir::Express::Formatter, :ruby_lane do
                  "WHERE valid: x > 0; END_ENTITY; END_SCHEMA;"
       assert_roundtrip(exp_text)
     end
+
+    it "roundtrips a schema-level tagged description" do
+      repo = parse(<<~EXP)
+        SCHEMA t;
+          (*"t" the tagged schema description *)
+          ENTITY e;
+            x : INTEGER;
+          END_ENTITY;
+        END_SCHEMA;
+      EXP
+
+      expect(repo.schemas.first.remarks)
+        .to eq(["the tagged schema description"])
+
+      formatted = described_class.format(repo)
+      expect(formatted).to include('(*"t" the tagged schema description *)')
+
+      reparsed = Expressir::Express::Parser.from_exp(formatted)
+      expect(reparsed.schemas.first.remarks)
+        .to eq(["the tagged schema description"])
+    end
   end
 
   describe "END_RULE tail remark" do

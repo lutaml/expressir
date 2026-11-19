@@ -298,6 +298,23 @@ module Expressir
 
           Array(node.remark_items).map { |item| format(item) }.reject(&:empty?)
         end
+
+        # The schema's own tagged description (`(*"schema_id" ... *)`)
+        # as a remark block, so a schema-level tagged description
+        # survives a source round trip (it re-attaches to the schema).
+        def format_schema_remarks(node)
+          return [] if @no_remarks
+          return [] unless node.is_a?(Model::Declarations::Schema)
+
+          Array(node.remarks).reject(&:empty?).map do |remark|
+            remark = remark.to_s
+            if remark.include?("\n")
+              "(*\"#{node.id}\"\n#{remark}\n*)"
+            else
+              "(*\"#{node.id}\" #{remark} *)"
+            end
+          end
+        end
       end
     end
   end

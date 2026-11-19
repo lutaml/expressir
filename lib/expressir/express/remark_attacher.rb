@@ -1081,7 +1081,12 @@ module Expressir
         return if text.nil? || text.strip.empty?
 
         if supports_remarks?(node)
-          if node_has_remarks?(node)
+          if node_has_remarks?(node) && !tag.nil?
+            # The differentiation contract (#679): `remarks` holds the
+            # RENDERABLE (tagged) texts only — the ISO document
+            # templates render `remarks` unfiltered at several sites,
+            # so an untagged source comment must never land there.
+            # Untagged texts live solely in `untagged_remarks`.
             node.remarks ||= []
             node.remarks << text
           end

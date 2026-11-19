@@ -653,6 +653,7 @@ module Expressir
             # A blank line before each remark-item child, mirroring the
             # core-lane schema emitter — the two lanes must render
             # remark.exp byte-identically for the formatter golden.
+            *format_schema_remarks(node).flat_map { |x| ["", x] },
             *format_remark_items(node).flat_map { |x| ["", x] },
             [
               "END_SCHEMA",

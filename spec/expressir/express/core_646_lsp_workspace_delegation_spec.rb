@@ -4,7 +4,7 @@ require "spec_helper"
 require "json"
 require "open3"
 
-RSpec.describe "LSP workspace delegation (#646)" do
+RSpec.describe Expressir::Express::Core, "#646 lsp workspace delegation" do
   # The delegation choice is made at load time (the ext registers the
   # Core singletons), so the two lanes run in separate processes: the
   # native lane as-is, the fallback lane under EXPRESSIR_DISABLE_NATIVE.

@@ -171,7 +171,6 @@ module Expressir
         JSON.parse(::Expressir::Core.resolve_model_hash(JSON.generate(wire)))
       end
 
-
       # The LSP document-symbol rows (#646): one native pass over a
       # document's text — {name, kind, span_line, span_end_line,
       # sel_start, sel_len} per row, the ruby walk's exact output

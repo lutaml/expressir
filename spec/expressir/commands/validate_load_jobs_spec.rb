@@ -30,9 +30,11 @@ RSpec.describe Expressir::Commands::ValidateLoad do # rubocop:disable RSpec/Desc
 
   def write_dup_anchor_schema(dir)
     path = File.join(dir, "schema.exp")
+    # Both colliding scopes are tagged: the duplicate-anchor check only
+    # guards rendered remark scopes (#679 differentiation).
     File.write(path, <<~EXP)
       SCHEMA sample;
-        (*
+        (*"sample.__intro"
         [[fig-one]]
         image::fig-one.svg[]
         *)

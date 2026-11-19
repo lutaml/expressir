@@ -250,7 +250,11 @@ RSpec.describe Expressir::Express::Formatter, :ruby_lane do
 
       wr = repo.schemas.first.types.first.where_rules.first
       expect(wr.id).to eq("wr1")
-      expect(wr.remarks).to include("tail remark")
+      # The differentiation contract (#679): the untagged tail is source
+      # commentary, never renderable body text, so it lands solely in
+      # `untagged_remarks` while `remarks` stays empty.
+      expect(wr.remarks).to eq([])
+      expect(wr.untagged_remarks.map(&:text)).to include("tail remark")
     end
 
     it "roundtrips WHERE clause" do

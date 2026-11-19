@@ -6,10 +6,13 @@ require "tempfile"
 RSpec.describe Expressir::Commands::ValidateRemarks do
   def write_schema(dir, duplication: false)
     path = File.join(dir, "schema.exp")
-    fund_cons = +""
+    # The duplicate-anchor check guards RENDERED scopes (tagged remark
+    # blocks only — the #679 differentiation), so both colliding scopes
+    # are tagged remark items.
+    dup_scope = +""
     if duplication
-      fund_cons = <<~EXP
-        (*"sample.__fund_cons"
+      dup_scope = <<~EXP
+        (*"sample.__dup"
         [[fig-one]]
         image::fig-one.svg[]
         *)
@@ -17,12 +20,12 @@ RSpec.describe Expressir::Commands::ValidateRemarks do
     end
     File.write(path, <<~EXP)
       SCHEMA sample;
-        (*
+        (*"sample.__fund_cons"
         [[fig-one]]
         image::fig-one.svg[]
         *)
         ENTITY a; END_ENTITY;
-        #{fund_cons}END_SCHEMA;
+        #{dup_scope}END_SCHEMA;
     EXP
     path
   end

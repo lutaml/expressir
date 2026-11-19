@@ -105,7 +105,11 @@
                   "parameters": [
                     {
                       "_class": "Expressir::Model::References::SimpleReference",
-                      "id": "name"
+                      "id": "name",
+                      "source_offset": 244,
+                      "source_end_offset": 248,
+                      "source": "name",
+                      "source_length": 4
                     }
                   ]
                 },
@@ -167,7 +171,11 @@
                 "operator": "NOT_EQUAL",
                 "operand1": {
                   "_class": "Expressir::Model::References::SimpleReference",
-                  "id": "a"
+                  "id": "a",
+                  "source_offset": 334,
+                  "source_end_offset": 335,
+                  "source": "a",
+                  "source_length": 1
                 },
                 "operand2": {
                   "_class": "Expressir::Model::References::SimpleReference",

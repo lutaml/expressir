@@ -34,7 +34,12 @@ jobs:
       pull-requests: write
     with:
       next_version: ${{ github.event.inputs.next_version }}
-      release_command: rake release
+      # release_command removed (metanorma/ci#515): this repo publishes via
+      # Trusted Publishing, where the reusable's generic build+push handles
+      # the root gem. 'rake release' here fed the additional-gems step,
+      # whose bundler branch-push cannot run on the detached merge-commit
+      # checkout of the publish leg (v2.4.72: tag rolled back, gem already
+      # live). There are no secondary gems to push.
       bundler_cache: false
       post_install: bundle install
     secrets:

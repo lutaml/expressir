@@ -4,8 +4,6 @@ path: spec/syntax/without_ending_newline.exp
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: Analysis_representation_arm
-  remarks:
-  - Analysis_representation_arm
   untagged_remarks:
   - text: Analysis_representation_arm
     format: tail

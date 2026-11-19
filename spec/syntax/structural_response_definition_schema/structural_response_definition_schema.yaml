@@ -8,7 +8,6 @@ schemas:
   - The subject of the *structural_response_definition_schema* is the definitional
     aspects of a finite element analysis model that describe the structural response
     of a product.
-  - structural_response_definition_schema
   remark_items:
   - _class: Expressir::Model::Declarations::RemarkItem
     id: __fund_cons

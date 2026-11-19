@@ -4,15 +4,6 @@ path: spec/syntax/syntax.exp
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: syntax_schema
-  remarks:
-  - interfaces
-  - constants
-  - types
-  - entities
-  - subtype constraints
-  - functions
-  - rules
-  - procedures
   untagged_remarks:
   - text: interfaces
     format: tail
@@ -1549,8 +1540,6 @@ schemas:
     - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Procedure
     id: statements
-    remarks:
-    - statements
     untagged_remarks:
     - text: statements
       format: tail
@@ -1970,11 +1959,6 @@ schemas:
       - _class: Expressir::Model::Statements::Skip
   - _class: Expressir::Model::Declarations::Procedure
     id: types
-    remarks:
-    - simple types
-    - aggregation types
-    - constructed types
-    - generic types
     untagged_remarks:
     - text: simple types
       format: tail
@@ -2337,16 +2321,6 @@ schemas:
       - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Procedure
     id: expressions
-    remarks:
-    - literal expressions
-    - constant expressions
-    - function expressions
-    - operator expressions
-    - aggregate initializer expressions
-    - function call or entity constructor expressions
-    - reference expressions
-    - interval expressions
-    - query expressions
     untagged_remarks:
     - text: literal expressions
       format: tail

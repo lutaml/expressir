@@ -91,7 +91,17 @@ round_trips = {
     },
     tagged_lost: 6, tagged_survivors: [],
     embedded_lost: 3,
-    embedded_survivors: [[nil, "Untagged embedded remark within entity"]]
+    embedded_survivors: [
+      [nil, "Untagged embedded remark within entity"],
+      # The schema's own tagged tail descriptions re-house as embedded
+      # schema blocks (the schema-level source formatter emission).
+      ["tail_remarks_test_schema", "Tagged tail remark for schema"],
+      ["tail_remarks_test_schema", "Tagged tail remark for schema at end"],
+    ],
+    embedded_normalized: [
+      ["tail_remarks_test_schema", "Tagged tail remark for schema"],
+      ["tail_remarks_test_schema", "Tagged tail remark for schema at end"],
+    ]
   },
   # All 133 remarks here are tagged. expressir#603 made the formatter
   # re-emit remark items, so most tags now survive in their canonical
@@ -110,12 +120,24 @@ round_trips = {
     # expressir#603 canonical: remark items re-house as embedded blocks
     # (`(*"path" text *)`), so their two tail-sourced bindings appear
     # here as embedded blocks. Same item, same texts — new housing.
+    # The schema's own tagged tail descriptions re-house the same way
+    # (the schema-level source formatter emission).
     embedded_normalized: [
       ["remark_schema.remark_item", "schema scope - schema remark item"],
       ["remark_schema.remark_item", "universal scope - schema remark item"],
+      ["remark_schema", "The tail remark is written at the end of a physical line."],
+      ["remark_schema", "UTF8 test: Příliš žluťoučký kůň úpěl ďábelské ódy."],
+      ["remark_schema", "universal scope - schema before"],
+      ["remark_schema", "universal scope - schema"],
     ],
-    # expressir#603 canonical: the schema-level remark item's blocks.
+    # expressir#603 canonical: the schema-level remark item's blocks,
+    # plus the schema's own description block now conserved.
     embedded_survivors: [
+      ["remark_schema", "Any character within the EXPRESS character set may occur between the start and end of\nan embedded remark including the newline character; therefore, embedded remarks can span\nseveral physical lines."],
+      ["remark_schema", "The tail remark is written at the end of a physical line."],
+      ["remark_schema", "UTF8 test: Příliš žluťoučký kůň úpěl ďábelské ódy."],
+      ["remark_schema", "universal scope - schema before"],
+      ["remark_schema", "universal scope - schema"],
       ["remark_schema.remark_item", "schema scope - schema remark item"],
       ["remark_schema.remark_item", "universal scope - schema remark item"],
     ],
@@ -133,9 +155,9 @@ round_trips = {
       # blocks now (see embedded_survivors), so its bindings left the
       # tagged-tail survivor set
     ],
-    # Embedded: one tagged block, on the schema. Nothing re-emits an
-    # embedded binding.
-    embedded_lost: 1
+    # Embedded: one tagged block, on the schema — now conserved by the
+    # schema-level source formatter emission. Nothing is lost.
+    embedded_lost: 0
   },
 }.freeze
 

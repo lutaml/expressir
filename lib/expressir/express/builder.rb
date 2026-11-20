@@ -255,10 +255,20 @@ module Expressir
           # end far too early and pushed END-scope tail remarks past their
           # scope (#653).
           last = last_slice(data, slice, 0)
-          text = src[slice.offset...(last.offset + last.length)]&.strip
+          # Slice offsets are BYTE offsets; String#[] indexes characters,
+          # so any multibyte character earlier in the document shifts the
+          # window and .strip then shaves the shifted tail off the span
+          # (late-file constructs lost their END tokens). Extract the
+          # window by bytes and keep the RAW byte span: the rs reference
+          # stamps source_length = stop - start, and every byte consumer
+          # (position index, remark attacher) reads offset + length as
+          # bytes.
+          text = src.byteslice(slice.offset...(last.offset + last.length))
+            &.force_encoding(src.encoding)
           {
             text: text,
             offset: slice.offset,
+            length: last.offset + last.length - slice.offset,
           }
         end
 
@@ -295,7 +305,7 @@ module Expressir
           # The original span length rides on every node (independent of
           # include_source) so remark attachment measures positions against
           # what the parser captured, never against rendered text (#653).
-          result.source_length = source_info[:text]&.length
+          result.source_length = source_info[:length]
           result.source = source_info[:text] if include_source
         end
 

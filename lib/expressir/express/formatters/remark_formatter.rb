@@ -326,6 +326,8 @@ module Expressir
         # as a remark block, so a schema-level tagged description
         # survives a source round trip (it re-attaches to the schema).
         def format_schema_remarks(node)
+          return [] if @no_remarks
+
           tagged_remark_blocks(node) do |remark|
             remark_block(node.id, remark)
           end

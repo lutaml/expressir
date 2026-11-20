@@ -308,9 +308,11 @@ RSpec.describe Expressir::Express::Formatter do
       # expressir#603 canonical: remark items render as embedded blocks
       # now, so the rendered side carries the item blocks. Every
       # rendered embedded remark belongs to a remark item (its tag is a
-      # schema path); every UNTAGGED embedded remark is still dropped.
+      # schema path) or is the schema's own description block (the bare
+      # schema id — the schema-level source formatter emission); every
+      # UNTAGGED embedded remark is still dropped.
       rendered_item_blocks = rendered_embedded.select do |(tag, _), _|
-        tag&.start_with?("mathematical_functions_schema.")
+        tag&.start_with?("mathematical_functions_schema")
       end
       expect(rendered_embedded - rendered_item_blocks).to be_empty
       expect(rendered_item_blocks).not_to be_empty

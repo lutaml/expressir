@@ -6,6 +6,10 @@ module Expressir
       class Function < ModelElement
         include Identifier
         include ScopeContainer
+        # A tail remark on the function head line trails the declaration
+        # (`FUNCTION f (...) : INTEGER; -- why`); the formatter splices it
+        # back onto the head line.
+        include TakesInlineRemark
 
         collection_attributes :parameters, :types, :entities,
                               :subtype_constraints, :functions, :procedures,

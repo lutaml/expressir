@@ -57244,6 +57244,7 @@ schemas:
       untagged_remarks:
       - text: derived
         format: tail
+        placement: inline
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: COMBINE
@@ -66163,8 +66164,12 @@ schemas:
         untagged_remarks:
         - text: This can have multiple outputs, but the expression only
           format: tail
+          placement: inline
+          region: label
         - text: "(mem + vlist) effectively converts list to set"
           format: tail
+          placement: inline
+          region: label
         expression:
           _class: Expressir::Model::References::SimpleReference
           id: ef_val

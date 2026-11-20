@@ -129,6 +129,13 @@ module Expressir
         formatted = splice_opener_remark(formatted,
                                          format_opener_remarks(node))
 
+        # The owner's own tagged descriptions (`(*"path" text *)`, the
+        # #679 storage contract) render as blocks after the declaration
+        # (#694) — every owner class, uniformly.
+        owner_blocks = format_owner_tagged_remarks(node)
+        formatted = [*formatted, *owner_blocks].join("\n\n") if
+          formatted.is_a?(String) && !owner_blocks.empty?
+
         leading = format_leading_statement_remarks(node)
         leading.empty? ? formatted : [*leading, formatted].join("\n")
       end

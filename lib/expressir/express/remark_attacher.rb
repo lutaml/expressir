@@ -320,19 +320,44 @@ module Expressir
         return closing if closing.first
 
         enclosing, region, = statement_region_for(line)
-        return [nil, nil, nil] unless region
+        if region
+          following = region
+            .select { |n| n[:line] > line }
+            .min_by { |n| n[:position] }
+          return [following[:node], Model::RemarkPlacement::LEADING, nil] if following
 
-        following = region
-          .select { |n| n[:line] > line }
-          .min_by { |n| n[:position] }
-        if following
-          return [following[:node], Model::RemarkPlacement::LEADING, nil]
+          # No following statement and no closing keyword above: the comment is
+          # not demonstrably inside this body (it may sit after the whole
+          # declaration). Keep the legacy attachment rather than guessing.
+          return [enclosing[:node], nil, nil]
         end
 
-        # No following statement and no closing keyword above: the comment is
-        # not demonstrably inside this body (it may sit after the whole
-        # declaration). Keep the legacy attachment rather than guessing.
-        [enclosing[:node], nil, nil]
+        # A whole-line comment between declarations leads the next
+        # declaration: the nearest semantic node starting after the
+        # comment within the enclosing scope carries it with LEADING
+        # placement (#696). Attributes carry no source spans, so a
+        # comment inside an entity body finds nothing here and keeps
+        # the legacy attachment.
+        declaration = declaration_level_target(remark)
+        return declaration if declaration.first
+
+        [nil, nil, nil]
+      end
+
+      # The nearest semantic node starting after the remark's line but
+      # still inside the scope that contains the remark — the next
+      # declaration the comment introduces.
+      def declaration_level_target(remark)
+        line = remark.line
+        scope = @node_index.spanning(line)
+          .reject { |n| n[:node].is_a?(Model::ExpFile) }
+          .min_by { |n| [n[:end_line] - n[:line], n[:line]] }
+        limit = scope ? scope[:end_line] : line
+        next_line = @node_index.next_start_after(line, limit)
+        return [nil, nil, nil] unless next_line
+
+        node = @node_index.starting_at(next_line).first[:node]
+        [node, Model::RemarkPlacement::LEADING, nil]
       end
 
       # Whether the remark trails code on its own line. Decided from the
@@ -478,13 +503,28 @@ module Expressir
 
         scope = @node_index.nodes.select do |n|
           (n[:node].is_a?(Model::Declarations::Function) ||
-            n[:node].is_a?(Model::Declarations::Procedure)) &&
+            n[:node].is_a?(Model::Declarations::Procedure) ||
+            n[:node].is_a?(Model::Declarations::Entity)) &&
             n[:line] && n[:end_line] &&
             n[:line] < remark.line && n[:end_line] > remark.line
         end.min_by { |n| n[:end_line] - n[:line] }
         return [nil, nil, nil] unless scope
 
-        variable = Array(scope[:node].variables).find do |v|
+        owner = scope[:node]
+        # Callable locals and entity attributes (explicit, derived,
+        # inverse) carry no source spans; the declared name is what a
+        # trailing remark can be resolved by (#693, #696).
+        named_children = lambda do |node|
+          if node.respond_to?(:variables)
+            Array(node.variables)
+          elsif node.is_a?(Model::Declarations::Entity)
+            Array(node.attributes) + Array(node.derived_attributes) +
+              Array(node.inverse_attributes)
+          else
+            []
+          end
+        end
+        variable = named_children.(owner).find do |v|
           names.include?(v.id)
         end
         return [nil, nil, nil] unless variable

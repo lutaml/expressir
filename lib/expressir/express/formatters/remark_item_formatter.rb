@@ -31,9 +31,17 @@ module Expressir
           # tail-form emission reads as phantom gains). Rule-context
           # owners keep the historic tail form.
           if rule_context
-            return node.remarks
-                .map { |remark| "--\"#{tag}\" #{remark}" }
-                .join("\n")
+            return node.remarks.map do |remark|
+              remark = remark.to_s
+              if remark.include?("\n")
+                # A multi-line remark cannot ride the `--` tail form:
+                # its continuation lines would leak as bare source text
+                # the parser rejects (#691).
+                "(*\"#{tag}\"\n#{remark}\n*)"
+              else
+                "--\"#{tag}\" #{remark}"
+              end
+            end.join("\n")
           end
           node.remarks.map do |remark|
             remark = remark.to_s

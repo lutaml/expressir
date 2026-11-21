@@ -744,6 +744,10 @@ module Expressir
               ";",
               format_end_scope_remark(node),
             ].join,
+            # The enumeration items render inline inside ENUMERATION OF
+            # (...) and never reach the dispatch, so their tagged
+            # descriptions render here, after the TYPE (#694).
+            *format_enumeration_item_remarks(node).flat_map { |x| ["", x] },
           ].join("\n")
         end
 

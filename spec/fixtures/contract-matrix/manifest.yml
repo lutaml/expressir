@@ -4,15 +4,7 @@ source: source.exp
 canonical_lane: Expressir::Express::Core (the native extension)
 artifacts:
   model-hash wire: sha256:cfbd618d0cd4e8cdd03584ad86e183544950bed578cd847cb531e933424f6f41
-  attached wire: sha256:9a25bdebbf16f6ad11ebb13b5a33ba584782e41fed36953eac7e8a95e90c61c1
-  formatted text: sha256:a44b074e03f03ee25d3deab7a34022f4d68ac22ed1375b54fdb5af64f4c15c2d
+  attached wire: sha256:f2f9c892ac9621df0bde0d8f21419b1b12efbb2d89fca8868cd2b75dbd60a112
+  formatted text: sha256:539805ff4d18336c34d49bfa3ae0b8e101de910f34c3772b49f8df1a30aae775
+  formatted-wire text: sha256:a44b074e03f03ee25d3deab7a34022f4d68ac22ed1375b54fdb5af64f4c15c2d
   stripped text: sha256:a44b074e03f03ee25d3deab7a34022f4d68ac22ed1375b54fdb5af64f4c15c2d
-shapes:
-- model-hash
-- wire
-- attached
-- wire
-- formatted
-- text
-- stripped
-- text

@@ -1,5 +1,6 @@
 SCHEMA syntax_schema '{ISO standard 10303 part(41) object(1) version(8)}';
 
+-- interfaces
 USE FROM contract_schema;
 
 USE FROM contract_schema
@@ -24,19 +25,12 @@ REFERENCE FROM contract_schema
 REFERENCE FROM contract_schema
   (contract AS contract2);
 
-    -- interfaces
-    -- constants
-    -- types
-    -- entities
-    -- subtype constraints
-    -- functions
-    -- rules
-
-
 CONSTANT
+  -- constants
   empty_constant : BOOLEAN := TRUE;
 END_CONSTANT;
 
+-- types
 TYPE empty_type = BOOLEAN;
 END_TYPE;
 
@@ -50,6 +44,7 @@ WHERE
   WR1: TRUE;
 END_TYPE;
 
+-- entities
 ENTITY empty_entity;
 END_ENTITY;
 
@@ -198,6 +193,7 @@ WHERE
   WR1: TRUE;
 END_ENTITY;
 
+-- subtype constraints
 SUBTYPE_CONSTRAINT empty_subtype_constraint FOR empty_entity;
 END_SUBTYPE_CONSTRAINT;
 
@@ -265,6 +261,7 @@ SUBTYPE_CONSTRAINT supertype_expression_oneof_andor_oneof_subtype_constraint FOR
   ONEOF(a, b) ANDOR ONEOF(c, d);
 END_SUBTYPE_CONSTRAINT;
 
+-- functions
 FUNCTION empty_function : BOOLEAN;
   ;
 END_FUNCTION;
@@ -347,6 +344,7 @@ FUNCTION multiple_shorthand_variable_expression_function : BOOLEAN;
   ;
 END_FUNCTION;
 
+-- rules
 RULE empty_rule FOR (empty_entity);
 WHERE
   TRUE;
@@ -436,6 +434,7 @@ WHERE
   WR1: TRUE;
 END_RULE;
 
+-- procedures
 PROCEDURE empty_procedure;
 END_PROCEDURE;
 
@@ -524,6 +523,7 @@ PROCEDURE statement_procedure;
 END_PROCEDURE;
 
 PROCEDURE statements;
+  -- statements
   PROCEDURE alias_simple_reference_statement;
     ALIAS test FOR test;
       ;
@@ -695,9 +695,10 @@ PROCEDURE statements;
   PROCEDURE skip_statement;
     SKIP;
   END_PROCEDURE;
-END_PROCEDURE; -- statements
+END_PROCEDURE;
 
 PROCEDURE types;
+  -- simple types
   TYPE binary_type = BINARY;
   END_TYPE;
   TYPE binary_width_type = BINARY (3);
@@ -722,6 +723,7 @@ PROCEDURE types;
   END_TYPE;
   TYPE string_width_fixed_type = STRING (3) FIXED;
   END_TYPE;
+  -- aggregation types
   TYPE array_type = ARRAY [1:9] OF STRING;
   END_TYPE;
   TYPE array_optional_type = ARRAY [1:9] OF OPTIONAL STRING;
@@ -746,6 +748,7 @@ PROCEDURE types;
   END_TYPE;
   TYPE set_bound_type = SET [1:9] OF STRING;
   END_TYPE;
+  -- constructed types
   TYPE select_type = SELECT;
   END_TYPE;
   TYPE select_extensible_type = EXTENSIBLE SELECT;
@@ -788,6 +791,7 @@ PROCEDURE types;
     (test,
      test2);
   END_TYPE;
+  -- generic types
   FUNCTION generic_type : GENERIC;
     ;
   END_FUNCTION;
@@ -800,7 +804,7 @@ PROCEDURE types;
   FUNCTION generic_entity_label_type : GENERIC_ENTITY : label;
     ;
   END_FUNCTION;
-END_PROCEDURE; -- generic types
+END_PROCEDURE;
 
 PROCEDURE expressions;
   LOCAL
@@ -904,4 +908,4 @@ PROCEDURE expressions;
   END_LOCAL;
 END_PROCEDURE; -- query expressions
 
-END_SCHEMA; -- procedures
+END_SCHEMA;

@@ -57,6 +57,13 @@ module Expressir
         first_by_line && semantic_by_line[first_by_line]&.first
       end
 
+      # The smallest line greater than `line` that a semantic node
+      # starts on, capped at `limit` (the enclosing scope's end).
+      def next_start_after(line, limit)
+        semantic_by_line.keys.bsearch { |l| l > line }
+          &.then { |l| l <= limit ? l : nil }
+      end
+
       # Entries owned by `owner` within any of `collections`, in node order.
       # Identity-keyed: ownership is object identity (the tree-walker's
       # `.equal?` semantics), and value-equal model objects must not

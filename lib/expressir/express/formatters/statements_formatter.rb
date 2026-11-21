@@ -119,9 +119,49 @@ module Expressir
               Array(node.labels).map { |x| format(x) }.join(", "),
               " ",
               ":",
+              case_label_remark(node),
             ].join,
             indent(format(node.statement)),
           ].join("\n")
+        end
+
+        # A remark trailing a bare case label (`1 : -- why`, the action on
+        # the next line) is owned by the CASE with the label region; it
+        # belongs back on the label line of the action it precedes (#693).
+        # Matched by offset when the remark carries one; otherwise by order —
+        # the k-th label remark precedes the k-th action (both read in source
+        # order).
+        def case_label_remark(action)
+          return "" if @no_remarks
+
+          case_node = action.parent
+          return "" unless case_node.is_a?(Model::Statements::Case)
+
+          actions = Array(case_node.actions)
+          index = actions.index { |a| a.equal?(action) }
+          return "" unless index
+
+          label_remarks = Array(case_node.untagged_remarks)
+            .select { |r| r.inline? && r.region == Model::RemarkPlacement::LABEL_REGION }
+          remark =
+            if label_remarks.first&.source_offset
+              anchor = Array(action.labels).filter_map(&:source_offset).min
+              bound = actions[(index + 1)..]
+                .filter_map { |a| Array(a.labels).filter_map(&:source_offset).min }
+                .min
+              return "" unless anchor
+
+              label_remarks.find do |r|
+                r.source_offset && r.source_offset >= anchor &&
+                  (bound.nil? || r.source_offset < bound)
+              end
+            else
+              label_remarks[index]
+            end
+          return "" unless remark
+
+          formatted = format_untagged_remark(remark)
+          formatted.empty? ? "" : " #{formatted}"
         end
 
         def format_statements_compound(node)

@@ -5,6 +5,7 @@ module Expressir
       # - section 9.2.1 Attributes
       class Attribute < ModelElement
         include Identifier
+        include TakesInlineRemark
 
         EXPLICIT = "EXPLICIT".freeze
         DERIVED = "DERIVED".freeze

@@ -286,8 +286,14 @@ module Expressir
         # end-line check is restricted to statements: container end_lines are
         # child-derived approximations that can collide with comment lines.
         if inline_remark?(remark)
-          target, placement, region = inline_target(remark,
-                                                    @node_index.starting_at(line))
+          # The candidate pool carries both the nodes STARTING on the line
+          # (the remark trails a statement's own text) and the nodes ENDING
+          # on it (`END_IF; -- why` trails the statement that just closed —
+          # #693). A node never both starts and ends past the remark, so the
+          # two filters in inline_target stay disjoint.
+          target, placement, region = inline_target(
+            remark, @node_index.starting_at(line) + @node_index.ending_at(line)
+          )
           return [target, placement, region] if target
 
           # A remark trailing a mid-construct keyword (`ELSE -- why`) starts
@@ -295,7 +301,15 @@ module Expressir
           # which would hand it to the enclosing construct unplaced — where
           # nothing renders it.
           mid = mid_keyword_inline_target(remark)
-          return mid if mid
+          # mid.first, not mid: the miss sentinel is the [nil, nil, nil]
+          # array, which is truthy as a whole.
+          return mid if mid.first
+
+          # A remark on a LOCAL variable declaration line (`v : INTEGER; -- why`)
+          # trails a declaration whose nodes carry no source spans; resolved
+          # by the declared name (#693).
+          variable = local_variable_target(remark)
+          return variable if variable.first
         end
 
         # A closing keyword on the next code line is decisive: the comment
@@ -306,19 +320,44 @@ module Expressir
         return closing if closing.first
 
         enclosing, region, = statement_region_for(line)
-        return [nil, nil, nil] unless region
+        if region
+          following = region
+            .select { |n| n[:line] > line }
+            .min_by { |n| n[:position] }
+          return [following[:node], Model::RemarkPlacement::LEADING, nil] if following
 
-        following = region
-          .select { |n| n[:line] > line }
-          .min_by { |n| n[:position] }
-        if following
-          return [following[:node], Model::RemarkPlacement::LEADING, nil]
+          # No following statement and no closing keyword above: the comment is
+          # not demonstrably inside this body (it may sit after the whole
+          # declaration). Keep the legacy attachment rather than guessing.
+          return [enclosing[:node], nil, nil]
         end
 
-        # No following statement and no closing keyword above: the comment is
-        # not demonstrably inside this body (it may sit after the whole
-        # declaration). Keep the legacy attachment rather than guessing.
-        [enclosing[:node], nil, nil]
+        # A whole-line comment between declarations leads the next
+        # declaration: the nearest semantic node starting after the
+        # comment within the enclosing scope carries it with LEADING
+        # placement (#696). Attributes carry no source spans, so a
+        # comment inside an entity body finds nothing here and keeps
+        # the legacy attachment.
+        declaration = declaration_level_target(remark)
+        return declaration if declaration.first
+
+        [nil, nil, nil]
+      end
+
+      # The nearest semantic node starting after the remark's line but
+      # still inside the scope that contains the remark — the next
+      # declaration the comment introduces.
+      def declaration_level_target(remark)
+        line = remark.line
+        scope = @node_index.spanning(line)
+          .reject { |n| n[:node].is_a?(Model::ExpFile) }
+          .min_by { |n| [n[:end_line] - n[:line], n[:line]] }
+        limit = scope ? scope[:end_line] : line
+        next_line = @node_index.next_start_after(line, limit)
+        return [nil, nil, nil] unless next_line
+
+        node = @node_index.starting_at(next_line).first[:node]
+        [node, Model::RemarkPlacement::LEADING, nil]
       end
 
       # Whether the remark trails code on its own line. Decided from the
@@ -415,12 +454,16 @@ module Expressir
       # Lines beginning with a mid-construct keyword. The keyword closes
       # nothing and opens nothing, but the remark trailing it belongs to the
       # construct it branches — written back after the keyword, not after the
-      # construct's END_.
+      # construct's END_. A bare case label (`1 :` with the action on the
+      # next line) is the same shape: the remark belongs back on the label
+      # line (#693).
       MID_KEYWORD_REGIONS = {
         /\AELSE\b/i => [Model::Statements::If,
                         Model::RemarkPlacement::ELSE_REGION],
         /\AOTHERWISE\b/i => [Model::Statements::Case,
                              Model::RemarkPlacement::OTHERWISE_REGION],
+        /\A(?:\d+|[A-Za-z_]\w*)\s*:\s*\z/i => [Model::Statements::Case,
+                                               Model::RemarkPlacement::LABEL_REGION],
       }.freeze
 
       # Attach `ELSE -- why` / `OTHERWISE : -- why` to the innermost
@@ -443,6 +486,50 @@ module Expressir
         return [nil, nil, nil] unless innermost
 
         [innermost[:node], Model::RemarkPlacement::INLINE, region]
+      end
+
+      # A remark on a LOCAL variable declaration line — `v : INTEGER; -- why`.
+      # Local variables carry no source spans, so the line's declared name is
+      # matched against the enclosing scope's variables (#693). A multi-name
+      # line (`a, b : INTEGER;`) matches any of its names.
+      def local_variable_target(remark)
+        content = line_content_for(remark.line).to_s
+        opener = content.index("--")
+        return [nil, nil, nil] unless opener
+
+        names = content[0...opener].scan(/[A-Za-z_]\w*\s*(?=,|\s*:)/)
+          .map(&:strip)
+        return [nil, nil, nil] if names.empty?
+
+        scope = @node_index.nodes.select do |n|
+          (n[:node].is_a?(Model::Declarations::Function) ||
+            n[:node].is_a?(Model::Declarations::Procedure) ||
+            n[:node].is_a?(Model::Declarations::Entity)) &&
+            n[:line] && n[:end_line] &&
+            n[:line] < remark.line && n[:end_line] > remark.line
+        end.min_by { |n| n[:end_line] - n[:line] }
+        return [nil, nil, nil] unless scope
+
+        owner = scope[:node]
+        # Callable locals and entity attributes (explicit, derived,
+        # inverse) carry no source spans; the declared name is what a
+        # trailing remark can be resolved by (#693, #696).
+        named_children = lambda do |node|
+          if node.respond_to?(:variables)
+            Array(node.variables)
+          elsif node.is_a?(Model::Declarations::Entity)
+            Array(node.attributes) + Array(node.derived_attributes) +
+              Array(node.inverse_attributes)
+          else
+            []
+          end
+        end
+        variable = named_children.(owner).find do |v|
+          names.include?(v.id)
+        end
+        return [nil, nil, nil] unless variable
+
+        [variable, Model::RemarkPlacement::INLINE, nil]
       end
 
       # Which closing keyword ends which region of which owner. A comment

@@ -41,16 +41,21 @@ module Expressir
 
           formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
 
-          if remark.tail_annotation?
+          # A multi-line remark always renders as a block: the `--` /
+          # `---` tail forms would leak its continuation lines into the
+          # source as bare text the parser rejects (#691).
+          if text.include?("\n")
+            if remark.embedded_annotation?
+              ["(**", formatted_text, "**)"].join("\n")
+            else
+              ["(*", formatted_text, "*)"].join("\n")
+            end
+          elsif remark.tail_annotation?
             "--- #{formatted_text}"
           elsif remark.tail?
             "-- #{formatted_text}"
-          elsif remark.embedded_annotation? && text.include?("\n")
-            ["(**", formatted_text, "**)"].join("\n")
           elsif remark.embedded_annotation?
             "(** #{formatted_text} *)"
-          elsif text.include?("\n")
-            ["(*", formatted_text, "*)"].join("\n")
           else
             "(* #{formatted_text} *)"
           end
@@ -63,12 +68,25 @@ module Expressir
 
           remark = node.untagged_remarks.first
           return "" unless remark.is_a?(Model::RemarkInfo)
+          # Placement-carrying remarks render through their own paths
+          # (leading above the node, inline after the statement text);
+          # this appends the legacy tail.
+          return "" if remark.placement
 
           text = remark.text
           return "" if text.nil? || text.empty?
 
           formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
-          if remark.tail_annotation?
+          if text.include?("\n")
+            # A multi-line remark cannot ride the `--` tail forms: its
+            # continuation lines would leak as bare source text (#691).
+            # The block form keeps them inside a remark opener.
+            if remark.embedded_annotation?
+              " (**\n#{formatted_text}\n**)"
+            else
+              " (*\n#{formatted_text}\n*)"
+            end
+          elsif remark.tail_annotation?
             " --- #{formatted_text}"
           elsif remark.tail?
             " -- #{formatted_text}"
@@ -145,7 +163,10 @@ module Expressir
             node.is_a?(Model::Declarations::Rule)
 
           preamble_remarks = node.untagged_remarks.select do |remark|
-            remark.is_a?(Model::RemarkInfo) && !remark.text.nil? && !remark.text.empty?
+            # Leading remarks render above the node (place_remarks);
+            # emitting them in the preamble would write them twice.
+            remark.is_a?(Model::RemarkInfo) && !remark.leading? &&
+              !remark.text.nil? && !remark.text.empty?
           end
 
           # For scope containers: exclude last remark ONLY if it's a tail remark (END_* remark)
@@ -220,8 +241,11 @@ module Expressir
 
         def format_leading_statement_remarks(node)
           return [] if @no_remarks && !@keep_untagged_remarks
-          return [] unless node.is_a?(Model::Statement)
+          return [] unless node.is_a?(Model::ModelElement)
 
+          # Leading remarks ride above their node — statements between
+          # the lines of a body, and declarations after a whole-line
+          # `--` comment (#696).
           Array(node.untagged_remarks).filter_map do |remark|
             next unless remark.leading?
 
@@ -304,15 +328,76 @@ module Expressir
         # survives a source round trip (it re-attaches to the schema).
         def format_schema_remarks(node)
           return [] if @no_remarks
-          return [] unless node.is_a?(Model::Declarations::Schema)
 
-          Array(node.remarks).reject(&:empty?).map do |remark|
-            remark = remark.to_s
-            if remark.include?("\n")
-              "(*\"#{node.id}\"\n#{remark}\n*)"
-            else
-              "(*\"#{node.id}\" #{remark} *)"
+          tagged_remark_blocks(node) do |remark|
+            remark_block(node.id, remark)
+          end
+        end
+
+        # The owner's own tagged descriptions (`(*"path" text *)`) as
+        # remark blocks after its declaration (#694): the #679 storage
+        # contract puts renderable tagged texts on owner.remarks, and
+        # every owner class renders them. The SCHEMA renders its own in
+        # its body ({#format_schema_remarks}); enumeration items render
+        # with their TYPE (their owners never reach the dispatch).
+        def format_owner_tagged_remarks(node)
+          return [] if @no_remarks
+          return [] unless node.is_a?(Model::ModelElement)
+          return [] if node.is_a?(Model::Declarations::Schema)
+          # Enumeration items render inline inside ENUMERATION OF (...);
+          # their remarks belong after the TYPE, emitted by
+          # {#format_enumeration_item_remarks} — never appended here.
+          return [] if node.is_a?(Model::DataTypes::EnumerationItem)
+          # Remark items render themselves ({#format_remark_items});
+          # their own remarks carry the same text.
+          return [] if node.is_a?(Model::Declarations::RemarkItem)
+          return [] unless node.respond_to?(:remarks)
+
+          # A node whose schema-relative path does not resolve (a
+          # statement in a parentless walk) renders its texts through
+          # the remark-item channel instead — an empty tag would write
+          # a `(*""` block.
+          tag = schema_relative_path(node)
+          return [] if tag.nil? || tag.to_s.empty?
+
+          tagged_remark_blocks(node) do |remark|
+            remark_block(tag, remark)
+          end
+        end
+
+        # The enumeration items' tagged descriptions, rendered with their
+        # TYPE (the items render inline inside ENUMERATION OF (...) and
+        # never reach the dispatch themselves).
+        def format_enumeration_item_remarks(node)
+          return [] if @no_remarks
+          return [] unless node.is_a?(Model::Declarations::Type)
+
+          Array(node.enumeration_items).flat_map do |item|
+            tagged_remark_blocks(item) do |remark|
+              remark_block(schema_relative_path(item), remark)
             end
+          end
+        end
+
+        private
+
+        # Yields each of the node's tagged remark texts through the block
+        # and collects the non-empty results.
+        def tagged_remark_blocks(node)
+          Array(node.remarks).reject do |text|
+            text.nil? || text.to_s.empty?
+          end.filter_map do |text|
+            yield text.to_s
+          end
+        end
+
+        # A tagged remark block in the source convention: the multi-line
+        # form when the text spans lines, the inline form otherwise.
+        def remark_block(tag, text)
+          if text.include?("\n")
+            "(*\"#{tag}\"\n#{text}\n*)"
+          else
+            "(*\"#{tag}\" #{text} *)"
           end
         end
       end

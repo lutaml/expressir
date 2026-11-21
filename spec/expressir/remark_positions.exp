@@ -1,0 +1,24 @@
+SCHEMA remark_positions;
+FUNCTION f (s : INTEGER) : INTEGER; -- r01 on the function head
+  LOCAL
+    v : INTEGER; -- r02 on a local variable
+  END_LOCAL;
+  v := 1; -- r03 on an assignment
+  IF s > 0 THEN -- r04 on IF ... THEN
+    v := 2;
+  END_IF; -- r05 on END_IF
+  CASE s OF -- r06 on CASE ... OF
+    1 : -- r07 on a case label, action on the next line
+    BEGIN -- r08 on BEGIN
+      v := 3;
+    END; -- r09 on END
+    2 : v := 4; -- r10 on a case action on the label's line
+    OTHERWISE : -- r11 on OTHERWISE
+      v := 5;
+  END_CASE; -- r12 on END_CASE
+  REPEAT i := 1 TO 2; -- r13 on REPEAT
+    v := v + 1;
+  END_REPEAT; -- r14 on END_REPEAT
+  RETURN (v); -- r15 on RETURN
+END_FUNCTION; -- r16 on END_FUNCTION
+END_SCHEMA;

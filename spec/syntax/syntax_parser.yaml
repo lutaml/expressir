@@ -4,23 +4,6 @@ path: spec/syntax/syntax.exp
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: syntax_schema
-  untagged_remarks:
-  - text: interfaces
-    format: tail
-  - text: constants
-    format: tail
-  - text: types
-    format: tail
-  - text: entities
-    format: tail
-  - text: subtype constraints
-    format: tail
-  - text: functions
-    format: tail
-  - text: rules
-    format: tail
-  - text: procedures
-    format: tail
   file: spec/syntax/syntax.exp
   header: schema
   version:
@@ -48,6 +31,10 @@ schemas:
     schema:
       _class: Expressir::Model::References::SimpleReference
       id: contract_schema
+    untagged_remarks:
+    - text: interfaces
+      format: tail
+      placement: leading
   - _class: Expressir::Model::Declarations::Interface
     kind: USE
     schema:
@@ -126,6 +113,10 @@ schemas:
   constants:
   - _class: Expressir::Model::Declarations::Constant
     id: empty_constant
+    untagged_remarks:
+    - text: constants
+      format: tail
+      placement: leading
     type:
       _class: Expressir::Model::DataTypes::Boolean
     expression:
@@ -134,6 +125,10 @@ schemas:
   types:
   - _class: Expressir::Model::Declarations::Type
     id: empty_type
+    untagged_remarks:
+    - text: types
+      format: tail
+      placement: leading
     underlying_type:
       _class: Expressir::Model::DataTypes::Boolean
   - _class: Expressir::Model::Declarations::Type
@@ -158,6 +153,10 @@ schemas:
   entities:
   - _class: Expressir::Model::Declarations::Entity
     id: empty_entity
+    untagged_remarks:
+    - text: entities
+      format: tail
+      placement: leading
   - _class: Expressir::Model::Declarations::Entity
     id: abstract_entity
     abstract: true
@@ -622,6 +621,10 @@ schemas:
   subtype_constraints:
   - _class: Expressir::Model::Declarations::SubtypeConstraint
     id: empty_subtype_constraint
+    untagged_remarks:
+    - text: subtype constraints
+      format: tail
+      placement: leading
     applies_to:
       _class: Expressir::Model::References::SimpleReference
       id: empty_entity
@@ -919,6 +922,10 @@ schemas:
   functions:
   - _class: Expressir::Model::Declarations::Function
     id: empty_function
+    untagged_remarks:
+    - text: functions
+      format: tail
+      placement: leading
     return_type:
       _class: Expressir::Model::DataTypes::Boolean
     statements:
@@ -1116,6 +1123,10 @@ schemas:
   rules:
   - _class: Expressir::Model::Declarations::Rule
     id: empty_rule
+    untagged_remarks:
+    - text: rules
+      format: tail
+      placement: leading
     applies_to:
     - _class: Expressir::Model::References::SimpleReference
       id: empty_entity
@@ -1345,6 +1356,10 @@ schemas:
   procedures:
   - _class: Expressir::Model::Declarations::Procedure
     id: empty_procedure
+    untagged_remarks:
+    - text: procedures
+      format: tail
+      placement: leading
   - _class: Expressir::Model::Declarations::Procedure
     id: parameter_procedure
     parameters:
@@ -1540,12 +1555,13 @@ schemas:
     - _class: Expressir::Model::Statements::Null
   - _class: Expressir::Model::Declarations::Procedure
     id: statements
-    untagged_remarks:
-    - text: statements
-      format: tail
     procedures:
     - _class: Expressir::Model::Declarations::Procedure
       id: alias_simple_reference_statement
+      untagged_remarks:
+      - text: statements
+        format: tail
+        placement: leading
       statements:
       - _class: Expressir::Model::Statements::Alias
         id: test
@@ -1959,18 +1975,13 @@ schemas:
       - _class: Expressir::Model::Statements::Skip
   - _class: Expressir::Model::Declarations::Procedure
     id: types
-    untagged_remarks:
-    - text: simple types
-      format: tail
-    - text: aggregation types
-      format: tail
-    - text: constructed types
-      format: tail
-    - text: generic types
-      format: tail
     types:
     - _class: Expressir::Model::Declarations::Type
       id: binary_type
+      untagged_remarks:
+      - text: simple types
+        format: tail
+        placement: leading
       underlying_type:
         _class: Expressir::Model::DataTypes::Binary
     - _class: Expressir::Model::Declarations::Type
@@ -2036,6 +2047,10 @@ schemas:
         fixed: true
     - _class: Expressir::Model::Declarations::Type
       id: array_type
+      untagged_remarks:
+      - text: aggregation types
+        format: tail
+        placement: leading
       underlying_type:
         _class: Expressir::Model::DataTypes::Array
         bound1:
@@ -2168,6 +2183,10 @@ schemas:
           _class: Expressir::Model::DataTypes::String
     - _class: Expressir::Model::Declarations::Type
       id: select_type
+      untagged_remarks:
+      - text: constructed types
+        format: tail
+        placement: leading
       underlying_type:
         _class: Expressir::Model::DataTypes::Select
     - _class: Expressir::Model::Declarations::Type
@@ -2295,6 +2314,10 @@ schemas:
     functions:
     - _class: Expressir::Model::Declarations::Function
       id: generic_type
+      untagged_remarks:
+      - text: generic types
+        format: tail
+        placement: leading
       return_type:
         _class: Expressir::Model::DataTypes::Generic
       statements:

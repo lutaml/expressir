@@ -32,7 +32,7 @@ RSpec.describe Expressir::Express::RemarkAttacher do
   end
 
   describe "attach" do
-    it "attaches remarks inside schema body to Schema" do
+    it "leads the first declaration in the schema body with a whole-line comment" do
       source = <<~EXP
         SCHEMA test_schema;
         -- Schema level remark
@@ -43,9 +43,14 @@ RSpec.describe Expressir::Express::RemarkAttacher do
 
       exp_file = Expressir::Express::Parser.from_exp(source)
       schema = exp_file.schemas.first
+      entity = schema.entities.first
 
       expect(exp_file).to be_a(Expressir::Model::ExpFile)
-      expect(schema.untagged_remarks).not_to be_empty
+      # The whole-line comment leads the declaration it introduces
+      # (#696); it is no longer parked on the Schema.
+      remark = Array(entity.untagged_remarks).first
+      expect(remark.text).to eq("Schema level remark")
+      expect(remark.placement).to eq("leading")
     end
 
     it "transfers file-level preamble remarks (before SCHEMA) to schema header" do

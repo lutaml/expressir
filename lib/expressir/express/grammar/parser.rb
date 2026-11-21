@@ -732,7 +732,12 @@ module Expressir
           cts(match("[a-zA-Z_][a-zA-Z0-9_]*").as(:str)).as(:simpleId)
         end
         rule(:simpleStringLiteral) do
-          cts((str("'") >> (str("'").absent? >> any).repeat >> str("'")).as(:str)).as(:simpleStringLiteral)
+          # The doubled apostrophe is the in-string escape (ISO 10303-11,
+          # simple_string_literal); the body consumes both spellings, and
+          # the model keeps the source spelling (#698).
+          cts(
+            (str("'") >> (str("''") | (str("'").absent? >> any)).repeat >> str("'")).as(:str),
+          ).as(:simpleStringLiteral)
         end
         rule(:simpleTypes) do
           (binaryType | booleanType | integerType | logicalType | numberType | realType | stringType).as(:simpleTypes)

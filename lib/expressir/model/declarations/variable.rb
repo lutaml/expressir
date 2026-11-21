@@ -5,6 +5,7 @@ module Expressir
       # - section 9.5.4 Local variables
       class Variable < ModelElement
         include Identifier
+        include TakesInlineRemark
 
         attribute :type, ModelElement
         attribute :expression, ModelElement

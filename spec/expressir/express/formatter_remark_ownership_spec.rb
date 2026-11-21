@@ -48,7 +48,10 @@ round_trips = {
   # lengths; every remark holds its owner across the round trip and the
   # placements are byte-identical to the core lane.
   "spec/fixtures/examples/tail_remarks_test_schema.exp" =>
-    { traced: 33, tagged: 7, escapes: 0 },
+    # expressir#696: the whole-line comment before END_SCHEMA re-houses
+    # onto the schema's tail on the first round trip, then holds.
+    { traced: 33, tagged: 7, escapes: 1,
+      known_move_texts: ["Untagged tail remark before schema end"] },
   "spec/fixtures/function_body_remarks.exp" =>
     { traced: 13, tagged: 0, escapes: 0 },
   "spec/syntax/remark.exp" =>
@@ -143,15 +146,17 @@ RSpec.describe Expressir::Express::Formatter do
     # measurement they hold, and only this entry remains.
     let(:known_lost_copies) do
       {
-        # One tag, two source owners: the WG12 block is attached to the
-        # remark item AND (via a relative resolution) to the parameter of
-        # the NEXT function. The render emits the pair once, so the
-        # parameter's copy legitimately departs (#609 probe).
-        ["(input) The aggregate of arbitrary values which are to be " \
-         "converted into a list of generic expressions.", nil, true] =>
-          "functions[20]Declarations::Function(convert_to_operands)/" \
-          "parameters[0]Declarations::Parameter(values)",
-      }.transform_values { |path| { ["#{schema_prefix}#{path}", nil, nil] => 1 } }
+        # The `derived` tail remark used to be triple-counted: the single
+        # placement-carrying attachment (#696) leaves the remark on the
+        # return statement it follows (inline), and the two duplicate
+        # legacy copies parked on sibling functions' returns depart.
+        ["derived", "tail", false] => {
+          ["#{schema_prefix}functions[57]Declarations::Function(make_abstracted_expression_function)/statements[0]Statements::Return",
+           nil, nil] => 1,
+          ["#{schema_prefix}functions[80]Declarations::Function(make_function_application)/statements[0]Statements::Return",
+           nil, nil] => 1,
+        },
+      }
     end
 
     it "keeps every surviving remark of the production schema in place" do

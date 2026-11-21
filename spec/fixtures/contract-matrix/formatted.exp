@@ -13,6 +13,8 @@ WHERE
   wr1: SIZEOF(name) > 0;
 END_ENTITY;
 
+(*"contract_matrix.part" the primary identity *)
+
 FUNCTION compatible(a : strength_value) : BOOLEAN;
   RETURN (a <> low);
 END_FUNCTION;

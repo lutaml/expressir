@@ -32,11 +32,13 @@ module Expressir
       OPENER_REGION = "opener"
 
       # Regions of INLINE remarks that trailed a mid-construct keyword line —
-      # `ELSE -- why` or `OTHERWISE : -- why`. The owning construct is the
-      # enclosing IF / CASE, and the remark belongs back after that keyword,
-      # not after the construct's closing END_.
+      # `ELSE -- why`, `OTHERWISE : -- why`, or a case label whose action
+      # starts on the next line (`1 : -- why`). The owning construct is the
+      # enclosing IF / CASE, and the remark belongs back after that keyword
+      # or label, not after the construct's closing END_.
       ELSE_REGION = "else"
       OTHERWISE_REGION = "otherwise"
+      LABEL_REGION = "label"
     end
   end
 end

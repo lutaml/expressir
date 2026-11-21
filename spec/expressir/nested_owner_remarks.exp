@@ -1,0 +1,32 @@
+SCHEMA repro_comments;
+
+TYPE strength_measure = ENUMERATION OF
+  (low,
+   medium,
+   high);
+END_TYPE;
+
+(*"repro_comments.strength_measure.low" MARKER-ENUM-LOW the weakest binding class. *)
+
+(*"repro_comments.bolted_joint" MARKER-ENTITY the joint clamps two plates. *)
+
+ENTITY bolted_joint;
+  (*"repro_comments.bolted_joint.strength" MARKER-ATTR the strength class selects the torque band. *)
+  strength : strength_measure;
+  torque : REAL;
+DERIVE
+  (*"repro_comments.bolted_joint.safe" MARKER-DERIVE safe means below the 100.0 torque limit. *)
+  safe : BOOLEAN := torque < 100.0;
+INVERSE
+  washers : SET [0:?] OF washer FOR joints;
+WHERE
+  WR1: torque >= 0.0;
+END_ENTITY;
+
+FUNCTION check(torque : REAL) : BOOLEAN;
+  RETURN (torque > 0.0);
+END_FUNCTION;
+
+(*"repro_comments.check" MARKER-FUNCTION validates positive torque. *)
+
+END_SCHEMA;

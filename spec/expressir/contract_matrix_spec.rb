@@ -15,6 +15,7 @@ ARTIFACT_PATHS = {
   "model-hash wire" => "wire.json",
   "attached wire" => "attached.json",
   "formatted text" => "formatted.exp",
+  "formatted-wire text" => "formatted-wire.exp",
   "stripped text" => "stripped.exp",
 }.freeze
 
@@ -47,8 +48,15 @@ RSpec.describe "contract matrix" do # rubocop:disable RSpec/DescribeClass
   %w[wire.json attached.json].each do |shape|
     it "loads and re-renders #{shape} byte-identically" do
       model = Expressir::Model::ExpFile.from_hash(JSON.parse(artifact(shape)))
+      # The product rehydrates the parent chain on load; the rendered
+      # schema-relative tags need it.
+      model.wire_parents if model.respond_to?(:wire_parents)
+      # The raw core wire (pre-attach) carries no owner remarks, so its
+      # render has no owner blocks (#694); the attached shape is the
+      # canonical pipeline's product.
+      formatted_artifact = shape == "wire.json" ? "formatted-wire.exp" : "formatted.exp"
       formatted = Expressir::Express::Formatter.new.format(model)
-      expect(formatted).to eq(artifact("formatted.exp"))
+      expect(formatted).to eq(artifact(formatted_artifact))
 
       stripped = Expressir::Express::Formatter.new(no_remarks: true).format(model)
       expect(stripped).to eq(artifact("stripped.exp"))

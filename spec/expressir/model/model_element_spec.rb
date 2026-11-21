@@ -136,6 +136,7 @@ RSpec.describe Expressir::Model::ModelElement do
       formatted_schema_head = <<~TEXT
         SCHEMA syntax_schema '{ISO standard 10303 part(41) object(1) version(8)}';
 
+        -- interfaces
         USE FROM contract_schema;
 
         USE FROM contract_schema

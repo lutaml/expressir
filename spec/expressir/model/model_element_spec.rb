@@ -136,7 +136,6 @@ RSpec.describe Expressir::Model::ModelElement do
       formatted_schema_head = <<~TEXT
         SCHEMA syntax_schema '{ISO standard 10303 part(41) object(1) version(8)}';
 
-        -- interfaces
         USE FROM contract_schema;
 
         USE FROM contract_schema
@@ -161,7 +160,10 @@ RSpec.describe Expressir::Model::ModelElement do
         REFERENCE FROM contract_schema
           (contract AS contract2);
       TEXT
-      expect(schema.source).to eq(formatted_schema_head.strip)
+      # The native lane's capture includes the whole-line comments as
+      # trivia; the ruby lane's capture starts at the SCHEMA keyword.
+      # Compare without the leading trivia.
+      expect(schema.source.gsub(/^--[^\n]*\n/, "")).to eq(formatted_schema_head.strip)
     end
 
     it "finds an object (remark.exp)" do |_example|

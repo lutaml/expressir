@@ -453,9 +453,12 @@ RSpec.describe Expressir::Express::Parser do
       expect(age_remark.text).to eq("Age attribute with 中文 comment")
       expect(age_remark.format).to eq("embedded")
 
-      # Entity should NOT have attribute tail remarks (they belong to attributes)
-      entity_remarks = entity.untagged_remarks || []
-      expect(entity_remarks.nil? || entity_remarks.empty?).to be true
+      # Attribute tail remarks stay on their attributes (#693); the
+      # entity holds only the whole-line comments that LEAD it (#696),
+      # never a legacy tail remark.
+      entity_remarks = Array(entity.untagged_remarks)
+      expect(entity_remarks.reject(&:placement)).to be_empty
+      expect(entity_remarks.map(&:placement).uniq).to eq(["leading"])
     end
 
     it "preserves tail remarks on TYPE lines" do |_example|
@@ -470,35 +473,11 @@ RSpec.describe Expressir::Express::Parser do
       schema = repo.schemas.first
       type_decl = schema.types.first
 
-      # Schema should have preamble remarks (inside schema body) + END_SCHEMA remark (4 total)
+      # The whole-line preamble comments LEAD the first declaration in
+      # the schema body (#696) — the ENTITY — instead of piling onto the
+      # schema; the schema keeps only its END_SCHEMA tail.
       schema_remarks = schema.untagged_remarks || []
-      expect(schema_remarks.length).to eq(4)
-
-      # Check preamble remarks (handle both RemarkInfo and String)
-      preamble_remark1 = schema_remarks[0]
-      if preamble_remark1.is_a?(Expressir::Model::RemarkInfo)
-        expect(preamble_remark1.text).to eq("This schema demonstrates Unicode in remarks only")
-        expect(preamble_remark1.format).to eq("tail")
-      else
-        expect(preamble_remark1).to eq("This schema demonstrates Unicode in remarks only")
-      end
-
-      preamble_remark2 = schema_remarks[1]
-      if preamble_remark2.is_a?(Expressir::Model::RemarkInfo)
-        expect(preamble_remark2.text).to eq("Japanese: 日本語、中文、한글")
-        expect(preamble_remark2.format).to eq("tail")
-      else
-        expect(preamble_remark2).to eq("Japanese: 日本語、中文、한글")
-      end
-
-      # Third remark is the embedded multi-line remark
-      preamble_remark3 = schema_remarks[2]
-      if preamble_remark3.is_a?(Expressir::Model::RemarkInfo)
-        expect(preamble_remark3.text).to include("Multi-line remark with Unicode")
-        expect(preamble_remark3.format).to eq("embedded")
-      else
-        expect(preamble_remark3).to include("Multi-line remark with Unicode")
-      end
+      expect(schema_remarks.length).to eq(1)
 
       # END_TYPE remark should be attached to the Type, not Schema
       expect(type_decl.untagged_remarks.length).to eq(1)

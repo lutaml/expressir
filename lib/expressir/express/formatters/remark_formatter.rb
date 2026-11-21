@@ -57,7 +57,7 @@ module Expressir
         end
 
         def format_inline_tail_remark(node)
-          return "" if @no_remarks
+          return "" if @no_remarks && !@keep_untagged_remarks
           return "" unless node.is_a?(Model::ModelElement)
           return "" if node.untagged_remarks.nil? || node.untagged_remarks.empty?
 
@@ -80,7 +80,7 @@ module Expressir
         end
 
         def format_end_scope_remark(node)
-          return "" if @no_remarks
+          return "" if @no_remarks && !@keep_untagged_remarks
           return "" unless node.is_a?(Model::ModelElement)
 
           # Only legacy (unplaced) remarks belong after the END_* keyword.
@@ -131,7 +131,7 @@ module Expressir
         end
 
         def format_preamble_remarks(node, indent_str = "")
-          return nil if @no_remarks
+          return nil if @no_remarks && !@keep_untagged_remarks
           return nil unless node.is_a?(Model::ModelElement)
           return nil if node.untagged_remarks.nil? || node.untagged_remarks.empty?
 
@@ -168,7 +168,7 @@ module Expressir
         # region qualify: legacy (nil) remarks keep their historical emission
         # path so old caches render exactly as they did before.
         def format_trailing_region_remarks(node, region)
-          return [] if @no_remarks
+          return [] if @no_remarks && !@keep_untagged_remarks
           return [] unless node.is_a?(Model::ModelElement)
 
           Array(node.untagged_remarks).filter_map do |remark|
@@ -219,7 +219,7 @@ module Expressir
         end
 
         def format_leading_statement_remarks(node)
-          return [] if @no_remarks
+          return [] if @no_remarks && !@keep_untagged_remarks
           return [] unless node.is_a?(Model::Statement)
 
           Array(node.untagged_remarks).filter_map do |remark|
@@ -235,7 +235,7 @@ module Expressir
         # untagged text (add_remark dual-store), so "genuinely tagged" is
         # derivable only by multiset-subtracting the untagged texts.
         def format_block_end_remarks(node)
-          return [] if @no_remarks
+          return [] if @no_remarks && !@keep_untagged_remarks
 
           untagged = Array(node.untagged_remarks)
           remaining = untagged.map(&:text).tally

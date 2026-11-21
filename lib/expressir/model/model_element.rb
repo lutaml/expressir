@@ -337,8 +337,9 @@ module Expressir
       # @param no_remarks [Boolean] omit remarks from the output
       # @param formatter [Express::Formatter, nil] use a specific formatter
       # @return [String]
-      def format(no_remarks: false, formatter: nil)
-        f = formatter || Express::Formatter.new(no_remarks: no_remarks)
+      def format(no_remarks: false, keep_untagged_remarks: false, formatter: nil)
+        f = formatter || Express::Formatter.new(no_remarks: no_remarks,
+                                                keep_untagged_remarks: keep_untagged_remarks)
         f.format(self)
       end
 

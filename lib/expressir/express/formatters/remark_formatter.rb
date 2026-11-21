@@ -69,8 +69,9 @@ module Expressir
           remark = node.untagged_remarks.first
           return "" unless remark.is_a?(Model::RemarkInfo)
           # Placement-carrying remarks render through their own paths
-          # (leading above the node); this appends the legacy tail.
-          return "" if remark.leading?
+          # (leading above the node, inline after the statement text);
+          # this appends the legacy tail.
+          return "" if remark.placement
 
           text = remark.text
           return "" if text.nil? || text.empty?

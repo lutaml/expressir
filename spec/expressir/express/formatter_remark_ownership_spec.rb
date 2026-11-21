@@ -48,7 +48,10 @@ round_trips = {
   # lengths; every remark holds its owner across the round trip and the
   # placements are byte-identical to the core lane.
   "spec/fixtures/examples/tail_remarks_test_schema.exp" =>
-    { traced: 33, tagged: 7, escapes: 0 },
+    # expressir#696: the whole-line comment before END_SCHEMA re-houses
+    # onto the schema's tail on the first round trip, then holds.
+    { traced: 33, tagged: 7, escapes: 1,
+      known_move_texts: ["Untagged tail remark before schema end"] },
   "spec/fixtures/function_body_remarks.exp" =>
     { traced: 13, tagged: 0, escapes: 0 },
   "spec/syntax/remark.exp" =>

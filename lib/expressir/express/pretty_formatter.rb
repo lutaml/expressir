@@ -97,6 +97,10 @@ module Expressir
         return "" if remark.nil?
 
         return "" unless remark.is_a?(Model::RemarkInfo)
+        # Placement-carrying remarks render through their own paths
+        # (leading above the node, inline after the statement text);
+        # this appends the legacy tail.
+        return "" if remark.placement
 
         text = remark.text
         return "" if text.nil? || text.empty?

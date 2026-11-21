@@ -66,10 +66,13 @@ module Expressir
         Model::SupertypeExpressions::BinarySupertypeExpression::ANDOR => 2,
       }.freeze
 
-      attr_accessor :no_remarks
+      attr_accessor :no_remarks, :keep_untagged_remarks
 
-      def initialize(no_remarks: false)
+      def initialize(no_remarks: false, keep_untagged_remarks: false)
         @no_remarks = no_remarks
+        # The plain face: no tagged description blocks, but the source's
+        # untagged comments (header, separators, inline notes) render.
+        @keep_untagged_remarks = keep_untagged_remarks
       end
 
       def self.format(node)

@@ -36,7 +36,30 @@ round_trips = {
   # Embedded: only the file header block is lost. The blocks introducing the
   # interface clause, the first TYPE, and the ENTITY all survive.
   "spec/fixtures/examples/autonomous_vehicle_navigation_schema.exp" => {
-    lost: {}, tagged_lost: 20, tagged_survivors: [],
+    # the IP markers round-trip in the ISO shorthand (see geometry)
+    lost: {}, tagged_lost: 0,
+    tagged_survivors: [
+      ["IP1", ""],
+      ["IP1", ""],
+      ["IP2", ""],
+      ["IP1", ""],
+      ["IP1", ""],
+      ["IP1", ""],
+      ["IP1", ""],
+      ["IP1", ""],
+      ["IP1", ""],
+      ["IP2", ""],
+      ["IP3", ""],
+      ["IP1", ""],
+      ["IP2", ""],
+      ["IP1", ""],
+      ["IP2", ""],
+      ["IP3", ""],
+      ["IP4", ""],
+      ["IP5", ""],
+      ["IP1", ""],
+      ["IP2", ""],
+    ],
     embedded_lost: 1,
     embedded_survivors: [
       [nil, "for immersive geometry added volume_with_faces"],
@@ -45,7 +68,31 @@ round_trips = {
     ]
   },
   "spec/fixtures/examples/geometry_schema.exp" => {
-    lost: {}, tagged_lost: 20, tagged_survivors: [],
+    # the IP markers render back in the ISO shorthand and round-trip
+    # (the all-legacy-scope-remarks train): twenty tagged pairs survive
+    lost: {}, tagged_lost: 0,
+    tagged_survivors: [
+      ["IP1", ""],
+      ["IP1", ""],
+      ["IP2", ""],
+      ["IP1", ""],
+      ["IP1", ""],
+      ["IP1", ""],
+      ["IP1", ""],
+      ["IP1", ""],
+      ["IP1", ""],
+      ["IP2", ""],
+      ["IP3", ""],
+      ["IP1", ""],
+      ["IP2", ""],
+      ["IP1", ""],
+      ["IP2", ""],
+      ["IP3", ""],
+      ["IP4", ""],
+      ["IP5", ""],
+      ["IP1", ""],
+      ["IP2", ""],
+    ],
     embedded_lost: 1,
     embedded_survivors: [
       [nil, "for immersive geometry added volume_with_faces"],
@@ -68,12 +115,9 @@ round_trips = {
     # the placements are byte-identical to the core lane; the lost set is
     # the core-agreed verdict.
     lost: {
-      "aggregate initializer expressions" => 1,
-      "constant expressions" => 1,
-      "function call or entity constructor expressions" => 1,
-      "function expressions" => 1, "interval expressions" => 1,
-      "literal expressions" => 1, "operator expressions" => 1,
-      "reference expressions" => 1, "schema" => 1
+      # the all-legacy-scope-remarks render conserves the procedure's
+      # section comments; only the schema-level loss remains
+      "schema" => 1
     },
     tagged_lost: 0, tagged_survivors: [],
     embedded_lost: 0, embedded_survivors: []
@@ -84,7 +128,6 @@ round_trips = {
   "spec/fixtures/examples/tail_remarks_test_schema.exp" => {
     lost: {
       "Final untagged tail remark at end of file" => 1,
-      "Untagged tail remark" => 1,
       "Untagged tail remark after constant" => 1,
       "Untagged tail remark after enum item" => 1,
       "Untagged tail remark at very beginning of file" => 1,
@@ -120,12 +163,21 @@ round_trips = {
   # The RULE query survivor came back with #555: the rule's statements
   # render again.
   "spec/syntax/remark.exp" => {
-    lost: {}, tagged_lost: 125,
+    # 124: the all-legacy-scope-remarks render conserves one more
+    # tagged tail (the multi-remark end scope).
+    lost: {}, tagged_lost: 124,
     # Legacy bare-tag alias pairs the canonical full-path tag replaces
     # (the item is addressed bare in the schema scope and by path in
     # the universal scope; the render emits the path form once).
     tagged_normalized: [
       ["remark_schema.remark_item", "schema scope - schema remark item"],
+      # the IP informal-proposition texts render back in the ISO
+      # shorthand now (the all-legacy-scope-remarks train)
+      ["IP1", "entity scope - entity informal proposition, with prefix"],
+      ["IP1", "schema scope - entity informal proposition"],
+      ["IP1", "schema scope - entity informal proposition, with prefix"],
+      ["IP1", "universal scope - entity informal proposition"],
+      ["IP1", "universal scope - entity informal proposition, with prefix"],
     ],
     # expressir#603 canonical: remark items re-house as embedded blocks
     # (`(*"path" text *)`), so their two tail-sourced bindings appear
@@ -353,8 +405,16 @@ round_trips = {
       ["remark_schema.remark_item", "universal scope - schema remark item"],
     ],
     tagged_survivors: [
-      # expressir#603: the bare-tag WHERE item now survives too
+      # expressir#603: the bare-tag WHERE item now survives too; the IP
+      # informal-proposition texts render back in the ISO shorthand
+      # (the all-legacy-scope-remarks train, see tagged_normalized)
       ["unusual_placement", "placed inside WHERE clauses (or other enumerable context)"],
+      ["IP1", "entity scope - entity informal proposition, with prefix"],
+      ["IP1", "schema scope - entity informal proposition"],
+      ["IP1", "schema scope - entity informal proposition, with prefix"],
+      ["IP1", "universal scope - entity informal proposition"],
+      ["IP1", "universal scope - entity informal proposition, with prefix"],
+      ["IP1", "entity scope - entity informal proposition"],
       ["remark_alias", "function alias scope - function alias"],
       ["remark_repeat", "function repeat scope - function repeat"],
       ["remark_query", "function query scope - function query"],
@@ -362,9 +422,6 @@ round_trips = {
       ["remark_alias", "procedure alias scope - procedure alias"],
       ["remark_repeat", "procedure repeat scope - procedure repeat"],
       ["remark_query", "procedure query scope - procedure query"],
-      # expressir#603: the schema-level remark item renders as embedded
-      # blocks now (see embedded_survivors), so its bindings left the
-      # tagged-tail survivor set
     ],
     # Embedded: one tagged block, on the schema — now conserved by the
     # schema-level source formatter emission. Nothing is lost.

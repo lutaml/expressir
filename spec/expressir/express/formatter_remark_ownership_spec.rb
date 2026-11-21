@@ -65,7 +65,19 @@ round_trips = {
         "placed inside WHERE clauses (or other enumerable context)",
       ] },
   "spec/syntax/syntax.exp" =>
-    { traced: 22, tagged: 0, escapes: 0 },
+    # The all-legacy-scope-remarks render re-houses the procedure's
+    # section comments onto END_PROCEDURE; they used to be dropped.
+    { traced: 22, tagged: 0, escapes: 8,
+      known_move_texts: [
+        "constant expressions",
+        "function expressions",
+        "operator expressions",
+        "aggregate initializer expressions",
+        "function call or entity constructor expressions",
+        "reference expressions",
+        "interval expressions",
+        "query expressions",
+      ] },
 }.freeze
 
 RSpec.describe Expressir::Express::Formatter do

@@ -906,7 +906,7 @@ PROCEDURE expressions;
     lte_lte_interval_expression : BOOLEAN := {1 <= 5 <= 9};
     query_expression : BOOLEAN := QUERY(test <* test2 | TRUE);
   END_LOCAL;
-END_PROCEDURE;-- literal expressions
+END_PROCEDURE; -- literal expressions
 -- constant expressions
 -- function expressions
 -- operator expressions

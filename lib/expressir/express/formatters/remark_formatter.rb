@@ -111,14 +111,18 @@ module Expressir
           end
           return "" if remarks.empty?
 
-          remarks.map do |remark|
+          lines = remarks.map do |remark|
             text = remark.text
             # A multi-line text cannot ride the tail forms (#691).
             next "" if text.include?("\n")
 
             formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
             remark.tail_annotation? ? "--- #{formatted_text}" : "-- #{formatted_text}"
-          end.reject(&:empty?).join("\n")
+          end.reject(&:empty?)
+          return "" if lines.empty?
+
+          # The first remark rides the END_ line; the rest follow below it.
+          " #{lines.join("\n")}"
         end
 
         # The entity's informal propositions, in the ISO remark-tag form

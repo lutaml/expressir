@@ -151,9 +151,9 @@ RSpec.describe Expressir::Express::Formatter do
         # return statement it follows (inline), and the two duplicate
         # legacy copies parked on sibling functions' returns depart.
         ["derived", "tail", false] => {
-          ["#{schema_prefix}functions[57]Declarations::Function("            "make_abstracted_expression_function)/statements[0]Statements::Return",
+          ["#{schema_prefix}functions[57]Declarations::Function(make_abstracted_expression_function)/statements[0]Statements::Return",
            nil, nil] => 1,
-          ["#{schema_prefix}functions[80]Declarations::Function("            "make_function_application)/statements[0]Statements::Return",
+          ["#{schema_prefix}functions[80]Declarations::Function(make_function_application)/statements[0]Statements::Return",
            nil, nil] => 1,
         },
       }

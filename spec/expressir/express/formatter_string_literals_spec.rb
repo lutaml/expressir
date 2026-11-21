@@ -72,7 +72,7 @@ RSpec.describe Expressir::Express::Formatter do
 
   it "round trips to a fixed point" do
     once = round_trip
-    twice = Expressir::Express::Formatter.format(
+    twice = described_class.format(
       Expressir::Express::Parser.from_exp(once),
     )
 

@@ -63,7 +63,7 @@ RSpec.describe Expressir::Express::Formatter do
 
   it "formats to a fixed point" do
     formatted, reparsed = round_trip
-    twice = Expressir::Express::Formatter.format(reparsed)
+    twice = described_class.format(reparsed)
 
     expect(twice).to eq(formatted)
   end

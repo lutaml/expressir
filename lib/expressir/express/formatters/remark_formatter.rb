@@ -101,20 +101,49 @@ module Expressir
           return "" if @no_remarks && !@keep_untagged_remarks
           return "" unless node.is_a?(Model::ModelElement)
 
-          # Only legacy (unplaced) remarks belong after the END_* keyword.
-          # Remarks carrying an explicit placement are rendered by the
-          # placement-aware emitters, and must not be emitted twice.
-          remark = Array(node.untagged_remarks).reject(&:placement).last
-          return "" unless remark.is_a?(Model::RemarkInfo)
+          # Every legacy (unplaced) tail remark belongs after the END_*
+          # keyword — writing only the last dropped the others (the WG12
+          # `-- IP1:` markers). Remarks carrying an explicit placement
+          # render through their placement-aware emitters.
+          remarks = Array(node.untagged_remarks).reject(&:placement).select do |remark|
+            remark.is_a?(Model::RemarkInfo) && remark.tail? &&
+              !remark.text.nil? && !remark.text.empty?
+          end
+          return "" if remarks.empty?
 
-          text = remark.text
-          return "" if text.nil? || text.empty?
+          remarks.map do |remark|
+            text = remark.text
+            # A multi-line text cannot ride the tail forms (#691).
+            next "" if text.include?("\n")
 
-          # Only output if it's a tail remark (END_* scope remarks are always tail)
-          return "" unless remark.tail?
+            formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
+            remark.tail_annotation? ? "--- #{formatted_text}" : "-- #{formatted_text}"
+          end.reject(&:empty?).join("\n")
+        end
 
-          formatted_text = remark.tagged? ? "\"#{remark.tag}\" #{text}" : text
-          remark.tail_annotation? ? " --- #{formatted_text}" : " -- #{formatted_text}"
+        # The entity's informal propositions, in the ISO remark-tag form
+        # so the source convention survives the round trip: `--IP1 text`,
+        # or the bare declaration marker `--IP1` when the proposition
+        # carries no text (the WG12 `-- IP1:` markers).
+        def format_informal_propositions(node)
+          return [] if @no_remarks && !@keep_untagged_remarks
+          return [] unless node.is_a?(Model::ModelElement)
+          return [] unless node.respond_to?(:informal_propositions)
+
+          Array(node.informal_propositions).filter_map do |ip|
+            # The attach stores the proposition's texts on its remark
+            # item (create_or_find_informal_proposition returns it); the
+            # ISO shorthand re-parses only with the colon.
+            texts = (Array(ip.remarks) +
+                     Array(ip.remark_items).flat_map do |ri|
+                       Array(ri.remarks)
+                     end).reject { |t| t.nil? || t.to_s.strip.empty? }
+            if texts.empty?
+              "--#{ip.id}:"
+            else
+              texts.map { |t| "--#{ip.id}: #{t}" }.join("\n")
+            end
+          end
         end
 
         def format_preamble_remark(remark, indent_str = "")
@@ -153,28 +182,13 @@ module Expressir
           return nil unless node.is_a?(Model::ModelElement)
           return nil if node.untagged_remarks.nil? || node.untagged_remarks.empty?
 
-          # For scope containers, exclude the last tail remark as it's the END_* remark
-          # but keep all embedded remarks
-          is_scope_container = node.is_a?(Model::Declarations::Schema) ||
-            node.is_a?(Model::Declarations::Entity) ||
-            node.is_a?(Model::Declarations::Type) ||
-            node.is_a?(Model::Declarations::Function) ||
-            node.is_a?(Model::Declarations::Procedure) ||
-            node.is_a?(Model::Declarations::Rule)
-
           preamble_remarks = node.untagged_remarks.select do |remark|
-            # Leading remarks render above the node (place_remarks);
-            # emitting them in the preamble would write them twice.
+            # Leading remarks render above the node (place_remarks) and
+            # every legacy tail remark renders after the END_ keyword;
+            # emitting either in the preamble would write them twice.
             remark.is_a?(Model::RemarkInfo) && !remark.leading? &&
+              !(remark.placement.nil? && remark.tail?) &&
               !remark.text.nil? && !remark.text.empty?
-          end
-
-          # For scope containers: exclude last remark ONLY if it's a tail remark (END_* remark)
-          # Keep all embedded remarks
-          if is_scope_container && preamble_remarks.length >= 1
-            last_remark = preamble_remarks.last
-            # Only exclude if it's a tail remark
-            preamble_remarks = preamble_remarks[0..-2] if last_remark.tail?
           end
 
           return nil if preamble_remarks.empty?

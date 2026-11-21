@@ -255,6 +255,7 @@ module Expressir
                  indent(node.where_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
+            *format_informal_propositions(node).map { |x| indent(x) },
             *format_remark_items(node).map { |x| indent(x) },
             [
               "END_ENTITY",

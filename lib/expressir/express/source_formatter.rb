@@ -10,6 +10,12 @@ module Expressir
     # rebuilt the format_registry on every call).
     class SourceFormatter < Formatter
       include HyperlinkFormatter
+
+      # The hyperlinked listing face omits the owner's tagged
+      # descriptions (expressir#704): they feed source blocks.
+      def owner_tagged_blocks?
+        false
+      end
     end
   end
 end

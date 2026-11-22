@@ -7,6 +7,10 @@ module Expressir
     # counterpart of SourceFormatter (Schema#formatted_hyperlinked_adoc).
     class AdocSourceFormatter < Formatter
       include AdocHyperlinkFormatter
+
+      def owner_tagged_blocks?
+        false
+      end
     end
   end
 end

@@ -238,6 +238,17 @@ module Expressir
           end
 
           if target
+            # A shorthand tag resolved by path to the IP declaration itself
+            # re-houses on its remark item (#705): the native lane stores
+            # every `--IP1:` text there. (create_or_find returns the
+            # existing DECLARATION, so the item is picked out explicitly.)
+            if target.is_a?(Model::Declarations::InformalPropositionRule) &&
+                remark.tag.to_s.match?(/^IP\d+$/)
+              ip = create_or_find_informal_proposition(target.parent, remark.tag)
+              if ip.is_a?(Model::Declarations::InformalPropositionRule)
+                target = ip.remark_items&.find { |ri| ri.id == remark.tag } || ip
+              end
+            end
             add_remark(target, remark.text, format: remark.format, tag: remark.tag,
                                             source_offset: remark.position)
             @attached_spans << remark.position

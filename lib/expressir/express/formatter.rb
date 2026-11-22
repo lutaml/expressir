@@ -112,7 +112,9 @@ module Expressir
 
       def format_via_core(file)
         Expressir::Express::Core.format_model_hash(
-          JSON.parse(file.core_wire), no_remarks: @no_remarks
+          JSON.parse(file.core_wire),
+          no_remarks: @no_remarks,
+          keep_untagged_remarks: @keep_untagged_remarks
         )
       end
 

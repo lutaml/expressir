@@ -81,14 +81,13 @@ module Expressir
         @where_clause_line_index = nil
       end
 
-      private
-
       # Extend each node's captured slice through the remarks attached
       # to it (#712): the core lane's captures overshoot into the
       # trailing trivia — `source` there carries a declaration's
       # comments — while the ruby captures end at the last token. The
       # pass makes every lane's slice cover the same text. Idempotent:
-      # the ends only grow.
+      # the ends only grow. (A class-level entry point: parser.rb calls
+      # it on the freshly attached model — it stays public.)
       def self.extend_source_slices(model, source)
         return unless model.is_a?(Model::ModelElement)
         return if source.nil? || source.empty?
@@ -121,6 +120,8 @@ module Expressir
           node.remove_instance_variable(:@formatted_source) if node.instance_variable_defined?(:@formatted_source)
         end
       end
+
+      private
 
       # The instance lane: same pass over the model just attached.
       def extend_source_slices(model)

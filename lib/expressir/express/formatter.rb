@@ -109,6 +109,16 @@ module Expressir
         instance_of?(Expressir::Express::Formatter)
       end
 
+      # Whether the face prints the owner's own tagged descriptions
+      # (`(*"path" text *)`) as blocks after declarations. The listing
+      # faces (SourceFormatter, AdocSourceFormatter) omit them: their
+      # output feeds `subs="+macros"` source blocks, where a description
+      # holding `stem:[...]` becomes a math formula and stops the build
+      # (TRThurman, expressir#704).
+      def owner_tagged_blocks?
+        true
+      end
+
       def core_format_available?
         Expressir::Express::Core::NATIVE_AVAILABLE &&
           Expressir::Express::Core.respond_to?(:format_model_hash)
@@ -141,7 +151,7 @@ module Expressir
         # The owner's own tagged descriptions (`(*"path" text *)`, the
         # #679 storage contract) render as blocks after the declaration
         # (#694) — every owner class, uniformly.
-        owner_blocks = format_owner_tagged_remarks(node)
+        owner_blocks = owner_tagged_blocks? ? format_owner_tagged_remarks(node) : []
         formatted = [*formatted, *owner_blocks].join("\n\n") if
           formatted.is_a?(String) && !owner_blocks.empty?
 

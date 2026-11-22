@@ -58,9 +58,10 @@ module Expressir
         # node.path is rooted at the ExpFile, whose id is the file path
         # or nil; drop that leading segment (expressir#603).
         def schema_relative_path(node)
-          root = node
-          root = root.parent while root.respond_to?(:parent) && root.parent
-          prefix = root.respond_to?(:id) ? "#{root.id}." : ""
+          file = node
+          file = file.parent while file.respond_to?(:parent) && file.parent &&
+              !file.is_a?(Model::ExpFile)
+          prefix = file.respond_to?(:id) ? "#{file.id}." : ""
           node.path.to_s.delete_prefix(prefix)
         end
       end

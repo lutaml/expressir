@@ -143,7 +143,9 @@ module Expressir
       # Some handlers return nil; appending and splicing must not turn that
       # into "".
       def place_remarks(formatted, node)
-        inline = format_inline_statement_remarks(node)
+        # An enumeration item is followed by a comma or by the `)` and `;`
+        # of its TYPE: its list and its TYPE write the remark after those.
+        inline = node.is_a?(Model::DataTypes::EnumerationItem) ? "" : format_inline_statement_remarks(node)
         formatted += inline if formatted.is_a?(String) && !inline.empty?
         formatted = splice_opener_remark(formatted,
                                          format_opener_remarks(node))
@@ -166,7 +168,8 @@ module Expressir
         return formatted unless formatted.is_a?(String) && !opener.empty?
 
         head, newline, rest = formatted.partition("\n")
-        "#{head}#{opener}#{newline}#{rest}"
+        # An empty first line takes the remark as a line of its own.
+        "#{head}#{head.empty? ? opener.lstrip : opener}#{newline}#{rest}"
       end
 
       def format_noop(_node)

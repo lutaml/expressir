@@ -25,6 +25,7 @@ formatter:: Component that converts model objects to EXPRESS text
 hyperlink_formatter:: Specialized formatter that generates HTML links
 pretty_printing:: Formatting with consistent indentation and spacing
 no_remarks:: Option to exclude documentation comments from output
+keep_untagged_remarks:: Option that, with `no_remarks`, keeps the untagged comments of the source
 source_preservation:: Maintaining original formatting and comments
 
 == Basic usage
@@ -93,6 +94,31 @@ This is useful for:
 * Reducing file size
 * Generating machine-readable output
 * Removing potentially sensitive comments
+
+=== Keeping the untagged comments (the plain form)
+
+`no_remarks: true` together with `keep_untagged_remarks: true` gives the
+plain form: the tagged descriptions (`(*"schema.entity" ... *)`) are left
+out, and the untagged comments of the source (`-- ...` and `(* ... *)`)
+are written.
+
+[source,ruby]
+----
+plain = schema.format(no_remarks: true, keep_untagged_remarks: true)
+----
+
+A comment that `format` writes at the end of a code line is written on
+the same line in the plain form:
+
+[source,express]
+----
+USE FROM other_schema; -- ISO/TS 10303-1001
+ENTITY point;
+  x : REAL; -- the abscissa
+END_ENTITY;
+----
+
+`keep_untagged_remarks` alone changes nothing.
 
 === Accessing formatter settings
 

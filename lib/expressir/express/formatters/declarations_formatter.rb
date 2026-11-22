@@ -474,10 +474,11 @@ module Expressir
         end
 
         # True when the statement holds a remark that only it can render.
-        # Under no_remarks nothing is emitted anyway, so the statement stays
-        # filtered and remark-free output is byte-identical to before.
+        # In the stripped form (no_remarks without keep_untagged_remarks)
+        # nothing is emitted anyway, so the statement stays filtered and
+        # remark-free output is byte-identical to before.
         def carries_placed_remark?(statement)
-          return false if @no_remarks
+          return false if @no_remarks && !@keep_untagged_remarks
 
           Array(statement.untagged_remarks).any?(&:placement)
         end

@@ -132,7 +132,7 @@ module Expressir
         # the k-th label remark precedes the k-th action (both read in source
         # order).
         def case_label_remark(action)
-          return "" if @no_remarks
+          return "" if @no_remarks && !@keep_untagged_remarks
 
           case_node = action.parent
           return "" unless case_node.is_a?(Model::Statements::Case)

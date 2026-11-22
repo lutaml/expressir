@@ -202,6 +202,11 @@
           "source_length": 88
         }
       ],
+      "declaration_order": [
+        "strength_value",
+        "part",
+        "compatible"
+      ],
       "source_offset": 0,
       "source_end_offset": 372,
       "source": "SCHEMA contract_matrix;\n  TYPE strength_value = ENUMERATION OF (low, medium, high);\n  END_TYPE;\n\n  ENTITY part;\n    name : STRING;\n    strength : strength_value;\n    (*\"contract_matrix.part\" the primary identity *)\n    WHERE\n      wr1 : SIZEOF(name) > 0;\n  END_ENTITY;\n\n  FUNCTION compatible(a : strength_value) : BOOLEAN;\n    RETURN(a <> low);\n  END_FUNCTION;\nEND_SCHEMA;",

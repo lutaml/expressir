@@ -44,6 +44,11 @@ schemas:
   untagged_remarks:
   - text: structural_response_definition_schema
     format: tail
+  declaration_order:
+  - structural_response_property
+  - fea_model_definition
+  - node_definition
+  - element_definition
   file: spec/syntax/structural_response_definition_schema/structural_response_definition_schema.exp
   header: |-
     ISO 10303 TC184/SC4/WG12 Ntbd

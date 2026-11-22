@@ -7,6 +7,9 @@ schemas:
   untagged_remarks:
   - text: Analysis_representation_arm
     format: tail
+  declaration_order:
+  - Analysis_model
+  - Analysis_representation_context
   file: spec/syntax/without_ending_newline.exp
   header: |-
     $Id: arm.exp,v 1.10 2009/06/19 09:58:44 philsp Exp $

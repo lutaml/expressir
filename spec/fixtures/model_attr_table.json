@@ -8,6 +8,10 @@
       "type": "Expressir::Model::ModelElement",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "root_path": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -44,6 +48,10 @@
     },
     "id": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "remark_items": {
@@ -92,6 +100,10 @@
       "type": "Lutaml::Model::Type::Boolean",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -130,6 +142,10 @@
       "type": "Expressir::Model::ModelElement",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -156,6 +172,10 @@
       "type": "Lutaml::Model::Type::Boolean",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -180,6 +200,10 @@
   "Expressir::Model::DataTypes::Boolean": {
     "_class": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "source": {
@@ -216,6 +240,10 @@
       "type": "Expressir::Model::DataTypes::EnumerationItem",
       "collection": true
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -240,6 +268,10 @@
     },
     "id": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "remark_items": {
@@ -276,6 +308,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "remark_items": {
       "type": "Expressir::Model::Declarations::RemarkItem",
       "collection": true
@@ -310,6 +346,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "remark_items": {
       "type": "Expressir::Model::Declarations::RemarkItem",
       "collection": true
@@ -338,6 +378,10 @@
   "Expressir::Model::DataTypes::Integer": {
     "_class": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "source": {
@@ -374,6 +418,10 @@
       "type": "Expressir::Model::ModelElement",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -400,6 +448,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -422,6 +474,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -442,6 +498,10 @@
   "Expressir::Model::DataTypes::Real": {
     "_class": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "precision": {
@@ -486,6 +546,10 @@
       "type": "Expressir::Model::ModelElement",
       "collection": true
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -520,6 +584,10 @@
       "type": "Expressir::Model::ModelElement",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -544,6 +612,10 @@
     },
     "fixed": {
       "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "source": {
@@ -592,6 +664,10 @@
       "type": "Lutaml::Model::Type::Boolean",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "remark_items": {
       "type": "Expressir::Model::Declarations::RemarkItem",
       "collection": true
@@ -636,6 +712,10 @@
     },
     "id": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "remark_items": {
@@ -690,6 +770,10 @@
     },
     "optional": {
       "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "remark_items": {
@@ -753,6 +837,10 @@
     "inverse_attributes": {
       "type": "Expressir::Model::Declarations::InverseAttribute",
       "collection": true
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
     },
     "remark_items": {
       "type": "Expressir::Model::Declarations::RemarkItem",
@@ -820,6 +908,10 @@
       "type": "Expressir::Model::Declarations::Parameter",
       "collection": true
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "procedures": {
       "type": "Expressir::Model::Declarations::Procedure",
       "collection": true
@@ -882,6 +974,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "remark_items": {
       "type": "Expressir::Model::Declarations::RemarkItem",
       "collection": true
@@ -920,6 +1016,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "schema": {
       "type": "Expressir::Model::ModelElement",
       "collection": false
@@ -948,6 +1048,10 @@
     },
     "id": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "ref": {
@@ -982,6 +1086,10 @@
     },
     "id": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "remark_items": {
@@ -1034,6 +1142,10 @@
       "type": "Lutaml::Model::Type::Boolean",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "remark_items": {
       "type": "Expressir::Model::Declarations::RemarkItem",
       "collection": true
@@ -1078,6 +1190,10 @@
     },
     "id": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "remark_items": {
@@ -1138,6 +1254,10 @@
       "type": "Expressir::Model::Declarations::Parameter",
       "collection": true
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "procedures": {
       "type": "Expressir::Model::Declarations::Procedure",
       "collection": true
@@ -1192,6 +1312,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "remarks": {
       "type": "Lutaml::Model::Type::String",
       "collection": true
@@ -1241,6 +1365,10 @@
     "informal_propositions": {
       "type": "Expressir::Model::Declarations::InformalPropositionRule",
       "collection": true
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
     },
     "procedures": {
       "type": "Expressir::Model::Declarations::Procedure",
@@ -1300,6 +1428,10 @@
       "type": "Expressir::Model::Declarations::Constant",
       "collection": true
     },
+    "declaration_order": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
     "entities": {
       "type": "Expressir::Model::Declarations::Entity",
       "collection": true
@@ -1327,6 +1459,10 @@
     "interfaces": {
       "type": "Expressir::Model::Declarations::Interface",
       "collection": true
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
     },
     "procedures": {
       "type": "Expressir::Model::Declarations::Procedure",
@@ -1386,6 +1522,10 @@
       "type": "Expressir::Model::Declarations::SchemaVersionItem",
       "collection": true
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -1414,6 +1554,10 @@
     },
     "name": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "source": {
@@ -1452,6 +1596,10 @@
     },
     "id": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "remark_items": {
@@ -1500,6 +1648,10 @@
       "type": "Expressir::Model::Declarations::InformalPropositionRule",
       "collection": true
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "remark_items": {
       "type": "Expressir::Model::Declarations::RemarkItem",
       "collection": true
@@ -1546,6 +1698,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "remark_items": {
       "type": "Expressir::Model::Declarations::RemarkItem",
       "collection": true
@@ -1586,6 +1742,10 @@
     },
     "id": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "remark_items": {
@@ -1630,6 +1790,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "remark_items": {
       "type": "Expressir::Model::Declarations::RemarkItem",
       "collection": true
@@ -1658,6 +1822,10 @@
   "Expressir::Model::ExpFile": {
     "_class": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "path": {
@@ -1694,6 +1862,10 @@
       "type": "Expressir::Model::ModelElement",
       "collection": true
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -1718,6 +1890,10 @@
     },
     "expression": {
       "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "repetition": {
@@ -1758,6 +1934,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -1788,6 +1968,10 @@
       "type": "Expressir::Model::ModelElement",
       "collection": true
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -1817,6 +2001,10 @@
     "parameters": {
       "type": "Expressir::Model::ModelElement",
       "collection": true
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
     },
     "source": {
       "type": "Lutaml::Model::Type::String",
@@ -1860,6 +2048,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -1892,6 +2084,10 @@
     },
     "id": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "remark_items": {
@@ -1932,6 +2128,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -1952,6 +2152,10 @@
   "Expressir::Model::Literals::Binary": {
     "_class": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "source": {
@@ -1980,6 +2184,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -2006,6 +2214,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -2030,6 +2242,10 @@
   "Expressir::Model::Literals::Real": {
     "_class": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "source": {
@@ -2062,6 +2278,10 @@
       "type": "Lutaml::Model::Type::Boolean",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -2088,6 +2308,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -2112,6 +2336,10 @@
     },
     "attribute": {
       "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "ref": {
@@ -2142,6 +2370,10 @@
     },
     "entity": {
       "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "ref": {
@@ -2178,6 +2410,10 @@
       "type": "Expressir::Model::ModelElement",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "ref": {
       "type": "Expressir::Model::ModelElement",
       "collection": false
@@ -2210,6 +2446,10 @@
     },
     "id": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "ref": {
@@ -2268,6 +2508,10 @@
       "type": "Expressir::Model::ExpFile",
       "collection": true
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -2296,6 +2540,10 @@
     },
     "id": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "remark_items": {
@@ -2336,6 +2584,10 @@
       "type": "Expressir::Model::ModelElement",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "ref": {
       "type": "Expressir::Model::ModelElement",
       "collection": false
@@ -2374,6 +2626,10 @@
       "type": "Expressir::Model::ModelElement",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -2399,6 +2655,10 @@
     "labels": {
       "type": "Expressir::Model::ModelElement",
       "collection": true
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
     },
     "source": {
       "type": "Lutaml::Model::Type::String",
@@ -2426,6 +2686,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -2450,6 +2714,10 @@
   "Expressir::Model::Statements::Escape": {
     "_class": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "source": {
@@ -2482,6 +2750,10 @@
       "type": "Expressir::Model::ModelElement",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -2506,6 +2778,10 @@
   "Expressir::Model::Statements::Null": {
     "_class": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "source": {
@@ -2533,6 +2809,10 @@
     "parameters": {
       "type": "Expressir::Model::ModelElement",
       "collection": true
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
     },
     "procedure": {
       "type": "Expressir::Model::ModelElement",
@@ -2574,6 +2854,10 @@
     },
     "increment": {
       "type": "Expressir::Model::ModelElement",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "remark_items": {
@@ -2622,6 +2906,10 @@
       "type": "Expressir::Model::ModelElement",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -2642,6 +2930,10 @@
   "Expressir::Model::Statements::Skip": {
     "_class": {
       "type": "Lutaml::Model::Type::String",
+      "collection": false
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
     "source": {
@@ -2678,6 +2970,10 @@
       "type": "Lutaml::Model::Type::String",
       "collection": false
     },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
+    },
     "source": {
       "type": "Lutaml::Model::Type::String",
       "collection": false
@@ -2703,6 +2999,10 @@
     "operands": {
       "type": "Expressir::Model::ModelElement",
       "collection": true
+    },
+    "parenthesized": {
+      "type": "Lutaml::Model::Type::Integer",
+      "collection": false
     },
     "source": {
       "type": "Lutaml::Model::Type::String",

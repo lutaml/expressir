@@ -79,10 +79,10 @@ module Expressir
 
       # SourceFormatter (issue #22): the rendered EXPRESS text for one
       # file's model-hash wire, straight from the Rust formatter.
-      def self.format_model_hash(wire, no_remarks: false)
+      def self.format_model_hash(wire, no_remarks: false, keep_untagged_remarks: false)
         raise NotImplementedError, "the native extension is unavailable" unless NATIVE_AVAILABLE
 
-        ::Expressir::Core.format_model_hash(JSON.generate(wire), no_remarks)
+        ::Expressir::Core.format_model_hash(JSON.generate(wire), no_remarks, keep_untagged_remarks)
       end
 
       # Semantic checks (issue #21): the Checker's findings over one

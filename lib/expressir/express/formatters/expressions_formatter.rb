@@ -52,6 +52,11 @@ module Expressir
           parent_precedence = operator_precedence[node.operator]
           relational = parent_precedence == relational_precedence
           child_needs_parens = lambda do |operand, min_precedence, same_side|
+            # A source-parenthesized operand carries its own pairs
+            # (#707); the printer adds none.
+            return false if operand.respond_to?(:parenthesized) &&
+              operand.parenthesized.to_i.positive?
+
             operand.is_a?(Model::Expressions::BinaryExpression) &&
               (
                 operator_precedence[operand.operator] >= min_precedence ||
@@ -171,6 +176,19 @@ module Expressir
         end
 
         def format_expressions_unary_expression(node)
+          # A source-parenthesized operand keeps its pairs (#707) —
+          # format() wraps it once per pair at dispatch; the operator
+          # just prefixes the group.
+          if node.operand.respond_to?(:parenthesized) &&
+              node.operand.parenthesized.to_i.positive?
+            sign = case node.operator
+                   when Model::Expressions::UnaryExpression::MINUS then "-"
+                   when Model::Expressions::UnaryExpression::NOT then "NOT "
+                   else "+"
+                   end
+            return "#{sign}#{format(node.operand)}"
+          end
+
           needs_parens = node.operand.is_a?(Model::Expressions::BinaryExpression) ||
             node.operand.is_a?(Model::Expressions::Interval) ||
             # Nested unary must stay parenthesized: "- -x" is not a

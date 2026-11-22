@@ -316,6 +316,10 @@ module Expressir
                                     annotations: false)
         if source && include_source != false && !remarks_attached
           RemarkAttacher.new(source, annotations: annotations).attach(exp_file)
+        elsif source && include_source != false && remarks_attached
+          # The core/batch lanes attach in Rust; their slices still need
+          # the remark-aware extension (#712).
+          RemarkAttacher.extend_source_slices(exp_file, source)
         end
 
         transfer_header_to_schema(exp_file, source)

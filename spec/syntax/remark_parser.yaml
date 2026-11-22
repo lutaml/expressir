@@ -19,6 +19,13 @@ schemas:
     remarks:
     - schema scope - schema remark item
     - universal scope - schema remark item
+  declaration_order:
+  - remark_type
+  - remark_entity
+  - remark_subtype_constraint
+  - remark_function
+  - remark_rule
+  - remark_procedure
   file: spec/syntax/remark.exp
   constants:
   - _class: Expressir::Model::Declarations::Constant

@@ -127,6 +127,8 @@ module Expressir
       # Expression Builder (closures)
       # ========================================================================
       Builder.register(:expression) { |d| expression.build_expression(d) }
+      # A parenthesized expression (#707): the flag rides the built node.
+      Builder.register(:parenthesized_expression) { |d| Builder.build_node(:expression, d) }
       Builder.register(:logical_expression) do |d|
         expression.build_logical_expression(d)
       end

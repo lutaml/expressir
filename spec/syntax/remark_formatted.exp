@@ -85,6 +85,12 @@ WHERE
   (*"remark_schema.remark_entity.WR1" universal scope - entity where *)
   
   (*"remark_schema.remark_entity.WR1" universal scope - entity where, with prefix *)
+  --IP1: entity scope - entity informal proposition, with prefix
+  --IP1: schema scope - entity informal proposition
+  --IP1: schema scope - entity informal proposition, with prefix
+  --IP1: universal scope - entity informal proposition
+  --IP1: universal scope - entity informal proposition, with prefix
+  --IP1: entity scope - entity informal proposition
 END_ENTITY;
 
 (*"remark_schema.remark_entity" schema scope - entity *)

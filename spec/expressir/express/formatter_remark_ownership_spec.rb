@@ -57,16 +57,14 @@ round_trips = {
   "spec/syntax/remark.exp" =>
     # expressir#603: the remark items render at their owners now, so
     # three tail-block remarks move (schema-level items land beside
-    # their owning constructs) — all schema escapes by design.
-    { traced: 134, tagged: 134, escapes: 5,
+    # their owning constructs) — all schema escapes by design. The
+    # informal-proposition texts hold their proposition's remark item
+    # across the round trip (#705, both lanes).
+    { traced: 134, tagged: 134, escapes: 3,
       known_move_texts: [
         "schema scope - schema remark item",
         "universal scope - schema remark item",
         "placed inside WHERE clauses (or other enumerable context)",
-        # the IP texts render in the ISO shorthand and re-attach at
-        # their propositions (the all-legacy-scope-remarks train)
-        "entity scope - entity informal proposition, with prefix",
-        "entity scope - entity informal proposition",
       ] },
   "spec/syntax/syntax.exp" =>
     # The all-legacy-scope-remarks render re-houses the procedure's

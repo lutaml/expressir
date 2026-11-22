@@ -1767,6 +1767,7 @@ schemas:
           operator: NOT
           operand:
             _class: Expressir::Model::Expressions::BinaryExpression
+            parenthesized: 1
             operator: IN
             operand1:
               _class: Expressir::Model::Literals::String
@@ -2862,6 +2863,7 @@ schemas:
           operator: NOT
           operand:
             _class: Expressir::Model::Expressions::BinaryExpression
+            parenthesized: 1
             operator: IN
             operand1:
               _class: Expressir::Model::Literals::String
@@ -2955,6 +2957,7 @@ schemas:
               operator: NOT
               operand:
                 _class: Expressir::Model::Expressions::BinaryExpression
+                parenthesized: 1
                 operator: IN
                 operand1:
                   _class: Expressir::Model::References::SimpleReference
@@ -3000,6 +3003,7 @@ schemas:
               operator: NOT
               operand:
                 _class: Expressir::Model::Expressions::BinaryExpression
+                parenthesized: 1
                 operator: IN
                 operand1:
                   _class: Expressir::Model::Expressions::BinaryExpression
@@ -4756,6 +4760,7 @@ schemas:
               operator: NOT
               operand:
                 _class: Expressir::Model::Expressions::FunctionCall
+                parenthesized: 1
                 function:
                   _class: Expressir::Model::References::SimpleReference
                   id: expression_is_constant
@@ -4815,6 +4820,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: IN
           operand1:
             _class: Expressir::Model::References::SimpleReference
@@ -5125,6 +5131,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: AND
           operand1:
             _class: Expressir::Model::Expressions::FunctionCall
@@ -7042,6 +7049,7 @@ schemas:
               operator: NOT
               operand:
                 _class: Expressir::Model::Expressions::FunctionCall
+                parenthesized: 1
                 function:
                   _class: Expressir::Model::References::SimpleReference
                   id: member_of
@@ -7764,6 +7772,7 @@ schemas:
           operator: NOT
           operand:
             _class: Expressir::Model::Expressions::BinaryExpression
+            parenthesized: 1
             operator: EQUAL
             operand1:
               _class: Expressir::Model::References::SimpleReference
@@ -7860,6 +7869,7 @@ schemas:
           operator: NOT
           operand:
             _class: Expressir::Model::Expressions::BinaryExpression
+            parenthesized: 1
             operator: OR
             operand1:
               _class: Expressir::Model::Expressions::BinaryExpression
@@ -10341,6 +10351,7 @@ schemas:
               operator: NOT
               operand:
                 _class: Expressir::Model::Expressions::FunctionCall
+                parenthesized: 1
                 function:
                   _class: Expressir::Model::References::SimpleReference
                   id: has_values_space
@@ -11504,6 +11515,7 @@ schemas:
           operator: NOT
           operand:
             _class: Expressir::Model::Expressions::BinaryExpression
+            parenthesized: 1
             operator: IN
             operand1:
               _class: Expressir::Model::Literals::String
@@ -11932,6 +11944,7 @@ schemas:
             operator: NOT
             operand:
               _class: Expressir::Model::Expressions::BinaryExpression
+              parenthesized: 1
               operator: IN
               operand1:
                 _class: Expressir::Model::Literals::String
@@ -12060,6 +12073,7 @@ schemas:
             operator: NOT
             operand:
               _class: Expressir::Model::Expressions::BinaryExpression
+              parenthesized: 1
               operator: IN
               operand1:
                 _class: Expressir::Model::Literals::String
@@ -13293,6 +13307,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: IN
           operand1:
             _class: Expressir::Model::Expressions::BinaryExpression
@@ -13541,6 +13556,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: IN
           operand1:
             _class: Expressir::Model::Expressions::BinaryExpression
@@ -13637,6 +13653,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: IN
           operand1:
             _class: Expressir::Model::Expressions::BinaryExpression
@@ -20536,6 +20553,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: IN
           operand1:
             _class: Expressir::Model::Expressions::BinaryExpression
@@ -20775,6 +20793,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: IN
           operand1:
             _class: Expressir::Model::Literals::String
@@ -20849,6 +20868,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: IN
           operand1:
             _class: Expressir::Model::Literals::String
@@ -36693,6 +36713,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: OR
           operand1:
             _class: Expressir::Model::Expressions::BinaryExpression
@@ -48813,6 +48834,7 @@ schemas:
             operator: NOT
             operand:
               _class: Expressir::Model::Expressions::BinaryExpression
+              parenthesized: 1
               operator: IN
               operand1:
                 _class: Expressir::Model::Literals::String
@@ -49127,6 +49149,7 @@ schemas:
             operator: NOT
             operand:
               _class: Expressir::Model::Expressions::BinaryExpression
+              parenthesized: 1
               operator: IN
               operand1:
                 _class: Expressir::Model::Literals::String
@@ -50724,6 +50747,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: IN
           operand1:
             _class: Expressir::Model::Expressions::BinaryExpression
@@ -51166,6 +51190,7 @@ schemas:
           operator: NOT
           operand:
             _class: Expressir::Model::Expressions::Interval
+            parenthesized: 1
             low:
               _class: Expressir::Model::References::AttributeReference
               ref:
@@ -51241,6 +51266,7 @@ schemas:
           operator: NOT
           operand:
             _class: Expressir::Model::Expressions::Interval
+            parenthesized: 1
             low:
               _class: Expressir::Model::References::AttributeReference
               ref:
@@ -51897,6 +51923,7 @@ schemas:
             operator: NOT
             operand:
               _class: Expressir::Model::Expressions::BinaryExpression
+              parenthesized: 1
               operator: IN
               operand1:
                 _class: Expressir::Model::References::SimpleReference
@@ -53071,6 +53098,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: IN
           operand1:
             _class: Expressir::Model::Literals::String
@@ -53142,6 +53170,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: IN
           operand1:
             _class: Expressir::Model::Literals::String
@@ -53193,6 +53222,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: IN
           operand1:
             _class: Expressir::Model::Literals::String
@@ -53430,6 +53460,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: IN
           operand1:
             _class: Expressir::Model::Expressions::BinaryExpression
@@ -53495,6 +53526,7 @@ schemas:
           operator: NOT
           operand:
             _class: Expressir::Model::Expressions::BinaryExpression
+            parenthesized: 1
             operator: IN
             operand1:
               _class: Expressir::Model::Expressions::BinaryExpression
@@ -53674,6 +53706,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: IN
           operand1:
             _class: Expressir::Model::Expressions::BinaryExpression
@@ -53721,6 +53754,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: IN
           operand1:
             _class: Expressir::Model::Expressions::BinaryExpression
@@ -53837,6 +53871,7 @@ schemas:
           operator: NOT
           operand:
             _class: Expressir::Model::Expressions::BinaryExpression
+            parenthesized: 1
             operator: IN
             operand1:
               _class: Expressir::Model::Expressions::BinaryExpression
@@ -60185,6 +60220,7 @@ schemas:
               operator: NOT
               operand:
                 _class: Expressir::Model::Expressions::BinaryExpression
+                parenthesized: 1
                 operator: IN
                 operand1:
                   _class: Expressir::Model::Literals::String
@@ -60198,6 +60234,7 @@ schemas:
             operator: NOT
             operand:
               _class: Expressir::Model::Expressions::BinaryExpression
+              parenthesized: 1
               operator: IN
               operand1:
                 _class: Expressir::Model::Literals::String
@@ -60211,6 +60248,7 @@ schemas:
           operator: NOT
           operand:
             _class: Expressir::Model::Expressions::BinaryExpression
+            parenthesized: 1
             operator: IN
             operand1:
               _class: Expressir::Model::Literals::String
@@ -60400,6 +60438,7 @@ schemas:
                 operator: NOT
                 operand:
                   _class: Expressir::Model::Expressions::BinaryExpression
+                  parenthesized: 1
                   operator: IN
                   operand1:
                     _class: Expressir::Model::Literals::String
@@ -60765,6 +60804,7 @@ schemas:
             operator: NOT
             operand:
               _class: Expressir::Model::Expressions::BinaryExpression
+              parenthesized: 1
               operator: IN
               operand1:
                 _class: Expressir::Model::Literals::String
@@ -61050,6 +61090,7 @@ schemas:
             operator: NOT
             operand:
               _class: Expressir::Model::Expressions::BinaryExpression
+              parenthesized: 1
               operator: IN
               operand1:
                 _class: Expressir::Model::Literals::String
@@ -61175,6 +61216,7 @@ schemas:
             operator: NOT
             operand:
               _class: Expressir::Model::Expressions::BinaryExpression
+              parenthesized: 1
               operator: IN
               operand1:
                 _class: Expressir::Model::Literals::String
@@ -64415,6 +64457,7 @@ schemas:
           operator: NOT
           operand:
             _class: Expressir::Model::Expressions::FunctionCall
+            parenthesized: 1
             function:
               _class: Expressir::Model::References::SimpleReference
               id: compatible_spaces
@@ -64586,6 +64629,7 @@ schemas:
                   operator: NOT
                   operand:
                     _class: Expressir::Model::Expressions::BinaryExpression
+                    parenthesized: 1
                     operator: LIKE
                     operand1:
                       _class: Expressir::Model::References::IndexReference
@@ -64605,6 +64649,7 @@ schemas:
                 operator: NOT
                 operand:
                   _class: Expressir::Model::Expressions::BinaryExpression
+                  parenthesized: 1
                   operator: LIKE
                   operand1:
                     _class: Expressir::Model::References::IndexReference
@@ -65602,6 +65647,7 @@ schemas:
           operator: NOT
           operand:
             _class: Expressir::Model::Expressions::Interval
+            parenthesized: 1
             low:
               _class: Expressir::Model::Literals::Integer
               value: '0'
@@ -66043,6 +66089,7 @@ schemas:
           operator: NOT
           operand:
             _class: Expressir::Model::Expressions::BinaryExpression
+            parenthesized: 1
             operator: IN
             operand1:
               _class: Expressir::Model::Expressions::BinaryExpression
@@ -66272,6 +66319,7 @@ schemas:
               operator: NOT
               operand:
                 _class: Expressir::Model::Expressions::BinaryExpression
+                parenthesized: 1
                 operator: IN
                 operand1:
                   _class: Expressir::Model::References::SimpleReference
@@ -84603,6 +84651,7 @@ schemas:
             operator: NOT
             operand:
               _class: Expressir::Model::References::SimpleReference
+              parenthesized: 1
               id: boo
               base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_generic_expression.boo
     - _class: Expressir::Model::Statements::If
@@ -87762,6 +87811,7 @@ schemas:
           operator: NOT
           operand:
             _class: Expressir::Model::Expressions::BinaryExpression
+            parenthesized: 1
             operator: IN
             operand1:
               _class: Expressir::Model::Literals::String
@@ -91989,6 +92039,7 @@ schemas:
             operator: NOT
             operand:
               _class: Expressir::Model::Expressions::BinaryExpression
+              parenthesized: 1
               operator: IN
               operand1:
                 _class: Expressir::Model::References::IndexReference

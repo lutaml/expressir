@@ -20,7 +20,7 @@ RSpec.describe Expressir::Express::Formatter do
       expect(lines.index { |l| l.include?("-- STEP-1") })
         .to be < lines.index { |l| l.include?("total := total + input") }
       expect(lines.index { |l| l.include?("-- STEP-2") })
-        .to be < lines.index { |l| l.include?("IF total > 100 THEN") }
+        .to be < lines.index { |l| l.include?("IF (total > 100) THEN") }
       expect(lines.index { |l| l.include?("-- STEP-3") })
         .to be < lines.index { |l| l.include?("total := total - 1") }
       step1 = lines.index { |l| l.include?("-- STEP-1") }
@@ -68,7 +68,7 @@ RSpec.describe Expressir::Express::Formatter do
     it "keeps a comment between END_REPEAT and a nested IF in place" do
       idx = lines.index { |l| l.include?("-- AFTER-REPEAT") }
       expect(idx).not_to be_nil
-      expect(lines[idx + 1]).to include("IF total > 100 THEN")
+      expect(lines[idx + 1]).to include("IF (total > 100) THEN")
     end
 
     it "attaches a comment after a same-line ELSE to the ELSE branch" do

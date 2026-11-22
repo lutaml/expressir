@@ -2920,6 +2920,7 @@ schemas:
         operator: PLUS
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: ADDITION
           operand1:
             _class: Expressir::Model::Literals::Integer
@@ -2946,6 +2947,7 @@ schemas:
         operator: MINUS
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: ADDITION
           operand1:
             _class: Expressir::Model::Literals::Integer
@@ -3321,6 +3323,7 @@ schemas:
         operator: NOT
         operand:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: OR
           operand1:
             _class: Expressir::Model::Literals::Logical

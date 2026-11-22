@@ -164,9 +164,19 @@ module Expressir
           op = extract_unary_op(ast_data[:unary_op])
           operand = if ast_data[:simple_factor]
                       Builder.build_node(:simple_factor, ast_data[:simple_factor])
-                    elsif ast_data[:simple_factor_expression]
-                      Builder.build_node(:simple_factor_expression,
-                                         ast_data[:simple_factor_expression])
+                    elsif (inner = ast_data[:simple_factor_expression])
+                      # The parenthesized alternative carries op_leftparen
+                      # plus the inner expression (#707) — the nested pair
+                      # of `NOT ((x OR y))` rides this branch.
+                      if inner[:op_leftparen] && inner[:expression]
+                        expr = Builder.build_node(:expression, inner[:expression])
+                        if expr.respond_to?(:parenthesized)
+                          expr.parenthesized = (expr.parenthesized || 0) + 1
+                        end
+                        expr
+                      else
+                        Builder.build_node(:simple_factor_expression, inner)
+                      end
                     elsif ast_data[:primary]
                       Builder.build_node(:primary, ast_data[:primary])
                     end

@@ -137,21 +137,23 @@ round_trips = {
     embedded_survivors: [
       # expressir#694: every owner's tagged descriptions render after
       # its declaration, so the round trip re-houses them per owner.
+      # The owners stand in the order of the source (#711), and
+      # mixed_remarks_type follows test_entity there.
       ["tail_remarks_test_schema.test_enumeration", "Tagged tail remark for type"],
-      ["tail_remarks_test_schema.mixed_remarks_type", "Tagged tail remark"],
-      ["tail_remarks_test_schema.mixed_remarks_type", "Tagged embedded remark"],
       ["tail_remarks_test_schema.test_entity.attr2", "Tagged tail remark for next attribute"],
       [nil, "Untagged embedded remark within entity"],
       ["tail_remarks_test_schema.test_entity", "Tagged tail remark for entity"],
+      ["tail_remarks_test_schema.mixed_remarks_type", "Tagged tail remark"],
+      ["tail_remarks_test_schema.mixed_remarks_type", "Tagged embedded remark"],
       ["tail_remarks_test_schema", "Tagged tail remark for schema"],
       ["tail_remarks_test_schema", "Tagged tail remark for schema at end"],
     ],
     embedded_normalized: [
       ["tail_remarks_test_schema.test_enumeration", "Tagged tail remark for type"],
-      ["tail_remarks_test_schema.mixed_remarks_type", "Tagged tail remark"],
-      ["tail_remarks_test_schema.mixed_remarks_type", "Tagged embedded remark"],
       ["tail_remarks_test_schema.test_entity.attr2", "Tagged tail remark for next attribute"],
       ["tail_remarks_test_schema.test_entity", "Tagged tail remark for entity"],
+      ["tail_remarks_test_schema.mixed_remarks_type", "Tagged tail remark"],
+      ["tail_remarks_test_schema.mixed_remarks_type", "Tagged embedded remark"],
       ["tail_remarks_test_schema", "Tagged tail remark for schema"],
       ["tail_remarks_test_schema", "Tagged tail remark for schema at end"],
     ]

@@ -57,15 +57,32 @@ round_trips = {
   "spec/syntax/remark.exp" =>
     # expressir#603: the remark items render at their owners now, so
     # three tail-block remarks move (schema-level items land beside
-    # their owning constructs) — all schema escapes by design. The
-    # informal-proposition texts hold their proposition's remark item
-    # across the round trip (#705, both lanes).
-    { traced: 134, tagged: 134, escapes: 3,
-      known_move_texts: [
-        "schema scope - schema remark item",
-        "universal scope - schema remark item",
-        "placed inside WHERE clauses (or other enumerable context)",
-      ] },
+    # their owning constructs) — all schema escapes by design.
+    # The lanes count the informal-proposition tags differently: the
+    # fallback lane's re-route houses every qualified IP tag on the
+    # proposition's remark item (three escapes), while the core lane
+    # leaves the qualified texts on the declaration (five more move
+    # onto the item at reparse). Both stay inside the owning entity.
+    if Expressir::Express::Parser.native_available?
+      { traced: 134, tagged: 134, escapes: 8,
+        known_move_texts: [
+          "schema scope - schema remark item",
+          "universal scope - schema remark item",
+          "placed inside WHERE clauses (or other enumerable context)",
+          "entity scope - entity informal proposition, with prefix",
+          "schema scope - entity informal proposition",
+          "schema scope - entity informal proposition, with prefix",
+          "universal scope - entity informal proposition",
+          "universal scope - entity informal proposition, with prefix",
+        ] }
+    else
+      { traced: 134, tagged: 134, escapes: 3,
+        known_move_texts: [
+          "schema scope - schema remark item",
+          "universal scope - schema remark item",
+          "placed inside WHERE clauses (or other enumerable context)",
+        ] }
+    end,
   "spec/syntax/syntax.exp" =>
     # The all-legacy-scope-remarks render re-houses the procedure's
     # section comments onto END_PROCEDURE; they used to be dropped.

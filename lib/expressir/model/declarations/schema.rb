@@ -124,7 +124,12 @@ module Expressir
         # (+<<schema.item,item>>+) — drop-in for a schema document page
         # rendered through a +subs="+macros"+ source block.
         def formatted_hyperlinked_adoc
-          @formatted_hyperlinked_adoc ||= Expressir::Express::AdocSourceFormatter.format(self)
+          @formatted_hyperlinked_adoc ||= begin
+            text = Expressir::Express::AdocSourceFormatter.format(self)
+            Expressir::Express::AdocHyperlinkFormatter.keep_opening_parentheses(
+              Expressir::Express::AdocHyperlinkFormatter.keep_plus_signs(text),
+            )
+          end
         end
 
         USE_ITEM_KINDS = [

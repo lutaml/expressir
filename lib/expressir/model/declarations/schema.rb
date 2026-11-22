@@ -127,7 +127,9 @@ module Expressir
           @formatted_hyperlinked_adoc ||= begin
             text = Expressir::Express::AdocSourceFormatter.format(self)
             Expressir::Express::AdocHyperlinkFormatter.keep_opening_parentheses(
-              Expressir::Express::AdocHyperlinkFormatter.keep_plus_signs(text),
+              Expressir::Express::AdocHyperlinkFormatter.keep_plus_signs(
+                Expressir::Express::AdocHyperlinkFormatter.neutralise_stem_macros(text),
+              ),
             )
           end
         end

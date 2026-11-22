@@ -6,11 +6,12 @@ require "tmpdir"
 # The AsciiDoc listing face feeds `subs="+macros"` source blocks, where
 # AsciiDoc also reads the EXPRESS text itself: runs of opening
 # parentheses open index terms, text-following plus signs open inline
-# passthroughs, and a link right after `SELF\`'s backslash is read as an
-# escaped cross reference (TRThurman, expressir#709/#710; the corpus
-# build-stop of #704/#706 rides the same face). The formatter writes
-# those characters as passthrough, and the face omits the owner's
-# tagged descriptions (expressir#704).
+# passthroughs, a link right after `SELF\`'s backslash is read as an
+# escaped cross reference, and an inline stem macro in remark text
+# swallows the rest of the listing (TRThurman, expressir#709/#710; the
+# corpus build-stop of #704/#706 rides the same face). The formatter
+# writes those characters as passthrough, neutralises the stem macro,
+# and the face omits the owner's tagged descriptions (expressir#704).
 RSpec.describe Expressir::Express::AdocSourceFormatter do
   let(:express) do
     <<~EXPRESS
@@ -104,6 +105,31 @@ RSpec.describe Expressir::Express::AdocSourceFormatter do
 
       expect(adoc).to include("3 + 2")
       expect(adoc).not_to include("pass:[+]")
+    end
+  end
+
+  it "prints an inline stem macro in remark text literally (expressir#704 family)" do
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, "stem.exp")
+      File.write(path, <<~EXPRESS)
+        SCHEMA stem_probe;
+          TYPE dot_type = ENUMERATION OF
+            (dot,
+             triangle);
+          END_TYPE;
+          (*"stem_probe.dot_type.__note" points are presented as triangles (stem:[/_\\]). *)
+          ENTITY styled;
+            kind : dot_type;
+          END_ENTITY;
+        END_SCHEMA;
+      EXPRESS
+      schema = Expressir::Express::Parser.from_file(path).schemas.first
+      adoc = schema.formatted_hyperlinked_adoc
+
+      # the macro text survives as written; the opening bracket is
+      # escaped so AsciiDoc cannot start a math context with it
+      expect(adoc).to include("stem:\\[/_\\]")
+      expect(adoc).not_to include("stem:[")
     end
   end
 end

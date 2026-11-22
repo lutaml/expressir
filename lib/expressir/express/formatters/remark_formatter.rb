@@ -197,10 +197,12 @@ module Expressir
           return nil if node.untagged_remarks.nil? || node.untagged_remarks.empty?
 
           preamble_remarks = node.untagged_remarks.select do |remark|
-            # Leading remarks render above the node (place_remarks) and
-            # every legacy tail remark renders after the END_ keyword;
-            # emitting either in the preamble would write them twice.
+            # Leading remarks render above the node (place_remarks), trailing
+            # ones before the closing keyword, and every legacy tail remark
+            # after the END_ keyword; emitting any of them in the preamble
+            # would write them twice.
             remark.is_a?(Model::RemarkInfo) && !remark.leading? &&
+              remark.placement != Model::RemarkPlacement::TRAILING &&
               !(remark.placement.nil? && remark.tail?) &&
               !remark.text.nil? && !remark.text.empty?
           end
@@ -226,6 +228,12 @@ module Expressir
             formatted = format_untagged_remark(remark)
             formatted unless formatted.empty?
           end
+        end
+
+        # The remarks that close a declaration, emitted before its END_
+        # keyword: the TRAILING remarks of the bodies that keyword can close.
+        def format_closing_remarks(node, *regions)
+          regions.flat_map { |region| format_trailing_region_remarks(node, region) }
         end
 
         # Remarks written after their statement on the same line, which for a

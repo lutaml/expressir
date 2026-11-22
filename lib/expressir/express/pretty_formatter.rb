@@ -221,6 +221,7 @@ module Expressir
                indent(node.where_rules.map { |x| format(x) }.join("\n")),
              ]
            end,
+          *format_closing_remarks(node, :attributes, :where_rules).map { |x| indent(x) },
           [
             "END_ENTITY",
             ";",

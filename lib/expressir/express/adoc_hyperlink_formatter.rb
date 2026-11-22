@@ -55,6 +55,19 @@ module Expressir
       def self.keep_plus_signs(text)
         text.gsub(OPENING_PLUS_SIGN, "pass:[+]")
       end
+
+      INLINE_STEM_MACRO = /stem:\[/
+
+      # A remark may itself carry an inline stem macro (`stem:[/_\]` —
+      # WG 12 writes escaped brackets in them). Inside a macros-substituted
+      # source block the macro processes, and a `\]` escape does not
+      # terminate it there: the stem swallows the rest of the listing and
+      # plurimath rejects the "formula" (the presentation_appearance_schema
+      # build-stop). The listing is the annotated SOURCE: the macro text
+      # prints literally, its opening bracket escaped.
+      def self.neutralise_stem_macros(text)
+        text.gsub(INLINE_STEM_MACRO, "stem:\\[")
+      end
     end
   end
 end

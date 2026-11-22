@@ -42,13 +42,17 @@ END_SCHEMA;
 
 ==== Inline tail remarks
 
-Remarks on the same line as attribute or enumeration item declarations:
+Remarks on the same line as attribute, enumeration item or WHERE rule declarations:
 
 [source,express]
 ----
 ENTITY person;
   name : STRING; -- Inline remark for name attribute
   age : INTEGER; -- Inline remark for age attribute
+WHERE
+  wr1 : age >= 0; -- Inline remark for the rule
+  wr2 : -- Inline remark after the label of a rule
+    age < 150;
 END_ENTITY;
 
 TYPE status = ENUMERATION OF
@@ -57,6 +61,8 @@ TYPE status = ENUMERATION OF
    pending); -- Pending status
 END_TYPE;
 ----
+
+The remark of the last enumeration item is written after the `;` of the TYPE.
 
 ==== END_* scope remarks
 

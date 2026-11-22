@@ -5,6 +5,7 @@ module Expressir
       # - section 9.2.2.2 Domain rules (WHERE clause)
       class WhereRule < ModelElement
         include Identifier
+        include TakesInlineRemark
 
         attribute :expression, ModelElement
         attribute :_class, :string, default: -> { self.class.name }

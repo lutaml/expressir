@@ -752,6 +752,7 @@ module Expressir
               " ",
               format(node.underlying_type),
               ";",
+              last_enumeration_item_remark(node),
             ].join,
             *if node.where_rules&.length&.positive?
                [
@@ -807,15 +808,27 @@ module Expressir
         end
 
         def format_declarations_where_rule(node)
+          # A remark after the label (`wr1 : -- why`, the expression on the
+          # next line) stays on the label's line: Formatter#place_remarks
+          # puts it at the end of the first line, so the expression goes on
+          # a line of its own.
+          opener = !format_opener_remarks(node).empty?
+          after_label = node.id && opener
+          # A rule without a label has no first line for that remark. When
+          # another remark ends the rule's line, the two would share it and
+          # the second would become part of the first: the first line is
+          # left empty and takes the remark, on a line of its own.
+          own_line = !node.id && opener && !format_inline_statement_remarks(node).empty?
           [
+            *("\n" if own_line),
             *if node.id
                [
                  node.id,
                  ":",
-                 " ",
+                 after_label ? "\n" : " ",
                ].join
              end,
-            format(node.expression),
+            after_label ? indent(format(node.expression)) : format(node.expression),
             ";",
             *format_remark_items(node).map { |x| ["\n", x].join },
           ].join

@@ -129,7 +129,6 @@ round_trips = {
     lost: {
       "Final untagged tail remark at end of file" => 1,
       "Untagged tail remark after constant" => 1,
-      "Untagged tail remark after enum item" => 1,
       "Untagged tail remark at very beginning of file" => 1,
     },
     tagged_lost: 6, tagged_survivors: [],

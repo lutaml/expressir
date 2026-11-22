@@ -5,6 +5,7 @@ module Expressir
       # - section 8.4.1 Enumeration data type
       class EnumerationItem < ModelElement
         include Identifier
+        include TakesInlineRemark
 
         attribute :_class, :string, default: -> { self.class.name }
 

@@ -151,9 +151,7 @@ module Expressir
                       "\n",
                       indent([
                         "(",
-                        node.items.map do |x|
-                          format(x)
-                        end.join(",\n#{item_indent}"),
+                        enumeration_item_lines(node.items, item_indent),
                         ")",
                       ].join),
                     ].join
@@ -169,9 +167,7 @@ module Expressir
                       "\n",
                       indent([
                         "(",
-                        node.items.map do |x|
-                          format(x)
-                        end.join(",\n#{item_indent}"),
+                        enumeration_item_lines(node.items, item_indent),
                         ")",
                       ].join),
                     ].join
@@ -179,6 +175,27 @@ module Expressir
                ].join
              end,
           ].join
+        end
+
+        # The items of an ENUMERATION, one a line. A remark that follows an
+        # item on its line is written after the comma. The remark of the
+        # last item is written after the `;` of the TYPE
+        # ({#last_enumeration_item_remark}): before it, a tail remark would
+        # take the `)` and the `;` with it.
+        def enumeration_item_lines(items, item_indent)
+          last = items.length - 1
+          items.each_with_index.map do |item, i|
+            i == last ? format(item) : "#{format(item)},#{format_inline_statement_remarks(item)}"
+          end.join("\n#{item_indent}")
+        end
+
+        # The remark that follows the last item of a TYPE's ENUMERATION.
+        def last_enumeration_item_remark(type)
+          enumeration = type.underlying_type
+          return "" unless enumeration.is_a?(Model::DataTypes::Enumeration)
+
+          item = Array(enumeration.items).last
+          item ? format_inline_statement_remarks(item) : ""
         end
 
         def format_data_types_enumeration_item(node)

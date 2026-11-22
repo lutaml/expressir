@@ -33,6 +33,9 @@ module Expressir
         attribute :functions, Function, collection: true, initialize_empty: true
         attribute :rules, Rule, collection: true, initialize_empty: true
         attribute :procedures, Procedure, collection: true, initialize_empty: true
+        # The declaration ids in the order of the source (#711); the
+        # formatter follows it instead of the grouped-by-kind layout.
+        attribute :declaration_order, :string, collection: true, initialize_empty: true
         attribute :header, :string
         attribute :_class, :string, default: -> { self.class.name }
         attribute :selected, :boolean, default: false
@@ -41,6 +44,7 @@ module Expressir
         key_value do
           map "_class", to: :_class, render_default: true
           map "id", to: :id
+          map "declaration_order", to: :declaration_order
           map "file", to: :file
           map "header", to: :header
           map "remarks", to: :remarks

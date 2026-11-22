@@ -115,9 +115,18 @@ module Expressir
 
           if ast_data[:primary]
             Builder.build_node(:primary, ast_data[:primary])
-          elsif ast_data[:simple_factor_expression]
-            Builder.build_node(:simple_factor_expression,
-                               ast_data[:simple_factor_expression])
+          elsif (inner = ast_data[:simple_factor_expression])
+            # The parenthesized alternative carries op_leftparen plus
+            # the inner expression; the plain primary does not (#707).
+            if inner[:op_leftparen] && inner[:expression]
+              expr = Builder.build_node(:expression, inner[:expression])
+              if expr.respond_to?(:parenthesized)
+                expr.parenthesized = (expr.parenthesized || 0) + 1
+              end
+              expr
+            else
+              Builder.build_node(:simple_factor_expression, inner)
+            end
           elsif ast_data[:simple_factor_unary_expression]
             Builder.build_node(:simple_factor_unary_expression,
                                ast_data[:simple_factor_unary_expression])

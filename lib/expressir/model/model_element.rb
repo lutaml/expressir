@@ -75,6 +75,10 @@ module Expressir
                                   polymorphic_class: true
       attribute :source, :string
       attribute :source_offset, :integer
+      # How many paren pairs the source wrote around this expression
+      # (#707): the printer keeps them all. Nested paren groups
+      # collapse onto the innermost node, so the count is the depth.
+      attribute :parenthesized, :integer
       # Length of the ORIGINAL source span (what the parser captured,
       # stripped), set at build time. Remark attachment must measure spans
       # with this, not with the rendered `source`: the reader formats the
@@ -167,6 +171,7 @@ module Expressir
         # without ever appearing in to_hash — the serialized shape stays
         # identical to the Ruby-built model.
         map "source_offset", to: :source_offset, serialize: false
+        map "parenthesized", to: :parenthesized, render_default: false
         map "source_length", to: :source_length, serialize: false
       end
 

@@ -28,9 +28,13 @@ module Expressir
           functions = declarations.grep(Expressir::Model::Declarations::Function)
           rules = declarations.grep(Expressir::Model::Declarations::Rule)
           procedures = declarations.grep(Expressir::Model::Declarations::Procedure)
+          # The ids in the order of the source (#711): the AST carries
+          # the schema body's declarations as an ordered list.
+          declaration_order = declarations.compact.filter_map(&:id)
 
           Expressir::Model::Declarations::Schema.new(
             id: id,
+            declaration_order: declaration_order,
             version: version,
             interfaces: interfaces.compact,
             constants: [constants].flatten,

@@ -600,21 +600,13 @@ module Expressir
           ].join("\n")
         end
 
-        def format_declarations_schema(node)
-          indent_const = self.class.const_get(:INDENT)
-          preamble = format_preamble_remarks(node, indent(indent_const))
-
-          schema_declarations = [
-            *if node.constants&.length&.positive?
-               [
-                 "CONSTANT",
-                 indent(node.constants.map { |x| format(x) }.join("\n")),
-                 [
-                   "END_CONSTANT",
-                   ";",
-                 ].join,
-               ].join("\n")
-             end,
+        # The schema's declarations in the order of the source (#711):
+        # when the parser recorded a declaration order, the declarations
+        # follow it instead of the grouped-by-kind layout. Schemas whose
+        # model carries no order (old wires, hand-built models) keep the
+        # grouped layout.
+        def schema_declarations_in_source_order(node)
+          grouped = [
             *if node.types&.length&.positive?
                node.types.map { |x| format(x) }
              end,
@@ -633,6 +625,34 @@ module Expressir
             *if node.procedures&.length&.positive?
                node.procedures.map { |x| format(x) }
              end,
+          ]
+          order = node.declaration_order
+          return grouped unless order.is_a?(Array) && order.length.positive?
+
+          collections = [node.types, node.entities, node.subtype_constraints,
+                         node.functions, node.rules, node.procedures]
+          order.filter_map do |id|
+            found = collections.find { |c| c&.any? { |x| x.id == id } }
+            found&.find { |x| x.id == id }
+          end.map { |x| format(x) }
+        end
+
+        def format_declarations_schema(node)
+          indent_const = self.class.const_get(:INDENT)
+          preamble = format_preamble_remarks(node, indent(indent_const))
+
+          schema_declarations = [
+            *if node.constants&.length&.positive?
+               [
+                 "CONSTANT",
+                 indent(node.constants.map { |x| format(x) }.join("\n")),
+                 [
+                   "END_CONSTANT",
+                   ";",
+                 ].join,
+               ].join("\n")
+             end,
+            *schema_declarations_in_source_order(node),
           ]
 
           [

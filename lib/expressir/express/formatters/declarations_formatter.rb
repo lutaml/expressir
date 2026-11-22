@@ -255,6 +255,8 @@ module Expressir
                  indent(node.where_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
+            # A comment after the last attribute or rule closes the entity.
+            *format_closing_remarks(node, :attributes, :where_rules).map { |x| indent(x) },
             *format_informal_propositions(node).map { |x| indent(x) },
             *format_remark_items(node).map { |x| indent(x) },
             [
@@ -759,6 +761,8 @@ module Expressir
                  indent(node.where_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
+            # A comment after the definition or the last rule closes the type.
+            *format_closing_remarks(node, :underlying_type, :where_rules).map { |x| indent(x) },
             *format_remark_items(node).map { |x| indent(x) },
             [
               "END_TYPE",

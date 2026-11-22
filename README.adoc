@@ -90,6 +90,26 @@ END_ENTITY; -- Person entity
 END_SCHEMA; -- schema_name
 ----
 
+==== Remarks before an END_* keyword
+
+A remark on a line of its own after the last attribute or rule of an entity, or
+after the definition or the last rule of a type, stays before the END_ENTITY or
+END_TYPE keyword:
+
+[source,express]
+----
+ENTITY person;
+  name : STRING;
+  -- More attributes will follow
+END_ENTITY;
+
+TYPE positive = INTEGER;
+WHERE
+  wr1 : SELF > 0;
+  -- No upper limit
+END_TYPE;
+----
+
 ==== Unicode support
 
 All remark types support full Unicode content:

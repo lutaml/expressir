@@ -373,7 +373,7 @@ module Expressir
         # closes that body. Without this check the comment would instead be
         # read as leading the next statement of an OUTER region, which is
         # where it would wrongly render.
-        closing = closing_region_target(line)
+        closing = closing_region_target(line, own_line: own_line_remark?(remark))
         return closing if closing.first
 
         enclosing, region, = statement_region_for(line)
@@ -415,6 +415,11 @@ module Expressir
 
         node = @node_index.starting_at(next_line).first[:node]
         [node, Model::RemarkPlacement::LEADING, nil]
+      end
+
+      # Whether the remark starts its line: nothing but blanks before it.
+      def own_line_remark?(remark)
+        line_content_for(remark.line).to_s.lstrip.start_with?("--", "(*")
       end
 
       # Whether the remark trails code on its own line. Decided from the
@@ -606,7 +611,17 @@ module Expressir
         /\AEND_PROCEDURE\b/i => [Model::Declarations::Procedure, :statements],
         # END_RULE closes the WHERE section when the rule has one.
         /\AEND_RULE\b/i => [Model::Declarations::Rule, :where_rules],
+        # So do END_ENTITY and END_TYPE.
+        /\AEND_ENTITY\b/i => [Model::Declarations::Entity, :where_rules],
+        /\AEND_TYPE\b/i => [Model::Declarations::Type, :where_rules],
       }.freeze
+
+      # Declarations whose bodies hold no statements. Only a comment on a
+      # line of its own closes one of these: a comment at the end of a code
+      # line belongs to the attribute, rule or item written on that line.
+      DECLARATION_BODY_OWNERS = [
+        Model::Declarations::Entity, Model::Declarations::Type
+      ].freeze
 
       # Regions whose owner may not have that body, in which case the
       # keyword closes the earlier region instead.
@@ -617,6 +632,12 @@ module Expressir
           [:action_statements, ->(n) { !n.otherwise_statement.nil? }],
         [Model::Declarations::Rule, :where_rules] =>
           [:statements, ->(n) { n.where_rules&.length&.positive? }],
+        # END_ENTITY closes the attributes, END_TYPE the definition, when
+        # the declaration has no WHERE section.
+        [Model::Declarations::Entity, :where_rules] =>
+          [:attributes, ->(n) { n.where_rules&.length&.positive? }],
+        [Model::Declarations::Type, :where_rules] =>
+          [:underlying_type, ->(n) { n.where_rules&.length&.positive? }],
       }.freeze
 
       # A node's indexed span stops at its last child, so a comment written
@@ -624,9 +645,10 @@ module Expressir
       # every span and never reaches statement_region_for. Resolve it from
       # the keyword that follows: it names both the owner type and the body
       # being closed.
-      def closing_region_target(line)
+      def closing_region_target(line, own_line: true)
         keyword_owner, region, keyword_line = closing_keyword_after(line)
         return [nil, nil, nil] unless keyword_owner
+        return [nil, nil, nil] if !own_line && DECLARATION_BODY_OWNERS.include?(keyword_owner)
 
         # The owner is the construct the keyword actually closes — the
         # innermost one still open at that line. Picking the latest node of
@@ -681,9 +703,15 @@ module Expressir
       # `keyword_line`, or nil when that construct is not of `expected_class`.
       def active_opener_line(keyword_line, expected_class)
         active = active_scope_map[keyword_line]
-        return nil unless active && active[0] == expected_class
+        return nil unless active
 
-        active[1]
+        # ENTITY / TYPE openers are tracked as :other; the class check on
+        # the node found at the opener line tells the two apart.
+        klass, opener_line = active
+        untracked = klass == :other && DECLARATION_BODY_OWNERS.include?(expected_class)
+        return nil unless klass == expected_class || untracked
+
+        opener_line
       end
 
       # Line number => the construct open at the START of that line, as

@@ -133,7 +133,7 @@ round_trips = {
       "Untagged tail remark at very beginning of file" => 1,
     },
     tagged_lost: 6, tagged_survivors: [],
-    embedded_lost: 3,
+    embedded_lost: 2,
     embedded_survivors: [
       # expressir#694: every owner's tagged descriptions render after
       # its declaration, so the round trip re-houses them per owner.
@@ -143,6 +143,8 @@ round_trips = {
       ["tail_remarks_test_schema.test_entity.attr2", "Tagged tail remark for next attribute"],
       [nil, "Untagged embedded remark within entity"],
       ["tail_remarks_test_schema.test_entity", "Tagged tail remark for entity"],
+      # On its own line before END_TYPE: written back before the keyword.
+      [nil, "Untagged embedded remark"],
       ["tail_remarks_test_schema.mixed_remarks_type", "Tagged tail remark"],
       ["tail_remarks_test_schema.mixed_remarks_type", "Tagged embedded remark"],
       ["tail_remarks_test_schema", "Tagged tail remark for schema"],

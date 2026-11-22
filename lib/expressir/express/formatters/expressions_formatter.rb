@@ -176,8 +176,9 @@ module Expressir
         end
 
         def format_expressions_unary_expression(node)
-          # A source-parenthesized operand keeps its pairs
-          # (#707); the operator still prefixes the group.
+          # A source-parenthesized operand keeps its pairs (#707) —
+          # format() wraps it once per pair at dispatch; the operator
+          # just prefixes the group.
           if node.operand.respond_to?(:parenthesized) &&
               node.operand.parenthesized.to_i.positive?
             sign = case node.operator
@@ -185,7 +186,7 @@ module Expressir
                    when Model::Expressions::UnaryExpression::NOT then "NOT "
                    else "+"
                    end
-            return "#{sign}(#{format(node.operand)})"
+            return "#{sign}#{format(node.operand)}"
           end
 
           needs_parens = node.operand.is_a?(Model::Expressions::BinaryExpression) ||

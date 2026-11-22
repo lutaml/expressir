@@ -20,6 +20,7 @@ RSpec.describe Expressir::Express::Formatter do
         WR2: ((a + 1) * 2) > a;
         WR3: (a + b) * c = d;
         WR4: (a + b) + c = d;
+        WR5: NOT ((a > 1) AND (a < 10));
       END_ENTITY;
       FUNCTION f(x : INTEGER) : INTEGER;
         RETURN (((x)));
@@ -39,6 +40,7 @@ RSpec.describe Expressir::Express::Formatter do
     "WR2" => "((a + 1) * 2) > a",
     "WR3" => "(a + b) * c = d",
     "WR4" => "(a + b) + c = d",
+    "WR5" => "NOT ((a > 1) AND (a < 10))",
     "RETURN" => "(((x)))",
   }.each do |id, expected|
     it "keeps the source pairs of #{id}" do

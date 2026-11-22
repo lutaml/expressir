@@ -3,8 +3,16 @@ contract: what the canonical lane seals, every lane re-derives byte-identically
 source: source.exp
 canonical_lane: Expressir::Express::Core (the native extension)
 artifacts:
-  model-hash wire: sha256:cfbd618d0cd4e8cdd03584ad86e183544950bed578cd847cb531e933424f6f41
-  attached wire: sha256:f2f9c892ac9621df0bde0d8f21419b1b12efbb2d89fca8868cd2b75dbd60a112
+  model-hash wire: sha256:b9ce10e3651f3a8ef4163e20a31ed14e0ccd86f541c77a5d749d4e0e7d55b292
+  attached wire: sha256:cb4b611cb390f625136d7bf6188b745208f4d66174d1a666ae37cd7ae2f86cc6
   formatted text: sha256:539805ff4d18336c34d49bfa3ae0b8e101de910f34c3772b49f8df1a30aae775
-  formatted-wire text: sha256:a44b074e03f03ee25d3deab7a34022f4d68ac22ed1375b54fdb5af64f4c15c2d
   stripped text: sha256:a44b074e03f03ee25d3deab7a34022f4d68ac22ed1375b54fdb5af64f4c15c2d
+shapes:
+- model-hash
+- wire
+- attached
+- wire
+- formatted
+- text
+- stripped
+- text

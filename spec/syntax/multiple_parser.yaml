@@ -4,6 +4,16 @@ path: spec/syntax/multiple.exp
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: multiple_schema
+  declaration_order:
+  - test
+  - empty_entity
+  - attribute_entity
+  - subtype_empty_entity
+  - subtype_attribute_entity
+  - subtype_attribute_entity2
+  - subtype_attribute_entity3
+  - subtype_attribute_entity4
+  - subtype_missing_entity
   file: spec/syntax/multiple.exp
   interfaces:
   - _class: Expressir::Model::Declarations::Interface
@@ -165,6 +175,8 @@ schemas:
       id: missing_entity
 - _class: Expressir::Model::Declarations::Schema
   id: multiple_schema2
+  declaration_order:
+  - attribute_entity2
   file: spec/syntax/multiple.exp
   entities:
   - _class: Expressir::Model::Declarations::Entity
@@ -177,6 +189,8 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
 - _class: Expressir::Model::Declarations::Schema
   id: multiple_schema3
+  declaration_order:
+  - attribute_entity3
   file: spec/syntax/multiple.exp
   entities:
   - _class: Expressir::Model::Declarations::Entity
@@ -189,6 +203,8 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
 - _class: Expressir::Model::Declarations::Schema
   id: multiple_schema4
+  declaration_order:
+  - attribute_entity
   file: spec/syntax/multiple.exp
   entities:
   - _class: Expressir::Model::Declarations::Entity

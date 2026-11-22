@@ -1,9 +1,12 @@
 {
   "_class": "Expressir::Model::ExpFile",
+  "path": "source.exp",
   "schemas": [
     {
       "_class": "Expressir::Model::Declarations::Schema",
       "id": "contract_matrix",
+      "file": "source.exp",
+      "interfaces": [],
       "types": [
         {
           "_class": "Expressir::Model::Declarations::Type",
@@ -13,45 +16,77 @@
             "items": [
               {
                 "_class": "Expressir::Model::DataTypes::EnumerationItem",
-                "id": "low"
+                "id": "low",
+                "source_offset": 64,
+                "source_end_offset": 67,
+                "source": "low",
+                "source_length": 3
               },
               {
                 "_class": "Expressir::Model::DataTypes::EnumerationItem",
-                "id": "medium"
+                "id": "medium",
+                "source_offset": 69,
+                "source_end_offset": 75,
+                "source": "medium",
+                "source_length": 6
               },
               {
                 "_class": "Expressir::Model::DataTypes::EnumerationItem",
-                "id": "high"
+                "id": "high",
+                "source_offset": 77,
+                "source_end_offset": 81,
+                "source": "high",
+                "source_length": 4
               }
-            ]
-          }
+            ],
+            "source_offset": 48,
+            "source_end_offset": 82,
+            "source": "ENUMERATION OF (low, medium, high)",
+            "source_length": 34
+          },
+          "source_offset": 26,
+          "source_end_offset": 95,
+          "source": "TYPE strength_value = ENUMERATION OF (low, medium, high);\n  END_TYPE;",
+          "source_length": 69
         }
       ],
       "entities": [
         {
           "_class": "Expressir::Model::Declarations::Entity",
           "id": "part",
-          "remarks": [
-            "the primary identity"
-          ],
           "attributes": [
             {
               "_class": "Expressir::Model::Declarations::Attribute",
-              "id": "name",
               "kind": "EXPLICIT",
+              "id": "name",
               "type": {
-                "_class": "Expressir::Model::DataTypes::String"
-              }
+                "_class": "Expressir::Model::DataTypes::String",
+                "source_offset": 123,
+                "source_end_offset": 129,
+                "source": "STRING",
+                "source_length": 6
+              },
+              "source_offset": 116,
+              "source_end_offset": 120,
+              "source": "name",
+              "source_length": 4
             },
             {
               "_class": "Expressir::Model::Declarations::Attribute",
-              "id": "strength",
               "kind": "EXPLICIT",
+              "id": "strength",
               "type": {
                 "_class": "Expressir::Model::References::SimpleReference",
                 "id": "strength_value",
-                "base_path": ".contract_matrix.strength_value"
-              }
+                "source_offset": 146,
+                "source_end_offset": 160,
+                "source": "strength_value",
+                "source_length": 14
+              },
+              "source_offset": 135,
+              "source_end_offset": 143,
+              "source": "strength",
+              "source_length": 8
             }
           ],
           "where_rules": [
@@ -71,16 +106,38 @@
                     {
                       "_class": "Expressir::Model::References::SimpleReference",
                       "id": "name",
-                      "base_path": ".contract_matrix.part.name"
+                      "source_offset": 244,
+                      "source_end_offset": 248,
+                      "source": "name",
+                      "source_length": 4
                     }
                   ]
                 },
                 "operand2": {
                   "_class": "Expressir::Model::Literals::Integer",
-                  "value": "0"
-                }
-              }
+                  "value": "0",
+                  "source_offset": 252,
+                  "source_end_offset": 253,
+                  "source": "0",
+                  "source_length": 1
+                },
+                "source_offset": 237,
+                "source_end_offset": 253,
+                "source": "SIZEOF(name) > 0",
+                "source_length": 16
+              },
+              "source_offset": 231,
+              "source_end_offset": 254,
+              "source": "wr1 : SIZEOF(name) > 0;",
+              "source_length": 23
             }
+          ],
+          "source_offset": 99,
+          "source_end_offset": 268,
+          "source": "ENTITY part;\n    name : STRING;\n    strength : strength_value;\n    (*\"contract_matrix.part\" the primary identity *)\n    WHERE\n      wr1 : SIZEOF(name) > 0;\n  END_ENTITY;",
+          "source_length": 169,
+          "remarks": [
+            "the primary identity"
           ]
         }
       ],
@@ -95,12 +152,19 @@
               "type": {
                 "_class": "Expressir::Model::References::SimpleReference",
                 "id": "strength_value",
-                "base_path": ".contract_matrix.strength_value"
+                "source_offset": 296,
+                "source_end_offset": 310,
+                "source": "strength_value",
+                "source_length": 14
               }
             }
           ],
           "return_type": {
-            "_class": "Expressir::Model::DataTypes::Boolean"
+            "_class": "Expressir::Model::DataTypes::Boolean",
+            "source_offset": 314,
+            "source_end_offset": 321,
+            "source": "BOOLEAN",
+            "source_length": 7
           },
           "statements": [
             {
@@ -111,18 +175,49 @@
                 "operand1": {
                   "_class": "Expressir::Model::References::SimpleReference",
                   "id": "a",
-                  "base_path": ".contract_matrix.compatible.a"
+                  "source_offset": 334,
+                  "source_end_offset": 335,
+                  "source": "a",
+                  "source_length": 1
                 },
                 "operand2": {
                   "_class": "Expressir::Model::References::SimpleReference",
                   "id": "low",
-                  "base_path": ".contract_matrix.strength_value.low"
-                }
-              }
+                  "source_offset": 339,
+                  "source_end_offset": 342,
+                  "source": "low",
+                  "source_length": 3
+                },
+                "source_offset": 336,
+                "source_end_offset": 338,
+                "source": "<>",
+                "source_length": 2
+              },
+              "source_offset": 327,
+              "source_end_offset": 344,
+              "source": "RETURN(a <> low);",
+              "source_length": 17
             }
-          ]
+          ],
+          "source_offset": 272,
+          "source_end_offset": 360,
+          "source": "FUNCTION compatible(a : strength_value) : BOOLEAN;\n    RETURN(a <> low);\n  END_FUNCTION;",
+          "source_length": 88
         }
-      ]
+      ],
+      "declaration_order": [
+        "strength_value",
+        "part",
+        "compatible"
+      ],
+      "source_offset": 0,
+      "source_end_offset": 372,
+      "source": "SCHEMA contract_matrix;\n  TYPE strength_value = ENUMERATION OF (low, medium, high);\n  END_TYPE;\n\n  ENTITY part;\n    name : STRING;\n    strength : strength_value;\n    (*\"contract_matrix.part\" the primary identity *)\n    WHERE\n      wr1 : SIZEOF(name) > 0;\n  END_ENTITY;\n\n  FUNCTION compatible(a : strength_value) : BOOLEAN;\n    RETURN(a <> low);\n  END_FUNCTION;\nEND_SCHEMA;",
+      "source_length": 372
     }
-  ]
+  ],
+  "source_offset": 0,
+  "source_end_offset": 372,
+  "source": "SCHEMA contract_matrix;\n  TYPE strength_value = ENUMERATION OF (low, medium, high);\n  END_TYPE;\n\n  ENTITY part;\n    name : STRING;\n    strength : strength_value;\n    (*\"contract_matrix.part\" the primary identity *)\n    WHERE\n      wr1 : SIZEOF(name) > 0;\n  END_ENTITY;\n\n  FUNCTION compatible(a : strength_value) : BOOLEAN;\n    RETURN(a <> low);\n  END_FUNCTION;\nEND_SCHEMA;",
+  "source_length": 372
 }

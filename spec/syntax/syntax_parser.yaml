@@ -4,6 +4,103 @@ path: spec/syntax/syntax.exp
 schemas:
 - _class: Expressir::Model::Declarations::Schema
   id: syntax_schema
+  declaration_order:
+  - empty_type
+  - where_type
+  - where_label_type
+  - empty_entity
+  - abstract_entity
+  - abstract_supertype_entity
+  - abstract_supertype_constraint_entity
+  - supertype_constraint_entity
+  - subtype_entity
+  - supertype_constraint_subtype_entity
+  - attribute_entity
+  - attribute_optional_entity
+  - attribute_multiple_entity
+  - attribute_multiple_shorthand_entity
+  - attribute_redeclared_entity
+  - attribute_redeclared_renamed_entity
+  - derived_attribute_entity
+  - derived_attribute_redeclared_entity
+  - derived_attribute_redeclared_renamed_entity
+  - inverse_attribute_entity
+  - inverse_attribute_entity_entity
+  - inverse_attribute_set_entity
+  - inverse_attribute_set_bound_entity
+  - inverse_attribute_bag_entity
+  - inverse_attribute_bag_bound_entity
+  - inverse_attribute_redeclared_entity
+  - inverse_attribute_redeclared_renamed_entity
+  - unique_entity
+  - unique_label_entity
+  - unique_redeclared_entity
+  - unique_label_redeclared_entity
+  - where_entity
+  - where_label_entity
+  - empty_subtype_constraint
+  - abstract_supertype_subtype_constraint
+  - total_over_subtype_constraint
+  - supertype_expression_subtype_constraint
+  - supertype_expression_andor_subtype_constraint
+  - supertype_expression_and_subtype_constraint
+  - supertype_expression_andor_and_subtype_constraint
+  - supertype_expression_and_andor_subtype_constraint
+  - supertype_expression_parenthesis_andor_and_subtype_constraint
+  - supertype_expression_and_parenthesis_andor_subtype_constraint
+  - supertype_expression_oneof_subtype_constraint
+  - supertype_expression_and_oneof_subtype_constraint
+  - supertype_expression_andor_oneof_subtype_constraint
+  - supertype_expression_oneof_and_subtype_constraint
+  - supertype_expression_oneof_andor_subtype_constraint
+  - supertype_expression_oneof_and_oneof_subtype_constraint
+  - supertype_expression_oneof_andor_oneof_subtype_constraint
+  - empty_function
+  - parameter_function
+  - multiple_parameter_function
+  - multiple_shorthand_parameter_function
+  - type_function
+  - constant_function
+  - multiple_constant_function
+  - variable_function
+  - multiple_variable_function
+  - multiple_shorthand_variable_function
+  - variable_expression_function
+  - multiple_variable_expression_function
+  - multiple_shorthand_variable_expression_function
+  - empty_rule
+  - type_rule
+  - constant_rule
+  - multiple_constant_rule
+  - variable_rule
+  - multiple_variable_rule
+  - multiple_shorthand_variable_rule
+  - variable_expression_rule
+  - multiple_variable_expression_rule
+  - multiple_shorthand_variable_expression_rule
+  - statement_rule
+  - where_label_rule
+  - empty_procedure
+  - parameter_procedure
+  - multiple_parameter_procedure
+  - multiple_shorthand_parameter_procedure
+  - variable_parameter_procedure
+  - multiple_variable_parameter_procedure
+  - multiple_variable_parameter2_procedure
+  - multiple_shorthand_variable_parameter_procedure
+  - type_procedure
+  - constant_procedure
+  - multiple_constant_procedure
+  - variable_procedure
+  - multiple_variable_procedure
+  - multiple_shorthand_variable_procedure
+  - variable_expression_procedure
+  - multiple_variable_expression_procedure
+  - multiple_shorthand_variable_expression_procedure
+  - statement_procedure
+  - statements
+  - types
+  - expressions
   file: spec/syntax/syntax.exp
   header: schema
   version:
@@ -3070,6 +3167,7 @@ schemas:
         operator: MULTIPLICATION
         operand1:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: ADDITION
           operand1:
             _class: Expressir::Model::Literals::Integer
@@ -3092,6 +3190,7 @@ schemas:
           value: '8'
         operand2:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: ADDITION
           operand1:
             _class: Expressir::Model::Literals::Integer
@@ -3340,6 +3439,7 @@ schemas:
         operator: AND
         operand1:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: OR
           operand1:
             _class: Expressir::Model::Literals::Logical
@@ -3362,6 +3462,7 @@ schemas:
           value: 'TRUE'
         operand2:
           _class: Expressir::Model::Expressions::BinaryExpression
+          parenthesized: 1
           operator: OR
           operand1:
             _class: Expressir::Model::Literals::Logical

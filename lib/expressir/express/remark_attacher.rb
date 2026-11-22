@@ -64,6 +64,7 @@ module Expressir
 
         attach_tagged_remarks(remarks)
         attach_untagged_remarks(remarks)
+        extend_source_slices(model)
 
         model
       ensure
@@ -81,6 +82,50 @@ module Expressir
       end
 
       private
+
+      # Extend each node's captured slice through the remarks attached
+      # to it (#712): the core lane's captures overshoot into the
+      # trailing trivia — `source` there carries a declaration's
+      # comments — while the ruby captures end at the last token. The
+      # pass makes every lane's slice cover the same text. Idempotent:
+      # the ends only grow.
+      def self.extend_source_slices(model, source)
+        return unless model.is_a?(Model::ModelElement)
+        return if source.nil? || source.empty?
+
+        bytes = source.b
+        index = NodePositionIndex.new(model, Expressir::Express::LineMap.new(bytes))
+        index.nodes.each do |entry|
+          node = entry[:node]
+          next unless node.source_offset && node.source_length
+
+          ends = [node.source_offset + node.source_length]
+          Array(node.untagged_remarks).each do |remark|
+            next unless remark.source_offset &&
+              remark.source_offset > node.source_offset
+
+            newline = bytes.index("\n", remark.source_offset)
+            ends << (newline ? newline + 1 : bytes.length)
+          end
+          length = ends.max - node.source_offset
+          node.source_length = length if length > node.source_length
+          next unless node.source
+
+          slice = bytes.byteslice(node.source_offset, length)
+          node.source = slice.force_encoding(source.encoding) unless slice == node.source.b
+          # `source` memoizes the node's formatted text at first read —
+          # and the builder probes it before any remark is attached, so
+          # every memoized copy is pre-attachment and stale (#712).
+          # Drop the copies; the next read formats with the remarks in.
+          node = entry[:node]
+          node.remove_instance_variable(:@formatted_source) if node.instance_variable_defined?(:@formatted_source)
+        end
+      end
+
+      # The instance lane: same pass over the model just attached.
+      def extend_source_slices(model)
+        self.class.extend_source_slices(model, @source)
+      end
 
       # ----- Tagged remark attachment -----
 

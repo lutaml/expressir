@@ -60,7 +60,16 @@ module Expressir
         def schema_relative_path(node)
           root = node
           root = root.parent while root.respond_to?(:parent) && root.parent
-          prefix = root.respond_to?(:id) ? "#{root.id}." : ""
+          prefix_id = root.respond_to?(:id) ? root.id : nil
+          # A from_files tree roots at the (id-less) Repository; the
+          # ExpFile under it carries the file path the paths are built
+          # from (#708). A nil id keeps the historical "." prefix: the
+          # string-file paths carry the empty root segment.
+          if prefix_id.nil? || prefix_id.to_s.empty?
+            file = root.respond_to?(:files) && root.files&.first
+            prefix_id = file.respond_to?(:id) ? file.id : nil
+          end
+          prefix = "#{prefix_id}."
           node.path.to_s.delete_prefix(prefix)
         end
       end

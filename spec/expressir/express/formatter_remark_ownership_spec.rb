@@ -48,21 +48,25 @@ round_trips = {
   # lengths; every remark holds its owner across the round trip and the
   # placements are byte-identical to the core lane.
   "spec/fixtures/examples/tail_remarks_test_schema.exp" =>
-    # expressir#696: the whole-line comment before END_SCHEMA re-houses
-    # onto the schema's tail on the first round trip, then holds.
+    # the all-legacy-scope-remarks render conserves the "before schema
+    # end" comment; "after schema end" re-houses once, then holds
     { traced: 33, tagged: 7, escapes: 1,
-      known_move_texts: ["Untagged tail remark before schema end"] },
+      known_move_texts: ["Untagged tail remark after schema end"] },
   "spec/fixtures/function_body_remarks.exp" =>
     { traced: 13, tagged: 0, escapes: 0 },
   "spec/syntax/remark.exp" =>
     # expressir#603: the remark items render at their owners now, so
     # three tail-block remarks move (schema-level items land beside
     # their owning constructs) — all schema escapes by design.
-    { traced: 134, tagged: 134, escapes: 3,
+    { traced: 134, tagged: 134, escapes: 5,
       known_move_texts: [
         "schema scope - schema remark item",
         "universal scope - schema remark item",
         "placed inside WHERE clauses (or other enumerable context)",
+        # the IP texts render in the ISO shorthand and re-attach at
+        # their propositions (the all-legacy-scope-remarks train)
+        "entity scope - entity informal proposition, with prefix",
+        "entity scope - entity informal proposition",
       ] },
   "spec/syntax/syntax.exp" =>
     # The all-legacy-scope-remarks render re-houses the procedure's

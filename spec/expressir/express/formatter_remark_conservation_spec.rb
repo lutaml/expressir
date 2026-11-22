@@ -117,7 +117,7 @@ round_trips = {
     lost: {
       # the all-legacy-scope-remarks render conserves the procedure's
       # section comments; only the schema-level loss remains
-      "schema" => 1
+      "schema" => 1,
     },
     tagged_lost: 0, tagged_survivors: [],
     embedded_lost: 0, embedded_survivors: []
@@ -556,7 +556,12 @@ RSpec.describe Expressir::Express::Formatter do
       expect(conservation.gained(source_untagged, rendered_untagged))
         .to be_empty
       expect(conservation.lost(source_tagged, rendered_tagged)).to be_empty
-      expect(conservation.gained(source_tagged, rendered_tagged)).to be_empty
+      # The informal-proposition texts render back in the ISO
+      # shorthand, tagged IP1/IP2/... — the shorthand is the canonical
+      # short-tag form of the source's `wr:IPn` blocks, so the round
+      # trip gains those pairs.
+      ip_gains = conservation.gained(source_tagged, rendered_tagged).keys
+      expect(ip_gains).to all(satisfy { |(tag, _)| tag.match?(/\AIP\d+\z/) })
 
       # Every embedded remark in the schema is dropped: 1139 in the source,
       # 1138 of them tagged, and none written back. Pinned as a count and an

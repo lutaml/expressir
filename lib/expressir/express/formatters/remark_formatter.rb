@@ -137,7 +137,9 @@ module Expressir
           Array(node.informal_propositions).filter_map do |ip|
             # The attach stores the proposition's texts on its remark
             # item (create_or_find_informal_proposition returns it); the
-            # ISO shorthand re-parses only with the colon.
+            # ISO shorthand re-parses only with the colon. A multi-line
+            # text cannot ride the shorthand (#691) — it renders as the
+            # path-tagged block the source corpora write.
             texts = (Array(ip.remarks) +
                      Array(ip.remark_items).flat_map do |ri|
                        Array(ri.remarks)
@@ -145,7 +147,15 @@ module Expressir
             if texts.empty?
               "--#{ip.id}:"
             else
-              texts.map { |t| "--#{ip.id}: #{t}" }.join("\n")
+              texts.map do |t|
+                if t.include?("\n")
+                  "(*\"#{schema_relative_path(ip)}.wr:#{ip.id}\"
+#{t}
+*)"
+                else
+                  "--#{ip.id}: #{t}"
+                end
+              end.join("\n")
             end
           end
         end

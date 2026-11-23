@@ -5,6 +5,7 @@ module Expressir
       # - section 9.4 Constant
       class Constant < ModelElement
         include Identifier
+        include TakesInlineRemark
 
         attribute :type, ModelElement
         attribute :expression, ModelElement

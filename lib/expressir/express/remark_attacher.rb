@@ -373,6 +373,9 @@ module Expressir
         # closes that body. Without this check the comment would instead be
         # read as leading the next statement of an OUTER region, which is
         # where it would wrongly render.
+        clause = block_before_clause_target(remark)
+        return clause if clause.first
+
         closing = closing_region_target(line, own_line: own_line_remark?(remark))
         return closing if closing.first
 
@@ -400,6 +403,27 @@ module Expressir
 
         [nil, nil, nil]
       end
+
+      # A block comment at the start of a line, before the USE FROM or
+      # REFERENCE FROM clause that begins on that line, leads the clause,
+      # as an own-line comment above it does. The clause shares the line,
+      # so it is neither "the next node after the line" nor outside the
+      # scope the lookup measures; and a `--` comment at the end of the
+      # line must not make the remark read as a trailing one.
+      def block_before_clause_target(remark)
+        content = line_content_for(remark.line).to_s
+        return [nil, nil, nil] unless content.match?(CLAUSE_AFTER_BLOCKS)
+
+        clause = @node_index.starting_at(remark.line).find do |n|
+          n[:node].is_a?(Model::Declarations::Interface) &&
+            n[:position] && n[:position] > remark.position
+        end
+        return [nil, nil, nil] unless clause
+
+        [clause[:node], Model::RemarkPlacement::LEADING, nil]
+      end
+
+      CLAUSE_AFTER_BLOCKS = /\A(?:\s*\(\*.*?\*\))+\s*(?:USE|REFERENCE)\s+FROM\b/i
 
       # The nearest semantic node starting after the remark's line but
       # still inside the scope that contains the remark — the next

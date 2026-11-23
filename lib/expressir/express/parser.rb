@@ -73,7 +73,7 @@ module Expressir
         end
 
         Expressir::Benchmark.measure_file(file) do
-          source = strip_bom(File.read(file))
+          source = strip_bom(File.binread(file).force_encoding(Encoding::UTF_8))
 
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
@@ -106,7 +106,7 @@ module Expressir
                   "no schema found in #{schema_file} (remark-only or empty input)"
           end
 
-          transfer_header_to_schema(exp_file, source)
+          finalize_remarks(exp_file, source)
 
           exp_file.path = schema_file
           exp_file.schemas.each do |schema|
@@ -212,7 +212,7 @@ module Expressir
         end
 
         Expressir::Benchmark.measure_file(file) do
-          source = strip_bom(File.read(file))
+          source = strip_bom(File.binread(file).force_encoding(Encoding::UTF_8))
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
           remarks_attached = false
@@ -322,7 +322,7 @@ module Expressir
           RemarkAttacher.extend_source_slices(exp_file, source)
         end
 
-        transfer_header_to_schema(exp_file, source)
+        finalize_remarks(exp_file, source)
 
         exp_file.path = schema_file
         exp_file.schemas.each do |schema|
@@ -397,7 +397,7 @@ module Expressir
             file = physical[ordered_path]
             loaded, load_error = entry
             if loaded
-              source = strip_bom(File.read(file))
+              source = strip_bom(File.binread(file).force_encoding(Encoding::UTF_8))
               loaded.wire_parents
               finalize_loaded_file(loaded, source, ordered_path,
                                    include_source: include_source)
@@ -594,7 +594,7 @@ include_source: nil, root_path: nil, use_native: nil, &block)
                 "no schema found in (from string) (remark-only or empty input)"
         end
 
-        transfer_header_to_schema(exp_file, content)
+        finalize_remarks(exp_file, content)
 
         exp_file.schemas.each do |schema|
           schema.file = nil
@@ -609,6 +609,54 @@ include_source: nil, root_path: nil, use_native: nil, &block)
 
         exp_file
       end
+
+      # Normalize logical remark text after either Ruby attachment or native
+      # hydration. Source captures and offsets must retain the physical bytes.
+      def self.finalize_remarks(exp_file, source)
+        if source&.include?("\r\n")
+          ModelTraversal.each_model([exp_file]) do |node, _key|
+            if node.respond_to?(:remarks) && node.remarks&.any?
+              node.remarks = node.remarks.map { |text| text.gsub("\r\n", "\n") }
+            end
+            Array(node.untagged_remarks).each do |remark|
+              remark.text = remark.text.gsub("\r\n", "\n")
+            end
+            if node.respond_to?(:header) && node.header
+              node.header = node.header.gsub("\r\n", "\n")
+            end
+          end
+          if exp_file.core_wire
+            wire = JSON.parse(exp_file.core_wire)
+            normalize_remark_wire!(wire)
+            exp_file.core_wire = JSON.generate(wire)
+          end
+        end
+        transfer_header_to_schema(exp_file, source)
+      end
+      private_class_method :finalize_remarks
+
+      # The core formatter reads retained wire rather than the hydrated model.
+      # Change only remark fields: source slices and other wire semantics stay raw.
+      def self.normalize_remark_wire!(value)
+        case value
+        when Hash
+          value.each do |key, child|
+            case key
+            when "remarks"
+              value[key] = child.map { |text| text.gsub("\r\n", "\n") } if child
+            when "header"
+              value[key] = child.gsub("\r\n", "\n") if child
+            when "untagged_remarks"
+              Array(child).each { |remark| remark["text"] = remark["text"].gsub("\r\n", "\n") }
+            else
+              normalize_remark_wire!(child)
+            end
+          end
+        when Array
+          value.each { |child| normalize_remark_wire!(child) }
+        end
+      end
+      private_class_method :normalize_remark_wire!
 
       # Transfer file-level untagged remarks that appear before the first
       # SCHEMA keyword to the first schema's +header+ attribute so they are

@@ -142,6 +142,9 @@ module Expressir
             " ",
             format(node.expression),
             ";",
+            # A comment that trailed the constant on its line goes back
+            # on it (#735).
+            format_inline_tail_remark(node),
             *format_remark_items(node).map { |x| ["\n", x].join },
           ].join
         end
@@ -790,6 +793,9 @@ module Expressir
              end,
             Array(node.attributes).map { |x| format(x) }.join(", "),
             ";",
+            # A comment that trailed the unique rule on its line goes
+            # back on it (#735).
+            format_inline_tail_remark(node),
             *format_remark_items(node).map { |x| ["\n", x].join },
           ].join
         end

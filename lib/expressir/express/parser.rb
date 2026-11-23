@@ -73,7 +73,7 @@ module Expressir
         end
 
         Expressir::Benchmark.measure_file(file) do
-          source = strip_bom(File.read(file))
+          source = strip_bom(File.binread(file).force_encoding(Encoding::UTF_8))
 
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
@@ -212,7 +212,7 @@ module Expressir
         end
 
         Expressir::Benchmark.measure_file(file) do
-          source = strip_bom(File.read(file))
+          source = strip_bom(File.binread(file).force_encoding(Encoding::UTF_8))
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
           remarks_attached = false
@@ -397,7 +397,7 @@ module Expressir
             file = physical[ordered_path]
             loaded, load_error = entry
             if loaded
-              source = strip_bom(File.read(file))
+              source = strip_bom(File.binread(file).force_encoding(Encoding::UTF_8))
               loaded.wire_parents
               finalize_loaded_file(loaded, source, ordered_path,
                                    include_source: include_source)

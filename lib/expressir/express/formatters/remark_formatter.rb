@@ -134,11 +134,20 @@ module Expressir
           # ride the proposition's remark item, and the plain form's keep
           # flag is for UNTAGGED comments only (#723) — a tagged
           # description must not reappear as a `--IPn:` line.
-          return [] if @no_remarks
+          return [] if @no_remarks && !@keep_untagged_remarks
           return [] unless node.is_a?(Model::ModelElement)
           return [] unless node.respond_to?(:informal_propositions)
 
           Array(node.informal_propositions).filter_map do |ip|
+            # The plain form writes only the `--IPn:` comment lines of the
+            # source (`source_remarks`), never a tagged description's text.
+            if @no_remarks
+              lines = Array(ip.remark_items).flat_map { |ri| Array(ri.source_remarks) }
+              next if lines.empty?
+
+              next lines.map { |t| t.empty? ? "--#{ip.id}:" : "--#{ip.id}: #{t}" }.join("\n")
+            end
+
             # The attach stores the proposition's texts on its remark
             # item (create_or_find_informal_proposition returns it); the
             # ISO shorthand re-parses only with the colon. A multi-line

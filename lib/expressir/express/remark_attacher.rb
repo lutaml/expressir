@@ -250,11 +250,25 @@ module Expressir
                 target = ip.remark_items&.find { |ri| ri.id == remark.tag } || ip
               end
             end
-            add_remark(target, remark.text, format: remark.format, tag: remark.tag,
-                                            source_offset: remark.position)
+            add_tagged_remark(target, remark)
             @attached_spans << remark.position
           end
         end
+      end
+
+      # Stores a tagged remark. A `--IPn:` comment line of the source also
+      # lists its text (empty for the bare marker) in `source_remarks` of the
+      # proposition's remark item, so the plain form can write it while a text
+      # that only a tagged description supplied is not written there.
+      def add_tagged_remark(target, remark)
+        add_remark(target, remark.text, format: remark.format, tag: remark.tag,
+                                        source_offset: remark.position)
+        return unless remark.format == Model::RemarkFormat::TAIL
+        return unless target.is_a?(Model::Declarations::RemarkItem)
+        return unless target.id == remark.tag && remark.tag.match?(/^IP\d+$/)
+
+        target.source_remarks ||= []
+        target.source_remarks << remark.text.to_s
       end
 
       # ----- Untagged remark attachment -----

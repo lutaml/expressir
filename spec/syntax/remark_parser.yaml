@@ -81,6 +81,8 @@ schemas:
         id: IP1
         remarks:
         - type scope - type informal proposition
+        source_remarks:
+        - type scope - type informal proposition
   entities:
   - _class: Expressir::Model::Declarations::Entity
     id: remark_entity
@@ -166,6 +168,8 @@ schemas:
       - _class: Expressir::Model::Declarations::RemarkItem
         id: IP1
         remarks:
+        - entity scope - entity informal proposition
+        source_remarks:
         - entity scope - entity informal proposition
   subtype_constraints:
   - _class: Expressir::Model::Declarations::SubtypeConstraint
@@ -392,6 +396,8 @@ schemas:
       - _class: Expressir::Model::Declarations::RemarkItem
         id: IP1
         remarks:
+        - rule scope - rule informal proposition
+        source_remarks:
         - rule scope - rule informal proposition
   procedures:
   - _class: Expressir::Model::Declarations::Procedure

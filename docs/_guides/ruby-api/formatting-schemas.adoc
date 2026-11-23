@@ -118,6 +118,11 @@ ENTITY point;
 END_ENTITY;
 ----
 
+The `--IPn:` comment lines of the source (informal propositions) are
+written in the plain form, with the source's own text. A proposition that
+exists only through a tagged description (`(*"schema.entity.wr:IP1" ... *)`)
+writes no line there.
+
 `keep_untagged_remarks` alone changes nothing.
 
 === Accessing formatter settings

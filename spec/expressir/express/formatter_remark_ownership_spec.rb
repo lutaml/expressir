@@ -49,9 +49,19 @@ round_trips = {
   # placements are byte-identical to the core lane.
   "spec/fixtures/examples/tail_remarks_test_schema.exp" =>
     # the all-legacy-scope-remarks render conserves the "before schema
-    # end" comment; "after schema end" re-houses once, then holds
-    { traced: 33, tagged: 7, escapes: 1,
-      known_move_texts: ["Untagged tail remark after schema end"] },
+    # end" comment; "after schema end" re-houses once, then holds.
+    # The core lane (v0.1.61) houses the after-constant tail on its
+    # constant (#735), so one more remark re-houses there.
+    if Expressir::Express::Parser.native_available?
+      { traced: 33, tagged: 7, escapes: 2,
+        known_move_texts: [
+          "Untagged tail remark after schema end",
+          "Untagged tail remark after constant",
+        ] }
+    else
+      { traced: 33, tagged: 7, escapes: 1,
+        known_move_texts: ["Untagged tail remark after schema end"] }
+    end,
   "spec/fixtures/function_body_remarks.exp" =>
     { traced: 13, tagged: 0, escapes: 0 },
   "spec/syntax/remark.exp" =>

@@ -28,6 +28,17 @@ require "spec_helper"
 # wrong declaration while still being written out leaves every count
 # unchanged. Conservation is about whether a remark survives, not about where
 # it lands; `formatter_remark_ownership_spec.rb` covers where.
+# The lane the specs' `from_file` calls actually take (see the ownership
+# spec's core_lane? — the ext being loadable is not the same as the parse
+# using it).
+def core_lane?
+  probe = Expressir::Express::Parser.from_file(
+    Expressir.root_path.join("spec", "fixtures", "examples",
+                             "nested_functions_test_schema.exp"),
+  )
+  probe.respond_to?(:core_wire) && !probe.core_wire.nil?
+end
+
 round_trips = {
   # Nothing untagged is lost in these two any more: the remarks trailing
   # their REFERENCE FROM lines now survive. What remains is 20 `--IPn:`
@@ -126,20 +137,12 @@ round_trips = {
   # remarks onto the constructs they physically follow; the lost set is
   # the core-agreed verdict (byte-identical lanes).
   "spec/fixtures/examples/tail_remarks_test_schema.exp" => {
-    # the core lane (v0.1.61) conserves the after-constant tail — the
-    # constant is a remark scope there (#735)
-    lost: if Expressir::Express::Parser.native_available?
-            {
-              "Final untagged tail remark at end of file" => 1,
-              "Untagged tail remark at very beginning of file" => 1,
-            }
-          else
-            {
-              "Final untagged tail remark at end of file" => 1,
-              "Untagged tail remark after constant" => 1,
-              "Untagged tail remark at very beginning of file" => 1,
-            }
-          end,
+    # the after-constant tail is conserved on both lanes now — the
+    # constant is an inline-capable remark scope (#735)
+    lost: {
+      "Final untagged tail remark at end of file" => 1,
+      "Untagged tail remark at very beginning of file" => 1,
+    },
     tagged_lost: 6, tagged_survivors: [],
     embedded_lost: 2,
     embedded_survivors: [

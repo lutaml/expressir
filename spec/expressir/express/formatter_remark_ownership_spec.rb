@@ -32,6 +32,18 @@ require "spec_helper"
 # themselves still attach via create_or_find_informal_proposition; what the
 # guard removes is the redundant empty-body remark storage, which the
 # formatter never rendered and the trace previously counted.
+# The lane the specs' `from_file` calls actually take: the ext being
+# loadable is not the same as the parse using it (EXPRESSIR_DISABLE_NATIVE
+# forces the ruby walk with the ext still present), and the two lanes'
+# placements differ. The model carries a core wire only on the native path.
+def core_lane?
+  probe = Expressir::Express::Parser.from_file(
+    Expressir.root_path.join("spec", "fixtures", "examples",
+                             "nested_functions_test_schema.exp"),
+  )
+  probe.respond_to?(:core_wire) && !probe.core_wire.nil?
+end
+
 round_trips = {
   "spec/fixtures/examples/autonomous_vehicle_navigation_schema.exp" =>
     { traced: 9, tagged: 0, escapes: 0 },
@@ -49,50 +61,32 @@ round_trips = {
   # placements are byte-identical to the core lane.
   "spec/fixtures/examples/tail_remarks_test_schema.exp" =>
     # the all-legacy-scope-remarks render conserves the "before schema
-    # end" comment; "after schema end" re-houses once, then holds.
-    # The core lane (v0.1.61) houses the after-constant tail on its
-    # constant (#735), so one more remark re-houses there.
-    if Expressir::Express::Parser.native_available?
-      { traced: 33, tagged: 7, escapes: 2,
-        known_move_texts: [
-          "Untagged tail remark after schema end",
-          "Untagged tail remark after constant",
-        ] }
-    else
-      { traced: 33, tagged: 7, escapes: 1,
-        known_move_texts: ["Untagged tail remark after schema end"] }
-    end,
+    # end" comment; "after schema end" re-houses once, then holds. The
+    # after-constant tail holds its constant on both lanes now (#735):
+    # the include makes the reparse keep it too.
+    { traced: 33, tagged: 7, escapes: 1,
+      known_move_texts: ["Untagged tail remark after schema end"] },
   "spec/fixtures/function_body_remarks.exp" =>
     { traced: 13, tagged: 0, escapes: 0 },
   "spec/syntax/remark.exp" =>
     # expressir#603: the remark items render at their owners now, so
     # three tail-block remarks move (schema-level items land beside
-    # their owning constructs) — all schema escapes by design.
-    # The lanes count the informal-proposition tags differently: the
-    # fallback lane's re-route houses every qualified IP tag on the
-    # proposition's remark item (three escapes), while the core lane
-    # leaves the qualified texts on the declaration (five more move
-    # onto the item at reparse). Both stay inside the owning entity.
-    if Expressir::Express::Parser.native_available?
-      { traced: 134, tagged: 134, escapes: 8,
-        known_move_texts: [
-          "schema scope - schema remark item",
-          "universal scope - schema remark item",
-          "placed inside WHERE clauses (or other enumerable context)",
-          "entity scope - entity informal proposition, with prefix",
-          "schema scope - entity informal proposition",
-          "schema scope - entity informal proposition, with prefix",
-          "universal scope - entity informal proposition",
-          "universal scope - entity informal proposition, with prefix",
-        ] }
-    else
-      { traced: 134, tagged: 134, escapes: 3,
-        known_move_texts: [
-          "schema scope - schema remark item",
-          "universal scope - schema remark item",
-          "placed inside WHERE clauses (or other enumerable context)",
-        ] }
-    end,
+    # their owning constructs) — all schema escapes by design. The
+    # informal-proposition tags hold their propositions on both lanes
+    # since the Constant/UniqueRule/WhereRule inline includes (#735):
+    # five more qualified IP tags re-house onto the item at reparse.
+    # Every move stays inside the owning entity.
+    { traced: 134, tagged: 134, escapes: 8,
+      known_move_texts: [
+        "schema scope - schema remark item",
+        "universal scope - schema remark item",
+        "placed inside WHERE clauses (or other enumerable context)",
+        "entity scope - entity informal proposition, with prefix",
+        "schema scope - entity informal proposition",
+        "schema scope - entity informal proposition, with prefix",
+        "universal scope - entity informal proposition",
+        "universal scope - entity informal proposition, with prefix",
+      ] },
   "spec/syntax/syntax.exp" =>
     # The all-legacy-scope-remarks render re-houses the procedure's
     # section comments onto END_PROCEDURE; they used to be dropped.

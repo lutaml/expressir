@@ -5,6 +5,7 @@ module Expressir
       # - section 9.2.2.1 Uniqueness rule
       class UniqueRule < ModelElement
         include Identifier
+        include TakesInlineRemark
 
         attribute :attributes, ModelElement, collection: true, initialize_empty: true
         attribute :_class, :string, default: -> { self.class.name }

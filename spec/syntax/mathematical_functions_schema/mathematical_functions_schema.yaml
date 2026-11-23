@@ -21756,6 +21756,8 @@ schemas:
           _class: Expressir::Model::References::SimpleReference
           id: idomn
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.derive_definite_integral_domain.idomn
+    declaration_order:
+    - process_product_space
   - _class: Expressir::Model::Declarations::Function
     id: derive_elementary_function_domain
     remarks:
@@ -35242,6 +35244,12 @@ schemas:
         - _class: Expressir::Model::References::SimpleReference
           id: aitv
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.aitv
+    declaration_order:
+    - angle
+    - strictly_in
+    - angle_minmax
+    - range_max
+    - range_min
   - _class: Expressir::Model::Declarations::Function
     id: enclose_pregion_in_cregion
     remarks:
@@ -37102,6 +37110,8 @@ schemas:
         - _class: Expressir::Model::References::SimpleReference
           id: yitv
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_cregion.yitv
+    declaration_order:
+    - nearest_good_direction
   - _class: Expressir::Model::Declarations::Function
     id: enclose_pregion_in_pregion
     remarks:
@@ -44409,6 +44419,11 @@ schemas:
         - _class: Expressir::Model::References::SimpleReference
           id: aitv
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.aitv
+    declaration_order:
+    - angle
+    - angle_range
+    - strictly_in
+    - find_aminmax
   - _class: Expressir::Model::Declarations::Function
     id: equal_cregion_pregion
     remarks:
@@ -50210,6 +50225,8 @@ schemas:
       expression:
         _class: Expressir::Model::Literals::Logical
         value: UNKNOWN
+    declaration_order:
+    - mem_of_vs
   - _class: Expressir::Model::Declarations::Function
     id: es_subspace_of_es
     remarks:
@@ -62724,6 +62741,8 @@ schemas:
       expression:
         _class: Expressir::Model::Literals::Logical
         value: UNKNOWN
+    declaration_order:
+    - fedex
   - _class: Expressir::Model::Declarations::Function
     id: min_exists
     remarks:
@@ -80936,6 +80955,11 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: expr
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_function_application.expr
+    declaration_order:
+    - ctmv
+    - parts
+    - makec
+    - good_t
   - _class: Expressir::Model::Declarations::Function
     id: simplify_generic_expression
     remarks:
@@ -85727,6 +85751,11 @@ schemas:
         _class: Expressir::Model::References::SimpleReference
         id: expr
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.simplify_generic_expression.expr
+    declaration_order:
+    - restore_unary
+    - restore_binary
+    - restore_mulary
+    - make_number_literal
   - _class: Expressir::Model::Declarations::Function
     id: simplify_maths_space
     remarks:

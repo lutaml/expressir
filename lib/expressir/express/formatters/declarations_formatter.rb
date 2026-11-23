@@ -282,6 +282,28 @@ module Expressir
           items.flatten.compact.uniq(&:object_id)
         end
 
+        # The declarations nested in a FUNCTION, PROCEDURE or RULE (#711,
+        # as for a schema): with a recorded declaration order they follow
+        # the source; a model without it keeps the grouped-by-kind layout.
+        def format_nested_declarations(node)
+          collections = [node.types, node.entities, node.subtype_constraints,
+                         node.functions, node.procedures]
+          all = collections.flat_map(&:to_a)
+          # Each id of the record takes the first nested declaration of that
+          # id not written yet; what the record leaves out follows in the
+          # grouped-by-kind order, so every declaration is written once.
+          written = {}.compare_by_identity
+          ordered = Array(node.declaration_order).filter_map do |id|
+            hit = all.find { |x| !written.key?(x) && x.id == id }
+            written[hit] = true if hit
+            hit
+          end
+          ordered.concat(all.reject { |x| written.key?(x) })
+          return [] if ordered.empty?
+
+          [indent(ordered.map { |x| format(x) }.join("\n"))]
+        end
+
         def format_declarations_function(node)
           indent_char = self.class.const_get(:INDENT_CHAR)
           [
@@ -305,21 +327,7 @@ module Expressir
               format(node.return_type),
               ";",
             ].join,
-            *if node.types&.length&.positive?
-               indent(node.types.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.entities&.length&.positive?
-               indent(node.entities.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.subtype_constraints&.length&.positive?
-               indent(node.subtype_constraints.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.functions&.length&.positive?
-               indent(node.functions.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.procedures&.length&.positive?
-               indent(node.procedures.map { |x| format(x) }.join("\n"))
-             end,
+            *format_nested_declarations(node),
             *if node.constants&.length&.positive?
                indent([
                  "CONSTANT",
@@ -431,21 +439,7 @@ module Expressir
                end,
               ";",
             ].join,
-            *if node.types&.length&.positive?
-               indent(node.types.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.entities&.length&.positive?
-               indent(node.entities.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.subtype_constraints&.length&.positive?
-               indent(node.subtype_constraints.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.functions&.length&.positive?
-               indent(node.functions.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.procedures&.length&.positive?
-               indent(node.procedures.map { |x| format(x) }.join("\n"))
-             end,
+            *format_nested_declarations(node),
             *if node.constants&.length&.positive?
                indent([
                  "CONSTANT",
@@ -526,21 +520,7 @@ module Expressir
               ")",
               ";",
             ].join,
-            *if node.types&.length&.positive?
-               indent(node.types.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.entities&.length&.positive?
-               indent(node.entities.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.subtype_constraints&.length&.positive?
-               indent(node.subtype_constraints.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.functions&.length&.positive?
-               indent(node.functions.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.procedures&.length&.positive?
-               indent(node.procedures.map { |x| format(x) }.join("\n"))
-             end,
+            *format_nested_declarations(node),
             *if node.constants&.length&.positive?
                indent([
                  "CONSTANT",

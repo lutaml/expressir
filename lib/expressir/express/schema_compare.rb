@@ -20,7 +20,8 @@ module Expressir
       # Resolution artifacts and presentation metadata are not part of
       # a declaration's structure.
       SIGNATURE_IGNORE = %w[source include_source remarks remark_items
-                            ref base_path file].freeze
+                            ref base_path file
+                            declaration_order].freeze
 
       COLLECTIONS = %i[constants types entities subtype_constraints
                        functions rules procedures].freeze

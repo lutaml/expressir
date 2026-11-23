@@ -45,6 +45,7 @@ module Expressir
             subtype_constraints: subtype_constraints,
             functions: functions,
             procedures: procedures,
+            declaration_order: declarations.compact.filter_map(&:id),
             constants: constants,
             variables: variables,
             statements: statements.compact,

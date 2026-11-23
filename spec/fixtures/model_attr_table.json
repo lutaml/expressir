@@ -892,6 +892,10 @@
       "type": "Expressir::Model::Declarations::Constant",
       "collection": true
     },
+    "declaration_order": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
     "entities": {
       "type": "Expressir::Model::Declarations::Entity",
       "collection": true
@@ -1238,6 +1242,10 @@
       "type": "Expressir::Model::Declarations::Constant",
       "collection": true
     },
+    "declaration_order": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
     "entities": {
       "type": "Expressir::Model::Declarations::Entity",
       "collection": true
@@ -1348,6 +1356,10 @@
     },
     "constants": {
       "type": "Expressir::Model::Declarations::Constant",
+      "collection": true
+    },
+    "declaration_order": {
+      "type": "Lutaml::Model::Type::String",
       "collection": true
     },
     "entities": {

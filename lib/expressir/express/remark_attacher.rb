@@ -398,7 +398,33 @@ module Expressir
         declaration = declaration_level_target(remark)
         return declaration if declaration.first
 
-        [nil, nil, nil]
+        schema_end_target(remark)
+      end
+
+      # A comment on a line of its own whose next code line is END_SCHEMA
+      # closes the declarations of the schema that END_SCHEMA closes, the way
+      # a comment before END_FUNCTION closes the statements. Blank lines and
+      # further comments between the two are skipped; so is the rest of a
+      # block comment, which may name END_SCHEMA in its text.
+      def schema_end_target(remark)
+        return [nil, nil, nil] unless line_content_for(remark.line).to_s.lstrip.start_with?("--", "(*")
+
+        probe = remark.line
+        while probe <= source_line_count
+          content = line_content_for(probe).to_s.strip
+          if content.start_with?("(*")
+            probe += 1 until probe > source_line_count || line_content_for(probe).to_s.include?("*)")
+          elsif !(content.empty? || content.start_with?("--"))
+            break
+          end
+          probe += 1
+        end
+        return [nil, nil, nil] unless line_content_for(probe).to_s.strip.match?(/\AEND_SCHEMA\b/i)
+
+        schema = @node_index.containing_node_of_type(Model::Declarations::Schema, probe)
+        return [nil, nil, nil] unless schema
+
+        [schema, Model::RemarkPlacement::TRAILING, "declarations"]
       end
 
       # The nearest semantic node starting after the remark's line but

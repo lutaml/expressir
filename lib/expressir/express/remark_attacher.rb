@@ -342,6 +342,9 @@ module Expressir
         # here means the remark is an inline tail (code; -- note). The
         # end-line check is restricted to statements: container end_lines are
         # child-derived approximations that can collide with comment lines.
+        label_block = where_label_block_target(remark)
+        return label_block if label_block.first
+
         if inline_remark?(remark)
           # The candidate pool carries both the nodes STARTING on the line
           # (the remark trails a statement's own text) and the nodes ENDING
@@ -432,6 +435,55 @@ module Expressir
         return false unless opener
 
         !content[0...opener].strip.empty?
+      end
+
+      # The columns (byte indexes in the line) of the `(* ... *)` comments
+      # that follow the label of a WHERE rule on this line:
+      # `wr1 : (* a *) (* b *) size > 0;`. The line starts with the label, so
+      # no string comes before it; white space may separate the label's colon
+      # and the comments; a comment nests and ends at its own `*)`. A comment
+      # that does not end on the line is the last.
+      def label_block_columns(content)
+        match = content.b.match(/\A\s*[A-Za-z_]\w*\s*:(?!=)/n)
+        return [] unless match
+
+        bytes = content.b
+        i = match.end(0)
+        columns = []
+        loop do
+          i += 1 while bytes[i]&.match?(/\s/n)
+          return columns unless bytes[i, 2] == "(*"
+
+          columns << i
+          depth = 0
+          while i < bytes.bytesize
+            case bytes[i, 2]
+            when "(*" then depth += 1
+                           i += 2
+            when "*)" then depth -= 1
+                           i += 2
+                           break if depth.zero?
+            else i += 1
+            end
+          end
+          return columns unless depth.zero?
+        end
+      end
+
+      # A `(* block *)` comment right after the label of a WHERE rule belongs
+      # to that rule, written after the label like a `--` comment there.
+      # Asked only on the first line of a WHERE rule.
+      def where_label_block_target(remark)
+        line = remark.line
+        columns = label_block_columns(line_content_for(line).to_s)
+        return [nil, nil, nil] unless columns.include?(remark.position - @line_map.line_start(line).to_i)
+
+        rule = @node_index.starting_at(line)
+          .find { |n| n[:node].is_a?(Model::Declarations::WhereRule) }
+        return [nil, nil, nil] unless rule
+
+        [rule[:node], Model::RemarkPlacement::INLINE,
+         Model::RemarkPlacement::OPENER_REGION]
       end
 
       # A comment trailing code on its line belongs to the statement it

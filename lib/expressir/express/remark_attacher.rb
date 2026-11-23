@@ -381,7 +381,10 @@ module Expressir
           following = region
             .select { |n| n[:line] > line }
             .min_by { |n| n[:position] }
-          return [following[:node], Model::RemarkPlacement::LEADING, nil] if following
+          if following
+            return [following[:node], Model::RemarkPlacement::LEADING,
+                    before_case_label_region(following[:node], remark)]
+          end
 
           # No following statement and no closing keyword above: the comment is
           # not demonstrably inside this body (it may sit after the whole
@@ -399,6 +402,56 @@ module Expressir
         return declaration if declaration.first
 
         [nil, nil, nil]
+      end
+
+      # A leading remark of the statement of a CASE action that was written
+      # before the label of that action (between two actions, or before the
+      # first) has the region BEFORE_LABEL: the formatter writes it above the
+      # label. One written after the label has no region. The text between
+      # the remark and the statement tells them apart: only remarks and
+      # white space means the label is already behind the remark. (A label
+      # that is a reference carries no source offset to compare.)
+      def before_case_label_region(statement, remark)
+        return unless statement.parent.is_a?(Model::Statements::CaseAction)
+        return unless statement.source_offset
+
+        gap = @source.b.byteslice(remark.position,
+                                  statement.source_offset - remark.position)
+        return if gap.nil? || only_remarks_and_space?(gap)
+
+        Model::RemarkPlacement::BEFORE_LABEL_REGION
+      end
+
+      # Whether the bytes hold nothing but white space and remarks: a line
+      # remark runs to the end of the line, a block remark to its matching
+      # `*)` (they nest), and an unterminated block remark swallows the rest.
+      def only_remarks_and_space?(gap)
+        i = 0
+        size = gap.bytesize
+        while i < size
+          byte = gap.getbyte(i)
+          pair = gap.byteslice(i, 2)
+          if [32, 9, 10, 12, 13].include?(byte)
+            i += 1
+          elsif pair == "--"
+            i += 1 until i >= size || gap.getbyte(i) == 10
+          elsif pair == "(*"
+            depth = 1
+            i += 2
+            while i < size && depth.positive?
+              case gap.byteslice(i, 2)
+              when "(*" then depth += 1
+                             i += 2
+              when "*)" then depth -= 1
+                             i += 2
+              else i += 1
+              end
+            end
+          else
+            return false
+          end
+        end
+        true
       end
 
       # The nearest semantic node starting after the remark's line but

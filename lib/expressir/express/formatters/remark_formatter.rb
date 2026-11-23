@@ -288,6 +288,23 @@ module Expressir
           # `--` comment (#696).
           Array(node.untagged_remarks).filter_map do |remark|
             next unless remark.leading?
+            next if remark.region == Model::RemarkPlacement::BEFORE_LABEL_REGION
+
+            formatted = format_untagged_remark(remark)
+            formatted unless formatted.empty?
+          end
+        end
+
+        # The leading remarks of a CASE action's statement that were written
+        # before the label of the action; the CASE action writes them above
+        # the label.
+        def format_before_label_remarks(node)
+          return [] if @no_remarks && !@keep_untagged_remarks
+          return [] unless node.is_a?(Model::ModelElement)
+
+          Array(node.untagged_remarks).filter_map do |remark|
+            next unless remark.leading? &&
+              remark.region == Model::RemarkPlacement::BEFORE_LABEL_REGION
 
             formatted = format_untagged_remark(remark)
             formatted unless formatted.empty?

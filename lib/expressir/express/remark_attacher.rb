@@ -629,6 +629,12 @@ module Expressir
         # So do END_ENTITY and END_TYPE.
         /\AEND_ENTITY\b/i => [Model::Declarations::Entity, :where_rules],
         /\AEND_TYPE\b/i => [Model::Declarations::Type, :where_rules],
+        # DERIVE, INVERSE and UNIQUE close the section before them. So does
+        # the WHERE of an ENTITY or a TYPE, resolved in closing_region_target
+        # from the construct open at that line (the entry above is a RULE's).
+        /\ADERIVE\b/i => [Model::Declarations::Entity, :attributes],
+        /\AINVERSE\b/i => [Model::Declarations::Entity, :derived_attributes],
+        /\AUNIQUE\b/i => [Model::Declarations::Entity, :inverse_attributes],
       }.freeze
 
       # Declarations whose bodies hold no statements. Only a comment on a
@@ -637,6 +643,14 @@ module Expressir
       DECLARATION_BODY_OWNERS = [
         Model::Declarations::Entity, Model::Declarations::Type
       ].freeze
+
+      # Whether an entity has attributes of that kind, wherever the model
+      # keeps them: the Ruby builders put every kind in `attributes`.
+      ENTITY_HAS_KIND = lambda do |entity, kind|
+        [entity.attributes, entity.derived_attributes, entity.inverse_attributes]
+          .flat_map { |items| Array(items).flatten }
+          .any? { |attribute| attribute.respond_to?(:kind) && attribute.kind == kind }
+      end
 
       # Regions whose owner may not have that body, in which case the
       # keyword closes the earlier region instead.
@@ -647,10 +661,17 @@ module Expressir
           [:action_statements, ->(n) { !n.otherwise_statement.nil? }],
         [Model::Declarations::Rule, :where_rules] =>
           [:statements, ->(n) { n.where_rules&.length&.positive? }],
-        # END_ENTITY closes the attributes, END_TYPE the definition, when
-        # the declaration has no WHERE section.
+        # END_ENTITY and the section keywords close the last section the
+        # entity has before them, END_TYPE the definition when the type
+        # has no WHERE section.
         [Model::Declarations::Entity, :where_rules] =>
-          [:attributes, ->(n) { n.where_rules&.length&.positive? }],
+          [:unique_rules, ->(n) { n.where_rules&.length&.positive? }],
+        [Model::Declarations::Entity, :unique_rules] =>
+          [:inverse_attributes, ->(n) { n.unique_rules&.length&.positive? }],
+        [Model::Declarations::Entity, :inverse_attributes] =>
+          [:derived_attributes, ->(n) { ENTITY_HAS_KIND.call(n, Model::Declarations::Attribute::INVERSE) }],
+        [Model::Declarations::Entity, :derived_attributes] =>
+          [:attributes, ->(n) { ENTITY_HAS_KIND.call(n, Model::Declarations::Attribute::DERIVED) }],
         [Model::Declarations::Type, :where_rules] =>
           [:underlying_type, ->(n) { n.where_rules&.length&.positive? }],
       }.freeze
@@ -663,6 +684,8 @@ module Expressir
       def closing_region_target(line, own_line: true)
         keyword_owner, region, keyword_line = closing_keyword_after(line)
         return [nil, nil, nil] unless keyword_owner
+
+        keyword_owner, region = declaration_where(keyword_owner, region, keyword_line)
         return [nil, nil, nil] if !own_line && DECLARATION_BODY_OWNERS.include?(keyword_owner)
 
         # The owner is the construct the keyword actually closes — the
@@ -680,10 +703,32 @@ module Expressir
 
         # END_IF closes the THEN body when there is no ELSE; END_CASE closes
         # the last action when there is no OTHERWISE.
-        fallback, present = REGION_FALLBACKS[[keyword_owner, region]]
-        region = fallback if fallback && !present.call(owner[:node])
+        loop do
+          fallback, present = REGION_FALLBACKS[[keyword_owner, region]]
+          break if fallback.nil? || present.call(owner[:node])
+
+          region = fallback
+        end
 
         [owner[:node], Model::RemarkPlacement::TRAILING, region.to_s]
+      end
+
+      # The WHERE keyword of a RULE closes its statements. Where an ENTITY or a
+      # TYPE is open at that line it closes the unique rules (or the section
+      # before them) or the definition.
+      def declaration_where(owner, region, keyword_line)
+        return [owner, region] unless owner == Model::Declarations::Rule && region == :statements
+
+        klass, opener_line = active_scope_map[keyword_line]
+        return [owner, region] unless klass == :other
+
+        declaration = @node_index.starting_at(opener_line).map { |n| n[:node] }
+          .find { |n| DECLARATION_BODY_OWNERS.any? { |c| n.is_a?(c) } }
+        case declaration
+        when Model::Declarations::Entity then [Model::Declarations::Entity, :unique_rules]
+        when Model::Declarations::Type then [Model::Declarations::Type, :underlying_type]
+        else [owner, region]
+        end
       end
 
       # The first non-blank, non-comment source line after `line`.

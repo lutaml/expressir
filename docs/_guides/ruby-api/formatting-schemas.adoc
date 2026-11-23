@@ -209,6 +209,18 @@ output = formatter.format(entity)
 # END_ENTITY;
 ----
 
+ISO 10303-11:2004 has two forms: `ABSTRACT` (an abstract entity) and `ABSTRACT SUPERTYPE [subtype_constraint]`. `Entity#abstract` is true for both; `Entity#abstract_entity` is true only for the bare `ABSTRACT`, and `format` writes the form of the source:
+
+[source,express]
+----
+ENTITY shape
+  ABSTRACT
+  SUBTYPE OF (item);
+END_ENTITY;
+----
+
+A model without `abstract_entity` is written with `ABSTRACT SUPERTYPE`, as before.
+
 === Type definitions
 
 [source,ruby]

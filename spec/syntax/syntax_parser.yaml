@@ -257,6 +257,7 @@ schemas:
   - _class: Expressir::Model::Declarations::Entity
     id: abstract_entity
     abstract: true
+    abstract_entity: true
   - _class: Expressir::Model::Declarations::Entity
     id: abstract_supertype_entity
     abstract: true

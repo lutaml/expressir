@@ -818,6 +818,10 @@
       "type": "Lutaml::Model::Type::Boolean",
       "collection": false
     },
+    "abstract_entity": {
+      "type": "Lutaml::Model::Type::Boolean",
+      "collection": false
+    },
     "attributes": {
       "type": "Expressir::Model::ModelElement",
       "collection": true

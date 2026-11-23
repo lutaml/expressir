@@ -130,7 +130,11 @@ module Expressir
         # or the bare declaration marker `--IP1` when the proposition
         # carries no text (the WG12 `-- IP1:` markers).
         def format_informal_propositions(node)
-          return [] if @no_remarks && !@keep_untagged_remarks
+          # The ISO shorthand lines are TAGGED-channel content: their texts
+          # ride the proposition's remark item, and the plain form's keep
+          # flag is for UNTAGGED comments only (#723) — a tagged
+          # description must not reappear as a `--IPn:` line.
+          return [] if @no_remarks
           return [] unless node.is_a?(Model::ModelElement)
           return [] unless node.respond_to?(:informal_propositions)
 

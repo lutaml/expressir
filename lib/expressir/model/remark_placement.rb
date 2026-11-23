@@ -39,6 +39,11 @@ module Expressir
       ELSE_REGION = "else"
       OTHERWISE_REGION = "otherwise"
       LABEL_REGION = "label"
+
+      # Region of an INLINE remark that trailed an interface's item-list
+      # opening paren — `REFERENCE FROM x ( -- why` — rendered back inside
+      # the list, after the paren, not after the schema name (#728).
+      ITEM_LIST_REGION = "item_list"
     end
   end
 end

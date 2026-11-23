@@ -39,8 +39,12 @@ RSpec.describe Expressir::Express::Formatter do
     ips = reparsed.schemas.first.entities.first.informal_propositions
 
     expect(ips.map(&:id)).to eq(%w[IP1 IP2])
-    expect(Array(ips[1].remark_items).flat_map(&:remarks).join)
-      .to include("the mirror axis text")
+    # The shorthand line stores on the item's UNTAGGED lane (#723 — the
+    # plain form keeps it, the tagged description blocks stay
+    # annotation); descriptions themselves ride `remarks`.
+    expect(Array(ips[1].remark_items).flat_map do |ri|
+      Array(ri.remarks) + Array(ri.untagged_remarks).map(&:text)
+    end.join).to include("the mirror axis text")
   end
 
   it "formats to a fixed point" do

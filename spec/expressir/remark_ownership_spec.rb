@@ -159,13 +159,15 @@ RSpec.describe Expressir::RemarkOwnership do
       expect(traced).not_to be_empty
     end
 
-    it "traces the tagged remarks of a fixture that has only tagged ones" do
+    it "traces remark.exp, its IP shorthand lines on the untagged lane" do
       model = Expressir::Express::Parser.from_file("spec/syntax/remark.exp")
 
       traced = Expressir::RemarkOwnership::Trace.of(model)
 
-      expect(traced.count(&:tagged)).to eq(traced.size)
       expect(traced.size).to be >= 134
+      # The three `--IPn:` shorthand lines are source content (#723) and
+      # store on the untagged lane; the tagged descriptions stay tagged.
+      expect(traced.count(&:tagged)).to eq(traced.size - 3)
     end
   end
 end

@@ -149,13 +149,7 @@ module Expressir
                       " ",
                       "WITH",
                       "\n",
-                      indent([
-                        "(",
-                        node.items.map do |x|
-                          format(x)
-                        end.join(",\n#{item_indent}"),
-                        ")",
-                      ].join),
+                      format_enumeration_item_list(node, item_indent),
                     ].join
                   end,
                ].join
@@ -167,18 +161,33 @@ module Expressir
                       " ",
                       "OF",
                       "\n",
-                      indent([
-                        "(",
-                        node.items.map do |x|
-                          format(x)
-                        end.join(",\n#{item_indent}"),
-                        ")",
-                      ].join),
+                      format_enumeration_item_list(node, item_indent),
                     ].join
                   end,
                ].join
              end,
           ].join
+        end
+
+        # The item list with each item's own line-end comment: the comma
+        # rides before a non-final tail — `(red, -- warm` (#724). The
+        # final item's tail belongs after the TYPE's `;`, where the
+        # source writes it — {#format_declarations_type} appends it.
+        def format_enumeration_item_list(node, item_indent)
+          tails = node.items.map { |x| format_inline_tail_remark(x) }
+          inner = node.items[0...-1].each_with_index
+            .map { |x, i| "#{format(x)},#{tails[i]}" }
+            .join("\n#{item_indent}")
+          inner = if inner.empty?
+                    format(node.items.last)
+                  else
+                    "#{inner}\n#{item_indent}#{format(node.items.last)}"
+                  end
+          indent([
+            "(",
+            inner,
+            ")",
+          ].join)
         end
 
         def format_data_types_enumeration_item(node)

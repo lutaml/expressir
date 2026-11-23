@@ -416,7 +416,11 @@ RSpec.describe Expressir::Express::Parser do
       informal_proposition = entity.informal_propositions.first
       expect(informal_proposition.id).to eq("IP1")
       expect(informal_proposition.class).to eq(Expressir::Model::Declarations::InformalPropositionRule)
-      expect(informal_proposition.remark_items.first.remarks).to eq(["This is informal proposition 1"])
+      # The `--IP1:` shorthand line stores on the item's untagged lane
+      # (#723 — source content, not a tagged description).
+      expect(informal_proposition.remark_items.first.remarks +
+             informal_proposition.remark_items.first.untagged_remarks
+               .map(&:text)).to eq(["This is informal proposition 1"])
     end
 
     it "preserves tail remarks on attribute lines (non_ascii_in_remarks_only.exp)" do |_example|

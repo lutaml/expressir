@@ -79,8 +79,9 @@ schemas:
       remark_items:
       - _class: Expressir::Model::Declarations::RemarkItem
         id: IP1
-        remarks:
-        - type scope - type informal proposition
+        untagged_remarks:
+        - text: type scope - type informal proposition
+          format: tail
   entities:
   - _class: Expressir::Model::Declarations::Entity
     id: remark_entity
@@ -165,8 +166,9 @@ schemas:
       remark_items:
       - _class: Expressir::Model::Declarations::RemarkItem
         id: IP1
-        remarks:
-        - entity scope - entity informal proposition
+        untagged_remarks:
+        - text: entity scope - entity informal proposition
+          format: tail
   subtype_constraints:
   - _class: Expressir::Model::Declarations::SubtypeConstraint
     id: remark_subtype_constraint
@@ -391,8 +393,9 @@ schemas:
       remark_items:
       - _class: Expressir::Model::Declarations::RemarkItem
         id: IP1
-        remarks:
-        - rule scope - rule informal proposition
+        untagged_remarks:
+        - text: rule scope - rule informal proposition
+          format: tail
   procedures:
   - _class: Expressir::Model::Declarations::Procedure
     id: remark_procedure

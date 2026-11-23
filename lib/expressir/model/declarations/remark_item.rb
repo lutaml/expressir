@@ -14,6 +14,9 @@ module Expressir
           map "_class", to: :_class, render_default: true
           map "id", to: :id
           map "remarks", to: :remarks
+          # The IP shorthand lines land here (#723); the annotated YAML
+          # has to carry them like every other element's untagged lane.
+          map "untagged_remarks", to: :untagged_remarks
         end
       end
     end

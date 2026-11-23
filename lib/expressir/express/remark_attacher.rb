@@ -243,6 +243,8 @@ module Expressir
             # re-houses on its remark item (#705): the native lane stores
             # every `--IP1:` text there. (create_or_find returns the
             # existing DECLARATION, so the item is picked out explicitly.)
+            shorthand = remark.format == Model::RemarkFormat::TAIL &&
+              remark.tag.to_s.match?(/^IP\d+$/)
             if target.is_a?(Model::Declarations::InformalPropositionRule) &&
                 remark.tag.to_s.match?(/^IP\d+$/)
               ip = create_or_find_informal_proposition(target.parent, remark.tag)
@@ -250,7 +252,12 @@ module Expressir
                 target = ip.remark_items&.find { |ri| ri.id == remark.tag } || ip
               end
             end
-            add_remark(target, remark.text, format: remark.format, tag: remark.tag,
+            # The ISO shorthand `--IP1: text` line is source content, not
+            # a description: it stores on the item's UNTAGGED lane so the
+            # plain form re-renders it exactly, while the tagged
+            # description blocks stay annotation (#723).
+            add_remark(target, remark.text, format: remark.format,
+                                            tag: shorthand ? nil : remark.tag,
                                             source_offset: remark.position)
             @attached_spans << remark.position
           end
@@ -372,9 +379,13 @@ module Expressir
         # A closing keyword on the next code line is decisive: the comment
         # closes that body. Without this check the comment would instead be
         # read as leading the next statement of an OUTER region, which is
-        # where it would wrongly render.
+        # where it would wrongly render. A comment sharing its line with
+        # code — a `--` tail or an inline `(* ... *)` — trails that code,
+        # though: `wr1 : TRUE; -- tail` belongs to its statement, never to
+        # the END_ that merely follows (#726's capture must not steal
+        # line-end remarks from their statements).
         closing = closing_region_target(line)
-        return closing if closing.first
+        return closing if closing.first && !code_shares_line?(remark)
 
         enclosing, region, = statement_region_for(line)
         if region
@@ -429,6 +440,22 @@ module Expressir
         !content[0...opener].strip.empty?
       end
 
+      # Whether code shares the remark's line, for either remark form: a
+      # `--` tail after code, or an inline `(* ... *)` between code
+      # before and after it. Such a remark trails its statement (#726).
+      def code_shares_line?(remark)
+        content = line_content_for(remark.line).to_s
+        if [Model::RemarkFormat::EMBEDDED, Model::RemarkFormat::EMBEDDED_ANNOTATION].include?(remark.format)
+          opener = content.index("(*")
+          closer = content.rindex("*)")
+          before = opener ? content[0...opener] : content
+          after = closer ? content[(closer + 2)..].to_s : ""
+          !(before.strip.empty? && after.strip.empty?)
+        else
+          inline_remark?(remark)
+        end
+      end
+
       # A comment trailing code on its line belongs to the statement it
       # follows: `x := 1; -- why`, or the opener of a compound one, as in
       # `IF x THEN -- why`.
@@ -454,8 +481,27 @@ module Expressir
         owner = began || closing_owner(nodes, remark)
         return [nil, nil, nil] unless owner
 
-        [owner[:node], Model::RemarkPlacement::INLINE,
-         opener_region(owner, remark.line)]
+        region = opener_region(owner, remark.line)
+        # A comment after the item-list opening paren — `REFERENCE FROM x
+        # ( -- why` — sits inside the list, not after the schema name;
+        # the interface renderer puts it back there (#728).
+        if owner[:node].is_a?(Model::Declarations::Interface) &&
+            region == Model::RemarkPlacement::OPENER_REGION &&
+            paren_precedes_comment?(remark)
+          region = Model::RemarkPlacement::ITEM_LIST_REGION
+        end
+
+        [owner[:node], Model::RemarkPlacement::INLINE, region]
+      end
+
+      # A comment following the item-list opening paren on the same line
+      # (`REFERENCE FROM x ( -- why`) sits inside the list, not after
+      # the schema name (#728).
+      def paren_precedes_comment?(remark)
+        content = line_content_for(remark.line).to_s
+        paren = content.index("(")
+        tail = content.index("--")
+        paren && tail && paren < tail
       end
 
       # A node beginning and ending on the remark's line. Ranked by where it
@@ -606,6 +652,11 @@ module Expressir
         /\AEND_PROCEDURE\b/i => [Model::Declarations::Procedure, :statements],
         # END_RULE closes the WHERE section when the rule has one.
         /\AEND_RULE\b/i => [Model::Declarations::Rule, :where_rules],
+        # A declaration's last section is its WHERE block when it has one
+        # (#726 — without these the pre-END comment fell to the legacy
+        # unplaced channel, which renders it after the keyword).
+        /\AEND_ENTITY\b/i => [Model::Declarations::Entity, :where_rules],
+        /\AEND_TYPE\b/i => [Model::Declarations::Type, :where_rules],
       }.freeze
 
       # Regions whose owner may not have that body, in which case the
@@ -616,6 +667,10 @@ module Expressir
         [Model::Statements::Case, :otherwise_statements] =>
           [:action_statements, ->(n) { !n.otherwise_statement.nil? }],
         [Model::Declarations::Rule, :where_rules] =>
+          [:statements, ->(n) { n.where_rules&.length&.positive? }],
+        [Model::Declarations::Entity, :where_rules] =>
+          [:statements, ->(n) { n.where_rules&.length&.positive? }],
+        [Model::Declarations::Type, :where_rules] =>
           [:statements, ->(n) { n.where_rules&.length&.positive? }],
       }.freeze
 
@@ -679,11 +734,20 @@ module Expressir
 
       # The opening line of the innermost construct still open at
       # `keyword_line`, or nil when that construct is not of `expected_class`.
+      # ENTITY/TYPE openers are tracked as :other — the walk is
+      # line-accurate, so trust it for those ends (#726), mirroring
+      # {#scope_owner_for_end_line}.
       def active_opener_line(keyword_line, expected_class)
         active = active_scope_map[keyword_line]
-        return nil unless active && active[0] == expected_class
+        return nil unless active
 
-        active[1]
+        klass, opener_line = active
+        return nil unless klass == expected_class ||
+          (klass == :other &&
+           [Model::Declarations::Entity, Model::Declarations::Type]
+             .include?(expected_class))
+
+        opener_line
       end
 
       # Line number => the construct open at the START of that line, as

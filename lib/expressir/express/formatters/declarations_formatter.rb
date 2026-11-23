@@ -231,6 +231,9 @@ module Expressir
             *if explicit_attributes&.length&.positive?
                indent(format_grouped_declarations(explicit_attributes, method(:format_declarations_attribute)).join("\n"))
              end,
+            # A comment after the last attribute closes the declaration
+            # body when the entity has no WHERE block (#726).
+            *format_trailing_region_remarks(node, :statements).map { |x| indent(x) },
             *if derived_attributes&.length&.positive?
                [
                  "DERIVE",
@@ -255,6 +258,9 @@ module Expressir
                  indent(node.where_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
+            # A comment after the last where rule closes the WHERE section
+            # (#726 — mirrors the RULE formatter).
+            *format_trailing_region_remarks(node, :where_rules).map { |x| indent(x) },
             *format_informal_propositions(node).map { |x| indent(x) },
             *format_remark_items(node).map { |x| indent(x) },
             [
@@ -361,14 +367,17 @@ module Expressir
             format(node.schema),
             *if node.items&.length&.positive?
                item_indent = indent_char * "(".length
-               [
-                 "\n",
-                 indent([
-                   "(",
-                   node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
-                   ")",
-                 ].join),
-               ].join
+               list_remark =
+                 format_mid_keyword_remarks(
+                   node, Model::RemarkPlacement::ITEM_LIST_REGION
+                 ).strip
+               inner = [
+                 "(",
+                 list_remark.empty? ? nil : " #{list_remark}\n",
+                 node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
+                 ")",
+               ].compact.join
+               ["\n", indent(inner)].join
              end,
             ";",
           ].join
@@ -752,6 +761,12 @@ module Expressir
               " ",
               format(node.underlying_type),
               ";",
+              # The last enumeration item's line-end comment follows the
+              # TYPE's semicolon, where the source writes it (#724).
+              *if node.underlying_type.is_a?(Model::DataTypes::Enumeration) &&
+                  node.underlying_type.items&.length&.positive?
+                 format_inline_tail_remark(node.underlying_type.items.last)
+               end,
             ].join,
             *if node.where_rules&.length&.positive?
                [
@@ -759,6 +774,11 @@ module Expressir
                  indent(node.where_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
+            # A comment after the last where rule closes the WHERE section
+            # (#726 — a TYPE carries no other body, so the no-WHERE
+            # fallback region renders here too).
+            *format_trailing_region_remarks(node, :statements).map { |x| indent(x) },
+            *format_trailing_region_remarks(node, :where_rules).map { |x| indent(x) },
             *format_remark_items(node).map { |x| indent(x) },
             [
               "END_TYPE",
@@ -817,6 +837,9 @@ module Expressir
              end,
             format(node.expression),
             ";",
+            # The rule's own line-end comment rides the statement
+            # (#724 — the storage keeps it, nothing emitted it).
+            format_inline_tail_remark(node),
             *format_remark_items(node).map { |x| ["\n", x].join },
           ].join
         end

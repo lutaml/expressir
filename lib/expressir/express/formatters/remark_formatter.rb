@@ -130,6 +130,10 @@ module Expressir
         # or the bare declaration marker `--IP1` when the proposition
         # carries no text (the WG12 `-- IP1:` markers).
         def format_informal_propositions(node)
+          # The propositions' TAGGED descriptions are annotation (#723);
+          # the plain form (keep_untagged_remarks) re-renders only the
+          # source's own shorthand lines, which attach as the items'
+          # untagged remarks.
           return [] if @no_remarks && !@keep_untagged_remarks
           return [] unless node.is_a?(Model::ModelElement)
           return [] unless node.respond_to?(:informal_propositions)
@@ -140,13 +144,27 @@ module Expressir
             # ISO shorthand re-parses only with the colon. A multi-line
             # text cannot ride the shorthand (#691) — it renders as the
             # path-tagged block the source corpora write.
-            texts = (Array(ip.remarks) +
-                     Array(ip.remark_items).flat_map do |ri|
-                       Array(ri.remarks)
-                     end).reject { |t| t.nil? || t.to_s.strip.empty? }
-            if texts.empty?
-              "--#{ip.id}:"
-            else
+            item_texts = Array(ip.remark_items).flat_map do |ri|
+              Array(ri.remarks) +
+                Array(ri.untagged_remarks)
+                  .grep(Model::RemarkInfo).map(&:text)
+            end
+            texts = if @no_remarks
+                      Array(ip.remark_items).flat_map do |ri|
+                        Array(ri.untagged_remarks)
+                          .grep(Model::RemarkInfo).map(&:text)
+                      end
+                    else
+                      (Array(ip.remarks) + item_texts)
+                    end
+            texts = texts.reject { |t| t.nil? || t.to_s.strip.empty? }
+            # The bare WG12 marker (`--IP1:`) is the no-text declaration
+            # form; the plain form skips propositions it has no source
+            # line for (#723 — no invented lines).
+            next "--#{ip.id}:" if texts.empty? && !@no_remarks
+            next if texts.empty?
+
+            if texts.any? { |t| t.include?("\n") }
               texts.map do |t|
                 if t.include?("\n")
                   "(*\"#{schema_relative_path(ip)}.wr:#{ip.id}\"
@@ -155,6 +173,10 @@ module Expressir
                 else
                   "--#{ip.id}: #{t}"
                 end
+              end.join("\n")
+            else
+              texts.map do |t|
+                "--#{ip.id}: #{t}"
               end.join("\n")
             end
           end
@@ -200,7 +222,10 @@ module Expressir
             # Leading remarks render above the node (place_remarks) and
             # every legacy tail remark renders after the END_ keyword;
             # emitting either in the preamble would write them twice.
+            # TRAILING remarks render before their body's closing keyword
+            # (#726) — the preamble would write them twice too.
             remark.is_a?(Model::RemarkInfo) && !remark.leading? &&
+              remark.placement != Model::RemarkPlacement::TRAILING &&
               !(remark.placement.nil? && remark.tail?) &&
               !remark.text.nil? && !remark.text.empty?
           end
@@ -256,7 +281,10 @@ module Expressir
         # and joined. The callers partition the same collection, so every
         # inline remark is emitted by exactly one of them.
         def formatted_inline_remarks(node, &)
-          return "" if @no_remarks
+          # The plain form (no_remarks + keep_untagged_remarks) keeps the
+          # source's own comments; only the annotated channels stop
+          # (#721 — every other placement channel honors the pair).
+          return "" if @no_remarks && !@keep_untagged_remarks
           return "" unless node.is_a?(Model::TakesInlineRemark)
 
           Array(node.untagged_remarks).filter_map do |remark|

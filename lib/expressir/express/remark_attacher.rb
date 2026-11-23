@@ -819,8 +819,17 @@ module Expressir
         events.sort_by(&:first)
       end
 
+      # The first code line after the remark that starts on `line`, matched
+      # against CLOSING_KEYWORDS. The scan starts after the LAST line of that
+      # remark (a `(* ... *)` comment may span several lines and may nest),
+      # then skips whole block comments, `--` lines and blank lines.
       def closing_keyword_after(line)
-        probe = line + 1
+        last, after = comment_end(line)
+        # Code after the `*)` on the last line of a comment of several
+        # lines: the comment is not on lines of its own before a keyword.
+        return [nil, nil, nil] if last > line && code_follows?(line_content_for(last).to_s[after..].to_s)
+
+        probe = last + 1
         # Skip further comment lines AND blank lines: a comment separated
         # from its closing keyword by an empty line still closes that body.
         while probe <= source_line_count
@@ -829,13 +838,13 @@ module Expressir
           # emits between a trailing comment and the closing keyword:
           # skip the whole block, the keyword lies beyond it (#609).
           if content.start_with?("(*")
-            # A single-line block carries its own "*)": only hunt for a
-            # closer when the start line does not have one.
-            unless content.include?("*)")
-              probe += 1
-              probe += 1 while probe <= source_line_count && !line_content_for(probe).to_s.include?("*)")
-            end
-            probe += 1
+            ending, after = comment_end(probe)
+            # After a remark of several lines, code after that block on its
+            # last line is the next code: no closing keyword at the start of
+            # a line. (A remark of one line is read as before.)
+            return [nil, nil, nil] if last > line && code_follows?(line_content_for(ending).to_s[after..].to_s)
+
+            probe = ending + 1
             next
           end
           break unless content.empty? || content.start_with?("--")
@@ -847,6 +856,74 @@ module Expressir
           return [*owner_region, probe] if content.match?(pattern)
         end
         [nil, nil, nil]
+      end
+
+      # Where the comment starting on `line` ends: the line (`line` itself
+      # for a `--` comment or a block closed on its line, else the line of the
+      # `*)` that closes the outermost `(*`; blocks nest) and the offset in
+      # that line just after the comment.
+      def comment_end(line)
+        depth = 0
+        probe = line
+        while probe <= source_line_count
+          text = line_content_for(probe).to_s
+          i = probe == line ? comment_start_index(text) : 0
+          return [probe, text.length] if i.nil? || (depth.zero? && text[i, 2] == "--")
+
+          while i < text.length
+            pair = text[i, 2]
+            if pair == "(*"
+              depth += 1
+              i += 2
+            elsif pair == "*)" && depth.positive?
+              depth -= 1
+              i += 2
+              return [probe, i] if depth.zero?
+            else
+              i += 1
+            end
+          end
+          probe += 1
+        end
+        [source_line_count, line_content_for(source_line_count).to_s.length]
+      end
+
+      # Whether `rest`, the text after a comment on its line, holds code:
+      # further `(* ... *)` comments closed on the line are passed over; a
+      # comment left open, a `--` comment and white space are not code.
+      def code_follows?(rest)
+        i = 0
+        loop do
+          i += 1 while i < rest.length && rest[i].match?(/[ \t\r\n\f]/)
+          return i < rest.length && rest[i, 2] != "--" unless rest[i, 2] == "(*"
+
+          depth = 0
+          while i < rest.length
+            pair = rest[i, 2]
+            if pair == "(*"
+              depth += 1
+              i += 2
+            elsif pair == "*)"
+              depth -= 1
+              i += 2
+              break if depth.zero?
+            else
+              i += 1
+            end
+          end
+          return false if depth.positive?
+        end
+      end
+
+      # Where the first comment of a source line starts, skipping the quoted
+      # strings before it; nil when the line holds none.
+      def comment_start_index(text)
+        quoted = false
+        text.length.times do |i|
+          quoted = !quoted if text[i] == "'"
+          return i if !quoted && ["(*", "--"].include?(text[i, 2])
+        end
+        nil
       end
 
       def statement_region_for(line, nodes = nil)

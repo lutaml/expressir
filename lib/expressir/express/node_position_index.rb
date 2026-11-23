@@ -22,6 +22,9 @@ module Expressir
       # and NodePositionIndex via this alias for backward compatibility.
       COLLECTION_REGISTRY = Model::ModelElement.collection_registry
 
+      # The collection name the items of a SELECT list are indexed under.
+      SELECT_ITEMS = :select_items
+
       attr_reader :nodes
 
       # Semantic entries starting on `line` (node order).
@@ -155,13 +158,13 @@ module Expressir
       # preferring same-line starts/ends, then smallest containing span.
       # Skips nodes that cannot own such a remark; see {#remark_scope?}.
       def nearest_node_to(remark_line)
-        same_start = starting_at(remark_line).select { |n| remark_scope?(n[:node]) }
+        same_start = starting_at(remark_line).select { |n| owns_own_line_remark?(n) }
         return same_start.last[:node] if same_start.any?
 
-        same_end = ending_at(remark_line).select { |n| remark_scope?(n[:node]) }
+        same_end = ending_at(remark_line).select { |n| owns_own_line_remark?(n) }
         return same_end.last[:node] if same_end.any?
 
-        containing = spanning(remark_line).select { |n| remark_scope?(n[:node]) }
+        containing = spanning(remark_line).select { |n| owns_own_line_remark?(n) }
 
         if containing.any?
           exp_file_node = containing.find { |n| n[:node].is_a?(Model::ExpFile) }
@@ -255,6 +258,14 @@ module Expressir
         semantic?(node) && !node.is_a?(Model::Declarations::Interface)
       end
 
+      # Whether an indexed node can own a remark sitting on a line of its
+      # own. An item of a SELECT list cannot: it is written inside the
+      # list, and only a remark placed on it (inline or leading) is written
+      # there.
+      def owns_own_line_remark?(entry)
+        remark_scope?(entry[:node]) && entry[:collection] != SELECT_ITEMS
+      end
+
       def build_sorted_nodes
         result = []
         collect_nodes(@model, result, Set.new)
@@ -343,6 +354,16 @@ module Expressir
 
         each_collection_on(node) do |item, attr|
           collect_nodes(item, result, visited, owner: node, collection: attr)
+        end
+
+        # The items of a SELECT list are references, which no collection
+        # carries. They are indexed under their TYPE so that a remark
+        # inside the list finds the item it follows or precedes.
+        return unless node.is_a?(Model::Declarations::Type) &&
+          node.underlying_type.is_a?(Model::DataTypes::Select)
+
+        Array(node.underlying_type.items).each do |item|
+          collect_nodes(item, result, visited, owner: node, collection: SELECT_ITEMS)
         end
       end
 

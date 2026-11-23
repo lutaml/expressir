@@ -143,9 +143,10 @@ module Expressir
       # Some handlers return nil; appending and splicing must not turn that
       # into "".
       def place_remarks(formatted, node)
-        # An enumeration item is followed by a comma or by the `)` and `;`
-        # of its TYPE: its list and its TYPE write the remark after those.
-        inline = node.is_a?(Model::DataTypes::EnumerationItem) ? "" : format_inline_statement_remarks(node)
+        # An item of an ENUMERATION or of a SELECT is followed by a comma
+        # or by the `)` and `;` of its TYPE: its list and its TYPE write
+        # the remark after those.
+        inline = list_item?(node) ? "" : format_inline_statement_remarks(node)
         formatted += inline if formatted.is_a?(String) && !inline.empty?
         formatted = splice_opener_remark(formatted,
                                          format_opener_remarks(node))

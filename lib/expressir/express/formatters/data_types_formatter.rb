@@ -151,7 +151,7 @@ module Expressir
                       "\n",
                       indent([
                         "(",
-                        enumeration_item_lines(node.items, item_indent),
+                        list_item_lines(node.items, item_indent),
                         ")",
                       ].join),
                     ].join
@@ -167,7 +167,7 @@ module Expressir
                       "\n",
                       indent([
                         "(",
-                        enumeration_item_lines(node.items, item_indent),
+                        list_item_lines(node.items, item_indent),
                         ")",
                       ].join),
                     ].join
@@ -177,25 +177,47 @@ module Expressir
           ].join
         end
 
-        # The items of an ENUMERATION, one a line. A remark that follows an
-        # item on its line is written after the comma. The remark of the
-        # last item is written after the `;` of the TYPE
-        # ({#last_enumeration_item_remark}): before it, a tail remark would
-        # take the `)` and the `;` with it.
-        def enumeration_item_lines(items, item_indent)
+        # The items of an ENUMERATION or of a SELECT, one a line. A remark
+        # that follows an item on its line is written after the comma. The
+        # remark of the last item is written after the `;` of the TYPE
+        # ({#last_list_item_remark}): before it, a tail remark would take
+        # the `)` and the `;` with it.
+        def list_item_lines(items, item_indent)
           last = items.length - 1
           items.each_with_index.map do |item, i|
-            i == last ? format(item) : "#{format(item)},#{format_inline_statement_remarks(item)}"
+            text = list_item_text(item, item_indent)
+            i == last ? text : "#{text},#{format_list_item_remarks(item)}"
           end.join("\n#{item_indent}")
         end
 
-        # The remark that follows the last item of a TYPE's ENUMERATION.
-        def last_enumeration_item_remark(type)
-          enumeration = type.underlying_type
-          return "" unless enumeration.is_a?(Model::DataTypes::Enumeration)
+        # An item with the remarks that stand on lines of their own above
+        # it. Each remark and the item start at the depth of the items; the
+        # lines inside a remark of several lines are left as they are.
+        def list_item_text(item, item_indent)
+          leading = format_leading_statement_remarks(item)
+          return format(item) if leading.empty?
 
-          item = Array(enumeration.items).last
-          item ? format_inline_statement_remarks(item) : ""
+          own = format(item).delete_prefix("#{leading.join("\n")}\n")
+          [*leading, own].join("\n#{item_indent}")
+        end
+
+        # The remark that follows the last item of a TYPE's ENUMERATION or
+        # SELECT.
+        def last_list_item_remark(type)
+          list = type.underlying_type
+          return "" unless list.is_a?(Model::DataTypes::Enumeration) ||
+            list.is_a?(Model::DataTypes::Select)
+
+          item = Array(list.items).last
+          item ? format_list_item_remarks(item) : ""
+        end
+
+        # An item of an ENUMERATION, or a reference: the items of a SELECT
+        # are references, and the attacher places an inline remark on a
+        # reference only there.
+        def list_item?(node)
+          node.is_a?(Model::DataTypes::EnumerationItem) ||
+            node.is_a?(Model::References::SimpleReference)
         end
 
         def format_data_types_enumeration_item(node)
@@ -320,9 +342,7 @@ module Expressir
                       "\n",
                       indent([
                         "(",
-                        items.map do |x|
-                          format(x)
-                        end.join(",\n#{item_indent}"),
+                        list_item_lines(items, item_indent),
                         ")",
                       ].join),
                     ].join
@@ -335,9 +355,7 @@ module Expressir
                  "\n",
                  indent([
                    "(",
-                   items.map do |x|
-                     format(x)
-                   end.join(",\n#{item_indent}"),
+                   list_item_lines(items, item_indent),
                    ")",
                  ].join),
                ].join

@@ -406,15 +406,26 @@ module Expressir
       # declaration the comment introduces.
       def declaration_level_target(remark)
         line = remark.line
+        # An item of a SELECT list encloses nothing.
         scope = @node_index.spanning(line)
-          .reject { |n| n[:node].is_a?(Model::ExpFile) }
+          .reject do |n|
+            n[:node].is_a?(Model::ExpFile) ||
+              n[:collection] == NodePositionIndex::SELECT_ITEMS
+          end
           .min_by { |n| [n[:end_line] - n[:line], n[:line]] }
         limit = scope ? scope[:end_line] : line
         next_line = @node_index.next_start_after(line, limit)
         return [nil, nil, nil] unless next_line
 
-        node = @node_index.starting_at(next_line).first[:node]
-        [node, Model::RemarkPlacement::LEADING, nil]
+        following = @node_index.starting_at(next_line).first
+        # A remark between `SELECT` and the parenthesis, or after the code
+        # of another line, does not lead an item of the list.
+        if following[:collection] == NodePositionIndex::SELECT_ITEMS &&
+            !leads_select_item?(remark)
+          return [nil, nil, nil]
+        end
+
+        [following[:node], Model::RemarkPlacement::LEADING, nil]
       end
 
       # Whether the remark starts its line: nothing but blanks before it.
@@ -445,7 +456,7 @@ module Expressir
       # it to, and without that region the old appending behaviour stands.
       def inline_target(remark, nodes)
         started_here = nodes.select do |n|
-          n[:node].is_a?(Model::TakesInlineRemark) &&
+          takes_inline_remark?(n) &&
             n[:line] == remark.line &&
             n[:position] && n[:position] < remark.position
         end
@@ -461,6 +472,39 @@ module Expressir
 
         [owner[:node], Model::RemarkPlacement::INLINE,
          opener_region(owner, remark.line)]
+      end
+
+      # Whether an indexed node takes a remark written after it on its
+      # line: a TakesInlineRemark, or an item of a SELECT list. The item is
+      # a reference, and a reference takes such a remark nowhere else (the
+      # FOR items of a RULE are indexed too), so the index entry is asked,
+      # not the class.
+      def takes_inline_remark?(entry)
+        entry[:node].is_a?(Model::TakesInlineRemark) ||
+          entry[:collection] == NodePositionIndex::SELECT_ITEMS
+      end
+
+      # Whether the remark stands where it can lead an item of a SELECT
+      # list: the code before it, on its line or on the lines above, ends
+      # with the parenthesis that opens the list or with the comma of the
+      # item before, and no code follows it on its line.
+      def leads_select_item?(remark)
+        code = keyword_scannable(line_content_for(remark.line).to_s)
+        before, _, block = code.partition("(*")
+        return false unless block.partition("*)").last.strip.empty?
+
+        before = last_code_before(remark.line) if before.strip.empty?
+        before.rstrip.end_with?("(", ",")
+      end
+
+      # The code of the nearest line above `line` that holds code.
+      def last_code_before(line)
+        (line - 1).downto(1) do |number|
+          code = keyword_scannable(line_content_for(number).to_s)
+            .gsub(/\(\*.*?\*\)/, "").strip
+          return code unless code.empty? || code.start_with?("(*")
+        end
+        ""
       end
 
       # A node beginning and ending on the remark's line. Ranked by where it
@@ -495,7 +539,7 @@ module Expressir
       def closing_owner(nodes, remark)
         nodes
           .select do |n|
-            n[:node].is_a?(Model::TakesInlineRemark) &&
+            takes_inline_remark?(n) &&
               n[:end_line] == remark.line && n[:line] &&
               n[:line] < remark.line &&
               n[:position] && n[:position] < remark.position

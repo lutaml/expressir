@@ -302,6 +302,21 @@ Extensibility:: Easy to add metadata (tags, positions, etc.) without breaking ex
 Clarity:: Code explicitly shows whether a remark is tail or embedded
 
 
+=== Remarks in a supertype expression
+
+A remark after an operand of the supertype expression of a SUBTYPE_CONSTRAINT, and a remark on a line of its own before an operand, stay with the operand. An expression with such a remark is written one operand a line:
+
+[source,express]
+----
+SUBTYPE_CONSTRAINT terminal_subtypes FOR terminal;
+  ONEOF(bare_terminal, -- from the first module
+        module_terminal, -- from the second module
+        packaged_terminal); -- from the third module
+END_SUBTYPE_CONSTRAINT;
+----
+
+The remark of the last operand of the whole expression is written after the `;`. A block comment after an operand is kept as a line comment is, and an operand in parentheses is treated as one without. A remark on a line of its own leads the operand after it only when the last code before the remark is a comma or the `(` that opens a `ONEOF` list, and nothing but white space and comments lies between the remark and the operand's name. A remark that follows any other code, such as `ANDOR`, `AND` or the `(` of an operand's own parentheses, or that stands before an operand's own `(`, is written after `END_SUBTYPE_CONSTRAINT;` as before. So is a remark after an operator, or after the `)` of an inner `ONEOF`.
+
 === Using the base formatter
 
 The base [`Formatter`](lib/expressir/express/formatter.rb:13) class provides

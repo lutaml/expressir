@@ -69,9 +69,14 @@ module Expressir
       # @option options [String] :provenance_name Tool name for provenance (default: "Expressir")
       # @option options [String] :provenance_version Tool version for provenance (default: Expressir::Version::VERSION)
       # @option options [Boolean] :no_remarks Suppress remarks in output (default: false)
+      # @option options [Boolean] :keep_untagged_remarks Keep the untagged
+      #   comments when :no_remarks is set (default: false) — the plain
+      #   form of the pretty face (#734)
       def initialize(options = {})
         @config = Configuration.new(options)
-        super(no_remarks: options.fetch(:no_remarks, false))
+        super(no_remarks: options.fetch(:no_remarks, false),
+              keep_untagged_remarks: options.fetch(:keep_untagged_remarks,
+                                                   false))
       end
 
       # Override indent to use configured width
@@ -88,7 +93,7 @@ module Expressir
       # @param node [Model::ModelElement] Node with potential tail remark
       # @return [String] Tail remark or empty string
       def format_inline_tail_remark(node)
-        return "" if @no_remarks
+        return "" if @no_remarks && !@keep_untagged_remarks
         return "" unless node.is_a?(Model::ModelElement)
         return "" if node.untagged_remarks.nil? || node.untagged_remarks.empty?
 

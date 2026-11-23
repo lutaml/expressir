@@ -14110,6 +14110,14 @@ schemas:
       - "(output) A BOOLEAN value which is TRUE if the comparison between the values
         v1 and v2 indicated by op is true."
     untagged_remarks:
+    - text: This algorithm assumes a comparison between "incompatible" types will
+      format: tail
+      placement: trailing
+      region: declarations
+    - text: produce the indeterminate value (or UNKNOWN?).
+      format: tail
+      placement: trailing
+      region: declarations
     - text: compare_values
       format: tail
     parameters:
@@ -14147,13 +14155,6 @@ schemas:
         value: UNKNOWN
     statements:
     - _class: Expressir::Model::Statements::If
-      untagged_remarks:
-      - text: This algorithm assumes a comparison between "incompatible" types will
-        format: tail
-        placement: leading
-      - text: produce the indeterminate value (or UNKNOWN?).
-        format: tail
-        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: OR
@@ -21104,6 +21105,10 @@ schemas:
       remarks:
       - "(output) The function domain of the input instance."
     untagged_remarks:
+    - text: Resume body of derive_definite_integral_domain function
+      format: tail
+      placement: trailing
+      region: declarations
     - text: derive_definite_integral_domain
       format: tail
     parameters:
@@ -21124,6 +21129,9 @@ schemas:
     - _class: Expressir::Model::Declarations::Function
       id: process_product_space
       untagged_remarks:
+      - text: 'Internal utility function:'
+        format: tail
+        placement: leading
       - text: process_product_space
         format: tail
       parameters:
@@ -21529,13 +21537,6 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
     statements:
     - _class: Expressir::Model::Statements::If
-      untagged_remarks:
-      - text: 'Internal utility function:'
-        format: tail
-        placement: leading
-      - text: Resume body of derive_definite_integral_domain function
-        format: tail
-        placement: leading
       expression:
         _class: Expressir::Model::References::SimpleReference
         id: tupled
@@ -31381,6 +31382,10 @@ schemas:
     functions:
     - _class: Expressir::Model::Declarations::Function
       id: angle
+      untagged_remarks:
+      - text: Find equivalent direction in range -PI < a <= PI.
+        format: tail
+        placement: leading
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: a
@@ -31465,6 +31470,10 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.angle.a
     - _class: Expressir::Model::Declarations::Function
       id: strictly_in
+      untagged_remarks:
+      - text: Determine whether a real is strictly within a real interval
+        format: tail
+        placement: leading
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: z
@@ -31556,6 +31565,10 @@ schemas:
     procedures:
     - _class: Expressir::Model::Declarations::Procedure
       id: angle_minmax
+      untagged_remarks:
+      - text: Include direction in minmax collection
+        format: tail
+        placement: leading
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: ab
@@ -31740,6 +31753,10 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.angle_minmax.a_in
     - _class: Expressir::Model::Declarations::Procedure
       id: range_max
+      untagged_remarks:
+      - text: Include distance in max collection
+        format: tail
+        placement: leading
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: r
@@ -31822,6 +31839,10 @@ schemas:
             base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_cregion_in_pregion.range_max.incl
     - _class: Expressir::Model::Declarations::Procedure
       id: range_min
+      untagged_remarks:
+      - text: Include distance in min collection
+        format: tail
+        placement: leading
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: r
@@ -32183,22 +32204,6 @@ schemas:
         base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.open_closed.open
     statements:
     - _class: Expressir::Model::Statements::If
-      untagged_remarks:
-      - text: Find equivalent direction in range -PI < a <= PI.
-        format: tail
-        placement: leading
-      - text: Determine whether a real is strictly within a real interval
-        format: tail
-        placement: leading
-      - text: Include direction in minmax collection
-        format: tail
-        placement: leading
-      - text: Include distance in max collection
-        format: tail
-        placement: leading
-      - text: Include distance in min collection
-        format: tail
-        placement: leading
       expression:
         _class: Expressir::Model::Expressions::BinaryExpression
         operator: OR
@@ -37142,6 +37147,10 @@ schemas:
     functions:
     - _class: Expressir::Model::Declarations::Function
       id: angle
+      untagged_remarks:
+      - text: Find equivalent direction in range -PI < a <= PI.
+        format: tail
+        placement: leading
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: a
@@ -37226,6 +37235,10 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.enclose_pregion_in_pregion.angle.a
     - _class: Expressir::Model::Declarations::Function
       id: strictly_in
+      untagged_remarks:
+      - text: Determine whether a direction is strictly within a direction interval
+        format: tail
+        placement: leading
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: a
@@ -37322,6 +37335,10 @@ schemas:
     procedures:
     - _class: Expressir::Model::Declarations::Procedure
       id: angle_range
+      untagged_remarks:
+      - text: Find proper limits for direction interval
+        format: tail
+        placement: leading
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: amin
@@ -37425,6 +37442,14 @@ schemas:
                 id: PI
     - _class: Expressir::Model::Declarations::Procedure
       id: find_aminmax
+      untagged_remarks:
+      - text: Find min and max and related inclusion booleans among four candidates,
+        format: tail
+        placement: leading
+      - text: using a base direction chosen to ensure the algebraic comparisons are
+          valid.
+        format: tail
+        placement: leading
       parameters:
       - _class: Expressir::Model::Declarations::Parameter
         id: ab
@@ -38354,22 +38379,6 @@ schemas:
     statements:
     - _class: Expressir::Model::Statements::If
       untagged_remarks:
-      - text: Find equivalent direction in range -PI < a <= PI.
-        format: tail
-        placement: leading
-      - text: Find proper limits for direction interval
-        format: tail
-        placement: leading
-      - text: Determine whether a direction is strictly within a direction interval
-        format: tail
-        placement: leading
-      - text: Find min and max and related inclusion booleans among four candidates,
-        format: tail
-        placement: leading
-      - text: using a base direction chosen to ensure the algebraic comparisons are
-          valid.
-        format: tail
-        placement: leading
       - text: Extract elementary input information
         format: tail
         placement: leading
@@ -59990,6 +59999,9 @@ schemas:
     - _class: Expressir::Model::Declarations::Function
       id: fedex
       untagged_remarks:
+      - text: Trivial function introduced to avoid NIST Fedex compiler error
+        format: tail
+        placement: leading
       - text: fedex
         format: tail
       parameters:
@@ -60147,10 +60159,6 @@ schemas:
           base_path: spec/syntax/mathematical_functions_schema/mathematical_functions_schema.exp.mathematical_functions_schema.maths_space
     statements:
     - _class: Expressir::Model::Statements::If
-      untagged_remarks:
-      - text: Trivial function introduced to avoid NIST Fedex compiler error
-        format: tail
-        placement: leading
       expression:
         _class: Expressir::Model::Expressions::UnaryExpression
         operator: NOT

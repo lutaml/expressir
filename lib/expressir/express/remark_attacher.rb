@@ -376,6 +376,12 @@ module Expressir
         closing = closing_region_target(line, own_line: own_line_remark?(remark))
         return closing if closing.first
 
+        # An own-line comment in the declaration part of a FUNCTION,
+        # PROCEDURE or RULE leads the declaration written below it. The
+        # statement lookup below would hand it to the first statement.
+        head = head_declaration_target(remark)
+        return head if head.first
+
         enclosing, region, = statement_region_for(line)
         if region
           following = region
@@ -563,6 +569,151 @@ module Expressir
         return [nil, nil, nil] unless innermost
 
         [innermost[:node], Model::RemarkPlacement::INLINE, region]
+      end
+
+      # The nested declarations of a callable: its own collections, before
+      # LOCAL and the statements.
+      HEAD_COLLECTIONS = %i[
+        types entities subtype_constraints functions procedures constants
+      ].freeze
+
+      # A comment on its own line in the declaration part of a FUNCTION,
+      # PROCEDURE or RULE. Before a nested declaration it leads that
+      # declaration; before LOCAL or END_LOCAL it closes the part above
+      # (TRAILING, region declarations or variables); before a LOCAL
+      # variable it leads the variable. The variables carry no source spans,
+      # so the next code line names the one (as in local_variable_target).
+      # Nothing else follows the declaration part but the statements and
+      # WHERE rules, so a body that starts above the line found means the
+      # comment is not in the declaration part. Only `--` comments and
+      # one-line `(* *)` comments take part: a comment of several lines is
+      # left to the lookups that follow.
+      def head_declaration_target(remark)
+        line = remark.line
+        return [nil, nil, nil] unless only_remark?(line_content_for(line))
+
+        callable = innermost_candidate(@node_index.spanning(line).select do |n|
+          n[:line] < line && function_rule_procedure?(n[:node])
+        end)
+        return [nil, nil, nil] unless callable
+
+        owner = callable[:node]
+        body = @node_index.children_in(owner, STATEMENT_REGIONS + [:where_rules])
+          .select { |n| n[:line] > line }.map { |n| n[:line] }.min
+        in_head = ->(l) { body.nil? || l < body }
+
+        nested = @node_index.children_in(owner, HEAD_COLLECTIONS)
+          .select { |n| n[:line] > line }.min_by { |n| n[:position] }
+        if nested
+          return [nested[:node], Model::RemarkPlacement::LEADING, nil] if in_head.(nested[:line])
+
+          return [nil, nil, nil]
+        end
+
+        code_line = next_code_line(line)
+        return [nil, nil, nil] unless code_line && in_head.(code_line[0]) && owner.variables&.any?
+
+        if code_line[1].match?(/\ALOCAL\b/i)
+          return [owner, Model::RemarkPlacement::TRAILING, "declarations"]
+        elsif code_line[1].match?(/\AEND_LOCAL\b/i)
+          return [owner, Model::RemarkPlacement::TRAILING, "variables"]
+        end
+
+        # A variable is led only from inside the LOCAL block of this
+        # callable, after the end of a declaration: a comment between the
+        # names of one declaration, or in a statement body, is not.
+        text = (callable[:line]...line).map { |n| line_content_for(n) }.join("\n").b
+        inside, last = local_block_state(text)
+        return [nil, nil, nil] unless inside && (last == ";" || last.casecmp?("LOCAL"))
+
+        names = code_line[1][/\A\s*([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)\s*:(?!=)/, 1]&.split(/\s*,\s*/)
+        variable = names && owner.variables.find do |v|
+          names.any? { |name| name.casecmp?(v.id) }
+        end
+        return [nil, nil, nil] unless variable
+
+        [variable, Model::RemarkPlacement::LEADING, nil]
+      end
+
+      # Whether a source line holds nothing but remarks: `--` comments and
+      # one-line `(* *)` blocks, which nest. A block left open at the end of
+      # the line, or code, makes it false.
+      def only_remark?(content)
+        i = 0
+        depth = 0
+        while i < content.length
+          pair = content[i, 2]
+          if depth.zero? && pair == "--"
+            return true
+          elsif pair == "(*"
+            depth += 1
+            i += 2
+          elsif depth.positive? && pair == "*)"
+            depth -= 1
+            i += 2
+          elsif depth.zero? && !content[i].match?(/\s/)
+            return false
+          else
+            i += 1
+          end
+        end
+        depth.zero?
+      end
+
+      # The first line after `line` that holds code, as [line number, text]:
+      # blank lines and lines of remarks only are skipped.
+      def next_code_line(line)
+        probe = line + 1
+        while probe <= source_line_count
+          content = line_content_for(probe).to_s.strip
+          return [probe, content] unless content.empty? || only_remark?(content)
+
+          probe += 1
+        end
+        nil
+      end
+
+      # Whether the end of `text` stands inside the LOCAL block of the
+      # callable that `text` starts, and the last code token before it:
+      # [inside, token]. Remarks and string literals are skipped; LOCAL opens
+      # the block and END_LOCAL closes it.
+      def local_block_state(text)
+        inside = false
+        last = ""
+        i = 0
+        while i < text.bytesize
+          pair = text.byteslice(i, 2)
+          char = text.byteslice(i, 1)
+          if pair == "--"
+            i += 1 while i < text.bytesize && text.getbyte(i) != 10
+          elsif pair == "(*"
+            depth = 0
+            while i < text.bytesize
+              pair = text.byteslice(i, 2)
+              depth += 1 if pair == "(*"
+              depth -= 1 if pair == "*)"
+              i += ["(*", "*)"].include?(pair) ? 2 : 1
+              break if depth.zero?
+            end
+          elsif ["'", '"'].include?(char)
+            i += 1
+            i += (text.byteslice(i, 2) == "''" ? 2 : 1) until i >= text.bytesize || (text.byteslice(i, 1) == char && text.byteslice(i, 2) != "''")
+            i += 1
+            last = "'"
+          elsif char.match?(/[A-Za-z_]/n)
+            word = text.match(/\G\w+/n, i)[0]
+            last = word
+            inside = true if word.casecmp?("LOCAL")
+            inside = false if word.casecmp?("END_LOCAL")
+            i += word.bytesize
+          elsif char.match?(/\s/n)
+            i += 1
+          else
+            last = char
+            i += 1
+          end
+        end
+        [inside, last]
       end
 
       # A remark on a LOCAL variable declaration line — `v : INTEGER; -- why`.

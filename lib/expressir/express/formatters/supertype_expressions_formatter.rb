@@ -14,9 +14,14 @@ module Expressir
           # The minimal-paren policy (expressir#651): left child needs
           # parens only when strictly looser; right child when
           # same-or-looser (left-associative operators).
+          # An operand that carries the pairs of the source (`parenthesized`,
+          # as for expressions, #707) writes them itself; the policy
+          # applies to a model without that record.
           op1_higher_precedence = node.operand1.is_a?(Model::SupertypeExpressions::BinarySupertypeExpression) &&
+            !node.operand1.parenthesized.to_i.positive? &&
             (supertype_precedence[node.operand1.operator] > supertype_precedence[node.operator])
           op2_higher_precedence = node.operand2.is_a?(Model::SupertypeExpressions::BinarySupertypeExpression) &&
+            !node.operand2.parenthesized.to_i.positive? &&
             (supertype_precedence[node.operand2.operator] >= supertype_precedence[node.operator])
 
           [

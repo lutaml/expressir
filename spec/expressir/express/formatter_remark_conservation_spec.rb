@@ -126,11 +126,20 @@ round_trips = {
   # remarks onto the constructs they physically follow; the lost set is
   # the core-agreed verdict (byte-identical lanes).
   "spec/fixtures/examples/tail_remarks_test_schema.exp" => {
-    lost: {
-      "Final untagged tail remark at end of file" => 1,
-      "Untagged tail remark after constant" => 1,
-      "Untagged tail remark at very beginning of file" => 1,
-    },
+    # the core lane (v0.1.61) conserves the after-constant tail — the
+    # constant is a remark scope there (#735)
+    lost: if Expressir::Express::Parser.native_available?
+            {
+              "Final untagged tail remark at end of file" => 1,
+              "Untagged tail remark at very beginning of file" => 1,
+            }
+          else
+            {
+              "Final untagged tail remark at end of file" => 1,
+              "Untagged tail remark after constant" => 1,
+              "Untagged tail remark at very beginning of file" => 1,
+            }
+          end,
     tagged_lost: 6, tagged_survivors: [],
     embedded_lost: 2,
     embedded_survivors: [

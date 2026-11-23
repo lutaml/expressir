@@ -361,14 +361,15 @@ module Expressir
             format(node.schema),
             *if node.items&.length&.positive?
                item_indent = indent_char * "(".length
-               [
-                 "\n",
-                 indent([
-                   "(",
-                   node.items.map { |x| format(x) }.join(",\n#{item_indent}"),
-                   ")",
-                 ].join),
-               ].join
+               items = node.items.map { |x| format(x) }.join(",\n#{item_indent}")
+               # A remark that followed the opening parenthesis keeps it on
+               # the clause's first line: `USE FROM x ( -- why`.
+               after_parenthesis = format_mid_keyword_remarks(node, Model::RemarkPlacement::ITEMS_REGION)
+               if after_parenthesis.empty?
+                 ["\n", indent(["(", items, ")"].join)].join
+               else
+                 [" ", "(", after_parenthesis, "\n", indent([item_indent, items, ")"].join)].join
+               end
              end,
             ";",
           ].join

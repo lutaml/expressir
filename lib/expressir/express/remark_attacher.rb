@@ -505,7 +505,22 @@ module Expressir
       def opener_region(owner, line)
         return nil unless owner[:end_line] && owner[:end_line] > line
 
+        # `USE FROM x ( -- why`: the remark follows the parenthesis that
+        # opens the item list, and belongs back after it.
+        if owner[:node].is_a?(Model::Declarations::Interface) && opens_item_list?(line)
+          return Model::RemarkPlacement::ITEMS_REGION
+        end
+
         Model::RemarkPlacement::OPENER_REGION
+      end
+
+      # Whether the line, up to its `--` remark, ends with an opening
+      # parenthesis. A line that holds a `(* *)` remark as well is left out:
+      # the region is one per line, and that remark may stand on the other
+      # side of the parenthesis.
+      def opens_item_list?(line)
+        code = keyword_scannable(line_content_for(line).to_s)
+        code.rstrip.end_with?("(") && !code.include?("(*")
       end
 
       # Lines beginning with a mid-construct keyword. The keyword closes

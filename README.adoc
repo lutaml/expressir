@@ -54,6 +54,22 @@ SCHEMA example;
 END_SCHEMA;
 ----
 
+==== Remarks on a USE FROM or REFERENCE FROM clause
+
+A remark on the first line of a clause with an item list stays on the side of
+the opening parenthesis where it was written:
+
+[source,express]
+----
+REFERENCE FROM support_resource_schema -- ISO 10303-41
+  (identifier,
+   label);
+
+USE FROM geometry_schema ( -- ISO 10303-42
+   point,
+   direction);
+----
+
 ==== Inline tail remarks
 
 Remarks on the same line as attribute or enumeration item declarations:

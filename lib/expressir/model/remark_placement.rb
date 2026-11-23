@@ -31,6 +31,11 @@ module Expressir
       # Region of an INLINE remark that trailed a compound statement's opener.
       OPENER_REGION = "opener"
 
+      # Region of an INLINE remark that trailed the opening parenthesis of an
+      # interface clause's item list, as in `USE FROM x ( -- why`. It belongs
+      # back after that parenthesis, not before it.
+      ITEMS_REGION = "items"
+
       # Regions of INLINE remarks that trailed a mid-construct keyword line —
       # `ELSE -- why`, `OTHERWISE : -- why`, or a case label whose action
       # starts on the next line (`1 : -- why`). The owning construct is the

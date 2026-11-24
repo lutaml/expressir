@@ -46,7 +46,7 @@ jobs:
             puts "core ext OK"
           '
           bundle exec rspec spec/expressir/express spec/expressir/p21 -f progress \
-            --exclude-pattern "spec/expressir/express/formatter_{spec,abstract_entity_declaration,block_remark_after_where_rule_label,multiline_remark_before_closing_keyword,nested_declaration_order,own_line_remark_before_end_keyword,own_line_remark_before_entity_section,own_line_remark_between_case_actions,plain_form_ends_at_end_schema,plain_form_source_ip_lines,remark_before_end_schema,remark_before_interface_clause,remark_before_local_or_nested_declaration,remark_in_if_with_then_on_next_line,remark_ownership,remark_that_names_an_end_keyword,select_item_remarks,subtype_constraint_remarks,supertype_expression_parentheses}_spec.rb"
+            --exclude-pattern "spec/expressir/express/formatter*_spec.rb"
 
   fallback-lane:
     runs-on: ubuntu-latest

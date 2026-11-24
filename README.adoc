@@ -140,6 +140,23 @@ END_SCHEMA; -- schema_name
 
 ==== Remarks before an END_* keyword
 
+A remark on a line of its own after the last declaration of a schema stays
+before END_SCHEMA, in the order of the source. A remark on the END_SCHEMA line
+itself, or after it, is not changed:
+
+[source,express]
+----
+SCHEMA example;
+
+ENTITY person;
+  name : STRING;
+END_ENTITY;
+
+-- More declarations will follow
+(* The schema is not complete *)
+END_SCHEMA;
+----
+
 A remark on a line of its own after the last attribute or rule of an entity, or
 after the definition or the last rule of a type, stays before the END_ENTITY or
 END_TYPE keyword:

@@ -60,12 +60,12 @@ round_trips = {
   # lengths; every remark holds its owner across the round trip and the
   # placements are byte-identical to the core lane.
   "spec/fixtures/examples/tail_remarks_test_schema.exp" =>
-    # the all-legacy-scope-remarks render conserves the "before schema
-    # end" comment; "after schema end" re-houses once, then holds. The
-    # after-constant tail holds its constant on both lanes now (#735):
+    # the "before schema end" comment is on a line of its own before
+    # END_SCHEMA and is written back there, so "after schema end", which
+    # follows END_SCHEMA on its line, no longer re-houses on a reparse.
+    # The after-constant tail holds its constant on both lanes now (#735):
     # the include makes the reparse keep it too.
-    { traced: 33, tagged: 7, escapes: 1,
-      known_move_texts: ["Untagged tail remark after schema end"] },
+    { traced: 33, tagged: 7, escapes: 0 },
   "spec/fixtures/function_body_remarks.exp" =>
     { traced: 13, tagged: 0, escapes: 0 },
   "spec/syntax/remark.exp" =>

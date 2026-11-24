@@ -24,6 +24,9 @@ module Expressir
         attribute :constants, Constant, collection: true, initialize_empty: true
         attribute :variables, Variable, collection: true, initialize_empty: true
         attribute :statements, ModelElement, collection: true, initialize_empty: true
+        # The nested declaration ids in the order of the source (#711);
+        # the formatter follows it instead of the grouped-by-kind layout.
+        attribute :declaration_order, :string, collection: true, initialize_empty: true
         attribute :where_rules, WhereRule, collection: true, initialize_empty: true
         attribute :informal_propositions, InformalPropositionRule,
                   collection: true, initialize_empty: true
@@ -40,6 +43,7 @@ module Expressir
           map "constants", to: :constants
           map "variables", to: :variables
           map "statements", to: :statements
+          map "declaration_order", to: :declaration_order
           map "where_rules", to: :where_rules
           map "informal_propositions", to: :informal_propositions
         end

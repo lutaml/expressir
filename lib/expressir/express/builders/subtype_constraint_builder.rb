@@ -120,7 +120,13 @@ module Expressir
           elsif ast_data[:one_of]
             Builder.build({ one_of: ast_data[:one_of] })
           elsif ast_data[:supertype_expression]
-            Builder.build({ supertype_expression: ast_data[:supertype_expression] })
+            expr = Builder.build({ supertype_expression: ast_data[:supertype_expression] })
+            # A parenthesized supertype expression keeps the pair of the
+            # source in `parenthesized`, as an expression does (#707).
+            if ast_data[:op_leftparen] && expr.respond_to?(:parenthesized)
+              expr.parenthesized = (expr.parenthesized || 0) + 1
+            end
+            expr
           end
         end
 

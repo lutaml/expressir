@@ -712,6 +712,9 @@ module Expressir
           next unless entity.abstract
 
           entity.abstract = true # formatter renders ABSTRACT SUPERTYPE when supertype present
+          # The bare `ABSTRACT` of the source is written `ABSTRACT SUPERTYPE`
+          # in the long form too.
+          entity.abstract_entity = nil
         end
       end
 

@@ -60,7 +60,9 @@ module Expressir
                         run.length > 1 && group_combinable?(run) ? run : nil
                       end
             if members
-              out << formatter_method.call(node, members.map(&:id))
+              # The combined declaration does not pass through format.
+              out << [*format_leading_statement_remarks(node),
+                      formatter_method.call(node, members.map(&:id))].join("\n")
               i += members.length
             else
               out << format(node)
@@ -177,8 +179,7 @@ module Expressir
                    "\n",
                    indent([
                      "ABSTRACT",
-                     " ",
-                     "SUPERTYPE",
+                     *(node.abstract_entity ? [] : [" ", "SUPERTYPE"]),
                    ].join),
                  ].join
                end,
@@ -234,32 +235,37 @@ module Expressir
             *if explicit_attributes&.length&.positive?
                indent(format_grouped_declarations(explicit_attributes, method(:format_declarations_attribute)).join("\n"))
              end,
+            # A comment after the last member of a section closes it, before the
+            # keyword of the next section or END_ENTITY.
+            *format_closing_remarks(node, :attributes).map { |x| indent(x) },
             *if derived_attributes&.length&.positive?
                [
                  "DERIVE",
                  indent(derived_attributes.map { |x| format(x) }.join("\n")),
                ]
              end,
+            *format_closing_remarks(node, :derived_attributes).map { |x| indent(x) },
             *if inverse_attributes&.length&.positive?
                [
                  "INVERSE",
                  indent(inverse_attributes.map { |x| format(x) }.join("\n")),
                ]
              end,
+            *format_closing_remarks(node, :inverse_attributes).map { |x| indent(x) },
             *if node.unique_rules&.length&.positive?
                [
                  "UNIQUE",
                  indent(node.unique_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
+            *format_closing_remarks(node, :unique_rules).map { |x| indent(x) },
             *if node.where_rules&.length&.positive?
                [
                  "WHERE",
                  indent(node.where_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
-            # A comment after the last attribute or rule closes the entity.
-            *format_closing_remarks(node, :attributes, :where_rules).map { |x| indent(x) },
+            *format_closing_remarks(node, :where_rules).map { |x| indent(x) },
             *format_informal_propositions(node).map { |x| indent(x) },
             *format_remark_items(node).map { |x| indent(x) },
             [
@@ -280,6 +286,28 @@ module Expressir
           items += Array(node.derived_attributes) if node.respond_to?(:derived_attributes)
           items += Array(node.inverse_attributes) if node.respond_to?(:inverse_attributes)
           items.flatten.compact.uniq(&:object_id)
+        end
+
+        # The declarations nested in a FUNCTION, PROCEDURE or RULE (#711,
+        # as for a schema): with a recorded declaration order they follow
+        # the source; a model without it keeps the grouped-by-kind layout.
+        def format_nested_declarations(node)
+          collections = [node.types, node.entities, node.subtype_constraints,
+                         node.functions, node.procedures]
+          all = collections.flat_map(&:to_a)
+          # Each id of the record takes the first nested declaration of that
+          # id not written yet; what the record leaves out follows in the
+          # grouped-by-kind order, so every declaration is written once.
+          written = {}.compare_by_identity
+          ordered = Array(node.declaration_order).filter_map do |id|
+            hit = all.find { |x| !written.key?(x) && x.id == id }
+            written[hit] = true if hit
+            hit
+          end
+          ordered.concat(all.reject { |x| written.key?(x) })
+          return [] if ordered.empty?
+
+          [indent(ordered.map { |x| format(x) }.join("\n"))]
         end
 
         def format_declarations_function(node)
@@ -305,21 +333,7 @@ module Expressir
               format(node.return_type),
               ";",
             ].join,
-            *if node.types&.length&.positive?
-               indent(node.types.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.entities&.length&.positive?
-               indent(node.entities.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.subtype_constraints&.length&.positive?
-               indent(node.subtype_constraints.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.functions&.length&.positive?
-               indent(node.functions.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.procedures&.length&.positive?
-               indent(node.procedures.map { |x| format(x) }.join("\n"))
-             end,
+            *format_nested_declarations(node),
             *if node.constants&.length&.positive?
                indent([
                  "CONSTANT",
@@ -330,10 +344,15 @@ module Expressir
                  ].join,
                ].join("\n"))
              end,
+            # A comment on its own line before LOCAL closes the declarations.
+            *format_trailing_region_remarks(node, :declarations).map { |x| indent(x) },
             *if node.variables&.length&.positive?
                indent([
                  "LOCAL",
-                 indent(format_grouped_declarations(node.variables, method(:format_declarations_variable)).join("\n")),
+                 indent([
+                   *format_grouped_declarations(node.variables, method(:format_declarations_variable)),
+                   *format_trailing_region_remarks(node, :variables),
+                 ].join("\n")),
                  [
                    "END_LOCAL",
                    ";",
@@ -431,21 +450,7 @@ module Expressir
                end,
               ";",
             ].join,
-            *if node.types&.length&.positive?
-               indent(node.types.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.entities&.length&.positive?
-               indent(node.entities.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.subtype_constraints&.length&.positive?
-               indent(node.subtype_constraints.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.functions&.length&.positive?
-               indent(node.functions.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.procedures&.length&.positive?
-               indent(node.procedures.map { |x| format(x) }.join("\n"))
-             end,
+            *format_nested_declarations(node),
             *if node.constants&.length&.positive?
                indent([
                  "CONSTANT",
@@ -456,10 +461,15 @@ module Expressir
                  ].join,
                ].join("\n"))
              end,
+            # A comment on its own line before LOCAL closes the declarations.
+            *format_trailing_region_remarks(node, :declarations).map { |x| indent(x) },
             *if node.variables&.length&.positive?
                indent([
                  "LOCAL",
-                 indent(format_grouped_declarations(node.variables, method(:format_declarations_variable)).join("\n")),
+                 indent([
+                   *format_grouped_declarations(node.variables, method(:format_declarations_variable)),
+                   *format_trailing_region_remarks(node, :variables),
+                 ].join("\n")),
                  [
                    "END_LOCAL",
                    ";",
@@ -526,21 +536,7 @@ module Expressir
               ")",
               ";",
             ].join,
-            *if node.types&.length&.positive?
-               indent(node.types.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.entities&.length&.positive?
-               indent(node.entities.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.subtype_constraints&.length&.positive?
-               indent(node.subtype_constraints.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.functions&.length&.positive?
-               indent(node.functions.map { |x| format(x) }.join("\n"))
-             end,
-            *if node.procedures&.length&.positive?
-               indent(node.procedures.map { |x| format(x) }.join("\n"))
-             end,
+            *format_nested_declarations(node),
             *if node.constants&.length&.positive?
                indent([
                  "CONSTANT",
@@ -551,10 +547,15 @@ module Expressir
                  ].join,
                ].join("\n"))
              end,
+            # A comment on its own line before LOCAL closes the declarations.
+            *format_trailing_region_remarks(node, :declarations).map { |x| indent(x) },
             *if node.variables&.length&.positive?
                indent([
                  "LOCAL",
-                 indent(format_grouped_declarations(node.variables, method(:format_declarations_variable)).join("\n")),
+                 indent([
+                   *format_grouped_declarations(node.variables, method(:format_declarations_variable)),
+                   *format_trailing_region_remarks(node, :variables),
+                 ].join("\n")),
                  [
                    "END_LOCAL",
                    ";",
@@ -683,10 +684,18 @@ module Expressir
             # remark.exp byte-identically for the formatter golden.
             *format_schema_remarks(node).flat_map { |x| ["", x] },
             *format_remark_items(node).flat_map { |x| ["", x] },
+            # Comments after the last declaration, directly above END_SCHEMA.
+            # The blank line above them is already there after the last
+            # declaration, and is not after an item or in an empty schema.
+            *format_trailing_region_remarks(node, :declarations).then do |x|
+              blank = !schema_declarations&.length&.positive? ||
+                !(format_schema_remarks(node) + format_remark_items(node)).empty?
+              x.empty? || !blank ? x : ["", *x]
+            end,
             [
               "END_SCHEMA",
               ";",
-              format_end_scope_remark(node),
+              format_schema_end_remark(node),
             ].join,
           ].join("\n")
         end
@@ -737,6 +746,7 @@ module Expressir
                indent([
                  format(node.supertype_expression),
                  ";",
+                 last_supertype_operand_remarks(node.supertype_expression),
                ].join)
              end,
             *format_remark_items(node).map { |x| indent(x) },
@@ -759,16 +769,18 @@ module Expressir
               " ",
               format(node.underlying_type),
               ";",
-              last_enumeration_item_remark(node),
+              last_list_item_remark(node),
             ].join,
+            # A comment after the definition closes it, before WHERE or END_TYPE;
+            # one after the last rule closes the type.
+            *format_closing_remarks(node, :underlying_type).map { |x| indent(x) },
             *if node.where_rules&.length&.positive?
                [
                  "WHERE",
                  indent(node.where_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
-            # A comment after the definition or the last rule closes the type.
-            *format_closing_remarks(node, :underlying_type, :where_rules).map { |x| indent(x) },
+            *format_closing_remarks(node, :where_rules).map { |x| indent(x) },
             *format_remark_items(node).map { |x| indent(x) },
             [
               "END_TYPE",

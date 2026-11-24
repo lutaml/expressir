@@ -22,6 +22,19 @@ module Expressir
       # and NodePositionIndex via this alias for backward compatibility.
       COLLECTION_REGISTRY = Model::ModelElement.collection_registry
 
+      # The collection name the items of a SELECT list are indexed under.
+      SELECT_ITEMS = :select_items
+
+      # The collection names the references of a SUBTYPE_CONSTRAINT's
+      # supertype expression are indexed under: an operand that a comma
+      # follows in a ONEOF list, the last operand of the whole expression,
+      # and the others (the operand of an operator, the last operand of an
+      # inner ONEOF), which take no remark.
+      SUPERTYPE_LISTED = :supertype_listed
+      SUPERTYPE_FINAL = :supertype_final
+      SUPERTYPE_OTHER = :supertype_other
+      SUPERTYPE_OPERANDS = [SUPERTYPE_LISTED, SUPERTYPE_FINAL, SUPERTYPE_OTHER].freeze
+
       attr_reader :nodes
 
       # Semantic entries starting on `line` (node order).
@@ -155,13 +168,13 @@ module Expressir
       # preferring same-line starts/ends, then smallest containing span.
       # Skips nodes that cannot own such a remark; see {#remark_scope?}.
       def nearest_node_to(remark_line)
-        same_start = starting_at(remark_line).select { |n| remark_scope?(n[:node]) }
+        same_start = starting_at(remark_line).select { |n| owns_own_line_remark?(n) }
         return same_start.last[:node] if same_start.any?
 
-        same_end = ending_at(remark_line).select { |n| remark_scope?(n[:node]) }
+        same_end = ending_at(remark_line).select { |n| owns_own_line_remark?(n) }
         return same_end.last[:node] if same_end.any?
 
-        containing = spanning(remark_line).select { |n| remark_scope?(n[:node]) }
+        containing = spanning(remark_line).select { |n| owns_own_line_remark?(n) }
 
         if containing.any?
           exp_file_node = containing.find { |n| n[:node].is_a?(Model::ExpFile) }
@@ -252,7 +265,16 @@ module Expressir
       # giving it to the clause would both misplace it and lose it, since
       # nothing renders remarks there.
       def remark_scope?(node)
-        semantic?(node) && !node.is_a?(Model::Declarations::Interface)
+        semantic?(node) && !node.is_a?(Model::Declarations::Interface) &&
+          !@supertype_operands&.key?(node)
+      end
+
+      # Whether an indexed node can own a remark sitting on a line of its
+      # own. An item of a SELECT list cannot: it is written inside the
+      # list, and only a remark placed on it (inline or leading) is written
+      # there.
+      def owns_own_line_remark?(entry)
+        remark_scope?(entry[:node]) && entry[:collection] != SELECT_ITEMS
       end
 
       def build_sorted_nodes
@@ -341,8 +363,56 @@ module Expressir
           end
         end
 
+        collect_supertype_operands(node, result, visited)
+
         each_collection_on(node) do |item, attr|
           collect_nodes(item, result, visited, owner: node, collection: attr)
+        end
+
+        # The items of a SELECT list are references, which no collection
+        # carries. They are indexed under their TYPE so that a remark
+        # inside the list finds the item it follows or precedes.
+        return unless node.is_a?(Model::Declarations::Type) &&
+          node.underlying_type.is_a?(Model::DataTypes::Select)
+
+        Array(node.underlying_type.items).each do |item|
+          collect_nodes(item, result, visited, owner: node, collection: SELECT_ITEMS)
+        end
+      end
+
+      # The references of a supertype expression, which no collection
+      # carries, are indexed under their SUBTYPE_CONSTRAINT so that a remark
+      # inside the expression finds the operand it follows or precedes. An
+      # operand encloses nothing, so it owns no remark on a line of its own.
+      def collect_supertype_operands(node, result, visited)
+        return unless node.is_a?(Model::Declarations::SubtypeConstraint)
+
+        @supertype_operands ||= {}.compare_by_identity
+        supertype_references(node.supertype_expression, true, false).each do |ref, collection|
+          @supertype_operands[ref] = true
+          collect_nodes(ref, result, visited, owner: node, collection: collection)
+        end
+      end
+
+      # [reference, collection] for each reference of `expression`. `last`:
+      # the rightmost operand so far; `listed`: followed by a comma.
+      def supertype_references(expression, last, listed)
+        case expression
+        when Model::SupertypeExpressions::OneofSupertypeExpression
+          operands = Array(expression.operands)
+          operands.each_with_index.flat_map do |operand, i|
+            supertype_references(operand, last && i == operands.length - 1, i < operands.length - 1)
+          end
+        when Model::SupertypeExpressions::BinarySupertypeExpression
+          supertype_references(expression.operand1, false, false) +
+            supertype_references(expression.operand2, last, false)
+        when Model::References::SimpleReference
+          collection = if listed then SUPERTYPE_LISTED
+                       elsif last then SUPERTYPE_FINAL
+                       else SUPERTYPE_OTHER
+                       end
+          [[expression, collection]]
+        else []
         end
       end
 

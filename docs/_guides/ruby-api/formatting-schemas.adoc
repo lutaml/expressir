@@ -118,6 +118,11 @@ ENTITY point;
 END_ENTITY;
 ----
 
+The `--IPn:` comment lines of the source (informal propositions) are
+written in the plain form, with the source's own text. A proposition that
+exists only through a tagged description (`(*"schema.entity.wr:IP1" ... *)`)
+writes no line there.
+
 `keep_untagged_remarks` alone changes nothing.
 
 === Accessing formatter settings
@@ -132,6 +137,19 @@ puts "Remarks excluded: #{formatter.no_remarks}"
 # Change settings
 formatter.no_remarks = false
 ----
+
+=== Where the plain form ends
+
+With `no_remarks: true` and `keep_untagged_remarks: true` together the text
+of a schema ends at `END_SCHEMA;`. A comment that follows `END_SCHEMA;` in
+the source stands after the schema and is not written:
+
+[source,ruby]
+----
+schema.format(no_remarks: true, keep_untagged_remarks: true).end_with?("END_SCHEMA;") # => true
+----
+
+Without `no_remarks` the comment is written after `END_SCHEMA;`, as before.
 
 == Static formatting
 
@@ -209,6 +227,18 @@ output = formatter.format(entity)
 # END_ENTITY;
 ----
 
+ISO 10303-11:2004 has two forms: `ABSTRACT` (an abstract entity) and `ABSTRACT SUPERTYPE [subtype_constraint]`. `Entity#abstract` is true for both; `Entity#abstract_entity` is true only for the bare `ABSTRACT`, and `format` writes the form of the source:
+
+[source,express]
+----
+ENTITY shape
+  ABSTRACT
+  SUBTYPE OF (item);
+END_ENTITY;
+----
+
+A model without `abstract_entity` is written with `ABSTRACT SUPERTYPE`, as before.
+
 === Type definitions
 
 [source,ruby]
@@ -238,6 +268,25 @@ output = formatter.format(function)
 # - Local variables
 # - Statements
 # - Return type
+----
+
+`format` writes the declarations of a schema in the order of the source, and
+so it does for the declarations nested in a `FUNCTION`, a `PROCEDURE` or a
+`RULE`. The parser records their ids in `declaration_order` on the schema and
+on each such callable. A model without it (hand-built, or loaded from yaml
+written before the order was recorded) is written grouped by kind, as before.
+
+[source,express]
+----
+FUNCTION outer_fn(a : INTEGER) : INTEGER;
+  PROCEDURE nested_p1(VAR x : INTEGER);
+    x := 1;
+  END_PROCEDURE;
+  FUNCTION nested_f1(y : INTEGER) : INTEGER;
+    RETURN (y);
+  END_FUNCTION;
+  RETURN (a);
+END_FUNCTION;
 ----
 
 == HyperLinkFormatter
@@ -323,6 +372,21 @@ formatted = formatter.format(expression)
 expression = parse_expression("(a + b) + c")
 formatted = formatter.format(expression)
 # Produces: a + b + c
+----
+
+The formatter writes the pairs of parentheses that the source has around a
+supertype expression or one of its operands (a SUPERTYPE OF expression, an
+operand of AND, ANDOR or ONEOF, the expression of a SUBTYPE_CONSTRAINT), as it
+does for the parentheses of an expression. The pairs are recorded in the
+`parenthesized` attribute of the node (the depth, when the pairs are nested).
+A model with no such record, built by hand or loaded from older YAML, is
+written with the minimal parentheses its precedence needs:
+
+[source,express]
+----
+ENTITY a
+  SUPERTYPE OF ((ONEOF(b, c)) ANDOR (d));
+END_ENTITY;
 ----
 
 === Line wrapping

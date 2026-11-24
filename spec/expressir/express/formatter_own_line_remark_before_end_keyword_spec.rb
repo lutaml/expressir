@@ -7,7 +7,7 @@ require "tempfile"
 # back before that keyword. Before, the closing-keyword table had no entry
 # for the two keywords: the declaration held such a remark unplaced, and it
 # was written after the keyword.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   describe "a comment on its own line before END_ENTITY or END_TYPE" do
     let(:source) do
       <<~EXP

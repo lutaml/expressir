@@ -125,6 +125,15 @@ module Expressir
           " #{lines.join("\n")}"
         end
 
+        # The remark that follows `END_SCHEMA;`. It stands after the schema:
+        # the plain form (`no_remarks` with `keep_untagged_remarks`) is the
+        # schema with its untagged remarks and ends at `END_SCHEMA;`.
+        def format_schema_end_remark(node)
+          return "" if @no_remarks
+
+          format_end_scope_remark(node)
+        end
+
         # The entity's informal propositions, in the ISO remark-tag form
         # so the source convention survives the round trip: `--IP1 text`,
         # or the bare declaration marker `--IP1` when the proposition
@@ -134,11 +143,20 @@ module Expressir
           # ride the proposition's remark item, and the plain form's keep
           # flag is for UNTAGGED comments only (#723) — a tagged
           # description must not reappear as a `--IPn:` line.
-          return [] if @no_remarks
+          return [] if @no_remarks && !@keep_untagged_remarks
           return [] unless node.is_a?(Model::ModelElement)
           return [] unless node.respond_to?(:informal_propositions)
 
           Array(node.informal_propositions).filter_map do |ip|
+            # The plain form writes only the `--IPn:` comment lines of the
+            # source (`source_remarks`), never a tagged description's text.
+            if @no_remarks
+              lines = Array(ip.remark_items).flat_map { |ri| Array(ri.source_remarks) }
+              next if lines.empty?
+
+              next lines.map { |t| t.empty? ? "--#{ip.id}:" : "--#{ip.id}: #{t}" }.join("\n")
+            end
+
             # The attach stores the proposition's texts on its remark
             # item (create_or_find_informal_proposition returns it); the
             # ISO shorthand re-parses only with the colon. A multi-line
@@ -218,6 +236,23 @@ module Expressir
           end.join("\n")
         end
 
+        # The remarks that follow an item of an ENUMERATION or of a SELECT on
+        # its line. An item of a SELECT is a reference, which is no
+        # TakesInlineRemark (a reference takes such a remark nowhere else),
+        # so its remarks are read here. They are untagged remarks: the
+        # plain form (`keep_untagged_remarks`) keeps them.
+        def format_list_item_remarks(item)
+          return format_inline_statement_remarks(item) unless item.is_a?(Model::References::SimpleReference)
+          return "" if @no_remarks && !@keep_untagged_remarks
+
+          Array(item.untagged_remarks).filter_map do |remark|
+            next unless remark.inline? && remark.region.nil?
+
+            formatted = format_untagged_remark(remark)
+            " #{formatted}" unless formatted.empty?
+          end.join
+        end
+
         # Remarks that close one body of `node`, emitted just before that
         # body's closing keyword. Only explicit TRAILING remarks for the named
         # region qualify: legacy (nil) remarks keep their historical emission
@@ -288,6 +323,23 @@ module Expressir
           # `--` comment (#696).
           Array(node.untagged_remarks).filter_map do |remark|
             next unless remark.leading?
+            next if remark.region == Model::RemarkPlacement::BEFORE_LABEL_REGION
+
+            formatted = format_untagged_remark(remark)
+            formatted unless formatted.empty?
+          end
+        end
+
+        # The leading remarks of a CASE action's statement that were written
+        # before the label of the action; the CASE action writes them above
+        # the label.
+        def format_before_label_remarks(node)
+          return [] if @no_remarks && !@keep_untagged_remarks
+          return [] unless node.is_a?(Model::ModelElement)
+
+          Array(node.untagged_remarks).filter_map do |remark|
+            next unless remark.leading? &&
+              remark.region == Model::RemarkPlacement::BEFORE_LABEL_REGION
 
             formatted = format_untagged_remark(remark)
             formatted unless formatted.empty?

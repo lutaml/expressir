@@ -4,7 +4,7 @@ require_relative "../../../lib/expressir/express/formatter"
 require_relative "../../../lib/expressir/express/schema_head_formatter"
 require_relative "../../../lib/expressir/express/hyperlink_formatter"
 
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   describe ".format" do
     it "exports an object (single.exp)" do |_example|
       exp_file = Expressir.root_path.join("spec", "syntax", "single.exp")

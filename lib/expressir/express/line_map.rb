@@ -29,6 +29,14 @@ module Expressir
         idx || @offsets.size
       end
 
+      # Returns the byte position where the given 1-based line begins.
+      #
+      # @param line [Integer]
+      # @return [Integer, nil] nil when the line does not exist.
+      def line_start(line)
+        @offsets[line - 1] if line >= 1
+      end
+
       private
 
       # Builds the sorted array of byte positions where each line begins.

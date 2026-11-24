@@ -60,12 +60,12 @@ round_trips = {
   # lengths; every remark holds its owner across the round trip and the
   # placements are byte-identical to the core lane.
   "spec/fixtures/examples/tail_remarks_test_schema.exp" =>
-    # the all-legacy-scope-remarks render conserves the "before schema
-    # end" comment; "after schema end" re-houses once, then holds. The
-    # after-constant tail holds its constant on both lanes now (#735):
+    # the "before schema end" comment is on a line of its own before
+    # END_SCHEMA and is written back there, so "after schema end", which
+    # follows END_SCHEMA on its line, no longer re-houses on a reparse.
+    # The after-constant tail holds its constant on both lanes now (#735):
     # the include makes the reparse keep it too.
-    { traced: 33, tagged: 7, escapes: 1,
-      known_move_texts: ["Untagged tail remark after schema end"] },
+    { traced: 33, tagged: 7, escapes: 0 },
   "spec/fixtures/function_body_remarks.exp" =>
     { traced: 13, tagged: 0, escapes: 0 },
   "spec/syntax/remark.exp" =>
@@ -88,22 +88,13 @@ round_trips = {
         "universal scope - entity informal proposition, with prefix",
       ] },
   "spec/syntax/syntax.exp" =>
-    # The all-legacy-scope-remarks render re-houses the procedure's
-    # section comments onto END_PROCEDURE; they used to be dropped.
-    { traced: 22, tagged: 0, escapes: 8,
-      known_move_texts: [
-        "constant expressions",
-        "function expressions",
-        "operator expressions",
-        "aggregate initializer expressions",
-        "function call or entity constructor expressions",
-        "reference expressions",
-        "interval expressions",
-        "query expressions",
-      ] },
+    # The procedure's section comments stand on their own lines inside its
+    # LOCAL block, each above the variable it introduces; they are written
+    # back there and no longer re-housed onto END_PROCEDURE.
+    { traced: 22, tagged: 0, escapes: 0 },
 }.freeze
 
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   let(:ownership) { Expressir::RemarkOwnership }
 
   describe "remark ownership" do

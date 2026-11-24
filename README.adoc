@@ -36,6 +36,31 @@ Expressir consists of 3 parts:
 
 Expressir fully preserves EXPRESS remarks (comments) during parsing and formatting, maintaining them in their original positions:
 
+==== Remarks before LOCAL or a nested declaration
+
+A `--` remark or a one-line `(* *)` remark on a line of its own in the declaration part of a FUNCTION, PROCEDURE
+or RULE is written back where it stood. Before a nested declaration it leads
+that declaration; before `LOCAL` or `END_LOCAL` it closes the part above it;
+inside the `LOCAL` block it leads the variable below it:
+
+[source,express]
+----
+FUNCTION total(a : INTEGER) : INTEGER;
+  -- A nested function, with its own comment
+  FUNCTION twice(x : INTEGER) : INTEGER;
+    RETURN (x * 2);
+  END_FUNCTION;
+  -- The variables of total
+  LOCAL
+    -- The running sum
+    sum : INTEGER := 0;
+    -- No more variables
+  END_LOCAL;
+  sum := twice(a);
+  RETURN (sum);
+END_FUNCTION;
+----
+
 ==== Preamble remarks
 
 Remarks between a scope declaration and its first child are preserved as preamble remarks:
@@ -83,6 +108,8 @@ WHERE
   wr1 : age >= 0; -- Inline remark for the rule
   wr2 : -- Inline remark after the label of a rule
     age < 150;
+  wr3 : (* Block remark after the label of a rule *)
+    age > 0;
 END_ENTITY;
 
 TYPE status = ENUMERATION OF
@@ -94,9 +121,49 @@ END_TYPE;
 
 The remark of the last enumeration item is written after the `;` of the TYPE.
 
+==== Remarks in a SELECT list
+
+A remark after an item of a SELECT list, and a remark on a line of its own before an item, stay with the item:
+
+[source,express]
+----
+TYPE shape = SELECT
+  (-- solids
+   box, -- six faces
+   -- curved
+   sphere,
+   cone); -- one apex
+END_TYPE;
+----
+
+As for an ENUMERATION, the remark of the last item is written after the `;` of the TYPE.
+==== Remarks between the actions of a CASE
+
+A remark on a line of its own between two actions of a CASE statement stays
+above the label of the action it precedes. It is not moved between the label and
+the statement of that action:
+
+[source,express]
+----
+FUNCTION size_name(n : INTEGER) : STRING;
+  CASE n OF
+  1 :
+    RETURN ('small');
+  -- Sizes above 1 are not in use yet
+  2, 3 :
+    RETURN ('medium');
+  OTHERWISE :
+    RETURN ('large');
+  END_CASE;
+END_FUNCTION;
+----
+
+A remark before `OTHERWISE` or `END_CASE`, a remark at the end of an action line
+and a remark after a bare label keep the places they had.
+
 ==== END_* scope remarks
 
-Remarks on END_TYPE, END_ENTITY, END_SCHEMA, etc. lines:
+Remarks on END_TYPE, END_ENTITY, END_SCHEMA, etc. lines. Whether a line is an END_* line is decided by its code only: a comment whose own text names an END_* keyword (`-- before END_FUNCTION`, upper or lower case) is placed like any other comment at that place, not after the keyword it names. For example:
 
 [source,express]
 ----
@@ -114,6 +181,23 @@ END_SCHEMA; -- schema_name
 
 ==== Remarks before an END_* keyword
 
+A remark on a line of its own after the last declaration of a schema stays
+before END_SCHEMA, in the order of the source. A remark on the END_SCHEMA line
+itself, or after it, is not changed:
+
+[source,express]
+----
+SCHEMA example;
+
+ENTITY person;
+  name : STRING;
+END_ENTITY;
+
+-- More declarations will follow
+(* The schema is not complete *)
+END_SCHEMA;
+----
+
 A remark on a line of its own after the last attribute or rule of an entity, or
 after the definition or the last rule of a type, stays before the END_ENTITY or
 END_TYPE keyword:
@@ -130,6 +214,23 @@ WHERE
   wr1 : SELF > 0;
   -- No upper limit
 END_TYPE;
+----
+
+The same holds before the DERIVE, INVERSE, UNIQUE or WHERE keyword of an entity,
+and before the WHERE keyword of a type: the remark is written at the end of the
+section it follows, not at the start of the next one:
+
+[source,express]
+----
+ENTITY person;
+  name : STRING;
+  -- Before the derived attributes
+DERIVE
+  initial : STRING := name[1];
+  -- Before the rules
+WHERE
+  wr1: LENGTH(name) > 0;
+END_ENTITY;
 ----
 
 ==== Unicode support
@@ -150,6 +251,34 @@ END_SCHEMA; -- test
 
 For implementation details, see link:docs/ARCHITECTURE.md#remark-attachment-system[Remark Attachment System].
 
+
+==== Remarks in an IF whose THEN is on a later line
+
+A comment on a line of its own before ELSE or END_IF stays after the
+statement it followed, also when THEN is not on the line of IF (the
+condition may run over several lines). The formatter writes the IF in its
+usual form:
+
+[source,express]
+----
+IF x > 0
+  THEN RETURN (1);
+  -- written after RETURN (1);
+  ELSE RETURN (2);
+END_IF;
+----
+
+is written as
+
+[source,express]
+----
+IF x > 0 THEN
+  RETURN (1);
+  -- written after RETURN (1);
+ELSE
+  RETURN (2);
+END_IF;
+----
 
 == Performance: Parsanol Integration
 

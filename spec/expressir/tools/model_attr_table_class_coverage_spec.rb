@@ -86,7 +86,7 @@ RSpec.describe Expressir::Tools::ModelAttrTable do
                        "the corpus stopped exercising: #{missing.join(', ')}"
   end
 
-  it "parses the coverage fixtures identically on both engines" do
+  it "parses the coverage fixtures identically on both engines", :ruby_lane do
     files = Dir[Expressir.root_path.join("spec/fixtures/class_coverage/*.exp")]
     files.each do |file|
       source = File.read(file)

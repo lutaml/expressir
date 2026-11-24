@@ -80,7 +80,10 @@ RSpec.describe Expressir::Express::Parser do # compiled schema set
     end.to output(/compiled-set write to .* skipped.*expressir-core native extension is unavailable/).to_stderr
     expect(File.exist?(set_path)).to be(false)
   ensure
-    FileUtils.rm_f(set_path)
+    # The skip can fire before the local is assigned (the ext-present
+    # hybrid lane: core_available? is false when the built ext lacks
+    # the compile entry point); rm_f(nil) raises.
+    FileUtils.rm_f(set_path) if set_path
   end
 
   it "rejects an artifact whose sources changed" do

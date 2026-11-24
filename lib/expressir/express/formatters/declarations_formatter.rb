@@ -705,6 +705,14 @@ module Expressir
             # remark.exp byte-identically for the formatter golden.
             *format_schema_remarks(node).flat_map { |x| ["", x] },
             *format_remark_items(node).flat_map { |x| ["", x] },
+            # Comments after the last declaration, directly above END_SCHEMA.
+            # The blank line above them is already there after the last
+            # declaration, and is not after an item or in an empty schema.
+            *format_trailing_region_remarks(node, :declarations).then do |x|
+              blank = !schema_declarations&.length&.positive? ||
+                !(format_schema_remarks(node) + format_remark_items(node)).empty?
+              x.empty? || !blank ? x : ["", *x]
+            end,
             [
               "END_SCHEMA",
               ";",

@@ -441,6 +441,9 @@ module Expressir
                "",
              ]
            end,
+          *format_trailing_region_remarks(node, :declarations).then do |x|
+            x.empty? || schema_declarations&.length&.positive? ? x : ["", *x]
+          end,
           [
             "END_SCHEMA",
             ";",

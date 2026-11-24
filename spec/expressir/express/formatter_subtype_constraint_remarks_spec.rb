@@ -30,15 +30,15 @@ RSpec.describe Expressir::Express::Formatter do
     # pass. So does one that follows the operator of an operand, whatever
     # stands between the comment and the operand's name.
     not_taken = {
-      "  ONEOF (a, (-- x\n b));\n" => "  ONEOF(a, b);\nEND_SUBTYPE_CONSTRAINT; -- x\n",
-      "  ONEOF (a, (\n -- x\n b));\n" => "  ONEOF(a, b);\nEND_SUBTYPE_CONSTRAINT; -- x\n",
-      "  ONEOF (a, ( -- x\n b)) ;\n" => "  ONEOF(a, b);\nEND_SUBTYPE_CONSTRAINT; -- x\n",
-      "  ONEOF ((-- l\n a), b);\n" => "  ONEOF(a, b);\nEND_SUBTYPE_CONSTRAINT; -- l\n",
-      "  ONEOF (\n -- l\n (a), b);\n" => "  ONEOF(a, b);\nEND_SUBTYPE_CONSTRAINT; -- l\n",
-      "  ONEOF (a,\n -- l\n (b), c);\n" => "  ONEOF(a, b, c);\nEND_SUBTYPE_CONSTRAINT; -- l\n",
-      "  ONEOF (a ANDOR (-- l\n b), c);\n" => "  ONEOF(a ANDOR b, c);\nEND_SUBTYPE_CONSTRAINT; -- l\n",
-      "  ONEOF (b) ANDOR\n (-- c\n c);\n" => "  ONEOF(b) ANDOR c;\nEND_SUBTYPE_CONSTRAINT; -- c\n",
-      "  ONEOF (b) ANDOR\n ((* c *)\n c);\n" => "  ONEOF(b) ANDOR c;\nEND_SUBTYPE_CONSTRAINT;\n",
+      "  ONEOF (a, (-- x\n b));\n" => "  ONEOF(a, (b));\nEND_SUBTYPE_CONSTRAINT; -- x\n",
+      "  ONEOF (a, (\n -- x\n b));\n" => "  ONEOF(a, (b));\nEND_SUBTYPE_CONSTRAINT; -- x\n",
+      "  ONEOF (a, ( -- x\n b)) ;\n" => "  ONEOF(a, (b));\nEND_SUBTYPE_CONSTRAINT; -- x\n",
+      "  ONEOF ((-- l\n a), b);\n" => "  ONEOF((a), b);\nEND_SUBTYPE_CONSTRAINT; -- l\n",
+      "  ONEOF (\n -- l\n (a), b);\n" => "  ONEOF((a), b);\nEND_SUBTYPE_CONSTRAINT; -- l\n",
+      "  ONEOF (a,\n -- l\n (b), c);\n" => "  ONEOF(a, (b), c);\nEND_SUBTYPE_CONSTRAINT; -- l\n",
+      "  ONEOF (a ANDOR (-- l\n b), c);\n" => "  ONEOF(a ANDOR (b), c);\nEND_SUBTYPE_CONSTRAINT; -- l\n",
+      "  ONEOF (b) ANDOR\n (-- c\n c);\n" => "  ONEOF(b) ANDOR (c);\nEND_SUBTYPE_CONSTRAINT; -- c\n",
+      "  ONEOF (b) ANDOR\n ((* c *)\n c);\n" => "  ONEOF(b) ANDOR (c);\nEND_SUBTYPE_CONSTRAINT;\n",
       "  ONEOF (a, b) ANDOR -- c\n c;\n" => "  ONEOF(a, b) ANDOR c;\nEND_SUBTYPE_CONSTRAINT; -- c\n",
       "  ONEOF (a, b) AND\n -- c\n c;\n" => "  ONEOF(a, b) AND c;\nEND_SUBTYPE_CONSTRAINT; -- c\n",
     }.freeze
@@ -110,7 +110,7 @@ RSpec.describe Expressir::Express::Formatter do
 
         it "writes a comment inside a nested expression and one after the semicolon" do
           text = parse.call(wrap.call("  (ONEOF (a, -- first\n          b) ANDOR c); -- last\n")).format
-          expect(text).to include("  ONEOF(a, -- first\n        b) ANDOR c; -- last\nEND_SUBTYPE_CONSTRAINT;")
+          expect(text).to include("  (ONEOF(a, -- first\n        b) ANDOR c); -- last\nEND_SUBTYPE_CONSTRAINT;")
           expect(parse.call(text).format).to eq(text)
         end
 
@@ -139,17 +139,17 @@ RSpec.describe Expressir::Express::Formatter do
         # may not include the parentheses; the comments are placed the same.
         it "writes a comment after a parenthesized operand after the operand" do
           text = parse.call(wrap.call("  ONEOF ((a), -- x\n b);\n")).format
-          expect(text).to include("  ONEOF(a, -- x\n        b);\n")
+          expect(text).to include("  ONEOF((a), -- x\n        b);\n")
           text = parse.call(wrap.call("  ONEOF (a, ((b)), -- x\n c);\n")).format
-          expect(text).to include("  ONEOF(a,\n        b, -- x\n        c);\n")
+          expect(text).to include("  ONEOF(a,\n        ((b)), -- x\n        c);\n")
           text = parse.call(wrap.call("  ONEOF ((a), -- x\n (b), -- y\n c);\n")).format
-          expect(text).to include("  ONEOF(a, -- x\n        b, -- y\n        c);\n")
+          expect(text).to include("  ONEOF((a), -- x\n        (b), -- y\n        c);\n")
           expect(parse.call(text).format).to eq(text)
         end
 
         it "writes a comment after a parenthesized last operand after the semicolon" do
           text = parse.call(wrap.call("  (b ANDOR ONEOF ( d , b , c , (c) )) -- c1\n;\n")).format
-          expect(text).to include("  b ANDOR ONEOF(d,\n        b,\n        c,\n        c); -- c1\n" \
+          expect(text).to include("  (b ANDOR ONEOF(d,\n        b,\n        c,\n        (c))); -- c1\n" \
                                   "END_SUBTYPE_CONSTRAINT;")
           expect(parse.call(text).format).to eq(text)
         end
@@ -183,7 +183,7 @@ RSpec.describe Expressir::Express::Formatter do
 
         it "writes a comment after an operator as before" do
           text = parse.call(wrap.call("  (ONEOF (a, b) ANDOR -- after operator\n   c);\n")).format
-          expect(text).to include("  ONEOF(a, b) ANDOR c;\nEND_SUBTYPE_CONSTRAINT; -- after operator")
+          expect(text).to include("  (ONEOF(a, b) ANDOR c);\nEND_SUBTYPE_CONSTRAINT; -- after operator")
         end
 
         it "writes a comment after an inner ONEOF as before" do
@@ -212,7 +212,7 @@ RSpec.describe Expressir::Express::Formatter do
 
         it "keeps a block comment after a comma with the operand before a parenthesized operand" do
           text = parse.call(wrap.call("  ONEOF (a, (* l *)\n (b), c);\n")).format
-          expect(text).to include("  ONEOF(a, (* l *)\n        b,\n        c);\n")
+          expect(text).to include("  ONEOF(a, (* l *)\n        (b),\n        c);\n")
           expect(parse.call(text).format).to eq(text)
         end
 
@@ -237,7 +237,7 @@ RSpec.describe Expressir::Express::Formatter do
         after_name.each do |body, comment|
           it "writes the comment after the name in #{body.inspect} after the semicolon" do
             text = parse.call(wrap.call(body)).format
-            expect(text).to include("  ONEOF(a,\n        b); #{comment}\nEND_SUBTYPE_CONSTRAINT;")
+            expect(text).to include("  ONEOF(a,\n        (b)); #{comment}\nEND_SUBTYPE_CONSTRAINT;")
             expect(parse.call(text).format).to eq(text)
           end
         end

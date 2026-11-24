@@ -60,7 +60,9 @@ module Expressir
                         run.length > 1 && group_combinable?(run) ? run : nil
                       end
             if members
-              out << formatter_method.call(node, members.map(&:id))
+              # The combined declaration does not pass through format.
+              out << [*format_leading_statement_remarks(node),
+                      formatter_method.call(node, members.map(&:id))].join("\n")
               i += members.length
             else
               out << format(node)
@@ -330,10 +332,15 @@ module Expressir
                  ].join,
                ].join("\n"))
              end,
+            # A comment on its own line before LOCAL closes the declarations.
+            *format_trailing_region_remarks(node, :declarations).map { |x| indent(x) },
             *if node.variables&.length&.positive?
                indent([
                  "LOCAL",
-                 indent(format_grouped_declarations(node.variables, method(:format_declarations_variable)).join("\n")),
+                 indent([
+                   *format_grouped_declarations(node.variables, method(:format_declarations_variable)),
+                   *format_trailing_region_remarks(node, :variables),
+                 ].join("\n")),
                  [
                    "END_LOCAL",
                    ";",
@@ -456,10 +463,15 @@ module Expressir
                  ].join,
                ].join("\n"))
              end,
+            # A comment on its own line before LOCAL closes the declarations.
+            *format_trailing_region_remarks(node, :declarations).map { |x| indent(x) },
             *if node.variables&.length&.positive?
                indent([
                  "LOCAL",
-                 indent(format_grouped_declarations(node.variables, method(:format_declarations_variable)).join("\n")),
+                 indent([
+                   *format_grouped_declarations(node.variables, method(:format_declarations_variable)),
+                   *format_trailing_region_remarks(node, :variables),
+                 ].join("\n")),
                  [
                    "END_LOCAL",
                    ";",
@@ -551,10 +563,15 @@ module Expressir
                  ].join,
                ].join("\n"))
              end,
+            # A comment on its own line before LOCAL closes the declarations.
+            *format_trailing_region_remarks(node, :declarations).map { |x| indent(x) },
             *if node.variables&.length&.positive?
                indent([
                  "LOCAL",
-                 indent(format_grouped_declarations(node.variables, method(:format_declarations_variable)).join("\n")),
+                 indent([
+                   *format_grouped_declarations(node.variables, method(:format_declarations_variable)),
+                   *format_trailing_region_remarks(node, :variables),
+                 ].join("\n")),
                  [
                    "END_LOCAL",
                    ";",

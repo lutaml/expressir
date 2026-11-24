@@ -36,6 +36,31 @@ Expressir consists of 3 parts:
 
 Expressir fully preserves EXPRESS remarks (comments) during parsing and formatting, maintaining them in their original positions:
 
+==== Remarks before LOCAL or a nested declaration
+
+A `--` remark or a one-line `(* *)` remark on a line of its own in the declaration part of a FUNCTION, PROCEDURE
+or RULE is written back where it stood. Before a nested declaration it leads
+that declaration; before `LOCAL` or `END_LOCAL` it closes the part above it;
+inside the `LOCAL` block it leads the variable below it:
+
+[source,express]
+----
+FUNCTION total(a : INTEGER) : INTEGER;
+  -- A nested function, with its own comment
+  FUNCTION twice(x : INTEGER) : INTEGER;
+    RETURN (x * 2);
+  END_FUNCTION;
+  -- The variables of total
+  LOCAL
+    -- The running sum
+    sum : INTEGER := 0;
+    -- No more variables
+  END_LOCAL;
+  sum := twice(a);
+  RETURN (sum);
+END_FUNCTION;
+----
+
 ==== Preamble remarks
 
 Remarks between a scope declaration and its first child are preserved as preamble remarks:

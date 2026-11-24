@@ -1344,6 +1344,10 @@
       "type": "Lutaml::Model::Type::Integer",
       "collection": false
     },
+    "source_remarks": {
+      "type": "Lutaml::Model::Type::String",
+      "collection": true
+    },
     "untagged_remarks": {
       "type": "Expressir::Model::RemarkInfo",
       "collection": true

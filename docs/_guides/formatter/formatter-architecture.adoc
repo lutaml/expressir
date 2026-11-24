@@ -352,6 +352,12 @@ The `RemarkInfo` class has three attributes:
 
 `to_s`:: Returns the remark text for backward compatibility
 
+A trailing remark, one written on its own line before a closing keyword such
+as `ELSE`, `END_IF` or `END_FUNCTION`, may be an embedded block of several
+lines: it is held and written like a one-line remark, before the keyword.
+The keyword is looked for after the last line of the comment, so a block that
+spans lines, or nests another `(* ... *)`, is not read as code.
+
 ==== Benefits over plain strings
 
 Type safety:: Explicit format information prevents format confusion

@@ -1083,6 +1083,8 @@ schemas:
         _class: Expressir::Model::DataTypes::Boolean
     statements:
     - _class: Expressir::Model::Statements::Null
+    declaration_order:
+    - test
   - _class: Expressir::Model::Declarations::Function
     id: constant_function
     return_type:
@@ -1246,6 +1248,8 @@ schemas:
       id: test
       underlying_type:
         _class: Expressir::Model::DataTypes::Boolean
+    declaration_order:
+    - test
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       expression:
@@ -1544,6 +1548,8 @@ schemas:
       id: test
       underlying_type:
         _class: Expressir::Model::DataTypes::Boolean
+    declaration_order:
+    - test
   - _class: Expressir::Model::Declarations::Procedure
     id: constant_procedure
     constants:
@@ -2072,6 +2078,43 @@ schemas:
       id: skip_statement
       statements:
       - _class: Expressir::Model::Statements::Skip
+    declaration_order:
+    - alias_simple_reference_statement
+    - alias_group_reference_statement
+    - alias_index_reference_statement
+    - alias_index2_reference_statement
+    - alias_attribute_reference_statement
+    - assignment_simple_reference_statement
+    - assignment_group_reference_statement
+    - assignment_index_reference_statement
+    - assignment_index2_reference_statement
+    - assignment_attribute_reference_statement
+    - case_statement
+    - case_multiple_statement
+    - case_multiple_shorthand_statement
+    - case_otherwise_statement
+    - compound_statement
+    - escape_statement
+    - if_statement
+    - if2_statement
+    - if_else_statement
+    - if2_else_statement
+    - if_else2_statement
+    - if2_else2_statement
+    - null_statement
+    - call_statement
+    - call_parameter_statement
+    - call_parameter2_statement
+    - call_insert_statement
+    - call_remove_statement
+    - repeat_statement
+    - repeat_variable_statement
+    - repeat_variable_increment_statement
+    - repeat_while_statement
+    - repeat_until_statement
+    - return_statement
+    - return_expression_statement
+    - skip_statement
   - _class: Expressir::Model::Declarations::Procedure
     id: types
     types:
@@ -2441,6 +2484,50 @@ schemas:
         id: label
       statements:
       - _class: Expressir::Model::Statements::Null
+    declaration_order:
+    - binary_type
+    - binary_width_type
+    - binary_width_fixed_type
+    - boolean_type
+    - integer_type
+    - logical_type
+    - number_type
+    - real_type
+    - real_precision_type
+    - string_type
+    - string_width_type
+    - string_width_fixed_type
+    - array_type
+    - array_optional_type
+    - array_unique_type
+    - array_optional_unique_type
+    - bag_type
+    - bag_bound_type
+    - list_type
+    - list_bound_type
+    - list_unique_type
+    - list_bound_unique_type
+    - set_type
+    - set_bound_type
+    - select_type
+    - select_extensible_type
+    - select_extensible_generic_entity_type
+    - select_item_type
+    - select_multiple_item_type
+    - select_based_on_type
+    - select_based_on_item_type
+    - select_based_on_multiple_item_type
+    - enumeration_type
+    - enumeration_extensible_type
+    - enumeration_item_type
+    - enumeration_multiple_item_type
+    - enumeration_based_on_type
+    - enumeration_based_on_item_type
+    - enumeration_based_on_multiple_item_type
+    - generic_type
+    - generic_label_type
+    - generic_entity_type
+    - generic_entity_label_type
   - _class: Expressir::Model::Declarations::Procedure
     id: expressions
     variables:

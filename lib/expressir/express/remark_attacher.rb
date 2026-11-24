@@ -81,6 +81,8 @@ module Expressir
         @code_lines = nil
         @source_lines_for_where_clause = nil
         @where_clause_line_index = nil
+        @supertype_operands = nil
+        @code_without_remarks = nil
       end
 
       # Extend each node's captured slice through the remarks attached
@@ -364,6 +366,9 @@ module Expressir
         label_block = where_label_block_target(remark)
         return label_block if label_block.first
 
+        operand = supertype_operand_target(remark)
+        return operand if operand.first
+
         if inline_remark?(remark)
           # The candidate pool carries both the nodes STARTING on the line
           # (the remark trails a statement's own text) and the nodes ENDING
@@ -429,6 +434,9 @@ module Expressir
         # placement (#696). Attributes carry no source spans, so a
         # comment inside an entity body finds nothing here and keeps
         # the legacy attachment.
+        operand = supertype_operand_lead(remark)
+        return operand if operand
+
         declaration = declaration_level_target(remark)
         return declaration if declaration.first
 
@@ -766,6 +774,95 @@ module Expressir
         /\A(?:\d+|[A-Za-z_]\w*)\s*:\s*\z/i => [Model::Statements::Case,
                                                Model::RemarkPlacement::LABEL_REGION],
       }.freeze
+
+      # A remark (a line or a block comment) after an operand of a
+      # SUBTYPE_CONSTRAINT's supertype expression, on the line the operand
+      # ends on: inline on the nearest operand that ends before it, when
+      # nothing but what the formatter writes after that operand stands
+      # between them. That is the comma of an operand of a ONEOF list, or,
+      # for the last operand of the whole expression, the parentheses and
+      # the `;` that end it.
+      def supertype_operand_target(remark)
+        operand = supertype_operands.select { |n| n[:finish] <= remark.position }.max_by { |n| n[:finish] }
+        return [nil, nil, nil] unless operand && operand[:finish] >= line_start_of(remark.position)
+
+        finish = operand[:finish]
+        between = @source.byteslice(finish, remark.position - finish).to_s.gsub(/\s/, "")
+        allowed = case operand[:collection]
+                  when NodePositionIndex::SUPERTYPE_LISTED then between.match?(/\A\)*,\z/)
+                  when NodePositionIndex::SUPERTYPE_FINAL then between.match?(/\A\)*;?\z/)
+                  else false
+                  end
+        allowed ? [operand[:node], Model::RemarkPlacement::INLINE, nil] : [nil, nil, nil]
+      end
+
+      # A remark with no code after it on its line, when the next code
+      # starts with an operand of a SUBTYPE_CONSTRAINT's supertype
+      # expression: it leads that operand if the last code before the remark
+      # is a comma or the `(` that opens a ONEOF list, and nothing but white
+      # space and comments lies between the remark and the operand's name.
+      # A comment that stands inside the own parentheses of an operand is
+      # not taken. Nil when the next code is not such an operand.
+      def supertype_operand_lead(remark)
+        following = supertype_operands.select { |n| n[:position] >= remark.position }.min_by { |n| n[:position] }
+        # Only white space and a new line lie between the remark and the
+        # operand. The span of an operand in parentheses starts at its `(`,
+        # that of the Rust parser at its name, so a `(` before the name is
+        # found in both ways.
+        gap = following && code_without_remarks.byteslice(remark.position, following[:position] - remark.position)
+        blank_gap = gap&.include?("\n") && gap.match?(/\A[ \t\r\n\f]*\z/)
+        unless blank_gap && code_without_remarks.getbyte(following[:position]) != 40
+          # Other code first: when the next node to start is an operand all
+          # the same, the remark is not the declaration's to lead.
+          next_line = @node_index.next_start_after(remark.line, source_line_count)
+          next_entry = next_line && @node_index.starting_at(next_line).first
+          return next_entry && NodePositionIndex::SUPERTYPE_OPERANDS.include?(next_entry[:collection]) ? [nil, nil, nil] : nil
+        end
+
+        # The last code before the remark: a comma, or the `(` of a ONEOF.
+        last = remark.position.positive? && code_without_remarks.rindex(/[^ \t\r\n\f]/, remark.position - 1)
+        listed = last && (code_without_remarks.getbyte(last) == 44 ||
+          (code_without_remarks.getbyte(last) == 40 && oneof_before?(last)))
+        return [nil, nil, nil] unless listed && following[:collection] != NodePositionIndex::SUPERTYPE_OTHER
+
+        [following[:node], Model::RemarkPlacement::LEADING, nil]
+      end
+
+      # Whether the word before the `(` at `index` is ONEOF.
+      def oneof_before?(index)
+        word_end = code_without_remarks.rindex(/[^ \t\r\n\f]/, index - 1)
+        return false unless word_end && word_end >= 4
+
+        code_without_remarks.byteslice(word_end - 4, 5).casecmp?("oneof") &&
+          (word_end == 4 || code_without_remarks.byteslice(word_end - 5, 1).match?(/\W/))
+      end
+
+      # The source with every comment overwritten by spaces (new lines
+      # kept), as bytes, so that its positions are the source's.
+      def code_without_remarks
+        @code_without_remarks ||= @source.b.gsub(/'[^']*'|\(\*.*?\*\)|--[^\n]*/m) do |text|
+          text.start_with?("'") ? text : text.gsub(/[^\n]/n, " ")
+        end
+      end
+
+      # The byte position where the line of `position` starts.
+      def line_start_of(position)
+        (code_without_remarks.rindex("\n", position - 1) || -1) + 1
+      end
+
+      # The references of every supertype expression, each with where its
+      # name ends: the own closing parentheses of an operand, and the white
+      # space and comments before them, are not part of it, so that the
+      # span of an operand in parentheses as the Ruby builders give it and
+      # the span of the Rust parser (the name) are read alike.
+      def supertype_operands
+        @supertype_operands ||= @node_index.nodes.filter_map do |n|
+          next unless NodePositionIndex::SUPERTYPE_OPERANDS.include?(n[:collection]) && n[:position]
+
+          span_end = n[:position] + NodePositionIndex.span_length(n[:node])
+          n.merge(finish: code_without_remarks.rindex(/[^\s)]/, span_end - 1) + 1)
+        end
+      end
 
       # Attach `ELSE -- why` / `OTHERWISE : -- why` to the innermost
       # enclosing IF / CASE with INLINE placement and the keyword's region.

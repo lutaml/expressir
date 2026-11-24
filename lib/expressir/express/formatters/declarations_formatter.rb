@@ -746,6 +746,7 @@ module Expressir
                indent([
                  format(node.supertype_expression),
                  ";",
+                 last_supertype_operand_remarks(node.supertype_expression),
                ].join)
              end,
             *format_remark_items(node).map { |x| indent(x) },

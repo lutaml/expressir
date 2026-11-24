@@ -14,6 +14,7 @@ module Expressir
           map "id", to: :id
           map "ref", to: :ref
           map "base_path", to: :base_path
+          map "untagged_remarks", to: :untagged_remarks
         end
       end
     end

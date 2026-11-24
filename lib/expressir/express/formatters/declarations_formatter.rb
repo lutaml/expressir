@@ -759,7 +759,7 @@ module Expressir
               " ",
               format(node.underlying_type),
               ";",
-              last_enumeration_item_remark(node),
+              last_list_item_remark(node),
             ].join,
             *if node.where_rules&.length&.positive?
                [

@@ -94,6 +94,23 @@ END_TYPE;
 
 The remark of the last enumeration item is written after the `;` of the TYPE.
 
+==== Remarks in a SELECT list
+
+A remark after an item of a SELECT list, and a remark on a line of its own before an item, stay with the item:
+
+[source,express]
+----
+TYPE shape = SELECT
+  (-- solids
+   box, -- six faces
+   -- curved
+   sphere,
+   cone); -- one apex
+END_TYPE;
+----
+
+As for an ENUMERATION, the remark of the last item is written after the `;` of the TYPE.
+
 ==== END_* scope remarks
 
 Remarks on END_TYPE, END_ENTITY, END_SCHEMA, etc. lines:

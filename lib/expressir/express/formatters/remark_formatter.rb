@@ -218,6 +218,23 @@ module Expressir
           end.join("\n")
         end
 
+        # The remarks that follow an item of an ENUMERATION or of a SELECT on
+        # its line. An item of a SELECT is a reference, which is no
+        # TakesInlineRemark (a reference takes such a remark nowhere else),
+        # so its remarks are read here. They are untagged remarks: the
+        # plain form (`keep_untagged_remarks`) keeps them.
+        def format_list_item_remarks(item)
+          return format_inline_statement_remarks(item) unless item.is_a?(Model::References::SimpleReference)
+          return "" if @no_remarks && !@keep_untagged_remarks
+
+          Array(item.untagged_remarks).filter_map do |remark|
+            next unless remark.inline? && remark.region.nil?
+
+            formatted = format_untagged_remark(remark)
+            " #{formatted}" unless formatted.empty?
+          end.join
+        end
+
         # Remarks that close one body of `node`, emitted just before that
         # body's closing keyword. Only explicit TRAILING remarks for the named
         # region qualify: legacy (nil) remarks keep their historical emission

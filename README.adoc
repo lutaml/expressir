@@ -108,6 +108,8 @@ WHERE
   wr1 : age >= 0; -- Inline remark for the rule
   wr2 : -- Inline remark after the label of a rule
     age < 150;
+  wr3 : (* Block remark after the label of a rule *)
+    age > 0;
 END_ENTITY;
 
 TYPE status = ENUMERATION OF

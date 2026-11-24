@@ -167,7 +167,7 @@ and a remark after a bare label keep the places they had.
 
 ==== END_* scope remarks
 
-Remarks on END_TYPE, END_ENTITY, END_SCHEMA, etc. lines:
+Remarks on END_TYPE, END_ENTITY, END_SCHEMA, etc. lines. Whether a line is an END_* line is decided by its code only: a comment whose own text names an END_* keyword (`-- before END_FUNCTION`, upper or lower case) is placed like any other comment at that place, not after the keyword it names. For example:
 
 [source,express]
 ----

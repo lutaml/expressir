@@ -77,6 +77,7 @@ module Expressir
         @line_map = nil
         @owner_map = nil
         @active_scope_map = nil
+        @code_lines = nil
         @source_lines_for_where_clause = nil
         @where_clause_line_index = nil
         @supertype_operands = nil
@@ -906,14 +907,61 @@ module Expressir
         stack = []
         (1..source_line_count).each do |ln|
           map[ln] = stack.last
-          content = keyword_scannable(line_content_for(ln).to_s.strip)
-          next if content.empty? || content.start_with?("--")
+          content = code_lines[ln - 1].to_s.strip
+          next if content.empty?
 
           line_events(content).each do |_offset, kind, klass|
             kind == :open ? stack << [klass, ln] : stack.pop
           end
         end
         map
+      end
+
+      # The code of each source line, for the scope map only: strings
+      # blanked, a `--` tail cut and every part inside a `(* ... *)` comment
+      # removed. The comment state runs from line to line, so a remark of
+      # several lines, or one that nests, hides the keywords written in its
+      # prose; a `--` inside a block remark ends nothing, and a `(*` inside a
+      # string or after `--` opens nothing.
+      def code_lines
+        @code_lines ||= scan_code_lines
+      end
+
+      def scan_code_lines
+        depth = 0
+        source_lines_for_where_clause.map do |raw|
+          chars = raw.chars
+          code = +""
+          i = 0
+          while i < chars.length
+            pair = chars[i, 2].join
+            if depth.positive?
+              if pair == "(*"
+                depth += 1
+                i += 2
+              elsif pair == "*)"
+                depth -= 1
+                code << " " if depth.zero?
+                i += 2
+              else
+                i += 1
+              end
+            elsif chars[i] == "'"
+              close = chars[(i + 1)..].index("'")
+              code << "''"
+              i = close ? i + close + 2 : chars.length
+            elsif pair == "--"
+              break
+            elsif pair == "(*"
+              depth = 1
+              i += 2
+            else
+              code << chars[i]
+              i += 1
+            end
+          end
+          code
+        end
       end
 
       # Opener/closer events on one line, ordered by where they appear.

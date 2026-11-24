@@ -236,32 +236,37 @@ module Expressir
             *if explicit_attributes&.length&.positive?
                indent(format_grouped_declarations(explicit_attributes, method(:format_declarations_attribute)).join("\n"))
              end,
+            # A comment after the last member of a section closes it, before the
+            # keyword of the next section or END_ENTITY.
+            *format_closing_remarks(node, :attributes).map { |x| indent(x) },
             *if derived_attributes&.length&.positive?
                [
                  "DERIVE",
                  indent(derived_attributes.map { |x| format(x) }.join("\n")),
                ]
              end,
+            *format_closing_remarks(node, :derived_attributes).map { |x| indent(x) },
             *if inverse_attributes&.length&.positive?
                [
                  "INVERSE",
                  indent(inverse_attributes.map { |x| format(x) }.join("\n")),
                ]
              end,
+            *format_closing_remarks(node, :inverse_attributes).map { |x| indent(x) },
             *if node.unique_rules&.length&.positive?
                [
                  "UNIQUE",
                  indent(node.unique_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
+            *format_closing_remarks(node, :unique_rules).map { |x| indent(x) },
             *if node.where_rules&.length&.positive?
                [
                  "WHERE",
                  indent(node.where_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
-            # A comment after the last attribute or rule closes the entity.
-            *format_closing_remarks(node, :attributes, :where_rules).map { |x| indent(x) },
+            *format_closing_remarks(node, :where_rules).map { |x| indent(x) },
             *format_informal_propositions(node).map { |x| indent(x) },
             *format_remark_items(node).map { |x| indent(x) },
             [
@@ -778,14 +783,16 @@ module Expressir
               ";",
               last_list_item_remark(node),
             ].join,
+            # A comment after the definition closes it, before WHERE or END_TYPE;
+            # one after the last rule closes the type.
+            *format_closing_remarks(node, :underlying_type).map { |x| indent(x) },
             *if node.where_rules&.length&.positive?
                [
                  "WHERE",
                  indent(node.where_rules.map { |x| format(x) }.join("\n")),
                ]
              end,
-            # A comment after the definition or the last rule closes the type.
-            *format_closing_remarks(node, :underlying_type, :where_rules).map { |x| indent(x) },
+            *format_closing_remarks(node, :where_rules).map { |x| indent(x) },
             *format_remark_items(node).map { |x| indent(x) },
             [
               "END_TYPE",

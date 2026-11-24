@@ -15,6 +15,10 @@ module Expressir
                               :remark_items
 
         attribute :abstract, :boolean
+        # True when the source wrote the bare `ABSTRACT` (ISO 10303-11:2004
+        # abstract_entity_declaration) rather than `ABSTRACT SUPERTYPE`;
+        # `abstract` is true for both. Unset otherwise.
+        attribute :abstract_entity, :boolean
         attribute :supertype_expression, ModelElement
         attribute :subtype_of, ModelElement, collection: true, initialize_empty: true
         # Heterogeneous by design: Attribute, DerivedAttribute, and
@@ -34,6 +38,7 @@ module Expressir
         key_value do
           map "_class", to: :_class, render_default: true
           map "abstract", to: :abstract
+          map "abstract_entity", to: :abstract_entity, render_default: false
           map "supertype_expression", to: :supertype_expression
           map "subtype_of", to: :subtype_of
           map "attributes", to: :attributes

@@ -145,8 +145,7 @@ module Expressir
                  "\n",
                  indent([
                    "ABSTRACT",
-                   " ",
-                   "SUPERTYPE",
+                   *(node.abstract_entity ? [] : [" ", "SUPERTYPE"]),
                  ].join),
                ].join
              end,

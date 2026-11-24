@@ -15,6 +15,7 @@ module Expressir
           subsuper = entity_head[:subsuper]
 
           abstract = false
+          abstract_entity_form = false
           supertype_expression = nil
           subtype_of = []
 
@@ -28,6 +29,7 @@ module Expressir
               supertype_rule = supertype_constraint[:supertype_rule]
 
               abstract = !abstract_entity.nil? || !abstract_supertype.nil?
+              abstract_entity_form = !abstract_entity.nil?
 
               if supertype_rule.is_a?(Hash)
                 supertype_expression = Builder.build({ supertype_rule: supertype_rule })
@@ -107,6 +109,7 @@ module Expressir
             where_rules: flatten_items(where_rules),
           }
           entity_params[:abstract] = true if abstract
+          entity_params[:abstract_entity] = true if abstract_entity_form
 
           Expressir::Model::Declarations::Entity.new(**entity_params)
         end

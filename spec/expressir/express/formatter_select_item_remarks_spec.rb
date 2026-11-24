@@ -8,7 +8,7 @@ require "tempfile"
 # before the item it precedes. Before, the TYPE held these remarks with no
 # placement and they were written after `END_TYPE;`. The items are handled
 # as the items of an ENUMERATION are.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   describe "the comments in the item list of a SELECT" do
     let(:source) do
       <<~EXP

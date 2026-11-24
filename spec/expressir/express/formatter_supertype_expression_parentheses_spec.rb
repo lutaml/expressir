@@ -9,7 +9,7 @@ require "tempfile"
 # SUPERTYPE OF and in a SUBTYPE_CONSTRAINT body. The pairs are recorded in
 # `parenthesized`, as for expressions (#707); a model without the record
 # keeps the minimal-parentheses text.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   describe "the parentheses of a supertype expression" do
     let(:source) do
       <<~EXP

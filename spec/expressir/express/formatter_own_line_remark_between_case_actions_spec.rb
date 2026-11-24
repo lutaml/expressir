@@ -7,7 +7,7 @@ require "tempfile"
 # back above the label of the action it precedes. The statement of that
 # action holds it as a leading remark, and the formatter wrote it between
 # the label and the statement.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   describe "a comment on its own line between two actions of a CASE" do
     def wrap(body)
       <<~EXP.sub("%BODY%", body.chomp)

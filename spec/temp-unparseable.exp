@@ -1,0 +1,4 @@
+SCHEMA broken;
+  ENTITY e;
+    value : INTEGER;
+  JUNK (((

@@ -42,7 +42,7 @@ end
 # second line of the comment, read the rest of the comment as code, and found
 # no keyword: the comment was lost before ELSE, END_IF, OTHERWISE, END_CASE,
 # END, WHERE of a RULE, END_FUNCTION, END_PROCEDURE and END_RULE.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   describe "a comment of several lines on its own line before a closing keyword" do
     # keyword => [source builder, keyword as written by the formatter]
     constructs = {

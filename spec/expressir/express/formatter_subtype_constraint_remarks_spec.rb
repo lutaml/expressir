@@ -9,7 +9,7 @@ require "tempfile"
 # SUBTYPE_CONSTRAINT held these remarks with no placement and they were
 # written after `END_SUBTYPE_CONSTRAINT;`. The operands are handled as the
 # items of a SELECT are.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   describe "the comments in the supertype expression of a SUBTYPE_CONSTRAINT" do
     def self.wrapped(body)
       head = "SCHEMA s;\nENTITY t;\nEND_ENTITY;\n"

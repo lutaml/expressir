@@ -8,7 +8,7 @@ require "tempfile"
 # formatter wrote a callable's nested types, entities, functions and
 # procedures grouped by kind, so a PROCEDURE written before a FUNCTION came
 # out after it.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   describe "declarations nested in a FUNCTION, PROCEDURE or RULE" do
     let(:source) do
       <<~EXP

@@ -10,7 +10,7 @@ require "tempfile"
 # trailing one, and the clause on its own line it shares made the scope
 # lookup see that clause as the scope of the remark: the remark kept no
 # placement and was written after the last clause.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   describe "a block comment at the start of a line of an interface clause" do
     let(:source) do
       <<~EXP

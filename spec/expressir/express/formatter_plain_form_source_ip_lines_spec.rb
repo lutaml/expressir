@@ -7,7 +7,7 @@ require "tempfile"
 # `--IPn:` comment lines the SOURCE has, with the source's own text. A
 # proposition that exists only through a tagged `wr:IPn` description still
 # writes nothing there (#723). The full and the stripped form are unchanged.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   def entity(wheres, tail = "")
     "SCHEMA s;\nENTITY e;\n  x : INTEGER;\nWHERE\n  WR1: x > 0;\n#{wheres}END_ENTITY;\nEND_SCHEMA;\n#{tail}"
   end

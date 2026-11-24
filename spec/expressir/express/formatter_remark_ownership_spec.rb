@@ -94,7 +94,7 @@ round_trips = {
     { traced: 22, tagged: 0, escapes: 0 },
 }.freeze
 
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   let(:ownership) { Expressir::RemarkOwnership }
 
   describe "remark ownership" do

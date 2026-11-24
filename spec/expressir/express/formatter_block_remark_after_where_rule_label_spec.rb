@@ -8,7 +8,7 @@ require "tempfile"
 # comment of the same place is. The attacher decided "the comment follows
 # code on its line" from the text `--` alone, so a block comment was held by
 # no node that writes it.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   describe "a block comment after the label of a WHERE rule" do
     let(:sources) do
       {

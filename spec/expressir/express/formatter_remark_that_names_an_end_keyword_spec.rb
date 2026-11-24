@@ -10,7 +10,7 @@ require "tempfile"
 # line of its own was written after `END_FUNCTION;`; a lower-case mention
 # was read differently by the Ruby and the Rust attach. The question is now
 # asked of the code of the line only, in upper and lower case alike.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   describe "a comment that names an END_ keyword in its own text" do
     keywords = %w[END_SCHEMA END_ENTITY END_TYPE END_FUNCTION END_PROCEDURE END_RULE]
     styles = %i[dash block]

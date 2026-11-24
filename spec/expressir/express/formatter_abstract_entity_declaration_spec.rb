@@ -8,7 +8,7 @@ require "tempfile"
 # Both set Entity#abstract. The formatter wrote `ABSTRACT SUPERTYPE` for
 # both, adding the code token SUPERTYPE to the first. Entity#abstract_entity
 # now records the bare form.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   describe "an entity written with the bare ABSTRACT" do
     cases = {
       "ENTITY x ABSTRACT;\nEND_ENTITY;" =>

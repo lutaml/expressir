@@ -7,7 +7,7 @@ require "tempfile"
 # schema with its untagged comments. A comment that follows `END_SCHEMA;`
 # stands after the schema, so the plain form ends at `END_SCHEMA;`. The
 # ordinary form keeps the comment.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   describe "the plain form at END_SCHEMA" do
     let(:plain) { { no_remarks: true, keep_untagged_remarks: true } }
 

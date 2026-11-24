@@ -7,7 +7,7 @@ require "tempfile"
 # before END_SCHEMA is written back before END_SCHEMA. Before, the schema
 # held it without a placement: a `--` comment was written after END_SCHEMA
 # and a block comment at the top of the schema.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   lanes = {
     "the core lane" => ->(text) { Expressir::Express::Parser.from_exp(text) },
     "the Ruby builders" => ->(text) { Expressir::Express::Parser.from_exp(text, use_native: false) },

@@ -8,7 +8,7 @@ require "tempfile"
 # the IF. The opener table asked for THEN on the line of IF, so such an IF
 # never opened and the closing keyword found no IF to close; the remark was
 # held by no region and no formatter wrote it.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   describe "remarks in an IF whose THEN is on a later line" do
     let(:source) do
       <<~EXP

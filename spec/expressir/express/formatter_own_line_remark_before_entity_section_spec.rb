@@ -7,7 +7,7 @@ require "tempfile"
 # an ENTITY (or the WHERE of a TYPE) is written back before that keyword.
 # Before, the next member of the section held it, and it was written after
 # the keyword.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   # The text the formatter writes for a source already in its style: the
   # source itself, with a blank line before each declaration and the end.
   def formatted(source)

@@ -9,7 +9,7 @@ require "tempfile"
 # the lookup of the statement region made it the leading remark of the first
 # statement that follows (for a RULE without statements: of the first WHERE
 # rule), and every such comment was written after all the declarations.
-RSpec.describe Expressir::Express::Formatter do
+RSpec.describe Expressir::Express::Formatter, :ruby_lane do
   lanes = {
     "the core lane" => ->(text) { Expressir::Express::Parser.from_exp(text) },
     "the Ruby builders" => ->(text) { Expressir::Express::Parser.from_exp(text, use_native: false) },

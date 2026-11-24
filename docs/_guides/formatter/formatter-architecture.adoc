@@ -154,6 +154,34 @@ END_SCHEMA; -- test
 For implementation details, see link:docs/ARCHITECTURE.md#remark-attachment-system[Remark Attachment System].
 
 
+==== Remarks in an IF whose THEN is on a later line
+
+A comment on a line of its own before ELSE or END_IF stays after the
+statement it followed, also when THEN is not on the line of IF (the
+condition may run over several lines). The formatter writes the IF in its
+usual form:
+
+[source,express]
+----
+IF x > 0
+  THEN RETURN (1);
+  -- written after RETURN (1);
+  ELSE RETURN (2);
+END_IF;
+----
+
+is written as
+
+[source,express]
+----
+IF x > 0 THEN
+  RETURN (1);
+  -- written after RETURN (1);
+ELSE
+  RETURN (2);
+END_IF;
+----
+
 === Module organization
 
 The formatter consists of a main `Formatter` class that includes specialized

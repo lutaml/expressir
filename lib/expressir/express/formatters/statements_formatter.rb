@@ -115,6 +115,7 @@ module Expressir
 
         def format_statements_case_action(node)
           [
+            *format_before_label_remarks(node.statement),
             [
               Array(node.labels).map { |x| format(x) }.join(", "),
               " ",

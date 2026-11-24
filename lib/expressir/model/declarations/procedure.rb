@@ -21,6 +21,9 @@ module Expressir
         attribute :constants, Constant, collection: true, initialize_empty: true
         attribute :variables, Variable, collection: true, initialize_empty: true
         attribute :statements, ModelElement, collection: true, initialize_empty: true
+        # The nested declaration ids in the order of the source (#711);
+        # the formatter follows it instead of the grouped-by-kind layout.
+        attribute :declaration_order, :string, collection: true, initialize_empty: true
         attribute :_class, :string, default: -> { self.class.name }
 
         key_value do
@@ -34,6 +37,7 @@ module Expressir
           map "constants", to: :constants
           map "variables", to: :variables
           map "statements", to: :statements
+          map "declaration_order", to: :declaration_order
         end
 
         # @return [Array<Declaration>]

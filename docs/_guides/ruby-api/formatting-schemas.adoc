@@ -240,6 +240,25 @@ output = formatter.format(function)
 # - Return type
 ----
 
+`format` writes the declarations of a schema in the order of the source, and
+so it does for the declarations nested in a `FUNCTION`, a `PROCEDURE` or a
+`RULE`. The parser records their ids in `declaration_order` on the schema and
+on each such callable. A model without it (hand-built, or loaded from yaml
+written before the order was recorded) is written grouped by kind, as before.
+
+[source,express]
+----
+FUNCTION outer_fn(a : INTEGER) : INTEGER;
+  PROCEDURE nested_p1(VAR x : INTEGER);
+    x := 1;
+  END_PROCEDURE;
+  FUNCTION nested_f1(y : INTEGER) : INTEGER;
+    RETURN (y);
+  END_FUNCTION;
+  RETURN (a);
+END_FUNCTION;
+----
+
 == HyperLinkFormatter
 
 The HyperLinkFormatter generates HTML output with hyperlinks for cross-references:

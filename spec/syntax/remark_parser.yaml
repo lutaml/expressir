@@ -276,6 +276,8 @@ schemas:
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
+    declaration_order:
+    - remark_type
   rules:
   - _class: Expressir::Model::Declarations::Rule
     id: remark_rule
@@ -366,6 +368,8 @@ schemas:
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
+    declaration_order:
+    - remark_type
     where_rules:
     - _class: Expressir::Model::Declarations::WhereRule
       id: WR1
@@ -490,3 +494,5 @@ schemas:
         expression:
           _class: Expressir::Model::Literals::Logical
           value: 'TRUE'
+    declaration_order:
+    - remark_type

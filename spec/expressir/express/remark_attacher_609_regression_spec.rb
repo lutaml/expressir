@@ -46,7 +46,7 @@ RSpec.describe Expressir::Express::RemarkAttacher do
       expect(item.parent.id).to eq("f")
     end
 
-    it "creates the item with the tag's leaf id (grammar lane)" do
+    it "creates the item with the tag's leaf id (grammar lane)", :ruby_lane do
       model = Expressir::Express::Parser.from_exp(source, use_native: false)
       item = model.schemas[0].functions[0].remark_items[0]
       expect(item.id).to eq("lv")

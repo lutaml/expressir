@@ -41,7 +41,7 @@ RSpec.describe Expressir::Express::Parser do
     refs.sort
   end
 
-  it "resolves identically on both lanes" do
+  it "resolves identically on both lanes", :ruby_lane do
     delegated = described_class.from_exp(source).tap(&:wire_parents)
 
     model = described_class.from_exp(source, skip_references: true, use_native: false)

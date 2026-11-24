@@ -37,7 +37,7 @@ RSpec.describe "schema object-identifier preservation" do # rubocop:disable RSpe
     expect(formatted.lines.first.strip).to eq("SCHEMA isogeometric_analysis_schema '#{OID}';")
   end
 
-  it "prints the object identifier on the fallback lane" do
+  it "prints the object identifier on the fallback lane", :ruby_lane do
     formatted = Expressir::Express::Formatter.new.format(
       parse_source(use_core: false, use_native: false),
     )

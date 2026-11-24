@@ -280,7 +280,10 @@ module Expressir
         untagged.each do |remark|
           next if @attached_spans.include?(remark.position)
 
-          line_content = line_content_for(remark.line)
+          # What a remark says in its own text, such as `-- before
+          # END_FUNCTION`, is not code: the END-line test reads the code of
+          # the line (`code_lines`).
+          line_content = code_lines[remark.line - 1].to_s
           if end_scope_line?(line_content)
             matched_node = @node_index.node_for_end_scope_at(remark.line, line_content) ||
               scope_owner_for_end_line(remark.line, line_content)

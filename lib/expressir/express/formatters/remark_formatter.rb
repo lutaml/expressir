@@ -125,6 +125,15 @@ module Expressir
           " #{lines.join("\n")}"
         end
 
+        # The remark that follows `END_SCHEMA;`. It stands after the schema:
+        # the plain form (`no_remarks` with `keep_untagged_remarks`) is the
+        # schema with its untagged remarks and ends at `END_SCHEMA;`.
+        def format_schema_end_remark(node)
+          return "" if @no_remarks
+
+          format_end_scope_remark(node)
+        end
+
         # The entity's informal propositions, in the ISO remark-tag form
         # so the source convention survives the round trip: `--IP1 text`,
         # or the bare declaration marker `--IP1` when the proposition

@@ -76,7 +76,9 @@ RSpec.describe Expressir::Express::Formatter do
       end
 
       it "writes both comments in the plain form" do
-        expect(schema.format(no_remarks: true, keep_untagged_remarks: true)).to eq(expected.chomp)
+        # The plain form ends at `END_SCHEMA;`: D3 stands after the schema.
+        expect(schema.format(no_remarks: true, keep_untagged_remarks: true))
+          .to eq(expected.chomp.sub(" -- D3 after the end of the schema on its line", ""))
       end
 
       it "holds D1 and D2 on the schema as trailing remarks of its declarations" do
@@ -101,12 +103,12 @@ RSpec.describe Expressir::Express::Formatter do
         parse.call(text).format
       end
 
-      it "leaves a comment after END_SCHEMA on its line where it was" do
+      it "leaves a comment after END_SCHEMA on its line where it was in the ordinary form" do
         text = "SCHEMA s;\nENTITY a;\nEND_ENTITY;\nEND_SCHEMA; -- D3 inline\n"
         file = parse.call(text)
         expect(file.format).to eq("SCHEMA s;\n\nENTITY a;\nEND_ENTITY;\n\nEND_SCHEMA; -- D3 inline\n")
         expect(file.schemas.first.format(no_remarks: true, keep_untagged_remarks: true))
-          .to eq("SCHEMA s;\n\nENTITY a;\nEND_ENTITY;\n\nEND_SCHEMA; -- D3 inline")
+          .to eq("SCHEMA s;\n\nENTITY a;\nEND_ENTITY;\n\nEND_SCHEMA;")
         expect(file.schemas.first.untagged_remarks.map { |r| [r.placement, r.region] }).to eq([[nil, nil]])
       end
 

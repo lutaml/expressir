@@ -138,6 +138,19 @@ puts "Remarks excluded: #{formatter.no_remarks}"
 formatter.no_remarks = false
 ----
 
+=== Where the plain form ends
+
+With `no_remarks: true` and `keep_untagged_remarks: true` together the text
+of a schema ends at `END_SCHEMA;`. A comment that follows `END_SCHEMA;` in
+the source stands after the schema and is not written:
+
+[source,ruby]
+----
+schema.format(no_remarks: true, keep_untagged_remarks: true).end_with?("END_SCHEMA;") # => true
+----
+
+Without `no_remarks` the comment is written after `END_SCHEMA;`, as before.
+
 == Static formatting
 
 Use the static `format` method for one-off formatting:

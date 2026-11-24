@@ -77,13 +77,32 @@ module Expressir
         end
 
         # An operand with the remarks that stand on lines of their own above
-        # it, each at the depth of the operands.
+        # it, each at the depth of the operands. The pairs the source wrote
+        # around the operand are dropped: in the remark-aware list the
+        # operand reads as a model without the record (#757).
         def supertype_operand_text(operand, item_indent)
           leading = format_leading_statement_remarks(operand)
-          return format(operand) if leading.empty?
+          text = with_minimal_supertype_parens { format(operand) }
+          return text if leading.empty?
 
-          own = format(operand).delete_prefix("#{leading.join("\n")}\n")
+          own = text.delete_prefix("#{leading.join("\n")}\n")
           [*leading, own].join("\n#{item_indent}")
+        end
+
+        # Whether any operand of the expression carries a remark that the
+        # remark-aware list has to render, at any depth of the expression.
+        def supertype_expression_remarked?(expression)
+          case expression
+          when Model::SupertypeExpressions::OneofSupertypeExpression
+            Array(expression.operands).any? do |operand|
+              supertype_operand_remarks?(operand) ||
+                supertype_expression_remarked?(operand)
+            end
+          when Model::SupertypeExpressions::BinarySupertypeExpression
+            supertype_expression_remarked?(expression.operand1) ||
+              supertype_expression_remarked?(expression.operand2)
+          else false
+          end
         end
 
         def supertype_operand_remarks?(operand)

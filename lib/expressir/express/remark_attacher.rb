@@ -362,6 +362,9 @@ module Expressir
         # here means the remark is an inline tail (code; -- note). The
         # end-line check is restricted to statements: container end_lines are
         # child-derived approximations that can collide with comment lines.
+        label_block = where_label_block_target(remark)
+        return label_block if label_block.first
+
         operand = supertype_operand_target(remark)
         return operand if operand.first
 
@@ -402,12 +405,21 @@ module Expressir
         closing = closing_region_target(line, own_line: own_line_remark?(remark))
         return closing if closing.first
 
+        # An own-line comment in the declaration part of a FUNCTION,
+        # PROCEDURE or RULE leads the declaration written below it. The
+        # statement lookup below would hand it to the first statement.
+        head = head_declaration_target(remark)
+        return head if head.first
+
         enclosing, region, = statement_region_for(line)
         if region
           following = region
             .select { |n| n[:line] > line }
             .min_by { |n| n[:position] }
-          return [following[:node], Model::RemarkPlacement::LEADING, nil] if following
+          if following
+            return [following[:node], Model::RemarkPlacement::LEADING,
+                    before_case_label_region(following[:node], remark)]
+          end
 
           # No following statement and no closing keyword above: the comment is
           # not demonstrably inside this body (it may sit after the whole
@@ -428,6 +440,56 @@ module Expressir
         return declaration if declaration.first
 
         schema_end_target(remark)
+      end
+
+      # A leading remark of the statement of a CASE action that was written
+      # before the label of that action (between two actions, or before the
+      # first) has the region BEFORE_LABEL: the formatter writes it above the
+      # label. One written after the label has no region. The text between
+      # the remark and the statement tells them apart: only remarks and
+      # white space means the label is already behind the remark. (A label
+      # that is a reference carries no source offset to compare.)
+      def before_case_label_region(statement, remark)
+        return unless statement.parent.is_a?(Model::Statements::CaseAction)
+        return unless statement.source_offset
+
+        gap = @source.b.byteslice(remark.position,
+                                  statement.source_offset - remark.position)
+        return if gap.nil? || only_remarks_and_space?(gap)
+
+        Model::RemarkPlacement::BEFORE_LABEL_REGION
+      end
+
+      # Whether the bytes hold nothing but white space and remarks: a line
+      # remark runs to the end of the line, a block remark to its matching
+      # `*)` (they nest), and an unterminated block remark swallows the rest.
+      def only_remarks_and_space?(gap)
+        i = 0
+        size = gap.bytesize
+        while i < size
+          byte = gap.getbyte(i)
+          pair = gap.byteslice(i, 2)
+          if [32, 9, 10, 12, 13].include?(byte)
+            i += 1
+          elsif pair == "--"
+            i += 1 until i >= size || gap.getbyte(i) == 10
+          elsif pair == "(*"
+            depth = 1
+            i += 2
+            while i < size && depth.positive?
+              case gap.byteslice(i, 2)
+              when "(*" then depth += 1
+                             i += 2
+              when "*)" then depth -= 1
+                             i += 2
+              else i += 1
+              end
+            end
+          else
+            return false
+          end
+        end
+        true
       end
 
       # A comment on a line of its own whose next code line is END_SCHEMA
@@ -482,15 +544,49 @@ module Expressir
       # declaration the comment introduces.
       def declaration_level_target(remark)
         line = remark.line
+        # An item of a SELECT list encloses nothing.
         scope = @node_index.spanning(line)
-          .reject { |n| n[:node].is_a?(Model::ExpFile) }
+          .reject do |n|
+            n[:node].is_a?(Model::ExpFile) ||
+              n[:collection] == NodePositionIndex::SELECT_ITEMS
+          end
           .min_by { |n| [n[:end_line] - n[:line], n[:line]] }
         limit = scope ? scope[:end_line] : line
         next_line = @node_index.next_start_after(line, limit)
         return [nil, nil, nil] unless next_line
 
-        node = @node_index.starting_at(next_line).first[:node]
-        [node, Model::RemarkPlacement::LEADING, nil]
+        following = @node_index.starting_at(next_line).first
+        # A remark between `SELECT` and the parenthesis, or after the code
+        # of another line, does not lead an item of the list.
+        if following[:collection] == NodePositionIndex::SELECT_ITEMS &&
+            !leads_select_item?(remark)
+          return [nil, nil, nil]
+        end
+
+        [following[:node], Model::RemarkPlacement::LEADING, nil]
+      end
+
+      # Whether the remark stands where it can lead an item of a SELECT
+      # list: the code before it, on its line or on the lines above, ends
+      # with the parenthesis that opens the list or with the comma of the
+      # item before, and no code follows it on its line.
+      def leads_select_item?(remark)
+        code = keyword_scannable(line_content_for(remark.line).to_s)
+        before, _, block = code.partition("(*")
+        return false unless block.partition("*)").last.strip.empty?
+
+        before = last_code_before(remark.line) if before.strip.empty?
+        before.rstrip.end_with?("(", ",")
+      end
+
+      # The code of the nearest line above `line` that holds code.
+      def last_code_before(line)
+        (line - 1).downto(1) do |number|
+          code = keyword_scannable(line_content_for(number).to_s)
+            .gsub(/\(\*.*?\*\)/, "").strip
+          return code unless code.empty? || code.start_with?("(*")
+        end
+        ""
       end
 
       # Whether the remark starts its line: nothing but blanks before it.
@@ -510,6 +606,55 @@ module Expressir
         !content[0...opener].strip.empty?
       end
 
+      # The columns (byte indexes in the line) of the `(* ... *)` comments
+      # that follow the label of a WHERE rule on this line:
+      # `wr1 : (* a *) (* b *) size > 0;`. The line starts with the label, so
+      # no string comes before it; white space may separate the label's colon
+      # and the comments; a comment nests and ends at its own `*)`. A comment
+      # that does not end on the line is the last.
+      def label_block_columns(content)
+        match = content.b.match(/\A\s*[A-Za-z_]\w*\s*:(?!=)/n)
+        return [] unless match
+
+        bytes = content.b
+        i = match.end(0)
+        columns = []
+        loop do
+          i += 1 while bytes[i]&.match?(/\s/n)
+          return columns unless bytes[i, 2] == "(*"
+
+          columns << i
+          depth = 0
+          while i < bytes.bytesize
+            case bytes[i, 2]
+            when "(*" then depth += 1
+                           i += 2
+            when "*)" then depth -= 1
+                           i += 2
+                           break if depth.zero?
+            else i += 1
+            end
+          end
+          return columns unless depth.zero?
+        end
+      end
+
+      # A `(* block *)` comment right after the label of a WHERE rule belongs
+      # to that rule, written after the label like a `--` comment there.
+      # Asked only on the first line of a WHERE rule.
+      def where_label_block_target(remark)
+        line = remark.line
+        columns = label_block_columns(line_content_for(line).to_s)
+        return [nil, nil, nil] unless columns.include?(remark.position - @line_map.line_start(line).to_i)
+
+        rule = @node_index.starting_at(line)
+          .find { |n| n[:node].is_a?(Model::Declarations::WhereRule) }
+        return [nil, nil, nil] unless rule
+
+        [rule[:node], Model::RemarkPlacement::INLINE,
+         Model::RemarkPlacement::OPENER_REGION]
+      end
+
       # A comment trailing code on its line belongs to the statement it
       # follows: `x := 1; -- why`, or the opener of a compound one, as in
       # `IF x THEN -- why`.
@@ -521,7 +666,7 @@ module Expressir
       # it to, and without that region the old appending behaviour stands.
       def inline_target(remark, nodes)
         started_here = nodes.select do |n|
-          n[:node].is_a?(Model::TakesInlineRemark) &&
+          takes_inline_remark?(n) &&
             n[:line] == remark.line &&
             n[:position] && n[:position] < remark.position
         end
@@ -602,6 +747,16 @@ module Expressir
       def opens_item_list?(line)
         code = keyword_scannable(line_content_for(line).to_s)
         code.rstrip.end_with?("(") && !code.include?("(*")
+      end
+
+      # Whether an indexed node takes a remark written after it on its
+      # line: a TakesInlineRemark, or an item of a SELECT list. The item is
+      # a reference, and a reference takes such a remark nowhere else (the
+      # FOR items of a RULE are indexed too), so the index entry is asked,
+      # not the class.
+      def takes_inline_remark?(entry)
+        entry[:node].is_a?(Model::TakesInlineRemark) ||
+          entry[:collection] == NodePositionIndex::SELECT_ITEMS
       end
 
       # Lines beginning with a mid-construct keyword. The keyword closes
@@ -794,6 +949,12 @@ module Expressir
         # So do END_ENTITY and END_TYPE.
         /\AEND_ENTITY\b/i => [Model::Declarations::Entity, :where_rules],
         /\AEND_TYPE\b/i => [Model::Declarations::Type, :where_rules],
+        # DERIVE, INVERSE and UNIQUE close the section before them. So does
+        # the WHERE of an ENTITY or a TYPE, resolved in closing_region_target
+        # from the construct open at that line (the entry above is a RULE's).
+        /\ADERIVE\b/i => [Model::Declarations::Entity, :attributes],
+        /\AINVERSE\b/i => [Model::Declarations::Entity, :derived_attributes],
+        /\AUNIQUE\b/i => [Model::Declarations::Entity, :inverse_attributes],
       }.freeze
 
       # Declarations whose bodies hold no statements. Only a comment on a
@@ -802,6 +963,12 @@ module Expressir
       DECLARATION_BODY_OWNERS = [
         Model::Declarations::Entity, Model::Declarations::Type
       ].freeze
+
+      ENTITY_HAS_KIND = lambda do |entity, kind|
+        [entity.attributes, entity.derived_attributes, entity.inverse_attributes]
+          .flat_map { |items| Array(items).flatten }
+          .any? { |attribute| attribute.respond_to?(:kind) && attribute.kind == kind }
+      end
 
       # Regions whose owner may not have that body, in which case the
       # keyword closes the earlier region instead.
@@ -812,10 +979,17 @@ module Expressir
           [:action_statements, ->(n) { !n.otherwise_statement.nil? }],
         [Model::Declarations::Rule, :where_rules] =>
           [:statements, ->(n) { n.where_rules&.length&.positive? }],
-        # END_ENTITY closes the attributes, END_TYPE the definition, when
-        # the declaration has no WHERE section.
+        # END_ENTITY and the section keywords close the last section the
+        # entity has before them, END_TYPE the definition when the type
+        # has no WHERE section.
         [Model::Declarations::Entity, :where_rules] =>
-          [:attributes, ->(n) { n.where_rules&.length&.positive? }],
+          [:unique_rules, ->(n) { n.where_rules&.length&.positive? }],
+        [Model::Declarations::Entity, :unique_rules] =>
+          [:inverse_attributes, ->(n) { n.unique_rules&.length&.positive? }],
+        [Model::Declarations::Entity, :inverse_attributes] =>
+          [:derived_attributes, ->(n) { ENTITY_HAS_KIND.call(n, Model::Declarations::Attribute::INVERSE) }],
+        [Model::Declarations::Entity, :derived_attributes] =>
+          [:attributes, ->(n) { ENTITY_HAS_KIND.call(n, Model::Declarations::Attribute::DERIVED) }],
         [Model::Declarations::Type, :where_rules] =>
           [:underlying_type, ->(n) { n.where_rules&.length&.positive? }],
       }.freeze
@@ -828,6 +1002,8 @@ module Expressir
       def closing_region_target(line, own_line: true)
         keyword_owner, region, keyword_line = closing_keyword_after(line)
         return [nil, nil, nil] unless keyword_owner
+
+        keyword_owner, region = declaration_where(keyword_owner, region, keyword_line)
         return [nil, nil, nil] if !own_line && DECLARATION_BODY_OWNERS.include?(keyword_owner)
 
         # The owner is the construct the keyword actually closes — the
@@ -838,17 +1014,185 @@ module Expressir
         opener_line = active_opener_line(keyword_line, keyword_owner)
         return [nil, nil, nil] unless opener_line
 
-        owner = @node_index.starting_at(opener_line).find do |n|
-          n[:node].is_a?(keyword_owner)
-        end
+        # Several constructs of the class may start on that line: the one
+        # still open reaches the keyword line.
+        starting = @node_index.starting_at(opener_line).select { |n| n[:node].is_a?(keyword_owner) }
+        owner = starting.reverse.find { |n| n[:end_line] && n[:end_line] >= keyword_line } || starting.first
         return [nil, nil, nil] unless owner
 
         # END_IF closes the THEN body when there is no ELSE; END_CASE closes
         # the last action when there is no OTHERWISE.
-        fallback, present = REGION_FALLBACKS[[keyword_owner, region]]
-        region = fallback if fallback && !present.call(owner[:node])
+        loop do
+          fallback, present = REGION_FALLBACKS[[keyword_owner, region]]
+          break if fallback.nil? || present.call(owner[:node])
+
+          region = fallback
+        end
 
         [owner[:node], Model::RemarkPlacement::TRAILING, region.to_s]
+      end
+
+      # The WHERE keyword of a RULE closes its statements. Where an ENTITY or a
+      # TYPE is open at that line it closes the unique rules (or the section
+      # before them) or the definition.
+      def declaration_where(owner, region, keyword_line)
+        return [owner, region] unless owner == Model::Declarations::Rule && region == :statements
+
+        klass, opener_line = active_scope_map[keyword_line]
+        return [owner, region] unless klass == :other
+
+        declaration = @node_index.starting_at(opener_line).map { |n| n[:node] }
+          .find { |n| DECLARATION_BODY_OWNERS.any? { |c| n.is_a?(c) } }
+        case declaration
+        when Model::Declarations::Entity then [Model::Declarations::Entity, :unique_rules]
+        when Model::Declarations::Type then [Model::Declarations::Type, :underlying_type]
+        else [owner, region]
+        end
+      end
+
+      # The nested declarations of a callable: its own collections, before
+      # LOCAL and the statements.
+      HEAD_COLLECTIONS = %i[
+        types entities subtype_constraints functions procedures constants
+      ].freeze
+
+      # A comment on its own line in the declaration part of a FUNCTION,
+      # PROCEDURE or RULE. Before a nested declaration it leads that
+      # declaration; before LOCAL or END_LOCAL it closes the part above
+      # (TRAILING, region declarations or variables); before a LOCAL
+      # variable it leads the variable. The variables carry no source spans,
+      # so the next code line names the one (as in local_variable_target).
+      # Nothing else follows the declaration part but the statements and
+      # WHERE rules, so a body that starts above the line found means the
+      # comment is not in the declaration part. Only `--` comments and
+      # one-line `(* *)` comments take part: a comment of several lines is
+      # left to the lookups that follow.
+      def head_declaration_target(remark)
+        line = remark.line
+        return [nil, nil, nil] unless only_remark?(line_content_for(line))
+
+        callable = innermost_candidate(@node_index.spanning(line).select do |n|
+          n[:line] < line && function_rule_procedure?(n[:node])
+        end)
+        return [nil, nil, nil] unless callable
+
+        owner = callable[:node]
+        body = @node_index.children_in(owner, STATEMENT_REGIONS + [:where_rules])
+          .select { |n| n[:line] > line }.map { |n| n[:line] }.min
+        in_head = ->(l) { body.nil? || l < body }
+
+        nested = @node_index.children_in(owner, HEAD_COLLECTIONS)
+          .select { |n| n[:line] > line }.min_by { |n| n[:position] }
+        if nested
+          return [nested[:node], Model::RemarkPlacement::LEADING, nil] if in_head.(nested[:line])
+
+          return [nil, nil, nil]
+        end
+
+        code_line = next_code_line(line)
+        return [nil, nil, nil] unless code_line && in_head.(code_line[0]) && owner.variables&.any?
+
+        if code_line[1].match?(/\ALOCAL\b/i)
+          return [owner, Model::RemarkPlacement::TRAILING, "declarations"]
+        elsif code_line[1].match?(/\AEND_LOCAL\b/i)
+          return [owner, Model::RemarkPlacement::TRAILING, "variables"]
+        end
+
+        # A variable is led only from inside the LOCAL block of this
+        # callable, after the end of a declaration: a comment between the
+        # names of one declaration, or in a statement body, is not.
+        text = (callable[:line]...line).map { |n| line_content_for(n) }.join("\n").b
+        inside, last = local_block_state(text)
+        return [nil, nil, nil] unless inside && (last == ";" || last.casecmp?("LOCAL"))
+
+        names = code_line[1][/\A\s*([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)\s*:(?!=)/, 1]&.split(/\s*,\s*/)
+        variable = names && owner.variables.find do |v|
+          names.any? { |name| name.casecmp?(v.id) }
+        end
+        return [nil, nil, nil] unless variable
+
+        [variable, Model::RemarkPlacement::LEADING, nil]
+      end
+
+      # Whether a source line holds nothing but remarks: `--` comments and
+      # one-line `(* *)` blocks, which nest. A block left open at the end of
+      # the line, or code, makes it false.
+      def only_remark?(content)
+        i = 0
+        depth = 0
+        while i < content.length
+          pair = content[i, 2]
+          if depth.zero? && pair == "--"
+            return true
+          elsif pair == "(*"
+            depth += 1
+            i += 2
+          elsif depth.positive? && pair == "*)"
+            depth -= 1
+            i += 2
+          elsif depth.zero? && !content[i].match?(/\s/)
+            return false
+          else
+            i += 1
+          end
+        end
+        depth.zero?
+      end
+
+      # The first line after `line` that holds code, as [line number, text]:
+      # blank lines and lines of remarks only are skipped.
+      def next_code_line(line)
+        probe = line + 1
+        while probe <= source_line_count
+          content = line_content_for(probe).to_s.strip
+          return [probe, content] unless content.empty? || only_remark?(content)
+
+          probe += 1
+        end
+        nil
+      end
+
+      # Whether the end of `text` stands inside the LOCAL block of the
+      # callable that `text` starts, and the last code token before it:
+      # [inside, token]. Remarks and string literals are skipped; LOCAL opens
+      # the block and END_LOCAL closes it.
+      def local_block_state(text)
+        inside = false
+        last = ""
+        i = 0
+        while i < text.bytesize
+          pair = text.byteslice(i, 2)
+          char = text.byteslice(i, 1)
+          if pair == "--"
+            i += 1 while i < text.bytesize && text.getbyte(i) != 10
+          elsif pair == "(*"
+            depth = 0
+            while i < text.bytesize
+              pair = text.byteslice(i, 2)
+              depth += 1 if pair == "(*"
+              depth -= 1 if pair == "*)"
+              i += ["(*", "*)"].include?(pair) ? 2 : 1
+              break if depth.zero?
+            end
+          elsif ["'", '"'].include?(char)
+            i += 1
+            i += (text.byteslice(i, 2) == "''" ? 2 : 1) until i >= text.bytesize || (text.byteslice(i, 1) == char && text.byteslice(i, 2) != "''")
+            i += 1
+            last = "'"
+          elsif char.match?(/[A-Za-z_]/n)
+            word = text.match(/\G\w+/n, i)[0]
+            last = word
+            inside = true if word.casecmp?("LOCAL")
+            inside = false if word.casecmp?("END_LOCAL")
+            i += word.bytesize
+          elsif char.match?(/\s/n)
+            i += 1
+          else
+            last = char
+            i += 1
+          end
+        end
+        [inside, last]
       end
 
       # The first non-blank, non-comment source line after `line`.
@@ -856,7 +1200,7 @@ module Expressir
       # of node they produce. Used to find which construct a closing keyword
       # actually belongs to.
       OPENERS = [
-        [/\bIF\b.*?\bTHEN\b/i, Model::Statements::If],
+        [/\bIF\b/i, Model::Statements::If],
         [/\bCASE\b.*?\bOF\b/i, Model::Statements::Case],
         [/\bREPEAT\b/i, Model::Statements::Repeat],
         [/\bALIAS\b/i, Model::Statements::Alias],

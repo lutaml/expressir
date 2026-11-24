@@ -743,10 +743,25 @@ module Expressir
                ].join)
              end,
             *if node.supertype_expression
+               expression = node.supertype_expression
+               # A body of a constraint that carries remarks reads as a
+               # model without the paren record: the pairs of the source
+               # are dropped there (#757), kept in a remark-free body
+               # (#707). The remarks of the operands and the constraint's
+               # own (a comment inside an operand's parentheses lands
+               # there) both count.
+               remarked = supertype_expression_remarked?(expression) ||
+                 Array(node.untagged_remarks).any? ||
+                 format_remark_items(node).any?
+               text = if remarked
+                        with_minimal_supertype_parens { format(expression) }
+                      else
+                        format(expression)
+                      end
                indent([
-                 format(node.supertype_expression),
+                 text,
                  ";",
-                 last_supertype_operand_remarks(node.supertype_expression),
+                 last_supertype_operand_remarks(expression),
                ].join)
              end,
             *format_remark_items(node).map { |x| indent(x) },

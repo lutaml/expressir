@@ -100,9 +100,24 @@ module Expressir
 
         text = place_remarks(send(handler, node), node)
         # A source-parenthesized expression keeps its pairs (#707) —
-        # all of them, when the groups were nested.
+        # all of them, when the groups were nested. The remark-aware
+        # supertype-operand list drops them: there the expression reads
+        # as a model without the record (#757).
         depth = node.respond_to?(:parenthesized) ? node.parenthesized : nil
+        depth = nil if @minimal_supertype_parens
         depth.to_i.positive? ? "(#{'(' * (depth - 1)}#{text})#{')' * (depth - 1)}" : text
+      end
+
+      # Formats with the pairs the source wrote around supertype
+      # expressions suppressed: the operands of the remark-aware ONEOF
+      # list and the remarked constraint body format the way a model
+      # without the `parenthesized` record does (#757).
+      def with_minimal_supertype_parens
+        saved = @minimal_supertype_parens
+        @minimal_supertype_parens = true
+        yield
+      ensure
+        @minimal_supertype_parens = saved
       end
 
       def base_formatter?

@@ -39,6 +39,13 @@ jobs:
       # per-file memory growth — the suite's cross-example memory
       # retention is a leak to fix, and this log is the map.
       - name: Run the suite on the core parse path
+        # The comment round-trip specs (:ruby_lane, the #742-#772 batch)
+        # assert placements the Ruby parse produces; the core-parse
+        # hydration carries none. Exclude them here until native parse
+        # parity lands (#774); the formatter round-trip files ride the
+        # same exclusion (their goldens are Ruby-parse based too).
         run: |
-          bundle exec rspec spec/expressir spec/syntax --tag ~production_scale \
+          EXPRESSIR_DISABLE_RUBY_PARSE=1 bundle exec rspec spec/expressir spec/syntax \
+            --tag ~production_scale --tag ~ruby_lane \
+            --exclude-pattern "spec/expressir/express/formatter*_spec.rb" \
             --require ./tools/rss_formatter --format RssFormatter --format progress

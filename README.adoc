@@ -199,6 +199,23 @@ WHERE
 END_TYPE;
 ----
 
+The same holds before the DERIVE, INVERSE, UNIQUE or WHERE keyword of an entity,
+and before the WHERE keyword of a type: the remark is written at the end of the
+section it follows, not at the start of the next one:
+
+[source,express]
+----
+ENTITY person;
+  name : STRING;
+  -- Before the derived attributes
+DERIVE
+  initial : STRING := name[1];
+  -- Before the rules
+WHERE
+  wr1: LENGTH(name) > 0;
+END_ENTITY;
+----
+
 ==== Unicode support
 
 All remark types support full Unicode content:

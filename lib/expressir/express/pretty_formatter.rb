@@ -373,7 +373,11 @@ module Expressir
           name_padding = " " * (max_name_len - constant.id.length)
           type_padding = " " * (max_type_len - type_str.length)
 
-          "#{constant.id}#{name_padding} : #{type_str}#{type_padding} := #{format(constant.expression)};"
+          # A comment on a line of its own above the constant leads it.
+          [
+            *format_leading_statement_remarks(constant),
+            "#{constant.id}#{name_padding} : #{type_str}#{type_padding} := #{format(constant.expression)};",
+          ].join("\n")
         end
 
         formatted.join("\n")
@@ -545,10 +549,15 @@ module Expressir
                ].join,
              ].join("\n"))
            end,
+          # A comment on its own line before LOCAL closes the declarations.
+          *format_trailing_region_remarks(node, :declarations).map { |x| indent(x) },
           *if node.variables&.length&.positive?
              indent([
                "LOCAL",
-               indent(format_grouped_declarations(node.variables, method(:format_declarations_variable)).join("\n")),
+               indent([
+                 *format_grouped_declarations(node.variables, method(:format_declarations_variable)),
+                 *format_trailing_region_remarks(node, :variables),
+               ].join("\n")),
                [
                  "END_LOCAL",
                  ";",

@@ -135,6 +135,29 @@ END_TYPE;
 ----
 
 As for an ENUMERATION, the remark of the last item is written after the `;` of the TYPE.
+==== Remarks between the actions of a CASE
+
+A remark on a line of its own between two actions of a CASE statement stays
+above the label of the action it precedes. It is not moved between the label and
+the statement of that action:
+
+[source,express]
+----
+FUNCTION size_name(n : INTEGER) : STRING;
+  CASE n OF
+  1 :
+    RETURN ('small');
+  -- Sizes above 1 are not in use yet
+  2, 3 :
+    RETURN ('medium');
+  OTHERWISE :
+    RETURN ('large');
+  END_CASE;
+END_FUNCTION;
+----
+
+A remark before `OTHERWISE` or `END_CASE`, a remark at the end of an action line
+and a remark after a bare label keep the places they had.
 
 ==== END_* scope remarks
 

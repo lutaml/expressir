@@ -44,6 +44,12 @@ module Expressir
       ELSE_REGION = "else"
       OTHERWISE_REGION = "otherwise"
       LABEL_REGION = "label"
+
+      # Region of a LEADING remark of a CASE action's statement that was
+      # written before the label of that action, between two actions or
+      # before the first. It is written above the label, not between the
+      # label and the statement.
+      BEFORE_LABEL_REGION = "before_label"
     end
   end
 end

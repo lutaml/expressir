@@ -325,6 +325,21 @@ formatted = formatter.format(expression)
 # Produces: a + b + c
 ----
 
+The formatter writes the pairs of parentheses that the source has around a
+supertype expression or one of its operands (a SUPERTYPE OF expression, an
+operand of AND, ANDOR or ONEOF, the expression of a SUBTYPE_CONSTRAINT), as it
+does for the parentheses of an expression. The pairs are recorded in the
+`parenthesized` attribute of the node (the depth, when the pairs are nested).
+A model with no such record, built by hand or loaded from older YAML, is
+written with the minimal parentheses its precedence needs:
+
+[source,express]
+----
+ENTITY a
+  SUPERTYPE OF ((ONEOF(b, c)) ANDOR (d));
+END_ENTITY;
+----
+
 === Line wrapping
 
 Long lines are wrapped appropriately:

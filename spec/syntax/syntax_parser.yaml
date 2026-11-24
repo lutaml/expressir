@@ -842,6 +842,7 @@ schemas:
       operator: AND
       operand1:
         _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
+        parenthesized: 1
         operator: ANDOR
         operand1:
           _class: Expressir::Model::References::SimpleReference
@@ -867,6 +868,7 @@ schemas:
         id: a
       operand2:
         _class: Expressir::Model::SupertypeExpressions::BinarySupertypeExpression
+        parenthesized: 1
         operator: ANDOR
         operand1:
           _class: Expressir::Model::References::SimpleReference

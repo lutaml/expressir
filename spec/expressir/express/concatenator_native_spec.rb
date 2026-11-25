@@ -75,7 +75,7 @@ RSpec.describe Expressir::Express::Concatenator do
     native = described_class.call(root, repository, native_out)
     ruby = described_class.ruby_call(root, repository, ruby_out)
 
-    expect(native.map(&:id).downcase.sort).to eq(ruby.map(&:id).downcase.sort)
+    expect(native.map { |x| x.id.downcase }.sort).to eq(ruby.map { |x| x.id.downcase }.sort)
     # The artifact bodies agree past the banner (both embed verbatim).
     expect(File.read(native_out)).to include(File.read(ruby_out).split("--\n").last.strip)
   end

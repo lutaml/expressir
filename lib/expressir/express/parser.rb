@@ -43,15 +43,17 @@ module Expressir
       end
       private_class_method :strip_bom
 
-      # The file's bytes, BOM-stripped, as UTF-8. Binary mode on purpose:
-      # the compiled lane's source offsets are raw-byte positions, and
-      # Windows text mode would translate CRLF, leaving the attach pass's
-      # text shorter than every offset past the first line end (#778).
-      # Binary reads hand both lanes the same bytes on every platform.
-      def self.read_source(file)
+      # The batch path only: the file's raw bytes, BOM-stripped. The
+      # batch workers open the files themselves, so their source offsets
+      # are raw-byte positions (CRLF intact) — a text-mode read would
+      # translate CRLF on Windows and leave the attach pass's text
+      # shorter than every offset past the first line end (#778). The
+      # string-parsed paths keep text-mode reads: their offsets follow
+      # the string that is handed over.
+      def self.read_source_raw(file)
         strip_bom(File.binread(file).force_encoding(Encoding::UTF_8))
       end
-      private_class_method :read_source
+      private_class_method :read_source_raw
 
       # Parses Express file into an Express model.
       # @param file [String] Express file path
@@ -83,7 +85,7 @@ module Expressir
         end
 
         Expressir::Benchmark.measure_file(file) do
-          source = read_source(file)
+          source = strip_bom(File.read(file))
 
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
@@ -222,7 +224,7 @@ module Expressir
         end
 
         Expressir::Benchmark.measure_file(file) do
-          source = read_source(file)
+          source = strip_bom(File.read(file))
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
           remarks_attached = false
@@ -407,7 +409,7 @@ module Expressir
             file = physical[ordered_path]
             loaded, load_error = entry
             if loaded
-              source = read_source(file)
+              source = read_source_raw(file)
               loaded.wire_parents
               finalize_loaded_file(loaded, source, ordered_path,
                                    include_source: include_source)

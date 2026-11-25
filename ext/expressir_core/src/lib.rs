@@ -782,6 +782,7 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     module.define_singleton_method("lsp_inventory", function!(lsp_inventory, 1))?;
     module.define_singleton_method("lsp_rename_edits", function!(lsp_rename_edits, 2))?;
     module.define_singleton_method("write_set", function!(set_write, 3))?;
+    module.define_singleton_method("concat_schema", function!(concat_schema, 2))?;
     let batch_class = module.define_class("BatchStream", ruby.class_object())?;
     batch_class.define_singleton_method("start", function!(batch_start, 2))?;
     batch_class.define_method("next", method!(batch_next, 0))?;
@@ -798,4 +799,27 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     set_class.define_method("hydrate_one", method!(set_hydrate_one, 1))?;
     set_class.define_method("matches_sources", method!(set_matches_sources, 1))?;
     Ok(())
+}
+
+/// The concatenated artifact over a hydrated repository wire (#636):
+/// `wire_json` is the repository wire, `root_id` the schema to expand.
+/// Returns `[ids, artifact]` — the closure ids and the artifact text
+/// (the sections embed the files the wire names).
+fn concat_schema(ruby: &Ruby, wire_json: String, root_id: String) -> Result<RArray, Error> {
+    let wire: serde_json::Value =
+        serde_json::from_str(&wire_json).map_err(|e| {
+            Error::new(ruby.exception_runtime_error(), format!("wire json: {e}"))
+        })?;
+    let sections = expressir::expand::closure(&root_id, &wire);
+    let artifact = expressir::expand::write(&sections).map_err(|e| {
+        Error::new(ruby.exception_runtime_error(), format!("concat: {e}"))
+    })?;
+    let ids = ruby.ary_new_capa(sections.len());
+    for section in &sections {
+        ids.push(ruby.str_new(&section.id));
+    }
+    let out = ruby.ary_new_capa(2);
+    out.push(ids);
+    out.push(ruby.str_new(&artifact));
+    Ok(out)
 }

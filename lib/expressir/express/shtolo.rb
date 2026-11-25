@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "json"
+
 module Expressir
   module Express
     # SHTOLO — short-to-long conversion per ISO 10303-11:2004 Annex G
@@ -52,8 +54,32 @@ module Expressir
       end
 
       def flatten
+        return native_flatten if native_available?
+
         @schema = build_longform
         self
+      end
+
+      # The Rust flatten runs the full stage order over the resolved
+      # repository's wire and hydrates the longform schema from the
+      # returned wire (#636). The Ruby stages stay as the no-native
+      # fallback; the oracle differential gates both.
+      def native_flatten
+        raise NotImplementedError, "core flatten unavailable" unless
+          Expressir::Express::Core::NATIVE_AVAILABLE &&
+            ::Expressir::Core.respond_to?(:flatten_schema)
+
+        wire = Expressir::Express::Core.flatten_schema(@repository, @root.id, @longform_name)
+        schema = Expressir::Model::ExpFile.from_hash(
+          "schemas" => [JSON.parse(wire)],
+        )&.schemas&.first
+        @schema = schema
+        self
+      end
+
+      def native_available?
+        Expressir::Express::Core::NATIVE_AVAILABLE &&
+          ::Expressir::Core.respond_to?(:flatten_schema)
       end
 
       IdPlan = Struct.new(:global, :own_by_schema, keyword_init: true) do

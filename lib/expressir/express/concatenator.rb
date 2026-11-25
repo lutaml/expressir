@@ -75,9 +75,12 @@ module Expressir
         if Expressir::Express::Core::NATIVE_AVAILABLE &&
             ::Expressir::Core.respond_to?(:concat_schema)
           begin
-            ids, artifact = ::Expressir::Core.concat_schema(repository, root_schema)
+            # The wrapper serializes the repository's wire; the raw
+            # extension function takes the JSON string.
+            ids, artifact = Expressir::Express::Core.concat_schema(repository, root_schema)
             write_artifact(path, artifact)
-            repository.schemas.select { |s| ids.include?(s.id.safe_downcase) }
+            lowered = ids.map(&:downcase)
+            repository.schemas.select { |s| lowered.include?(s.id.safe_downcase) }
               .sort_by { |s| s.id.safe_downcase }
           rescue NotImplementedError, RuntimeError
             ruby_call(root_schema, repository, path)

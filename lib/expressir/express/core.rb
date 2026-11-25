@@ -256,21 +256,24 @@ module Expressir
           yield(path, model, error)
         end
       end
+
+      # The concatenated artifact over a resolved repository (#636):
+      # the interface closure of `root` in `repository` plus the artifact
+      # text (the sections embed the files the wire names). Returns
+      # [schema_ids, artifact] from the Rust closure walk.
+      def self.concat_schema(repository, root)
+        unless NATIVE_AVAILABLE && ::Expressir::Core.respond_to?(:concat_schema)
+          raise NotImplementedError, "core concat unavailable"
+        end
+
+        # The repository's wire nests schemas under files; the Rust
+        # closure consumes the flat ExpFile shape ({"schemas": [...]}).
+        wire = JSON.generate(
+          "schemas" => Array(repository.schemas).map(&:to_hash),
+        )
+        ids, artifact = ::Expressir::Core.concat_schema(wire, root.id)
+        [ids, artifact]
+      end
     end
   end
-end
-
-# The concatenated artifact over a resolved repository (#636):
-# the interface closure of `root` in `repository` plus the artifact
-# text (the sections embed the files the wire names). Returns
-# [schema_ids, artifact] from the Rust closure walk.
-def self.concat_schema(repository, root)
-  unless NATIVE_AVAILABLE && Expressir::Core.respond_to?(:concat_schema)
-    raise NotImplementedError, "core concat unavailable"
-  end
-
-  wire = repository.respond_to?(:to_hash) ? repository.to_hash : repository
-  wire = JSON.generate(wire) unless wire.is_a?(String)
-  ids, artifact = Expressir::Core.concat_schema(wire, root.id)
-  [ids, artifact]
 end

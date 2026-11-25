@@ -384,7 +384,7 @@ module Expressir
 
         remarks = ["Original 2003 schemas:"] + names.map do |id|
           contributing = closure.values.find { |s| s.id == id }
-          version = contributing&.version&.id
+          version = contributing&.version&.value
           line = "schema = #{id};"
           line = "schema = #{id} schema_version_id = '#{version}';" if version
           line

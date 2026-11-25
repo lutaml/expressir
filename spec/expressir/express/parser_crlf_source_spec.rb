@@ -76,6 +76,16 @@ RSpec.describe Expressir::Express::Parser do
       end
       repo = described_class.from_files(paths)
       expect(repo.schemas.map(&:id)).to contain_exactly("crlf_probe0", "crlf_probe1")
+
+      # The batch workers' offsets are raw-byte positions (#778): every
+      # remark the attach pass reads stays within the file's bytes.
+      raw = File.binread(paths.first)
+      repo.schemas.first.children.each do |node|
+        next unless node.respond_to?(:source_offset) && node.source_offset
+
+        expect(node.source_offset).to be < raw.bytesize
+      end
+      expect(repo.format).to include("-- the size remark")
     end
   end
 end

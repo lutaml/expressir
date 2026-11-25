@@ -66,14 +66,41 @@ module Expressir
       end
 
       # One-call convenience: closure of the root schema found in
-      # `repository`, written to `path`.
+      # `repository`, written to `path`. The closure walk runs in the
+      # Rust core when the extension is available (the wire carries the
+      # same interfaces); the Ruby walk stays as the fallback for the
+      # no-native lane (#636). Both return the same schema set — the
+      # writer is shared.
       def call(root_schema, repository, path)
+        if Expressir::Express::Core::NATIVE_AVAILABLE &&
+            ::Expressir::Core.respond_to?(:concat_schema)
+          begin
+            ids, artifact = ::Expressir::Core.concat_schema(repository, root_schema)
+            write_artifact(path, artifact)
+            repository.schemas.select { |s| ids.include?(s.id.safe_downcase) }
+              .sort_by { |s| s.id.safe_downcase }
+          rescue NotImplementedError, RuntimeError
+            ruby_call(root_schema, repository, path)
+          end
+        else
+          ruby_call(root_schema, repository, path)
+        end
+      end
+
+      # The Ruby closure walk + writer.
+      def ruby_call(root_schema, repository, path)
         schemas = closure(root_schema, repository)
         File.open(path, "w") do |file|
           write(file, schemas)
         end
         schemas
       end
+
+      # Writes a pre-rendered artifact text (the native path's output).
+      def write_artifact(path, artifact)
+        File.binwrite(path, artifact)
+      end
+      module_function :call, :ruby_call, :write_artifact
     end
   end
 end

@@ -783,6 +783,7 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     module.define_singleton_method("lsp_rename_edits", function!(lsp_rename_edits, 2))?;
     module.define_singleton_method("write_set", function!(set_write, 3))?;
     module.define_singleton_method("concat_schema", function!(concat_schema, 2))?;
+    module.define_singleton_method("flatten_schema", function!(flatten_schema, 3))?;
     let batch_class = module.define_class("BatchStream", ruby.class_object())?;
     batch_class.define_singleton_method("start", function!(batch_start, 2))?;
     batch_class.define_method("next", method!(batch_next, 0))?;
@@ -822,4 +823,22 @@ fn concat_schema(ruby: &Ruby, wire_json: String, root_id: String) -> Result<RArr
     out.push(ids);
     out.push(ruby.str_new(&artifact));
     Ok(out)
+}
+
+/// The SHTOLO longform over a hydrated repository (#636): the full
+/// stage order runs in Rust over the repository's flat wire. Returns
+/// the longform schema wire JSON string.
+fn flatten_schema(
+    ruby: &Ruby,
+    wire_json: String,
+    root_id: String,
+    longform_name: String,
+) -> Result<String, Error> {
+    let wire: serde_json::Value = serde_json::from_str(&wire_json).map_err(|e| {
+        Error::new(ruby.exception_runtime_error(), format!("wire json: {e}"))
+    })?;
+    let longform = expressir::expand::shtolo_flatten(&root_id, &wire, &longform_name);
+    serde_json::to_string(&longform).map_err(|e| {
+        Error::new(ruby.exception_runtime_error(), format!("serialize: {e}"))
+    })
 }

@@ -274,6 +274,20 @@ module Expressir
         ids, artifact = ::Expressir::Core.concat_schema(wire, root.id)
         [ids, artifact]
       end
+
+      # The SHTOLO longform over a resolved repository (#636): the
+      # full stage order runs in Rust over the repository's flat wire.
+      # Returns the longform schema's wire JSON string.
+      def self.flatten_schema(repository, root, longform_name)
+        unless NATIVE_AVAILABLE && ::Expressir::Core.respond_to?(:flatten_schema)
+          raise NotImplementedError, "core flatten unavailable"
+        end
+
+        wire = JSON.generate(
+          "schemas" => Array(repository.schemas).map(&:to_hash),
+        )
+        ::Expressir::Core.flatten_schema(wire, root.id, longform_name)
+      end
     end
   end
 end

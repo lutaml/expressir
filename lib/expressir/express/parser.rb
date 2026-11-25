@@ -43,6 +43,16 @@ module Expressir
       end
       private_class_method :strip_bom
 
+      # The file's bytes, BOM-stripped, as UTF-8. Binary mode on purpose:
+      # the compiled lane's source offsets are raw-byte positions, and
+      # Windows text mode would translate CRLF, leaving the attach pass's
+      # text shorter than every offset past the first line end (#778).
+      # Binary reads hand both lanes the same bytes on every platform.
+      def self.read_source(file)
+        strip_bom(File.binread(file).force_encoding(Encoding::UTF_8))
+      end
+      private_class_method :read_source
+
       # Parses Express file into an Express model.
       # @param file [String] Express file path
       # @param skip_references [Boolean] skip resolving references
@@ -73,7 +83,7 @@ module Expressir
         end
 
         Expressir::Benchmark.measure_file(file) do
-          source = strip_bom(File.read(file))
+          source = read_source(file)
 
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
@@ -212,7 +222,7 @@ module Expressir
         end
 
         Expressir::Benchmark.measure_file(file) do
-          source = strip_bom(File.read(file))
+          source = read_source(file)
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
           remarks_attached = false
@@ -397,7 +407,7 @@ module Expressir
             file = physical[ordered_path]
             loaded, load_error = entry
             if loaded
-              source = strip_bom(File.read(file))
+              source = read_source(file)
               loaded.wire_parents
               finalize_loaded_file(loaded, source, ordered_path,
                                    include_source: include_source)

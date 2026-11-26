@@ -8,6 +8,13 @@ module Expressir
     class AdocSourceFormatter < Formatter
       include AdocHyperlinkFormatter
 
+      # Same plain form as SourceFormatter: the document-page listing
+      # omits every tagged description block, keyed ones included
+      # (metanorma-cli#522), and keeps the source's untagged comments.
+      def initialize(*)
+        super(no_remarks: true, keep_untagged_remarks: true)
+      end
+
       def owner_tagged_blocks?
         false
       end

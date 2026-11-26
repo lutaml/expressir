@@ -108,7 +108,35 @@ RSpec.describe Expressir::Express::AdocSourceFormatter do
     end
   end
 
-  it "prints an inline stem macro in remark text literally (expressir#704 family)" do
+  it "escapes an inline stem macro in remark text on the adoc face (expressir#704 family)" do
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, "stem.exp")
+      File.write(path, <<~EXPRESS)
+        SCHEMA stem_probe;
+          TYPE dot_type = ENUMERATION OF
+            (dot,
+             triangle);
+          END_TYPE;
+          ENTITY styled;
+            (* points are presented as triangles (stem:[/_\\]). *)
+            kind : dot_type;
+          END_ENTITY;
+        END_SCHEMA;
+      EXPRESS
+      schema = Expressir::Express::Parser.from_file(path).schemas.first
+      adoc = schema.formatted_hyperlinked_adoc
+
+      # the macro text survives as written; the opening bracket is
+      # escaped so AsciiDoc cannot start a math context with it
+      expect(adoc).to include("stem:\\[/_\\]")
+      expect(adoc).not_to include("stem:[")
+    end
+  end
+
+  # The listing faces carry the plain form (metanorma-cli#522): a
+  # child-attached keyed description — the `__note` family the base
+  # face renders — is omitted outright, stem macros and all.
+  it "omits keyed description blocks on the listing face (metanorma-cli#522)" do
     Dir.mktmpdir do |dir|
       path = File.join(dir, "stem.exp")
       File.write(path, <<~EXPRESS)
@@ -126,10 +154,8 @@ RSpec.describe Expressir::Express::AdocSourceFormatter do
       schema = Expressir::Express::Parser.from_file(path).schemas.first
       adoc = schema.formatted_hyperlinked_adoc
 
-      # the macro text survives as written; the opening bracket is
-      # escaped so AsciiDoc cannot start a math context with it
-      expect(adoc).to include("stem:\\[/_\\]")
-      expect(adoc).not_to include("stem:[")
+      expect(adoc).not_to include("__note")
+      expect(adoc).not_to include("stem:")
     end
   end
 end

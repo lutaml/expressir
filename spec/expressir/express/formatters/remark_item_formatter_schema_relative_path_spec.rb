@@ -48,11 +48,24 @@ RSpec.describe Expressir::Express::Formatters::RemarkItemFormatter, "#schema_rel
     alone = parse([schema_b], single: true)
     grouped = parse([schema_a, schema_b])
 
-    alone_out = alone.formatted_hyperlinked_adoc
-    grouped_out = grouped.formatted_hyperlinked_adoc
+    # The format face renders the tagged blocks; the tags there prove
+    # the path resolution.
+    alone_out = Expressir::Express::Formatter.format(alone)
+    grouped_out = Expressir::Express::Formatter.format(grouped)
 
     expect(grouped_out).to include('(*"tags_b.unit.__note"')
     expect(grouped_out).not_to include("tags_1.exp.tags_b")
     expect(alone_out).to include('(*"tags_b.unit.__note"')
+    expect(alone_out).not_to include("tags_0.exp.tags_b")
+  end
+
+  # The listing faces omit the keyed blocks outright (metanorma-cli#522)
+  # — whatever they do render carries no build machine path either.
+  it "omits the keyed blocks on the listing face inside a repository" do
+    grouped = parse([schema_a, schema_b])
+
+    grouped_out = grouped.formatted_hyperlinked_adoc
+    expect(grouped_out).not_to include("__note")
+    expect(grouped_out).not_to include("tags_1.exp")
   end
 end

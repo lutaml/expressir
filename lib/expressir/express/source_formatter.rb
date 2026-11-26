@@ -11,6 +11,16 @@ module Expressir
     class SourceFormatter < Formatter
       include HyperlinkFormatter
 
+      # The listing face rides the plain form: no tagged description
+      # blocks anywhere — the owner's (#704) as much as the tagged
+      # remark items the declaration remarks reformat would print
+      # (metanorma-cli#522: keyed `__note`/`__remark`/`__example`
+      # blocks appeared inside printed `source`) — while the source's
+      # untagged comments stay (#712).
+      def initialize(*)
+        super(no_remarks: true, keep_untagged_remarks: true)
+      end
+
       # The hyperlinked listing face omits the owner's tagged
       # descriptions (expressir#704): they feed source blocks.
       def owner_tagged_blocks?

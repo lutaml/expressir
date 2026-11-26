@@ -1,0 +1,6 @@
+SCHEMA b_schema;
+REFERENCE FROM a_schema (thing);
+ENTITY special_thing
+  SUBTYPE OF (thing);
+END_ENTITY;
+END_SCHEMA;

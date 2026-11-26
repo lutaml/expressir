@@ -1,0 +1,5 @@
+SCHEMA a_schema;
+ENTITY thing;
+  name : STRING;
+END_ENTITY;
+END_SCHEMA;

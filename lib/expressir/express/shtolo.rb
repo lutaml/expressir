@@ -78,7 +78,11 @@ module Expressir
 
         wire = Expressir::Express::Core.flatten_schema(@repository, @root.id, @longform_name)
         schema = Expressir::Model::ExpFile.from_hash(
-          "schemas" => [JSON.parse(wire)],
+          # The G.1.6 dependent-instantiability rule chains its REFERENCE
+          # union left-deep, one level per entry over the whole closure —
+          # real modules reach hundreds of levels, past JSON.parse's
+          # default cap of 100.
+          "schemas" => [JSON.parse(wire, max_nesting: 1_000_000)],
         )&.schemas&.first
         @schema = schema
         self

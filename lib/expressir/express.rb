@@ -20,6 +20,7 @@ module Expressir
     autoload :ModelTraversal, "#{__dir__}/express/model_traversal"
     autoload :RefsOverlay, "#{__dir__}/express/refs_overlay"
     autoload :Error, "#{__dir__}/express/error"
+    autoload :ExpressgExporter, "#{__dir__}/express/expressg_exporter"
     autoload :Formatter, "#{__dir__}/express/formatter"
     autoload :Formatters, "#{__dir__}/express/formatters"
     autoload :Grammar, "#{__dir__}/express/grammar"

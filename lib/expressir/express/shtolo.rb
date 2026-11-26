@@ -54,10 +54,17 @@ module Expressir
       end
 
       def flatten
-        return native_flatten if native_available?
+        return native_flatten if native_available? && native_options?
 
         @schema = build_longform
         self
+      end
+
+      # The Rust flatten runs one fixed pipeline: stage :longform, the
+      # annex G.1.9 prune on, extenders :all. Any other option set takes
+      # the Ruby stages (the binding carries no options).
+      def native_options?
+        @stage == :longform && @prune && @extenders == :all
       end
 
       # The Rust flatten runs the full stage order over the resolved

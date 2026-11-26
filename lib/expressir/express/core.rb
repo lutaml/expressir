@@ -271,7 +271,8 @@ module Expressir
         wire = JSON.generate(
           "schemas" => Array(repository.schemas).map(&:to_hash),
         )
-        ids, artifact = ::Expressir::Core.concat_schema(wire, root.id)
+        root_id = root.respond_to?(:id) ? root.id : root.to_s
+        ids, artifact = ::Expressir::Core.concat_schema(wire, root_id)
         [ids, artifact]
       end
 
@@ -283,10 +284,11 @@ module Expressir
           raise NotImplementedError, "core flatten unavailable"
         end
 
+        root_id = root.respond_to?(:id) ? root.id : root.to_s
         wire = JSON.generate(
           "schemas" => Array(repository.schemas).map(&:to_hash),
         )
-        ::Expressir::Core.flatten_schema(wire, root.id, longform_name)
+        ::Expressir::Core.flatten_schema(wire, root_id, longform_name)
       end
     end
   end

@@ -79,4 +79,40 @@ RSpec.describe Expressir::Express::Concatenator do
     # The artifact bodies agree past the banner (both embed verbatim).
     expect(File.read(native_out)).to include(File.read(ruby_out).split("--\n").last.strip)
   end
+
+  describe Expressir::Express::Core do
+    let(:dir) do
+      Dir.mktmpdir("core636").tap do |d|
+        File.binwrite(
+          File.join(d, "root.exp"),
+          "SCHEMA Root;\nENTITY thing;\n  id : STRING;\nEND_ENTITY;\nEND_SCHEMA;\n",
+        )
+        d
+      end
+    end
+
+    let(:repository) do
+      Expressir::Express::Parser.from_files([File.join(dir, "root.exp")])
+    end
+
+    # The shtolo and CLI paths pass a bare schema-id string; the
+    # wrappers take either a schema object or the string (round-1 CI).
+    it "concat_schema takes a string root id" do
+      ids, = described_class.concat_schema(repository, "Root")
+      expect(ids.map(&:downcase)).to eq(["root"])
+    end
+
+    it "concat_schema takes a schema object" do
+      root = repository.schemas.first
+      ids, = described_class.concat_schema(repository, root)
+      expect(ids.map(&:downcase)).to eq(["root"])
+    end
+
+    it "flatten_schema takes a string root id" do
+      wire = JSON.generate("schemas" => repository.schemas.map(&:to_hash))
+      result = described_class.flatten_schema(wire, "Root", "longform")
+      expect(result).to be_a(String)
+      expect(result).to include("longform")
+    end
+  end
 end

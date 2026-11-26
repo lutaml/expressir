@@ -81,6 +81,11 @@ RSpec.describe Expressir::Express::Concatenator do
   end
 
   describe Expressir::Express::Core do
+    before do
+      skip "native extension not available" unless Expressir::Express::Core::NATIVE_AVAILABLE &&
+        Expressir::Core.respond_to?(:concat_schema) && Expressir::Core.respond_to?(:flatten_schema)
+    end
+
     let(:dir) do
       Dir.mktmpdir("core636").tap do |d|
         File.binwrite(
@@ -109,8 +114,7 @@ RSpec.describe Expressir::Express::Concatenator do
     end
 
     it "flatten_schema takes a string root id" do
-      wire = JSON.generate("schemas" => repository.schemas.map(&:to_hash))
-      result = described_class.flatten_schema(wire, "Root", "longform")
+      result = described_class.flatten_schema(repository, "Root", "longform")
       expect(result).to be_a(String)
       expect(result).to include("longform")
     end

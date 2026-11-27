@@ -1,0 +1,224 @@
+{
+  "_class": "Expressir::Model::Repository",
+  "files": [
+    {
+      "_class": "Expressir::Model::ExpFile",
+      "path": "/Users/mulgogi/src/lutaml/expressir-wt-main/spec/fixtures/golden/remark_surface/demo_base.exp",
+      "schemas": [
+        {
+          "_class": "Expressir::Model::Declarations::Schema",
+          "id": "demo_base",
+          "declaration_order": [
+            "base_kind",
+            "base_thing"
+          ],
+          "file": "/Users/mulgogi/src/lutaml/expressir-wt-main/spec/fixtures/golden/remark_surface/demo_base.exp",
+          "constants": [
+            {
+              "_class": "Expressir::Model::Declarations::Constant",
+              "id": "base_limit",
+              "untagged_remarks": [
+                {
+                  "text": "The base schema carries schema-level prose: this untagged remark\n   sits before the declarations and belongs to the schema.",
+                  "format": "embedded",
+                  "placement": "leading"
+                }
+              ],
+              "type": {
+                "_class": "Expressir::Model::DataTypes::Integer"
+              },
+              "expression": {
+                "_class": "Expressir::Model::Literals::Integer",
+                "value": "42"
+              }
+            }
+          ],
+          "types": [
+            {
+              "_class": "Expressir::Model::Declarations::Type",
+              "id": "base_kind",
+              "underlying_type": {
+                "_class": "Expressir::Model::DataTypes::Enumeration",
+                "items": [
+                  {
+                    "_class": "Expressir::Model::DataTypes::EnumerationItem",
+                    "id": "kind_a",
+                    "untagged_remarks": [
+                      {
+                        "text": "kind_a: the first kind",
+                        "format": "embedded",
+                        "placement": "leading"
+                      }
+                    ]
+                  },
+                  {
+                    "_class": "Expressir::Model::DataTypes::EnumerationItem",
+                    "id": "kind_b",
+                    "untagged_remarks": [
+                      {
+                        "text": "kind_b: the second kind",
+                        "format": "embedded",
+                        "placement": "leading"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "entities": [
+            {
+              "_class": "Expressir::Model::Declarations::Entity",
+              "id": "base_thing",
+              "remarks": [
+                "The tagged block documents the base thing itself."
+              ],
+              "untagged_remarks": [
+                {
+                  "text": "id: the identifier of the base thing",
+                  "format": "embedded",
+                  "placement": "trailing",
+                  "region": "attributes"
+                }
+              ],
+              "attributes": [
+                {
+                  "_class": "Expressir::Model::Declarations::Attribute",
+                  "id": "id",
+                  "kind": "EXPLICIT",
+                  "type": {
+                    "_class": "Expressir::Model::DataTypes::String"
+                  }
+                },
+                {
+                  "_class": "Expressir::Model::Declarations::DerivedAttribute",
+                  "id": "label",
+                  "kind": "DERIVED",
+                  "type": {
+                    "_class": "Expressir::Model::DataTypes::String"
+                  },
+                  "expression": {
+                    "_class": "Expressir::Model::References::SimpleReference",
+                    "id": "id"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_class": "Expressir::Model::ExpFile",
+      "path": "/Users/mulgogi/src/lutaml/expressir-wt-main/spec/fixtures/golden/remark_surface/demo_ext.exp",
+      "schemas": [
+        {
+          "_class": "Expressir::Model::Declarations::Schema",
+          "id": "demo_ext",
+          "declaration_order": [
+            "ext_thing"
+          ],
+          "file": "/Users/mulgogi/src/lutaml/expressir-wt-main/spec/fixtures/golden/remark_surface/demo_ext.exp",
+          "interfaces": [
+            {
+              "_class": "Expressir::Model::Declarations::Interface",
+              "kind": "USE",
+              "schema": {
+                "_class": "Expressir::Model::References::SimpleReference",
+                "id": "demo_base"
+              },
+              "items": [
+                {
+                  "_class": "Expressir::Model::Declarations::InterfaceItem",
+                  "ref": {
+                    "_class": "Expressir::Model::References::SimpleReference",
+                    "id": "base_thing"
+                  }
+                },
+                {
+                  "_class": "Expressir::Model::Declarations::InterfaceItem",
+                  "ref": {
+                    "_class": "Expressir::Model::References::SimpleReference",
+                    "id": "base_kind"
+                  }
+                }
+              ]
+            },
+            {
+              "_class": "Expressir::Model::Declarations::Interface",
+              "kind": "REFERENCE",
+              "schema": {
+                "_class": "Expressir::Model::References::SimpleReference",
+                "id": "demo_base"
+              },
+              "items": [
+                {
+                  "_class": "Expressir::Model::Declarations::InterfaceItem",
+                  "ref": {
+                    "_class": "Expressir::Model::References::SimpleReference",
+                    "id": "base_limit"
+                  }
+                }
+              ]
+            }
+          ],
+          "entities": [
+            {
+              "_class": "Expressir::Model::Declarations::Entity",
+              "id": "ext_thing",
+              "untagged_remarks": [
+                {
+                  "text": "wr1: the note must be non-empty.",
+                  "format": "embedded",
+                  "placement": "trailing",
+                  "region": "where_rules"
+                }
+              ],
+              "subtype_of": [
+                {
+                  "_class": "Expressir::Model::References::SimpleReference",
+                  "id": "base_thing"
+                }
+              ],
+              "attributes": [
+                {
+                  "_class": "Expressir::Model::Declarations::Attribute",
+                  "id": "note",
+                  "untagged_remarks": [
+                    {
+                      "text": "ext_thing: the extending thing carries an entity remark.",
+                      "format": "embedded",
+                      "placement": "leading"
+                    }
+                  ],
+                  "kind": "EXPLICIT",
+                  "type": {
+                    "_class": "Expressir::Model::DataTypes::String"
+                  }
+                }
+              ],
+              "where_rules": [
+                {
+                  "_class": "Expressir::Model::Declarations::WhereRule",
+                  "id": "wr1",
+                  "expression": {
+                    "_class": "Expressir::Model::Expressions::BinaryExpression",
+                    "operator": "NOT_EQUAL",
+                    "operand1": {
+                      "_class": "Expressir::Model::References::SimpleReference",
+                      "id": "note"
+                    },
+                    "operand2": {
+                      "_class": "Expressir::Model::Literals::String",
+                      "value": ""
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

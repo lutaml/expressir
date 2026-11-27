@@ -1,0 +1,21 @@
+SCHEMA demo_base;
+(* The base schema carries schema-level prose: this untagged remark
+   sits before the declarations and belongs to the schema. *)
+CONSTANT
+  base_limit : INTEGER := 42;
+END_CONSTANT;
+TYPE base_kind = ENUMERATION OF
+  (* kind_a: the first kind *)
+  (kind_a
+  (* kind_b: the second kind *)
+  ,kind_b);
+END_TYPE;
+ENTITY base_thing;
+  (*"base_thing" The tagged block documents the base thing itself. *)
+  id : STRING;
+  (* id: the identifier of the base thing *)
+  DERIVE
+    label : STRING := id;
+END_ENTITY;
+END_SCHEMA;
+(* This trailing remark is schema-level prose at the tail. *)

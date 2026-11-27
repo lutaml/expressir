@@ -1,0 +1,12 @@
+SCHEMA demo_ext;
+USE FROM demo_base (base_thing, base_kind);
+REFERENCE FROM demo_base (base_limit);
+ENTITY ext_thing
+  SUBTYPE OF (base_thing);
+  (* ext_thing: the extending thing carries an entity remark. *)
+  note : STRING;
+  WHERE
+    wr1 : note <> '';
+    (* wr1: the note must be non-empty. *)
+END_ENTITY;
+END_SCHEMA;

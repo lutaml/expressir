@@ -1,7 +1,7 @@
 {
-  "engine_commit": "4d45ce7dc2cef17e5d7abf3ed7afb6c35a28388f",
+  "engine_commit": "4c6a5f0900086bed60356f23dbcd257001c5f1fc",
   "rubygems": "2.5.0",
-  "ext": "v0.1.66",
+  "ext": "v0.1.67",
   "crates": "1.5.1",
   "npm": null,
   "pypi": null,

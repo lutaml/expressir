@@ -35,14 +35,18 @@ RSpec.describe "the remark surface" do # rubocop:disable RSpec/DescribeClass
 
   def golden(name, actual)
     path = File.join(golden_dir, name)
+    # The logical text is pinned; newline endings ride the checkout
+    # platform (git autocrlf) and are normalized on both sides.
+    expected = File.binread(path).gsub("\r\n", "\n")
+    actual = actual.gsub("\r\n", "\n")
     if update
       File.binwrite(path, actual)
       true
     else
-      expect(File.binread(path)).to eq(actual),
-                                    "the #{name} surface drifted — the diff above is the observable " \
-                                    "change; rebake with EXPRESSIR_UPDATE_GOLDEN=1 only for a " \
-                                    "deliberate change, and name it in the changelog (#793)"
+      expect(expected).to eq(actual),
+                          "the #{name} surface drifted — the diff above is the observable " \
+                          "change; rebake with EXPRESSIR_UPDATE_GOLDEN=1 only for a " \
+                          "deliberate change, and name it in the changelog (#793)"
     end
   end
 

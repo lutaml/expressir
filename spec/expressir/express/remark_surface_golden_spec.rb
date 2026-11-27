@@ -62,7 +62,9 @@ RSpec.describe "the remark surface" do # rubocop:disable RSpec/DescribeClass
   end
 
   it "pins the wire shape" do # rubocop:disable RSpec/NoExpectationExample
-    wire = JSON.pretty_generate(repository.to_hash)
+    # Paths are machine-dependent; the wire pins the SHAPE, with the
+    # fixture root normalized to a stable token.
+    wire = JSON.pretty_generate(repository.to_hash).gsub(root, "SPEC_FIXTURES")
     golden("wire.json.golden", wire)
   end
 

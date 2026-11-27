@@ -90,6 +90,26 @@ formatter.format_preamble_remark(remark)
 
 ### Changed
 
+#### Remark Surface (2.4.84-2.4.90 wave, now pinned)
+
+The remark observables consumers assert on — where schema-level prose
+prints per formatter, which remark blocks each surface carries, and
+how the wire nests — drifted across the 2.4.84-2.4.90 patch releases.
+They are now pinned end-to-end by
+`spec/expressir/express/remark_surface_golden_spec.rb`; a deliberate
+surface change is one golden diff plus a changelog entry naming it
+(`EXPRESSIR_UPDATE_GOLDEN=1` rebakes):
+
+- Schema-level prose attaches to the following declaration on the
+  model; the schema-tail prose prints at the file head on the plain
+  form.
+- Remark suppression is a formatter option, not a hard-forced
+  behavior: `PrettyFormatter.new(no_remarks: true)` strips remark
+  blocks; `keep_untagged_remarks: true` holds the untagged prose and
+  item remarks while tagged blocks drop; the default carries
+  everything. Consumers holding a surface during migration pass the
+  options (#793).
+
 - `Repository#schemas` now returns schemas from both `files` and internal storage
 - `Parser.from_file` returns `ExpFile` instead of `Repository`
 - `Parser.from_files` creates `Repository` with `ExpFile` objects

@@ -63,6 +63,7 @@ RSpec.describe Expressir::Eval::Expression do
                                     value: Expressir::Eval::Values::Aggregate.of(:list, [1, 2, 3])
     it_behaves_like "evaluates to", src: "0 + [1, 2]",
                                     value: Expressir::Eval::Values::Aggregate.of(:list, [0, 1, 2])
+
     it "removes elements from a SET per table 18" do
       repository = Expressir::Express::Parser.from_exp(<<~EXPRESS)
         SCHEMA eval_probe;

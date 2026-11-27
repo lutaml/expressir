@@ -276,6 +276,20 @@ module Expressir
         [ids, artifact]
       end
 
+      # The P21 recovery envelope over raw exchange-structure text
+      # (#627): the population on well-formed input, the failure
+      # forensics (failure wire, consumed extent, resync spans,
+      # partial records) on malformed input. Returns the envelope as
+      # a Hash; recovery is Rust-only — there is no Ruby fallback
+      # parser to fall back to.
+      def self.parse_population_recovering(source)
+        unless NATIVE_AVAILABLE && ::Expressir::Core.respond_to?(:parse_population_recovering)
+          raise NotImplementedError, "core p21 recovery unavailable"
+        end
+
+        JSON.parse(::Expressir::Core.parse_population_recovering(source))
+      end
+
       # The SHTOLO longform over a resolved repository (#636): the
       # full stage order runs in Rust over the repository's flat wire.
       # Returns the longform schema's wire JSON string.

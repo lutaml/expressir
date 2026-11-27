@@ -783,6 +783,7 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     module.define_singleton_method("lsp_rename_edits", function!(lsp_rename_edits, 2))?;
     module.define_singleton_method("write_set", function!(set_write, 3))?;
     module.define_singleton_method("concat_schema", function!(concat_schema, 2))?;
+    module.define_singleton_method("parse_population_recovering", function!(parse_population_recovering, 1))?;
     module.define_singleton_method("flatten_schema", function!(flatten_schema, 3))?;
     let batch_class = module.define_class("BatchStream", ruby.class_object())?;
     batch_class.define_singleton_method("start", function!(batch_start, 2))?;
@@ -839,6 +840,20 @@ fn flatten_schema(
     })?;
     let longform = expressir::expand::shtolo_flatten(&root_id, &wire, &longform_name);
     serde_json::to_string(&longform).map_err(|e| {
+        Error::new(ruby.exception_runtime_error(), format!("serialize: {e}"))
+    })
+}
+
+/// The P21 recovery envelope over raw exchange-structure text (#627):
+/// the population on well-formed input, the failure forensics on
+/// malformed input. Returns the envelope as JSON.
+fn parse_population_recovering(
+    ruby: &Ruby,
+    source: String,
+) -> Result<String, Error> {
+    let recovered = expressir::population::parse_population_recovering(&source)
+        .map_err(|e| Error::new(ruby.exception_runtime_error(), format!("p21 recovery: {e}")))?;
+    serde_json::to_string(&recovered).map_err(|e| {
         Error::new(ruby.exception_runtime_error(), format!("serialize: {e}"))
     })
 }

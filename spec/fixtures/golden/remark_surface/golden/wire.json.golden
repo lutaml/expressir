@@ -3,7 +3,7 @@
   "files": [
     {
       "_class": "Expressir::Model::ExpFile",
-      "path": "/Users/mulgogi/src/lutaml/expressir-wt-main/spec/fixtures/golden/remark_surface/demo_base.exp",
+      "path": "SPEC_FIXTURES/demo_base.exp",
       "schemas": [
         {
           "_class": "Expressir::Model::Declarations::Schema",
@@ -12,7 +12,7 @@
             "base_kind",
             "base_thing"
           ],
-          "file": "/Users/mulgogi/src/lutaml/expressir-wt-main/spec/fixtures/golden/remark_surface/demo_base.exp",
+          "file": "SPEC_FIXTURES/demo_base.exp",
           "constants": [
             {
               "_class": "Expressir::Model::Declarations::Constant",
@@ -110,7 +110,7 @@
     },
     {
       "_class": "Expressir::Model::ExpFile",
-      "path": "/Users/mulgogi/src/lutaml/expressir-wt-main/spec/fixtures/golden/remark_surface/demo_ext.exp",
+      "path": "SPEC_FIXTURES/demo_ext.exp",
       "schemas": [
         {
           "_class": "Expressir::Model::Declarations::Schema",
@@ -118,7 +118,7 @@
           "declaration_order": [
             "ext_thing"
           ],
-          "file": "/Users/mulgogi/src/lutaml/expressir-wt-main/spec/fixtures/golden/remark_surface/demo_ext.exp",
+          "file": "SPEC_FIXTURES/demo_ext.exp",
           "interfaces": [
             {
               "_class": "Expressir::Model::Declarations::Interface",

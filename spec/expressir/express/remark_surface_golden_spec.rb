@@ -19,6 +19,11 @@ require "tmpdir"
 #   golden diff, one changelog entry naming it).
 # The golden helper carries the expectation; the examples read as
 # pins, not as inline assertions.
+# CI pins EXPRESSIR_PROVENANCE_VERSION to the last release for stable
+# listings; the goldens pin the surface, so they run under the repo's
+# own version regardless of the environment's override.
+ENV["EXPRESSIR_PROVENANCE_VERSION"] = Expressir::Version::VERSION
+
 RSpec.describe "the remark surface" do # rubocop:disable RSpec/DescribeClass
   let(:golden_dir) { File.expand_path("../../fixtures/golden/remark_surface/golden", __dir__) }
   let(:update) { ENV["EXPRESSIR_UPDATE_GOLDEN"] == "1" }
